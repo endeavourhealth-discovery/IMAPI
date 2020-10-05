@@ -5,34 +5,52 @@ import javax.persistence.Id;
 
 @Entity
 public class Concept {
+
 	@Id()
-	private String iri;
+	private int dbid;
+	private int namespace;
 	private String id;
+	private String iri;
 	private String name;
 	private String description;
 	private String code;
-	private String scheme;
+	private int scheme;
+	private int status;
+	private int weighting;
 
 	public Concept() {
 		super();
 	}
 
-	public Concept(String iri, String id, String name, String description, String code, String scheme) {
+	public Concept(int dbid, int namespace, String id, String iri, String name, String description, String code,
+			int scheme, int status, int weighting) {
 		super();
-		this.iri = iri;
+		this.dbid = dbid;
+		this.namespace = namespace;
 		this.id = id;
+		this.iri = iri;
 		this.name = name;
 		this.description = description;
 		this.code = code;
 		this.scheme = scheme;
+		this.status = status;
+		this.weighting = weighting;
 	}
 
-	public String getIri() {
-		return iri;
+	public int getDbid() {
+		return dbid;
 	}
 
-	public void setIri(String iri) {
-		this.iri = iri;
+	public void setDbid(int dbid) {
+		this.dbid = dbid;
+	}
+
+	public int getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(int namespace) {
+		this.namespace = namespace;
 	}
 
 	public String getId() {
@@ -41,6 +59,14 @@ public class Concept {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getIri() {
+		return iri;
+	}
+
+	public void setIri(String iri) {
+		this.iri = iri;
 	}
 
 	public String getName() {
@@ -67,12 +93,28 @@ public class Concept {
 		this.code = code;
 	}
 
-	public String getScheme() {
+	public int getScheme() {
 		return scheme;
 	}
 
-	public void setScheme(String scheme) {
+	public void setScheme(int scheme) {
 		this.scheme = scheme;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public int getWeighting() {
+		return weighting;
+	}
+
+	public void setWeighting(int weighting) {
+		this.weighting = weighting;
 	}
 
 }

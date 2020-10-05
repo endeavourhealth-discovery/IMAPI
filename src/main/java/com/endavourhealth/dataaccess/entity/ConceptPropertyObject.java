@@ -5,31 +5,32 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class ConceptPropertyData {
+public class ConceptPropertyObject {
+
 	@Id()
 	private int dbid;
 	private int concept;
 	private int group;
 	private int property;
-	private String data;
+	private int object;
 	@Column(name = "mincardinality")
 	private int minCardinality;
 	@Column(name = "maxcardinality")
 	private int maxCardinality;
 	private String operator;
 
-	public ConceptPropertyData() {
+	public ConceptPropertyObject() {
 		super();
 	}
 
-	public ConceptPropertyData(int dbid, int concept, int group, int property, String data, int minCardinality,
+	public ConceptPropertyObject(int dbid, int concept, int group, int property, int object, int minCardinality,
 			int maxCardinality, String operator) {
 		super();
 		this.dbid = dbid;
 		this.concept = concept;
 		this.group = group;
 		this.property = property;
-		this.data = data;
+		this.object = object;
 		this.minCardinality = minCardinality;
 		this.maxCardinality = maxCardinality;
 		this.operator = operator;
@@ -67,12 +68,12 @@ public class ConceptPropertyData {
 		this.property = property;
 	}
 
-	public String getData() {
-		return data;
+	public int getObject() {
+		return object;
 	}
 
-	public void setData(String data) {
-		this.data = data;
+	public void setObject(int object) {
+		this.object = object;
 	}
 
 	public int getMinCardinality() {

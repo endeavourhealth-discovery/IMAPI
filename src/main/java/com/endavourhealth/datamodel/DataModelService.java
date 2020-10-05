@@ -18,7 +18,7 @@ public class DataModelService {
 	ConceptPropertyDataRepository conceptPropertyDataRepository;
 
 	public DataModel getDataModel(String iri) {
-		Concept concept = conceptRepository.getOne(iri);
+		Concept concept = conceptRepository.findByIri(iri);
 		return generateDataModel(concept);
 	}
 

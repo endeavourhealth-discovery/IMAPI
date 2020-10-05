@@ -7,34 +7,34 @@ import javax.persistence.Id;
 public class ConceptTerm {
 
 	@Id()
-	private int dbid;
-	private int concept;
+	private Integer dbid;
+	private Integer concept;
 	private String term;
 
 	public ConceptTerm() {
 		super();
 	}
 
-	public ConceptTerm(int dbid, int concept, String term) {
+	public ConceptTerm(Integer dbid, Integer concept, String term) {
 		super();
 		this.dbid = dbid;
 		this.concept = concept;
 		this.term = term;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 
-	public int getConcept() {
+	public Integer getConcept() {
 		return concept;
 	}
 
-	public void setConcept(int concept) {
+	public void setConcept(Integer concept) {
 		this.concept = concept;
 	}
 

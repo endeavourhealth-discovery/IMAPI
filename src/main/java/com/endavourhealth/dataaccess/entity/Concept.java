@@ -7,23 +7,23 @@ import javax.persistence.Id;
 public class Concept {
 
 	@Id()
-	private int dbid;
-	private int namespace;
+	private Integer dbid;
+	private Integer namespace;
 	private String id;
 	private String iri;
 	private String name;
 	private String description;
 	private String code;
-	private int scheme;
-	private int status;
-	private int weighting;
+	private Integer scheme;
+	private Integer status;
+	private Integer weighting;
 
 	public Concept() {
 		super();
 	}
 
-	public Concept(int dbid, int namespace, String id, String iri, String name, String description, String code,
-			int scheme, int status, int weighting) {
+	public Concept(Integer dbid, Integer namespace, String id, String iri, String name, String description, String code,
+			Integer scheme, Integer status, Integer weighting) {
 		super();
 		this.dbid = dbid;
 		this.namespace = namespace;
@@ -37,19 +37,19 @@ public class Concept {
 		this.weighting = weighting;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 
-	public int getNamespace() {
+	public Integer getNamespace() {
 		return namespace;
 	}
 
-	public void setNamespace(int namespace) {
+	public void setNamespace(Integer namespace) {
 		this.namespace = namespace;
 	}
 
@@ -93,27 +93,27 @@ public class Concept {
 		this.code = code;
 	}
 
-	public int getScheme() {
+	public Integer getScheme() {
 		return scheme;
 	}
 
-	public void setScheme(int scheme) {
+	public void setScheme(Integer scheme) {
 		this.scheme = scheme;
 	}
 
-	public int getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
 
-	public int getWeighting() {
+	public Integer getWeighting() {
 		return weighting;
 	}
 
-	public void setWeighting(int weighting) {
+	public void setWeighting(Integer weighting) {
 		this.weighting = weighting;
 	}
 

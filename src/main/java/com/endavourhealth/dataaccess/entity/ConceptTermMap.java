@@ -7,16 +7,16 @@ import javax.persistence.Id;
 public class ConceptTermMap {
 
 	@Id()
-	private int dbid;
+	private Integer dbid;
 	private String term;
-	private int type;
-	private int target;
+	private Integer type;
+	private Integer target;
 
 	public ConceptTermMap() {
 		super();
 	}
 
-	public ConceptTermMap(int dbid, String term, int type, int target) {
+	public ConceptTermMap(Integer dbid, String term, Integer type, Integer target) {
 		super();
 		this.dbid = dbid;
 		this.term = term;
@@ -24,11 +24,11 @@ public class ConceptTermMap {
 		this.target = target;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 
@@ -40,19 +40,19 @@ public class ConceptTermMap {
 		this.term = term;
 	}
 
-	public int getType() {
+	public Integer getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(Integer type) {
 		this.type = type;
 	}
 
-	public int getTarget() {
+	public Integer getTarget() {
 		return target;
 	}
 
-	public void setTarget(int target) {
+	public void setTarget(Integer target) {
 		this.target = target;
 	}
 

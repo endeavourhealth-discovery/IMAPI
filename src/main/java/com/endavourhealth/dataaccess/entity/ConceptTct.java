@@ -7,17 +7,17 @@ import javax.persistence.Id;
 public class ConceptTct {
 
 	@Id()
-	private int dbid;
-	private int source;
-	private int property;
-	private int level;
-	private int target;
+	private Integer dbid;
+	private Integer source;
+	private Integer property;
+	private Integer level;
+	private Integer target;
 
 	public ConceptTct() {
 		super();
 	}
 
-	public ConceptTct(int dbid, int source, int property, int level, int target) {
+	public ConceptTct(Integer dbid, Integer source, Integer property, Integer level, Integer target) {
 		super();
 		this.dbid = dbid;
 		this.source = source;
@@ -26,43 +26,43 @@ public class ConceptTct {
 		this.target = target;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 
-	public int getSource() {
+	public Integer getSource() {
 		return source;
 	}
 
-	public void setSource(int source) {
+	public void setSource(Integer source) {
 		this.source = source;
 	}
 
-	public int getProperty() {
+	public Integer getProperty() {
 		return property;
 	}
 
-	public void setProperty(int property) {
+	public void setProperty(Integer property) {
 		this.property = property;
 	}
 
-	public int getLevel() {
+	public Integer getLevel() {
 		return level;
 	}
 
-	public void setLevel(int level) {
+	public void setLevel(Integer level) {
 		this.level = level;
 	}
 
-	public int getTarget() {
+	public Integer getTarget() {
 		return target;
 	}
 
-	public void setTarget(int target) {
+	public void setTarget(Integer target) {
 		this.target = target;
 	}
 

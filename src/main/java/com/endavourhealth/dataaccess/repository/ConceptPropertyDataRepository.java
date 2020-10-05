@@ -10,6 +10,6 @@ import com.endavourhealth.dataaccess.entity.ConceptPropertyData;
 @Repository
 public interface ConceptPropertyDataRepository extends JpaRepository<ConceptPropertyData, String> {
 	
-	List<ConceptPropertyData> findByConcept(String concept);
+	List<ConceptPropertyData> findByConcept(int concept);
 
 }

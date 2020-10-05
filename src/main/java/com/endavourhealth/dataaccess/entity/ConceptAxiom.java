@@ -7,30 +7,30 @@ import javax.persistence.Id;
 public class ConceptAxiom {
 
 	@Id()
-	private int dbid;
+	private Integer dbid;
 	private String axiom;
-	private int concept;
-	private String defintion;
-	private int version;
+	private Integer concept;
+	private String defIntegerion;
+	private Integer version;
 
 	public ConceptAxiom() {
 		super();
 	}
 
-	public ConceptAxiom(int dbid, String axiom, int concept, String defintion, int version) {
+	public ConceptAxiom(Integer dbid, String axiom, Integer concept, String defIntegerion, Integer version) {
 		super();
 		this.dbid = dbid;
 		this.axiom = axiom;
 		this.concept = concept;
-		this.defintion = defintion;
+		this.defIntegerion = defIntegerion;
 		this.version = version;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 
@@ -42,27 +42,27 @@ public class ConceptAxiom {
 		this.axiom = axiom;
 	}
 
-	public int getConcept() {
+	public Integer getConcept() {
 		return concept;
 	}
 
-	public void setConcept(int concept) {
+	public void setConcept(Integer concept) {
 		this.concept = concept;
 	}
 
-	public String getDefintion() {
-		return defintion;
+	public String getDefIntegerion() {
+		return defIntegerion;
 	}
 
-	public void setDefintion(String defintion) {
-		this.defintion = defintion;
+	public void setDefIntegerion(String defIntegerion) {
+		this.defIntegerion = defIntegerion;
 	}
 
-	public int getVersion() {
+	public Integer getVersion() {
 		return version;
 	}
 
-	public void setVersion(int version) {
+	public void setVersion(Integer version) {
 		this.version = version;
 	}
 

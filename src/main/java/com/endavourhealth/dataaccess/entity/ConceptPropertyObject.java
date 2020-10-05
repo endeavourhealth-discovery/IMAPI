@@ -8,23 +8,23 @@ import javax.persistence.Id;
 public class ConceptPropertyObject {
 
 	@Id()
-	private int dbid;
-	private int concept;
-	private int group;
-	private int property;
-	private int object;
+	private Integer  dbid;
+	private Integer  concept;
+	private Integer  group;
+	private Integer  property;
+	private Integer  object;
 	@Column(name = "mincardinality")
-	private int minCardinality;
+	private Integer  minCardinality;
 	@Column(name = "maxcardinality")
-	private int maxCardinality;
+	private Integer  maxCardinality;
 	private String operator;
 
 	public ConceptPropertyObject() {
 		super();
 	}
 
-	public ConceptPropertyObject(int dbid, int concept, int group, int property, int object, int minCardinality,
-			int maxCardinality, String operator) {
+	public ConceptPropertyObject(Integer dbid, Integer concept, Integer group, Integer property, Integer object, Integer minCardinality,
+			Integer maxCardinality, String operator) {
 		super();
 		this.dbid = dbid;
 		this.concept = concept;
@@ -36,59 +36,59 @@ public class ConceptPropertyObject {
 		this.operator = operator;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 
-	public int getConcept() {
+	public Integer getConcept() {
 		return concept;
 	}
 
-	public void setConcept(int concept) {
+	public void setConcept(Integer concept) {
 		this.concept = concept;
 	}
 
-	public int getGroup() {
+	public Integer getGroup() {
 		return group;
 	}
 
-	public void setGroup(int group) {
+	public void setGroup(Integer group) {
 		this.group = group;
 	}
 
-	public int getProperty() {
+	public Integer getProperty() {
 		return property;
 	}
 
-	public void setProperty(int property) {
+	public void setProperty(Integer property) {
 		this.property = property;
 	}
 
-	public int getObject() {
+	public Integer getObject() {
 		return object;
 	}
 
-	public void setObject(int object) {
+	public void setObject(Integer object) {
 		this.object = object;
 	}
 
-	public int getMinCardinality() {
+	public Integer getMinCardinality() {
 		return minCardinality;
 	}
 
-	public void setMinCardinality(int minCardinality) {
+	public void setMinCardinality(Integer minCardinality) {
 		this.minCardinality = minCardinality;
 	}
 
-	public int getMaxCardinality() {
+	public Integer getMaxCardinality() {
 		return maxCardinality;
 	}
 
-	public void setMaxCardinality(int maxCardinality) {
+	public void setMaxCardinality(Integer maxCardinality) {
 		this.maxCardinality = maxCardinality;
 	}
 

@@ -7,7 +7,7 @@ import javax.persistence.Id;
 public class Namespace {
 
 	@Id()
-	private int dbid;
+	private Integer dbid;
 	private String iri;
 	private String prefix;
 
@@ -15,18 +15,18 @@ public class Namespace {
 		super();
 	}
 
-	public Namespace(int dbid, String iri, String prefix) {
+	public Namespace(Integer dbid, String iri, String prefix) {
 		super();
 		this.dbid = dbid;
 		this.iri = iri;
 		this.prefix = prefix;
 	}
 
-	public int getDbid() {
+	public Integer getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(int dbid) {
+	public void setDbid(Integer dbid) {
 		this.dbid = dbid;
 	}
 

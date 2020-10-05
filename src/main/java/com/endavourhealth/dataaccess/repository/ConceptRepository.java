@@ -9,5 +9,6 @@ import com.endavourhealth.dataaccess.entity.Concept;
 public interface ConceptRepository extends JpaRepository<Concept, String>{
 	
 	Concept findByIri(String concept);
+	Concept findByDbid(int concept);
 
 }

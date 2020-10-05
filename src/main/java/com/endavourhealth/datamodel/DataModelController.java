@@ -26,8 +26,7 @@ public class DataModelController {
 	
 	@GetMapping(value = "/{iri}/properties")
 	public List<Property> getProperties(@PathVariable("iri") String iri) {
-		List<Property> properties = null;
-		return properties;
+		return dataModelService.getDataModelProperties(iri);
 	}
 	
 	@GetMapping(value = "/{iri}/parents")

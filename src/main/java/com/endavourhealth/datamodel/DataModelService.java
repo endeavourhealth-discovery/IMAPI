@@ -20,25 +20,33 @@ public class DataModelService {
 
 	@Autowired
 	ConceptRepository conceptRepository;
-	
+
 	@Autowired
 	ConceptPropertyObjectRepository conceptPropertyObjectRepository;
 
 	@Autowired
 	ConceptPropertyDataRepository conceptPropertyDataRepository;
-	
-	@Autowired 
+
+	@Autowired
 	ConceptTctRepository conceptTctRepository;
 
 	public DataModel getDataModel(String iri) {
 		Concept concept = conceptRepository.findByIri(iri);
-		
-		
+		List<Property> properties = getProperties(concept.getDbid());
+		return generateDataModel(concept, properties);
+	}
+
+	public List<Property> getDataModelProperties(String iri) {
+		Concept concept = conceptRepository.findByIri(iri);
+		return getProperties(concept.getDbid());
+	}
+
+	public List<Property> getProperties(Integer Dbid) {
 		List<Property> properties = new ArrayList<Property>();
-		
-		// find concept properties
-		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectRepository.findByConcept(concept.getDbid());
-		// get concepts for those properties
+
+		// find concept property objects
+		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectRepository.findByConcept(Dbid);
+		// get concepts for each of those objects
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
 			Property property = new Property();
 			Concept propertyConcept = conceptRepository.findByDbid(conceptPropertyObject.getProperty());
@@ -49,8 +57,7 @@ public class DataModelService {
 			property.setMaxCardinality(conceptPropertyObject.getMaxCardinality());
 			properties.add(property);
 		});
-		
-		return generateDataModel(concept, properties);
+		return properties;
 	}
 
 	private DataModel generateDataModel(Concept concept, List<Property> properties) {
@@ -58,11 +65,11 @@ public class DataModelService {
 		dataModel.setName(concept.getName());
 		dataModel.setIri(concept.getIri());
 		dataModel.setDescription(concept.getDescription());
-		
+
 		properties.forEach(property -> {
 			dataModel.addProperty(property);
 		});
-		
+
 		return dataModel;
 	}
 

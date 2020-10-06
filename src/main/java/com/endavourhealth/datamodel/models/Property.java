@@ -4,6 +4,8 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
 
+import com.endavourhealth.dataaccess.entity.Concept;
+import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -27,15 +29,28 @@ public class Property {
 	@JsonProperty("maxCardinality")
 	private Integer maxCardinality = null;
 
-	@JsonProperty("type")
-	private Object type = null;
+	@JsonProperty("value")
+	private Value value = null;
+
+	public Property() {
+		super();
+	}
+	
+	public Property(ConceptPropertyObject conceptPropertyObject, Concept propertyConcept, Value value) {
+		this.setIri(propertyConcept.getIri());
+		this.setName(propertyConcept.getName());
+		this.setDescription(propertyConcept.getDescription());
+		this.setMinCardinality(conceptPropertyObject.getMinCardinality());
+		this.setMaxCardinality(conceptPropertyObject.getMaxCardinality());
+		this.setValue(value);
+	}
 
 	@NotNull
 
 	public String getIri() {
 		return iri;
 	}
-	
+
 	public void setIri(String iri) {
 		this.iri = iri;
 	}
@@ -74,12 +89,12 @@ public class Property {
 		this.minCardinality = minCardinality;
 	}
 
-	public Object getType() {
-		return type;
+	public Value getValue() {
+		return value;
 	}
 
-	public void setType(Object type) {
-		this.type = type;
+	public void setValue(Value value) {
+		this.value = value;
 	}
 
 	@Override

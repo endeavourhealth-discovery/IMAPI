@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
 
+import com.endavourhealth.dataaccess.entity.Concept;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -25,23 +26,30 @@ public class DataModel {
 
 	@JsonProperty("description")
 	private String description = null;
-
+	
 	@JsonProperty("properties")
 	@Valid
-	private List<Property> properties = null;
+	private List<Property> properties = new ArrayList<Property>();
 
 	@JsonProperty("parents")
 	@Valid
-	private List<Ancestory> parents = null;
+	private List<Ancestory> parents = new ArrayList<Ancestory>();
 
 	@JsonProperty("children")
 	@Valid
-	private List<DataModel> children = null;
+	private List<DataModel> children = new ArrayList<DataModel>();
 	
 	public DataModel() {
 		parents = new ArrayList<Ancestory>();
 		children = new ArrayList<DataModel>();
 		properties = new ArrayList<Property>();
+	}
+	
+	public DataModel(Concept concept, List<Property> properties) {
+		this.setName(concept.getName());
+		this.setIri(concept.getIri());
+		this.setDescription(concept.getDescription());
+		this.properties = properties;
 	}
 
 	@NotNull

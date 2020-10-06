@@ -8,12 +8,14 @@ import org.springframework.stereotype.Component;
 
 import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
+import com.endavourhealth.dataaccess.entity.ConceptTct;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyDataRepository;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
 import com.endavourhealth.datamodel.models.DataModel;
 import com.endavourhealth.datamodel.models.Property;
+import com.endavourhealth.datamodel.models.Value;
 
 @Component
 public class DataModelService {
@@ -33,7 +35,7 @@ public class DataModelService {
 	public DataModel getDataModel(String iri) {
 		Concept concept = conceptRepository.findByIri(iri);
 		List<Property> properties = getProperties(concept.getDbid());
-		return generateDataModel(concept, properties);
+		return new DataModel(concept, properties);
 	}
 
 	public List<Property> getDataModelProperties(String iri) {
@@ -43,34 +45,28 @@ public class DataModelService {
 
 	public List<Property> getProperties(Integer Dbid) {
 		List<Property> properties = new ArrayList<Property>();
-
 		// find concept property objects
 		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectRepository.findByConcept(Dbid);
 		// get concepts for each of those objects
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
-			Property property = new Property();
-			Concept propertyConcept = conceptRepository.findByDbid(conceptPropertyObject.getProperty());
-			property.setIri(propertyConcept.getIri());
-			property.setName(propertyConcept.getName());
-			property.setDescription(propertyConcept.getDescription());
-			property.setMinCardinality(conceptPropertyObject.getMinCardinality());
-			property.setMaxCardinality(conceptPropertyObject.getMaxCardinality());
-			properties.add(property);
+			List<ConceptTct> conceptTcts = conceptTctRepository.findBySource(conceptPropertyObject.getProperty());
+			conceptTcts.forEach(conceptTct -> {
+				Concept target = conceptRepository.findByDbid(conceptTct.getTarget());
+				if (target.getIri().equalsIgnoreCase("owl:topObjectProperty")
+						|| target.getIri().equalsIgnoreCase("owl:topDataProperty")) {
+					properties.add(generateProperty(conceptPropertyObject));
+				}
+			});
 		});
 		return properties;
 	}
 
-	private DataModel generateDataModel(Concept concept, List<Property> properties) {
-		DataModel dataModel = new DataModel();
-		dataModel.setName(concept.getName());
-		dataModel.setIri(concept.getIri());
-		dataModel.setDescription(concept.getDescription());
-
-		properties.forEach(property -> {
-			dataModel.addProperty(property);
-		});
-
-		return dataModel;
+	private Property generateProperty(ConceptPropertyObject conceptPropertyObject) {
+		Concept propertyConcept = conceptRepository.findByDbid(conceptPropertyObject.getProperty());
+		Concept propertyObject = conceptRepository.findByDbid(conceptPropertyObject.getObject());
+		Value value = new Value(propertyObject);
+		Property property = new Property(conceptPropertyObject, propertyConcept, value);
+		return property;
 	}
 
 }

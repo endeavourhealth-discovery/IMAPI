@@ -22,10 +22,6 @@ public class ConceptService {
 	@Autowired 
 	ParentService parentService;
 	
-	@Value("${concept.iri.isa}")
-	String isAConceptIri; // <-- needs dealing with in a config as a bean to create instance of isAConcept bean so it can
-	// be injected into other services
-	
 	/**
 	 * Retrieve the {@link Concept} with the given IRI. 
 	 * <br>

@@ -29,8 +29,22 @@ public class DataModelService {
 	
 	@Autowired 
 	ConceptTctRepository conceptTctRepository;
+	
+	//@Autowired
+	//ConceptBuilder conceptService;
 
 	public DataModel getDataModel(String iri) {
+		com.endavourhealth.concept.models.Concept dmConcept = null; //lookup from config
+		
+		//com.endavourhealth.concept.models.Concept c = conceptService.getConceptOfType(iri, dmConcept);
+		
+		// can ask if concept is a type of datamodel and if not error
+		
+		// will translate according to valueset or datamodel or prmative into types
+		
+		// can also ask for properties by value type to say get me all datamodel properties
+		
+		
 		Concept concept = conceptRepository.findByIri(iri);
 		
 		

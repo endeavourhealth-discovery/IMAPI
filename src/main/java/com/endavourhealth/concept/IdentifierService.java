@@ -26,18 +26,28 @@ public class IdentifierService {
 	 * @return Integer - the database identifier of the corresponding concept entity or null if not such entity exists
 	 */
 	Integer getDbId(Concept concept) {
+		return getDbId(concept.getIri());
+	}
+	
+	/**
+	 * Gets the database identifier for the concept entity that matches the given concept IRI
+	 * 
+	 * @param concept - the query (should not be null) 
+	 * @return Integer - the database identifier of the corresponding concept entity or null if not such entity exists
+	 */
+	Integer getDbId(String iri) {
 		Integer dbId = null;
 		
-		com.endavourhealth.dataaccess.entity.Concept entity = conceptRepository.findByIri(concept.getIri());
+		com.endavourhealth.dataaccess.entity.Concept entity = conceptRepository.findByIri(iri);
 		if(entity != null) {
 			dbId = entity.getDbid();
 		}
 		else {
-			LOG.debug(String.format("No concept entity could be found the corresponds to the concept: %s", concept));
+			LOG.debug(String.format("No concept entity could be found the corresponds to the concept IRI: %s", iri));
 		}
 		
 		return dbId;
-	}
+	}	
 	
 	/**
 	 * Gets the concept model that matches the given concept database identifier

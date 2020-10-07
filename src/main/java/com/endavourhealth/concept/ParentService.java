@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.endavourhealth.concept.models.Concept;
@@ -18,16 +22,20 @@ class ParentService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ParentService.class);
 
+	@Autowired
 	ConceptPropertyObjectRepository conceptPropertyObjectRepository;
+	
+	@Autowired
 	IdentifierService identifierService;
 	
-	com.endavourhealth.dataaccess.entity.Concept isAConceptEntity;
-
-	ParentService(ConceptPropertyObjectRepository conceptPropertyObjectRepository,
-			IdentifierService identifierService, com.endavourhealth.dataaccess.entity.Concept isAConceptEntity) {
-		this.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
-		this.identifierService = identifierService;
-		this.isAConceptEntity = isAConceptEntity;
+	@Value("${concept.isa.iri:sn:116680003}")
+	String isAConceptIri;
+	
+	Integer isAConceptDbId;
+	
+	@PostConstruct
+	void init() {
+		isAConceptDbId = identifierService.getDbId(isAConceptIri);
 	}
 
 	/**
@@ -84,7 +92,7 @@ class ParentService {
 		List<ConceptPropertyObject> allProperties = conceptPropertyObjectRepository.findByConcept(conceptDbId);
 		if(allProperties != null && allProperties.isEmpty() == false) {
 			parentProperties = allProperties.stream()
-											.filter(cpo -> cpo.getProperty().equals(isAConceptEntity.getDbid()))
+											.filter(cpo -> cpo.getProperty().equals(isAConceptDbId))
 											.collect(Collectors.toList());
 		}
 		else {

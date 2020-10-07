@@ -16,7 +16,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.endavourhealth.concept.models.ConceptTreeNode;
-import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
 
@@ -50,7 +49,10 @@ class ParentServiceTest {
 		ConceptPropertyObjectRepository conceptPropertyObjectRepository = setUpConceptPropertyObjectRepository(TestData.mergeAllConceptPropertyObject(multipleInheritanceTestData.conceptPropertyObjects, singleInheritanceTestData.conceptPropertyObjects, noConceptPropertyObjects.conceptPropertyObjects));		
 
 		// service under test
-		parentService = new ParentService(conceptPropertyObjectRepository, identifierService, initConceptEntity(IS_A_CONCEPT_DB_ID));
+		parentService = new ParentService();
+		parentService.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
+		parentService.identifierService = identifierService;
+		parentService.isAConceptDbId = IS_A_CONCEPT_DB_ID;
 	}
 
 	
@@ -256,14 +258,6 @@ class ParentServiceTest {
 	private com.endavourhealth.concept.models.Concept initConceptModel(Integer iri) {
 		return new com.endavourhealth.concept.models.Concept(iri.toString());
 	}	
-	
-	private Concept initConceptEntity(Integer dbid) {
-		Concept entity = new Concept();
-		entity.setDbid(dbid);
-		entity.setIri(dbid.toString());
-		
-		return entity;
-	}
 		
 	@Test
 	void testAddParentsWithMultipleInheritance() {

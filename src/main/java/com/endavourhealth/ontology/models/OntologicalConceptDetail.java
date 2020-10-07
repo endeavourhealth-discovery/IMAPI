@@ -1,19 +1,23 @@
 package com.endavourhealth.ontology.models;
 
-public class OntologicalConcept {
+import java.util.List;
+
+public class OntologicalConceptDetail {
 	private String iri;
 	private String name;
 	private String description;
+	private List<Axiom> axioms = null;
 
-	public OntologicalConcept() {
+	public OntologicalConceptDetail() {
 		super();
 	}
 
-	public OntologicalConcept(String iri, String name, String description) {
+	public OntologicalConceptDetail(String iri, String name, String description, List<Axiom> axioms) {
 		super();
 		this.iri = iri;
 		this.name = name;
 		this.description = description;
+		this.axioms = axioms;
 	}
 
 	public String getIri() {
@@ -38,6 +42,14 @@ public class OntologicalConcept {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public List<Axiom> getAxioms() {
+		return axioms;
+	}
+
+	public void setAxioms(List<Axiom> axioms) {
+		this.axioms = axioms;
 	}
 
 }

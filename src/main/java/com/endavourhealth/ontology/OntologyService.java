@@ -12,6 +12,7 @@ import com.endavourhealth.dataaccess.repository.ConceptAxiomRepository;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.ontology.models.Axiom;
 import com.endavourhealth.ontology.models.OntologicalConcept;
+import com.endavourhealth.ontology.models.OntologicalConceptDetail;
 
 @Component
 public class OntologyService {
@@ -22,19 +23,19 @@ public class OntologyService {
 	@Autowired
 	ConceptAxiomRepository conceptAxiomRepository;
 
-	public List<OntologicalConcept> search(String term, String root) {
+	public List<OntologicalConcept> search(String term) {
 		List<OntologicalConcept> ontologicalConcept = new ArrayList<OntologicalConcept>();
-		List<Concept> concepts = conceptRepository.search(term, root);
+		List<Concept> concepts = conceptRepository.search(term, ":1301000252100");
 
 		concepts.forEach(concept -> {
-			ontologicalConcept.add(getOntologicalConcept(concept.getIri()));
+			ontologicalConcept.add(new OntologicalConcept(concept.getIri(), concept.getName(), concept.getDescription()));
 		});
 
 		return ontologicalConcept;
 
 	}
 
-	public OntologicalConcept getOntologicalConcept(String iri) {
+	public OntologicalConceptDetail getOntologicalConcept(String iri) {
 		Concept concept = conceptRepository.getOne(iri);
 		return generateOntologicalConcept(concept, getDefintions(concept.getDbid()));
 	}
@@ -48,8 +49,8 @@ public class OntologyService {
 		return axioms;
 	}
 
-	private OntologicalConcept generateOntologicalConcept(Concept concept, List<Axiom> axioms) {
-		return new OntologicalConcept(concept.getIri(), concept.getName(), concept.getDescription(), axioms);
+	private OntologicalConceptDetail generateOntologicalConcept(Concept concept, List<Axiom> axioms) {
+		return new OntologicalConceptDetail(concept.getIri(), concept.getName(), concept.getDescription(), axioms);
 	}
 
 }

@@ -1,15 +1,7 @@
 package com.endavourhealth.datamodel.models;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import org.springframework.validation.annotation.Validated;
 
-import com.endavourhealth.dataaccess.entity.Concept;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -26,33 +18,17 @@ public class DataModel {
 
 	@JsonProperty("description")
 	private String description = null;
-	
-	@JsonProperty("properties")
-	@Valid
-	private List<Property> properties = new ArrayList<Property>();
 
-	@JsonProperty("parents")
-	@Valid
-	private List<Ancestory> parents = new ArrayList<Ancestory>();
-
-	@JsonProperty("children")
-	@Valid
-	private List<DataModel> children = new ArrayList<DataModel>();
-	
 	public DataModel() {
-		parents = new ArrayList<Ancestory>();
-		children = new ArrayList<DataModel>();
-		properties = new ArrayList<Property>();
-	}
-	
-	public DataModel(Concept concept, List<Property> properties) {
-		this.setName(concept.getName());
-		this.setIri(concept.getIri());
-		this.setDescription(concept.getDescription());
-		this.properties = properties;
+		super();
 	}
 
-	@NotNull
+	public DataModel(String iri, String name, String description) {
+		super();
+		this.iri = iri;
+		this.name = name;
+		this.description = description;
+	}
 
 	public String getIri() {
 		return iri;
@@ -61,8 +37,6 @@ public class DataModel {
 	public void setIri(String iri) {
 		this.iri = iri;
 	}
-
-	@NotNull
 
 	public String getName() {
 		return name;
@@ -78,32 +52,6 @@ public class DataModel {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public boolean addProperty(Property property) {
-		return properties.add(property);
-	}
-
-	public List<Property> getProperties() {
-		return Collections.unmodifiableList(properties);
-	}
-
-	public boolean addParent(Ancestory parent) {
-		return this.parents.add(parent);
-	}
-
-	@Valid
-	public List<Ancestory> getParents() {
-		return Collections.unmodifiableList(parents);
-	}
-
-	public boolean addChild(DataModel child) {
-		return this.children.add(child);
-	}
-
-	@Valid
-	public List<DataModel> getChildren() {
-		return Collections.unmodifiableList(children);
 	}
 
 	@Override

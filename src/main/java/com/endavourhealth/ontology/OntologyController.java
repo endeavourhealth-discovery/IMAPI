@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
-import com.endavourhealth.datamodel.models.DataModel;
+import com.endavourhealth.datamodel.models.DataModelDetail;
 import com.endavourhealth.ontology.models.OntologicalConcept;
+import com.endavourhealth.ontology.models.OntologicalConceptDetail;
 
 @RestController
 @RequestMapping("/ontology")
@@ -21,12 +22,12 @@ public class OntologyController {
 	OntologyService ontologyService;
 	
 	@GetMapping(value = "/search")
-	public List<OntologicalConcept> search(@RequestParam("term") String term, @RequestParam("root") String root) {
-		return ontologyService.search(term, root);
+	public List<OntologicalConcept> search(@RequestParam("term") String term) {
+		return ontologyService.search(term);
 	}
 
 	@GetMapping(value = "/{iri}")
-	public OntologicalConcept getOntology(@PathVariable("iri") String iri) {
+	public OntologicalConceptDetail getOntology(@PathVariable("iri") String iri) {
 		return ontologyService.getOntologicalConcept(iri);
 	}
 	
@@ -43,8 +44,8 @@ public class OntologyController {
 	}
 	
 	@GetMapping(value = "/{iri}/children")
-	public List<DataModel> getChildren(@PathVariable("iri") String iri) {
-		List<DataModel> children = null;
+	public List<DataModelDetail> getChildren(@PathVariable("iri") String iri) {
+		List<DataModelDetail> children = null;
 		return children;
 	}
 

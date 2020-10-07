@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
-import com.endavourhealth.datamodel.models.DataModel;
+import com.endavourhealth.datamodel.models.DataModelDetail;
 import com.endavourhealth.valueset.models.ValueSet;
+import com.endavourhealth.valueset.models.ValueSetDetail;
 
 @RestController
 @RequestMapping("/Valueset")
@@ -21,12 +22,12 @@ public class ValueSetController {
 	ValueSetService valueSetService;
 	
 	@GetMapping(value = "/search")
-	public List<ValueSet> search(@RequestParam("term") String term, @RequestParam("root") String root) {
-		return valueSetService.search(term, root);
+	public List<ValueSet> search(@RequestParam("term") String term) {
+		return valueSetService.search(term);
 	}
 
 	@GetMapping(value = "/{iri}")
-	public ValueSet getValueSet(@PathVariable("iri") String iri) {
+	public ValueSetDetail getValueSet(@PathVariable("iri") String iri) {
 		return valueSetService.getValueSet(iri);
 	}
 	
@@ -43,8 +44,8 @@ public class ValueSetController {
 	}
 	
 	@GetMapping(value = "/{iri}/children")
-	public List<DataModel> getChildren(@PathVariable("iri") String iri) {
-		List<DataModel> children = null;
+	public List<DataModelDetail> getChildren(@PathVariable("iri") String iri) {
+		List<DataModelDetail> children = null;
 		return children;
 	}
 

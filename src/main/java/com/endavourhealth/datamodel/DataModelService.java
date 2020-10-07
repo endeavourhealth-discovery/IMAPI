@@ -15,6 +15,7 @@ import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
 import com.endavourhealth.dataaccess.service.ConceptPropertyObjectService;
 import com.endavourhealth.dataaccess.service.ConceptTctService;
 import com.endavourhealth.datamodel.models.DataModel;
+import com.endavourhealth.datamodel.models.DataModelDetail;
 import com.endavourhealth.datamodel.models.Property;
 import com.endavourhealth.datamodel.models.Value;
 
@@ -38,23 +39,23 @@ public class DataModelService {
 
 	@Autowired
 	ConceptTctService conceptTctService;
-	
-	public List<DataModel> search(String term, String root) {
+
+	public List<DataModel> search(String term) {
 		List<DataModel> datamodels = new ArrayList<DataModel>();
-		List<Concept> concepts = conceptRepository.search(term, root);
-		
+		List<Concept> concepts = conceptRepository.search(term, ":DiscoveryCommonDataModel");
+
 		concepts.forEach(concept -> {
-			datamodels.add(getDataModel(concept.getIri()));
+			datamodels.add(new DataModel(concept.getIri(), concept.getName(), concept.getDescription()));
 		});
-		
+
 		return datamodels;
-		
+
 	}
 
-	public DataModel getDataModel(String iri) {
+	public DataModelDetail getDataModel(String iri) {
 		Concept concept = conceptRepository.findByIri(iri);
 		List<Property> properties = getProperties(concept.getDbid());
-		return new DataModel(concept, properties);
+		return new DataModelDetail(concept, properties);
 	}
 
 	public List<Property> getDataModelProperties(String iri) {
@@ -68,7 +69,8 @@ public class DataModelService {
 		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectService.findAllByConcept(Dbid);
 		// get concepts for each of those objects
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
-			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
+			// lookup conceptPropertyObjects in the Transitive Closure table to determine if
+			// they are valid
 			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject)) {
 				Concept propertyObject = conceptPropertyObjectService.getObject(conceptPropertyObject);
 				Concept propertyConcept = conceptPropertyObjectService.getProperty(conceptPropertyObject);

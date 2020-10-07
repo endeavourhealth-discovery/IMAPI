@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
 import com.endavourhealth.datamodel.models.DataModel;
+import com.endavourhealth.datamodel.models.DataModelDetail;
 import com.endavourhealth.datamodel.models.Property;
 
 @RestController
@@ -21,12 +22,12 @@ public class DataModelController {
 	DataModelService dataModelService;
 	
 	@GetMapping(value = "/search")
-	public List<DataModel> search(@RequestParam("term") String term, @RequestParam("root") String root) {
-		return dataModelService.search(term, root);
+	public List<DataModel> search(@RequestParam("term") String term) {
+		return dataModelService.search(term);
 	}
 
 	@GetMapping(value = "/{iri}")
-	public DataModel getDataModel(@PathVariable("iri") String iri) {
+	public DataModelDetail getDataModel(@PathVariable("iri") String iri) {
 		return dataModelService.getDataModel(iri);
 	}
 	
@@ -42,8 +43,8 @@ public class DataModelController {
 	}
 	
 	@GetMapping(value = "/{iri}/children")
-	public List<DataModel> getChildren(@PathVariable("iri") String iri) {
-		List<DataModel> children = null;
+	public List<DataModelDetail> getChildren(@PathVariable("iri") String iri) {
+		List<DataModelDetail> children = null;
 		return children;
 	}
 

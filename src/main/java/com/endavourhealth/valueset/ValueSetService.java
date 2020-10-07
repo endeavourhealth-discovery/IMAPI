@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.valueset.models.ValueSet;
+import com.endavourhealth.valueset.models.ValueSetDetail;
 
 @Component
 public class ValueSetService {
@@ -17,25 +18,25 @@ public class ValueSetService {
 	@Autowired
 	ConceptRepository conceptRepository;
 
-	public List<ValueSet> search(String term, String root) {
+	public List<ValueSet> search(String term) {
 		List<ValueSet> valueSets = new ArrayList<ValueSet>();
-		List<Concept> concepts = conceptRepository.search(term, root);
+		List<Concept> concepts = conceptRepository.search(term, ":VSET_ValueSet");
 
 		concepts.forEach(concept -> {
-			valueSets.add(getValueSet(concept.getIri()));
+			valueSets.add(new ValueSet(concept.getIri(), concept.getName(), concept.getDescription()));
 		});
 
 		return valueSets;
 
 	}
 
-	public ValueSet getValueSet(String iri) {
+	public ValueSetDetail getValueSet(String iri) {
 		Concept concept = conceptRepository.getOne(iri);
 		return generateValueSet(concept);
 	}
 
-	private ValueSet generateValueSet(Concept concept) {
-		return new ValueSet(concept.getIri(), concept.getName(), concept.getDescription(), Collections.emptyList());
+	private ValueSetDetail generateValueSet(Concept concept) {
+		return new ValueSetDetail(concept.getIri(), concept.getName(), concept.getDescription(), Collections.emptyList());
 	}
 
 }

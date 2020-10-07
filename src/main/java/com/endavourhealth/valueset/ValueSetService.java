@@ -1,5 +1,9 @@
 package com.endavourhealth.valueset;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,14 +17,25 @@ public class ValueSetService {
 	@Autowired
 	ConceptRepository conceptRepository;
 
+	public List<ValueSet> search(String term, String root) {
+		List<ValueSet> valueSets = new ArrayList<ValueSet>();
+		List<Concept> concepts = conceptRepository.search(term, root);
+
+		concepts.forEach(concept -> {
+			valueSets.add(getValueSet(concept.getIri()));
+		});
+
+		return valueSets;
+
+	}
+
 	public ValueSet getValueSet(String iri) {
 		Concept concept = conceptRepository.getOne(iri);
 		return generateValueSet(concept);
 	}
 
 	private ValueSet generateValueSet(Concept concept) {
-		ValueSet ValueSet = new ValueSet(concept.getIri(), concept.getName(), concept.getDescription());
-		return ValueSet;
+		return new ValueSet(concept.getIri(), concept.getName(), concept.getDescription(), Collections.emptyList());
 	}
 
 }

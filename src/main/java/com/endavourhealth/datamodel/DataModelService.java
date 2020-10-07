@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 
 import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
-import com.endavourhealth.dataaccess.entity.ConceptTct;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyDataRepository;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
+import com.endavourhealth.dataaccess.service.ConceptPropertyObjectService;
+import com.endavourhealth.dataaccess.service.ConceptTctService;
 import com.endavourhealth.datamodel.models.DataModel;
 import com.endavourhealth.datamodel.models.Property;
 import com.endavourhealth.datamodel.models.Value;
@@ -32,6 +33,24 @@ public class DataModelService {
 	@Autowired
 	ConceptTctRepository conceptTctRepository;
 
+	@Autowired
+	ConceptPropertyObjectService conceptPropertyObjectService;
+
+	@Autowired
+	ConceptTctService conceptTctService;
+	
+	public List<DataModel> search(String term, String root) {
+		List<DataModel> datamodels = new ArrayList<DataModel>();
+		List<Concept> concepts = conceptRepository.search(term, root);
+		
+		concepts.forEach(concept -> {
+			datamodels.add(getDataModel(concept.getIri()));
+		});
+		
+		return datamodels;
+		
+	}
+
 	public DataModel getDataModel(String iri) {
 		Concept concept = conceptRepository.findByIri(iri);
 		List<Property> properties = getProperties(concept.getDbid());
@@ -46,27 +65,18 @@ public class DataModelService {
 	public List<Property> getProperties(Integer Dbid) {
 		List<Property> properties = new ArrayList<Property>();
 		// find concept property objects
-		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectRepository.findByConcept(Dbid);
+		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectService.findAllByConcept(Dbid);
 		// get concepts for each of those objects
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
-			List<ConceptTct> conceptTcts = conceptTctRepository.findBySource(conceptPropertyObject.getProperty());
-			conceptTcts.forEach(conceptTct -> {
-				Concept target = conceptRepository.findByDbid(conceptTct.getTarget());
-				if (target.getIri().equalsIgnoreCase("owl:topObjectProperty")
-						|| target.getIri().equalsIgnoreCase("owl:topDataProperty")) {
-					properties.add(generateProperty(conceptPropertyObject));
-				}
-			});
+			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
+			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject)) {
+				Concept propertyObject = conceptPropertyObjectService.getObject(conceptPropertyObject);
+				Concept propertyConcept = conceptPropertyObjectService.getProperty(conceptPropertyObject);
+				Value value = new Value(propertyObject);
+				properties.add(new Property(conceptPropertyObject, propertyConcept, value));
+			}
 		});
 		return properties;
-	}
-
-	private Property generateProperty(ConceptPropertyObject conceptPropertyObject) {
-		Concept propertyConcept = conceptRepository.findByDbid(conceptPropertyObject.getProperty());
-		Concept propertyObject = conceptRepository.findByDbid(conceptPropertyObject.getObject());
-		Value value = new Value(propertyObject);
-		Property property = new Property(conceptPropertyObject, propertyConcept, value);
-		return property;
 	}
 
 }

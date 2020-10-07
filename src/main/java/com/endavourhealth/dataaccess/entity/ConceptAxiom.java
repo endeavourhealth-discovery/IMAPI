@@ -10,19 +10,19 @@ public class ConceptAxiom {
 	private Integer dbid;
 	private String axiom;
 	private Integer concept;
-	private String defIntegerion;
+	private String definition;
 	private Integer version;
 
 	public ConceptAxiom() {
 		super();
 	}
 
-	public ConceptAxiom(Integer dbid, String axiom, Integer concept, String defIntegerion, Integer version) {
+	public ConceptAxiom(Integer dbid, String axiom, Integer concept, String definition, Integer version) {
 		super();
 		this.dbid = dbid;
 		this.axiom = axiom;
 		this.concept = concept;
-		this.defIntegerion = defIntegerion;
+		this.definition = definition;
 		this.version = version;
 	}
 
@@ -50,12 +50,12 @@ public class ConceptAxiom {
 		this.concept = concept;
 	}
 
-	public String getDefIntegerion() {
-		return defIntegerion;
+	public String getDefinition() {
+		return definition;
 	}
 
-	public void setDefIntegerion(String defIntegerion) {
-		this.defIntegerion = defIntegerion;
+	public void setDefinition(String definition) {
+		this.definition = definition;
 	}
 
 	public Integer getVersion() {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
@@ -18,6 +19,11 @@ public class DataModelController {
 
 	@Autowired
 	DataModelService dataModelService;
+	
+	@GetMapping(value = "/search")
+	public List<DataModel> search(@RequestParam("term") String term, @RequestParam("root") String root) {
+		return dataModelService.search(term, root);
+	}
 
 	@GetMapping(value = "/{iri}")
 	public DataModel getDataModel(@PathVariable("iri") String iri) {

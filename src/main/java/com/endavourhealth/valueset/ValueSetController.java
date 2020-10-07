@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
@@ -17,11 +18,16 @@ import com.endavourhealth.valueset.models.ValueSet;
 public class ValueSetController {
 
 	@Autowired
-	ValueSetService ValueSetService;
+	ValueSetService valueSetService;
+	
+	@GetMapping(value = "/search")
+	public List<ValueSet> search(@RequestParam("term") String term, @RequestParam("root") String root) {
+		return valueSetService.search(term, root);
+	}
 
 	@GetMapping(value = "/{iri}")
 	public ValueSet getValueSet(@PathVariable("iri") String iri) {
-		return ValueSetService.getValueSet(iri);
+		return valueSetService.getValueSet(iri);
 	}
 	
 	@GetMapping(value = "/{iri}/members")

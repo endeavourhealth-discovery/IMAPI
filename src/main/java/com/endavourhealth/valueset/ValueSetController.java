@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
 import com.endavourhealth.datamodel.models.DataModelDetail;
+import com.endavourhealth.valueset.models.Code;
 import com.endavourhealth.valueset.models.ValueSet;
 import com.endavourhealth.valueset.models.ValueSetDetail;
 
@@ -32,9 +33,8 @@ public class ValueSetController {
 	}
 	
 	@GetMapping(value = "/{iri}/members")
-	public List<String> getMembers(@PathVariable("iri") String iri) {
-		List<String> members = null;
-		return members;
+	public List<Code> getMembers(@PathVariable("iri") String iri) {
+		return valueSetService.getValuesetCodes(iri);
 	}
 	
 	@GetMapping(value = "/{iri}/parents")

@@ -23,6 +23,14 @@ public class ConceptPropertyObjectService {
 		return conceptPropertyObjectRepository.findByConcept(conceptDbid);
 	}
 	
+	public List<ConceptPropertyObject> findAllByProperty(Integer conceptDbid) {
+		return conceptPropertyObjectRepository.findByProperty(conceptDbid);
+	}
+	
+	public List<ConceptPropertyObject> findAllByObject(Integer conceptDbid) {
+		return conceptPropertyObjectRepository.findByObject(conceptDbid);
+	}
+	
 	public Concept getProperty(ConceptPropertyObject conceptPropertyObject) {
 		return conceptRepository.findByDbid(conceptPropertyObject.getProperty());
 	}

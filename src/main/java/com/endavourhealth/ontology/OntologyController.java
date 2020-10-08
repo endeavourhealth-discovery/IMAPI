@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.datamodel.models.Ancestory;
 import com.endavourhealth.datamodel.models.DataModelDetail;
+import com.endavourhealth.ontology.models.Axiom;
 import com.endavourhealth.ontology.models.OntologicalConcept;
 import com.endavourhealth.ontology.models.OntologicalConceptDetail;
 
@@ -32,9 +33,8 @@ public class OntologyController {
 	}
 	
 	@GetMapping(value = "/{iri}/definition")
-	public List<String> getDefinitions(@PathVariable("iri") String iri) {
-		List<String> definitions = null;
-		return definitions;
+	public List<Axiom> getDefinitions(@PathVariable("iri") String iri) {
+		return ontologyService.getOntologyDefintions(iri);
 	}
 	
 	@GetMapping(value = "/{iri}/parents")

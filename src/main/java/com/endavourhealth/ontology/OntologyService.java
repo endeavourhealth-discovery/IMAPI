@@ -36,8 +36,13 @@ public class OntologyService {
 	}
 
 	public OntologicalConceptDetail getOntologicalConcept(String iri) {
-		Concept concept = conceptRepository.getOne(iri);
+		Concept concept = conceptRepository.findByIri(iri);
 		return generateOntologicalConcept(concept, getDefintions(concept.getDbid()));
+	}
+	
+	public List<Axiom> getOntologyDefintions(String iri){
+		Concept concept = conceptRepository.findByIri(iri);
+		return getDefintions(concept.getDbid());
 	}
 
 	public List<Axiom> getDefintions(Integer Dbid) {

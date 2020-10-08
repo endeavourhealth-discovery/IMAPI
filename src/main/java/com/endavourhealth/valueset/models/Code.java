@@ -31,6 +31,16 @@ public class Code {
 		this.iri = iri;
 		return this;
 	}
+	
+
+	public Code(String iri, String name, String description, String value, String system) {
+		super();
+		this.iri = iri;
+		this.name = name;
+		this.description = description;
+		this.value = value;
+		this.system = system;
+	}
 
 	@NotNull
 

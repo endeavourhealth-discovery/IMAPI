@@ -18,5 +18,11 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 	Concept findByIri(String concept);
 
 	Concept findByDbid(int concept);
+	
+	
+	@Query(value = "SELECT m.* FROM concept v JOIN concept p ON p.iri = :member JOIN concept_property_object cpo ON cpo.concept = v.dbid AND cpo.property = p.dbid JOIN concept m ON m.dbid = cpo.object WHERE v.iri = :iri", nativeQuery = true)
+	List<Concept> getMembers(@Param("member") String member, @Param("iri") String iri);
+	
+	
 
 }

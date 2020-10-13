@@ -3,16 +3,24 @@ package com.endavourhealth.dataaccess.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class ConceptPropertyObject {
 
 	@Id()
 	private Integer  dbid;
-	private Integer  concept;
+	@OneToOne()
+	@JoinColumn(name="concept", referencedColumnName="dbid")
+	private Concept  concept;
 	private Integer  group;
-	private Integer  property;
-	private Integer  object;
+	@OneToOne()
+	@JoinColumn(name="property", referencedColumnName="dbid")
+	private Concept  property;
+	@OneToOne
+	@JoinColumn(name="object", referencedColumnName="dbid")
+	private Concept  object;
 	@Column(name = "mincardinality")
 	private Integer  minCardinality;
 	@Column(name = "maxcardinality")
@@ -23,7 +31,7 @@ public class ConceptPropertyObject {
 		super();
 	}
 
-	public ConceptPropertyObject(Integer dbid, Integer concept, Integer group, Integer property, Integer object, Integer minCardinality,
+	public ConceptPropertyObject(Integer dbid, Concept concept, Integer group, Concept property, Concept object, Integer minCardinality,
 			Integer maxCardinality, String operator) {
 		super();
 		this.dbid = dbid;
@@ -44,11 +52,11 @@ public class ConceptPropertyObject {
 		this.dbid = dbid;
 	}
 
-	public Integer getConcept() {
+	public Concept getConcept() {
 		return concept;
 	}
 
-	public void setConcept(Integer concept) {
+	public void setConcept(Concept concept) {
 		this.concept = concept;
 	}
 
@@ -60,19 +68,19 @@ public class ConceptPropertyObject {
 		this.group = group;
 	}
 
-	public Integer getProperty() {
+	public Concept getProperty() {
 		return property;
 	}
 
-	public void setProperty(Integer property) {
+	public void setProperty(Concept property) {
 		this.property = property;
 	}
 
-	public Integer getObject() {
+	public Concept getObject() {
 		return object;
 	}
 
-	public void setObject(Integer object) {
+	public void setObject(Concept object) {
 		this.object = object;
 	}
 

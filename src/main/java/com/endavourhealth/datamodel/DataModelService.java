@@ -16,6 +16,7 @@ import com.endavourhealth.dataaccess.service.ConceptPropertyObjectService;
 import com.endavourhealth.dataaccess.service.ConceptTctService;
 import com.endavourhealth.datamodel.models.DataModel;
 import com.endavourhealth.datamodel.models.DataModelDetail;
+import com.endavourhealth.datamodel.models.Properties;
 import com.endavourhealth.datamodel.models.Property;
 import com.endavourhealth.datamodel.models.Value;
 
@@ -54,28 +55,30 @@ public class DataModelService {
 
 	public DataModelDetail getDataModel(String iri) {
 		Concept concept = conceptRepository.findByIri(iri);
-		List<Property> properties = getProperties(concept.getDbid());
+		
+		Properties properties = new Properties();
+		properties.setCoreProperties(getCoreProperties(concept.getDbid()));
+		
 		return new DataModelDetail(concept, properties);
 	}
 
-	public List<Property> getDataModelProperties(String iri) {
+	public Properties getDataModelProperties(String iri) {
 		Concept concept = conceptRepository.findByIri(iri);
-		return getProperties(concept.getDbid());
+		Properties properties = new Properties();
+		properties.setCoreProperties(getCoreProperties(concept.getDbid()));
+		return properties;
 	}
 
-	public List<Property> getProperties(Integer Dbid) {
+	public List<Property> getCoreProperties(Integer Dbid) {
 		List<Property> properties = new ArrayList<Property>();
 		// find concept property objects
-		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectService.findAllByConcept(Dbid);
+		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectRepository.findByConceptDbid(Dbid);
 		// get concepts for each of those objects
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
-			// lookup conceptPropertyObjects in the Transitive Closure table to determine if
-			// they are valid
+			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
 			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject)) {
-				Concept propertyObject = conceptPropertyObjectService.getObject(conceptPropertyObject);
-				Concept propertyConcept = conceptPropertyObjectService.getProperty(conceptPropertyObject);
-				Value value = new Value(propertyObject);
-				properties.add(new Property(conceptPropertyObject, propertyConcept, value));
+				Value value = new Value(conceptPropertyObject.getObject());
+				properties.add(new Property(conceptPropertyObject, conceptPropertyObject.getProperty(), value));
 			}
 		});
 		return properties;

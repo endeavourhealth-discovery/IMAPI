@@ -29,7 +29,7 @@ public class DataModelDetail {
 	
 	@JsonProperty("properties")
 	@Valid
-	private List<Property> properties = new ArrayList<Property>();
+	private Properties properties = new Properties();
 
 	@JsonProperty("parents")
 	@Valid
@@ -42,10 +42,9 @@ public class DataModelDetail {
 	public DataModelDetail() {
 		parents = new ArrayList<Ancestory>();
 		children = new ArrayList<DataModelDetail>();
-		properties = new ArrayList<Property>();
 	}
 	
-	public DataModelDetail(Concept concept, List<Property> properties) {
+	public DataModelDetail(Concept concept, Properties properties) {
 		this.setName(concept.getName());
 		this.setIri(concept.getIri());
 		this.setDescription(concept.getDescription());
@@ -80,12 +79,20 @@ public class DataModelDetail {
 		this.description = description;
 	}
 
-	public boolean addProperty(Property property) {
-		return properties.add(property);
+	public Properties getProperties() {
+		return properties;
 	}
 
-	public List<Property> getProperties() {
-		return Collections.unmodifiableList(properties);
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
+
+	public void setParents(List<Ancestory> parents) {
+		this.parents = parents;
+	}
+
+	public void setChildren(List<DataModelDetail> children) {
+		this.children = children;
 	}
 
 	public boolean addParent(Ancestory parent) {

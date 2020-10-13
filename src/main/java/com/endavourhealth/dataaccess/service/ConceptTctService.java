@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.entity.ConceptTct;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
@@ -21,11 +20,10 @@ public class ConceptTctService {
 	ConceptTctRepository conceptTctRepository;
 
 	public boolean checkIfPropertyIsValidType(ConceptPropertyObject conceptPropertyObject) {
-		List<ConceptTct> conceptTcts = conceptTctRepository.findBySource(conceptPropertyObject.getProperty());
+		List<ConceptTct> conceptTcts = conceptTctRepository.findBySourceDbid(conceptPropertyObject.getProperty().getDbid());
 		for (ConceptTct conceptTct : conceptTcts) {
-			Concept target = conceptRepository.findByDbid(conceptTct.getTarget());
-			if (target.getIri().equalsIgnoreCase("owl:topObjectProperty")
-					|| target.getIri().equalsIgnoreCase("owl:topDataProperty")) {
+			if (conceptTct.getTarget().getIri().equalsIgnoreCase("owl:topObjectProperty")
+					|| conceptTct.getTarget().getIri().equalsIgnoreCase("owl:topDataProperty")) {
 				return true;
 			}
 		}

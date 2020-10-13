@@ -2,6 +2,8 @@ package com.endavourhealth.dataaccess.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class ConceptAxiom {
@@ -9,7 +11,9 @@ public class ConceptAxiom {
 	@Id()
 	private Integer dbid;
 	private String axiom;
-	private Integer concept;
+	@OneToOne()
+	@JoinColumn(name="concept", referencedColumnName="dbid")
+	private Concept concept;
 	private String definition;
 	private Integer version;
 
@@ -17,7 +21,7 @@ public class ConceptAxiom {
 		super();
 	}
 
-	public ConceptAxiom(Integer dbid, String axiom, Integer concept, String definition, Integer version) {
+	public ConceptAxiom(Integer dbid, String axiom, Concept concept, String definition, Integer version) {
 		super();
 		this.dbid = dbid;
 		this.axiom = axiom;
@@ -42,11 +46,11 @@ public class ConceptAxiom {
 		this.axiom = axiom;
 	}
 
-	public Integer getConcept() {
+	public Concept getConcept() {
 		return concept;
 	}
 
-	public void setConcept(Integer concept) {
+	public void setConcept(Concept concept) {
 		this.concept = concept;
 	}
 

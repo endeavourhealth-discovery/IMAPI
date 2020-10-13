@@ -19,24 +19,24 @@ public class ConceptPropertyObjectService {
 	@Autowired
 	ConceptPropertyObjectRepository conceptPropertyObjectRepository;
 	
-	public List<ConceptPropertyObject> findAllByConcept(Integer conceptDbid) {
-		return conceptPropertyObjectRepository.findByConcept(conceptDbid);
+//	public List<ConceptPropertyObject> findAllByConcept(Integer conceptDbid) {
+//		return conceptPropertyObjectRepository.findByConceptDbid(conceptDbid);
+//	}
+	
+	public List<ConceptPropertyObject> findAllByPropertyDbid(Integer conceptDbid) {
+		return conceptPropertyObjectRepository.findByPropertyDbid(conceptDbid);
 	}
 	
-	public List<ConceptPropertyObject> findAllByProperty(Integer conceptDbid) {
-		return conceptPropertyObjectRepository.findByProperty(conceptDbid);
+	public List<ConceptPropertyObject> findAllByObjectDbid(Integer conceptDbid) {
+		return conceptPropertyObjectRepository.findByObjectDbid(conceptDbid);
 	}
 	
-	public List<ConceptPropertyObject> findAllByObject(Integer conceptDbid) {
-		return conceptPropertyObjectRepository.findByObject(conceptDbid);
+	public Concept getPropertyDbid(ConceptPropertyObject conceptPropertyObject) {
+		return conceptRepository.findByDbid(conceptPropertyObject.getProperty().getDbid());
 	}
 	
-	public Concept getProperty(ConceptPropertyObject conceptPropertyObject) {
-		return conceptRepository.findByDbid(conceptPropertyObject.getProperty());
-	}
-	
-	public Concept getObject(ConceptPropertyObject conceptPropertyObject) {
-		return conceptRepository.findByDbid(conceptPropertyObject.getObject());
+	public Concept getObjectDbid(ConceptPropertyObject conceptPropertyObject) {
+		return conceptRepository.findByDbid(conceptPropertyObject.getObject().getDbid());
 	}
 
 }

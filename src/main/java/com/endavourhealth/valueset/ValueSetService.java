@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.endavourhealth.dataaccess.entity.Concept;
+import com.endavourhealth.dataaccess.entity.ConceptAxiom;
+import com.endavourhealth.dataaccess.repository.ConceptAxiomRepository;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.dataaccess.service.ConceptPropertyObjectService;
 import com.endavourhealth.valueset.models.Code;
@@ -18,6 +20,9 @@ public class ValueSetService {
 
 	@Autowired
 	ConceptRepository conceptRepository;
+	
+	@Autowired
+	ConceptAxiomRepository conceptAxiomRepository;
 
 	@Autowired
 	ConceptPropertyObjectService conceptPropertyObjectService;
@@ -46,7 +51,7 @@ public class ValueSetService {
 
 	public List<Code> getCodes(String iri) {
 		List<Code> codes = new ArrayList<Code>();
-
+		
 		List<Concept> members = conceptRepository.getMembers(":3521000252101", iri);
 
 		members.forEach(member -> {

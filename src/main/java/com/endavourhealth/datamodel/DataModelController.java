@@ -3,6 +3,7 @@ package com.endavourhealth.datamodel;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,10 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.endavourhealth.datamodel.models.Ancestory;
 import com.endavourhealth.datamodel.models.DataModel;
 import com.endavourhealth.datamodel.models.DataModelDetail;
-import com.endavourhealth.datamodel.models.Property;
+import com.endavourhealth.datamodel.models.Properties;
 
 @RestController
 @RequestMapping("/datamodel")
+@CrossOrigin
 public class DataModelController {
 
 	@Autowired
@@ -32,7 +34,7 @@ public class DataModelController {
 	}
 	
 	@GetMapping(value = "/{iri}/properties")
-	public List<Property> getProperties(@PathVariable("iri") String iri) {
+	public Properties getProperties(@PathVariable("iri") String iri) {
 		return dataModelService.getDataModelProperties(iri);
 	}
 	

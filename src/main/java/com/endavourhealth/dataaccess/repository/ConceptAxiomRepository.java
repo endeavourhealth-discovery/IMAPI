@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.endavourhealth.dataaccess.entity.ConceptAxiom;
 
 @Repository
-public interface ConceptAxiomRepository extends JpaRepository<ConceptAxiom, String>{
+public interface ConceptAxiomRepository extends JpaRepository<ConceptAxiom, Integer>{
 	
 	List<ConceptAxiom> findByConcept(int concept);
 

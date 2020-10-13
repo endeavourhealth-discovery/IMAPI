@@ -78,7 +78,7 @@ public class DataModelService {
 			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
 			List<String> types = Arrays.asList("owl:topObjectProperty", "owl:topDataProperty");
 			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject, types)) {
-				Value value = new Value(conceptPropertyObject.getObject());
+				Value value = new Value(conceptPropertyObject.getObject(), conceptPropertyObject.getConcept().getIri());
 				properties.add(new Property(conceptPropertyObject, conceptPropertyObject.getProperty(), value));
 			}
 		});
@@ -100,7 +100,7 @@ public class DataModelService {
 			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
 			List<String> types = Arrays.asList("owl:topObjectProperty", "owl:topDataProperty");
 			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject, types) && conceptPropertyObject.getConcept().getDbid() != Dbid) {
-				Value value = new Value(conceptPropertyObject.getObject());
+				Value value = new Value(conceptPropertyObject.getObject(), conceptPropertyObject.getConcept().getIri());
 				properties.add(new Property(conceptPropertyObject, conceptPropertyObject.getProperty(), value));
 			}
 		});

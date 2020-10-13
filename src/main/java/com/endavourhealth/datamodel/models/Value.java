@@ -16,22 +16,26 @@ public class Value {
 	@JsonProperty("type")
 	private String type = null;
 
+	private String owner = null;
+
 	public Value() {
 		super();
 	}
 
-	public Value(String iri, String name, String description, String type) {
+	public Value(String iri, String name, String description, String type, String owner) {
 		super();
 		this.iri = iri;
 		this.name = name;
 		this.description = description;
 		this.type = type;
+		this.owner = owner;
 	}
-	
-	public Value(Concept concept) {
+
+	public Value(Concept concept, String owner) {
 		this.setName(concept.getName());
 		this.setIri(concept.getIri());
 		this.setDescription(concept.getDescription());
+		this.owner = owner;
 	}
 
 	public String getIri() {
@@ -64,6 +68,14 @@ public class Value {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 }

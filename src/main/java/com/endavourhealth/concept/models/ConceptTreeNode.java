@@ -5,14 +5,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
-
 public class ConceptTreeNode {
 	
 	private Concept concept;
 	private Set<ConceptTreeNode> parents;
-	private ConceptTreeNode child;
-	private Set<Concept> flatTree;
+	//private ConceptTreeNode child;
+	//private Set<Concept> flatParents;
+	private Set<ConceptTreeNode> children;
 	
 	/**
 	 * Use when the concept is a leaf ie no child
@@ -21,41 +20,101 @@ public class ConceptTreeNode {
 	public ConceptTreeNode(Concept concept) {
 		init(concept);
 
-		flatTree = new HashSet<Concept>();
-		flatTree.add(this.getConcept());
+		//flatParents = new HashSet<Concept>();
+		//flatParents.add(this.getConcept());
 	}	
 	
-	public ConceptTreeNode(Concept concept, @NotNull ConceptTreeNode child) {
-		init(concept);
-		this.flatTree = child.getFlatTree();	
-		this.child = child;		
+//	public ConceptTreeNode(Concept concept) {
+//		init(concept);
+//		this.flatParents = child.getFlatParents();	
+//		this.child = child;		
+//		
+//		child.addParent(this);
+//	}
+	
+	public boolean addChild(ConceptTreeNode child) {
+		child.doAddParent(this);
 		
-		child.addParent(this);
+		return doAddChild(child);
 	}
 	
+	public boolean addParent(ConceptTreeNode parent) {
+		parent.doAddChild(parent);
+		
+		return doAddParent(parent);
+	}
+		
 	public Set<ConceptTreeNode> getParents() {
 		return Collections.unmodifiableSet(parents);
 	}
-
-	public boolean addParent(ConceptTreeNode parent) {
-		// register parent
-		flatTree.add(parent.getConcept());	
-
-		return parents.add(parent);
+	
+	public Set<ConceptTreeNode> getChildren() {
+		return Collections.unmodifiableSet(children);
 	}
 
-	public ConceptTreeNode getChild() {
-		return child;
+	public Set<Concept> getChildConcepts() {
+		Set<Concept> childConcepts = new HashSet<Concept>();
+		
+		for(ConceptTreeNode child : children) {
+			childConcepts.add(child.getConcept());
+		}
+		
+		return childConcepts;
 	}
+
+
+//	public ConceptTreeNode getChild() {
+//		return child;
+//	}
 
 	public Concept getConcept() {
 		return concept;
 	}
 	
-	public boolean contains(Concept concept) {
-		return flatTree.contains(concept);
+	// hasParent
+	public boolean hasParent(Concept concept) {
+		boolean contains = false;
+		
+		Iterator<ConceptTreeNode> parentItr = getParents().iterator();
+		
+		while(parentItr.hasNext() && contains == false) {
+			ConceptTreeNode parent = parentItr.next();
+			
+			contains = parent.getConcept().equals(concept);
+			if(contains == false) {
+				contains = parent.hasParent(concept);
+			}
+		}
+		
+		return contains;
 	}
 	
+	public boolean hasParent(ConceptTreeNode parent) {
+		boolean hasParent = false;
+		
+		Iterator<ConceptTreeNode> parentItr = getParents().iterator();
+		
+		while(parentItr.hasNext() && hasParent == false) {
+			hasParent = parentItr.next().deepEquals(parent);
+		}
+		
+		return hasParent;
+	}
+	
+	public Set<Concept> getFlatParents() {
+		Set<Concept> parents = new HashSet<Concept>();
+		
+		Iterator<ConceptTreeNode> parentItr = getParents().iterator();
+		
+		while(parentItr.hasNext()) {
+			ConceptTreeNode parent = parentItr.next();
+			
+			parents.add(parent.getConcept());
+			parents.addAll(parent.getFlatParents());
+		}		
+		
+		return parents;
+	}
 	
 	@Override
 	public int hashCode() {
@@ -105,43 +164,125 @@ public class ConceptTreeNode {
 		
 		if(equals) {
 			
-			// do they have the same number of parents
-			equals = this.getParents().size() == other.getParents().size();
+			equals = parentsAreEqual(other.getParents());
 			
 			if(equals) {
-				
-				Iterator<ConceptTreeNode> parentsItr = this.getParents().iterator();
-				while(parentsItr.hasNext() && equals) {
-					
-					// does each parent match using deepEquals
-					equals = contains(parentsItr.next(), other.getParents());
-				}
+				equals = childrenAreEqual(other.getChildren());
+			}
+			
+			
+//			// do they have the same number of parents
+//			equals = this.getParents().size() == other.getParents().size();
+//			
+//			if(equals) {
+//				
+//				Iterator<ConceptTreeNode> parentsItr = this.getParents().iterator();
+//				while(parentsItr.hasNext() && equals) {
+//					
+//					// does each parent match using deepEquals
+//					equals = contains(parentsItr.next(), other.getParents());
+//				}
+//			}
+			
+//			if(equals) {
+//				
+//				// do they have the same number of parents
+//				equals = this.getChildren().size() == other.getChildren().size();
+//				
+//				if(equals) {
+//				
+//					Iterator<ConceptTreeNode> childrenItr = this.getChildren().iterator();
+//					while(childrenItr.hasNext() && equals) {
+//						
+//						// does each child match using deepEquals
+//						equals = contains(childrenItr.next(), other.getChildren());
+//					}
+//				}			
+//			}
+		}
+		
+		return equals;
+	}
+	
+	private boolean parentsAreEqual(Set<ConceptTreeNode> targetParents) {
+		Set<ConceptTreeNode> sourceParents = getParents();
+			
+		// do they have the same number of parents
+		boolean equals = sourceParents.size() == targetParents.size();
+		
+		if(equals) {
+			
+			Iterator<ConceptTreeNode> parentsItr = sourceParents.iterator();
+			while(parentsItr.hasNext() && equals) {
+				equals = contains(parentsItr.next(), targetParents);
 			}
 		}
 		
 		return equals;
-	}	
-	
-	private void init(Concept concept) {
-		this.concept = concept;		
-		this.parents = new HashSet<ConceptTreeNode>();			
 	}
-
+	
+//	private boolean parentsAreEqual(ConceptTreeNode sourceParent, Set<ConceptTreeNode> targetParents) {
+//		boolean match = false;
+//		
+//		Iterator<ConceptTreeNode> targetItr = targetParents.iterator();
+//		
+//		while(targetItr.hasNext() && match == false) {
+//			match = sourceParent.equals(targetItr.next());
+//		}
+//		
+//		return match;
+//	}
+	
+	private boolean childrenAreEqual(Set<ConceptTreeNode> targetChildren) {
+		Set<ConceptTreeNode> sourceChildren = getChildren();
+			
+		// do they have the same number of parents
+		boolean equals = sourceChildren.size() == targetChildren.size();
+		
+		if(equals) {
+			
+			Iterator<ConceptTreeNode> childrenItr = sourceChildren.iterator();
+			while(childrenItr.hasNext() && equals) {
+				equals = contains(childrenItr.next(), targetChildren);
+			}
+		}
+		
+		return equals;
+	}
+	
 	private boolean contains(ConceptTreeNode source, Set<ConceptTreeNode> target) {
 		boolean match = false;
 		
 		Iterator<ConceptTreeNode> targetItr = target.iterator();
 		
 		while(targetItr.hasNext() && match == false) {
-			match = source.deepEquals(targetItr.next());
+			match = source.equals(targetItr.next());
 		}
 		
 		return match;
+	}	
+	
+//	Set<Concept> getFlatParents() {
+//		return flatParents;
+//	}
+	
+	private void init(Concept concept) {
+		this.concept = concept;		
+		this.parents = new HashSet<ConceptTreeNode>();	
+		this.children = new HashSet<ConceptTreeNode>();
 	}
 
-	private Set<Concept> getFlatTree() {
-		return flatTree;
-	}
+//	private boolean contains(ConceptTreeNode source, Set<ConceptTreeNode> target) {
+//		boolean match = false;
+//		
+//		Iterator<ConceptTreeNode> targetItr = target.iterator();
+//		
+//		while(targetItr.hasNext() && match == false) {
+//			match = source.deepEquals(targetItr.next());
+//		}
+//		
+//		return match;
+//	}
 
 	private String toStringParents() {
 		String parentsString = null;
@@ -157,5 +298,17 @@ public class ConceptTreeNode {
 		}
 		
 		return parentsString;
+	}
+	
+	private boolean doAddParent(ConceptTreeNode parent) {
+		// register parent
+		//flatParents.add(parent.getConcept());
+		//flatParents.addAll(parent.getFlatParents());
+		
+		return parents.add(parent);
+	}
+	
+	private boolean doAddChild(ConceptTreeNode child) {
+		return children.add(child);
 	}
 }

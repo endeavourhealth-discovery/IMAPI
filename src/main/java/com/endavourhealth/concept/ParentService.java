@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.endavourhealth.concept.models.Concept;
-import com.endavourhealth.concept.models.ConceptTreeNode;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
 
@@ -44,6 +43,9 @@ class ParentService {
 	 * Note: it is assumed that the conceptDbId resolves to an actual concept entity. If not this method will not add any parents. To the
 	 * caller it will appear as though the concept does not have any parents. This may not in fact be the case if the coneptDbId cannot
 	 * be resolved. It is the caller's responsibility to ensure that the conceptDbId exists and corresponds to the given concept
+	 * <br>
+	 * Note 2: it is assumed that the conceptDbId resolves to the given concept param. This method makes not attempt to check this relationship.
+	 * It is the caller's responsibility to ensure that the conceptDbId exists and corresponds to the given concept
 	 * 
 	 * @param concept - the concept to add parents to (must not be null)
 	 * @param conceptDbId - the database identifier of the concept (see note above)
@@ -53,37 +55,50 @@ class ParentService {
 		if(conceptDbId != null) {
 			
 			if(concept != null) {
-				ConceptTreeNode conceptTreeNode = new ConceptTreeNode(concept);
-				addParents(conceptTreeNode, conceptDbId);
-				concept.setTree(conceptTreeNode);
+				List<ConceptPropertyObject> parents = getParents(conceptDbId);
+				for(ConceptPropertyObject parent : parents) {
+					Integer parentDbId = parent.getObject();
+					Concept parentConcept = identifierService.getConcept(parentDbId);
+					
+					if(parentConcept != null) {
+						parentConcept.addChild(concept);
+						
+						// add parent's parents
+						addParents(parentConcept, parentDbId);
+					}
+					else {
+						// TODO - exception. There is something wrong with the DB as a CPO object points to a non-existant concept
+					}
+				}
 			}
 			else {
-				LOG.debug("Unable to addParents to concept as the given concept was null");
+				LOG.debug("Unable to add parents to concept as the given concept was null");
 			}
 		}
 		else {
-			LOG.debug(String.format("Unable to addParents to concept: %s as the given conceptDbId was null", concept));
+			LOG.debug(String.format("Unable to add parents to concept: %s as the given conceptDbId was null", concept));
 		}
 	}
 	
-	private ConceptTreeNode addParents(ConceptTreeNode conceptTreeNode, Integer conceptDbId) {
-		List<ConceptPropertyObject> parents = getParents(conceptDbId);
-		for(ConceptPropertyObject parent : parents) {
-			Integer parentDbId = parent.getObject();
-			Concept parentConcept = identifierService.getConcept(parentDbId);
-			
-			if(parentConcept != null) {
-				ConceptTreeNode parentTreeNode = new ConceptTreeNode(parentConcept, conceptTreeNode);
-				
-				addParents(parentTreeNode, parentDbId);
-			}
-			else {
-				// TODO - exception. There is something wrong with the DB as a CPO object points to a non-existant concept
-			}
-		}
-		
-		return conceptTreeNode;
-	}
+//	private ConceptTreeNode addParents(ConceptTreeNode conceptTreeNode, Integer conceptDbId) {
+//		List<ConceptPropertyObject> parents = getParents(conceptDbId);
+//		for(ConceptPropertyObject parent : parents) {
+//			Integer parentDbId = parent.getObject();
+//			Concept parentConcept = identifierService.getConcept(parentDbId);
+//			
+//			if(parentConcept != null) {
+//				ConceptTreeNode parentTreeNode = new ConceptTreeNode(parentConcept);
+//				parentTreeNode.addChild(conceptTreeNode);
+//				
+//				addParents(parentTreeNode, parentDbId);
+//			}
+//			else {
+//				// TODO - exception. There is something wrong with the DB as a CPO object points to a non-existant concept
+//			}
+//		}
+//		
+//		return conceptTreeNode;
+//	}
 
 	// filter the CPO entities only retaining those whose property is an instance of the "Is A" concept
 	private List<ConceptPropertyObject> getParents(Integer conceptDbId) {

@@ -3,7 +3,6 @@ package com.endavourhealth.concept;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.endavourhealth.concept.models.Concept;
@@ -21,6 +20,9 @@ public class ConceptService {
 	
 	@Autowired 
 	ParentService parentService;
+	
+	@Autowired
+	ChildService childService;
 	
 	/**
 	 * Retrieve the {@link Concept} with the given IRI. 
@@ -57,11 +59,25 @@ public class ConceptService {
 			LOG.debug(String.format("No entity could be found the corresponds to the concept: %s", concept));
 		}
 	}
-	
-	public Concept addChildren(Concept concept) {
+
+	/**
+	 * Add the the direct children to the given concept ie those that inherit directly from the concept. 
+	 * <br>
+	 * Note: it is assumed that the concept exists within the database. If not then this method will not add any children. To the
+	 * caller it will appear as though the concept does not have any children. This may not in fact be the case if the concept cannot
+	 * be resolved. It is the caller's responsibility to ensure that the concept exists within the database
+	 * 
+	 * @param concept - the concept to add children to (must not be null)
+	 */
+	public void addChildren(Concept concept) {
+		Integer conceptDbId = identifierService.getDbId(concept);
 		
-		
-		return concept;
+		if(conceptDbId != null) {
+			childService.addDirectChildren(concept, conceptDbId);
+		}
+		else {
+			LOG.debug(String.format("No entity could be found the corresponds to the concept: %s", concept));
+		}
 	}
 
 

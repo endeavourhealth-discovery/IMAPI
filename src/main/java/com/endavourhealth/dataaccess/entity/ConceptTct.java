@@ -5,6 +5,8 @@ import javax.persistence.Id;
 
 @Entity
 public class ConceptTct {
+	
+	public static final Integer DIRECT_RELATION_LEVEL = 0;
 
 	@Id()
 	private Integer dbid;

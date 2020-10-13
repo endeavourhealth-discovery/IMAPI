@@ -1,41 +1,55 @@
 package com.endavourhealth.concept;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.data.util.Pair;
 
-import com.endavourhealth.concept.models.ConceptTreeNode;
+import com.endavourhealth.concept.models.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
+import com.endavourhealth.testutils.ConceptExamples;
+import com.endavourhealth.testutils.ConceptPropertyObjectExamples;
 
 class ParentServiceTest {
 
-	private static final Integer IS_A_CONCEPT_DB_ID = 99;
-	private static final Integer NOT_IS_A_CONCEPT_DB_ID = IS_A_CONCEPT_DB_ID + 1;
-	// do not use to set up test data for mocked services to use - meant for ad-hoc testing
-	private static final Integer RESERVED_CONCEPT_DB_ID = NOT_IS_A_CONCEPT_DB_ID + 1;
-
 	ParentService parentService;
 	
-	TestData multipleInheritanceTestData;
-	TestData singleInheritanceTestData;
-	TestData noConceptPropertyObjects;
+	Pair<Concept, Concept> multipleInheritanceTestData;
+	Pair<Concept, Concept> singleInheritanceTestData;
+	Pair<Concept, Concept> noConceptPropertyObjects;
+	
+	Map<String, com.endavourhealth.concept.models.Concept> allConcepts;
+	Map<Integer, List<ConceptPropertyObject>> allCops;
 
-	@SuppressWarnings("unchecked")
 	@BeforeEach
 	public void setUp() {
 	
+		// service under test's dependencies
+		allConcepts = new HashMap<String, com.endavourhealth.concept.models.Concept>();
+		allCops = new HashMap<Integer, List<ConceptPropertyObject>>();
+		
+		IdentifierService identifierService = setUpIdentifierService();
+		ConceptPropertyObjectRepository conceptPropertyObjectRepository = setUpConceptPropertyObjectRepository();	
+		
+		// service under test
+		parentService = new ParentService();
+		parentService.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
+		parentService.identifierService = identifierService;
+		parentService.isAConceptDbId = ConceptPropertyObjectExamples.IS_A_CONCEPT_DB_ID;
+		
 		// the test data and dependencies that use that data
 		
 		// multi inheritance (uses concept Ids 1-12)
@@ -44,147 +58,94 @@ class ParentServiceTest {
 		singleInheritanceTestData = setupSingleInheritanceWithOtherPropertiesTestData(13);
 		// no CPO data (uses concept Ids 16-16)
 		noConceptPropertyObjects = setupNoConceptPropertyObjects(16);
-
-		IdentifierService identifierService = setUpIdentifierService(TestData.mergeAllConcepts(multipleInheritanceTestData.concepts, singleInheritanceTestData.concepts, noConceptPropertyObjects.concepts));
-		ConceptPropertyObjectRepository conceptPropertyObjectRepository = setUpConceptPropertyObjectRepository(TestData.mergeAllConceptPropertyObject(multipleInheritanceTestData.conceptPropertyObjects, singleInheritanceTestData.conceptPropertyObjects, noConceptPropertyObjects.conceptPropertyObjects));		
-
-		// service under test
-		parentService = new ParentService();
-		parentService.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
-		parentService.identifierService = identifierService;
-		parentService.isAConceptDbId = IS_A_CONCEPT_DB_ID;
+	}
+	
+	private void addConcepts(Set<Concept> concepts) {
+		for(Concept concept : concepts) {
+			allConcepts.put(concept.getIri(), concept);
+		}
 	}
 
+	private void addConceptObjectProperties(Set<ConceptPropertyObject> conceptPropertyObjects) {
+		for(ConceptPropertyObject conceptPropertyObject : conceptPropertyObjects) {
+		
+			Integer concept = conceptPropertyObject.getConcept();
+	
+			List<ConceptPropertyObject> cops;
+			if(allCops.containsKey(concept)) {
+				cops = allCops.get(concept);
+			}
+			else {
+				cops = new ArrayList<ConceptPropertyObject>();
+				allCops.put(concept, cops);
+			}
+			
+			cops.add(conceptPropertyObject);	
+		}
+	}
 	
 	// builds a graph using concepts 1 to 12 where 1 is the leaf and 12 is one of the roots
-	@SuppressWarnings("unused")
-	private TestData setupMultiInheritanceTestData(int leafConceptDbId) {
-		TestData testData = new TestData();	
+	private Pair<Concept, Concept> setupMultiInheritanceTestData(Integer leafConceptDbId) {
+		Concept actualConcept = ConceptExamples.getConcept(leafConceptDbId.toString());
+		Concept expectedConcept = ConceptExamples.getConceptBuilder(leafConceptDbId.toString()).withMultipleInheritance().build();
 		
-		testData.leafConceptDbId = leafConceptDbId;
-		testData.leafConcept = initConceptModel(leafConceptDbId);
-		testData.concepts = initConceptModels(leafConceptDbId, 12);
-				
-		// ConceptTreeNode version
-		ConceptTreeNode conceptTreeNode = new ConceptTreeNode(initConceptModel(leafConceptDbId)); // leaf
-		ConceptTreeNode two = initParentConceptTreeNode(conceptTreeNode, 2); // branch
+		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
-		ConceptTreeNode three = initParentConceptTreeNode(two, 3);
-		ConceptTreeNode five = initParentConceptTreeNode(three, 5); // root
+		// data for repos
+		Set<Concept> concepts = new HashSet<Concept>();
+		concepts.add(actualConcept);
+		concepts.addAll(expectedConcept.getParentConcepts());		
+		addConcepts(concepts);
 		
-		ConceptTreeNode four = initParentConceptTreeNode(two, 4);
-		ConceptTreeNode six = initParentConceptTreeNode(four, 6); // branch
-		
-		ConceptTreeNode eight = initParentConceptTreeNode(six, 8);
-		ConceptTreeNode nine = initParentConceptTreeNode(eight, 9); // root
-		
-		ConceptTreeNode seven = initParentConceptTreeNode(six, 7);
-		ConceptTreeNode ten = initParentConceptTreeNode(seven, 10); // branch
-		
-		ConceptTreeNode eleven = initParentConceptTreeNode(ten, 11); // root
-		
-		ConceptTreeNode twelve = initParentConceptTreeNode(ten, 12); // root
-		testData.conceptTreeNode = conceptTreeNode;
-		
-		// ConceptObjectProperty version
-		Map<Integer, List<ConceptPropertyObject>> conceptPropertyObjects = new HashMap<Integer, List<ConceptPropertyObject>>();		
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(leafConceptDbId, 2)); // branch
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(2, 3));	
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(3, 5)); // root
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(2, 4));	
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(4, 6)); // branch
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(6, 8));	
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(8, 9)); // root
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(6, 7));	
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(7, 10)); // branch
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(10, 11)); // root
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(10, 12)); // root
-		testData.conceptPropertyObjects = conceptPropertyObjects;
-		
+		Set<ConceptPropertyObject> conceptPropertyObjects = ConceptPropertyObjectExamples.getConceptPropertyObjectsBuilder().addMultiInheritanceConceptPropertyObjects().build();
+		addConceptObjectProperties(conceptPropertyObjects);
+	
 		return testData;	
 	}
 	
 	// builds a graph using concepts 13, 14 and 15 where 13 is the leaf, 15 is the root and 14 is not part of the inheritance hierarchy 
-	@SuppressWarnings("unused")
-	private TestData setupSingleInheritanceWithOtherPropertiesTestData(int leafConceptDbId) {
-		TestData testData = new TestData();	
+	private Pair<Concept, Concept> setupSingleInheritanceWithOtherPropertiesTestData(Integer leafConceptDbId) {
+		Concept actualConcept = ConceptExamples.getConcept(leafConceptDbId.toString());
+		Concept expectedConcept = ConceptExamples.getConceptBuilder(leafConceptDbId.toString()).withSingleInheritance().build();
 		
-		testData.leafConceptDbId = leafConceptDbId;
-		testData.leafConcept = initConceptModel(leafConceptDbId);
-		testData.concepts = initConceptModels(leafConceptDbId, 3);
+		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
-		// ConceptTreeNode version
-		ConceptTreeNode conceptTreeNode = new ConceptTreeNode(initConceptModel(leafConceptDbId)); // leaf
-		ConceptTreeNode two = initParentConceptTreeNode(conceptTreeNode, 15); // root
-		testData.conceptTreeNode = conceptTreeNode;
+		// data for repos
+		Set<Concept> concepts = new HashSet<Concept>();
+		concepts.add(actualConcept);
+		concepts.addAll(expectedConcept.getParentConcepts());		
+		addConcepts(concepts);
 		
-		// ConceptObjectProperty version
-		Map<Integer, List<ConceptPropertyObject>> conceptPropertyObjects = new HashMap<Integer, List<ConceptPropertyObject>>();	
-		
-		addConceptPropertyObject(conceptPropertyObjects, initIsAConceptPropertyObject(leafConceptDbId, 15)); // branch
-		addConceptPropertyObject(conceptPropertyObjects, initConceptPropertyObject(13, 14, NOT_IS_A_CONCEPT_DB_ID)); // not an is-a property - not part of the inheritance hierarchy 		
-		testData.conceptPropertyObjects = conceptPropertyObjects;
-		
-		return testData;	
+		Set<ConceptPropertyObject> conceptPropertyObjects = ConceptPropertyObjectExamples.getConceptPropertyObjectsBuilder()
+																	.addSingleInheritanceConceptPropertyObjects()
+																	.addHasMemberConceptPropertyObject()
+																	.build();
+		addConceptObjectProperties(conceptPropertyObjects);
+	
+		return testData;			
+
 	} 
 	
 	// builds a test set where there are no entries in the COP table for the concept
-	private TestData setupNoConceptPropertyObjects(int leafConceptDbId) {
-		TestData testData = new TestData();	
+	private Pair<Concept, Concept> setupNoConceptPropertyObjects(Integer leafConceptDbId) {
+		Concept actualConcept = ConceptExamples.getConcept(leafConceptDbId.toString());
+		Concept expectedConcept = ConceptExamples.getConcept(leafConceptDbId.toString());
 		
-		testData.leafConceptDbId = leafConceptDbId;
-		testData.leafConcept = initConceptModel(leafConceptDbId);
-		testData.concepts = initConceptModels(leafConceptDbId, 1);
+		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
-		// ConceptObjectPropertys - empty
-		Map<Integer, List<ConceptPropertyObject>> conceptPropertyObjects = new HashMap<Integer, List<ConceptPropertyObject>>();		
-		testData.conceptPropertyObjects = conceptPropertyObjects;
+		// data for repos
+		Set<Concept> concepts = new HashSet<Concept>();
+		concepts.add(actualConcept);
+		concepts.addAll(expectedConcept.getParentConcepts());		
+		addConcepts(concepts);
 		
-		return testData;	
+		Set<ConceptPropertyObject> conceptPropertyObjects = new HashSet<ConceptPropertyObject>();
+		addConceptObjectProperties(conceptPropertyObjects);
+	
+		return testData;
 	} 	
 	
-	private void addConceptPropertyObject(Map<Integer, List<ConceptPropertyObject>> copMap, ConceptPropertyObject cop) {
-		Integer concept = cop.getConcept();
-
-		List<ConceptPropertyObject> cops;
-		if(copMap.containsKey(concept)) {
-			cops = copMap.get(concept);
-		}
-		else {
-			cops = new ArrayList<ConceptPropertyObject>();
-			copMap.put(concept, cops);
-		}
-		
-		cops.add(cop);		
-	}
-	
-	private ConceptPropertyObject initIsAConceptPropertyObject(int childDbId, int parentDbId) {
-		return initConceptPropertyObject(childDbId, parentDbId, IS_A_CONCEPT_DB_ID);	
-	}
-	
-	private ConceptPropertyObject initConceptPropertyObject(int childDbId, int parentDbId, int propertyDbId) {
-		ConceptPropertyObject cop = new ConceptPropertyObject();
-		cop.setConcept(childDbId);
-		cop.setProperty(propertyDbId);
-		cop.setObject(parentDbId);
-		
-		return cop;		
-	}	
-	
-	private ConceptTreeNode initParentConceptTreeNode(ConceptTreeNode tree, Integer parentIri) {			
-		ConceptTreeNode parentTree = new ConceptTreeNode(initConceptModel(parentIri), tree);
-	
-		return parentTree;
-	}
-	
-	private ConceptPropertyObjectRepository setUpConceptPropertyObjectRepository(Map<Integer, List<ConceptPropertyObject>> copMap) {
+	private ConceptPropertyObjectRepository setUpConceptPropertyObjectRepository() {
 		ConceptPropertyObjectRepository conceptPropertyObjectRepository = Mockito.mock(ConceptPropertyObjectRepository.class);			
 		
 		Mockito.when(conceptPropertyObjectRepository.findByConcept(Mockito.anyInt())).thenAnswer(new Answer<List<ConceptPropertyObject>>() {
@@ -193,7 +154,7 @@ class ParentServiceTest {
 			public List<ConceptPropertyObject> answer(InvocationOnMock invocation) throws Throwable {
 				Integer dbId = (Integer) invocation.getArguments()[0];
 				
-				return copMap.get(dbId);
+				return allCops.get(dbId);
 			}
 
 		});		
@@ -201,7 +162,7 @@ class ParentServiceTest {
 		return conceptPropertyObjectRepository;
 	}
 	
-	private IdentifierService setUpIdentifierService(Map<String, com.endavourhealth.concept.models.Concept> concepts) {
+	private IdentifierService setUpIdentifierService() {
 		IdentifierService identifierService = Mockito.mock(IdentifierService.class);
 		
 		// concept model keyed by IRI. Note that IRI and DBID represent the same int value
@@ -213,7 +174,7 @@ class ParentServiceTest {
 			public com.endavourhealth.concept.models.Concept answer(InvocationOnMock invocation) throws Throwable {
 				Integer dbId = (Integer) invocation.getArguments()[0];
 				
-				return concepts.get(dbId.toString());
+				return allConcepts.get(dbId.toString());
 			}
 
 		});	
@@ -224,7 +185,7 @@ class ParentServiceTest {
 			public com.endavourhealth.concept.models.Concept answer(InvocationOnMock invocation) throws Throwable {
 				String iri = (String) invocation.getArguments()[0];
 				
-				return concepts.get(iri.toString());
+				return allConcepts.get(iri.toString());
 			}
 
 		});	
@@ -242,93 +203,60 @@ class ParentServiceTest {
 		
 		return identifierService;
 	}
-	
-	// concept model keyed by IRI. Note that IRI and DBID represent the same int value
-	private Map<String, com.endavourhealth.concept.models.Concept> initConceptModels(int startId, int conceptCount) {
-		Map<String, com.endavourhealth.concept.models.Concept> concepts = new HashMap<String, com.endavourhealth.concept.models.Concept>();
-		
-		for(int c = 0; c < conceptCount; c++) {
-			Integer iri = c + startId;			
-			concepts.put(iri.toString(), initConceptModel(iri));
-		}
-		
-		return concepts;
-	}
-	
-	private com.endavourhealth.concept.models.Concept initConceptModel(Integer iri) {
-		return new com.endavourhealth.concept.models.Concept(iri.toString());
-	}	
 		
 	@Test
 	void testAddParentsWithMultipleInheritance() {
-		assertNull(multipleInheritanceTestData.leafConcept.getTree());
+		Concept actualConcept = multipleInheritanceTestData.getFirst();
+		assertFalse(actualConcept.hasParents());
 		
-		parentService.addParents(multipleInheritanceTestData.leafConcept, multipleInheritanceTestData.leafConceptDbId);
+		parentService.addParents(actualConcept, Integer.parseInt(actualConcept.getIri()));
 		
-		assertNotNull(multipleInheritanceTestData.leafConcept.getTree());
-		assertTrue(multipleInheritanceTestData.leafConcept.getTree().deepEquals(multipleInheritanceTestData.conceptTreeNode));
+		assertTrue(actualConcept.hasParents());
+		assertTrue(actualConcept.deepEquals(multipleInheritanceTestData.getSecond()));
 	}
 	
 	@Test
 	// tests that the tree building ignores COP that are not of type "Is a" ie not part of the inheritance hierarchy 
 	void testAddParentsWithSingleInheritanceWithOtherProperties() {
-		assertNull(singleInheritanceTestData.leafConcept.getTree());
+		Concept actualConcept = singleInheritanceTestData.getFirst();
+		assertFalse(actualConcept.hasParents());
 		
-		parentService.addParents(singleInheritanceTestData.leafConcept, singleInheritanceTestData.leafConceptDbId);
+		parentService.addParents(actualConcept, Integer.parseInt(actualConcept.getIri()));
 		
-		assertNotNull(singleInheritanceTestData.leafConcept.getTree());
-		assertTrue(singleInheritanceTestData.leafConcept.getTree().deepEquals(singleInheritanceTestData.conceptTreeNode));
+		assertTrue(actualConcept.hasParents());
+		assertTrue(actualConcept.deepEquals(singleInheritanceTestData.getSecond()));
 	}
 	
 	@Test
 	// tests that the tree building ignores COP that are not of type "Is a" ie not part of the inheritance hierarchy 
 	void testAddParentsWithNoConceptPropertyObjects() {
-		assertNull(noConceptPropertyObjects.leafConcept.getTree());
+		Concept actualConcept = noConceptPropertyObjects.getFirst();
+		assertFalse(actualConcept.hasParents());
 		
-		parentService.addParents(noConceptPropertyObjects.leafConcept, singleInheritanceTestData.leafConceptDbId);
+		parentService.addParents(actualConcept, Integer.parseInt(actualConcept.getIri()));
 		
-		assertNull(singleInheritanceTestData.leafConcept.getTree());
+		assertFalse(actualConcept.hasParents());
+		assertTrue(actualConcept.deepEquals(noConceptPropertyObjects.getSecond()));
 	}		
 	
 	@Test
 	void testAddParentsWithNullConcept() {
-		parentService.addParents(null, RESERVED_CONCEPT_DB_ID);
+		parentService.addParents(null, Integer.parseInt(noConceptPropertyObjects.getFirst().getIri()));
 	}
 
 	@Test
 	void testAddParentsWithNullConceptDbId() {
-		parentService.addParents(initConceptModel(RESERVED_CONCEPT_DB_ID), null);
+		parentService.addParents(noConceptPropertyObjects.getFirst(), null);
 	}
 	
-	private static class TestData {
-		Integer leafConceptDbId;
-		com.endavourhealth.concept.models.Concept leafConcept;
-		Map<String, com.endavourhealth.concept.models.Concept> concepts;
-		ConceptTreeNode conceptTreeNode;
-		Map<Integer, List<ConceptPropertyObject>> conceptPropertyObjects;
-		
-		@SuppressWarnings("unchecked")
-		private static Map<String, com.endavourhealth.concept.models.Concept> mergeAllConcepts(Map<String, com.endavourhealth.concept.models.Concept> ... conceptMaps) {
-			Map<String, com.endavourhealth.concept.models.Concept> merged = new HashMap<String, com.endavourhealth.concept.models.Concept>();
-			
-			for(Map<String, com.endavourhealth.concept.models.Concept> conceptMap : conceptMaps) {
-				merged.putAll(conceptMap);
-			}
-			
-			return merged;
-		}
-		
-		@SuppressWarnings("unchecked")
-		private static Map<Integer, List<ConceptPropertyObject>> mergeAllConceptPropertyObject(Map<Integer, List<ConceptPropertyObject>> ... conceptPropertyObjectsMaps) {
-			Map<Integer, List<ConceptPropertyObject>> merged = new HashMap<Integer, List<ConceptPropertyObject>>();
-			
-			for(Map<Integer, List<ConceptPropertyObject>> conceptPropertyObjectsMap : conceptPropertyObjectsMaps) {
-				merged.putAll(conceptPropertyObjectsMap);
-			}
-			
-			return merged;
-		}
+	@Test
+	void testAddParentsWithNullConceptAndNullConceptDbId() {
+		parentService.addParents(null, null);
 	}
-	
-	
+
+	@Test
+	void testAddParentsWithNoParents() {
+		// TODO
+	}
+
 }

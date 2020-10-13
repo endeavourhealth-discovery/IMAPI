@@ -1,7 +1,7 @@
 package com.endavourhealth.concept;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,17 +31,20 @@ class ConceptServiceIntegrationTest {
 
 	@Autowired
 	ConceptService conceptService;
+//	
+//	@Autowired
+//	ConceptTreeNodeExamples conceptTreeNodeExamples;
+//	
+//	@Autowired
+//	ConceptExamples conceptExamples;
 	
-	@Autowired
-	ConceptTreeNodeExamples conceptTreeNodeExamples;
+	private Concept knownConceptWithNoParentsAndNoChildren;
+	private Concept knownConceptWithParentsAndNoChildren;
+	private Concept unknownConceptWithNoParentsAndNoChildren;
 	
-	@Autowired
-	ConceptExamples conceptExamples;
-	
-	private Concept knownConcept;
-	private Concept unknownConcept;
-	
-	private ConceptTreeNode knownConceptTree;
+	// TODO
+	private Concept knownConceptWithNoParentsAndChildren;
+	private Concept knownConceptWithParentsAndChildren;
 
 	@ClassRule
 	public static EndeavourMySqlContainer mysqlContainer = new EndeavourMySqlContainer()
@@ -56,32 +59,43 @@ class ConceptServiceIntegrationTest {
 	
 	@BeforeEach
 	public void setUp() {
-		knownConcept = conceptExamples.getEncounter();
-		unknownConcept = conceptExamples.getUnknonwn();
-		
-		knownConceptTree = conceptTreeNodeExamples.getEncounterTree();
+		knownConceptWithNoParentsAndNoChildren = ConceptExamples.getEncounterConceptBuilder().build();
+		knownConceptWithParentsAndNoChildren = ConceptExamples.getEncounterConceptBuilder().withParents().build();
+		knownConceptWithNoParentsAndChildren = ConceptExamples.getEncounterConceptBuilder().withChildren().build();
+		unknownConceptWithNoParentsAndNoChildren = ConceptExamples.getUnknonwnConcept();
 	}
 
 	@Test
 	void testGetConceptWithKnownIri() {
-		Concept concept = conceptService.getConcept(knownConcept.getIri());
-		assertEquals(knownConcept.getIri(), concept.getIri());
-		assertEquals(knownConcept.getName(), concept.getName());
-		assertEquals(knownConcept.getDescription(), concept.getDescription());
+		Concept concept = conceptService.getConcept(ConceptExamples.EncounterBuilder.IRI);
+		
+		assertEquals(ConceptExamples.EncounterBuilder.IRI, concept.getIri());
+		assertEquals(ConceptExamples.EncounterBuilder.NAME, concept.getName());
+		assertEquals(ConceptExamples.EncounterBuilder.DESCRIPTION, concept.getDescription());
 	}
 	
 	@Test
 	void testGetConceptWithUnknownIri() {
-		assertNull(conceptService.getConcept(unknownConcept.getIri()));
+		assertNull(conceptService.getConcept(unknownConceptWithNoParentsAndNoChildren.getIri()));
 	}
 	
 	@Test
 	void testAddParents() {
-		assertNull(knownConcept.getTree());
+		assertTrue(knownConceptWithNoParentsAndNoChildren.getParents().isEmpty());
 		
-		conceptService.addParents(knownConcept);
+		conceptService.addParents(knownConceptWithNoParentsAndNoChildren);
 		
-		assertNotNull(knownConcept.getTree());
-		assertTrue(knownConceptTree.deepEquals(knownConcept.getTree()));
+		assertFalse((knownConceptWithNoParentsAndNoChildren.getParents().isEmpty()));
+		assertTrue(knownConceptWithNoParentsAndNoChildren.deepEquals(knownConceptWithParentsAndNoChildren));
 	}
+	
+	@Test
+	void testAddChildren() {
+		assertTrue(knownConceptWithNoParentsAndNoChildren.getParents().isEmpty());
+		
+		conceptService.addChildren(knownConceptWithNoParentsAndNoChildren);
+		
+		assertFalse((knownConceptWithNoParentsAndNoChildren.getChildren().isEmpty()));
+		assertTrue(knownConceptWithNoParentsAndNoChildren.deepEquals(knownConceptWithNoParentsAndChildren));
+	}	
 }

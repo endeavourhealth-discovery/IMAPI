@@ -11,12 +11,13 @@ public class Concept {
 	String iri;
 	String description;
 	
-	Set<Concept> children;
+	//Set<Concept> children;
 
 	ConceptTreeNode tree;
 	
 	public Concept(@NotBlank String iri) {
 		this.iri = iri;
+		this.tree = new ConceptTreeNode(this);
 	}
 
 	public String getName() {
@@ -39,24 +40,53 @@ public class Concept {
 		return iri;
 	}
 	
-	public ConceptTreeNode getTree() {
-		return tree;
-	}
-
-	public Set<Concept> getChildren() {
-		return Collections.unmodifiableSet(children);
-	}
-
-	public void setTree(ConceptTreeNode tree) {
-		this.tree = tree;
-	}
-
-	public boolean isA(Concept parent) {
-		return tree.contains(parent);
+	// unordered
+	public Set<Concept> getParentConcepts() {
+		return Collections.unmodifiableSet(tree.getFlatParents());
 	}
 	
+	public Set<ConceptTreeNode> getParents() {
+		return tree.getParents();
+	}
+	
+	public Set<Concept> getChildConcepts() {
+		return Collections.unmodifiableSet(tree.getChildConcepts());
+	}
+	
+	public Set<ConceptTreeNode> getChildren() {
+		return tree.getChildren();
+	}
+	
+	public boolean addParent(Concept parentConcept) {
+		return tree.addParent(parentConcept.getTree());
+	}
+	
+	public boolean addChild(Concept childConcept) {
+		return tree.addChild(childConcept.getTree());
+	}
+	
+	public boolean hasChildren() {
+		return tree.getChildren() != null && tree.getChildren().isEmpty() == false; // need to be a set of children
+	}
+	
+	public boolean hasParents() {
+		return tree.getParents() != null && tree.getParents().isEmpty() == false; // need to be a set of children
+	}
+	
+	public boolean isA(Concept parent) {
+		return tree.hasParent(parent);
+	}
+		
 	public boolean isA(String conceptIri) {
-		return tree.contains(new Concept(conceptIri));
+		return tree.hasParent(new Concept(conceptIri));
+	}
+	
+	public boolean deepEquals(Concept other) {
+		boolean deepEquals = this.equals(other);
+		
+		deepEquals = tree.deepEquals(other.tree);
+		
+		return deepEquals;
 	}
 	
 	@Override
@@ -87,6 +117,10 @@ public class Concept {
 	@Override
 	public String toString() {
 		return "Concept [iri=" + iri + "]";
+	}
+	
+	ConceptTreeNode getTree() {
+		return tree;
 	}
 	
 }

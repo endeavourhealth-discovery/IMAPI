@@ -2,20 +2,24 @@ package com.endavourhealth.dataaccess.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class ConceptTerm {
 
 	@Id()
 	private Integer dbid;
-	private Integer concept;
+	@OneToOne()
+	@JoinColumn(name="concept", referencedColumnName="dbid")
+	private Concept concept;
 	private String term;
 
 	public ConceptTerm() {
 		super();
 	}
 
-	public ConceptTerm(Integer dbid, Integer concept, String term) {
+	public ConceptTerm(Integer dbid, Concept concept, String term) {
 		super();
 		this.dbid = dbid;
 		this.concept = concept;
@@ -30,11 +34,11 @@ public class ConceptTerm {
 		this.dbid = dbid;
 	}
 
-	public Integer getConcept() {
+	public Concept getConcept() {
 		return concept;
 	}
 
-	public void setConcept(Integer concept) {
+	public void setConcept(Concept concept) {
 		this.concept = concept;
 	}
 

@@ -2,6 +2,8 @@ package com.endavourhealth.dataaccess.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class ConceptTct {
@@ -10,16 +12,22 @@ public class ConceptTct {
 
 	@Id()
 	private Integer dbid;
-	private Integer source;
-	private Integer property;
+	@OneToOne()
+	@JoinColumn(name="source", referencedColumnName="dbid")
+	private Concept source;
+	@OneToOne()
+	@JoinColumn(name="property", referencedColumnName="dbid")
+	private Concept property;
 	private Integer level;
-	private Integer target;
+	@OneToOne()
+	@JoinColumn(name="target", referencedColumnName="dbid")
+	private Concept target;
 
 	public ConceptTct() {
 		super();
 	}
 
-	public ConceptTct(Integer dbid, Integer source, Integer property, Integer level, Integer target) {
+	public ConceptTct(Integer dbid, Concept source, Concept property, Integer level, Concept target) {
 		super();
 		this.dbid = dbid;
 		this.source = source;
@@ -36,19 +44,19 @@ public class ConceptTct {
 		this.dbid = dbid;
 	}
 
-	public Integer getSource() {
+	public Concept getSource() {
 		return source;
 	}
 
-	public void setSource(Integer source) {
+	public void setSource(Concept source) {
 		this.source = source;
 	}
 
-	public Integer getProperty() {
+	public Concept getProperty() {
 		return property;
 	}
 
-	public void setProperty(Integer property) {
+	public void setProperty(Concept property) {
 		this.property = property;
 	}
 
@@ -60,11 +68,11 @@ public class ConceptTct {
 		this.level = level;
 	}
 
-	public Integer getTarget() {
+	public Concept getTarget() {
 		return target;
 	}
 
-	public void setTarget(Integer target) {
+	public void setTarget(Concept target) {
 		this.target = target;
 	}
 

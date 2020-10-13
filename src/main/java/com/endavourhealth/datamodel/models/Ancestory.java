@@ -14,40 +14,40 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Ancestory {
 	@JsonProperty("up")
-	private DataModel up = null;
+	private DataModelDetail up = null;
 
 	@JsonProperty("down")
-	private DataModel down = null;
+	private DataModelDetail down = null;
 
 	@JsonProperty("node")
-	private DataModel node = null;
+	private DataModelDetail node = null;
 
 	@Valid
-	public DataModel getUp() {
+	public DataModelDetail getUp() {
 		return up;
 	}
 
-	public void setUp(DataModel up) {
+	public void setUp(DataModelDetail up) {
 		this.up = up;
 	}
 
 	@Valid
-	public DataModel getDown() {
+	public DataModelDetail getDown() {
 		return down;
 	}
 
-	public void setDown(DataModel down) {
+	public void setDown(DataModelDetail down) {
 		this.down = down;
 	}
 
 	@NotNull
 
 	@Valid
-	public DataModel getNode() {
+	public DataModelDetail getNode() {
 		return node;
 	}
 
-	public void setNode(DataModel node) {
+	public void setNode(DataModelDetail node) {
 		this.node = node;
 	}
 

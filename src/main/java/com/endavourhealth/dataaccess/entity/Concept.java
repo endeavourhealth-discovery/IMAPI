@@ -2,28 +2,35 @@ package com.endavourhealth.dataaccess.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Concept {
 
 	@Id()
 	private Integer dbid;
-	private Integer namespace;
+	
+	@OneToOne()
+	@JoinColumn(name="namespace", referencedColumnName="dbid")
+	private Namespace namespace;
 	private String id;
 	private String iri;
 	private String name;
 	private String description;
 	private String code;
 	private Integer scheme;
-	private Integer status;
+	@OneToOne()
+	@JoinColumn(name="status", referencedColumnName="dbid")
+	private ConceptStatus status;
 	private Integer weighting;
 
 	public Concept() {
 		super();
 	}
 
-	public Concept(Integer dbid, Integer namespace, String id, String iri, String name, String description, String code,
-			Integer scheme, Integer status, Integer weighting) {
+	public Concept(Integer dbid, Namespace namespace, String id, String iri, String name, String description, String code,
+			Integer scheme, ConceptStatus status, Integer weighting) {
 		super();
 		this.dbid = dbid;
 		this.namespace = namespace;
@@ -45,11 +52,11 @@ public class Concept {
 		this.dbid = dbid;
 	}
 
-	public Integer getNamespace() {
+	public Namespace getNamespace() {
 		return namespace;
 	}
 
-	public void setNamespace(Integer namespace) {
+	public void setNamespace(Namespace namespace) {
 		this.namespace = namespace;
 	}
 
@@ -101,11 +108,11 @@ public class Concept {
 		this.scheme = scheme;
 	}
 
-	public Integer getStatus() {
+	public ConceptStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(Integer status) {
+	public void setStatus(ConceptStatus status) {
 		this.status = status;
 	}
 

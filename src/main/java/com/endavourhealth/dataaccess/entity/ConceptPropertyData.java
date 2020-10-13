@@ -3,14 +3,20 @@ package com.endavourhealth.dataaccess.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class ConceptPropertyData {
 	@Id()
 	private Integer dbid;
-	private Integer concept;
+	@OneToOne()
+	@JoinColumn(name="concept", referencedColumnName="dbid")
+	private Concept concept;
 	private Integer group;
-	private Integer property;
+	@OneToOne()
+	@JoinColumn(name="property", referencedColumnName="dbid")
+	private Concept property;
 	private String data;
 	@Column(name = "mincardinality")
 	private Integer minCardinality;
@@ -22,7 +28,7 @@ public class ConceptPropertyData {
 		super();
 	}
 
-	public ConceptPropertyData(Integer dbid, Integer concept, Integer group, Integer property, String data, Integer minCardinality,
+	public ConceptPropertyData(Integer dbid, Concept concept, Integer group, Concept property, String data, Integer minCardinality,
 			Integer maxCardinality, String operator) {
 		super();
 		this.dbid = dbid;
@@ -43,11 +49,11 @@ public class ConceptPropertyData {
 		this.dbid = dbid;
 	}
 
-	public Integer getConcept() {
+	public Concept getConcept() {
 		return concept;
 	}
 
-	public void setConcept(Integer concept) {
+	public void setConcept(Concept concept) {
 		this.concept = concept;
 	}
 
@@ -59,11 +65,11 @@ public class ConceptPropertyData {
 		this.group = group;
 	}
 
-	public Integer getProperty() {
+	public Concept getProperty() {
 		return property;
 	}
 
-	public void setProperty(Integer property) {
+	public void setProperty(Concept property) {
 		this.property = property;
 	}
 

@@ -1,10 +1,5 @@
-package com.endavourhealth.datamodel.models;
+package com.endavourhealth.valueset.models;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
@@ -12,11 +7,11 @@ import org.springframework.validation.annotation.Validated;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * ValueSet
+ * Code
  */
 @Validated
 
-public class ValueSet {
+public class Code {
 	@JsonProperty("iri")
 	private String iri = null;
 
@@ -26,18 +21,31 @@ public class ValueSet {
 	@JsonProperty("description")
 	private String description = null;
 
-	@JsonProperty("members")
-	@Valid
-	private List<Code> members = null;
+	@JsonProperty("value")
+	private String value = null;
+
+	@JsonProperty("system")
+	private String system = null;
+
+	public Code iri(String iri) {
+		this.iri = iri;
+		return this;
+	}
+	
+
+	public Code(String iri, String name, String description, String value, String system) {
+		super();
+		this.iri = iri;
+		this.name = name;
+		this.description = description;
+		this.value = value;
+		this.system = system;
+	}
 
 	@NotNull
 
 	public String getIri() {
 		return iri;
-	}
-
-	public void setIri(String iri) {
-		this.iri = iri;
 	}
 
 	@NotNull
@@ -58,17 +66,22 @@ public class ValueSet {
 		this.description = description;
 	}
 
-	public boolean addMember(Code member) {
-		if (this.members == null) {
-			this.members = new ArrayList<Code>();
-		}
-		return this.members.add(member);
-
+	public String getValue() {
+		return value;
 	}
 
-	@Valid
-	public List<Code> getMembers() {
-		return Collections.unmodifiableList(members);
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	@NotNull
+
+	public String getSystem() {
+		return system;
+	}
+
+	public void setSystem(String system) {
+		this.system = system;
 	}
 
 	@Override
@@ -87,7 +100,7 @@ public class ValueSet {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ValueSet other = (ValueSet) obj;
+		Code other = (Code) obj;
 		if (iri == null) {
 			if (other.iri != null)
 				return false;
@@ -98,6 +111,6 @@ public class ValueSet {
 
 	@Override
 	public String toString() {
-		return "ValueSet [iri=" + iri + "]";
+		return "Code [iri=" + iri + "]";
 	}
 }

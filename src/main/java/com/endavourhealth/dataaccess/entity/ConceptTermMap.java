@@ -2,6 +2,8 @@ package com.endavourhealth.dataaccess.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class ConceptTermMap {
@@ -10,13 +12,15 @@ public class ConceptTermMap {
 	private Integer dbid;
 	private String term;
 	private Integer type;
-	private Integer target;
+	@OneToOne()
+	@JoinColumn(name="target", referencedColumnName="dbid")
+	private Concept target;
 
 	public ConceptTermMap() {
 		super();
 	}
 
-	public ConceptTermMap(Integer dbid, String term, Integer type, Integer target) {
+	public ConceptTermMap(Integer dbid, String term, Integer type, Concept target) {
 		super();
 		this.dbid = dbid;
 		this.term = term;
@@ -48,11 +52,11 @@ public class ConceptTermMap {
 		this.type = type;
 	}
 
-	public Integer getTarget() {
+	public Concept getTarget() {
 		return target;
 	}
 
-	public void setTarget(Integer target) {
+	public void setTarget(Concept target) {
 		this.target = target;
 	}
 

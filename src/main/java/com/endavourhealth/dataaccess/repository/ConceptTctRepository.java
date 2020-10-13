@@ -11,4 +11,6 @@ import com.endavourhealth.dataaccess.entity.ConceptTct;
 public interface ConceptTctRepository extends JpaRepository<ConceptTct, String>{
 	
 	List<ConceptTct> findByTargetAndLevel(int target, int level);
+
+	List<ConceptTct> findBySourceDbid(int source);
 }

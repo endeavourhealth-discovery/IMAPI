@@ -99,7 +99,7 @@ public class DataModelService {
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
 			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
 			List<String> types = Arrays.asList("owl:topObjectProperty", "owl:topDataProperty");
-			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject, types)) {
+			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject, types) && conceptPropertyObject.getConcept().getDbid() != Dbid) {
 				Value value = new Value(conceptPropertyObject.getObject());
 				properties.add(new Property(conceptPropertyObject, conceptPropertyObject.getProperty(), value));
 			}

@@ -1,6 +1,7 @@
 package com.endavourhealth.datamodel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
+import com.endavourhealth.dataaccess.entity.ConceptTct;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyDataRepository;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
@@ -54,6 +56,7 @@ public class DataModelService {
 		
 		Properties properties = new Properties();
 		properties.setCoreProperties(getCoreProperties(concept.getDbid()));
+		properties.setInheritedProperties(getInheritedProperties(concept.getDbid()));
 		
 		return new DataModelDetail(concept, properties);
 	}
@@ -62,6 +65,7 @@ public class DataModelService {
 		Concept concept = conceptRepository.findByIri(iri);
 		Properties properties = new Properties();
 		properties.setCoreProperties(getCoreProperties(concept.getDbid()));
+		properties.setInheritedProperties(getInheritedProperties(concept.getDbid()));
 		return properties;
 	}
 
@@ -72,7 +76,30 @@ public class DataModelService {
 		// get concepts for each of those objects
 		conceptPropertyObjects.forEach(conceptPropertyObject -> {
 			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
-			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject)) {
+			List<String> types = Arrays.asList("owl:topObjectProperty", "owl:topDataProperty");
+			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject, types)) {
+				Value value = new Value(conceptPropertyObject.getObject());
+				properties.add(new Property(conceptPropertyObject, conceptPropertyObject.getProperty(), value));
+			}
+		});
+		return properties;
+	}
+	
+	public List<Property> getInheritedProperties(Integer Dbid) {
+		List<Property> properties = new ArrayList<Property>();
+		// find concept property objects
+		
+		List<ConceptPropertyObject> conceptPropertyObjects = new ArrayList<ConceptPropertyObject>();
+		List<ConceptTct> conceptTcts = conceptTctRepository.findBySourceDbid(Dbid);
+		conceptTcts.forEach(conceptTct -> {
+			conceptPropertyObjects.addAll(conceptPropertyObjectRepository.findByConceptDbid(conceptTct.getTarget().getDbid()));
+		});
+		
+		// get concepts for each of those objects
+		conceptPropertyObjects.forEach(conceptPropertyObject -> {
+			// lookup conceptPropertyObjects in the Transitive Closure table to determine if they are valid
+			List<String> types = Arrays.asList("owl:topObjectProperty", "owl:topDataProperty");
+			if (conceptTctService.checkIfPropertyIsValidType(conceptPropertyObject, types)) {
 				Value value = new Value(conceptPropertyObject.getObject());
 				properties.add(new Property(conceptPropertyObject, conceptPropertyObject.getProperty(), value));
 			}

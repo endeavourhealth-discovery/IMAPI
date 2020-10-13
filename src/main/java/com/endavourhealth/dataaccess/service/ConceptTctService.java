@@ -19,12 +19,13 @@ public class ConceptTctService {
 	@Autowired
 	ConceptTctRepository conceptTctRepository;
 
-	public boolean checkIfPropertyIsValidType(ConceptPropertyObject conceptPropertyObject) {
+	public boolean checkIfPropertyIsValidType(ConceptPropertyObject conceptPropertyObject, List<String> types) {
 		List<ConceptTct> conceptTcts = conceptTctRepository.findBySourceDbid(conceptPropertyObject.getProperty().getDbid());
 		for (ConceptTct conceptTct : conceptTcts) {
-			if (conceptTct.getTarget().getIri().equalsIgnoreCase("owl:topObjectProperty")
-					|| conceptTct.getTarget().getIri().equalsIgnoreCase("owl:topDataProperty")) {
-				return true;
+			for (String type : types) {
+				if (conceptTct.getTarget().getIri().equalsIgnoreCase(type)) {
+					return true;
+				}
 			}
 		}
 		return false;

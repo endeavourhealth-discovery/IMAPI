@@ -18,8 +18,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.endavourhealth.concept.models.Concept;
 import com.endavourhealth.concept.models.ConceptTreeNode;
-import com.endavourhealth.testutils.ConceptExamples;
-import com.endavourhealth.testutils.ConceptTreeNodeExamples;
+import com.endavourhealth.concept.testutils.ConceptExamples;
+import com.endavourhealth.concept.testutils.ConceptTreeNodeExamples;
 import com.endavourhealth.testutils.EndeavourMySqlContainer;
 import com.endavourhealth.testutils.EndeavourMySqlContainerInitializer;
 
@@ -41,10 +41,7 @@ class ConceptServiceIntegrationTest {
 	private Concept knownConceptWithNoParentsAndNoChildren;
 	private Concept knownConceptWithParentsAndNoChildren;
 	private Concept unknownConceptWithNoParentsAndNoChildren;
-	
-	// TODO
 	private Concept knownConceptWithNoParentsAndChildren;
-	private Concept knownConceptWithParentsAndChildren;
 
 	@ClassRule
 	public static EndeavourMySqlContainer mysqlContainer = new EndeavourMySqlContainer()

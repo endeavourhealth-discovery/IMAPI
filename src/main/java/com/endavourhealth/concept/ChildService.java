@@ -20,7 +20,7 @@ class ChildService {
 	ConceptTctRepository conceptTctRepository;
 	
 	@Autowired
-	IdentifierService identifierService;
+	ConceptConverter conceptConverter;
 	
 	/**
 	 * Add the the direct children to the given concept ie those that inherit directly from the concept. 
@@ -57,7 +57,7 @@ class ChildService {
 	
 	private void addDirectChildren(Concept parentConcept, List<ConceptTct> childTcts) {
 		for(ConceptTct childTct : childTcts) {
-			Concept childConcept = identifierService.getConcept(childTct.getSource());
+			Concept childConcept = conceptConverter.convert(childTct.getSource());
 			
 			if(childConcept != null) {
 				parentConcept.addChild(childConcept);
@@ -68,9 +68,8 @@ class ChildService {
 		}
 	}
 	
-	private List<ConceptTct> getDirectChildren(Integer conceptDbId) {
-		
-		List<ConceptTct> directChildren = conceptTctRepository.findByTargetAndLevel(conceptDbId, ConceptTct.DIRECT_RELATION_LEVEL);
+	private List<ConceptTct> getDirectChildren(Integer conceptDbId) {		
+		List<ConceptTct> directChildren = conceptTctRepository.findByTargetDbidAndLevel(conceptDbId, ConceptTct.DIRECT_RELATION_LEVEL);
 		
 		return directChildren;
 	}

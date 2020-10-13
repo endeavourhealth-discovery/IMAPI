@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,10 +17,10 @@ import org.mockito.stubbing.Answer;
 import org.springframework.data.util.Pair;
 
 import com.endavourhealth.concept.models.Concept;
+import com.endavourhealth.concept.testutils.ConceptExamples;
 import com.endavourhealth.dataaccess.entity.ConceptTct;
+import com.endavourhealth.dataaccess.entity.testutils.ConceptTctExamples;
 import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
-import com.endavourhealth.testutils.ConceptExamples;
-import com.endavourhealth.testutils.ConceptTctExamples;
 
 class ChildServiceTest {
 
@@ -41,16 +40,14 @@ class ChildServiceTest {
 	public void setUp() {
 	
 		// service under test's dependencies
-		allConcepts = new HashMap<String, com.endavourhealth.concept.models.Concept>();
 		allConceptTcts = new HashMap<Integer, List<ConceptTct>>();
-		
-		IdentifierService identifierService = setUpIdentifierService();
 		ConceptTctRepository conceptTctRepository = setupConceptTctRepository();
 				
 		// service under test
 		childService = new ChildService();
 		childService.conceptTctRepository = conceptTctRepository;
-		childService.identifierService = identifierService;
+		childService.conceptConverter = new ConceptConverter();
+		//childService.identifierService = identifierService;
 			
 		// one child (uses concept Ids 1-2)
 		hasChildrenTestData = setupHasChildrenTestData(1);
@@ -59,16 +56,9 @@ class ChildServiceTest {
 		hasNoChildrenTestData = setupHasNoChildrenTestData(3);
 	}
 	
-	private void addConcepts(Set<Concept> concepts) {
-		for(Concept concept : concepts) {
-			allConcepts.put(concept.getIri(), concept);
-		}
-	}
-
-	
 	private void addConceptTcts(Set<ConceptTct> conceptTcts) {
 		for(ConceptTct conceptTct : conceptTcts) {
-			Integer target = conceptTct.getTarget();
+			Integer target = conceptTct.getTarget().getDbid();
 			List<ConceptTct> targetConceptTcts;
 			
 			if(allConceptTcts.containsKey(target)) {
@@ -92,12 +82,7 @@ class ChildServiceTest {
 		
 		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
-		// data for repos
-		Set<Concept> concepts = new HashSet<Concept>();
-		concepts.add(actualConcept);
-		concepts.addAll(expectedConcept.getChildConcepts());		
-		addConcepts(concepts);
-		
+		// data for repos	
 		Set<ConceptTct> conceptTcts = ConceptTctExamples.getConceptTctBuilder(leafConceptDbId).withChild(childIri, ConceptTct.DIRECT_RELATION_LEVEL).build();
 		addConceptTcts(conceptTcts);
 
@@ -110,18 +95,13 @@ class ChildServiceTest {
 		
 		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 
-		// data for repos
-		Set<Concept> concepts = new HashSet<Concept>();
-		concepts.add(actualConcept);
-		addConcepts(concepts);
-	
 		return testData;	
 	}
 	
 	private ConceptTctRepository setupConceptTctRepository() {
 		ConceptTctRepository conceptPropertyObjectRepository = Mockito.mock(ConceptTctRepository.class);			
 		
-		Mockito.when(conceptPropertyObjectRepository.findByTargetAndLevel(Mockito.anyInt(), Mockito.anyInt())).thenAnswer(new Answer<List<ConceptTct>>() {
+		Mockito.when(conceptPropertyObjectRepository.findByTargetDbidAndLevel(Mockito.anyInt(), Mockito.anyInt())).thenAnswer(new Answer<List<ConceptTct>>() {
 
 			@Override
 			public List<ConceptTct> answer(InvocationOnMock invocation) throws Throwable {
@@ -138,46 +118,6 @@ class ChildServiceTest {
 		});		
 		
 		return conceptPropertyObjectRepository;	
-	}
-
-	private IdentifierService setUpIdentifierService() {
-		IdentifierService identifierService = Mockito.mock(IdentifierService.class);
-		
-		// concept model keyed by IRI. Note that IRI and DBID represent the same int value
-		Mockito.when(identifierService.getConcept(Mockito.anyInt())).thenAnswer(new Answer<com.endavourhealth.concept.models.Concept>() {
-
-			@Override
-			public com.endavourhealth.concept.models.Concept answer(InvocationOnMock invocation) throws Throwable {
-				Integer dbId = (Integer) invocation.getArguments()[0];
-				
-				return allConcepts.get(dbId.toString());
-			}
-
-		});	
-		
-		Mockito.when(identifierService.getConcept(Mockito.anyString())).thenAnswer(new Answer<com.endavourhealth.concept.models.Concept>() {
-
-			@Override
-			public com.endavourhealth.concept.models.Concept answer(InvocationOnMock invocation) throws Throwable {
-				String iri = (String) invocation.getArguments()[0];
-				
-				return allConcepts.get(iri.toString());
-			}
-
-		});	
-		
-		Mockito.when(identifierService.getDbId(Mockito.any(com.endavourhealth.concept.models.Concept.class))).thenAnswer(new Answer<Integer>() {
-
-			@Override
-			public Integer answer(InvocationOnMock invocation) throws Throwable {
-				com.endavourhealth.concept.models.Concept concept = (com.endavourhealth.concept.models.Concept) invocation.getArguments()[0];
-				
-				return Integer.parseInt(concept.getIri());
-			}
-
-		});	
-		
-		return identifierService;
 	}
 	
 	@Test

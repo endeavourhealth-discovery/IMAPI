@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.endavourhealth.concept.models.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
+import com.endavourhealth.dataaccess.repository.ConceptRepository;
 
 @Service
 class ParentService {
@@ -25,16 +26,19 @@ class ParentService {
 	ConceptPropertyObjectRepository conceptPropertyObjectRepository;
 	
 	@Autowired
-	IdentifierService identifierService;
+	ConceptRepository conceptRepository;
+
+	@Autowired
+	ConceptConverter conceptConverter;
 	
 	@Value("${concept.isa.iri:sn:116680003}")
 	String isAConceptIri;
 	
-	Integer isAConceptDbId;
+	com.endavourhealth.dataaccess.entity.Concept isAConcept;
 	
 	@PostConstruct
 	void init() {
-		isAConceptDbId = identifierService.getDbId(isAConceptIri);
+		isAConcept = conceptRepository.findByIri(isAConceptIri);
 	}
 
 	/**
@@ -57,14 +61,13 @@ class ParentService {
 			if(concept != null) {
 				List<ConceptPropertyObject> parents = getParents(conceptDbId);
 				for(ConceptPropertyObject parent : parents) {
-					Integer parentDbId = parent.getObject();
-					Concept parentConcept = identifierService.getConcept(parentDbId);
+					Concept parentConcept = conceptConverter.convert(parent.getObject());
 					
 					if(parentConcept != null) {
 						parentConcept.addChild(concept);
 						
 						// add parent's parents
-						addParents(parentConcept, parentDbId);
+						addParents(parentConcept, parent.getObject().getDbid());
 					}
 					else {
 						// TODO - exception. There is something wrong with the DB as a CPO object points to a non-existant concept
@@ -80,34 +83,14 @@ class ParentService {
 		}
 	}
 	
-//	private ConceptTreeNode addParents(ConceptTreeNode conceptTreeNode, Integer conceptDbId) {
-//		List<ConceptPropertyObject> parents = getParents(conceptDbId);
-//		for(ConceptPropertyObject parent : parents) {
-//			Integer parentDbId = parent.getObject();
-//			Concept parentConcept = identifierService.getConcept(parentDbId);
-//			
-//			if(parentConcept != null) {
-//				ConceptTreeNode parentTreeNode = new ConceptTreeNode(parentConcept);
-//				parentTreeNode.addChild(conceptTreeNode);
-//				
-//				addParents(parentTreeNode, parentDbId);
-//			}
-//			else {
-//				// TODO - exception. There is something wrong with the DB as a CPO object points to a non-existant concept
-//			}
-//		}
-//		
-//		return conceptTreeNode;
-//	}
-
 	// filter the CPO entities only retaining those whose property is an instance of the "Is A" concept
 	private List<ConceptPropertyObject> getParents(Integer conceptDbId) {
 		List<ConceptPropertyObject> parentProperties = new ArrayList<ConceptPropertyObject>();
 			
-		List<ConceptPropertyObject> allProperties = conceptPropertyObjectRepository.findByConcept(conceptDbId);
+		List<ConceptPropertyObject> allProperties = conceptPropertyObjectRepository.findByConceptDbid(conceptDbId);
 		if(allProperties != null && allProperties.isEmpty() == false) {
 			parentProperties = allProperties.stream()
-											.filter(cpo -> cpo.getProperty().equals(isAConceptDbId))
+											.filter(cpo -> cpo.getProperty().equals(isAConcept))
 											.collect(Collectors.toList());
 		}
 		else {

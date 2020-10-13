@@ -18,10 +18,10 @@ import org.mockito.stubbing.Answer;
 import org.springframework.data.util.Pair;
 
 import com.endavourhealth.concept.models.Concept;
+import com.endavourhealth.concept.testutils.ConceptExamples;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
+import com.endavourhealth.dataaccess.entity.testutils.ConceptPropertyObjectExamples;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
-import com.endavourhealth.testutils.ConceptExamples;
-import com.endavourhealth.testutils.ConceptPropertyObjectExamples;
 
 class ParentServiceTest {
 
@@ -31,24 +31,20 @@ class ParentServiceTest {
 	Pair<Concept, Concept> singleInheritanceTestData;
 	Pair<Concept, Concept> noConceptPropertyObjects;
 	
-	Map<String, com.endavourhealth.concept.models.Concept> allConcepts;
 	Map<Integer, List<ConceptPropertyObject>> allCops;
 
 	@BeforeEach
 	public void setUp() {
 	
 		// service under test's dependencies
-		allConcepts = new HashMap<String, com.endavourhealth.concept.models.Concept>();
 		allCops = new HashMap<Integer, List<ConceptPropertyObject>>();
-		
-		IdentifierService identifierService = setUpIdentifierService();
 		ConceptPropertyObjectRepository conceptPropertyObjectRepository = setUpConceptPropertyObjectRepository();	
 		
 		// service under test
 		parentService = new ParentService();
 		parentService.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
-		parentService.identifierService = identifierService;
-		parentService.isAConceptDbId = ConceptPropertyObjectExamples.IS_A_CONCEPT_DB_ID;
+		parentService.conceptConverter = new ConceptConverter();
+		parentService.isAConcept = com.endavourhealth.dataaccess.entity.testutils.ConceptExamples.IS_A_CONCEPT;
 		
 		// the test data and dependencies that use that data
 		
@@ -60,16 +56,12 @@ class ParentServiceTest {
 		noConceptPropertyObjects = setupNoConceptPropertyObjects(16);
 	}
 	
-	private void addConcepts(Set<Concept> concepts) {
-		for(Concept concept : concepts) {
-			allConcepts.put(concept.getIri(), concept);
-		}
-	}
+
 
 	private void addConceptObjectProperties(Set<ConceptPropertyObject> conceptPropertyObjects) {
 		for(ConceptPropertyObject conceptPropertyObject : conceptPropertyObjects) {
 		
-			Integer concept = conceptPropertyObject.getConcept();
+			Integer concept = conceptPropertyObject.getConcept().getDbid();
 	
 			List<ConceptPropertyObject> cops;
 			if(allCops.containsKey(concept)) {
@@ -91,12 +83,7 @@ class ParentServiceTest {
 		
 		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
-		// data for repos
-		Set<Concept> concepts = new HashSet<Concept>();
-		concepts.add(actualConcept);
-		concepts.addAll(expectedConcept.getParentConcepts());		
-		addConcepts(concepts);
-		
+		// data for repos		
 		Set<ConceptPropertyObject> conceptPropertyObjects = ConceptPropertyObjectExamples.getConceptPropertyObjectsBuilder().addMultiInheritanceConceptPropertyObjects().build();
 		addConceptObjectProperties(conceptPropertyObjects);
 	
@@ -111,11 +98,6 @@ class ParentServiceTest {
 		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
 		// data for repos
-		Set<Concept> concepts = new HashSet<Concept>();
-		concepts.add(actualConcept);
-		concepts.addAll(expectedConcept.getParentConcepts());		
-		addConcepts(concepts);
-		
 		Set<ConceptPropertyObject> conceptPropertyObjects = ConceptPropertyObjectExamples.getConceptPropertyObjectsBuilder()
 																	.addSingleInheritanceConceptPropertyObjects()
 																	.addHasMemberConceptPropertyObject()
@@ -133,12 +115,7 @@ class ParentServiceTest {
 		
 		Pair<Concept, Concept> testData = Pair.of(actualConcept, expectedConcept); 
 		
-		// data for repos
-		Set<Concept> concepts = new HashSet<Concept>();
-		concepts.add(actualConcept);
-		concepts.addAll(expectedConcept.getParentConcepts());		
-		addConcepts(concepts);
-		
+		// data for repos	
 		Set<ConceptPropertyObject> conceptPropertyObjects = new HashSet<ConceptPropertyObject>();
 		addConceptObjectProperties(conceptPropertyObjects);
 	
@@ -148,7 +125,7 @@ class ParentServiceTest {
 	private ConceptPropertyObjectRepository setUpConceptPropertyObjectRepository() {
 		ConceptPropertyObjectRepository conceptPropertyObjectRepository = Mockito.mock(ConceptPropertyObjectRepository.class);			
 		
-		Mockito.when(conceptPropertyObjectRepository.findByConcept(Mockito.anyInt())).thenAnswer(new Answer<List<ConceptPropertyObject>>() {
+		Mockito.when(conceptPropertyObjectRepository.findByConceptDbid(Mockito.anyInt())).thenAnswer(new Answer<List<ConceptPropertyObject>>() {
 
 			@Override
 			public List<ConceptPropertyObject> answer(InvocationOnMock invocation) throws Throwable {
@@ -160,48 +137,6 @@ class ParentServiceTest {
 		});		
 		
 		return conceptPropertyObjectRepository;
-	}
-	
-	private IdentifierService setUpIdentifierService() {
-		IdentifierService identifierService = Mockito.mock(IdentifierService.class);
-		
-		// concept model keyed by IRI. Note that IRI and DBID represent the same int value
-
-		
-		Mockito.when(identifierService.getConcept(Mockito.anyInt())).thenAnswer(new Answer<com.endavourhealth.concept.models.Concept>() {
-
-			@Override
-			public com.endavourhealth.concept.models.Concept answer(InvocationOnMock invocation) throws Throwable {
-				Integer dbId = (Integer) invocation.getArguments()[0];
-				
-				return allConcepts.get(dbId.toString());
-			}
-
-		});	
-		
-		Mockito.when(identifierService.getConcept(Mockito.anyString())).thenAnswer(new Answer<com.endavourhealth.concept.models.Concept>() {
-
-			@Override
-			public com.endavourhealth.concept.models.Concept answer(InvocationOnMock invocation) throws Throwable {
-				String iri = (String) invocation.getArguments()[0];
-				
-				return allConcepts.get(iri.toString());
-			}
-
-		});	
-		
-		Mockito.when(identifierService.getDbId(Mockito.any(com.endavourhealth.concept.models.Concept.class))).thenAnswer(new Answer<Integer>() {
-
-			@Override
-			public Integer answer(InvocationOnMock invocation) throws Throwable {
-				com.endavourhealth.concept.models.Concept concept = (com.endavourhealth.concept.models.Concept) invocation.getArguments()[0];
-				
-				return Integer.parseInt(concept.getIri());
-			}
-
-		});	
-		
-		return identifierService;
 	}
 		
 	@Test

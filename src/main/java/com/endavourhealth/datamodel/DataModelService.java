@@ -12,7 +12,6 @@ import com.endavourhealth.dataaccess.repository.ConceptPropertyDataRepository;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
-import com.endavourhealth.dataaccess.service.ConceptPropertyObjectService;
 import com.endavourhealth.dataaccess.service.ConceptTctService;
 import com.endavourhealth.datamodel.models.DataModel;
 import com.endavourhealth.datamodel.models.DataModelDetail;
@@ -34,9 +33,6 @@ public class DataModelService {
 
 	@Autowired
 	ConceptTctRepository conceptTctRepository;
-
-	@Autowired
-	ConceptPropertyObjectService conceptPropertyObjectService;
 
 	@Autowired
 	ConceptTctService conceptTctService;

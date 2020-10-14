@@ -47,7 +47,7 @@ public class OntologyService {
 
 	public List<Axiom> getDefintions(Integer Dbid) {
 		List<Axiom> axioms = new ArrayList<Axiom>();
-		List<ConceptAxiom> conceptAxioms = conceptAxiomRepository.findByConcept(Dbid);
+		List<ConceptAxiom> conceptAxioms = conceptAxiomRepository.findByConceptDbid(Dbid);
 		conceptAxioms.forEach(conceptAxiom -> {
 			axioms.add(new Axiom(conceptAxiom));
 		});

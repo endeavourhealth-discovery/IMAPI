@@ -10,6 +10,6 @@ import com.endavourhealth.dataaccess.entity.ConceptAxiom;
 @Repository
 public interface ConceptAxiomRepository extends JpaRepository<ConceptAxiom, Integer>{
 	
-	List<ConceptAxiom> findByConcept(int concept);
+	List<ConceptAxiom> findByConceptDbid(int concept);
 
 }

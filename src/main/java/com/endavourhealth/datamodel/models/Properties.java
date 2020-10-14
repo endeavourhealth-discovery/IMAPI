@@ -10,7 +10,6 @@ public class Properties {
 
 	public Properties() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public Properties(List<Property> coreProperties, List<Property> inheritedProperties,

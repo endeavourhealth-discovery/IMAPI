@@ -11,12 +11,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-//@EnableAutoConfiguration
-//@Configuration
+@EnableAutoConfiguration
+@Configuration
 @EnableSwagger2
-//@EnableJpaRepositories("com.endavourhealth")
-//@ComponentScan(basePackages="com.endavourhealth")
-//@EntityScan("com.endavourhealth.*")
+@EnableJpaRepositories("com.endavourhealth")
+@ComponentScan(basePackages = "com.endavourhealth")
+@EntityScan("com.endavourhealth")
 public class ImViewerSpringApplication {
 
 	public static void main(String[] args) {

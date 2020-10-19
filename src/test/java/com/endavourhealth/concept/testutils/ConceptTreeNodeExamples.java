@@ -2,8 +2,8 @@ package com.endavourhealth.concept.testutils;
 
 import org.springframework.stereotype.Service;
 
-import com.endavourhealth.concept.models.Concept;
-import com.endavourhealth.concept.models.ConceptTreeNode;
+import com.endavourhealth.services.concept.models.Concept;
+import com.endavourhealth.services.concept.models.ConceptTreeNode;
 
 @Service
 public class ConceptTreeNodeExamples {

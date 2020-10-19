@@ -16,11 +16,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.data.util.Pair;
 
-import com.endavourhealth.concept.models.Concept;
 import com.endavourhealth.concept.testutils.ConceptExamples;
 import com.endavourhealth.dataaccess.entity.ConceptTct;
 import com.endavourhealth.dataaccess.entity.testutils.ConceptTctExamples;
 import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
+import com.endavourhealth.services.concept.ChildService;
+import com.endavourhealth.services.concept.ConceptConverter;
+import com.endavourhealth.services.concept.ParentService;
+import com.endavourhealth.services.concept.models.Concept;
 
 class ChildServiceTest {
 
@@ -31,7 +34,7 @@ class ChildServiceTest {
 	Pair<Concept, Concept> hasChildrenTestData;
 	Pair<Concept, Concept> hasNoChildrenTestData;
 
-	Map<String, com.endavourhealth.concept.models.Concept> allConcepts;
+	Map<String, com.endavourhealth.services.concept.models.Concept> allConcepts;
 	Map<Integer, List<ConceptTct>> allConceptTcts;
 	
 	int unknownConceptDbId = 37;

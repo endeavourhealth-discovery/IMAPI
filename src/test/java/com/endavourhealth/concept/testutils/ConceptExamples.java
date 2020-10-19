@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.endavourhealth.concept.models.Concept;
+import com.endavourhealth.services.concept.models.Concept;
 
 public class ConceptExamples {
 	

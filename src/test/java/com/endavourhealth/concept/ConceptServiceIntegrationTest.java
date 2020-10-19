@@ -16,10 +16,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.endavourhealth.concept.models.Concept;
-import com.endavourhealth.concept.models.ConceptTreeNode;
 import com.endavourhealth.concept.testutils.ConceptExamples;
-import com.endavourhealth.concept.testutils.ConceptTreeNodeExamples;
+import com.endavourhealth.services.concept.ConceptService;
+import com.endavourhealth.services.concept.models.Concept;
 import com.endavourhealth.testutils.EndeavourMySqlContainer;
 import com.endavourhealth.testutils.EndeavourMySqlContainerInitializer;
 

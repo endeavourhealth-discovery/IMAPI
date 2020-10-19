@@ -17,11 +17,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.data.util.Pair;
 
-import com.endavourhealth.concept.models.Concept;
 import com.endavourhealth.concept.testutils.ConceptExamples;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.entity.testutils.ConceptPropertyObjectExamples;
 import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
+import com.endavourhealth.services.concept.ConceptConverter;
+import com.endavourhealth.services.concept.ParentService;
+import com.endavourhealth.services.concept.models.Concept;
 
 class ParentServiceTest {
 

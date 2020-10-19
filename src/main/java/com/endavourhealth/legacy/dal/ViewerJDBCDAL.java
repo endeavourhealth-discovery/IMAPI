@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
 import com.endavourhealth.legacy.models.Concept;
 import com.endavourhealth.legacy.models.PagedResultSet;
 import com.endavourhealth.legacy.models.Property;
@@ -21,12 +23,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class ViewerJDBCDAL implements ViewerDAL {
     private final String IS_A = "sn:116680003";
     private final String HAS_MEMBER = ":3521000252101";
-    ConnectionPool ConnectionPool = new ConnectionPool();
+    
+
+    DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/im_next?useSSL=false", "root", "password");
 
     public List<JsonNode> getAxioms(String iri) throws SQLException, IOException {
         List<JsonNode> result = new ArrayList<>();
         
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
 
         String sql = "SELECT a.definition FROM concept c JOIN concept_axiom a ON a.concept = c.dbid WHERE c.iri = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -65,7 +69,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         PagedResultSet<RelatedConcept> result = new PagedResultSet<RelatedConcept>() 
             .setPage(page)
             .setPageSize(limit);
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, iri);
@@ -117,7 +121,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         PagedResultSet<RelatedConcept> result = new PagedResultSet<RelatedConcept>()
             .setPage(page)
             .setPageSize(limit);
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, iri);
@@ -147,9 +151,11 @@ public class ViewerJDBCDAL implements ViewerDAL {
     }
 
     public Concept getConcept(String iri) throws SQLException {
+    	
+    	Connection conn = driverManagerDataSource.getConnection();
 
         String sql = "SELECT iri, name, description FROM concept WHERE iri = ?";
-        Connection conn = ConnectionPool.create();
+//        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, iri);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -175,7 +181,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
         sql += "ORDER BY LENGTH(c.name)\n" +
             "LIMIT 10";
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, '%' + term + '%');
@@ -212,7 +218,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
         sql += "GROUP BY tct.level\n" +
             "ORDER BY tct.level";
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, iri);
@@ -291,7 +297,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
                 "JOIN concept t ON t.dbid = tct.target\n" +
                 "WHERE c.iri = ?\n" +
                 "AND t.iri IN ('owl:topObjectProperty', 'owl:topDataProperty')\n";
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, iri);
 
@@ -316,7 +322,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
             "JOIN concept_property_object cpo ON cpo.concept = v.dbid AND cpo.property = p.dbid\n" +
             "JOIN concept m ON m.dbid = cpo.object\n" +
             "WHERE v.iri = ?";
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, HAS_MEMBER);
             stmt.setString(2, iri);
@@ -346,7 +352,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
             "WHERE c.iri = ?\n" +
             "GROUP BY scm.dbid";
 
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             DALHelper.setString(stmt, 1, IS_A);
             DALHelper.setString(stmt, 2, iri);
@@ -381,7 +387,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
         sql += "ORDER BY scm.name, s.name\n";
 
-        Connection conn = ConnectionPool.create();
+        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             DALHelper.setString(stmt, 1, IS_A);
             DALHelper.setString(stmt, 2, iri);

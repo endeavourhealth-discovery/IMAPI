@@ -13,7 +13,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 //@EnableAutoConfiguration
 //@Configuration
-@EnableSwagger2
+//@EnableSwagger2
 //@EnableJpaRepositories("com.endavourhealth")
 //@ComponentScan(basePackages="com.endavourhealth")
 //@EntityScan("com.endavourhealth.*")

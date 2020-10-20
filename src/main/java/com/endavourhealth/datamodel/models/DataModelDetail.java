@@ -1,14 +1,16 @@
 package com.endavourhealth.datamodel.models;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
 
+import com.endavourhealth.concept.models.TreeNode;
 import com.endavourhealth.dataaccess.entity.Concept;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -33,18 +35,21 @@ public class DataModelDetail {
 
 	@JsonProperty("parents")
 	@Valid
-	private List<Ancestory> parents = new ArrayList<Ancestory>();
-
+	//private List<Ancestory> parents = new ArrayList<Ancestory>();
+	private Set<TreeNode<DataModelDetail>> parents = new HashSet<TreeNode<DataModelDetail>>();
+	
 	@JsonProperty("children")
 	@Valid
-	private List<DataModelDetail> children = new ArrayList<DataModelDetail>();
+	private Set<TreeNode<DataModelDetail>> children = new HashSet<TreeNode<DataModelDetail>>();
+
+	//private List<DataModelDetail> children = new ArrayList<DataModelDetail>();
 	
 	public DataModelDetail() {
-		parents = new ArrayList<Ancestory>();
-		children = new ArrayList<DataModelDetail>();
+		super();
 	}
-	
+
 	public DataModelDetail(Concept concept, Properties properties) {
+		this();
 		this.setName(concept.getName());
 		this.setIri(concept.getIri());
 		this.setDescription(concept.getDescription());
@@ -86,31 +91,48 @@ public class DataModelDetail {
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
-
-	public void setParents(List<Ancestory> parents) {
-		this.parents = parents;
+	
+	public boolean addParents(Set<TreeNode<DataModelDetail>> parents) {
+		boolean modified = false;
+		
+		if(parents != null) {
+		
+			modified = this.parents.addAll(parents);
+		}
+		
+		return modified;
+	}
+	
+	public boolean addChildren(Set<TreeNode<DataModelDetail>> children) {
+		boolean modified = false;
+		
+		if(children != null) {
+			modified = this.children.addAll(children);
+		}
+		
+		return modified;
+	}
+	
+	public Set<TreeNode<DataModelDetail>> getParents() {
+		return Collections.unmodifiableSet(parents);
 	}
 
-	public void setChildren(List<DataModelDetail> children) {
-		this.children = children;
+	public Set<TreeNode<DataModelDetail>> getChildren() {
+		return Collections.unmodifiableSet(children);
 	}
-
-	public boolean addParent(Ancestory parent) {
-		return this.parents.add(parent);
-	}
-
-	@Valid
-	public List<Ancestory> getParents() {
-		return Collections.unmodifiableList(parents);
-	}
-
-	public boolean addChild(DataModelDetail child) {
-		return this.children.add(child);
-	}
-
-	@Valid
-	public List<DataModelDetail> getChildren() {
-		return Collections.unmodifiableList(children);
+	
+	public boolean isA(String iri) {
+		boolean isA = false;
+		
+		if(iri != null && iri.length() > 0) {
+			Iterator<TreeNode<DataModelDetail>> parentItr = parents.iterator();
+			
+			while(parentItr.hasNext() && isA == false) {
+				isA = isA(parentItr.next(), iri);
+			}
+		}
+		
+		return isA;
 	}
 
 	@Override
@@ -142,4 +164,18 @@ public class DataModelDetail {
 	public String toString() {
 		return "DataModel [iri=" + iri + "]";
 	}
+	
+	private boolean isA(TreeNode<DataModelDetail> treeNode, String iri) {
+		boolean isA = treeNode.getData().getIri().equals(iri);
+		
+		if(isA == false) {
+		Iterator<TreeNode<DataModelDetail>> parentItr = treeNode.getParents().iterator();
+		
+			while(parentItr.hasNext() && isA == false) {
+				isA = isA(parentItr.next(), iri);
+			}
+		}
+		
+		return isA;
+	}	
 }

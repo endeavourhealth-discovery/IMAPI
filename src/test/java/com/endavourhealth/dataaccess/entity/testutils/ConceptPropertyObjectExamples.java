@@ -23,11 +23,9 @@ public class ConceptPropertyObjectExamples {
 			objects = new HashSet<ConceptPropertyObject>();
 		}
 		
-		public ConceptPropertyObjectsBuilder addMultiInheritanceConceptPropertyObjects() {
+		public ConceptPropertyObjectsBuilder addMultiInheritanceConceptPropertyObjects(Concept leaf) {
 
-			// addConceptPropertyObject(conceptPropertyObjects,
-			// initIsAConceptPropertyObject(leafConceptDbId, 2)); // branch
-			objects.add(initIsAConceptPropertyObject(1, 2));
+			objects.add(initConceptPropertyObject(leaf,  ConceptExamples.getConcept(2), ConceptExamples.IS_A_CONCEPT));
 			
 			objects.add(initIsAConceptPropertyObject(2, 3));
 			objects.add(initIsAConceptPropertyObject(3, 5)); // root
@@ -72,12 +70,16 @@ public class ConceptPropertyObjectExamples {
 		}
 
 		private ConceptPropertyObject initConceptPropertyObject(Integer childDbId, Integer parentDbId, Concept propertyConcept) {
+			return initConceptPropertyObject(ConceptExamples.getConcept(childDbId, childDbId.toString()), ConceptExamples.getConcept(parentDbId, parentDbId.toString()), propertyConcept);
+		}
+		
+		private ConceptPropertyObject initConceptPropertyObject(Concept concept, Concept object, Concept property) {
 			ConceptPropertyObject cop = new ConceptPropertyObject();
-			cop.setConcept(ConceptExamples.getConcept(childDbId, childDbId.toString()));
-			cop.setProperty(propertyConcept);
-			cop.setObject(ConceptExamples.getConcept(parentDbId, parentDbId.toString()));
+			cop.setConcept(concept);
+			cop.setProperty(property);
+			cop.setObject(object);
 
-			return cop;
+			return cop;			
 		}
 	}
 

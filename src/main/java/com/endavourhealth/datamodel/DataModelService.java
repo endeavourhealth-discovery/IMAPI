@@ -3,10 +3,15 @@ package com.endavourhealth.datamodel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.endavourhealth.concept.ConceptService;
+import com.endavourhealth.concept.models.TreeNode;
 import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.dataaccess.entity.ConceptTct;
@@ -23,6 +28,8 @@ import com.endavourhealth.datamodel.models.Value;
 
 @Component
 public class DataModelService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(DataModelService.class);
 
 	@Autowired
 	ConceptRepository conceptRepository;
@@ -38,6 +45,38 @@ public class DataModelService {
 	
 	@Autowired
 	ConceptTctService conceptTctService;
+	
+	@Autowired
+	ConceptService conceptService;
+	
+	@Autowired
+	ConceptToDataModelConverter fromConceptConverter;
+	
+	@org.springframework.beans.factory.annotation.Value("${concept.datamodel.iri::DiscoveryCommonDataModel}")
+	String dataModelConceptIri;	
+	
+	public DataModelDetail getDataModelDetail(String iri) {
+		DataModelDetail dataModel = conceptService.fromConcept(iri, fromConceptConverter);
+		
+		if(dataModel != null) {
+			Set<TreeNode<DataModelDetail>> parents = conceptService.getParents(iri, fromConceptConverter);
+			dataModel.addParents(parents);
+			
+			if(dataModel.isA(dataModelConceptIri)) {
+				Set<TreeNode<DataModelDetail>> children = conceptService.getChildren(iri, fromConceptConverter);
+				dataModel.addChildren(children);
+								
+				Properties properties = getDataModelProperties(iri);
+				dataModel.setProperties(properties);				
+			}
+			else {
+				dataModel = null;
+				LOG.warn(String.format("The given iri (%s) is not a type of data model (iri: %s)", iri, dataModelConceptIri));
+			}
+		}
+		
+		return dataModel;
+	}
 
 	public List<DataModel> search(String term) {
 		List<DataModel> datamodels = new ArrayList<DataModel>();
@@ -49,16 +88,6 @@ public class DataModelService {
 
 		return datamodels;
 
-	}
-
-	public DataModelDetail getDataModel(String iri) {
-		Concept concept = conceptRepository.findByIri(iri);
-		
-		Properties properties = new Properties();
-		properties.setCoreProperties(getCoreProperties(concept.getDbid()));
-		properties.setInheritedProperties(getInheritedProperties(concept.getDbid()));
-		
-		return new DataModelDetail(concept, properties);
 	}
 
 	public Properties getDataModelProperties(String iri) {
@@ -106,5 +135,4 @@ public class DataModelService {
 		});
 		return properties;
 	}
-
 }

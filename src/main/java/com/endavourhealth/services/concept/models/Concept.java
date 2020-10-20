@@ -1,6 +1,5 @@
 package com.endavourhealth.services.concept.models;
 
-import java.util.Collections;
 import java.util.Set;
 
 import javax.validation.constraints.NotBlank;
@@ -10,9 +9,6 @@ public class Concept {
 	String name;
 	String iri;
 	String description;
-	
-	//Set<Concept> children;
-
 	ConceptTreeNode tree;
 	
 	public Concept(@NotBlank String iri) {
@@ -40,17 +36,8 @@ public class Concept {
 		return iri;
 	}
 	
-	// unordered
-	public Set<Concept> getParentConcepts() {
-		return Collections.unmodifiableSet(tree.getFlatParents());
-	}
-	
 	public Set<ConceptTreeNode> getParents() {
 		return tree.getParents();
-	}
-	
-	public Set<Concept> getChildConcepts() {
-		return Collections.unmodifiableSet(tree.getChildConcepts());
 	}
 	
 	public Set<ConceptTreeNode> getChildren() {

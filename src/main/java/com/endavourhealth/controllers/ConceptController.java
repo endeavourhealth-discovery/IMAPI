@@ -45,8 +45,8 @@ public class ConceptController {
 	@GetMapping(value = "/concept/{iri}")
 	public Concept getConcept(@PathVariable("iri") String iri) {
 		Concept concept = conceptService.getConcept(iri);
-//		conceptService.addParents(concept);
-//		conceptService.addChildren(concept);
+		conceptService.addParents(concept);
+		conceptService.addChildren(concept);
 		return concept;
 	}
 	

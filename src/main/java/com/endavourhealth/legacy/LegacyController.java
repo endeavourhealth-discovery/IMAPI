@@ -31,11 +31,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class LegacyController {
 
 
-	@Value("${IMNEXT_JDBC_URL}")
+	@Value("${spring.datasource.url}")
 	private String url;
-	@Value("${IMNEXT_JDBC_USERNAME}")
+	@Value("${spring.datasource.username}")
 	private String username;
-	@Value("${IMNEXT_JDBC_PASSWORD}")
+	@Value("${spring.datasource.password}")
 	private String password;
 	
 	ViewerJDBCDAL dal = new ViewerJDBCDAL();

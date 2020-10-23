@@ -7,6 +7,7 @@ public class Query {
 	private List<String> module;
 	private String term;
 	private String view;
+	private String perspectiveId;
 	
 	public Query() {
 		super();
@@ -34,6 +35,12 @@ public class Query {
 	}
 	public void setView(String view) {
 		this.view = view;
+	}
+	public String getPerspectiveId() {
+		return perspectiveId;
+	}
+	public void setPerspectiveId(String perspectiveId) {
+		this.perspectiveId = perspectiveId;
 	}
 	
 	

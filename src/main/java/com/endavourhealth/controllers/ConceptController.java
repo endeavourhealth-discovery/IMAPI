@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endavourhealth.services.axioms.AxiomService;
@@ -18,6 +19,8 @@ import com.endavourhealth.services.concept.models.CreateConcept;
 import com.endavourhealth.services.concept.models.Query;
 import com.endavourhealth.services.members.MembersService;
 import com.endavourhealth.services.members.models.Code;
+import com.endavourhealth.services.perspective.PerspectiveService;
+import com.endavourhealth.services.perspective.models.Perspective;
 import com.endavourhealth.services.properties.PropertiesService;
 import com.endavourhealth.services.properties.models.Properties;
 
@@ -37,16 +40,30 @@ public class ConceptController {
 	@Autowired
 	MembersService valueSetService;
 	
+	@Autowired
+	PerspectiveService perspectiveService;
+	
 	@PostMapping(value = "/concept/search")
 	public List<Concept> search(@RequestBody Query query) {
-		return conceptService.search(query.getTerm());
+		List<Concept> concepts = null;
+		
+		Perspective perspective = perspectiveService.getPerspective(query.getPerspectiveId());
+		if(perspective != null) {
+			concepts = conceptService.search(query.getTerm(), perspective.getRootIri());	
+		}
+		
+		return concepts;
 	}
 	
 	@GetMapping(value = "/concept/{iri}")
-	public Concept getConcept(@PathVariable("iri") String iri) {
-		Concept concept = conceptService.getConcept(iri);
-		conceptService.addParents(concept);
-		conceptService.addChildren(concept);
+	public Concept getConcept(@PathVariable("iri") String iri, @RequestParam(name = "perspective") String perspectiveId) {
+		Concept concept = null;
+		
+		Perspective perspective = perspectiveService.getPerspective(perspectiveId);
+		if(perspective != null) {
+			concept = conceptService.getConcept(iri, perspective.getInheritancePropertyIris(), perspective.getRootIri());	
+		}
+		
 		return concept;
 	}
 	

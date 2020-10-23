@@ -2,18 +2,22 @@ package com.endavourhealth.services.concept.models;
 
 import java.util.Set;
 
-import javax.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Concept {
 
+	@JsonIgnore
+	int dbId;
+	
 	String name;
 	String iri;
 	String description;
-	ConceptTreeNode tree;
+	Set<Parent> parents;
+	Set<Relationship> children;
+	Long childCount;
 	
-	public Concept(@NotBlank String iri) {
+	public Concept(String iri) {
 		this.iri = iri;
-		this.tree = new ConceptTreeNode(this);
 	}
 
 	public String getName() {
@@ -36,46 +40,38 @@ public class Concept {
 		return iri;
 	}
 	
-	public Set<ConceptTreeNode> getParents() {
-		return tree.getParents();
+	public int getDbId() {
+		return dbId;
+	}
+
+	public void setDbId(int dbId) {
+		this.dbId = dbId;
 	}
 	
-	public Set<ConceptTreeNode> getChildren() {
-		return tree.getChildren();
+	public Set<Parent> getParents() {
+		return parents;
 	}
-	
-	public boolean addParent(Concept parentConcept) {
-		return tree.addParent(parentConcept.getTree());
+
+	public void setParents(Set<Parent> parents) {
+		this.parents = parents;
 	}
-	
-	public boolean addChild(Concept childConcept) {
-		return tree.addChild(childConcept.getTree());
+
+	public Set<Relationship> getChildren() {
+		return children;
 	}
-	
-	public boolean hasChildren() {
-		return tree.getChildren() != null && tree.getChildren().isEmpty() == false; // need to be a set of children
+
+	public void setChildren(Set<Relationship> children) {
+		this.children = children;
 	}
-	
-	public boolean hasParents() {
-		return tree.getParents() != null && tree.getParents().isEmpty() == false; // need to be a set of children
+
+	public Long getChildCount() {
+		return childCount;
 	}
-	
-	public boolean isA(Concept parent) {
-		return tree.hasParent(parent);
+
+	public void setChildCount(Long childCount) {
+		this.childCount = childCount;
 	}
-		
-	public boolean isA(String conceptIri) {
-		return tree.hasParent(new Concept(conceptIri));
-	}
-	
-	public boolean deepEquals(Concept other) {
-		boolean deepEquals = this.equals(other);
-		
-		deepEquals = tree.deepEquals(other.tree);
-		
-		return deepEquals;
-	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -104,10 +100,5 @@ public class Concept {
 	@Override
 	public String toString() {
 		return "Concept [iri=" + iri + "]";
-	}
-	
-	ConceptTreeNode getTree() {
-		return tree;
-	}
-	
+	}	
 }

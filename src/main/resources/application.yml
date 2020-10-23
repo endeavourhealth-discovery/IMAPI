@@ -1,0 +1,27 @@
+spring:
+ jpa.hibernate.ddl-auto: "none"
+ 
+ datasource: 
+  url: "jdbc:mysql://localhost:3306/im_next"
+  username: "imviewer"
+  password: "imviewer"
+  
+ jackson.serialization.fail-on-empty-beans: false
+ 
+info-model:
+ perspectives:
+  - name: "datamodel"
+    root-iri: ":DiscoveryCommonDataModel"
+    inheritance-property-iris:
+     - "sn:116680003"
+  - name: "ontology"
+    root-iri: ":903021000252102"
+    inheritance-property-iris:
+     - "sn:116680003"
+  - name: "valueset"
+    root-iri: ":VSET_ValueSet"
+    inheritance-property-iris:
+     - "sn:116680003"  
+     - ":3521000252101"       
+    
+  

@@ -10,7 +10,8 @@ import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 @Repository
 public interface ConceptPropertyObjectRepository extends JpaRepository<ConceptPropertyObject, String>{
 	
-	List<ConceptPropertyObject> findByConceptDbid(int conceptDbid);
-	List<ConceptPropertyObject> findByPropertyDbid(int propertyDbid);
-	List<ConceptPropertyObject> findByObjectDbid(int objectDbid);
+	List<ConceptPropertyObject> findByConceptDbid(int conceptDbid);	
+	List<ConceptPropertyObject> findByConceptDbidAndPropertyDbid(int conceptDbid, int propertyDbid);
+	List<ConceptPropertyObject> findByObjectDbidAndPropertyDbid(int objectDbid, int propertyDbid);
+	
 }

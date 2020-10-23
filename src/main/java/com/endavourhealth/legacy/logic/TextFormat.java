@@ -1,25 +1,26 @@
 package com.endavourhealth.legacy.logic;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.endavourhealth.legacy.dal.ViewerDAL;
 import com.endavourhealth.legacy.dal.ViewerJDBCDAL;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 public class TextFormat {
-    private final ViewerDAL dal;
+    
+    private ViewerJDBCDAL dal = new ViewerJDBCDAL();
 
     public TextFormat() {
         this.dal = new ViewerJDBCDAL();
     }
 
-    public String get(String iri) throws Exception {
-        List<JsonNode> axioms = dal.getAxioms(iri);
+    public String get(String iri, Connection conn) throws Exception {
+        List<JsonNode> axioms = dal.getAxioms(iri, conn);
         List<String> text = new ArrayList<>();
 
         for(JsonNode node: axioms) {

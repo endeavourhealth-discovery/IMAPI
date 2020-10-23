@@ -1,9 +1,11 @@
 package com.endavourhealth.legacy;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,70 +29,104 @@ import com.fasterxml.jackson.databind.JsonNode;
 @CrossOrigin
 public class LegacyController {
 	
+	DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/im_next?useSSL=false", "root", "password");
+	
 	@GetMapping(value = "/Search")
-	public List<Concept> search(@RequestParam("root") String root, @RequestParam("term") String term, @RequestParam("relationship") List<String> relationships) throws SQLException {
+	public List<Concept> search(@RequestParam("root") String root, @RequestParam("term") String term, @RequestParam(value = "relationship", required = false) List<String> relationships) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.search(term, root, relationships);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<Concept> result = dal.search(term, root, relationships, conn);
+		conn.close();
+		return result;
 	}
 	
 	@GetMapping(value = "/{iri}")
 	public Concept getConcept(@PathVariable("iri") String iri) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getConcept(iri);
+		Connection conn = driverManagerDataSource.getConnection();
+		Concept concept = dal.getConcept(iri, conn);
+		conn.close();
+		return concept;
 	}
 	
 	@GetMapping(value = "/{iri}/Tree")
-	public List<RelatedConcept> getTree(@PathVariable("iri") String iri, @RequestParam("root") String root, @RequestParam("relationship") List<String> relationships) throws SQLException {
+	public List<RelatedConcept> getTree(@PathVariable("iri") String iri, @RequestParam("root") String root, @RequestParam(value = "relationship", required = false) List<String> relationships) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getTree(iri, root, relationships);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<RelatedConcept> tree = dal.getTree(iri, root, relationships, conn);
+		conn.close();
+		return tree;
 	}
 	
 	@GetMapping(value = "/{iri}/Properties")
-	public List<Property> getProperties(@PathVariable("iri") String iri, @RequestParam("inherited") Boolean inherited) throws SQLException, IOException {
+	public List<Property> getProperties(@PathVariable("iri") String iri, @RequestParam(value = "inherited", required = false) Boolean inherited) throws SQLException, IOException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getProperties(iri, (inherited == null) ? false : inherited);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<Property> properties = dal.getProperties(iri, (inherited == null) ? false : inherited, conn);
+		conn.close();
+		return properties;
 	}
 	
 	@GetMapping(value = "/{iri}/Textual")
 	public String getTextual(@PathVariable("iri") String iri) throws Exception {
-		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return new TextFormat().get(iri);
+		Connection conn = driverManagerDataSource.getConnection();
+		String textual = new TextFormat().get(iri, conn);
+		conn.close();
+		return textual;
 	}
 	
 	@GetMapping(value = "/{iri}/Definition")
 	public List<JsonNode> getDefinition(@PathVariable("iri") String iri) throws SQLException, IOException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getAxioms(iri);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<JsonNode> definition = dal.getAxioms(iri, conn);
+		conn.close();
+		return definition;
 	}
 	
 	@GetMapping(value = "/{iri}/Sources")
-	public PagedResultSet<RelatedConcept> getSources(@PathVariable("iri") String iri, @RequestParam("relationship") List<String> relationships, @RequestParam("limit") Integer limit, @RequestParam("page") Integer page) throws SQLException {
+	public PagedResultSet<RelatedConcept> getSources(@PathVariable("iri") String iri, @RequestParam(value = "relationship", required = false) List<String> relationships, @RequestParam("limit") Integer limit, @RequestParam("page") Integer page) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getSources(iri, relationships, limit, page);
+		Connection conn = driverManagerDataSource.getConnection();
+		PagedResultSet<RelatedConcept> sources = dal.getSources(iri, relationships, limit, page, conn);
+		conn.close();
+		return sources;
 	}
 	
 	@GetMapping(value = "/{iri}/Targets")
-	public PagedResultSet<RelatedConcept> getTargets(@PathVariable("iri") String iri, @RequestParam("relationship") List<String> relationships, @RequestParam("limit") Integer limit, @RequestParam("page") Integer page) throws SQLException {
+	public PagedResultSet<RelatedConcept> getTargets(@PathVariable("iri") String iri, @RequestParam(value = "relationship", required = false) List<String> relationships, @RequestParam("limit") Integer limit, @RequestParam("page") Integer page) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getTargets(iri, relationships, limit, page);
+		Connection conn = driverManagerDataSource.getConnection();
+		PagedResultSet<RelatedConcept> targets = dal.getTargets(iri, relationships, limit, page, conn);
+		conn.close();
+		return targets;
 	}
 	
 	@GetMapping(value = "/{iri}/members")
 	public List<ValueSetMember> getMembers(@PathVariable("iri") String iri) throws SQLException, IOException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getValueSetMembers(iri);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<ValueSetMember> members = dal.getValueSetMembers(iri, conn);
+		conn.close();
+		return members;
 	}
 	
 	@GetMapping(value = "/{iri}/childCountByScheme")
 	public List<SchemeCount> getChildCountByScheme(@PathVariable("iri") String iri) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getChildCountByScheme(iri);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<SchemeCount> childCountByScheme = dal.getChildCountByScheme(iri, conn);
+		conn.close();
+		return childCountByScheme;
 	}
 	
 	@GetMapping(value = "/{iri}/children")
 	public List<SchemeChildren> getChildren(@PathVariable("iri") String iri, @RequestParam("scheme") String scheme) throws SQLException {
 		ViewerJDBCDAL dal = new ViewerJDBCDAL();
-		return dal.getChildren(iri, scheme);
+		Connection conn = driverManagerDataSource.getConnection();
+		List<SchemeChildren> children = dal.getChildren(iri, scheme, conn);
+		conn.close();
+		return children;
 	}
 	
 }

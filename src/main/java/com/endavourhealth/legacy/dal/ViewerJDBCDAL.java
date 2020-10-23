@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
 import com.endavourhealth.legacy.models.Concept;
 import com.endavourhealth.legacy.models.PagedResultSet;
 import com.endavourhealth.legacy.models.Property;
@@ -20,17 +18,12 @@ import com.endavourhealth.legacy.models.SchemeCount;
 import com.endavourhealth.legacy.models.ValueSetMember;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class ViewerJDBCDAL implements ViewerDAL {
+public class ViewerJDBCDAL {
     private final String IS_A = "sn:116680003";
     private final String HAS_MEMBER = ":3521000252101";
-    
 
-    DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/im_next?useSSL=false", "root", "password");
-
-    public List<JsonNode> getAxioms(String iri) throws SQLException, IOException {
+    public List<JsonNode> getAxioms(String iri, Connection conn) throws SQLException, IOException {
         List<JsonNode> result = new ArrayList<>();
-        
-        Connection conn = driverManagerDataSource.getConnection();
 
         String sql = "SELECT a.definition FROM concept c JOIN concept_axiom a ON a.concept = c.dbid WHERE c.iri = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -46,7 +39,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         return result;
     }
 
-    public PagedResultSet<RelatedConcept> getSources(String iri, List<String> relationships, int limit, int page) throws SQLException {
+    public PagedResultSet<RelatedConcept> getSources(String iri, List<String> relationships, int limit, int page, Connection conn) throws SQLException {
         String sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT\n" +
             "o.minCardinality, o.maxCardinality,\n" +
             "p.iri AS r_iri, p.name AS r_name, p.description AS r_description,\n" +
@@ -69,7 +62,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
         PagedResultSet<RelatedConcept> result = new PagedResultSet<RelatedConcept>() 
             .setPage(page)
             .setPageSize(limit);
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, iri);
@@ -98,7 +90,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         return result;
     }
 
-    public PagedResultSet<RelatedConcept> getTargets(String iri, List<String> relationships, int limit, int page) throws SQLException {
+    public PagedResultSet<RelatedConcept> getTargets(String iri, List<String> relationships, int limit, int page, Connection conn) throws SQLException {
         String sql = "SELECT SQL_CALC_FOUND_ROWS DISTINCT\n" +
             "o.minCardinality, o.maxCardinality,\n" +
             "p.iri AS r_iri, p.name AS r_name, p.description AS r_description,\n" +
@@ -121,7 +113,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
         PagedResultSet<RelatedConcept> result = new PagedResultSet<RelatedConcept>()
             .setPage(page)
             .setPageSize(limit);
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, iri);
@@ -150,9 +141,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         return result;
     }
 
-    public Concept getConcept(String iri) throws SQLException {
-    	
-    	Connection conn = driverManagerDataSource.getConnection();
+    public Concept getConcept(String iri, Connection conn) throws SQLException {
 
         String sql = "SELECT iri, name, description FROM concept WHERE iri = ?";
 //        Connection conn = driverManagerDataSource.getConnection();
@@ -167,7 +156,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         }
     }
 
-    public List<Concept> search(String term, String root, List<String> relationships) throws SQLException {
+    public List<Concept> search(String term, String root, List<String> relationships, Connection conn) throws SQLException {
         String sql = "SELECT c.iri, c.name, c.description\n" +
             "FROM concept c\n" +
             "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0\n" +
@@ -181,7 +170,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
         sql += "ORDER BY LENGTH(c.name)\n" +
             "LIMIT 10";
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, '%' + term + '%');
@@ -198,7 +186,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         }
     }
 
-    public List<RelatedConcept> getTree(String iri, String root, List<String> relationships) throws SQLException {
+    public List<RelatedConcept> getTree(String iri, String root, List<String> relationships, Connection conn) throws SQLException {
         List<RelatedConcept> result = new ArrayList<>();
 
         if (iri.equals(root))
@@ -218,7 +206,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
         sql += "GROUP BY tct.level\n" +
             "ORDER BY tct.level";
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
             stmt.setString(i++, iri);
@@ -265,7 +252,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         }
     }*/
 
-    public List<Property> getProperties(String iri, boolean inherited) throws SQLException, IOException {
+    public List<Property> getProperties(String iri, boolean inherited, Connection conn) throws SQLException, IOException {
         String sql = "SELECT p.iri AS p_iri, p.name AS p_name,\n" +
             "cpo.minCardinality AS min_cardinality,\n" +
             "cpo.maxCardinality AS max_cardinality,\n" +
@@ -297,7 +284,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
                 "JOIN concept t ON t.dbid = tct.target\n" +
                 "WHERE c.iri = ?\n" +
                 "AND t.iri IN ('owl:topObjectProperty', 'owl:topDataProperty')\n";
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, iri);
 
@@ -313,7 +299,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
     // **************************************** VALUE SETS ****************************************
 
-    public List<ValueSetMember> getValueSetMembers(String iri) throws SQLException, IOException {
+    public List<ValueSetMember> getValueSetMembers(String iri, Connection conn) throws SQLException, IOException {
         List<ValueSetMember> result = new ArrayList<>();
 
         String sql = "SELECT m.iri, m.name, m.code\n" +
@@ -322,7 +308,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
             "JOIN concept_property_object cpo ON cpo.concept = v.dbid AND cpo.property = p.dbid\n" +
             "JOIN concept m ON m.dbid = cpo.object\n" +
             "WHERE v.iri = ?";
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, HAS_MEMBER);
             stmt.setString(2, iri);
@@ -340,7 +325,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         return result;
     }
 
-    public List<SchemeCount> getChildCountByScheme(String iri) throws SQLException {
+    public List<SchemeCount> getChildCountByScheme(String iri, Connection conn) throws SQLException {
         List<SchemeCount> result = new ArrayList<>();
 
         String sql = "SELECT scm.iri, scm.name AS scheme, COUNT(DISTINCT(s.dbid)) AS cnt\n" +
@@ -352,7 +337,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
             "WHERE c.iri = ?\n" +
             "GROUP BY scm.dbid";
 
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             DALHelper.setString(stmt, 1, IS_A);
             DALHelper.setString(stmt, 2, iri);
@@ -371,7 +355,7 @@ public class ViewerJDBCDAL implements ViewerDAL {
         return result;
     }
 
-    public List<SchemeChildren> getChildren(String iri, String scheme) throws SQLException {
+    public List<SchemeChildren> getChildren(String iri, String scheme, Connection conn) throws SQLException {
         List<SchemeChildren> result = new ArrayList<>();
 
         String sql = "SELECT DISTINCT scm.iri, scm.name AS scheme, s.iri AS childIri, s.name AS childName, s.code AS childCode\n" +
@@ -387,7 +371,6 @@ public class ViewerJDBCDAL implements ViewerDAL {
 
         sql += "ORDER BY scm.name, s.name\n";
 
-        Connection conn = driverManagerDataSource.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             DALHelper.setString(stmt, 1, IS_A);
             DALHelper.setString(stmt, 2, iri);

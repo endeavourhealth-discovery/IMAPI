@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files:
+  - source: /target/IMAPI-0.0.1-SNAPSHOT
+    destination: //opt/tomcat/webapps/imapi
+hooks:
+  BeforeInstall:
+    - location: aws_scripts/cleanup
+      timeout: 300
+      runas: root

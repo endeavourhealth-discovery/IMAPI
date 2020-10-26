@@ -37,12 +37,12 @@ public class ConceptController {
 	@Autowired
 	MembersService valueSetService;
 	
-	@PostMapping(value = "/concept/search")
+	@PostMapping(value = "/api/concept/search")
 	public List<Concept> search(@RequestBody Query query) {
 		return conceptService.search(query.getTerm());
 	}
 	
-	@GetMapping(value = "/concept/{iri}")
+	@GetMapping(value = "/api/concept/{iri}")
 	public Concept getConcept(@PathVariable("iri") String iri) {
 		Concept concept = conceptService.getConcept(iri);
 		conceptService.addParents(concept);
@@ -50,22 +50,22 @@ public class ConceptController {
 		return concept;
 	}
 	
-	@GetMapping(value = "/properties/{iri}")
+	@GetMapping(value = "/api/properties/{iri}")
 	public Properties getProperties(@PathVariable("iri") String iri) {
 		return dataModelService.getProperties(iri);
 	}
 	
-	@GetMapping(value = "/axioms/{iri}")
+	@GetMapping(value = "/api/axioms/{iri}")
 	public List<Axiom> getAxioms(@PathVariable("iri") String iri) {
 		return ontologyService.getAxioms(iri);
 	}
 	
-	@GetMapping(value = "/members/{iri}")
+	@GetMapping(value = "/api/members/{iri}")
 	public List<Code> getMembers(@PathVariable("iri") String iri) {
 		return valueSetService.getMembers(iri);
 	}
 	
-	@PostMapping(value = "/concept")
+	@PostMapping(value = "/api/concept")
 	public Concept createConcept(@RequestBody CreateConcept newConcept) {
 		return new Concept(null);
 	}

@@ -162,7 +162,8 @@ public class ViewerJDBCDAL {
             "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0\n" +
             "JOIN concept p ON p.dbid = tct.property\n" +
             "JOIN concept t ON t.dbid = tct.target\n" +
-            "WHERE c.name LIKE ?\n" +
+//            "WHERE c.name LIKE ?\n" +
+            "WHERE (c.name LIKE ? OR c.iri LIKE ?)\n" +
             "AND t.iri = ?\n";
 
         if (relationships != null && !relationships.isEmpty())
@@ -172,6 +173,7 @@ public class ViewerJDBCDAL {
             "LIMIT 10";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             int i = 1;
+            stmt.setString(i++, '%' + term + '%');
             stmt.setString(i++, '%' + term + '%');
             stmt.setString(i++, root);
 

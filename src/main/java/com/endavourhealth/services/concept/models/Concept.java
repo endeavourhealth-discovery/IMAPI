@@ -4,11 +4,20 @@ import java.util.Set;
 
 import javax.validation.constraints.NotBlank;
 
+import com.endavourhealth.dataaccess.entity.ConceptStatus;
+import com.endavourhealth.dataaccess.entity.Namespace;
+
 public class Concept {
 
 	String name;
 	String iri;
 	String description;
+	String code;
+	Integer scheme;
+	ConceptStatus status;
+	Integer weighting;
+	Namespace namespace;
+	
 	ConceptTreeNode tree;
 	
 	public Concept(@NotBlank String iri) {
@@ -36,6 +45,46 @@ public class Concept {
 		return iri;
 	}
 	
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public Integer getScheme() {
+		return scheme;
+	}
+
+	public void setScheme(Integer scheme) {
+		this.scheme = scheme;
+	}
+
+	public ConceptStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(ConceptStatus status) {
+		this.status = status;
+	}
+
+	public Integer getWeighting() {
+		return weighting;
+	}
+
+	public void setWeighting(Integer weighting) {
+		this.weighting = weighting;
+	}
+
+	public Namespace getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(Namespace namespace) {
+		this.namespace = namespace;
+	}
+
 	public Set<ConceptTreeNode> getParents() {
 		return tree.getParents();
 	}

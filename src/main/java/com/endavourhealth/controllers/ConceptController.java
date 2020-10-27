@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
 import com.endavourhealth.services.axioms.AxiomService;
 import com.endavourhealth.services.axioms.models.Axiom;
 import com.endavourhealth.services.concept.ConceptService;
@@ -29,7 +30,7 @@ public class ConceptController {
 	ConceptService conceptService;
 	
 	@Autowired
-	PropertiesService dataModelService;
+	PropertiesService propertiesService;
 	
 	@Autowired
 	AxiomService ontologyService;
@@ -45,14 +46,14 @@ public class ConceptController {
 	@GetMapping(value = "/api/concept/{iri}")
 	public Concept getConcept(@PathVariable("iri") String iri) {
 		Concept concept = conceptService.getConcept(iri);
-		conceptService.addParents(concept);
-		conceptService.addChildren(concept);
+//		conceptService.addParents(concept);
+//		conceptService.addChildren(concept);
 		return concept;
 	}
 	
 	@GetMapping(value = "/api/properties/{iri}")
 	public Properties getProperties(@PathVariable("iri") String iri) {
-		return dataModelService.getProperties(iri);
+		return propertiesService.getProperties(iri);
 	}
 	
 	@GetMapping(value = "/api/axioms/{iri}")
@@ -68,6 +69,11 @@ public class ConceptController {
 	@PostMapping(value = "/api/concept")
 	public Concept createConcept(@RequestBody CreateConcept newConcept) {
 		return new Concept(null);
+	}
+	
+	@GetMapping(value = "/api/conceptpropertyobjects/{iri}")
+	public List<ConceptPropertyObject> getConceptPropertyObjects(@PathVariable("iri") String iri) {
+		return propertiesService.getConceptPropertyObjects(iri);
 	}
 
 }

@@ -83,4 +83,12 @@ public class PropertiesService {
 		return properties;
 	}
 
+	public List<ConceptPropertyObject> getConceptPropertyObjects(String iri) {
+		Concept concept = conceptRepository.findByIri(iri);
+		
+		List<ConceptPropertyObject> conceptPropertyObjects = conceptPropertyObjectRepository.findByConceptDbid(concept.getDbid());
+		
+		return conceptPropertyObjects;
+	}
+
 }

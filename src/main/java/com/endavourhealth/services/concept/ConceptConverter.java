@@ -14,6 +14,11 @@ public class ConceptConverter {
 		
 		model.setDescription(entity.getDescription());
 		model.setName(entity.getName());
+		model.setNamespace(entity.getNamespace());
+		model.setCode(entity.getCode());
+		model.setScheme(entity.getScheme());
+		model.setStatus(entity.getStatus());
+		model.setWeighting(entity.getWeighting());
 		
 		return model;
 	}

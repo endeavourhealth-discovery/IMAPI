@@ -302,12 +302,13 @@ public class ViewerJDBCDAL {
     public List<ValueSetMember> getValueSetMembers(String iri, Connection conn) throws SQLException, IOException {
         List<ValueSetMember> result = new ArrayList<>();
 
-        String sql = "SELECT m.iri, m.name, m.code\n" +
-            "FROM concept v\n" +
-            "JOIN concept p ON p.iri = ?\n" +
-            "JOIN concept_property_object cpo ON cpo.concept = v.dbid AND cpo.property = p.dbid\n" +
-            "JOIN concept m ON m.dbid = cpo.object\n" +
-            "WHERE v.iri = ?";
+        String sql = "SELECT m.iri, m.name, m.code, IFNULL(operator.name,'or')  as operator\n" +
+        		"FROM concept v\n" +
+        		"JOIN concept p ON p.iri = ?\n" +
+        		"JOIN concept_property_object cpo ON cpo.concept = v.dbid AND cpo.property = p.dbid\n" +
+        		"JOIN concept m ON m.dbid = cpo.object\n" +
+        		"LEFT OUTER JOIN concept operator ON cpo.operator = operator.dbid\n" +
+        		"WHERE v.iri = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, HAS_MEMBER);
             stmt.setString(2, iri);
@@ -317,6 +318,7 @@ public class ViewerJDBCDAL {
                         .setIri(rs.getString("iri"))
                         .setName(rs.getString("name"))
                         .setCode(rs.getString("code"))
+                        .setOperatorName(rs.getString("operator"))
                     );
                 }
             }

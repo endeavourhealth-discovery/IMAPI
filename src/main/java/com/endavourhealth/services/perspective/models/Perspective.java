@@ -2,6 +2,8 @@ package com.endavourhealth.services.perspective.models;
 
 import java.util.Set;
 
+import com.endavourhealth.services.concept.models.Concept;
+
 
 public class Perspective {
 
@@ -31,5 +33,9 @@ public class Perspective {
 	
 	public void setInheritancePropertyIris(Set<String> inheritancePropertyIris) {
 		this.inheritancePropertyIris = inheritancePropertyIris;
-	}	
+	}
+	
+	public Concept getConcept(String iri) {
+		return null;
+	}
 }

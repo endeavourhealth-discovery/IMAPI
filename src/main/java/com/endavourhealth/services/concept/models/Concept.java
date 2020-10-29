@@ -2,6 +2,8 @@ package com.endavourhealth.services.concept.models;
 
 import java.util.Set;
 
+import com.endavourhealth.services.properties.models.Property;
+import com.endavourhealth.services.properties.models.PropertyNode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Concept {
@@ -12,8 +14,9 @@ public class Concept {
 	String name;
 	String iri;
 	String description;
-	Set<Parent> parents;
-	Set<Relationship> children;
+	Set<PropertyNode> parents;
+	Set<Property> children;
+	Set<Property> properties; // inherited, core, extended?
 	Long childCount;
 	
 	public Concept(String iri) {
@@ -48,20 +51,21 @@ public class Concept {
 		this.dbId = dbId;
 	}
 	
-	public Set<Parent> getParents() {
+	public Set<PropertyNode> getParents() {
 		return parents;
 	}
 
-	public void setParents(Set<Parent> parents) {
+	public void setParents(Set<PropertyNode> parents) {
 		this.parents = parents;
 	}
 
-	public Set<Relationship> getChildren() {
+	public Set<Property> getChildren() {
 		return children;
 	}
 
-	public void setChildren(Set<Relationship> children) {
+	public void setChildren(Set<Property> children) {
 		this.children = children;
+		setChildCount((long) children.size());
 	}
 
 	public Long getChildCount() {
@@ -70,6 +74,14 @@ public class Concept {
 
 	public void setChildCount(Long childCount) {
 		this.childCount = childCount;
+	}
+
+	public Set<Property> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Set<Property> properties) {
+		this.properties = properties;
 	}
 
 	@Override

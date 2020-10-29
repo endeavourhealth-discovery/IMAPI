@@ -4,8 +4,9 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
 
-import com.endavourhealth.dataaccess.entity.Concept;
 import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
+import com.endavourhealth.services.concept.models.Concept;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -30,29 +31,30 @@ public class Property {
 	private Integer maxCardinality = null;
 
 	@JsonProperty("value")
-	private Value value = null;
+	private Concept value = null;
 
-	public Property() {
-		super();
-	}
+	@JsonIgnore
+	private Concept owner = null;
 	
-	public Property(ConceptPropertyObject conceptPropertyObject, Concept propertyConcept, Value value) {
-		this.setIri(propertyConcept.getIri());
-		this.setName(propertyConcept.getName());
-		this.setDescription(propertyConcept.getDescription());
-		this.setMinCardinality(conceptPropertyObject.getMinCardinality());
-		this.setMaxCardinality(conceptPropertyObject.getMaxCardinality());
-		this.setValue(value);
+//	public Property(ConceptPropertyObject conceptPropertyObject, Concept propertyConcept, Value value) {
+//		this.setIri(propertyConcept.getIri());
+//		this.setName(propertyConcept.getName());
+//		this.setDescription(propertyConcept.getDescription());
+//		this.setMinCardinality(conceptPropertyObject.getMinCardinality());
+//		this.setMaxCardinality(conceptPropertyObject.getMaxCardinality());
+//		this.setValue(value);
+//	}
+
+	public Property(String iri, Concept value, Concept owner) {
+		this.iri = iri;
+		this.value = value;
+		this.owner = owner;
 	}
 
 	@NotNull
 
 	public String getIri() {
 		return iri;
-	}
-
-	public void setIri(String iri) {
-		this.iri = iri;
 	}
 
 	@NotNull
@@ -89,12 +91,12 @@ public class Property {
 		this.minCardinality = minCardinality;
 	}
 
-	public Value getValue() {
+	public Concept getValue() {
 		return value;
 	}
-
-	public void setValue(Value value) {
-		this.value = value;
+	
+	public Concept getOwner() {
+		return owner;
 	}
 
 	@Override
@@ -102,6 +104,8 @@ public class Property {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((iri == null) ? 0 : iri.hashCode());
+		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -119,12 +123,21 @@ public class Property {
 				return false;
 		} else if (!iri.equals(other.iri))
 			return false;
+		if (owner == null) {
+			if (other.owner != null)
+				return false;
+		} else if (!owner.equals(other.owner))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Property [iri=" + iri + "]";
+		return "Property [iri=" + iri + ", value=" + value + ", owner=" + owner + "]";
 	}
-
 }

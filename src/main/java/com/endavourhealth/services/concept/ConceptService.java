@@ -1,8 +1,8 @@
 package com.endavourhealth.services.concept;
 
 import static com.endavourhealth.services.concept.ConceptConverter.toConcept;
+import static com.endavourhealth.services.properties.PropertyConverter.flip;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,10 +16,9 @@ import org.springframework.stereotype.Service;
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
 import com.endavourhealth.services.concept.models.Concept;
-import com.endavourhealth.services.concept.models.Parent;
-import com.endavourhealth.services.concept.models.Relationship;
-import com.endavourhealth.services.properties.InheritancePropertyService;
-import com.endavourhealth.services.properties.models.InheritanceProperty;
+import com.endavourhealth.services.properties.PropertiesService;
+import com.endavourhealth.services.properties.models.Property;
+import com.endavourhealth.services.properties.models.PropertyNode;
 
 @Service
 public class ConceptService {
@@ -30,7 +29,7 @@ public class ConceptService {
 	ConceptRepository conceptRepository;
 	
 	@Autowired
-	InheritancePropertyService inheritancePropertyService;
+	PropertiesService propertyService;
 	
 	@Autowired
 	ConceptTctRepository conceptTctRepository;
@@ -51,96 +50,84 @@ public class ConceptService {
 		Concept concept = toConcept(conceptRepository.findByIri(iri));
 		
 		if(concept != null && inheritanceProperties.isEmpty() == false ) {
-			concept.setParents(inheritancePropertyService.getParents(concept, inheritanceProperties, rootParentIri));
-			concept.setChildren(inheritancePropertyService.getChildren(concept, inheritanceProperties));
+
+			// get all parents up until and including the root parent
+			concept.setParents(propertyService.getInheritedProperties(concept.getDbId(), inheritanceProperties, rootParentIri));
+
+			// get all direct properties and remove the inheritance properties thus exclusing parents
+			Set<Property> allChildProperties = propertyService.getProperties(concept.getDbId());
+
+			Set<Property> properties = allChildProperties.stream()
+						 								 .filter(p -> inheritanceProperties.contains(p.getIri()) == false)
+						 								 .collect(Collectors.toSet());
 			
-			setChildCount(concept);
-			for(Relationship child : concept.getChildren()) {
-				setChildCount(child.getRealtion());
+			concept.setProperties(properties);
+			
+			// get all properties where the concept is referenced as a parent
+			// Because this is inheritance flip the owner and values around
+			Set<Property> children = propertyService.getReferences(concept.getDbId(), inheritanceProperties).stream()
+																											.map(p -> flip(p))
+																											.collect(Collectors.toSet());
+			concept.setChildren(children);				  							  
+
+			for(Property child : concept.getChildren()) {
+				setChildCount(child.getValue());
 			}
 		}
 		
 		return concept;
 	}
-	
-	private void setChildCount(Concept concept) {
-		Long childCount = conceptTctRepository.countByTargetDbidAndLevel(concept.getDbId(), ConceptTctRepository.DIRECT_RELATION_LEVEL);
-		concept.setChildCount(childCount);
-	}
-
-	/**
-	 * Add the the full parent inheritance hierarchy to the given concept. 
-	 * <br>
-	 * Note: it is assumed that the concept exists within the database. If not then this method will not add any parents. To the
-	 * caller it will appear as though the concept does not have any parents. This may not in fact be the case if the concept cannot
-	 * be resolved. It is the caller's responsibility to ensure that the concept exists within the database
-	 * 
-	 * @param concept - the concept to add parents to (must not be null)
-	 */
-//	public void addParents(Concept concept) {
-//		Integer conceptDbId = identifierService.getDbId(concept);
-//		
-//		if(conceptDbId != null) {
-//			parentService.addParents(concept, conceptDbId);
-//		}
-//		else {
-//			LOG.debug(String.format("No entity could be found the corresponds to the concept: %s", concept));
-//		}
-//	}
-
-	/**
-	 * Add the the direct children to the given concept ie those that inherit directly from the concept. 
-	 * <br>
-	 * Note: it is assumed that the concept exists within the database. If not then this method will not add any children. To the
-	 * caller it will appear as though the concept does not have any children. This may not in fact be the case if the concept cannot
-	 * be resolved. It is the caller's responsibility to ensure that the concept exists within the database
-	 * 
-	 * @param concept - the concept to add children to (must not be null)
-	 */
-//	public void addChildren(Concept concept) {
-//		Integer conceptDbId = identifierService.getDbId(concept);
-//		
-//		if(conceptDbId != null) {
-//			childService.addDirectChildren(concept, conceptDbId);
-//		}
-//		else {
-//			LOG.debug(String.format("No entity could be found the corresponds to the concept: %s", concept));
-//		}
-//	}
 
 	public List<Concept> search(String term, String rootIri) {
 		return conceptRepository.search(term, rootIri).stream()
 													  .map(c -> toConcept(c))
 													  .collect(Collectors.toList());
 	}
+	
+	public Set<PropertyNode> getParents(String iri, Set<String> inheritanceProperties, String rootParentIri) {
+		Set<PropertyNode> parents = new HashSet<PropertyNode>();
+		
+		Concept concept = toConcept(conceptRepository.findByIri(iri));
+		
+		if(concept != null && inheritanceProperties.isEmpty() == false ) {
+			parents.addAll(propertyService.getInheritedProperties(concept.getDbId(), inheritanceProperties, rootParentIri));
+		}
+		
+		return parents;
+	}
+	
+	public Set<Property> getChildren(String iri, Set<String> inheritanceProperties) {
+		Set<Property> children = new HashSet<Property>();
+		
+		Concept concept = toConcept(conceptRepository.findByIri(iri));
+		
+		if(concept != null && inheritanceProperties.isEmpty() == false ) {
+			children.addAll(propertyService.getProperties(concept.getDbId(), inheritanceProperties.toArray(new String[] {})));
+		}
+		
+		return children;
+	}
+	
+	public Set<Property> getProperties(String iri, Set<String> inheritanceProperties) {
+		Set<Property> properties = new HashSet<Property>();
+		
+		Concept concept = toConcept(conceptRepository.findByIri(iri));
+		
+		if(concept != null && inheritanceProperties.isEmpty() == false ) {
 
-//	public Set<Parent> getParents(Concept concept, Set<String> inheritiancePropertyIris) {
-//		Set<Parent> parents = new HashSet<Parent>();
-//				
-//		for(String inheritiancePropertyIri : inheritiancePropertyIris) {
-//			InheritanceProperty inheritanceProperty = inheritanceProperties.get(inheritiancePropertyIri);
-//			
-//			if(inheritanceProperty != null) {
-//				parents.addAll(parentBuilder.getParents(concept, inheritanceProperty));
-//			}			
-//		}
-//		
-//		return parents;
-//		
-//	}
-//	
-//	public Set<Relationship> getChildren(Concept concept, Set<String> inheritiancePropertyIris) {
-//		Set<Relationship> children = new HashSet<Relationship>();
-//				
-//		for(String inheritiancePropertyIri : inheritiancePropertyIris) {
-//			InheritanceProperty inheritanceProperty = inheritanceProperties.get(inheritiancePropertyIri);
-//			
-//			if(inheritanceProperty != null) {
-//				children.addAll(inheritanceProperty.getChildren(concept));
-//			}			
-//		}
-//		
-//		return children;
-//		
-//	}	
+			Set<Property> allChildProperties = propertyService.getProperties(concept.getDbId());
+
+			properties = allChildProperties.stream()
+						 				   .filter(p -> inheritanceProperties.contains(p.getIri()) == false)
+						 				   .collect(Collectors.toSet());
+			
+		}
+		
+		return properties;
+	}	
+	
+	private void setChildCount(Concept concept) {
+		Long childCount = conceptTctRepository.countByTargetDbidAndLevel(concept.getDbId(), ConceptTctRepository.DIRECT_RELATION_LEVEL);
+		concept.setChildCount(childCount);
+	}
 }

@@ -44,7 +44,7 @@ class ParentServiceTest {
 		
 		// service under test
 		parentService = new ParentService();
-		parentService.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
+//		parentService.conceptPropertyObjectRepository = conceptPropertyObjectRepository;
 		parentService.conceptConverter = new ConceptConverter();
 		parentService.isAConcept = com.endavourhealth.dataaccess.entity.testutils.ConceptExamples.IS_A_CONCEPT;
 		

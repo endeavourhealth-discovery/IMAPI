@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.endavourhealth.dataaccess.repository.ConceptRepository;
 import com.endavourhealth.services.concept.models.Concept;
 
 @Service
@@ -26,9 +25,6 @@ public class ConceptService {
 	
 	@Autowired
 	ChildService childService;
-	
-	@Autowired
-	ConceptRepository conceptRepository;
 	
 	/**
 	 * Retrieve the {@link Concept} with the given IRI. 

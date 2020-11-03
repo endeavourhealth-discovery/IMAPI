@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.endavourhealth.dataaccess.repository.ConceptRepository;
+import com.endavourhealth.dataaccess.DataAccessService;
 import com.endavourhealth.services.concept.models.Concept;
 
 @Service
@@ -17,7 +17,7 @@ public class IdentifierService {
 	private static final Logger LOG = LoggerFactory.getLogger(IdentifierService.class);
 	
 	@Autowired
-	ConceptRepository conceptRepository;
+	DataAccessService dataAccessService;
 	
 	@Autowired
 	ConceptConverter conceptConverter;
@@ -41,7 +41,7 @@ public class IdentifierService {
 	Integer getDbId(String iri) {
 		Integer dbId = null;
 		
-		com.endavourhealth.dataaccess.entity.Concept entity = conceptRepository.findByIri(iri);
+		com.endavourhealth.dataaccess.entity.Concept entity = dataAccessService.findByIri(iri);
 		if(entity != null) {
 			dbId = entity.getDbid();
 		}
@@ -61,7 +61,7 @@ public class IdentifierService {
 	Concept getConcept(Integer dbId) {		
 		Concept model = null;
 		
-		com.endavourhealth.dataaccess.entity.Concept entity = conceptRepository.findByDbid(dbId);
+		com.endavourhealth.dataaccess.entity.Concept entity = dataAccessService.findByDbid(dbId);
 		if(entity != null) {
 			model = conceptConverter.convert(entity);				
 		}
@@ -87,7 +87,7 @@ public class IdentifierService {
 	Concept getConcept(String iri) {
 		Concept model = null;
 		
-		com.endavourhealth.dataaccess.entity.Concept entity = conceptRepository.findByIri(iri);
+		com.endavourhealth.dataaccess.entity.Concept entity = dataAccessService.findByIri(iri);
 		if(entity != null) {
 			model = conceptConverter.convert(entity);				
 		}
@@ -101,7 +101,7 @@ public class IdentifierService {
 	public List<Concept> search(String term, String root) {
 		
 		List<Concept> concepts = new ArrayList<Concept>();
-		List<com.endavourhealth.dataaccess.entity.Concept> entities = conceptRepository.search(term, root);
+		List<com.endavourhealth.dataaccess.entity.Concept> entities = dataAccessService.search(term, root);
 
 		entities.forEach(entity -> {
 			concepts.add(conceptConverter.convert(entity));

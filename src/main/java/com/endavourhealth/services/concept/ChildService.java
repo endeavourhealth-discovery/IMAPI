@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.endavourhealth.dataaccess.DataAccessService;
 import com.endavourhealth.dataaccess.entity.ConceptTct;
-import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
 import com.endavourhealth.services.concept.models.Concept;
 
 @Service
@@ -17,7 +17,7 @@ public class ChildService {
 	private static final Logger LOG = LoggerFactory.getLogger(ChildService.class);
 	
 	@Autowired
-	public ConceptTctRepository conceptTctRepository;
+	DataAccessService dataAccessService;
 	
 	@Autowired
 	public ConceptConverter conceptConverter;
@@ -69,7 +69,7 @@ public class ChildService {
 	}
 	
 	private List<ConceptTct> getDirectChildren(Integer conceptDbId) {		
-		List<ConceptTct> directChildren = conceptTctRepository.findByTargetDbidAndLevel(conceptDbId, ConceptTct.DIRECT_RELATION_LEVEL);
+		List<ConceptTct> directChildren = dataAccessService.findByTargetDbidAndLevel(conceptDbId, ConceptTct.DIRECT_RELATION_LEVEL);
 		
 		return directChildren;
 	}

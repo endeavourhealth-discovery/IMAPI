@@ -48,7 +48,7 @@ class ChildServiceTest {
 				
 		// service under test
 		childService = new ChildService();
-		childService.conceptTctRepository = conceptTctRepository;
+//		childService.conceptTctRepository = conceptTctRepository;
 		childService.conceptConverter = new ConceptConverter();
 		//childService.identifierService = identifierService;
 			

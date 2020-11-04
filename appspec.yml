@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: /target/api-0.0.1-SNAPSHOT
+  - source: /api/target/api-0.0.1-SNAPSHOT
     destination: //opt/tomcat/webapps/imapi
 hooks:
   BeforeInstall:

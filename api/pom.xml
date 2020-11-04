@@ -10,8 +10,8 @@
 		<relativePath /> 
 	</parent>
 	
-	<groupId>org.endavourhealth.imviewer</groupId>
-	<artifactId>IMAPI</artifactId>
+	<groupId>org.endavourhealth.imapi</groupId>
+	<artifactId>api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Information Model API</name>
 	<description>Demo project for Spring Boot</description>
@@ -37,7 +37,7 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.endavourhealth.imviewer</groupId>
+			<groupId>org.endavourhealth.imapi</groupId>
 			<artifactId>dataaccess</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

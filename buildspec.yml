@@ -25,4 +25,4 @@ artifacts:
   files:
     - appspec.yml
     - aws_scripts/cleanup
-    - target/IMAPI-0.0.1-SNAPSHOT/**/*
+    - target/api-0.0.1-SNAPSHOT/**/*

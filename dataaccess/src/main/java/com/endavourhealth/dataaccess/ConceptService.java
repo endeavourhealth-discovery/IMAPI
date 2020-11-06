@@ -4,16 +4,16 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import org.endeavourhealth.informationmanager.model.Concept;
+import org.endeavourhealth.informationmanager.model.ConceptReference;
+import org.endeavourhealth.informationmanager.model.ConceptReferenceNode;
+import org.endeavourhealth.informationmanager.model.ConceptStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
-import com.endavourhealth.models.objectModel.Concept;
-import com.endavourhealth.models.objectModel.ConceptReference;
-import com.endavourhealth.models.objectModel.ConceptReferenceNode;
-import com.endavourhealth.models.objectModel.ConceptStatus;
 
 @Component
 public class ConceptService {
@@ -101,8 +101,8 @@ public class ConceptService {
 		
 		if(newConcept != null) {
 			// Will Weatherill 6 Nov - a hack until things are plumbed together with the database
-			conceptReference = new ConceptReference(new Random().nextLong());
-			conceptReference.setIri(newConcept.getIri());
+			Long randomIri = new Random().nextLong();
+			conceptReference = new ConceptReference(randomIri.toString());
 			conceptReference.setName(newConcept.getName());
 		}
 		else {
@@ -145,8 +145,7 @@ public class ConceptService {
 		ConceptReference model = null;
 		
 		if(entity != null) {
-			model = new ConceptReference(entity.getDbid());
-			model.setIri(entity.getIri());
+			model = new ConceptReference(entity.getIri());
 			model.setName(entity.getName());
 		}
 		

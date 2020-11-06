@@ -19,14 +19,14 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableJpaRepositories("com.endavourhealth")
 @ComponentScan(basePackages = "com.endavourhealth")
 @EntityScan("com.endavourhealth")
-public class ImViewerSpringApplication extends SpringBootServletInitializer {
+public class ImApiSpringApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ImViewerSpringApplication.class, args);
+		SpringApplication.run(ImApiSpringApplication.class, args);
 	}
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ImViewerSpringApplication.class);
+        return application.sources(ImApiSpringApplication.class);
     }
 }

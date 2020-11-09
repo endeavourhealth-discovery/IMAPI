@@ -7,24 +7,24 @@ import javax.persistence.Id;
 public class ConceptStatus {
 
 	@Id()
-	private Integer dbid;
+	private Byte dbid;
 	private String name;
 
 	public ConceptStatus() {
 		super();
 	}
 
-	public ConceptStatus(Integer dbid, String name) {
+	public ConceptStatus(Byte dbid, String name) {
 		super();
 		this.dbid = dbid;
 		this.name = name;
 	}
 
-	public Integer getDbid() {
+	public Byte getDbid() {
 		return dbid;
 	}
 
-	public void setDbid(Integer dbid) {
+	public void setDbid(Byte dbid) {
 		this.dbid = dbid;
 	}
 

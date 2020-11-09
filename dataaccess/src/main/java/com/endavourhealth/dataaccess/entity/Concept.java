@@ -19,7 +19,9 @@ public class Concept {
 	private String name;
 	private String description;
 	private String code;
-	private Integer scheme;
+    @OneToOne()
+    @JoinColumn(name="scheme", referencedColumnName="dbid")
+	private Concept scheme;
 	@OneToOne()
 	@JoinColumn(name="status", referencedColumnName="dbid")
 	private ConceptStatus status;
@@ -30,7 +32,7 @@ public class Concept {
 	}
 
 	public Concept(Integer dbid, Namespace namespace, String id, String iri, String name, String description, String code,
-			Integer scheme, ConceptStatus status, Integer weighting) {
+			Concept scheme, ConceptStatus status, Integer weighting) {
 		super();
 		this.dbid = dbid;
 		this.namespace = namespace;
@@ -100,11 +102,11 @@ public class Concept {
 		this.code = code;
 	}
 
-	public Integer getScheme() {
+	public Concept getScheme() {
 		return scheme;
 	}
 
-	public void setScheme(Integer scheme) {
+	public void setScheme(Concept scheme) {
 		this.scheme = scheme;
 	}
 

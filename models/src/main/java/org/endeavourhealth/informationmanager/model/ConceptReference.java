@@ -1,7 +1,6 @@
 package org.endeavourhealth.informationmanager.model;
 
 public class ConceptReference {
-    private Integer dbid;
     private String iri;
     private String name;
 
@@ -11,13 +10,9 @@ public class ConceptReference {
         this.iri = iri;
     }
 
-    public Integer getDbid() {
-        return dbid;
-    }
-
-    public ConceptReference setDbid(Integer dbid) {
-        this.dbid = dbid;
-        return this;
+    public ConceptReference(String iri, String name) {
+        this.iri = iri;
+        this.name = name;
     }
 
     public String getIri() {

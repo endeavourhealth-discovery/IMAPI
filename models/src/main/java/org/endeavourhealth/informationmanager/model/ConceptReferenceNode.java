@@ -13,7 +13,12 @@ public class ConceptReferenceNode extends ConceptReference {
 		this.parents = new HashSet<>();
 	}
 
-	public Set<ConceptReferenceNode> getParents() {
+    public ConceptReferenceNode(String iri, String name) {
+        super(iri, name);
+        this.parents = new HashSet<>();
+    }
+
+    public Set<ConceptReferenceNode> getParents() {
 		return Collections.unmodifiableSet(parents);
 	}
 

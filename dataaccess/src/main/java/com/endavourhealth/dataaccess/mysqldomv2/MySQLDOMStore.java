@@ -44,8 +44,7 @@ public class MySQLDOMStore implements IConceptService {
             LOG.error("Unable to load concept reference [{}]\n", iri);
             return null;
         } else {
-            return new ConceptReference(iri)
-                .setName(concept.getName());
+            return new ConceptReference(iri, concept.getName());
         }
     }
 
@@ -58,7 +57,11 @@ public class MySQLDOMStore implements IConceptService {
         c = getConceptInstance(ct);
 
         c.setIri(concept.getIri())
-            .setName(concept.getName());
+            .setName(concept.getName())
+        .setDescription(concept.getDescription())
+        .setCode(concept.getCode())
+            .setScheme(new ConceptReference(concept.getScheme().getIri(), concept.getScheme().getName()))
+        .setStatus(ConceptStatus.byValue(concept.getStatus().getDbid()));
         // remainder of properties
 
         // Build definition
@@ -87,9 +90,10 @@ public class MySQLDOMStore implements IConceptService {
         Set<ConceptPropertyObject> cpo = conceptPropertyObjectRepository.findByProperty_IriAndObject_Iri(IS_A, iri);
         return cpo
             .stream()
-            .map(i -> new ConceptReference()
-                .setIri(i.getConcept().getIri())
-                .setName(i.getConcept().getName())
+            .map(i -> new ConceptReference(
+                i.getConcept().getIri(),
+                i.getConcept().getName()
+                )
             )
             .collect(Collectors.toSet());
     }
@@ -101,8 +105,7 @@ public class MySQLDOMStore implements IConceptService {
 
     @Override
     public ConceptReference create(Concept concept) {
-        return new ConceptReference(concept.getIri())
-            .setName(concept.getName());
+        return new ConceptReference(concept.getIri(), concept.getName());
     }
 
     // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
@@ -209,8 +212,7 @@ public class MySQLDOMStore implements IConceptService {
 
         Set<ConceptReferenceNode> parents = cpo
             .stream()
-            .map(i -> (ConceptReferenceNode) new ConceptReferenceNode(i.getObject().getIri())
-                .setName(i.getObject().getName())
+            .map(i -> (ConceptReferenceNode) new ConceptReferenceNode(i.getObject().getIri(), i.getObject().getName())
             )
             .collect(Collectors.toSet());
 

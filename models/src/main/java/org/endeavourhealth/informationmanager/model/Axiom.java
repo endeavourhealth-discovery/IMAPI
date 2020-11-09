@@ -34,17 +34,6 @@ public class Axiom implements IMAnnotated{
     }
 
     @Override
-    public Axiom setDbid(Integer dbid) {
-        this.dbid= dbid;
-        return this;
-    }
-
-    @Override
-    public Integer getDbid() {
-        return dbid;
-    }
-
-    @Override
     @JsonProperty("annotations")
     public Set<Annotation> getAnnotations() {
         return annotationList;

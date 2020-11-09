@@ -16,7 +16,12 @@ public class ConceptReferenceNode extends ConceptReference {
 	public Set<ConceptReferenceNode> getParents() {
 		return Collections.unmodifiableSet(parents);
 	}
-	
+
+	public ConceptReferenceNode setParents(Set<ConceptReferenceNode> parents) {
+	    this.parents = parents;
+	    return this;
+    }
+
 	public boolean addParent(ConceptReferenceNode parent) {
 		return parents.add(parent);
 	}

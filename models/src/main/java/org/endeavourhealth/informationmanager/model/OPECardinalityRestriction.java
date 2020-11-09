@@ -2,6 +2,7 @@ package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonPropertyOrder({"property","inverseOf","quantification","exact","min","max","clazz","intersection","union","propertyObject"})
 public class OPECardinalityRestriction extends ClassExpression {
@@ -20,6 +21,7 @@ public class OPECardinalityRestriction extends ClassExpression {
         return property;
     }
 
+    @JsonSetter
     public OPECardinalityRestriction setProperty(ConceptReference property) {
         this.property = property;
         return this;
@@ -73,6 +75,7 @@ public class OPECardinalityRestriction extends ClassExpression {
         return individual;
     }
 
+    @JsonSetter
     public OPECardinalityRestriction setIndividual(ConceptReference individual) {
         this.individual = individual;
         return this;
@@ -88,6 +91,7 @@ public class OPECardinalityRestriction extends ClassExpression {
         return inverseOf;
     }
 
+    @JsonSetter
     public OPECardinalityRestriction setInverseOf(ConceptReference inverseOf) {
         this.inverseOf = inverseOf;
         return this;

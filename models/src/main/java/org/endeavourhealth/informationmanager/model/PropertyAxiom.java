@@ -1,6 +1,7 @@
 package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class PropertyAxiom extends Axiom {
     private ConceptReference property;
@@ -10,6 +11,7 @@ public class PropertyAxiom extends Axiom {
         return property;
     }
 
+    @JsonSetter
     public PropertyAxiom setProperty(ConceptReference property) {
         this.property = property;
         return this;

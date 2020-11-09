@@ -2,10 +2,12 @@ package com.endavourhealth.controllers;
 
 import java.util.Set;
 
+import com.endavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.informationmanager.model.Concept;
 import org.endeavourhealth.informationmanager.model.ConceptReference;
 import org.endeavourhealth.informationmanager.model.ConceptReferenceNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,16 +17,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.endavourhealth.dataaccess.ConceptService;
-
 @RestController
 @RequestMapping("concept")
 @CrossOrigin
 public class ConceptController {
-	
-	@Autowired
-	ConceptService conceptService;
-	
+
+    @Autowired
+    @Qualifier("preDOM")
+    // @Qualifier("postDOM")
+    IConceptService conceptService;
+
 	@GetMapping(value = "/")
 	public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm) {
 		return conceptService.findByNameLike(nameTerm, ":DiscoveryCommonDataModel");

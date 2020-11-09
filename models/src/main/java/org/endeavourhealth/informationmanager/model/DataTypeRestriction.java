@@ -1,6 +1,7 @@
 package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,7 @@ public class DataTypeRestriction {
         return dataType;
     }
 
+    @JsonSetter
     public DataTypeRestriction setDataType(ConceptReference dataType) {
         this.dataType = dataType;
         return this;

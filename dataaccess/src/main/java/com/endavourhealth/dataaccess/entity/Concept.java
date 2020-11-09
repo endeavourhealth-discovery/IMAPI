@@ -14,7 +14,7 @@ public class Concept {
 	@OneToOne()
 	@JoinColumn(name="namespace", referencedColumnName="dbid")
 	private Namespace namespace;
-	private String id;
+	private Byte type;
 	private String iri;
 	private String name;
 	private String description;
@@ -34,7 +34,6 @@ public class Concept {
 		super();
 		this.dbid = dbid;
 		this.namespace = namespace;
-		this.id = id;
 		this.iri = iri;
 		this.name = name;
 		this.description = description;
@@ -60,15 +59,16 @@ public class Concept {
 		this.namespace = namespace;
 	}
 
-	public String getId() {
-		return id;
-	}
+    public Byte getType() {
+        return type;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public Concept setType(Byte type) {
+        this.type = type;
+        return this;
+    }
 
-	public String getIri() {
+    public String getIri() {
 		return iri;
 	}
 

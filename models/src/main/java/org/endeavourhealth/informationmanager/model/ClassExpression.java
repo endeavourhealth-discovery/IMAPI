@@ -1,12 +1,12 @@
 package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class ClassExpression implements IMEntity{
-    private Integer dbid;
     private Boolean inferred;
     private ConceptReference clazz;
     private Set<ClassExpression> intersection;
@@ -33,6 +33,7 @@ public class ClassExpression implements IMEntity{
         return clazz;
     }
 
+    @JsonSetter
     public ClassExpression setClazz(ConceptReference clazz) {
         this.clazz = clazz;
         return this;
@@ -137,10 +138,6 @@ public class ClassExpression implements IMEntity{
         return this;
     }
 
-    public Integer getDbid() {
-        return dbid;
-    }
-
     @Override
     public ConceptStatus getStatus() {
         return null;
@@ -159,10 +156,5 @@ public class ClassExpression implements IMEntity{
     @Override
     public IMEntity setVersion(Integer version) {
         return null;
-    }
-
-    public ClassExpression setDbid(Integer dbid) {
-        this.dbid = dbid;
-        return this;
     }
 }

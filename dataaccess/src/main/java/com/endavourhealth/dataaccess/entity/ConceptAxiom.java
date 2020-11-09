@@ -10,7 +10,7 @@ public class ConceptAxiom {
 
 	@Id()
 	private Integer dbid;
-	private String axiom;
+	private Byte type;
 	@OneToOne()
 	@JoinColumn(name="concept", referencedColumnName="dbid")
 	private Concept concept;
@@ -24,7 +24,6 @@ public class ConceptAxiom {
 	public ConceptAxiom(Integer dbid, String axiom, Concept concept, String definition, Integer version) {
 		super();
 		this.dbid = dbid;
-		this.axiom = axiom;
 		this.concept = concept;
 		this.definition = definition;
 		this.version = version;
@@ -38,15 +37,16 @@ public class ConceptAxiom {
 		this.dbid = dbid;
 	}
 
-	public String getAxiom() {
-		return axiom;
-	}
+    public Byte getType() {
+        return type;
+    }
 
-	public void setAxiom(String axiom) {
-		this.axiom = axiom;
-	}
+    public ConceptAxiom setType(Byte type) {
+        this.type = type;
+        return this;
+    }
 
-	public Concept getConcept() {
+    public Concept getConcept() {
 		return concept;
 	}
 

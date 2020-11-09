@@ -2,6 +2,7 @@ package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +52,7 @@ public class DataRangeAxiom extends Axiom implements DataRange{
         return dataType;
     }
 
+    @JsonSetter
     public DataRangeAxiom setDataType(ConceptReference dataType) {
         this.dataType = dataType;
         return this;

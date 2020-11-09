@@ -2,6 +2,7 @@ package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,17 +21,6 @@ public class Concept implements IMAnnotated {
     private Set<Concept> isA;
     private Set<Annotation> annotations;
     private boolean isRef;
-
-    @Override
-    public Integer getDbid() {
-        return dbid;
-    }
-
-    @Override
-    public Concept setDbid(Integer dbid) {
-        this.dbid = dbid;
-        return this;
-    }
 
     public boolean isRef() {
         return isRef;
@@ -103,6 +93,7 @@ public class Concept implements IMAnnotated {
         return scheme;
     }
 
+    @JsonSetter
     public Concept setScheme(ConceptReference scheme) {
         this.scheme = scheme;
         return this;

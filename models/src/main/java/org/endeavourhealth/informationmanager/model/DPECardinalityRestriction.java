@@ -2,6 +2,7 @@ package org.endeavourhealth.informationmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class DPECardinalityRestriction extends DataRangeImpl implements IMEntity
         return property;
     }
 
+    @JsonSetter
     public DPECardinalityRestriction setProperty(ConceptReference property) {
         this.property = property;
         return this;

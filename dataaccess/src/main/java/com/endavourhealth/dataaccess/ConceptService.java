@@ -11,12 +11,14 @@ import org.endeavourhealth.informationmanager.model.ConceptStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.endavourhealth.dataaccess.repository.ConceptRepository;
 
 @Component
-public class ConceptService {
+@Qualifier("preDOM")
+public class ConceptService implements IConceptService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ConceptService.class);
 	

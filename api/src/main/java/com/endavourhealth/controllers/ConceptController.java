@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("concept")
+@RequestMapping("api/concept")
 @CrossOrigin
 public class ConceptController {
 
     @Autowired
-    @Qualifier("preDOM")
-    // @Qualifier("postDOM")
+//    @Qualifier("preDOM")
+    @Qualifier("postDOM")
     IConceptService conceptService;
 
 	@GetMapping(value = "/")

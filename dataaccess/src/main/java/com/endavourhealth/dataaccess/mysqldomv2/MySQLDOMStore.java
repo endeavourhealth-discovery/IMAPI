@@ -1,25 +1,44 @@
 package com.endavourhealth.dataaccess.mysqldomv2;
 
-import com.endavourhealth.dataaccess.IConceptService;
-import com.endavourhealth.dataaccess.entity.ConceptAxiom;
-import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
-import com.endavourhealth.dataaccess.repository.ConceptAxiomRepository;
-import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
-import com.endavourhealth.dataaccess.repository.ConceptRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.informationmanager.model.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.endeavourhealth.informationmanager.model.Annotation;
+import org.endeavourhealth.informationmanager.model.AnnotationProperty;
+import org.endeavourhealth.informationmanager.model.Axiom;
+import org.endeavourhealth.informationmanager.model.AxiomType;
+import org.endeavourhealth.informationmanager.model.ClassAxiom;
+import org.endeavourhealth.informationmanager.model.Clazz;
+import org.endeavourhealth.informationmanager.model.Concept;
+import org.endeavourhealth.informationmanager.model.ConceptReference;
+import org.endeavourhealth.informationmanager.model.ConceptReferenceNode;
+import org.endeavourhealth.informationmanager.model.ConceptStatus;
+import org.endeavourhealth.informationmanager.model.ConceptType;
+import org.endeavourhealth.informationmanager.model.DataProperty;
+import org.endeavourhealth.informationmanager.model.DataPropertyAssertionAxiom;
+import org.endeavourhealth.informationmanager.model.DataRangeAxiom;
+import org.endeavourhealth.informationmanager.model.DataType;
+import org.endeavourhealth.informationmanager.model.Individual;
+import org.endeavourhealth.informationmanager.model.ObjectProperty;
+import org.endeavourhealth.informationmanager.model.PropertyAxiom;
+import org.endeavourhealth.informationmanager.model.SubPropertyChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.endavourhealth.dataaccess.IConceptService;
+import com.endavourhealth.dataaccess.entity.ConceptAxiom;
+import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
+import com.endavourhealth.dataaccess.repository.ConceptAxiomRepository;
+import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
+import com.endavourhealth.dataaccess.repository.ConceptRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 @Qualifier("postDOM")

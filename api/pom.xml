@@ -43,7 +43,7 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.endavourhealth.imapi</groupId>
+			<groupId>org.endeavourhealth.imapi</groupId>
 			<artifactId>models</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

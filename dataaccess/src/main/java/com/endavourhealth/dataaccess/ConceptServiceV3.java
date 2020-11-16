@@ -1,15 +1,12 @@
 package com.endavourhealth.dataaccess;
 
-import com.endavourhealth.dataaccess.entity.ConceptAxiom;
-import com.endavourhealth.dataaccess.entity.ConceptPropertyObject;
-import com.endavourhealth.dataaccess.entity.Expression;
-import com.endavourhealth.dataaccess.entity.PropertyValue;
-import com.endavourhealth.dataaccess.repository.ConceptAxiomRepository;
-import com.endavourhealth.dataaccess.repository.ConceptPropertyObjectRepository;
-import com.endavourhealth.dataaccess.repository.ConceptRepository;
-import com.endavourhealth.dataaccess.repository.ExpressionRepository;
+import com.endavourhealth.dataaccess.entity.*;
+import com.endavourhealth.dataaccess.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.Axiom;
+import org.endeavourhealth.imapi.model.Concept;
+import org.endeavourhealth.imapi.model.ConceptStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +27,11 @@ public class ConceptServiceV3 implements IConceptService {
     ConceptRepository conceptRepository;
 
     @Autowired
-    ConceptAxiomRepository conceptAxiomRepository;
-
-    @Autowired
-    ConceptPropertyObjectRepository conceptPropertyObjectRepository;
-
-    @Autowired
     ExpressionRepository expressionRepository;
+
+    @Autowired
+    ClassificationRepository classificationRepository;
+
 
     @Override
     public ConceptReference getConceptReference(String iri) {
@@ -75,23 +70,25 @@ public class ConceptServiceV3 implements IConceptService {
 
     @Override
     public Set<ConceptReference> findByNameLike(String term, String root) {
-        Set<ConceptReference> result = new HashSet<>();
+        List<com.endavourhealth.dataaccess.entity.Concept> result;
+        if (root == null || root.isEmpty())
+            result = conceptRepository.search(term);
+        else
+            result = conceptRepository.search(term, root);
 
-        for(com.endavourhealth.dataaccess.entity.Concept entity : conceptRepository.search(term, root)) {
-            result.add(new ConceptReference(entity.getIri()).setName(entity.getName()));
-        }
-
-        return result;
+        return result.stream()
+            .map(r -> new ConceptReference(r.getIri(), r.getName()))
+            .collect(Collectors.toSet());
     }
 
     @Override
     public Set<ConceptReference> getImmediateChildren(String iri) {
-        Set<ConceptPropertyObject> cpo = conceptPropertyObjectRepository.findByProperty_IriAndObject_Iri(IS_A, iri);
-        return cpo
+        Set<Classification> children = classificationRepository.findByParent_Iri(iri);
+        return children
             .stream()
             .map(i -> new ConceptReference(
-                i.getConcept().getIri(),
-                i.getConcept().getName()
+                i.getChild().getIri(),
+                i.getChild().getName()
                 )
             )
             .collect(Collectors.toSet());
@@ -298,11 +295,11 @@ public class ConceptServiceV3 implements IConceptService {
 
     private Set<ConceptReferenceNode> getParentHierarchy(String iri, Map<String, ConceptReference> ancestors) {
         // TODO : Optimize via TCT and/or ancestor map
-        Set<ConceptPropertyObject> cpo = conceptPropertyObjectRepository.findByConcept_IriAndProperty_Iri(iri, IS_A);
+        Set<Classification> cpo = classificationRepository.findByChild_Iri(iri);
 
         Set<ConceptReferenceNode> parents = cpo
             .stream()
-            .map(i -> (ConceptReferenceNode) new ConceptReferenceNode(i.getObject().getIri(), i.getObject().getName())
+            .map(i -> new ConceptReferenceNode(i.getParent().getIri(), i.getParent().getName())
             )
             .collect(Collectors.toSet());
 

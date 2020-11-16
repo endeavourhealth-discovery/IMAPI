@@ -23,12 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConceptController {
 
     @Autowired
-    @Qualifier("ConceptServiceV2")
+    @Qualifier("ConceptServiceV3")
     IConceptService conceptService;
 
 	@GetMapping(value = "/")
 	public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm) {
-		return conceptService.findByNameLike(nameTerm, ":DiscoveryCommonDataModel");
+		// return conceptService.findByNameLike(nameTerm, ":DiscoveryCommonDataModel");
+		return conceptService.findByNameLike(nameTerm, null);
 	}
 		
 	@GetMapping(value = "/{iri}")

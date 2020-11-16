@@ -28,8 +28,8 @@ public class ConceptController {
 
 	@GetMapping(value = "/")
 	public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm) {
-		// return conceptService.findByNameLike(nameTerm, ":DiscoveryCommonDataModel");
-		return conceptService.findByNameLike(nameTerm, null);
+		return conceptService.findByNameLike(nameTerm, ":DiscoveryCommonDataModel");
+		// return conceptService.findByNameLike(nameTerm, null);
 	}
 		
 	@GetMapping(value = "/{iri}")

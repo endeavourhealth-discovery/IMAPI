@@ -1,8 +1,8 @@
 package com.endavourhealth.dataaccess;
 
-import org.endeavourhealth.informationmanager.model.Concept;
-import org.endeavourhealth.informationmanager.model.ConceptReferenceNode;
-import org.endeavourhealth.informationmanager.model.ConceptReference;
+import org.endeavourhealth.imapi.model.Concept;
+import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 
 import java.util.Set;
 

@@ -3,9 +3,9 @@ package com.endavourhealth.controllers;
 import java.util.Set;
 
 import com.endavourhealth.dataaccess.IConceptService;
-import org.endeavourhealth.informationmanager.model.Concept;
-import org.endeavourhealth.informationmanager.model.ConceptReference;
-import org.endeavourhealth.informationmanager.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.Concept;
+import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,8 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConceptController {
 
     @Autowired
-//    @Qualifier("preDOM")
-    @Qualifier("postDOM")
+    @Qualifier("ConceptServiceV2")
     IConceptService conceptService;
 
 	@GetMapping(value = "/")

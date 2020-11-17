@@ -1,9 +1,7 @@
 package com.endavourhealth.dataaccess.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Axiom {
@@ -18,18 +16,21 @@ public class Axiom {
 	private Concept concept;
     private Byte type;
 	private Integer version;
+    @OneToMany(mappedBy = "axiom")
+	private List<Expression> expressions;
 
 	public Axiom() {
 		super();
 	}
 
-	public Axiom(Integer dbid, Module module, Concept concept, Byte type, Integer version) {
+	public Axiom(Integer dbid, Module module, Concept concept, Byte type, Integer version, List<Expression> expressions) {
 		super();
 		this.dbid = dbid;
 		this.module = module;
 		this.concept = concept;
 		this.type = type;
 		this.version = version;
+		this.expressions = expressions;
 	}
 
     public Integer getDbid() {
@@ -74,6 +75,15 @@ public class Axiom {
 
     public Axiom setVersion(Integer version) {
         this.version = version;
+        return this;
+    }
+
+    public List<Expression> getExpressions() {
+        return expressions;
+    }
+
+    public Axiom setExpressions(List<Expression> expressions) {
+        this.expressions = expressions;
         return this;
     }
 }

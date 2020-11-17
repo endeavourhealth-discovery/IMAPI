@@ -1,10 +1,9 @@
 package com.endavourhealth.dataaccess;
 
 import com.endavourhealth.dataaccess.entity.*;
+import com.endavourhealth.dataaccess.entity.Axiom;
 import com.endavourhealth.dataaccess.repository.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.Axiom;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptStatus;
 import org.slf4j.Logger;
@@ -15,19 +14,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @Qualifier("ConceptServiceV3")
 public class ConceptServiceV3 implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
 
-    private static final String IS_A = "sn:116680003";
-
     @Autowired
     ConceptRepository conceptRepository;
 
     @Autowired
     ExpressionRepository expressionRepository;
+
+    @Autowired
+    AxiomRepository axiomRepository;
 
     @Autowired
     ClassificationRepository classificationRepository;
@@ -60,10 +61,9 @@ public class ConceptServiceV3 implements IConceptService {
             c.setScheme(new ConceptReference(concept.getScheme().getIri(), concept.getScheme().getName()));
 
         // remainder of properties
+        List<Axiom> axioms = axiomRepository.findByIri(iri);
 
-        List<Expression> expressions = expressionRepository.findByIri(iri);
-
-        reconstructConcept(c, expressions);
+        reconstructConcept(c, axioms);
 
         return c;
     }
@@ -134,42 +134,107 @@ public class ConceptServiceV3 implements IConceptService {
         return c;
     }
 
-    private void reconstructConcept(Concept c, List<Expression> expressions) {
-        for (Expression e: expressions) {
-            AxiomType at = AxiomType.byValue(e.getAxiom().getType());
-            if (e.getParent() == null) {
-                switch (at) {
-                    case SUBCLASSOF:
-                        c.addSubClassOf((ClassAxiom) setClassExpression(e, expressions, new ClassAxiom()));
-                        break;
-                    case EQUIVALENTTO:
-                        c.addEquivalentTo((ClassAxiom) setClassExpression(e, expressions, new ClassAxiom()));
-                        break;
-                    case INVERSEPROPERTYOF:
-                        ConceptReference inverse = new ConceptReference(e.getTargetConcept().getIri(), e.getTargetConcept().getName());
-                        ((ObjectProperty)c).setInversePropertyOf(new PropertyAxiom().setProperty(inverse));
-                        break;
-                    case OBJECTPROPERTYRANGE:
-                        ((ObjectProperty)c).addObjectPropertyRange((ClassAxiom) setClassExpression(e, expressions, new ClassAxiom()));
-                        break;
-                    case DATAPROPERTYRANGE:
-                        ConceptReference dataType = new ConceptReference(e.getTargetConcept().getIri(), e.getTargetConcept().getName());
-                        ((DataProperty)c).addDataPropertyRange(new DataPropertyRange().setDataType(dataType));
-                        break;
-                    case PROPERTYDOMAIN:
-                        ClassAxiom cex = (ClassAxiom)setClassExpression(e, expressions, new ClassAxiom());
-                        if (c instanceof ObjectProperty)
-                            ((ObjectProperty)c).addPropertyDomain(cex);
-                        else if (c instanceof DataProperty)
-                            ((DataProperty)c).addPropertyDomain(cex);
-                        else
-                            throw new IllegalStateException("Property domain on non-property");
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
-                }
+    private void reconstructConcept(Concept c, List<Axiom> axioms) {
+        for (Axiom a: axioms) {
+            AxiomType at = AxiomType.byValue(a.getType());
+            switch (at) {
+                case SUBCLASSOF:
+                    getExpressionsAsClassAxiomStream(a.getExpressions())
+                        .forEach(c::addSubClassOf);
+                    break;
+                case EQUIVALENTTO:
+                    getExpressionsAsClassAxiomStream(a.getExpressions())
+                        .forEach(c::addEquivalentTo);
+                    break;
+                case SUBOBJECTPROPERTY:
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .map(ref -> new PropertyAxiom().setProperty(ref))
+                        .forEach(((ObjectProperty)c)::addSubObjectPropertyOf);
+                    break;
+                case SUBDATAPROPERTY:
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .map(ref -> new PropertyAxiom().setProperty(ref))
+                        .forEach(((DataProperty)c)::addSubDataPropertyOf);
+                    break;
+                case SUBANNOTATIONPROPERTY:
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .map(ref -> new PropertyAxiom().setProperty(ref))
+                        .forEach(((AnnotationProperty)c)::addSubAnnotationPropertyOf);
+                    break;
+                case OBJECTPROPERTYRANGE:
+                    getExpressionsAsClassAxiomStream(a.getExpressions())
+                        .forEach(((ObjectProperty) c)::addObjectPropertyRange);
+                    break;
+                case DATAPROPERTYRANGE:
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .map(ref -> new DataPropertyRange().setDataType(ref))
+                        .forEach(((DataProperty)c)::addDataPropertyRange);
+                    break;
+                case PROPERTYDOMAIN:
+                    if (c instanceof ObjectProperty)
+                        getExpressionsAsClassAxiomStream(a.getExpressions())
+                            .forEach(((ObjectProperty) c)::addPropertyDomain);
+                    else if (c instanceof DataProperty)
+                        getExpressionsAsClassAxiomStream(a.getExpressions())
+                            .forEach(((DataProperty) c)::addPropertyDomain);
+                    else
+                        throw new IllegalStateException("Property domain on non-property");
+                    break;
+                case DISJOINTWITH:
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .forEach(c::addDisjointWith);
+                    break;
+                case SUBPROPERTYCHAIN:
+                    SubPropertyChain chain = new SubPropertyChain();
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .forEach(chain::addProperty);
+
+                    ((ObjectProperty) c).addSubPropertyChain(chain);
+                    break;
+                case INVERSEPROPERTYOF:
+                    getExpressionsAsConceptReferenceStream(a.getExpressions())
+                        .map(ref -> new PropertyAxiom().setProperty(ref))
+                        .findFirst()
+                        .ifPresent(((ObjectProperty) c)::setInversePropertyOf);
+                    break;
+                case ISFUNCTIONAL:
+                    if (c instanceof ObjectProperty)
+                        ((ObjectProperty) c).setIsFunctional(new org.endeavourhealth.imapi.model.Axiom());
+                    else if (c instanceof DataProperty)
+                        ((DataProperty) c).setIsFunctional(new org.endeavourhealth.imapi.model.Axiom());
+                    else
+                        throw new IllegalStateException("IsFunctional on non-property");
+                    break;
+                case ISTRANSITIVE:
+                    if (c instanceof ObjectProperty)
+                        ((ObjectProperty) c).setIsTransitive(new org.endeavourhealth.imapi.model.Axiom());
+                    else
+                        throw new IllegalStateException("IsTransitive on non-object-property");
+                    break;
+                case ISSYMMETRIC:
+                    if (c instanceof ObjectProperty)
+                        ((ObjectProperty) c).setIsSymmetric(new org.endeavourhealth.imapi.model.Axiom());
+                    else
+                        throw new IllegalStateException("IsSymmetric on non-object-property");
+                    break;
+                case ISREFLEXIVE:
+                    if (c instanceof ObjectProperty)
+                        ((ObjectProperty) c).setIsReflexive(new org.endeavourhealth.imapi.model.Axiom());
+                    else
+                        throw new IllegalStateException("IsReflexive on non-object-property");
+                    break;
+
+                default:
+                    throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
+
             }
         }
+    }
+
+    private Stream<ClassAxiom> getExpressionsAsClassAxiomStream(List<Expression> expressions) {
+        return expressions.stream()
+            .filter(exp -> exp.getParent() == null)
+            .map(exp -> (ClassAxiom)setClassExpression(exp, expressions, new ClassAxiom()));
     }
 
     private ClassExpression setClassExpression(Expression exp, List<Expression> expressions, ClassExpression cex) {
@@ -228,69 +293,13 @@ public class ConceptServiceV3 implements IConceptService {
         }
     }
 
-    private void addAxiomToConcept(Concept c, ConceptAxiom ax, ObjectMapper om) {
-        AxiomType at = AxiomType.byValue(ax.getType());
-
-        try {
-            switch (at) {
-                case SUBCLASSOF:
-                    c.addSubClassOf(om.readValue(ax.getDefinition(), ClassAxiom.class));
-                    break;
-                case EQUIVALENTTO:
-                    c.addEquivalentTo(om.readValue(ax.getDefinition(), ClassAxiom.class));
-                    break;
-                case SUBOBJECTPROPERTY:
-                    ((ObjectProperty) c).addSubObjectPropertyOf(om.readValue(ax.getDefinition(), PropertyAxiom.class));
-                    break;
-                case SUBDATAPROPERTY:
-                    ((DataProperty) c).addSubDataPropertyOf(om.readValue(ax.getDefinition(), PropertyAxiom.class));
-                    break;
-                case OBJECTPROPERTYRANGE:
-                    ((ObjectProperty) c).addObjectPropertyRange(om.readValue(ax.getDefinition(), ClassAxiom.class));
-                    break;
-                case PROPERTYDOMAIN:
-                    if (c instanceof ObjectProperty)
-                        ((ObjectProperty) c).addPropertyDomain(om.readValue(ax.getDefinition(), ClassAxiom.class));
-                    else
-                        ((DataProperty) c).addPropertyDomain(om.readValue(ax.getDefinition(), ClassAxiom.class));
-                    break;
-                case SUBANNOTATIONPROPERTY:
-                    ((AnnotationProperty) c).addSubAnnotationPropertyOf(om.readValue(ax.getDefinition(), PropertyAxiom.class));
-                    break;
-                case DISJOINTWITH:
-                    c.addDisjointWith(om.readValue(ax.getDefinition(), ConceptReference.class));
-                    break;
-                case SUBPROPERTYCHAIN:
-                    ((ObjectProperty) c).addSubPropertyChain(om.readValue(ax.getDefinition(), SubPropertyChain.class));
-                    break;
-                case INVERSEPROPERTYOF:
-                    ((ObjectProperty) c).setInversePropertyOf(om.readValue(ax.getDefinition(), PropertyAxiom.class));
-                    break;
-                case ISFUNCTIONAL:
-                    if (c instanceof ObjectProperty)
-                        ((ObjectProperty) c).setIsFunctional(om.readValue(ax.getDefinition(), Axiom.class));
-                    else
-                        ((DataProperty) c).setIsFunctional(om.readValue(ax.getDefinition(), Axiom.class));
-                    break;
-                case ISTRANSITIVE:
-                    ((ObjectProperty) c).setIsTransitive(om.readValue(ax.getDefinition(), Axiom.class));
-                    break;
-                case ISSYMMETRIC:
-                    ((ObjectProperty) c).setIsSymmetric(om.readValue(ax.getDefinition(), Axiom.class));
-                    break;
-                case DATAPROPERTYASSERTION:
-                    ((Individual) c).addDataPropertyAssertion(om.readValue(ax.getDefinition(), DataPropertyValue.class));
-                    break;
-                case DATAPROPERTYRANGE:
-                    ((DataProperty) c).addDataPropertyRange(om.readValue(ax.getDefinition(), DataPropertyRange.class));
-                    break;
-                case ISREFLEXIVE:
-                    ((ObjectProperty) c).setIsReflexive(om.readValue(ax.getDefinition(), Axiom.class));
-                    break;
-            }
-        } catch (Exception e) {
-            LOG.error("Unable to deserialise axiom definition");
-        }
+    private Stream<ConceptReference> getExpressionsAsConceptReferenceStream(List<Expression> expressions) {
+        return expressions.stream()
+            .filter(exp -> exp.getTargetConcept() != null)
+            .map(exp -> new ConceptReference()
+                .setIri(exp.getTargetConcept().getIri())
+                .setName(exp.getTargetConcept().getName())
+            );
     }
 
     private Set<ConceptReferenceNode> getParentHierarchy(String iri, Map<String, ConceptReference> ancestors) {

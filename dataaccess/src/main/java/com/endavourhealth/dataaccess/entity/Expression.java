@@ -9,7 +9,7 @@ public class Expression {
 	@Id()
 	private Integer dbid;
     private Byte type;
-    @OneToOne()
+    @ManyToOne()
     @JoinColumn(name="axiom", referencedColumnName="dbid")
     private Axiom axiom;
     private Integer parent;

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class SubPropertyChain extends Axiom{
@@ -16,4 +17,11 @@ public class SubPropertyChain extends Axiom{
         this.property = property;
         return this;
     }
+    public SubPropertyChain addProperty(ConceptReference property) {
+        if (this.property == null)
+            this.property = new HashSet<>();
+        this.property.add(property);
+        return this;
+    }
+
 }

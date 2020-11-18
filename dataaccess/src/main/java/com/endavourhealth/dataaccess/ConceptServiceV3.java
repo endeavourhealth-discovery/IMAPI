@@ -48,6 +48,12 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public Concept getConcept(String iri) {
         com.endavourhealth.dataaccess.entity.Concept concept = conceptRepository.findByIri(iri);
+
+        if (concept == null) {
+            LOG.error("Unable to load concept [{}]\n", iri);
+            return null;
+        }
+
         ConceptType ct = ConceptType.byValue(concept.getType());
         Concept c = getConceptInstance(ct);
 

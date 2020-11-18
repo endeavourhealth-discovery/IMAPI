@@ -2,7 +2,9 @@ package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="conceptType")
@@ -30,6 +32,7 @@ public class Concept implements IMAnnotated {
     private Set<ClassAxiom> equivalentTo;
     private ClassExpression expression;
     private Set<ConceptReference> DisjointWith;
+    private List<Synonym> synonym;
 
 
 
@@ -253,6 +256,21 @@ public class Concept implements IMAnnotated {
         if (this.equivalentTo == null)
             this.equivalentTo = new HashSet<>();
         this.equivalentTo.add(equivalentTo);
+        return this;
+    }
+
+    public List<Synonym> getSynonym() {
+        return synonym;
+    }
+
+    public Concept setSynonym(List<Synonym> synonym) {
+        this.synonym = synonym;
+        return this;
+    }
+    public Concept addSynonym(Synonym synonym){
+        if (this.synonym==null)
+            this.synonym= new ArrayList<>();
+        this.synonym.add(synonym);
         return this;
     }
 }

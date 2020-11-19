@@ -25,7 +25,7 @@ public class Concept implements IMAnnotated {
     private ConceptReference scheme;
     private ConceptStatus status;
     private Integer version;
-    private Set<Concept> isA;
+    private Set<ConceptReference> isA;
     private Set<Annotation> annotations;
     private ConceptType conceptType;
     private Set<ClassAxiom> subClassOf;
@@ -148,15 +148,15 @@ public class Concept implements IMAnnotated {
      * @return list of super concepts
      */
     @JsonProperty("IsA")
-    public Set<Concept> getIsA() {
+    public Set<ConceptReference> getIsA() {
         return isA;
     }
 
-    public Concept setIsA(Set<Concept> isA) {
+    public Concept setIsA(Set<ConceptReference> isA) {
         this.isA = isA;
         return this;
     }
-    public Concept addIsa(Concept isa){
+    public Concept addIsa(ConceptReference isa){
         if (this.isA==null)
             isA= new HashSet<>();
         isA.add(isa);

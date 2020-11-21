@@ -246,6 +246,10 @@ public class ConceptServiceV3 implements IConceptService {
     private ClassExpression setClassExpression(Expression exp, List<Expression> expressions, ClassExpression cex) {
         ExpressionType et = ExpressionType.byValue(exp.getType());
         switch (et) {
+            case CLASS:
+                com.endavourhealth.dataaccess.entity.Concept c = exp.getTargetConcept();
+                cex.setClazz(new ConceptReference(c.getIri(), c.getName()));
+                return cex;
             case INTERSECTION:
                 cex.setIntersection(
                     expressions.stream()
@@ -262,9 +266,13 @@ public class ConceptServiceV3 implements IConceptService {
                         .collect(Collectors.toList())
                 );
                 return cex;
-            case CLASS:
-                com.endavourhealth.dataaccess.entity.Concept c = exp.getTargetConcept();
-                cex.setClazz(new ConceptReference(c.getIri(), c.getName()));
+            case OBJECTONEOF:
+                cex.setObjectOneOf(
+                    expressions.stream()
+                        .filter(ex -> exp.getDbid().equals(ex.getParent()))
+                        .map(ex -> new ConceptReference().setIri(ex.getTargetConcept().getIri()).setName(ex.getTargetConcept().getName()))
+                        .collect(Collectors.toList())
+                );
                 return cex;
             case OBJECTPROPERTYVALUE:
                 PropertyValue pv1 = exp.getPropertyValue().get(0);
@@ -293,6 +301,15 @@ public class ConceptServiceV3 implements IConceptService {
                     dpv.setDataType(new ConceptReference(pv2.getValueType().getIri(), pv2.getValueType().getName()));
 
                 cex.setDataPropertyValue(dpv);
+                return cex;
+            case COMPLEMENTOF:
+                cex.setComplementOf(
+                    expressions.stream()
+                        .filter(ex -> exp.getDbid().equals(ex.getParent()))
+                        .map(ex -> setClassExpression(ex, expressions, new ClassExpression()))
+                        .findFirst()
+                        .get()
+                );
                 return cex;
             default:
                 throw new IllegalStateException("Unknown expression type [" + et.getName() + "]");

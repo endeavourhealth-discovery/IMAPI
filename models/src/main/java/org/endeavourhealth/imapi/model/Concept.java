@@ -33,6 +33,7 @@ public class Concept implements IMAnnotated {
     private ClassExpression expression;
     private Set<ConceptReference> DisjointWith;
     private List<Synonym> synonym;
+    private boolean isRef;
 
 
 
@@ -271,6 +272,15 @@ public class Concept implements IMAnnotated {
         if (this.synonym==null)
             this.synonym= new ArrayList<>();
         this.synonym.add(synonym);
+        return this;
+    }
+
+    public boolean isRef() {
+        return isRef;
+    }
+
+    public Concept setRef(boolean ref) {
+        isRef = ref;
         return this;
     }
 }

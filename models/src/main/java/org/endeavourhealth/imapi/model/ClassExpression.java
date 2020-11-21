@@ -15,8 +15,8 @@ public class ClassExpression implements IMEntity{
     private ClassExpression complementOf;
     private ObjectPropertyValue objectPropertyValue;
     private DataPropertyValue dataPropertyValue;
-
     private List<ConceptReference> objectOneOf;
+    private int group;
 
 
 
@@ -169,6 +169,15 @@ public class ClassExpression implements IMEntity{
 
     public ClassExpression setDbid(Integer dbid) {
         this.dbid = dbid;
+        return this;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public ClassExpression setGroup(int group) {
+        this.group = group;
         return this;
     }
 }

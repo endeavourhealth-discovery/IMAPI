@@ -27,9 +27,10 @@ public class ConceptController {
     IConceptService conceptService;
 
 	@GetMapping(value = "/")
-	public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm) {
-		return conceptService.findByNameLike(nameTerm, ":DiscoveryCommonDataModel");
-		// return conceptService.findByNameLike(nameTerm, null);
+	public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
+                                        @RequestParam(name = "root", required = false) String root,
+                                        @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy) {
+		return conceptService.findByNameLike(nameTerm, root, includeLegacy);
 	}
 		
 	@GetMapping(value = "/{iri}")

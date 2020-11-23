@@ -76,11 +76,20 @@ public class ConceptServiceV3 implements IConceptService {
 
     @Override
     public Set<ConceptReference> findByNameLike(String term, String root) {
+        return findByNameLike(term, root, null);
+    }
+
+    @Override
+    public Set<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy) {
         List<com.endavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
-            result = conceptRepository.search(term);
+            result = (includeLegacy != null && includeLegacy)
+                ? conceptRepository.searchLegacy(term)
+                : conceptRepository.search(term);
         else
-            result = conceptRepository.search(term, root);
+            result = (includeLegacy != null && includeLegacy)
+                ? conceptRepository.searchLegacy(term, root)
+                : conceptRepository.search(term, root);
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))

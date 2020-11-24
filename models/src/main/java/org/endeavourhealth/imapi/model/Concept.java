@@ -14,7 +14,7 @@ import java.util.Set;
     @JsonSubTypes.Type(value= DataProperty.class, name="DataProperty"),
     @JsonSubTypes.Type(value= DataType.class, name="DataType"),
     @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation")})
-@JsonPropertyOrder({"conceptType","id","status","version","ref","iri","name","description",
+@JsonPropertyOrder({"conceptType","id","status","version","isRef","iri","name","description",
         "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
@@ -275,6 +275,7 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
+    @JsonProperty("isRef")
     public boolean isRef() {
         return isRef;
     }

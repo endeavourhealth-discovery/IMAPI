@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -97,8 +99,17 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public Set<ConceptReference> getImmediateChildren(String iri) {
-        Set<Classification> children = classificationRepository.findByParent_Iri(iri);
+    public Set<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size) {
+        List<Classification> children;
+
+        if (page == null && size == null) {
+            children = classificationRepository.findByParent_Iri(iri);
+        } else {
+            if (page == null || page <= 0) page = 1;
+            if (size == null || size <= 0) size = 20;
+            Pageable pageable = PageRequest.of(page - 1, size);
+            children = classificationRepository.findByParent_Iri(iri, pageable);
+        }
         return children
             .stream()
             .map(i -> new ConceptReference(

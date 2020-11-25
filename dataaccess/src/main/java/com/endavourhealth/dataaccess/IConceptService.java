@@ -11,7 +11,7 @@ public interface IConceptService {
     ConceptReference getConceptReference(String iri);
     Set<ConceptReference> findByNameLike(String term, String root);
     Set<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy);
-    Set<ConceptReference> getImmediateChildren(String iri);
+    Set<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size);
     Set<ConceptReferenceNode> getParentHierarchy(String iri);
 
     ConceptReference create(Concept concept);

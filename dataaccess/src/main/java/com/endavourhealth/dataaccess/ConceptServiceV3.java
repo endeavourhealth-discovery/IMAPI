@@ -146,6 +146,15 @@ public class ConceptServiceV3 implements IConceptService {
         return new ConceptReference(concept.getIri(), concept.getName());
     }
 
+    @Override
+    public Set<ConceptReference> usages(String iri) {
+        return expressionRepository.findByTargetConcept_Iri(iri)
+            .stream().map(exp -> exp.getAxiom().getConcept())
+            .distinct()
+            .map(c -> new ConceptReference(c.getIri(), c.getName()))
+            .collect(Collectors.toSet());
+    }
+
     // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
 
     private Concept getConceptInstance(ConceptType ct) {

@@ -53,6 +53,11 @@ public class ConceptController {
         return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
     }
 
+    @GetMapping(value = "/{iri}/usages")
+    public Set<ConceptReference> conceptUsages(@PathVariable("iri") String iri) {
+        return conceptService.usages(iri);
+    }
+
     @PostMapping(value = "/{iri}/isWhichType")
     public Set<ConceptReference> conceptIsWhichType(@PathVariable("iri") String iri,
                                                     @RequestBody List<String> candidates) {

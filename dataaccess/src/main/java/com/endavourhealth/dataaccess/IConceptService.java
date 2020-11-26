@@ -18,4 +18,6 @@ public interface IConceptService {
     Set<ConceptReference> isWhichType(String iri, List<String> candidates);
 
     ConceptReference create(Concept concept);
+
+    Set<ConceptReference> usages(String iri);
 }

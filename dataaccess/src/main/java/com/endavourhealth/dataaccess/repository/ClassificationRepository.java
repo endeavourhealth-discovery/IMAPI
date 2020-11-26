@@ -12,5 +12,9 @@ import java.util.Set;
 public interface ClassificationRepository extends JpaRepository<Classification, Integer>{
     List<Classification> findByParent_Iri(String parentIri, Pageable pageable);
     List<Classification> findByParent_Iri(String parentIri);
+
+    List<Classification> findByParent_Iri_AndChild_Namespace_PrefixIn(String parentIri, List<String> namespacePrefixes);
+    List<Classification> findByParent_Iri_AndChild_Namespace_PrefixIn(String parentIri, List<String> namespacePrefixes, Pageable pageable);
+
     Set<Classification> findByChild_Iri(String childIri);
 }

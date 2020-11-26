@@ -99,16 +99,23 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public Set<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size) {
+    public Set<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy) {
+        List<String> corePrefixes = Arrays.asList(":", "sn:");
         List<Classification> children;
 
+        if (includeLegacy == null) includeLegacy = false;
+
         if (page == null && size == null) {
-            children = classificationRepository.findByParent_Iri(iri);
+            children = (includeLegacy)
+                ? classificationRepository.findByParent_Iri(iri)
+                : classificationRepository.findByParent_Iri_AndChild_Namespace_PrefixIn(iri, corePrefixes);
         } else {
             if (page == null || page <= 0) page = 1;
             if (size == null || size <= 0) size = 20;
             Pageable pageable = PageRequest.of(page - 1, size);
-            children = classificationRepository.findByParent_Iri(iri, pageable);
+            children = (includeLegacy)
+                ? classificationRepository.findByParent_Iri(iri, pageable)
+                : classificationRepository.findByParent_Iri_AndChild_Namespace_PrefixIn(iri, corePrefixes, pageable);
         }
         return children
             .stream()

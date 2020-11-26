@@ -39,6 +39,11 @@ public class ConceptController {
         return conceptService.getConcept(iri);
     }
 
+    @GetMapping(value = "/{iri}/reference")
+    public ConceptReference getConceptReference(@PathVariable("iri") String iri) {
+        return conceptService.getConceptReference(iri);
+    }
+
     @GetMapping(value = "/{iri}/parents")
     public Set<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri) {
         return conceptService.getParentHierarchy(iri);

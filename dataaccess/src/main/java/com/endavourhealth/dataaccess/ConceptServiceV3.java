@@ -35,6 +35,8 @@ public class ConceptServiceV3 implements IConceptService {
     @Autowired
     ClassificationRepository classificationRepository;
 
+    @Autowired
+    ConceptTctRepository conceptTctRepository;
 
     @Override
     public ConceptReference getConceptReference(String iri) {
@@ -130,6 +132,13 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public Set<ConceptReferenceNode> getParentHierarchy(String iri) {
         return getParentHierarchy(iri, new HashMap<>());
+    }
+
+    @Override
+    public Set<ConceptReference> isWhichType(String iri, List<String> candidates) {
+        return conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, candidates)
+            .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
+            .collect(Collectors.toSet());
     }
 
     @Override

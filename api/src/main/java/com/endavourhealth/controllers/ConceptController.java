@@ -1,5 +1,6 @@
 package com.endavourhealth.controllers;
 
+import java.util.List;
 import java.util.Set;
 
 import com.endavourhealth.dataaccess.IConceptService;
@@ -26,34 +27,40 @@ public class ConceptController {
     @Qualifier("ConceptServiceV3")
     IConceptService conceptService;
 
-	@GetMapping(value = "/")
-	public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
+    @GetMapping(value = "/")
+    public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
                                         @RequestParam(name = "root", required = false) String root,
                                         @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy) {
-		return conceptService.findByNameLike(nameTerm, root, includeLegacy);
-	}
-		
-	@GetMapping(value = "/{iri}")
-	public Concept getConcept(@PathVariable("iri") String iri) {
-		return conceptService.getConcept(iri);
-	}
-	
-	@GetMapping(value = "/{iri}/parents")
-	public Set<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri) {
-		return conceptService.getParentHierarchy(iri);
-	}
-	
-	@GetMapping(value = "/{iri}/children")
-	public Set<ConceptReference> getConceptChildren(@PathVariable("iri") String iri,
+        return conceptService.findByNameLike(nameTerm, root, includeLegacy);
+    }
+
+    @GetMapping(value = "/{iri}")
+    public Concept getConcept(@PathVariable("iri") String iri) {
+        return conceptService.getConcept(iri);
+    }
+
+    @GetMapping(value = "/{iri}/parents")
+    public Set<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri) {
+        return conceptService.getParentHierarchy(iri);
+    }
+
+    @GetMapping(value = "/{iri}/children")
+    public Set<ConceptReference> getConceptChildren(@PathVariable("iri") String iri,
                                                     @RequestParam(name = "page", required = false) Integer page,
                                                     @RequestParam(name = "size", required = false) Integer size,
                                                     @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy
     ) {
-		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
-	}
-	
-	@PostMapping(value = "/")
-	public ConceptReference createConcept(@RequestBody Concept newConcept) {
-		return conceptService.create(newConcept);
-	}	
+        return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
+    }
+
+    @PostMapping(value = "/{iri}/isWhichType")
+    public Set<ConceptReference> conceptIsWhichType(@PathVariable("iri") String iri,
+                                                    @RequestBody List<String> candidates) {
+        return conceptService.isWhichType(iri, candidates);
+    }
+
+    @PostMapping(value = "/")
+    public ConceptReference createConcept(@RequestBody Concept newConcept) {
+        return conceptService.create(newConcept);
+    }
 }

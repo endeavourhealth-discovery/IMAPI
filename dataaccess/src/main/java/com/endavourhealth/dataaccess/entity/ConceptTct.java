@@ -15,9 +15,6 @@ public class ConceptTct {
 	@OneToOne()
 	@JoinColumn(name="source", referencedColumnName="dbid")
 	private Concept source;
-	@OneToOne()
-	@JoinColumn(name="property", referencedColumnName="dbid")
-	private Concept property;
 	private Integer level;
 	@OneToOne()
 	@JoinColumn(name="target", referencedColumnName="dbid")
@@ -27,11 +24,10 @@ public class ConceptTct {
 		super();
 	}
 
-	public ConceptTct(Integer dbid, Concept source, Concept property, Integer level, Concept target) {
+	public ConceptTct(Integer dbid, Concept source, Integer level, Concept target) {
 		super();
 		this.dbid = dbid;
 		this.source = source;
-		this.property = property;
 		this.level = level;
 		this.target = target;
 	}
@@ -50,14 +46,6 @@ public class ConceptTct {
 
 	public void setSource(Concept source) {
 		this.source = source;
-	}
-
-	public Concept getProperty() {
-		return property;
-	}
-
-	public void setProperty(Concept property) {
-		this.property = property;
 	}
 
 	public Integer getLevel() {

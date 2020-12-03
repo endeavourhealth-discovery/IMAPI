@@ -20,14 +20,15 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "FROM concept c " +
         "LEFT JOIN concept s ON s.dbid = c.scheme " +
         "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
-        "AND c.name LIKE %:term% " +
+        "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
+//        "ORDER BY LENGTH(c.name) " +
         "LIMIT 10", nativeQuery = true)
     List<Concept> search(@Param("term") String term);
 
     @Query(value = "SELECT c.* " +
         "FROM concept c " +
-        "WHERE c.name " +
-        "LIKE %:term% " +
+        "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
+//        "ORDER BY LENGTH(c.name) " +
         "LIMIT 10", nativeQuery = true)
     List<Concept> searchLegacy(@Param("term") String term);
 
@@ -35,8 +36,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "FROM concept c " +
         "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 " +
         "JOIN concept t ON t.dbid = tct.target " +
-        "WHERE c.name LIKE %:term% " +
+        "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
+//        "ORDER BY LENGTH(c.name) " +
         "LIMIT 10", nativeQuery = true)
     List<Concept> search(@Param("term") String term, @Param("root") String root);
 
@@ -46,17 +48,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "JOIN concept t ON t.dbid = tct.target " +
         "LEFT JOIN concept s ON s.dbid = c.scheme " +
         "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
-        "AND c.name LIKE %:term% " +
+        "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
+//        "ORDER BY LENGTH(c.name) " +
         "LIMIT 10", nativeQuery = true)
 	List<Concept> searchLegacy(@Param("term") String term, @Param("root") String root);
-
-	@Query(value = "SELECT m.* " +
-        "FROM concept v " +
-        "JOIN concept p ON p.iri = :member " +
-        "JOIN concept_property_object cpo ON cpo.concept = v.dbid AND cpo.property = p.dbid " +
-        "JOIN concept m ON m.dbid = cpo.object " +
-        "WHERE v.iri = :iri", nativeQuery = true)
-	List<Concept> getMembers(@Param("member") String member, @Param("iri") String iri);
-
 }

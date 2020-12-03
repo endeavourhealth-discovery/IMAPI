@@ -79,12 +79,19 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public Set<ConceptReference> findByNameLike(String term, String root) {
+    public List<ConceptReference> findByNameLike(String term, String root) {
+        term = Arrays.stream(term.split(" "))
+            .map(w -> "+" + w)
+            .collect(Collectors.joining(" "));
         return findByNameLike(term, root, null);
     }
 
     @Override
-    public Set<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy) {
+    public List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy) {
+        term = Arrays.stream(term.split(" "))
+            .map(w -> "+" + w)
+            .collect(Collectors.joining(" "));
+
         List<com.endavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
             result = (includeLegacy != null && includeLegacy)
@@ -97,11 +104,12 @@ public class ConceptServiceV3 implements IConceptService {
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))
-            .collect(Collectors.toSet());
+            .sorted(Comparator.comparing(ConceptReference::getName))
+            .collect(Collectors.toList());
     }
 
     @Override
-    public Set<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy) {
+    public List<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy) {
         List<String> corePrefixes = Arrays.asList(":", "sn:");
         List<Classification> children;
 
@@ -126,19 +134,21 @@ public class ConceptServiceV3 implements IConceptService {
                 i.getChild().getName()
                 )
             )
-            .collect(Collectors.toSet());
+            .sorted(Comparator.comparing(ConceptReference::getName))
+            .collect(Collectors.toList());
     }
 
     @Override
-    public Set<ConceptReferenceNode> getParentHierarchy(String iri) {
+    public List<ConceptReferenceNode> getParentHierarchy(String iri) {
         return getParentHierarchy(iri, new HashMap<>());
     }
 
     @Override
-    public Set<ConceptReference> isWhichType(String iri, List<String> candidates) {
+    public List<ConceptReference> isWhichType(String iri, List<String> candidates) {
         return conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, candidates)
             .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
-            .collect(Collectors.toSet());
+            .sorted(Comparator.comparing(ConceptReference::getName))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -147,12 +157,13 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public Set<ConceptReference> usages(String iri) {
+    public List<ConceptReference> usages(String iri) {
         return expressionRepository.findByTargetConcept_Iri(iri)
             .stream().map(exp -> exp.getAxiom().getConcept())
             .distinct()
             .map(c -> new ConceptReference(c.getIri(), c.getName()))
-            .collect(Collectors.toSet());
+            .sorted(Comparator.comparing(ConceptReference::getName))
+            .collect(Collectors.toList());
     }
 
     // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
@@ -370,15 +381,16 @@ public class ConceptServiceV3 implements IConceptService {
             );
     }
 
-    private Set<ConceptReferenceNode> getParentHierarchy(String iri, Map<String, ConceptReference> ancestors) {
+    private List<ConceptReferenceNode> getParentHierarchy(String iri, Map<String, ConceptReference> ancestors) {
         // TODO : Optimize via TCT and/or ancestor map
         Set<Classification> cpo = classificationRepository.findByChild_Iri(iri);
 
-        Set<ConceptReferenceNode> parents = cpo
+        List<ConceptReferenceNode> parents = cpo
             .stream()
             .map(i -> new ConceptReferenceNode(i.getParent().getIri(), i.getParent().getName())
             )
-            .collect(Collectors.toSet());
+            .sorted(Comparator.comparing(ConceptReference::getName))
+            .collect(Collectors.toList());
 
         // Recurse parents' parents
         for(ConceptReferenceNode n: parents) {

@@ -10,14 +10,14 @@ import java.util.Set;
 public interface IConceptService {
     Concept getConcept(String iri);
     ConceptReference getConceptReference(String iri);
-    Set<ConceptReference> findByNameLike(String term, String root);
-    Set<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy);
-    Set<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy);
-    Set<ConceptReferenceNode> getParentHierarchy(String iri);
+    List<ConceptReference> findByNameLike(String term, String root);
+    List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy);
+    List<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy);
+    List<ConceptReferenceNode> getParentHierarchy(String iri);
 
-    Set<ConceptReference> isWhichType(String iri, List<String> candidates);
+    List<ConceptReference> isWhichType(String iri, List<String> candidates);
 
     ConceptReference create(Concept concept);
 
-    Set<ConceptReference> usages(String iri);
+    List<ConceptReference> usages(String iri);
 }

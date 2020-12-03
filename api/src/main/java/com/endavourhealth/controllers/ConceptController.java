@@ -28,7 +28,7 @@ public class ConceptController {
     IConceptService conceptService;
 
     @GetMapping(value = "/")
-    public Set<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
+    public List<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
                                         @RequestParam(name = "root", required = false) String root,
                                         @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy) {
         return conceptService.findByNameLike(nameTerm, root, includeLegacy);
@@ -45,12 +45,12 @@ public class ConceptController {
     }
 
     @GetMapping(value = "/{iri}/parents")
-    public Set<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri) {
+    public List<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri) {
         return conceptService.getParentHierarchy(iri);
     }
 
     @GetMapping(value = "/{iri}/children")
-    public Set<ConceptReference> getConceptChildren(@PathVariable("iri") String iri,
+    public List<ConceptReference> getConceptChildren(@PathVariable("iri") String iri,
                                                     @RequestParam(name = "page", required = false) Integer page,
                                                     @RequestParam(name = "size", required = false) Integer size,
                                                     @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy
@@ -59,12 +59,12 @@ public class ConceptController {
     }
 
     @GetMapping(value = "/{iri}/usages")
-    public Set<ConceptReference> conceptUsages(@PathVariable("iri") String iri) {
+    public List<ConceptReference> conceptUsages(@PathVariable("iri") String iri) {
         return conceptService.usages(iri);
     }
 
     @PostMapping(value = "/{iri}/isWhichType")
-    public Set<ConceptReference> conceptIsWhichType(@PathVariable("iri") String iri,
+    public List<ConceptReference> conceptIsWhichType(@PathVariable("iri") String iri,
                                                     @RequestBody List<String> candidates) {
         return conceptService.isWhichType(iri, candidates);
     }

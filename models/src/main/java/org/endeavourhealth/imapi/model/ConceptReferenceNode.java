@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConceptReferenceNode extends ConceptReference {
-    private Set<ConceptReferenceNode> parents;
-    private Set<ConceptReferenceNode> children;
+    private List<ConceptReferenceNode> parents;
+    private List<ConceptReferenceNode> children;
     private String moduleId;
 
     public ConceptReferenceNode() {
@@ -19,36 +19,36 @@ public class ConceptReferenceNode extends ConceptReference {
         super(iri, name);
     }
 
-    public Set<ConceptReferenceNode> getParents() {
+    public List<ConceptReferenceNode> getParents() {
         return parents;
     }
 
-    public ConceptReferenceNode setParents(Set<ConceptReferenceNode> parents) {
+    public ConceptReferenceNode setParents(List<ConceptReferenceNode> parents) {
         this.parents = parents;
         return this;
     }
 
     public ConceptReferenceNode addParent(ConceptReferenceNode parent) {
         if (this.parents == null)
-            this.parents = new HashSet<>();
+            this.parents = new ArrayList<>();
 
         this.parents.add(parent);
 
         return this;
     }
 
-    public Set<ConceptReferenceNode> getChildren() {
+    public List<ConceptReferenceNode> getChildren() {
         return children;
     }
 
-    public ConceptReferenceNode setChildren(Set<ConceptReferenceNode> children) {
+    public ConceptReferenceNode setChildren(List<ConceptReferenceNode> children) {
         this.children = children;
         return this;
     }
 
     public ConceptReferenceNode addChild(ConceptReferenceNode parent) {
         if (this.children == null)
-            this.children = new HashSet<>();
+            this.children = new ArrayList<>();
 
         this.children.add(parent);
 

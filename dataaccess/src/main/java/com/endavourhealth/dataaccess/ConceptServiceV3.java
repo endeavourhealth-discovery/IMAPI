@@ -89,6 +89,7 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy) {
         term = Arrays.stream(term.split(" "))
+            .filter(t -> !t.trim().isEmpty())
             .map(w -> "+" + w)
             .collect(Collectors.joining(" "));
 

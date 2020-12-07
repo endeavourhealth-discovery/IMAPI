@@ -21,14 +21,14 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "LEFT JOIN concept s ON s.dbid = c.scheme " +
         "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
         "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-//        "ORDER BY LENGTH(c.name) " +
+        "AND c.status < 2 " +
         "LIMIT 10", nativeQuery = true)
     List<Concept> search(@Param("term") String term);
 
     @Query(value = "SELECT c.* " +
         "FROM concept c " +
         "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-//        "ORDER BY LENGTH(c.name) " +
+        "AND c.status < 2 " +
         "LIMIT 10", nativeQuery = true)
     List<Concept> searchLegacy(@Param("term") String term);
 
@@ -38,7 +38,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "JOIN concept t ON t.dbid = tct.target " +
         "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
-//        "ORDER BY LENGTH(c.name) " +
+        "AND c.status < 2 " +
         "LIMIT 10", nativeQuery = true)
     List<Concept> search(@Param("term") String term, @Param("root") String root);
 
@@ -50,7 +50,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
         "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
-//        "ORDER BY LENGTH(c.name) " +
+        "AND c.status < 2 " +
         "LIMIT 10", nativeQuery = true)
 	List<Concept> searchLegacy(@Param("term") String term, @Param("root") String root);
 }

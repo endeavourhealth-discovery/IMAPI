@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 @Qualifier("ConceptServiceV3")
 public class ConceptServiceV3 implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
+    private static final Integer LIMIT = 20;
 
     @Autowired
     ConceptRepository conceptRepository;
@@ -96,16 +97,15 @@ public class ConceptServiceV3 implements IConceptService {
         List<com.endavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
             result = (includeLegacy != null && includeLegacy)
-                ? conceptRepository.searchLegacy(term)
-                : conceptRepository.search(term);
+                ? conceptRepository.searchLegacy(term, LIMIT)
+                : conceptRepository.search(term, LIMIT);
         else
             result = (includeLegacy != null && includeLegacy)
-                ? conceptRepository.searchLegacy(term, root)
-                : conceptRepository.search(term, root);
+                ? conceptRepository.searchLegacy(term, root, LIMIT)
+                : conceptRepository.search(term, root, LIMIT);
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))
-            .sorted(Comparator.comparing(ConceptReference::getName))
             .collect(Collectors.toList());
     }
 

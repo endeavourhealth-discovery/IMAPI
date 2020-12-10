@@ -22,15 +22,17 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
         "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND c.status < 2 " +
-        "LIMIT 10", nativeQuery = true)
-    List<Concept> search(@Param("term") String term);
+        "ORDER BY LENGTH(c.name) " +
+        "LIMIT :limit", nativeQuery = true)
+    List<Concept> search(@Param("term") String term, @Param("limit") Integer limit);
 
     @Query(value = "SELECT c.* " +
         "FROM concept c " +
         "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND c.status < 2 " +
-        "LIMIT 10", nativeQuery = true)
-    List<Concept> searchLegacy(@Param("term") String term);
+        "ORDER BY LENGTH(c.name) " +
+        "LIMIT :limit", nativeQuery = true)
+    List<Concept> searchLegacy(@Param("term") String term, @Param("limit") Integer limit);
 
     @Query(value = "SELECT c.* " +
         "FROM concept c " +
@@ -39,8 +41,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
         "AND c.status < 2 " +
-        "LIMIT 10", nativeQuery = true)
-    List<Concept> search(@Param("term") String term, @Param("root") String root);
+        "ORDER BY LENGTH(c.name) " +
+        "LIMIT :limit", nativeQuery = true)
+    List<Concept> search(@Param("term") String term, @Param("root") String root, @Param("limit") Integer limit);
 
     @Query(value = "SELECT c.* " +
         "FROM concept c " +
@@ -51,6 +54,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
         "AND c.status < 2 " +
-        "LIMIT 10", nativeQuery = true)
-	List<Concept> searchLegacy(@Param("term") String term, @Param("root") String root);
+        "ORDER BY LENGTH(c.name) " +
+        "LIMIT :limit", nativeQuery = true)
+	List<Concept> searchLegacy(@Param("term") String term, @Param("root") String root, @Param("limit") Integer limit);
 }

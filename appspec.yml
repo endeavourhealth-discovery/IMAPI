@@ -3,6 +3,8 @@ os: linux
 files:
   - source: /api/target/api-0.0.1-SNAPSHOT
     destination: //opt/tomcat/webapps/imapi
+  - source: /models/target/site/apidocs
+    destination: //opt/tomcat/webapps/imapi/apidocs
 hooks:
   BeforeInstall:
     - location: aws_scripts/cleanup

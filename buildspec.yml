@@ -26,3 +26,4 @@ artifacts:
     - appspec.yml
     - aws_scripts/cleanup
     - api/target/api-0.0.1-SNAPSHOT/**/*
+    - models/target/site/apidocs/**/*

@@ -75,8 +75,17 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.2.0</version>
         <configuration>
-          <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+<!--          <reportOutputDirectory>../myoutput</reportOutputDirectory>
+          <destDir>/javadocs</destDir>-->
         </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

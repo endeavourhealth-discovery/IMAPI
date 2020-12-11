@@ -36,7 +36,7 @@ public class ConceptController {
         return conceptService.findByNameLike(nameTerm, root, includeLegacy, limit);
     }
 
-    @PostMapping("/search")
+    @PostMapping(value = "/search")
     public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
         return new SearchResponse()
             .setConcepts(

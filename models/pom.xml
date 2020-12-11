@@ -75,8 +75,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.2.0</version>
         <configuration>
-<!--          <reportOutputDirectory>../myoutput</reportOutputDirectory>
-          <destDir>/javadocs</destDir>-->
+          <reportOutputDirectory>../api/target/api-0.0.1-SNAPSHOT</reportOutputDirectory>
+          <destDir>/javadocs</destDir>
         </configuration>
         <executions>
           <execution>

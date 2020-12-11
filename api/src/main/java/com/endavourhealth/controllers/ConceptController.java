@@ -1,12 +1,13 @@
 package com.endavourhealth.controllers;
 
 import java.util.List;
-import java.util.Set;
 
 import com.endavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,8 +31,17 @@ public class ConceptController {
     @GetMapping(value = "/")
     public List<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
                                         @RequestParam(name = "root", required = false) String root,
-                                        @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy) {
-        return conceptService.findByNameLike(nameTerm, root, includeLegacy);
+                                        @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy,
+                                        @RequestParam(name = "limit", required = false) Integer limit) {
+        return conceptService.findByNameLike(nameTerm, root, includeLegacy, limit);
+    }
+
+    @PostMapping("/search")
+    public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
+        return new SearchResponse()
+            .setConcepts(
+                conceptService.advancedSearch(request)
+            );
     }
 
     @GetMapping(value = "/{iri}")

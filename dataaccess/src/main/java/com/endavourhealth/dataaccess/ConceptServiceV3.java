@@ -6,6 +6,8 @@ import com.endavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptStatus;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,7 @@ import java.util.stream.Stream;
 @Qualifier("ConceptServiceV3")
 public class ConceptServiceV3 implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
-    private static final Integer LIMIT = 20;
+    private static final Integer DEFAULT_LIMIT = 20;
 
     @Autowired
     ConceptRepository conceptRepository;
@@ -80,32 +82,56 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> findByNameLike(String term, String root) {
-        term = Arrays.stream(term.split(" "))
-            .map(w -> "+" + w)
-            .collect(Collectors.joining(" "));
-        return findByNameLike(term, root, null);
-    }
+    public List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy, Integer limit) {
+        if (limit == null)
+            limit = DEFAULT_LIMIT;
 
-    @Override
-    public List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy) {
         term = Arrays.stream(term.split(" "))
-            .filter(t -> !t.trim().isEmpty())
+            .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w)
             .collect(Collectors.joining(" "));
 
         List<com.endavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
             result = (includeLegacy != null && includeLegacy)
-                ? conceptRepository.searchLegacy(term, LIMIT)
-                : conceptRepository.search(term, LIMIT);
+                ? conceptRepository.searchLegacy(term, limit)
+                : conceptRepository.search(term, limit);
         else
             result = (includeLegacy != null && includeLegacy)
-                ? conceptRepository.searchLegacy(term, root, LIMIT)
-                : conceptRepository.search(term, root, LIMIT);
+                ? conceptRepository.searchLegacy(term, root, limit)
+                : conceptRepository.search(term, root, limit);
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SearchResponseConcept> advancedSearch(SearchRequest request) {
+        List<com.endavourhealth.dataaccess.entity.Concept> result;
+
+        String terms = Arrays.stream(request.getTerms().split(" "))
+            .filter(t -> t.trim().length() >= 3)
+            .map(w -> "+" + w)
+            .collect(Collectors.joining(" "));
+
+
+        if (request.isIncludeLegacy())
+            result = conceptRepository.searchLegacy(terms, request.getSize());
+        else
+            result = conceptRepository.search(terms, request.getSize());
+
+        return result.stream()
+            .map(r -> new SearchResponseConcept()
+                .setName(r.getName())
+                .setIri(r.getIri())
+                .setCode(r.getCode())
+                .setScheme(
+                    r.getScheme() == null
+                        ? null
+                        : new ConceptReference(r.getScheme().getIri(), r.getScheme().getName())
+
+                ))
             .collect(Collectors.toList());
     }
 

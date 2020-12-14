@@ -228,11 +228,11 @@ public class ConceptServiceV3 implements IConceptService {
             AxiomType at = AxiomType.byValue(a.getType());
             switch (at) {
                 case SUBCLASSOF:
-                    getExpressionsAsClassAxiomStream(a.getExpressions())
+                    getExpressionsAsStream(a.getExpressions())
                         .forEach(c::addSubClassOf);
                     break;
                 case EQUIVALENTTO:
-                    getExpressionsAsClassAxiomStream(a.getExpressions())
+                    getExpressionsAsStream(a.getExpressions())
                         .forEach(c::addEquivalentTo);
                     break;
                 case SUBOBJECTPROPERTY:
@@ -251,7 +251,7 @@ public class ConceptServiceV3 implements IConceptService {
                         .forEach(((AnnotationProperty)c)::addSubAnnotationPropertyOf);
                     break;
                 case OBJECTPROPERTYRANGE:
-                    getExpressionsAsClassAxiomStream(a.getExpressions())
+                    getExpressionsAsStream(a.getExpressions())
                         .forEach(((ObjectProperty) c)::addObjectPropertyRange);
                     break;
                 case DATAPROPERTYRANGE:
@@ -261,10 +261,10 @@ public class ConceptServiceV3 implements IConceptService {
                     break;
                 case PROPERTYDOMAIN:
                     if (c instanceof ObjectProperty)
-                        getExpressionsAsClassAxiomStream(a.getExpressions())
+                        getExpressionsAsStream(a.getExpressions())
                             .forEach(((ObjectProperty) c)::addPropertyDomain);
                     else if (c instanceof DataProperty)
-                        getExpressionsAsClassAxiomStream(a.getExpressions())
+                        getExpressionsAsStream(a.getExpressions())
                             .forEach(((DataProperty) c)::addPropertyDomain);
                     else
                         throw new IllegalStateException("Property domain on non-property");
@@ -320,10 +320,10 @@ public class ConceptServiceV3 implements IConceptService {
         }
     }
 
-    private Stream<ClassAxiom> getExpressionsAsClassAxiomStream(List<Expression> expressions) {
+    private Stream<ClassExpression> getExpressionsAsStream(List<Expression> expressions) {
         return expressions.stream()
             .filter(exp -> exp.getParent() == null)
-            .map(exp -> (ClassAxiom)setClassExpression(exp, expressions, new ClassAxiom()));
+            .map(exp -> setClassExpression(exp, expressions, new ClassExpression()));
     }
 
     private ClassExpression setClassExpression(Expression exp, List<Expression> expressions, ClassExpression cex) {

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonIgnoreProperties(value={ "id" })   // TODO: Remove!!!
 @JsonPropertyOrder({"dbid","status","version"})
 public interface IMEntity{
     ConceptStatus getStatus();

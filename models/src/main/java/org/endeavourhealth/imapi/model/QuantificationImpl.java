@@ -30,12 +30,12 @@ public class QuantificationImpl implements Quantification {
 
    @JsonProperty("Quantification")
    public QuantificationType getQuantificationType() {
-      if (this.min==null&this.max==null)
+      if (this.min==null && this.max==null)
          return QuantificationType.ONLY;
       else
       if (this.min!=null)
          if (this.max!=null)
-            if (this.max==this.min)
+            if (this.max.equals(this.min))
                return QuantificationType.EXACT;
             else
                return QuantificationType.RANGE;

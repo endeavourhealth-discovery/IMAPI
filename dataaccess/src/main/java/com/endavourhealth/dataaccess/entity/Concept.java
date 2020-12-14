@@ -31,20 +31,6 @@ public class Concept {
 		super();
 	}
 
-	public Concept(Integer dbid, Namespace namespace, String id, String iri, String name, String description, String code,
-			Concept scheme, ConceptStatus status, Integer weighting) {
-		super();
-		this.dbid = dbid;
-		this.namespace = namespace;
-		this.iri = iri;
-		this.name = name;
-		this.description = description;
-		this.code = code;
-		this.scheme = scheme;
-		this.status = status;
-		this.weighting = weighting;
-	}
-
 	public Integer getDbid() {
 		return dbid;
 	}

@@ -13,8 +13,8 @@ import java.util.Set;
 public class ObjectProperty extends Concept {
     private Set<PropertyAxiom> subObjectPropertyOf;
     private PropertyAxiom inversePropertyOf;
-    private Set<ClassAxiom> objectPropertyRange;
-    private Set<ClassAxiom> propertyDomain;
+    private Set<ClassExpression> objectPropertyRange;
+    private Set<ClassExpression> propertyDomain;
     private Set<SubPropertyChain> subPropertyChain;
     private Axiom isFunctional;
     private Axiom isSymmetric;
@@ -89,15 +89,15 @@ public class ObjectProperty extends Concept {
     }
 
     @JsonProperty("ObjectPropertyRange")
-    public Set<ClassAxiom> getObjectPropertyRange() {
+    public Set<ClassExpression> getObjectPropertyRange() {
         return objectPropertyRange;
     }
 
-    public ObjectProperty setObjectPropertyRange(Set<ClassAxiom> propertyRange) {
+    public ObjectProperty setObjectPropertyRange(Set<ClassExpression> propertyRange) {
         this.objectPropertyRange = propertyRange;
         return this;
     }
-    public ObjectProperty addObjectPropertyRange(ClassAxiom range) {
+    public ObjectProperty addObjectPropertyRange(ClassExpression range) {
         if (this.objectPropertyRange == null)
             this.objectPropertyRange = new HashSet<>();
         this.objectPropertyRange.add(range);
@@ -106,15 +106,15 @@ public class ObjectProperty extends Concept {
     }
 
     @JsonProperty("PropertyDomain")
-    public Set<ClassAxiom> getPropertyDomain() {
+    public Set<ClassExpression> getPropertyDomain() {
         return propertyDomain;
     }
 
-    public ObjectProperty setPropertyDomain(Set<ClassAxiom> propertyDomain) {
+    public ObjectProperty setPropertyDomain(Set<ClassExpression> propertyDomain) {
         this.propertyDomain = propertyDomain;
         return this;
     }
-    public ObjectProperty addPropertyDomain(ClassAxiom domain) {
+    public ObjectProperty addPropertyDomain(ClassExpression domain) {
         if (this.propertyDomain == null)
             this.propertyDomain = new HashSet<>();
         this.propertyDomain.add(domain);

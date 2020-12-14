@@ -83,7 +83,7 @@ public class Ontology {
     }
     public Ontology addImport(String newimport) {
         if (this.imports == null)
-            this.imports = new HashSet<String>();
+            this.imports = new HashSet<>();
         this.imports.add(newimport);
 
         return this;

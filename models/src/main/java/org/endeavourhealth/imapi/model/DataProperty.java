@@ -13,7 +13,7 @@ import java.util.Set;
 public class DataProperty extends Concept {
     private Set<PropertyAxiom> subDataPropertyOf;
     private Set<DataPropertyRange> dataPropertyRange;
-    private Set<ClassAxiom> propertyDomain;
+    private Set<ClassExpression> propertyDomain;
     private Axiom isFunctional;
 
     public DataProperty(){
@@ -67,15 +67,15 @@ public class DataProperty extends Concept {
     }
 
     @JsonProperty("PropertyDomain")
-    public Set<ClassAxiom> getPropertyDomain() {
+    public Set<ClassExpression> getPropertyDomain() {
         return propertyDomain;
     }
 
-    public DataProperty setPropertyDomain(Set<ClassAxiom> propertyDomain) {
+    public DataProperty setPropertyDomain(Set<ClassExpression> propertyDomain) {
         this.propertyDomain = propertyDomain;
         return this;
     }
-    public DataProperty addPropertyDomain(ClassAxiom domain) {
+    public DataProperty addPropertyDomain(ClassExpression domain) {
         if (this.propertyDomain == null)
             this.propertyDomain = new HashSet<>();
         this.propertyDomain.add(domain);

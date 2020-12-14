@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class ClassExpression implements IMEntity{
+public class ClassExpression implements IMEntity, IMAnnotated{
     private Integer dbid;
     private Boolean inferred;
     private ConceptReference clazz;
@@ -17,7 +19,8 @@ public class ClassExpression implements IMEntity{
     private DataPropertyValue dataPropertyValue;
     private List<ConceptReference> objectOneOf;
     private int group;
-
+    private Set<Annotation> annotations;
+    private ConceptReference module;
 
 
     @JsonProperty("Inferred")
@@ -178,6 +181,34 @@ public class ClassExpression implements IMEntity{
 
     public ClassExpression setGroup(int group) {
         this.group = group;
+        return this;
+    }
+
+    @Override
+    public Set<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    @Override
+    public IMAnnotated setAnnotations(Set<Annotation> annotations) {
+        this.annotations = annotations;
+        return this;
+    }
+
+    public IMAnnotated addAnnotation(Annotation annotation) {
+        if (this.annotations == null) {
+            this.annotations = new HashSet<>();
+        }
+        this.annotations.add(annotation);
+        return this;
+    }
+
+    public ConceptReference getModule() {
+        return module;
+    }
+
+    public ClassExpression setModule(ConceptReference module) {
+        this.module = module;
         return this;
     }
 }

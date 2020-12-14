@@ -28,8 +28,8 @@ public class Concept implements IMAnnotated {
     private Set<ConceptReference> isA;
     private Set<Annotation> annotations;
     private ConceptType conceptType;
-    private Set<ClassAxiom> subClassOf;
-    private Set<ClassAxiom> equivalentTo;
+    private Set<ClassExpression> subClassOf;
+    private Set<ClassExpression> equivalentTo;
     private ClassExpression expression;
     private Set<ConceptReference> DisjointWith;
     private List<Synonym> synonym;
@@ -226,16 +226,16 @@ public class Concept implements IMAnnotated {
     }
 
     @JsonProperty("SubClassOf")
-    public Set<ClassAxiom> getSubClassOf() {
+    public Set<ClassExpression> getSubClassOf() {
         return subClassOf;
     }
 
-    public Concept setSubClassOf(Set<ClassAxiom> subClassOf) {
+    public Concept setSubClassOf(Set<ClassExpression> subClassOf) {
         this.subClassOf = subClassOf;
         return this;
     }
 
-    public Concept addSubClassOf(ClassAxiom subClassOf) {
+    public Concept addSubClassOf(ClassExpression subClassOf) {
         if (this.subClassOf == null)
             this.subClassOf = new HashSet<>();
 
@@ -244,16 +244,16 @@ public class Concept implements IMAnnotated {
     }
 
     @JsonProperty("EquivalentTo")
-    public Set<ClassAxiom> getEquivalentTo() {
+    public Set<ClassExpression> getEquivalentTo() {
         return equivalentTo;
     }
 
-    public Concept setEquivalentTo(Set<ClassAxiom> equivalentTo) {
+    public Concept setEquivalentTo(Set<ClassExpression> equivalentTo) {
         this.equivalentTo = equivalentTo;
         return this;
     }
 
-    public Concept addEquivalentTo(ClassAxiom equivalentTo) {
+    public Concept addEquivalentTo(ClassExpression equivalentTo) {
         if (this.equivalentTo == null)
             this.equivalentTo = new HashSet<>();
         this.equivalentTo.add(equivalentTo);

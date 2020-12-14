@@ -29,19 +29,6 @@ public class PropertyValue {
 		super();
 	}
 
-	public PropertyValue(Integer dbid, Expression expression, Concept property, Concept valueType, Byte inverse, Integer minCardinality, Integer maxCardinality, Expression valueExpression, String valueData) {
-		super();
-		this.dbid = dbid;
-		this.expression = expression;
-		this.property = property;
-		this.valueType = valueType;
-		this.inverse = inverse;
-		this.minCardinality = minCardinality;
-		this.maxCardinality = maxCardinality;
-		this.valueExpression = valueExpression;
-		this.valueData = valueData;
-	}
-
     public Integer getDbid() {
         return dbid;
     }

@@ -123,6 +123,7 @@ public class Concept implements IMAnnotated {
         return scheme;
     }
 
+    @JsonSetter
     public Concept setScheme(ConceptReference scheme) {
         this.scheme = scheme;
         return this;

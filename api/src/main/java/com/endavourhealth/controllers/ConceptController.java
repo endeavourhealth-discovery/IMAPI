@@ -65,8 +65,7 @@ public class ConceptController {
                                                     @RequestParam(name = "size", required = false) Integer size,
                                                     @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy
     ) {
-        List<ConceptReference> children = conceptService.getImmediateChildren(iri, page, size, includeLegacy);
-        return children;
+        return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
     }
 
     @GetMapping(value = "/{iri}/usages")
@@ -79,11 +78,4 @@ public class ConceptController {
                                                     @RequestBody List<String> candidates) {
         return conceptService.isWhichType(iri, candidates);
     }
-
-/*
-    @PostMapping(value = "/")
-    public ConceptReference createConcept(@RequestBody Concept newConcept) {
-        return conceptService.create(newConcept);
-    }
-*/
 }

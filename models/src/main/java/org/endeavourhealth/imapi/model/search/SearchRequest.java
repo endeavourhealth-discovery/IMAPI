@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
+import org.endeavourhealth.imapi.model.ConceptReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +9,7 @@ public class SearchRequest {
     private String terms;
     private List<String> types = new ArrayList<>();
     private boolean includeLegacy = false;
+    private List<ConceptReference> schemes = new ArrayList<>();
     private int page = 1;
     private int size = 20;
 
@@ -34,6 +37,15 @@ public class SearchRequest {
 
     public SearchRequest setIncludeLegacy(boolean includeLegacy) {
         this.includeLegacy = includeLegacy;
+        return this;
+    }
+
+    public List<ConceptReference> getSchemes() {
+        return schemes;
+    }
+
+    public SearchRequest setSchemes(List<ConceptReference> schemes) {
+        this.schemes = schemes;
         return this;
     }
 

@@ -98,8 +98,8 @@ public class ConceptServiceV3 implements IConceptService {
                 : conceptRepository.search(term, limit);
         else
             result = (includeLegacy != null && includeLegacy)
-                ? conceptRepository.searchLegacy(term, root, limit)
-                : conceptRepository.search(term, root, limit);
+                ? conceptRepository.searchType(term, root, limit)
+                : conceptRepository.searchLegacyType(term, root, limit);
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))
@@ -115,11 +115,16 @@ public class ConceptServiceV3 implements IConceptService {
             .map(w -> "+" + w)
             .collect(Collectors.joining(" "));
 
-
-        if (request.isIncludeLegacy())
-            result = conceptRepository.searchLegacy(terms, request.getSize());
-        else
+        if (!request.isIncludeLegacy())
             result = conceptRepository.search(terms, request.getSize());
+        else {
+            if (request.getSchemes() == null || request.getSchemes().isEmpty())
+                result = conceptRepository.searchLegacy(terms, request.getSize());
+            else {
+                List<String> schemeIris = request.getSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
+                result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
+            }
+        }
 
         return result.stream()
             .map(r -> new SearchResponseConcept()

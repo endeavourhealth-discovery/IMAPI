@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 public class ConceptServiceV3 implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
     private static final Integer DEFAULT_LIMIT = 20;
+    private static final String DEFAULT_CONCEPT_REFERENCE_NAME = "";
 
     @Autowired
     ConceptRepository conceptRepository;
@@ -161,15 +162,12 @@ public class ConceptServiceV3 implements IConceptService {
         }
         return children
             .stream()
-            .map(i -> new ConceptReference(
-                i.getChild().getIri(),
-                i.getChild().getName()
-                )
+            .map(i -> toConceptReference(i.getChild())
             )
             .sorted(Comparator.comparing(ConceptReference::getName))
             .collect(Collectors.toList());
     }
-
+    
     @Override
     public List<ConceptReferenceNode> getParentHierarchy(String iri) {
         return getParentHierarchy(iri, new HashMap<>());
@@ -430,5 +428,18 @@ public class ConceptServiceV3 implements IConceptService {
         }
 
         return parents;
+    }
+    
+    private ConceptReference toConceptReference(com.endavourhealth.dataaccess.entity.Concept classification) {
+    	ConceptReference conceptReference = new ConceptReference(classification.getIri());
+    	
+    	String name = classification.getName();
+    	if(name == null) {
+    		name = DEFAULT_CONCEPT_REFERENCE_NAME;
+    	}
+    	
+    	conceptReference.setName(name);
+    	
+    	return conceptReference;
     }
 }

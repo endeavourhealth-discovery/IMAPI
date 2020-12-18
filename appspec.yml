@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /api/target/api-0.0.1-SNAPSHOT
-    destination: {DESTINATION}
+    destination: DEPLOY_DESTINATION
 hooks:
   BeforeInstall:
     - location: aws_scripts/cleanup

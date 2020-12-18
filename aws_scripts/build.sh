@@ -9,6 +9,10 @@ artifact=$( xmllint --xpath "/*[local-name() = 'project']/*[local-name() = 'arti
 version=$( xmllint --xpath "/*[local-name() = 'project']/*[local-name() = 'version']/text()" pom.xml )
 version=${version/-/--} # Hyphen escaping required by shields.io
 
+# Set deployment folder
+sed -i "s/{DESTINATION}/$DESTINATION/" appspec.yml
+sed -i "s/{DESTINATION}/$DESTINATION/" aws_scripts/cleanup
+
 # Update badges pre-build
 echo "https://img.shields.io/badge/Build-In_progress-orange.svg"
 curl -s "https://img.shields.io/badge/Build-In_progress-orange.svg" > badges/build.svg

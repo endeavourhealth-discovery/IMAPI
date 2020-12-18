@@ -15,8 +15,8 @@ phases:
     commands:
       - echo Build started on `date`
       - chmod +x aws_scripts/build.sh
-      - sed -i -e "s/DEPLOY_DESTINATION/$DESTINATION/g" appspec.yml
-      - sed -i -e "s/DEPLOY_DESTINATION/$DESTINATION/g" aws_scripts/cleanup
+      - sed -i -e "s|DEPLOY_DESTINATION|$DESTINATION|g" appspec.yml
+      - sed -i -e "s|DEPLOY_DESTINATION|$DESTINATION|g" aws_scripts/cleanup
       - aws_scripts/build.sh mvn -B deploy
   post_build:
     commands:

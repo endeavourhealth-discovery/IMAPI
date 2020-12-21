@@ -26,6 +26,9 @@ public class Concept {
 	@JoinColumn(name="status", referencedColumnName="dbid")
 	private ConceptStatus status;
 	private Integer weighting;
+    @OneToOne()
+    @JoinColumn(name="expression", referencedColumnName="dbid")
+	private Expression expression;
 
 	public Concept() {
 		super();
@@ -112,7 +115,16 @@ public class Concept {
 		this.weighting = weighting;
 	}
 
-	@Override
+    public Expression getExpression() {
+        return expression;
+    }
+
+    public Concept setExpression(Expression expression) {
+        this.expression = expression;
+        return this;
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

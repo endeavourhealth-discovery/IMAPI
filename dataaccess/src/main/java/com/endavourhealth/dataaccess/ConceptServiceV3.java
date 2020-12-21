@@ -74,6 +74,10 @@ public class ConceptServiceV3 implements IConceptService {
         if (concept.getScheme() != null)
             c.setScheme(new ConceptReference(concept.getScheme().getIri(), concept.getScheme().getName()));
 
+        // Check for concept expression
+        if (concept.getExpression() != null)
+            c.setExpression(setClassExpression(concept.getExpression(), null, new ClassExpression()));
+
         // remainder of properties
         List<Axiom> axioms = axiomRepository.findByIri(iri);
 
@@ -189,7 +193,9 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public List<ConceptReference> usages(String iri) {
         return expressionRepository.findByTargetConcept_Iri(iri)
-            .stream().map(exp -> exp.getAxiom().getConcept())
+            .stream()
+            .filter(exp -> exp.getAxiom().getType() > 1)        // Exclude SubClass & Equivalent
+            .map(exp -> exp.getAxiom().getConcept())
             .distinct()
             .map(c -> new ConceptReference(c.getIri(), c.getName()))
             .sorted(Comparator.comparing(ConceptReference::getName))

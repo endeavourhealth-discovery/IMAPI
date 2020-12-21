@@ -62,24 +62,7 @@ public class ConceptServiceV3 implements IConceptService {
             return null;
         }
 
-        ConceptType ct = ConceptType.byValue(concept.getType());
-        Concept c = getConceptInstance(ct);
-
-        c.setIri(concept.getIri())
-            .setName(concept.getName())
-            .setDescription(concept.getDescription())
-            .setCode(concept.getCode())
-            .setStatus(ConceptStatus.byValue(concept.getStatus().getDbid()));
-
-        if (concept.getScheme() != null)
-            c.setScheme(new ConceptReference(concept.getScheme().getIri(), concept.getScheme().getName()));
-
-        // remainder of properties
-        List<Axiom> axioms = axiomRepository.findByIri(iri);
-
-        reconstructConcept(c, axioms);
-
-        return c;
+        return hydrateConcept(concept);
     }
 
     @Override
@@ -142,6 +125,16 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
+    public List<Concept> getAncestorDefinitions(String iri) {
+        Set<ConceptTct> result = conceptTctRepository.findBySource_IriOrderByLevel(iri);
+
+        return result.stream()
+            .filter(t -> !iri.equals(t.getTarget().getIri()))
+            .map(t -> hydrateConcept(t.getTarget()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy) {
         List<String> corePrefixes = Arrays.asList(":", "sn:");
         List<Classification> children;
@@ -189,7 +182,9 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public List<ConceptReference> usages(String iri) {
         return expressionRepository.findByTargetConcept_Iri(iri)
-            .stream().map(exp -> exp.getAxiom().getConcept())
+            .stream()
+            .filter(exp -> exp.getAxiom().getType() > 1)        // Exclude SubClass & Equivalent
+            .map(exp -> exp.getAxiom().getConcept())
             .distinct()
             .map(c -> new ConceptReference(c.getIri(), c.getName()))
             .sorted(Comparator.comparing(ConceptReference::getName))
@@ -197,6 +192,31 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
+
+    private Concept hydrateConcept(com.endavourhealth.dataaccess.entity.Concept concept) {
+        ConceptType ct = ConceptType.byValue(concept.getType());
+        Concept c = getConceptInstance(ct);
+
+        c.setIri(concept.getIri())
+            .setName(concept.getName())
+            .setDescription(concept.getDescription())
+            .setCode(concept.getCode())
+            .setStatus(ConceptStatus.byValue(concept.getStatus().getDbid()));
+
+        if (concept.getScheme() != null)
+            c.setScheme(new ConceptReference(concept.getScheme().getIri(), concept.getScheme().getName()));
+
+        // Check for concept expression
+        if (concept.getExpression() != null)
+            c.setExpression(setClassExpression(concept.getExpression(), null, new ClassExpression()));
+
+        // remainder of properties
+        List<Axiom> axioms = axiomRepository.findByIri(concept.getIri());
+
+        reconstructConcept(c, axioms);
+
+        return c;
+    }
 
     private Concept getConceptInstance(ConceptType ct) {
         Concept c = null;

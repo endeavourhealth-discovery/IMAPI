@@ -22,4 +22,6 @@ public interface IConceptService {
     List<ConceptReference> usages(String iri);
 
     List<SearchResponseConcept> advancedSearch(SearchRequest request);
+
+    List<Concept> getAncestorDefinitions(String iri);
 }

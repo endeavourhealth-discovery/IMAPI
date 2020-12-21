@@ -19,7 +19,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
     @Query(value = "SELECT c.* " +
         "FROM concept c " +
         "LEFT JOIN concept s ON s.dbid = c.scheme " +
-        "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
+        "WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND c.status < 2 " +
         "ORDER BY LENGTH(c.name) " +
@@ -49,7 +49,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 " +
         "JOIN concept t ON t.dbid = tct.target " +
         "LEFT JOIN concept s ON s.dbid = c.scheme " +
-        "WHERE (c.scheme IS NULL OR s.iri = ':891101000252101') " +
+        "WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105') " +
         "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
         "AND t.iri = :root " +
         "AND c.status < 2 " +

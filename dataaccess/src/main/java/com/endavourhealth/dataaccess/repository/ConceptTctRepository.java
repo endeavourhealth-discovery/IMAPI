@@ -11,4 +11,6 @@ import java.util.Set;
 public interface ConceptTctRepository extends JpaRepository<ConceptTct, String> {
 
 	Set<ConceptTct> findBySource_Iri_AndTarget_IriIn(String iri, List<String> candidates);
+
+    Set<ConceptTct> findBySource_IriOrderByLevel(String iri);
 }

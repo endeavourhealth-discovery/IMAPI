@@ -59,6 +59,11 @@ public class ConceptController {
         return conceptService.getParentHierarchy(iri);
     }
 
+    @GetMapping(value = "/{iri}/parents/definitions")
+    public List<Concept> getConceptAncestorDefinitions(@PathVariable("iri") String iri) {
+        return conceptService.getAncestorDefinitions(iri);
+    }
+
     @GetMapping(value = "/{iri}/children")
     public List<ConceptReference> getConceptChildren(@PathVariable("iri") String iri,
                                                     @RequestParam(name = "page", required = false) Integer page,

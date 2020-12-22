@@ -181,9 +181,13 @@ public class ConceptServiceV3 implements IConceptService {
 
     @Override
     public List<ConceptReference> usages(String iri) {
-        return expressionRepository.findByTargetConcept_Iri(iri)
-            .stream()
+        Set<String> children = classificationRepository.findByParent_Iri(iri).stream()
+            .map(c -> c.getChild().getIri())
+            .collect(Collectors.toSet());
+
+        return expressionRepository.findByTargetConcept_Iri(iri).stream()
             .map(exp -> exp.getAxiom().getConcept())
+            .filter(c -> !children.contains(c.getIri()))
             .distinct()
             .map(c -> new ConceptReference(c.getIri(), c.getName()))
             .sorted(Comparator.comparing(ConceptReference::getName))

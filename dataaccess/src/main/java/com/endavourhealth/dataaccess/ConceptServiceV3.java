@@ -183,7 +183,6 @@ public class ConceptServiceV3 implements IConceptService {
     public List<ConceptReference> usages(String iri) {
         return expressionRepository.findByTargetConcept_Iri(iri)
             .stream()
-            .filter(exp -> exp.getAxiom().getType() > 1)        // Exclude SubClass & Equivalent
             .map(exp -> exp.getAxiom().getConcept())
             .distinct()
             .map(c -> new ConceptReference(c.getIri(), c.getName()))

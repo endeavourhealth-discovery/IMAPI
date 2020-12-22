@@ -1,8 +1,8 @@
 version: 0.0
 os: linux
 files:
-  - source: /api/target/api-0.0.1-SNAPSHOT.war
-    destination: //opt/tomcat/webapps/DEPLOY_DESTINATION.war
+  - source: /api/target/imapi.war
+    destination: /opt/tomcat/webapps
 hooks:
   BeforeInstall:
     - location: aws_scripts/cleanup

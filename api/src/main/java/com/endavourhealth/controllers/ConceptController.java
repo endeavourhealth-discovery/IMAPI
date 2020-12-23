@@ -31,7 +31,7 @@ public class ConceptController {
     @GetMapping(value = "/")
     public List<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
                                         @RequestParam(name = "root", required = false) String root,
-                                        @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy,
+                                        @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy,
                                         @RequestParam(name = "limit", required = false) Integer limit) {
         return conceptService.findByNameLike(nameTerm, root, includeLegacy, limit);
     }

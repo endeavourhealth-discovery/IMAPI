@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -54,7 +55,10 @@ public class ConceptServiceV3 implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
     private static final Integer DEFAULT_LIMIT = 20;
     private static final String DEFAULT_CONCEPT_REFERENCE_NAME = "";
-
+    
+    @Value("#{'${discovery.dataaccess.core-namespace-prefixes}'.split(',')}")
+    List<String> coreNamespacePrefixes;
+    
     @Autowired
     ConceptRepository conceptRepository;
 
@@ -495,11 +499,11 @@ public class ConceptServiceV3 implements IConceptService {
     	return conceptReferenceNode;
     }
     
-    private List<Object[]> getClassifications(String parentIri, String ... namespacePrefixes) {
+    private List<Object[]> getClassifications(String parentIri, List<String> namespacePrefixes) {
     	List<Object[]> rawResult;
     	
-    	if(namespacePrefixes != null && namespacePrefixes.length > 0) { 	
-    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, Arrays.asList(namespacePrefixes));
+    	if(namespacePrefixes != null && namespacePrefixes.size() > 0) { 	
+    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, namespacePrefixes);
     	}
     	else {
     		rawResult = classificationNativeQueries.findClassificationByParentIri(parentIri);
@@ -509,11 +513,11 @@ public class ConceptServiceV3 implements IConceptService {
     }
     
     // TODO - adapt for paging
-    private List<Object[]> getClassificationsPage(Pageable page, String parentIri, String ... namespacePrefixes) {
+    private List<Object[]> getClassificationsPage(Pageable page, String parentIri, List<String> namespacePrefixes) {
     	List<Object[]> rawResult;
     	
-    	if(namespacePrefixes != null && namespacePrefixes.length > 0) { 	
-    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, Arrays.asList(namespacePrefixes));
+    	if(namespacePrefixes != null && namespacePrefixes.size() > 0) { 	
+    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, namespacePrefixes);
     	}
     	else {
     		rawResult = classificationNativeQueries.findClassificationByParentIri(parentIri);
@@ -522,12 +526,10 @@ public class ConceptServiceV3 implements IConceptService {
     	return rawResult;
     }
     
-	private String[] getNamespacePrefixes(boolean includeLegacy) {
-
-    	String[] allPrefixes = null; // null means everything
-        String[] corePrefixes = {":", ":sn"};
-        
-        return (includeLegacy) ? allPrefixes : corePrefixes;
+	private List<String> getNamespacePrefixes(boolean includeLegacy) {
+		// null means everything
+		
+        return (includeLegacy) ? null : coreNamespacePrefixes;
 	}    
      
     private Pageable getPage(Integer pageIndex, Integer pageSize) {

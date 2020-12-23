@@ -11,8 +11,8 @@ import java.util.List;
 public interface IConceptService {
     Concept getConcept(String iri);
     ConceptReference getConceptReference(String iri);
-    List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy, Integer limit);
-    List<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy);
+    List<ConceptReference> findByNameLike(String term, String root, boolean includeLegacy, Integer limit);
+    List<ConceptReferenceNode> getImmediateChildren(String iri, Integer page, Integer size, boolean includeLegacy);
     List<ConceptReferenceNode> getParentHierarchy(String iri);
 
     List<ConceptReference> isWhichType(String iri, List<String> candidates);

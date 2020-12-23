@@ -1,11 +1,31 @@
 package com.endavourhealth.dataaccess;
 
-import com.endavourhealth.dataaccess.entity.*;
-import com.endavourhealth.dataaccess.entity.Axiom;
-import com.endavourhealth.dataaccess.repository.*;
-import org.endeavourhealth.imapi.model.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.endeavourhealth.imapi.model.AnnotationProperty;
+import org.endeavourhealth.imapi.model.AxiomType;
+import org.endeavourhealth.imapi.model.ClassExpression;
 import org.endeavourhealth.imapi.model.Concept;
+import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.ConceptStatus;
+import org.endeavourhealth.imapi.model.ConceptType;
+import org.endeavourhealth.imapi.model.DataProperty;
+import org.endeavourhealth.imapi.model.DataPropertyRange;
+import org.endeavourhealth.imapi.model.DataPropertyValue;
+import org.endeavourhealth.imapi.model.DataType;
+import org.endeavourhealth.imapi.model.ExpressionType;
+import org.endeavourhealth.imapi.model.Individual;
+import org.endeavourhealth.imapi.model.ObjectProperty;
+import org.endeavourhealth.imapi.model.ObjectPropertyValue;
+import org.endeavourhealth.imapi.model.PropertyAxiom;
+import org.endeavourhealth.imapi.model.SubPropertyChain;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
 import org.slf4j.Logger;
@@ -16,9 +36,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.endavourhealth.dataaccess.entity.Axiom;
+import com.endavourhealth.dataaccess.entity.Classification;
+import com.endavourhealth.dataaccess.entity.ConceptTct;
+import com.endavourhealth.dataaccess.entity.Expression;
+import com.endavourhealth.dataaccess.entity.PropertyValue;
+import com.endavourhealth.dataaccess.repository.AxiomRepository;
+import com.endavourhealth.dataaccess.repository.ClassificationNativeQueries;
+import com.endavourhealth.dataaccess.repository.ClassificationRepository;
+import com.endavourhealth.dataaccess.repository.ConceptRepository;
+import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
+import com.endavourhealth.dataaccess.repository.ExpressionRepository;
 
 @Component
 @Qualifier("ConceptServiceV3")
@@ -41,6 +69,9 @@ public class ConceptServiceV3 implements IConceptService {
 
     @Autowired
     ConceptTctRepository conceptTctRepository;
+    
+    @Autowired
+    ClassificationNativeQueries classificationNativeQueries;
 
     @Override
     public ConceptReference getConceptReference(String iri) {
@@ -66,7 +97,7 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> findByNameLike(String term, String root, Boolean includeLegacy, Integer limit) {
+    public List<ConceptReference> findByNameLike(String term, String root, boolean includeLegacy, Integer limit) {
         if (limit == null)
             limit = DEFAULT_LIMIT;
 
@@ -77,11 +108,11 @@ public class ConceptServiceV3 implements IConceptService {
 
         List<com.endavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
-            result = (includeLegacy != null && includeLegacy)
+            result = (includeLegacy)
                 ? conceptRepository.searchLegacy(term, limit)
                 : conceptRepository.search(term, limit);
         else
-            result = (includeLegacy != null && includeLegacy)
+            result = (includeLegacy)
                 ? conceptRepository.searchType(term, root, limit)
                 : conceptRepository.searchLegacyType(term, root, limit);
 
@@ -123,7 +154,7 @@ public class ConceptServiceV3 implements IConceptService {
                 ))
             .collect(Collectors.toList());
     }
-
+    
     @Override
     public List<Concept> getAncestorDefinitions(String iri) {
         Set<ConceptTct> result = conceptTctRepository.findBySource_IriOrderByLevel(iri);
@@ -134,36 +165,52 @@ public class ConceptServiceV3 implements IConceptService {
             .collect(Collectors.toList());
     }
 
-    @Override
-    public List<ConceptReference> getImmediateChildren(String iri, Integer page, Integer size, Boolean includeLegacy) {
-        List<String> corePrefixes = Arrays.asList(":", "sn:");
-        List<Classification> children;
-
-        if (includeLegacy == null) includeLegacy = false;
-
-        if (page == null && size == null) {
-            children = (includeLegacy)
-                ? classificationRepository.findByParent_Iri(iri)
-                : classificationRepository.findByParent_Iri_AndChild_Namespace_PrefixIn(iri, corePrefixes);
-        } else {
-            if (page == null || page <= 0) page = 1;
-            if (size == null || size <= 0) size = 20;
-            Pageable pageable = PageRequest.of(page - 1, size);
-            children = (includeLegacy)
-                ? classificationRepository.findByParent_Iri(iri, pageable)
-                : classificationRepository.findByParent_Iri_AndChild_Namespace_PrefixIn(iri, corePrefixes, pageable);
+    public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
+    	List<ConceptReferenceNode> immediateChildren;
+               
+        Pageable page = getPage(pageIndex, pageSize);
+        
+        // get the data
+        List<Object[]> rows;
+        if(page != null) {
+        	// TODO - adapt for paging
+        	rows = getClassificationsPage(page, iri, getNamespacePrefixes(includeLegacy));
         }
-        return children
-            .stream()
-            .map(i -> toConceptReference(i.getChild())
-            )
-            .sorted(Comparator.comparing(ConceptReference::getName))
-            .collect(Collectors.toList());
+        else {
+        	rows = getClassifications(iri, getNamespacePrefixes(includeLegacy));
+        }
+        
+        // transform the data
+        if(rows != null) {
+        	immediateChildren = rows.stream()
+	        	.map(row -> toConceptReferenceNode(classificationNativeQueries.getClassificaton(row).getChild(), classificationNativeQueries.getChildHasChildren(row)))
+	            .sorted(Comparator.comparing(ConceptReferenceNode::getName))
+	            .collect(Collectors.toList());        	
+        }
+        else {
+        	immediateChildren = new ArrayList<>();
+        }
+        
+        return immediateChildren;
     }
-    
-    @Override
+
     public List<ConceptReferenceNode> getParentHierarchy(String iri) {
-        return getParentHierarchy(iri, new HashMap<>());
+        // TODO : Optimize via TCT and/or ancestor map
+        Set<Classification> classifications = classificationRepository.findByChild_Iri(iri);
+
+        List<ConceptReferenceNode> parents = classifications.stream()
+                .map(classification -> toConceptReferenceNode(classification.getParent(), true))
+                .sorted(Comparator.comparing(ConceptReferenceNode::getName))
+                .collect(Collectors.toList());
+
+        // Recurse parents' parents
+        for(ConceptReferenceNode parent: parents) {
+            List<ConceptReferenceNode> grandParents = getParentHierarchy(parent.getIri());
+            
+			parent.setParents(grandParents);
+        }
+
+        return parents;   
     }
 
     @Override
@@ -433,36 +480,67 @@ public class ConceptServiceV3 implements IConceptService {
                 .setName(exp.getTargetConcept().getName())
             );
     }
-
-    private List<ConceptReferenceNode> getParentHierarchy(String iri, Map<String, ConceptReference> ancestors) {
-        // TODO : Optimize via TCT and/or ancestor map
-        Set<Classification> cpo = classificationRepository.findByChild_Iri(iri);
-
-        List<ConceptReferenceNode> parents = cpo
-            .stream()
-            .map(i -> new ConceptReferenceNode(i.getParent().getIri(), i.getParent().getName())
-            )
-            .sorted(Comparator.comparing(ConceptReference::getName))
-            .collect(Collectors.toList());
-
-        // Recurse parents' parents
-        for(ConceptReferenceNode n: parents) {
-            n.setParents(getParentHierarchy(n.getIri(), ancestors));
-        }
-
-        return parents;
-    }
     
-    private ConceptReference toConceptReference(com.endavourhealth.dataaccess.entity.Concept classification) {
-    	ConceptReference conceptReference = new ConceptReference(classification.getIri());
+    private ConceptReferenceNode toConceptReferenceNode(com.endavourhealth.dataaccess.entity.Concept concept, boolean hasChildren) {
+    	ConceptReferenceNode conceptReferenceNode = new ConceptReferenceNode(concept.getIri());
     	
-    	String name = classification.getName();
+    	String name = concept.getName();
     	if(name == null) {
     		name = DEFAULT_CONCEPT_REFERENCE_NAME;
     	}
     	
-    	conceptReference.setName(name);
+    	conceptReferenceNode.setName(name);
+    	conceptReferenceNode.setHasChildren(hasChildren);
     	
-    	return conceptReference;
+    	return conceptReferenceNode;
     }
+    
+    private List<Object[]> getClassifications(String parentIri, String ... namespacePrefixes) {
+    	List<Object[]> rawResult;
+    	
+    	if(namespacePrefixes != null && namespacePrefixes.length > 0) { 	
+    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, Arrays.asList(namespacePrefixes));
+    	}
+    	else {
+    		rawResult = classificationNativeQueries.findClassificationByParentIri(parentIri);
+    	}
+    	
+    	return rawResult;
+    }
+    
+    // TODO - adapt for paging
+    private List<Object[]> getClassificationsPage(Pageable page, String parentIri, String ... namespacePrefixes) {
+    	List<Object[]> rawResult;
+    	
+    	if(namespacePrefixes != null && namespacePrefixes.length > 0) { 	
+    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, Arrays.asList(namespacePrefixes));
+    	}
+    	else {
+    		rawResult = classificationNativeQueries.findClassificationByParentIri(parentIri);
+    	}
+    	
+    	return rawResult;
+    }
+    
+	private String[] getNamespacePrefixes(boolean includeLegacy) {
+
+    	String[] allPrefixes = null; // null means everything
+        String[] corePrefixes = {":", ":sn"};
+        
+        return (includeLegacy) ? allPrefixes : corePrefixes;
+	}    
+     
+    private Pageable getPage(Integer pageIndex, Integer pageSize) {
+    	Pageable page = null;
+    	
+    	// defaults
+        if (pageIndex != null && pageIndex <= 0) pageIndex = 1;
+        if (pageSize != null && pageSize <= 0) pageSize = 20;
+        
+        if(pageIndex != null && pageSize != null) {
+        	page = PageRequest.of(pageIndex - 1, pageSize);
+        }
+    	
+		return page;
+	}
 }

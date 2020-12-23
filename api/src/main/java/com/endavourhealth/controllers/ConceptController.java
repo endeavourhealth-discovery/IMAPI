@@ -56,7 +56,9 @@ public class ConceptController {
 
     @GetMapping(value = "/{iri}/parents")
     public List<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri) {
-        return conceptService.getParentHierarchy(iri);
+    	List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
+    	
+    	return parents;
     }
 
     @GetMapping(value = "/{iri}/parents/definitions")
@@ -65,10 +67,10 @@ public class ConceptController {
     }
 
     @GetMapping(value = "/{iri}/children")
-    public List<ConceptReference> getConceptChildren(@PathVariable("iri") String iri,
+    public List<ConceptReferenceNode> getConceptChildren(@PathVariable("iri") String iri,
                                                     @RequestParam(name = "page", required = false) Integer page,
                                                     @RequestParam(name = "size", required = false) Integer size,
-                                                    @RequestParam(name = "includeLegacy", required = false) Boolean includeLegacy
+                                                    @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy
     ) {
         return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
     }

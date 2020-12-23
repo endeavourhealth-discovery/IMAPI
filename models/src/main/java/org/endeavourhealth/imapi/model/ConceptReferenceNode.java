@@ -7,6 +7,7 @@ public class ConceptReferenceNode extends ConceptReference {
     private List<ConceptReferenceNode> parents;
     private List<ConceptReferenceNode> children;
     private String moduleId;
+    private boolean hasChildren;
 
     public ConceptReferenceNode() {
     }
@@ -63,4 +64,14 @@ public class ConceptReferenceNode extends ConceptReference {
         this.moduleId = moduleId;
         return this;
     }
+
+	public void setHasChildren(boolean hasChildren) {
+		this.hasChildren = hasChildren;
+	}
+
+	public boolean isHasChildren() {
+		return hasChildren;
+	}
+    
+    
 }

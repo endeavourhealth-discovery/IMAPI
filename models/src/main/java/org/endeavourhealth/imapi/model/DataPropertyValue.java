@@ -17,6 +17,7 @@ public class DataPropertyValue extends QuantificationImpl{
    private String minValue;
    private String maxOperator;
    private String maxValue;
+   private String equalTo;
    private String pattern;
 
 
@@ -108,6 +109,15 @@ public class DataPropertyValue extends QuantificationImpl{
 
    public DataPropertyValue setPattern(String pattern) {
       this.pattern = pattern;
+      return this;
+   }
+
+   public String getEqualTo() {
+      return equalTo;
+   }
+
+   public DataPropertyValue setEqualTo(String equalTo) {
+      this.equalTo = equalTo;
       return this;
    }
 }

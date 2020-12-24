@@ -58,6 +58,7 @@ public class DataPropertyValue extends QuantificationImpl{
       return this;
    }
 
+   @JsonProperty("OneOf")
    public Set<String> getOneOf() {
       return oneOf;
    }

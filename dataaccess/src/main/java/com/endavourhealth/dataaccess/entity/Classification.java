@@ -26,6 +26,8 @@ import javax.persistence.SqlResultSetMapping;
 	    columns = @ColumnResult(name = "childHasChildren", type = Boolean.class)           
 	)
 
+// note that a child will only be considered to have grandchildren if at least one grandchild 
+// is is the same module as the child (and therefore the parent)
 @NamedNativeQuery(
     name=Classification.FIND_CLASSIFICATION_BY_PARENT_IRI,
     query="SELECT c.dbid as dbid, \n"
@@ -34,10 +36,12 @@ import javax.persistence.SqlResultSetMapping;
     		+ "   p.iri as parentIri, \n"
     		+ "   r.dbid as childDbid, \n"
     		+ "   r.name as childName, \n"
-    		+ "   r.iri as childIri, \n"
-    		+ "   IF(gc.child IS NULL, 0, 1) as childHasChildren,\n"
+    		+ "   r.iri as childIri, \n"	
     		+ "   m.dbid as moduleDbid, \n"
-    		+ "   m.iri as moduleIri\n"
+    		+ "   m.iri as moduleIri, \n"
+    		+ "   IF((SELECT DISTINCT gc.module FROM classification gc\n"
+    		+ "     WHERE gc.module = c.module\n"
+    		+ "     AND gc.parent = c.child) IS NULL, 0, 1) as childHasChildren \n"		    		
     		+ "FROM classification c\n"
     		+ "JOIN module m ON c.module = m.dbid\n"
     		+ "JOIN concept p ON p.dbid = c.parent\n"
@@ -49,6 +53,8 @@ import javax.persistence.SqlResultSetMapping;
     resultClass = Classification.class
 )
 
+//note that a child will only be considered to have grandchildren if at least one grandchild 
+//is is the same module as the child (and therefore the parent)
 @NamedNativeQuery(
 	    name=Classification.FIND_CLASSIFICATION_BY_PARENT_IRI_AND_CHILD_NAMESPACES,
 	    query="SELECT c.dbid as dbid, \n"
@@ -58,9 +64,11 @@ import javax.persistence.SqlResultSetMapping;
 	    		+ "   r.dbid as childDbid, \n"
 	    		+ "   r.name as childName, \n"
 	    		+ "   r.iri as childIri, \n"
-	    		+ "   IF(gc.child IS NULL, 0, 1) as childHasChildren,\n"
 	    		+ "   m.dbid as moduleDbid, \n"
-	    		+ "   m.iri as moduleIri\n"
+	    		+ "   m.iri as moduleIri, \n"
+	    		+ "   IF((SELECT DISTINCT gc.module FROM classification gc\n"
+	    		+ "     WHERE gc.module = c.module\n"
+	    		+ "     AND gc.parent = c.child) IS NULL, 0, 1) as childHasChildren \n"		    		
 	    		+ "FROM classification c\n"
 	    		+ "JOIN module m ON c.module = m.dbid\n"
 	    		+ "JOIN concept p ON p.dbid = c.parent\n"

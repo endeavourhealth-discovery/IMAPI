@@ -16,6 +16,7 @@ public class Annotation {
         this.property = property;
         return this;
     }
+    ///
 
     @JsonIgnore
     public Annotation setProperty(String property) {

@@ -8,8 +8,8 @@ import java.util.List;
 public class ValueSet {
     private ConceptReference valueSet;
     private ConceptReference relationship;
-    private List<ValueSetMember> included;
-    private List<ValueSetMember> excluded;
+    private List<ValueSetMember> included = new ArrayList<>();
+    private List<ValueSetMember> excluded = new ArrayList<>();
 
     public ConceptReference getValueSet() {
         return valueSet;

@@ -1,33 +1,16 @@
 package com.endavourhealth.dataaccess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.endeavourhealth.imapi.model.AnnotationProperty;
-import org.endeavourhealth.imapi.model.AxiomType;
-import org.endeavourhealth.imapi.model.ClassExpression;
-import org.endeavourhealth.imapi.model.Concept;
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ConceptReferenceNode;
-import org.endeavourhealth.imapi.model.ConceptStatus;
-import org.endeavourhealth.imapi.model.ConceptType;
-import org.endeavourhealth.imapi.model.DataProperty;
-import org.endeavourhealth.imapi.model.DataPropertyRange;
-import org.endeavourhealth.imapi.model.DataPropertyValue;
-import org.endeavourhealth.imapi.model.DataType;
-import org.endeavourhealth.imapi.model.ExpressionType;
-import org.endeavourhealth.imapi.model.Individual;
-import org.endeavourhealth.imapi.model.ObjectProperty;
-import org.endeavourhealth.imapi.model.ObjectPropertyValue;
-import org.endeavourhealth.imapi.model.PropertyAxiom;
-import org.endeavourhealth.imapi.model.SubPropertyChain;
+import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.valuset.ValueSet;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.visitor.ObjectModelVisitor;
+import org.endeavourhealth.imapi.model.visitor.ValueSetMemberParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -243,6 +226,92 @@ public class ConceptServiceV3 implements IConceptService {
             .map(c -> new ConceptReference(c.getIri(), c.getName()))
             .sorted(Comparator.comparing(ConceptReference::getName))
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public ValueSet getValueSetMembers(String iri, boolean expand) {
+        Set<String> iriSet = new HashSet<>();
+        iriSet.add(iri);
+
+        Concept concept = getConcept(iri);
+
+        ObjectModelVisitor visitor = new ObjectModelVisitor();
+        ValueSetMemberParser vsMemberParser = new ValueSetMemberParser(visitor);
+
+        visitor.visit(concept);
+
+        ConceptReference vset = getConceptReference(iri);
+        ConceptReference rel = getConceptReference(":hasMembers");
+
+        ValueSet result = new ValueSet()
+            .setValueSet(vset)
+            .setRelationship(rel)
+            ;
+
+        for(ConceptReference cr: vsMemberParser.included) {
+            if(!iriSet.contains(cr.getIri())) {
+                iriSet.add(cr.getIri());
+                com.endavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
+                ValueSetMember vsm = new ValueSetMember()
+                    .setConcept(new ConceptReference(c.getIri(), c.getName()))
+                    .setCode(c.getCode());
+
+                if (c.getScheme() != null)
+                    vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
+
+                result.addIncluded(vsm);
+
+                // If expanded, add all the children too (unless already present)
+                if (expand) {
+                    Set<ConceptTct> children = conceptTctRepository.findByTarget_Iri(cr.getIri());
+                    children.forEach(tct -> {
+                        if(!iriSet.contains(tct.getSource().getIri())) {
+                            iriSet.add(tct.getSource().getIri());
+                            com.endavourhealth.dataaccess.entity.Concept child = tct.getSource();
+
+                            ValueSetMember cvsm = new ValueSetMember()
+                                .setConcept(new ConceptReference(child.getIri(), child.getName()))
+                                .setCode(child.getCode());
+
+                            if (child.getScheme() != null)
+                                cvsm.setScheme(new ConceptReference(child.getScheme().getIri(), child.getScheme().getName()));
+
+                            result.addIncluded(cvsm);
+                        }
+                    });
+                }
+            }
+        }
+
+        if (!expand) {
+            // If not expanded, just add to the excluded list
+            for(ConceptReference cr: vsMemberParser.excluded) {
+                // If not expanded, add to the excluded list
+                com.endavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
+                ValueSetMember vsm = new ValueSetMember()
+                    .setConcept(new ConceptReference(c.getIri(), c.getName()))
+                    .setCode(c.getCode());
+
+                if (c.getScheme() != null)
+                    vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
+                result.addExcluded(vsm);
+            }
+        } else {
+            // Build an iriSet of exclusions
+            iriSet.clear();
+            for (ConceptReference cr : vsMemberParser.excluded) {
+                if (!iriSet.contains(cr.getIri())) {
+                    iriSet.add(cr.getIri());
+                    conceptTctRepository.findByTarget_Iri(cr.getIri()).forEach( t -> iriSet.add(t.getSource().getIri()));
+                }
+            }
+
+            // And remove them from the inclusion list
+            List<ValueSetMember> finalList = result.getIncluded().stream().filter(i -> !iriSet.contains(i.getConcept().getIri())).collect(Collectors.toList());
+            result.setIncluded(finalList);
+        }
+
+        return result;
     }
 
     // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
@@ -545,4 +614,12 @@ public class ConceptServiceV3 implements IConceptService {
     	
 		return page;
 	}
+
+	private List<String> getMembers(Concept concept) {
+        List<String> members = new ArrayList<>();
+
+
+
+        return members;
+    }
 }

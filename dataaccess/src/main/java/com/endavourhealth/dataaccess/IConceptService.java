@@ -5,6 +5,8 @@ import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.valuset.ValueSet;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 
 import java.util.List;
 
@@ -24,4 +26,6 @@ public interface IConceptService {
     List<SearchResponseConcept> advancedSearch(SearchRequest request);
 
     List<Concept> getAncestorDefinitions(String iri);
+
+    ValueSet getValueSetMembers(String iri, boolean expand);
 }

@@ -1,5 +1,7 @@
-package org.endeavourhealth.imapi.model;
+package org.endeavourhealth.imapi.model.visitor;
 
+import org.endeavourhealth.imapi.model.ClassExpression;
+import org.endeavourhealth.imapi.model.Concept;
 import org.junit.Assert;
 import org.junit.Test;
 

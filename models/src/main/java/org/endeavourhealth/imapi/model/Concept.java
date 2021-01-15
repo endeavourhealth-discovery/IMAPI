@@ -15,7 +15,7 @@ import java.util.Set;
     @JsonSubTypes.Type(value= DataType.class, name="DataType"),
     @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation")})
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
-        "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA"})
+        "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
     private String iri;
@@ -33,6 +33,7 @@ public class Concept implements IMAnnotated {
     private ClassExpression expression;
     private Set<ConceptReference> DisjointWith;
     private List<Synonym> synonym;
+    private List<ConceptReference> containedIn;
     private boolean isRef;
 
 
@@ -282,6 +283,21 @@ public class Concept implements IMAnnotated {
 
     public Concept setRef(boolean ref) {
         isRef = ref;
+        return this;
+    }
+
+    public List<ConceptReference> getContainedIn() {
+        return containedIn;
+    }
+
+    public Concept setContainedIn(List<ConceptReference> containedIn) {
+        this.containedIn = containedIn;
+        return this;
+    }
+    public Concept addContainedIn(ConceptReference container){
+        if (this.containedIn==null)
+            this.containedIn= new ArrayList<>();
+        this.containedIn.add(container);
         return this;
     }
 }

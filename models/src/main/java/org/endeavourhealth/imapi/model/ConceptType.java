@@ -8,7 +8,11 @@ public enum ConceptType {
     DATAPROPERTY((byte)2, "DataProperty"),
     DATATYPE((byte)3, "DataType"),
     ANNOTATION((byte)4, "Annotation"),
-    INDIVIDUAL((byte)5,"Individual");
+    INDIVIDUAL((byte)5,"Individual"),
+    RECORD((byte)6,"Record"),
+    VALUESET((byte)7,"ValueSet"),
+    FOLDER((byte)8,"Folder"),
+    TERM((byte)9,"Term");
 
 
     private byte _value;

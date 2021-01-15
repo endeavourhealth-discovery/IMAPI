@@ -1,4 +1,6 @@
-package org.endeavourhealth.imapi.model;
+package org.endeavourhealth.imapi.model.visitor;
+
+import org.endeavourhealth.imapi.model.*;
 
 import java.util.List;
 import java.util.Set;
@@ -18,11 +20,13 @@ public class ObjectModelVisitor {
     public IExpressionSetVisitor EquivalentToVisitor = (expressions) -> {};
     public IConceptReferenceSetVisitor DisjointWithVisitor = (conceptReferences) -> {};
     public IExpressionVisitor ExpressionVisitor = (expression) -> {};
+    public IExpressionVisitor ExpressionExitVisitor = (expression) -> {};
     public IConceptReferenceVisitor ClassVisitor = (conceptReference) -> {};
     public IExpressionListVisitor IntersectionVisitor = (expressions) -> {};
     public IExpressionListVisitor UnionVisitor = (expressions) -> {};
     public IExpressionVisitor ComplementOfVisitor = (expression) -> {};
     public IObjectPropertyValueVisitor ObjectPropertyValueVisitor = (objectPropertyValue) -> {};
+    public IObjectPropertyValueVisitor ObjectPropertyValueExitVisitor = (objectPropertyValue) -> {};
     public IDataPropertyValueVisitor DataPropertyValueVisitor = (dataPropertyValue) -> {};
     public IConceptReferenceListVisitor ObjectOneOfVisitor = (conceptReferences) -> {};
     public IAnnotationSetVisitor AnnotationsVisitor = (annotations) -> {};
@@ -81,6 +85,8 @@ public class ObjectModelVisitor {
 
         if (expression.getAnnotations() !=  null)
             this.visitAnnotations(expression.getAnnotations());
+
+        this.ExpressionExitVisitor.visit(expression);
     }
 
     private void visitObjectPropertyValue(ObjectPropertyValue objectPropertyValue) {
@@ -88,6 +94,8 @@ public class ObjectModelVisitor {
 
         if (objectPropertyValue.getExpression() != null)
             this.visitExpression(objectPropertyValue.getExpression());
+
+        this.ObjectPropertyValueExitVisitor.visit(objectPropertyValue);
     }
 
     private void visitDataPropertyValue(DataPropertyValue dataPropertyValue) {

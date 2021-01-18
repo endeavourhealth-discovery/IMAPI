@@ -15,6 +15,9 @@ public class Ontology {
     private DocumentInfo documentInfo;
     private Set<Concept> concept;
     private Set<Individual> individual;
+    private Set<TermCode> termCode;
+    private Set<Record> record;
+    private Set<ValueSet> valueSet;
 
 
 
@@ -124,6 +127,56 @@ public class Ontology {
         if (this.individual==null)
             this.individual = new HashSet<>();
         this.individual.add(individual);
+        return this;
+    }
+
+    @JsonProperty("TermConcept")
+    public Set<TermCode> getTermConcept() {
+        return termCode;
+    }
+
+    public Ontology setTermConcept(Set<TermCode> termCode) {
+        this.termCode = termCode;
+        return this;
+    }
+
+    public Ontology addTermConcept(TermCode term){
+        if (this.getTermConcept()==null)
+            this.termCode = new HashSet<>();
+        this.termCode.add(term);
+        return this;
+    }
+
+    @JsonProperty("Record")
+    public Set<Record> getRecord() {
+        return record;
+    }
+
+    public Ontology setRecord(Set<Record> record) {
+        this.record = record;
+        return this;
+    }
+
+    public Ontology addRecord(Record record){
+        if (this.getRecord()==null)
+            this.record= new HashSet<>();
+        this.record.add(record);
+        return this;
+    }
+
+    @JsonProperty("ValueSet")
+    public Set<ValueSet> getValueSet() {
+        return valueSet;
+    }
+
+    public Ontology setValueSet(Set<ValueSet> valueSet) {
+        this.valueSet = valueSet;
+        return this;
+    }
+    public Ontology addValueSet(ValueSet valueSet){
+        if (this.valueSet==null)
+            this.valueSet= new HashSet<>();
+        this.valueSet.add(valueSet);
         return this;
     }
 }

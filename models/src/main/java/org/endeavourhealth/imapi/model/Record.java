@@ -19,7 +19,7 @@ public class Record extends Concept{
       this.property = property;
       return this;
    }
-   public Record assProperty(PropertyConstraint property){
+   public Record addProperty(PropertyConstraint property){
       if (this.property==null)
          this.property= new ArrayList<>();
       this.property.add(property);

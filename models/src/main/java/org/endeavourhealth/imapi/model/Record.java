@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"Property"})
+@JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
+    "code","scheme","subClassOf",",equivalentTo","isA","property"})
 public class Record extends Concept{
    private List<PropertyConstraint> property;
 

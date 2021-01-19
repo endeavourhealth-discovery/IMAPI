@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"Member","Expansion"})
+@JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
+    "code","scheme","subClassOf",",equivalentTo","isA","member","expansion"})
 public class ValueSet extends Concept{
    private List<ClassExpression> member;
    private List<Concept> expansion;

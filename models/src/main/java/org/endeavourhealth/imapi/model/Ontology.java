@@ -16,8 +16,7 @@ public class Ontology {
     private Set<Concept> concept;
     private Set<Individual> individual;
     private Set<TermCode> termCode;
-    private Set<Record> record;
-    private Set<ValueSet> valueSet;
+
 
 
 
@@ -147,36 +146,5 @@ public class Ontology {
         return this;
     }
 
-    @JsonProperty("Record")
-    public Set<Record> getRecord() {
-        return record;
-    }
 
-    public Ontology setRecord(Set<Record> record) {
-        this.record = record;
-        return this;
-    }
-
-    public Ontology addRecord(Record record){
-        if (this.getRecord()==null)
-            this.record= new HashSet<>();
-        this.record.add(record);
-        return this;
-    }
-
-    @JsonProperty("ValueSet")
-    public Set<ValueSet> getValueSet() {
-        return valueSet;
-    }
-
-    public Ontology setValueSet(Set<ValueSet> valueSet) {
-        this.valueSet = valueSet;
-        return this;
-    }
-    public Ontology addValueSet(ValueSet valueSet){
-        if (this.valueSet==null)
-            this.valueSet= new HashSet<>();
-        this.valueSet.add(valueSet);
-        return this;
-    }
 }

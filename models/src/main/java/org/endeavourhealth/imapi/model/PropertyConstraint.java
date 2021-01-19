@@ -15,7 +15,6 @@ public class PropertyConstraint {
    private Integer max;
    private ConceptReference valueClass;
    private ConceptReference dataType;
-   private String data;
    private Set<String> oneOf;
    private String minInclusive;
    private String minExclusive;
@@ -71,15 +70,7 @@ public class PropertyConstraint {
       return this;
    }
 
-   @JsonProperty("Data")
-   public String getData() {
-      return data;
-   }
 
-   public PropertyConstraint setData(String data) {
-      this.data = data;
-      return this;
-   }
 
    @JsonProperty("OneOf")
    public Set<String> getOneOf() {

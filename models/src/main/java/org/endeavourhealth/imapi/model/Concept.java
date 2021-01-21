@@ -13,10 +13,12 @@ import java.util.Set;
     @JsonSubTypes.Type(value= ObjectProperty.class, name="ObjectProperty"),
     @JsonSubTypes.Type(value= DataProperty.class, name="DataProperty"),
     @JsonSubTypes.Type(value= DataType.class, name="DataType"),
+    @JsonSubTypes.Type(value= Record.class, name="Record"),
+    @JsonSubTypes.Type(value= ValueSet.class, name="ValueSet"),
     @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation")})
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
         "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"
-   ,"property"})
+   ,"property","member","memberExpansion"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
     private String iri;
@@ -29,6 +31,7 @@ public class Concept implements IMAnnotated {
     private Set<ConceptReference> isA;
     private Set<Annotation> annotations;
     private ConceptType conceptType;
+
     private Set<ClassExpression> subClassOf;
     private Set<ClassExpression> equivalentTo;
     private ClassExpression expression;
@@ -36,42 +39,11 @@ public class Concept implements IMAnnotated {
     private List<TermCode> synonym;
     private List<ConceptReference> containedIn;
     private boolean isRef;
-    private List<PropertyConstraint> property;
-    private List<ClassExpression> member;
-    private List<Concept> memberExpansion;
+
+
     
-    @JsonProperty("Expansion")
-    public List<Concept> getExpansion() {
-        return memberExpansion;
-    }
 
-    public Concept setExpansion(List<Concept> memberExpansion) {
-        this.memberExpansion = memberExpansion;
-        return this;
-    }
-    public Concept addExpansion (Concept memberExpansion){
-        if (this.memberExpansion==null)
-            this.memberExpansion= new ArrayList<>();
-        this.memberExpansion.add(memberExpansion);
-        return this;
-    }
 
-    @JsonProperty("Member")
-    public List<ClassExpression> getMember() {
-        return member;
-    }
-
-    public Concept setMember(List<ClassExpression> member) {
-        this.member = member;
-        return this;
-    }
-    public Concept addMember (ClassExpression expression){
-        if (this.member==null)
-            this.member= new ArrayList<>();
-        member.add(expression);
-        return this;
-    }
-    
 
 
     /**
@@ -84,6 +56,7 @@ public class Concept implements IMAnnotated {
 
     public Concept() {
         this.setConceptType(ConceptType.CLASSONLY);
+
     }
 
     @Override
@@ -338,19 +311,9 @@ public class Concept implements IMAnnotated {
     }
    
 
-    @JsonProperty("Property")
-    public List<PropertyConstraint> getProperty() {
-        return property;
-    }
 
-    public Concept setProperty(List<PropertyConstraint> property) {
-        this.property = property;
-        return this;
-    }
-    public Concept addProperty(PropertyConstraint property){
-        if (this.property==null)
-            this.property= new ArrayList<>();
-        this.property.add(property);
-        return this;
-    }
+
+
+
+
 }

@@ -15,10 +15,11 @@ import java.util.Set;
     @JsonSubTypes.Type(value= DataType.class, name="DataType"),
     @JsonSubTypes.Type(value= Record.class, name="Record"),
     @JsonSubTypes.Type(value= ValueSet.class, name="ValueSet"),
-    @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation")})
+    @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation"),
+   @JsonSubTypes.Type(value= LegacyConcept.class,name="LegacyConcept")})
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
         "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"
-   ,"property","member","memberExpansion"})
+   ,"property","member","memberExpansion","mappedFrom"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
     private String iri;

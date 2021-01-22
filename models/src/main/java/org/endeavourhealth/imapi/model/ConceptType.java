@@ -12,7 +12,8 @@ public enum ConceptType {
     RECORD((byte)6,"Record"),
     VALUESET((byte)7,"ValueSet"),
     FOLDER((byte)8,"Folder"),
-    TERM((byte)9,"Term");
+    TERM((byte)9,"Term"),
+    LEGACY((byte)10,"Legacy");
 
 
     private byte _value;

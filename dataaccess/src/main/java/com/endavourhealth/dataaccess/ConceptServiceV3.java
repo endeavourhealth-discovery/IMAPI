@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.endavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
@@ -25,12 +26,6 @@ import com.endavourhealth.dataaccess.entity.Classification;
 import com.endavourhealth.dataaccess.entity.ConceptTct;
 import com.endavourhealth.dataaccess.entity.Expression;
 import com.endavourhealth.dataaccess.entity.PropertyValue;
-import com.endavourhealth.dataaccess.repository.AxiomRepository;
-import com.endavourhealth.dataaccess.repository.ClassificationNativeQueries;
-import com.endavourhealth.dataaccess.repository.ClassificationRepository;
-import com.endavourhealth.dataaccess.repository.ConceptRepository;
-import com.endavourhealth.dataaccess.repository.ConceptTctRepository;
-import com.endavourhealth.dataaccess.repository.ExpressionRepository;
 
 @Component
 @Qualifier("ConceptServiceV3")
@@ -59,6 +54,9 @@ public class ConceptServiceV3 implements IConceptService {
     
     @Autowired
     ClassificationNativeQueries classificationNativeQueries;
+
+    @Autowired
+    ValueSetRepository valueSetRepository;
 
     @Override
     public ConceptReference getConceptReference(String iri) {
@@ -230,9 +228,6 @@ public class ConceptServiceV3 implements IConceptService {
 
     @Override
     public ValueSet getValueSetMembers(String iri, boolean expand) {
-        Set<String> iriSet = new HashSet<>();
-        iriSet.add(iri);
-
         Concept concept = getConcept(iri);
 
         ObjectModelVisitor visitor = new ObjectModelVisitor();
@@ -243,73 +238,63 @@ public class ConceptServiceV3 implements IConceptService {
         ConceptReference vset = getConceptReference(iri);
         ConceptReference rel = getConceptReference(":hasMembers");
 
+        Map<String, ValueSetMember> inclusions = new HashMap<>();
+
+        for(ConceptReference cr: vsMemberParser.included) {
+            com.endavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
+
+            ValueSetMember vsm = new ValueSetMember()
+                .setConcept(new ConceptReference(c.getIri(), c.getName()))
+                .setCode(c.getCode());
+            if (c.getScheme() != null)
+                vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
+
+            inclusions.put(c.getIri(), vsm);
+
+            if (expand) {
+                valueSetRepository.expandMember(cr.getIri())
+                    .forEach(m -> inclusions.put(m.getConceptIri(), new ValueSetMember()
+                        .setConcept(new ConceptReference(m.getConceptIri(), m.getConceptName()))
+                        .setCode(m.getCode())
+                        .setScheme(new ConceptReference(m.getSchemeIri(), m.getSchemeName()))
+                    ));
+            }
+        }
+
+        Map<String, ValueSetMember> exclusions = new HashMap<>();
+        for(ConceptReference cr: vsMemberParser.excluded) {
+            com.endavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
+
+            ValueSetMember vsm = new ValueSetMember()
+                .setConcept(new ConceptReference(c.getIri(), c.getName()))
+                .setCode(c.getCode());
+            if (c.getScheme() != null)
+                vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
+
+            exclusions.put(c.getIri(), vsm);
+
+            if (expand) {
+                valueSetRepository.expandMember(cr.getIri())
+                    .forEach(m -> exclusions.put(m.getConceptIri(), new ValueSetMember()
+                        .setConcept(new ConceptReference(m.getConceptIri(), m.getConceptName()))
+                        .setCode(m.getCode())
+                        .setScheme(new ConceptReference(m.getSchemeIri(), m.getSchemeName()))
+                    ));
+            }
+        }
+
+        if (expand) {
+            // Remove exclusions by key
+            exclusions.forEach((k,v) -> inclusions.remove(k));
+        }
+
         ValueSet result = new ValueSet()
             .setValueSet(vset)
             .setRelationship(rel)
-            ;
+            .addAllIncluded(inclusions.values());
 
-        for(ConceptReference cr: vsMemberParser.included) {
-            if(!iriSet.contains(cr.getIri())) {
-                iriSet.add(cr.getIri());
-                com.endavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
-                ValueSetMember vsm = new ValueSetMember()
-                    .setConcept(new ConceptReference(c.getIri(), c.getName()))
-                    .setCode(c.getCode());
-
-                if (c.getScheme() != null)
-                    vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
-
-                result.addIncluded(vsm);
-
-                // If expanded, add all the children too (unless already present)
-                if (expand) {
-                    Set<ConceptTct> children = conceptTctRepository.findByTarget_Iri(cr.getIri());
-                    children.forEach(tct -> {
-                        if(!iriSet.contains(tct.getSource().getIri())) {
-                            iriSet.add(tct.getSource().getIri());
-                            com.endavourhealth.dataaccess.entity.Concept child = tct.getSource();
-
-                            ValueSetMember cvsm = new ValueSetMember()
-                                .setConcept(new ConceptReference(child.getIri(), child.getName()))
-                                .setCode(child.getCode());
-
-                            if (child.getScheme() != null)
-                                cvsm.setScheme(new ConceptReference(child.getScheme().getIri(), child.getScheme().getName()));
-
-                            result.addIncluded(cvsm);
-                        }
-                    });
-                }
-            }
-        }
-
-        if (!expand) {
-            // If not expanded, just add to the excluded list
-            for(ConceptReference cr: vsMemberParser.excluded) {
-                // If not expanded, add to the excluded list
-                com.endavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
-                ValueSetMember vsm = new ValueSetMember()
-                    .setConcept(new ConceptReference(c.getIri(), c.getName()))
-                    .setCode(c.getCode());
-
-                if (c.getScheme() != null)
-                    vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
-                result.addExcluded(vsm);
-            }
-        } else {
-            // Build an iriSet of exclusions
-            iriSet.clear();
-            for (ConceptReference cr : vsMemberParser.excluded) {
-                if (!iriSet.contains(cr.getIri())) {
-                    iriSet.add(cr.getIri());
-                    conceptTctRepository.findByTarget_Iri(cr.getIri()).forEach( t -> iriSet.add(t.getSource().getIri()));
-                }
-            }
-
-            // And remove them from the inclusion list
-            List<ValueSetMember> finalList = result.getIncluded().stream().filter(i -> !iriSet.contains(i.getConcept().getIri())).collect(Collectors.toList());
-            result.setIncluded(finalList);
-        }
+        if (!expand)
+            result.addAllExcluded(exclusions.values());
 
         return result;
     }

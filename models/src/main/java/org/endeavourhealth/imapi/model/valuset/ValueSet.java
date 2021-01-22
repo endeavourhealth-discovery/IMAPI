@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.valuset;
 import org.endeavourhealth.imapi.model.ConceptReference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ValueSet {
@@ -45,6 +46,13 @@ public class ValueSet {
         return this;
     }
 
+    public ValueSet addAllIncluded(Collection<ValueSetMember> vsm) {
+        if (this.included == null)
+            this.included = new ArrayList<>();
+        this.included.addAll(vsm);
+        return this;
+    }
+
     public List<ValueSetMember> getExcluded() {
         return excluded;
     }
@@ -58,6 +66,13 @@ public class ValueSet {
         if (this.excluded == null)
             this.excluded = new ArrayList<>();
         this.excluded.add(vsm);
+        return this;
+    }
+
+    public ValueSet addAllExcluded(Collection<ValueSetMember> vsm) {
+        if (this.excluded == null)
+            this.excluded = new ArrayList<>();
+        this.excluded.addAll(vsm);
         return this;
     }
 }

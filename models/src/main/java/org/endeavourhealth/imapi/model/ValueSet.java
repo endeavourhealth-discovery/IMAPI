@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ValueSet extends Concept{
    private List<ClassExpression> member;
-   private List<Concept> memberExpansion;
+   private List<ConceptReference> memberExpansion;
 
    public ValueSet(){
       this.setConceptType(ConceptType.VALUESET);
@@ -29,15 +29,15 @@ public class ValueSet extends Concept{
    }
 
    @JsonProperty("MemberExpansion")
-   public List<Concept> getMemberExpansion() {
+   public List<ConceptReference> getMemberExpansion() {
       return memberExpansion;
    }
 
-   public ValueSet setMemberExpansion(List<Concept> memberExpansion) {
+   public ValueSet setMemberExpansion(List<ConceptReference> memberExpansion) {
       this.memberExpansion = memberExpansion;
       return this;
    }
-   public ValueSet addMemberExpansion(Concept expansion){
+   public ValueSet addMemberExpansion(ConceptReference expansion){
       if (this.memberExpansion==null)
          this.memberExpansion= new ArrayList<>();
       this.memberExpansion.add(expansion);

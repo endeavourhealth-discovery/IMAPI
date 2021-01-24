@@ -2,10 +2,7 @@ package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="conceptType")
 @JsonSubTypes({
@@ -40,6 +37,7 @@ public class Concept implements IMAnnotated {
     private List<TermCode> synonym;
     private List<ConceptReference> containedIn;
     private boolean isRef;
+    private Map<String,String> stats;
 
 
     
@@ -310,11 +308,15 @@ public class Concept implements IMAnnotated {
         this.containedIn.add(container);
         return this;
     }
-   
 
 
+    @JsonProperty("Statistics")
+    public Map<String, String> getStats() {
+        return stats;
+    }
 
-
-
-
+    public Concept setStats(Map<String, String> stats) {
+        this.stats = stats;
+        return this;
+    }
 }

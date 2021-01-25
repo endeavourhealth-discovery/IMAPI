@@ -179,34 +179,11 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
-        List<ConceptReferenceNode> immediateParents = new ArrayList<>();
+        Set<Classification> classifications = classificationRepository.findByChild_Iri(iri);
 
-/*
-        Pageable page = getPage(pageIndex, pageSize);
-
-        // get the data
-        List<Object[]> rows;
-        if(page != null) {
-            // TODO - adapt for paging
-            rows = getClassificationsPage(page, iri, getNamespacePrefixes(includeLegacy));
-        }
-        else {
-            rows = getClassifications(iri, getNamespacePrefixes(includeLegacy));
-        }
-
-        // transform the data
-        if(rows != null) {
-            immediateChildren = rows.stream()
-                .map(row -> toConceptReferenceNode(classificationNativeQueries.getClassificaton(row).getChild(), classificationNativeQueries.getChildHasChildren(row)))
-                .sorted(Comparator.comparing(ConceptReferenceNode::getName))
-                .collect(Collectors.toList());
-        }
-        else {
-            immediateChildren = new ArrayList<>();
-        }
-*/
-
-        return immediateParents;
+        return classifications.stream()
+            .map(row -> new ConceptReferenceNode(row.getParent().getIri(), row.getParent().getName()))
+            .collect(Collectors.toList());
     }
 
     public List<ConceptReferenceNode> getParentHierarchy(String iri) {

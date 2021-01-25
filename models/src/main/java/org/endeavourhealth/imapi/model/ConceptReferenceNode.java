@@ -65,8 +65,9 @@ public class ConceptReferenceNode extends ConceptReference {
         return this;
     }
 
-	public void setHasChildren(boolean hasChildren) {
+	public ConceptReferenceNode setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
+		return this;
 	}
 
 	public boolean isHasChildren() {

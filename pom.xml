@@ -13,6 +13,7 @@
     <module>api</module>
     <module>dataaccess</module>
 	  <module>models</module>
+    <module>vocabulary</module>
   </modules>
 
   <build>

@@ -52,5 +52,6 @@ public class TermCode {
       if (this.key==null)
          this.key = new ArrayList<>();
       this.key.add(key);
+      return this;
    }
 }

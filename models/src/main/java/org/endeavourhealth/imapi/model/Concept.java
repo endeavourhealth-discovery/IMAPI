@@ -38,6 +38,7 @@ public class Concept implements IMAnnotated {
     private List<ConceptReference> containedIn;
     private boolean isRef;
     private Map<String,String> stats;
+    private List<PropertyConstraint> property;
 
 
     
@@ -225,10 +226,22 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
+    /**
+     * @deprecated use property constraints instead
+     * @return
+     */
+    @Deprecated
     @JsonProperty("Expression")
     public ClassExpression getExpression(){
         return expression;
     }
+
+    /**
+     * @deprecated use property constraints instead
+     * @param cex
+     * @return
+     */
+    @Deprecated
     public Concept setExpression(ClassExpression cex){
         this.expression = cex;
         return this;
@@ -317,6 +330,21 @@ public class Concept implements IMAnnotated {
 
     public Concept setStats(Map<String, String> stats) {
         this.stats = stats;
+        return this;
+    }
+    @JsonProperty("Property")
+    public List<PropertyConstraint> getProperty() {
+        return property;
+    }
+
+    public Concept setProperty(List<PropertyConstraint> property) {
+        this.property = property;
+        return this;
+    }
+    public Concept addProperty(PropertyConstraint property){
+        if (this.property==null)
+            this.property= new ArrayList<>();
+        this.property.add(property);
         return this;
     }
 }

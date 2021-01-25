@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class ConceptController {
 
-/*
+
     @Autowired
     @Qualifier("ConceptServiceV3")
     IConceptService conceptService;
-*/
 
-    IConceptService conceptService = new ConceptServiceRDF4J();
+
+    // IConceptService conceptService = new ConceptServiceRDF4J();
 
     @GetMapping(value = "/")
     public List<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,

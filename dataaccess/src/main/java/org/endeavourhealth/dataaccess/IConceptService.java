@@ -28,4 +28,7 @@ public interface IConceptService {
     List<Concept> getAncestorDefinitions(String iri);
 
     ExportValueSet getValueSetMembers(String iri, boolean expand);
+
+    List<ConceptReference> getCoreMappedFromLegacy(String legacyIri);
+    List<ConceptReference> getLegacyMappedToCore(String coreIri);
 }

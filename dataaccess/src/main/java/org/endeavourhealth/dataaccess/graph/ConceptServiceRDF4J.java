@@ -285,6 +285,16 @@ public class ConceptServiceRDF4J implements IConceptService {
         return result;
     }
 
+    @Override
+    public List<ConceptReference> getCoreMappedFromLegacy(String legacyIri) {
+        return null;
+    }
+
+    @Override
+    public List<ConceptReference> getLegacyMappedToCore(String coreIri) {
+        return null;
+    }
+
     // ================================================ PRIVATE METHODS ================================================
 
     private IRI getFullIri(String prefixedIri, Collection<Namespace> namespaces) {

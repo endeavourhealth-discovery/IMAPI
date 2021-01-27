@@ -161,4 +161,15 @@ public class ConceptController {
 
         return sb.toString();
     }
+
+
+    @GetMapping(value = "/{iri}/mappedFrom")
+    public List<ConceptReference> getCoreMappedFromLegacy(@PathVariable("iri") String legacyIri) {
+        return conceptService.getCoreMappedFromLegacy(legacyIri);
+    }
+
+    @GetMapping(value = "/{iri}/mappedTo")
+    public List<ConceptReference> getLegacyMappedToCore(@PathVariable("iri") String coreIri) {
+        return conceptService.getLegacyMappedToCore(coreIri);
+    }
 }

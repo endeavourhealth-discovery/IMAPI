@@ -57,6 +57,10 @@ public class ConceptServiceV3 implements IConceptService {
     @Autowired
     ValueSetRepository valueSetRepository;
 
+    @Autowired
+    MemberRepository memberRepository;
+
+
     @Override
     public ConceptReference getConceptReference(String iri) {
         org.endeavourhealth.dataaccess.entity.Concept concept = conceptRepository.findByIri(iri);
@@ -312,6 +316,23 @@ public class ConceptServiceV3 implements IConceptService {
 
         return result;
     }
+
+    @Override
+    public List<ConceptReference> getCoreMappedFromLegacy(String legacyIri) {
+        return memberRepository.getCoreMappedFromLegacy(legacyIri)
+            .stream()
+            .map(c -> new ConceptReference(c.getIri(), c.getName()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ConceptReference> getLegacyMappedToCore(String coreIri) {
+        return memberRepository.getLegacyMappedToCore(coreIri)
+            .stream()
+            .map(c -> new ConceptReference(c.getIri(), c.getName()))
+            .collect(Collectors.toList());
+    }
+
 
     // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
 

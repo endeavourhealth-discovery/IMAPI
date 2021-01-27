@@ -334,35 +334,30 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     private Concept getConceptInstance(ConceptType ct) {
-        Concept c = null;
         switch (ct) {
             case CLASSONLY:
-                c = new Concept();
-                break;
+                return new Concept();
             case OBJECTPROPERTY:
-                c = new ObjectProperty();
-                break;
+                return new ObjectProperty();
             case DATAPROPERTY:
-                c = new DataProperty();
-                break;
+                return new DataProperty();
             case DATATYPE:
-                c = new DataType();
-                break;
+                return new DataType();
             case ANNOTATION:
-                c = new AnnotationProperty();
-                break;
+                return new AnnotationProperty();
             case INDIVIDUAL:
-                c = new Individual();
-                break;
+                return new Individual();
+            case RECORD:
+                return new Record();
+            case VALUESET:
+                return new ValueSet();
             default:
-                LOG.error("Unknown concept type");
-                break;
+                throw new IllegalStateException("Unhandled concept type [" + ct.getName() + "]");
         }
-        return c;
     }
 
     private void reconstructConcept(Concept c, List<Axiom> axioms) {
-        for (Axiom a: axioms) {
+        for (Axiom a : axioms) {
             AxiomType at = AxiomType.byValue(a.getType());
             switch (at) {
                 case SUBCLASSOF:
@@ -376,17 +371,17 @@ public class ConceptServiceV3 implements IConceptService {
                 case SUBOBJECTPROPERTY:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(((ObjectProperty)c)::addSubObjectPropertyOf);
+                        .forEach(((ObjectProperty) c)::addSubObjectPropertyOf);
                     break;
                 case SUBDATAPROPERTY:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(((DataProperty)c)::addSubDataPropertyOf);
+                        .forEach(((DataProperty) c)::addSubDataPropertyOf);
                     break;
                 case SUBANNOTATIONPROPERTY:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(((AnnotationProperty)c)::addSubAnnotationPropertyOf);
+                        .forEach(((AnnotationProperty) c)::addSubAnnotationPropertyOf);
                     break;
                 case OBJECTPROPERTYRANGE:
                     getExpressionsAsStream(a.getExpressions())
@@ -395,7 +390,7 @@ public class ConceptServiceV3 implements IConceptService {
                 case DATAPROPERTYRANGE:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new DataPropertyRange().setDataType(ref))
-                        .forEach(((DataProperty)c)::addDataPropertyRange);
+                        .forEach(((DataProperty) c)::addDataPropertyRange);
                     break;
                 case PROPERTYDOMAIN:
                     if (c instanceof ObjectProperty)
@@ -450,7 +445,21 @@ public class ConceptServiceV3 implements IConceptService {
                     else
                         throw new IllegalStateException("IsReflexive on non-object-property");
                     break;
-
+                case PROPERTY:
+                    if (c instanceof Record)
+                        getExpressionsAsStream(a.getExpressions())
+                            .findFirst()
+                            .ifPresent(cex -> c.setProperty(cex.getPropertyConstraint()));
+                    else
+                        throw new IllegalStateException("Property on non-record");
+                    break;
+                case MEMBER:
+                    if (c instanceof ValueSet)
+                        getExpressionsAsStream(a.getExpressions())
+                        .forEach(((ValueSet) c)::addMember);
+                    else
+                        throw new IllegalStateException("Member on non-valueset");
+                    break;
                 default:
                     throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
 
@@ -524,12 +533,17 @@ public class ConceptServiceV3 implements IConceptService {
                 cex.setDataPropertyValue(dpv);
                 return cex;
             case COMPLEMENTOF:
-                cex.setComplementOf(
-                    expressions.stream()
-                        .filter(ex -> exp.getDbid().equals(ex.getParent()))
-                        .map(ex -> setClassExpression(ex, expressions, new ClassExpression()))
-                        .findFirst()
-                        .get()
+                expressions.stream()
+                    .filter(ex -> exp.getDbid().equals(ex.getParent()))
+                    .map(ex -> setClassExpression(ex, expressions, new ClassExpression()))
+                    .findFirst()
+                    .ifPresent(cex::setComplementOf);
+                return cex;
+            case PROPERTY_CONSTRAINT:
+                cex.setPropertyConstraint(
+                    exp.getPropertyValue().stream()
+                        .map(this::toPropertyConstraint)
+                        .collect(Collectors.toList())
                 );
                 return cex;
             default:
@@ -545,7 +559,15 @@ public class ConceptServiceV3 implements IConceptService {
                 .setName(exp.getTargetConcept().getName())
             );
     }
-    
+
+    private PropertyConstraint toPropertyConstraint(PropertyValue pv) {
+        return new PropertyConstraint()
+            .setProperty(new ConceptReference(pv.getProperty().getIri(), pv.getProperty().getName()))
+            .setValueClass(new ConceptReference(pv.getValueType().getIri(), pv.getValueType().getName()))
+            .setMin(pv.getMinCardinality())
+            .setMax(pv.getMaxCardinality());
+    }
+
     private ConceptReferenceNode toConceptReferenceNode(org.endeavourhealth.dataaccess.entity.Concept concept, boolean hasChildren) {
     	ConceptReferenceNode conceptReferenceNode = new ConceptReferenceNode(concept.getIri());
     	

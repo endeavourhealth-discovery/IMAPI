@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ExportValueSet {
     private ConceptReference valueSet;
-    private ConceptReference relationship;
+    // private ConceptReference relationship;
     private List<ValueSetMember> included = new ArrayList<>();
     private List<ValueSetMember> excluded = new ArrayList<>();
 
@@ -21,14 +21,14 @@ public class ExportValueSet {
         return this;
     }
 
-    public ConceptReference getRelationship() {
-        return relationship;
-    }
-
-    public ExportValueSet setRelationship(ConceptReference relationship) {
-        this.relationship = relationship;
-        return this;
-    }
+//    public ConceptReference getRelationship() {
+//        return relationship;
+//    }
+//
+//    public ExportValueSet setRelationship(ConceptReference relationship) {
+//        this.relationship = relationship;
+//        return this;
+//    }
 
     public List<ValueSetMember> getIncluded() {
         return included;

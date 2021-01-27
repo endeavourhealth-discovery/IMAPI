@@ -10,16 +10,20 @@ import java.util.List;
 
 @Repository
 public interface ValueSetRepository extends JpaRepository<ValueSetMember, String> {
-    @Query(value = "SELECT c.iri AS concept_iri, c.name AS concept_name, c.code, s.iri AS scheme_iri, s.name AS scheme_name\n" +
-        "FROM concept c\n" +
-        "LEFT JOIN concept s ON s.dbid = c.scheme\n" +
-        "WHERE c.iri = :iri\n" +
-        "UNION\n" +
-        "SELECT t.iri AS concept_iri, t.name AS concept_name, t.code, s.iri AS scheme_iri, s.name AS scheme_name\n" +
+    @Query(value = "SELECT m.iri AS concept_iri, m.name AS concept_name, m.code, s.iri AS scheme_iri, s.name AS scheme_name\n" +
         "FROM concept c\n" +
         "JOIN concept_tct tct ON tct.target = c.dbid\n" +
-        "JOIN concept t ON t.dbid = tct.source\n" +
-        "LEFT JOIN concept s ON s.dbid = t.scheme\n" +
+        "JOIN concept m ON m.dbid = tct.source\n" +
+        "LEFT JOIN concept s ON s.dbid = m.scheme\n" +
+        "WHERE c.iri = :iri\n" +
+        "UNION\n" +
+        "SELECT m.iri AS concept_iri, m.name AS concept_name, m.code, s.iri AS scheme_iri, s.name AS scheme_name\n" +
+        "FROM concept c\n" +
+        "JOIN concept_tct tct ON tct.target = c.dbid\n" +
+        "JOIN expression le ON le.target_concept = tct.source\n" +
+        "JOIN axiom la ON la.dbid = le.axiom AND la.type = 22\n" +
+        "JOIN concept m ON m.dbid = la.concept\n" +
+        "LEFT JOIN concept s ON s.dbid = m.scheme\n" +
         "WHERE c.iri = :iri", nativeQuery = true)
     List<ValueSetMember> expandMember(@Param("iri") String iri);
 }

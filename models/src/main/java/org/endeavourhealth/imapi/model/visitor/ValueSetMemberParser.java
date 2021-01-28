@@ -41,19 +41,22 @@ public class ValueSetMemberParser  {
     }
 
     private void onEnterComplementOf(ClassExpression expression) {
-        // add the current complementOf state to the history incase
-        // we need to process further Class definitions at that level
-        this.complementOfHistory.push(this.complementOf);
+        if (this.visitingMembers) {
+            // add the current complementOf state to the history incase
+            // we need to process further Class definitions at that level
+            this.complementOfHistory.push(this.complementOf);
 
-        // we have now entered a new level with it's own complementOf
-        // which is set to the opposite of the previous level
-        this.complementOf = !this.complementOf;
-
+            // we have now entered a new level with it's own complementOf
+            // which is set to the opposite of the previous level
+            this.complementOf = !this.complementOf;
+        }
     }
 
     private void onExitComplementOf(ClassExpression expression) {
-        // we've now moved back up a level in the hasMembers defintion
-        // therefore the previous complementOf setting applies
-        this.complementOf = this.complementOfHistory.pop();
+        if (this.visitingMembers) {
+            // we've now moved back up a level in the hasMembers defintion
+            // therefore the previous complementOf setting applies
+            this.complementOf = this.complementOfHistory.pop();
+        }
     }
 }

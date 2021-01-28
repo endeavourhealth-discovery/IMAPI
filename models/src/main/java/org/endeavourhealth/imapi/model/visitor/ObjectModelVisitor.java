@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.visitor;
 
 import org.endeavourhealth.imapi.model.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ public class ObjectModelVisitor {
     public interface IObjectPropertyValueVisitor { void visit(ObjectPropertyValue objectPropertyValue); }
     public interface IDataPropertyValueVisitor { void visit(DataPropertyValue dataPropertyValue); }
     public interface IAnnotationSetVisitor { void visit(Set<Annotation> annotations); }
+    public interface IMemberListVisitor { void visit(List<ClassExpression> members); }
 
     public IExpressionSetVisitor SubClassVisitor = (expressions) -> {};
     public IExpressionSetVisitor EquivalentToVisitor = (expressions) -> {};
@@ -25,11 +27,14 @@ public class ObjectModelVisitor {
     public IExpressionListVisitor IntersectionVisitor = (expressions) -> {};
     public IExpressionListVisitor UnionVisitor = (expressions) -> {};
     public IExpressionVisitor ComplementOfVisitor = (expression) -> {};
+    public IExpressionVisitor ComplementOfExitVisitor = (expression) -> {};
     public IObjectPropertyValueVisitor ObjectPropertyValueVisitor = (objectPropertyValue) -> {};
     public IObjectPropertyValueVisitor ObjectPropertyValueExitVisitor = (objectPropertyValue) -> {};
     public IDataPropertyValueVisitor DataPropertyValueVisitor = (dataPropertyValue) -> {};
     public IConceptReferenceListVisitor ObjectOneOfVisitor = (conceptReferences) -> {};
     public IAnnotationSetVisitor AnnotationsVisitor = (annotations) -> {};
+    public IMemberListVisitor MemberListVisitor = (members) -> {};
+    public IMemberListVisitor MemberListExitVisitor = (members) -> {};
 
     public void visit(Concept concept) {
         if (concept.getAnnotations() != null)
@@ -37,23 +42,32 @@ public class ObjectModelVisitor {
 
         if (concept.getSubClassOf() != null) {
             this.SubClassVisitor.visit(concept.getSubClassOf());
-            concept.getSubClassOf().forEach(this::visitExpression);
+            visit(concept.getSubClassOf());
         }
 
         if (concept.getEquivalentTo() != null) {
             this.EquivalentToVisitor.visit(concept.getEquivalentTo());
-            concept.getEquivalentTo().forEach(this::visitExpression);
+            visit(concept.getEquivalentTo());
         }
 
         if (concept.getExpression() != null)
-            this.visitExpression(concept.getExpression());
+            this.visit(concept.getExpression());
 
         if (concept.getDisjointWith() != null)
             this.DisjointWithVisitor.visit(concept.getDisjointWith());
 
+        if (concept instanceof ValueSet && ((ValueSet)concept).getMember() != null) {
+            this.MemberListVisitor.visit(((ValueSet) concept).getMember());
+            visit(((ValueSet) concept).getMember());
+            this.MemberListExitVisitor.visit(((ValueSet) concept).getMember());
+        }
     }
 
-    private void visitExpression(ClassExpression expression) {
+    public void visit(Collection<ClassExpression> classExpressions) {
+        classExpressions.forEach(this::visit);
+    }
+
+    public void visit(ClassExpression expression) {
         this.ExpressionVisitor.visit(expression);
 
         if (expression.getClazz() != null)
@@ -61,52 +75,53 @@ public class ObjectModelVisitor {
 
         if (expression.getIntersection() != null) {
             this.IntersectionVisitor.visit(expression.getIntersection());
-            expression.getIntersection().forEach(this::visitExpression);
+            visit(expression.getIntersection());
         }
 
         if (expression.getUnion() != null) {
             this.UnionVisitor.visit(expression.getUnion());
-            expression.getUnion().forEach(this::visitExpression);
+            visit(expression.getUnion());
         }
 
         if (expression.getComplementOf() != null) {
             this.ComplementOfVisitor.visit(expression.getComplementOf());
-            this.visitExpression(expression.getComplementOf());
+            this.visit(expression.getComplementOf());
+            this.ComplementOfExitVisitor.visit(expression.getComplementOf());
         }
 
         if (expression.getObjectPropertyValue() != null)
-            this.visitObjectPropertyValue(expression.getObjectPropertyValue());
+            this.visit(expression.getObjectPropertyValue());
 
         if (expression.getDataPropertyValue() != null)
-            this.visitDataPropertyValue(expression.getDataPropertyValue());
+            this.visit(expression.getDataPropertyValue());
 
         if (expression.getObjectOneOf() != null)
-            this.visitObjectOneOf(expression.getObjectOneOf());
+            this.visit(expression.getObjectOneOf());
 
         if (expression.getAnnotations() !=  null)
-            this.visitAnnotations(expression.getAnnotations());
+            this.visit(expression.getAnnotations());
 
         this.ExpressionExitVisitor.visit(expression);
     }
 
-    private void visitObjectPropertyValue(ObjectPropertyValue objectPropertyValue) {
+    private void visit(ObjectPropertyValue objectPropertyValue) {
         this.ObjectPropertyValueVisitor.visit(objectPropertyValue);
 
         if (objectPropertyValue.getExpression() != null)
-            this.visitExpression(objectPropertyValue.getExpression());
+            this.visit(objectPropertyValue.getExpression());
 
         this.ObjectPropertyValueExitVisitor.visit(objectPropertyValue);
     }
 
-    private void visitDataPropertyValue(DataPropertyValue dataPropertyValue) {
+    private void visit(DataPropertyValue dataPropertyValue) {
         this.DataPropertyValueVisitor.visit(dataPropertyValue);
     }
 
-    private void visitObjectOneOf(List<ConceptReference> objectOneOf) {
+    private void visit(List<ConceptReference> objectOneOf) {
         this.ObjectOneOfVisitor.visit(objectOneOf);
     }
 
-    private void visitAnnotations(Set<Annotation> annotations) {
+    private void visit(Set<Annotation> annotations) {
         this.AnnotationsVisitor.visit(annotations);
     }
 }

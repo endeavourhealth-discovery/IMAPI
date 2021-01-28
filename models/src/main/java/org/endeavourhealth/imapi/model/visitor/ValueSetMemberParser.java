@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.visitor;
 
 import org.endeavourhealth.imapi.model.ClassExpression;
 import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ObjectPropertyValue;
 
 import java.util.*;
 
@@ -10,49 +9,30 @@ public class ValueSetMemberParser  {
     public final List<ConceptReference> included = new ArrayList<>();
     public final List<ConceptReference> excluded = new ArrayList<>();
 
-    private ObjectPropertyValue hasMembersProperty;
-    private Deque<Boolean> complementOfHistory = new ArrayDeque<>();
+    private final Deque<Boolean> complementOfHistory = new ArrayDeque<>();
+    private boolean visitingMembers = false;
     private boolean complementOf = false;
 
     public ValueSetMemberParser(ObjectModelVisitor visitor) {
-        visitor.ExpressionVisitor = (this::onEnterExpression);
-        visitor.ExpressionExitVisitor = (this::onExitExpression);
-        visitor.ObjectPropertyValueVisitor = (this::onEnterObjectPropertyValue);
-        visitor.ObjectPropertyValueExitVisitor = (this::onExitObjectPropertyValue);
+        visitor.MemberListVisitor = (this::onEnterMemberList);
+        visitor.MemberListExitVisitor = (this::onExitMemberList);
+
+        visitor.ComplementOfVisitor = (this::onEnterComplementOf);
+        visitor.ComplementOfExitVisitor = (this::onExitComplementOf);
+
         visitor.ClassVisitor = (this::onEnterClass);
     }
 
-    public void onEnterExpression(ClassExpression expression) {
-        if (this.hasMembersProperty != null  && expression.getComplementOf() != null) {
-            this.onEnterComplementOf(expression.getComplementOf());
-        }
+    public void onEnterMemberList(List<ClassExpression> members) {
+        this.visitingMembers = true;
     }
 
-    public void onExitExpression(ClassExpression expression) {
-        if (this.hasMembersProperty != null && expression.getComplementOf() != null) {
-            this.onExitComplementOf(expression.getComplementOf());
-        }
-    }
-
-    public void onEnterObjectPropertyValue(ObjectPropertyValue objectPropertyValue) {
-        if(":hasMembers".equals(objectPropertyValue.getProperty().getIri())) {
-            if(this.hasMembersProperty == null) {
-                this.hasMembersProperty = objectPropertyValue;
-            }
-            else {
-                // TODO error time - nested hasMember within outer hasMember - illegal syntax
-            }
-        }
-    }
-
-    public void onExitObjectPropertyValue(ObjectPropertyValue objectPropertyValue) {
-        if((this.hasMembersProperty != null) && (this.hasMembersProperty == objectPropertyValue)) {
-            this.hasMembersProperty = null;
-        }
+    public void onExitMemberList(List<ClassExpression> members) {
+        this.visitingMembers = false;
     }
 
     public void onEnterClass(ConceptReference clazz) {
-        if(this.hasMembersProperty != null) {
+        if(this.visitingMembers) {
             if (this.complementOf)
                 this.excluded.add(clazz);
             else

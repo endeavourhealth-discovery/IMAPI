@@ -241,24 +241,15 @@ public class ConceptServiceV3 implements IConceptService {
     public ExportValueSet getValueSetMembers(String iri, boolean expand) {
         Concept concept = getConcept(iri);
 
-        List<ConceptReference> members = ((ValueSet)concept).getMember()
-            .stream()
-            .map(ClassExpression::getClazz)
-            .collect(Collectors.toList());
 
-/*
         ObjectModelVisitor visitor = new ObjectModelVisitor();
         ValueSetMemberParser vsMemberParser = new ValueSetMemberParser(visitor);
 
         visitor.visit(concept);
-*/
-
-        ConceptReference vset = getConceptReference(iri);
-//        ConceptReference rel = getConceptReference(":hasMembers");
 
         Map<String, ValueSetMember> inclusions = new HashMap<>();
 
-        for(ConceptReference cr: members) {
+        for(ConceptReference cr: vsMemberParser.included) {
             org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
 
             ValueSetMember vsm = new ValueSetMember()
@@ -280,7 +271,7 @@ public class ConceptServiceV3 implements IConceptService {
         }
 
         Map<String, ValueSetMember> exclusions = new HashMap<>();
-/*        for(ConceptReference cr: vsMemberParser.excluded) {
+        for(ConceptReference cr: vsMemberParser.excluded) {
             org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
 
             ValueSetMember vsm = new ValueSetMember()
@@ -299,7 +290,7 @@ public class ConceptServiceV3 implements IConceptService {
                         .setScheme(new ConceptReference(m.getSchemeIri(), m.getSchemeName()))
                     ));
             }
-        }*/
+        }
 
         if (expand) {
             // Remove exclusions by key
@@ -307,8 +298,7 @@ public class ConceptServiceV3 implements IConceptService {
         }
 
         ExportValueSet result = new ExportValueSet()
-            .setValueSet(vset)
-//            .setRelationship(rel)
+            .setValueSet(new ConceptReference(concept.getIri(), concept.getName()))
             .addAllIncluded(inclusions.values());
 
         if (!expand)

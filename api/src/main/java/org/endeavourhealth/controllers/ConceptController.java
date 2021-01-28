@@ -82,6 +82,11 @@ public class ConceptController {
         return conceptService.getAncestorDefinitions(iri);
     }
 
+    @GetMapping(value = "/{iri}/hasChildren")
+    public Boolean getConceptHasChildren(@PathVariable("iri") String iri, @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
+        return conceptService.getHasChildren(iri, includeLegacy);
+    }
+
     @GetMapping(value = "/{iri}/children")
     public List<ConceptReferenceNode> getConceptChildren(@PathVariable("iri") String iri,
                                                     @RequestParam(name = "page", required = false) Integer page,

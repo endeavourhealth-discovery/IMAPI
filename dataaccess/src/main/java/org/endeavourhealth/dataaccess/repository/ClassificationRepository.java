@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClassificationRepository extends JpaRepository<Classification, Integer>{
 
+    Classification findFirstByParent_Iri(String parentIri);
 	List<Classification> findByParent_Iri(String parentIri);
 	Set<Classification> findByChild_Iri(String childIri);
 }

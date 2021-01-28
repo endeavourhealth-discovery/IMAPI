@@ -110,6 +110,16 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
+    public Boolean getHasChildren(String iri, boolean includeLegacy) {
+        if(includeLegacy) {
+            return !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, getNamespacePrefixes(includeLegacy)).isEmpty();
+        }
+        else {
+            return classificationRepository.findFirstByParent_Iri(iri) != null;
+        }
+    }
+
+    @Override
     public List<SearchResponseConcept> advancedSearch(SearchRequest request) {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
 

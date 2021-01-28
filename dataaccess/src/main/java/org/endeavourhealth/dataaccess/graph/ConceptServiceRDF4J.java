@@ -103,6 +103,11 @@ public class ConceptServiceRDF4J implements IConceptService {
     }
 
     @Override
+    public Boolean getHasChildren(String iri, boolean includeLegacy) {
+        return null;
+    }
+
+    @Override
     public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer page, Integer size, boolean includeLegacy) {
         List<ConceptReferenceNode> result = new ArrayList<>();
         try (RepositoryConnection conn = db.getConnection()) {

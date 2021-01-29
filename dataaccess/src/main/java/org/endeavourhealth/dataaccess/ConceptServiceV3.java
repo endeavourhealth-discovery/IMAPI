@@ -112,11 +112,27 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public Boolean getHasChildren(String iri, boolean includeLegacy) {
         if(includeLegacy) {
-            return !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, getNamespacePrefixes(includeLegacy)).isEmpty();
-        }
-        else {
             return classificationRepository.findFirstByParent_Iri(iri) != null;
         }
+        else {
+            return !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, coreNamespacePrefixes).isEmpty();
+        }
+    }
+
+    @Override
+    public List<String> getHaveChildren(List<String> iris, boolean includeLegacy) {
+        List<String> result = new ArrayList<>();
+
+        for(String iri : iris) {
+            if(includeLegacy && classificationRepository.findFirstByParent_Iri(iri) != null) {
+                result.add(iri);
+            }
+            else if (!includeLegacy && !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, coreNamespacePrefixes).isEmpty()) {
+                result.add(iri);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -139,7 +155,7 @@ public class ConceptServiceV3 implements IConceptService {
             }
         }
 
-        return result.stream()
+        List<SearchResponseConcept> src = result.stream()
             .map(r -> new SearchResponseConcept()
                 .setName(r.getName())
                 .setIri(r.getIri())
@@ -151,6 +167,13 @@ public class ConceptServiceV3 implements IConceptService {
 
                 ))
             .collect(Collectors.toList());
+
+        List<String> types = request.getTypes();
+        if (types != null && !types.isEmpty()) {
+            src.forEach(s -> s.setTypes(this.isWhichType(s.getIri(), types)));
+        }
+
+        return src;
     }
     
     @Override
@@ -639,7 +662,7 @@ public class ConceptServiceV3 implements IConceptService {
     
 	private List<String> getNamespacePrefixes(boolean includeLegacy) {
 		// null means everything
-		
+
         return (includeLegacy) ? null : coreNamespacePrefixes;
 	}    
      

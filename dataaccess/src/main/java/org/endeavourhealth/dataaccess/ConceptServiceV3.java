@@ -141,7 +141,7 @@ public class ConceptServiceV3 implements IConceptService {
 
         String terms = Arrays.stream(request.getTerms().split(" "))
             .filter(t -> t.trim().length() >= 3)
-            .map(w -> "+" + w)
+            .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
         if (!request.isIncludeLegacy())

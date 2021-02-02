@@ -144,15 +144,11 @@ public class ConceptServiceV3 implements IConceptService {
             .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
-        if (!request.isIncludeLegacy())
-            result = conceptRepository.search(terms, request.getSize());
+        if (request.getSchemes() == null || request.getSchemes().isEmpty())
+            result = conceptRepository.searchLegacy(terms, request.getSize());
         else {
-            if (request.getSchemes() == null || request.getSchemes().isEmpty())
-                result = conceptRepository.searchLegacy(terms, request.getSize());
-            else {
-                List<String> schemeIris = request.getSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
-                result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
-            }
+            List<String> schemeIris = request.getSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
+            result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
         }
 
         List<SearchResponseConcept> src = result.stream()
@@ -402,6 +398,8 @@ public class ConceptServiceV3 implements IConceptService {
                 return new Record();
             case VALUESET:
                 return new ValueSet();
+            case LEGACY:
+                return new LegacyConcept();
             default:
                 throw new IllegalStateException("Unhandled concept type [" + ct.getName() + "]");
         }
@@ -510,6 +508,11 @@ public class ConceptServiceV3 implements IConceptService {
                         .forEach(((ValueSet) c)::addMember);
                     else
                         throw new IllegalStateException("Member on non-valueset");
+                    break;
+                case MAPPED_FROM:
+                    getExpressionsAsStream(a.getExpressions())
+                        .map(ClassExpression::getClazz)
+                        .forEach(((LegacyConcept)c)::addMappedFrom);
                     break;
                 default:
                     throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");

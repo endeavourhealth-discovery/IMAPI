@@ -16,7 +16,7 @@ import java.util.*;
    @JsonSubTypes.Type(value= LegacyConcept.class,name="LegacyConcept")})
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
         "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"
-   ,"property","member","memberExpansion","mappedFrom"})
+   ,"property","member","memberExpansion","mappedFrom","recordModel"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
     private String iri;
@@ -39,6 +39,7 @@ public class Concept implements IMAnnotated {
     private boolean isRef;
     private Map<String,String> stats;
     private List<PropertyConstraint> property;
+    private List<Concept> recordModel;
 
 
     
@@ -345,6 +346,22 @@ public class Concept implements IMAnnotated {
         if (this.property==null)
             this.property= new ArrayList<>();
         this.property.add(property);
+        return this;
+    }
+
+    @JsonProperty("RecordModel")
+    public List<Concept> getRecordModel() {
+        return recordModel;
+    }
+
+    public Concept setRecordModel(List<Concept> recordModel) {
+        this.recordModel = recordModel;
+        return this;
+    }
+    public Concept addRecordModel(Concept model){
+        if (this.recordModel==null)
+            this.recordModel= new ArrayList<>();
+        this.recordModel.add(model);
         return this;
     }
 }

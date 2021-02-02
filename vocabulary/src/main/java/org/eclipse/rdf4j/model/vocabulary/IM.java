@@ -17,4 +17,5 @@ public class IM {
     public static final IRI VALUESET = Vocabularies.createIRI(NAMESPACE, "ValueSet");
     public static final IRI HAS_MEMBERS = Vocabularies.createIRI(NAMESPACE, "hasMembers");
     public static final IRI HAS_EXPANSION = Vocabularies.createIRI(NAMESPACE, "hasExpansion");
+    public static final IRI EXCLUDE = Vocabularies.createIRI(NAMESPACE, "exclude");
 }

@@ -112,11 +112,27 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public Boolean getHasChildren(String iri, boolean includeLegacy) {
         if(includeLegacy) {
-            return !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, getNamespacePrefixes(includeLegacy)).isEmpty();
-        }
-        else {
             return classificationRepository.findFirstByParent_Iri(iri) != null;
         }
+        else {
+            return !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, coreNamespacePrefixes).isEmpty();
+        }
+    }
+
+    @Override
+    public List<String> getHaveChildren(List<String> iris, boolean includeLegacy) {
+        List<String> result = new ArrayList<>();
+
+        for(String iri : iris) {
+            if(includeLegacy && classificationRepository.findFirstByParent_Iri(iri) != null) {
+                result.add(iri);
+            }
+            else if (!includeLegacy && !classificationNativeQueries.findClassificationByParentIriAndChildNamespace(iri, coreNamespacePrefixes).isEmpty()) {
+                result.add(iri);
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -125,21 +141,17 @@ public class ConceptServiceV3 implements IConceptService {
 
         String terms = Arrays.stream(request.getTerms().split(" "))
             .filter(t -> t.trim().length() >= 3)
-            .map(w -> "+" + w)
+            .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
-        if (!request.isIncludeLegacy())
-            result = conceptRepository.search(terms, request.getSize());
+        if (request.getCodeSchemes() == null || request.getCodeSchemes().isEmpty())
+            result = conceptRepository.searchLegacy(terms, request.getSize());
         else {
-            if (request.getSchemes() == null || request.getSchemes().isEmpty())
-                result = conceptRepository.searchLegacy(terms, request.getSize());
-            else {
-                List<String> schemeIris = request.getSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
-                result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
-            }
+            List<String> schemeIris = request.getCodeSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
+            result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
         }
 
-        return result.stream()
+        List<SearchResponseConcept> src = result.stream()
             .map(r -> new SearchResponseConcept()
                 .setName(r.getName())
                 .setIri(r.getIri())
@@ -151,6 +163,13 @@ public class ConceptServiceV3 implements IConceptService {
 
                 ))
             .collect(Collectors.toList());
+
+        List<String> types = request.getTypes();
+        if (types != null && !types.isEmpty()) {
+            src.forEach(s -> s.setTypes(this.isWhichType(s.getIri(), types)));
+        }
+
+        return src;
     }
     
     @Override
@@ -379,6 +398,8 @@ public class ConceptServiceV3 implements IConceptService {
                 return new Record();
             case VALUESET:
                 return new ValueSet();
+            case LEGACY:
+                return new LegacyConcept();
             default:
                 throw new IllegalStateException("Unhandled concept type [" + ct.getName() + "]");
         }
@@ -487,6 +508,11 @@ public class ConceptServiceV3 implements IConceptService {
                         .forEach(((ValueSet) c)::addMember);
                     else
                         throw new IllegalStateException("Member on non-valueset");
+                    break;
+                case MAPPED_FROM:
+                    getExpressionsAsStream(a.getExpressions())
+                        .map(ClassExpression::getClazz)
+                        .forEach(((LegacyConcept)c)::addMappedFrom);
                     break;
                 default:
                     throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
@@ -639,7 +665,7 @@ public class ConceptServiceV3 implements IConceptService {
     
 	private List<String> getNamespacePrefixes(boolean includeLegacy) {
 		// null means everything
-		
+
         return (includeLegacy) ? null : coreNamespacePrefixes;
 	}    
      

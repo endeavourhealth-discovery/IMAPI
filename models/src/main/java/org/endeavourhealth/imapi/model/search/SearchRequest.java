@@ -8,8 +8,7 @@ import java.util.List;
 public class SearchRequest {
     private String terms;
     private List<String> types = new ArrayList<>();
-    private boolean includeLegacy = false;
-    private List<ConceptReference> schemes = new ArrayList<>();
+    private List<ConceptReference> codeSchemes = new ArrayList<>();
     private int page = 1;
     private int size = 20;
 
@@ -31,21 +30,12 @@ public class SearchRequest {
         return this;
     }
 
-    public boolean isIncludeLegacy() {
-        return includeLegacy;
+    public List<ConceptReference> getCodeSchemes() {
+        return codeSchemes;
     }
 
-    public SearchRequest setIncludeLegacy(boolean includeLegacy) {
-        this.includeLegacy = includeLegacy;
-        return this;
-    }
-
-    public List<ConceptReference> getSchemes() {
-        return schemes;
-    }
-
-    public SearchRequest setSchemes(List<ConceptReference> schemes) {
-        this.schemes = schemes;
+    public SearchRequest setCodeSchemes(List<ConceptReference> codeSchemes) {
+        this.codeSchemes = codeSchemes;
         return this;
     }
 

@@ -32,31 +32,36 @@ public class ConfigService implements IConfigService {
     public List<SearchResponseConcept> getQuickAccess() {
         LOG.info("getQuickAccess");
 
-        String[] quickAccessIris = new String[] {":SemanticConcept", ":DiscoveryCommonDataModel", ":HealthRecord", ":VSET_DataModel", ":VSET_QueryValueSets"};
-        String[] candidates = new String[] {":DiscoveryCommonDataModel", ":VSET_ValueSet"};
+        String[] quickAccessIris = new String[] {":SemanticConcept", ":HealthRecord", ":VSET_DataModel", ":VSET_QueryValueSets"};
+        String[] candidates = new String[] {":DiscoveryCommonDataModel", ":VSET_ValueSet", ":SemanticConcept"};
 
         List<SearchResponseConcept> result = new ArrayList<>();
 
         for(String iri: quickAccessIris) {
             Concept c = conceptRepository.findByIri(iri);
 
-            SearchResponseConcept src = new SearchResponseConcept()
-                .setIri(c.getIri())
-                .setName(c.getName())
-                .setCode(c.getCode());
-
-            if (c.getScheme() != null)
-                src.setScheme(new ConceptReference(
-                    c.getScheme().getIri(),
-                    c.getScheme().getName())
-                );
-
-            src.setTypes(conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, Arrays.asList(candidates))
-                .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
-                .sorted(Comparator.comparing(ConceptReference::getName))
-                .collect(Collectors.toList()));
-
-            result.add(src);
+            if(c != null) {
+	            SearchResponseConcept src = new SearchResponseConcept()
+	                .setIri(c.getIri())
+	                .setName(c.getName())
+	                .setCode(c.getCode());
+	
+	            if (c.getScheme() != null)
+	                src.setScheme(new ConceptReference(
+	                    c.getScheme().getIri(),
+	                    c.getScheme().getName())
+	                );
+	
+	            src.setTypes(conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, Arrays.asList(candidates))
+	                .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
+	                .sorted(Comparator.comparing(ConceptReference::getName))
+	                .collect(Collectors.toList()));
+	
+	            result.add(src);
+            }
+            else {
+            	LOG.debug(String.format("Warning - unable to find concept with the IRI %s", iri));
+            }
         }
 
         return result;

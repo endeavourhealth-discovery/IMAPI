@@ -144,10 +144,10 @@ public class ConceptServiceV3 implements IConceptService {
             .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
-        if (request.getSchemes() == null || request.getSchemes().isEmpty())
+        if (request.getCodeSchemes() == null || request.getCodeSchemes().isEmpty())
             result = conceptRepository.searchLegacy(terms, request.getSize());
         else {
-            List<String> schemeIris = request.getSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
+            List<String> schemeIris = request.getCodeSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
             result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
         }
 

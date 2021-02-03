@@ -15,8 +15,6 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
-import org.endeavourhealth.imapi.model.visitor.ObjectModelVisitor;
-import org.endeavourhealth.imapi.model.visitor.ValueSetMemberParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -270,15 +268,22 @@ public class ConceptServiceV3 implements IConceptService {
     public ExportValueSet getValueSetMembers(String iri, boolean expand) {
         Concept concept = getConcept(iri);
 
+        if (!(concept instanceof ValueSet))
+            return null;
 
-        ObjectModelVisitor visitor = new ObjectModelVisitor();
-        ValueSetMemberParser vsMemberParser = new ValueSetMemberParser(visitor);
+        List<ConceptReference> included = new ArrayList<>();
+        List<ConceptReference> excluded = new ArrayList<>();
+        ((ValueSet)concept).getMember().forEach(m -> {
+            if (m.isExclude())
+                excluded.add(m.getClazz());
+            else
+                included.add(m.getClazz());
+        });
 
-        visitor.visit(concept);
 
         Map<String, ValueSetMember> inclusions = new HashMap<>();
 
-        for(ConceptReference cr: vsMemberParser.included) {
+        for(ConceptReference cr: included) {
             org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
 
             ValueSetMember vsm = new ValueSetMember()
@@ -300,7 +305,7 @@ public class ConceptServiceV3 implements IConceptService {
         }
 
         Map<String, ValueSetMember> exclusions = new HashMap<>();
-        for(ConceptReference cr: vsMemberParser.excluded) {
+        for(ConceptReference cr: excluded) {
             org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
 
             ValueSetMember vsm = new ValueSetMember()
@@ -533,6 +538,7 @@ public class ConceptServiceV3 implements IConceptService {
             case CLASS:
                 org.endeavourhealth.dataaccess.entity.Concept c = exp.getTargetConcept();
                 cex.setClazz(new ConceptReference(c.getIri(), c.getName()));
+                cex.setExclude(exp.getExclude());
                 return cex;
             case INTERSECTION:
                 cex.setIntersection(

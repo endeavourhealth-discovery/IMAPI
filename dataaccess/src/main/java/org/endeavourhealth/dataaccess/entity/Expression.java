@@ -18,6 +18,7 @@ public class Expression {
 	private Concept targetConcept;
     @OneToMany(mappedBy = "expression")
     private List<PropertyValue> propertyValue;
+    private Boolean exclude;
 
     public Expression() {
 		super();
@@ -83,6 +84,15 @@ public class Expression {
 
     public Expression setPropertyValue(List<PropertyValue> propertyValue) {
         this.propertyValue = propertyValue;
+        return this;
+    }
+
+    public Boolean getExclude() {
+        return exclude;
+    }
+
+    public Expression setExclude(Boolean exclude) {
+        this.exclude = exclude;
         return this;
     }
 }

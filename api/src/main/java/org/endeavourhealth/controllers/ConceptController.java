@@ -133,15 +133,12 @@ public class ConceptController {
 
         StringBuilder sb = new StringBuilder();
 
-        // sb.append("Inc\\Exc\tValueSetIri\tValueSetName\tRelationshipIri\tRelationshipName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
         sb.append("Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
 
         for(ValueSetMember c : exportValueSet.getIncluded()) {
             sb.append("Inc\t")
                 .append(exportValueSet.getValueSet().getIri()).append("\t")
                 .append(exportValueSet.getValueSet().getName()).append("\t")
-//                .append(exportValueSet.getRelationship().getIri()).append("\t")
-//                .append(exportValueSet.getRelationship().getName()).append("\t")
                 .append(c.getConcept().getIri()).append("\t")
                 .append(c.getConcept().getName()).append("\t")
                 .append(c.getCode()).append("\t");
@@ -157,8 +154,6 @@ public class ConceptController {
                 sb.append("Exc\t")
                     .append(exportValueSet.getValueSet().getIri()).append("\t")
                     .append(exportValueSet.getValueSet().getName()).append("\t")
-//                    .append(exportValueSet.getRelationship().getIri()).append("\t")
-//                    .append(exportValueSet.getRelationship().getName()).append("\t")
                     .append(c.getConcept().getIri()).append("\t")
                     .append(c.getConcept().getName()).append("\t")
                     .append(c.getCode()).append("\t");

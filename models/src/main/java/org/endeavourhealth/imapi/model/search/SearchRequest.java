@@ -11,6 +11,7 @@ public class SearchRequest {
     private List<ConceptReference> codeSchemes = new ArrayList<>();
     private int page = 1;
     private int size = 20;
+    private List<Byte> statuses = new ArrayList<>();
 
     public String getTerms() {
         return terms;
@@ -54,6 +55,15 @@ public class SearchRequest {
 
     public SearchRequest setSize(int size) {
         this.size = size;
+        return this;
+    }
+
+    public List<Byte> getStatuses() {
+        return statuses;
+    }
+
+    public SearchRequest setStatuses(List<Byte> statuses) {
+        this.statuses = statuses;
         return this;
     }
 }

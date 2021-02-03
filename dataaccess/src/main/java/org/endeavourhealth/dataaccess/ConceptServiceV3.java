@@ -149,6 +149,10 @@ public class ConceptServiceV3 implements IConceptService {
             result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
         }
 
+        if (request.getStatuses() != null && !request.getStatuses().isEmpty()) {
+            result = result.stream().filter(c -> request.getStatuses().contains(c.getStatus().getDbid())).collect(Collectors.toList());
+        }
+
         List<SearchResponseConcept> src = result.stream()
             .map(r -> new SearchResponseConcept()
                 .setName(r.getName())

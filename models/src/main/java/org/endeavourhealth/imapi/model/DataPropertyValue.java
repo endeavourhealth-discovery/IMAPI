@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @JsonPropertyOrder({"property","inverseOf","quantificationType","min","max","dataType","valueData"})
@@ -65,6 +66,13 @@ public class DataPropertyValue extends QuantificationImpl{
 
    public DataPropertyValue setOneOf(Set<String> oneOf) {
       this.oneOf = oneOf;
+      return this;
+   }
+
+   public DataPropertyValue addOneOf(String oneOf){
+      if (this.oneOf==null)
+         this.oneOf= new HashSet<>();
+      this.oneOf.add(oneOf);
       return this;
    }
 

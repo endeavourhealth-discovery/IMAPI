@@ -21,7 +21,11 @@ public enum AxiomType {
     OBJECTPROPERTYASSERTION((byte)15,"ObjectPropertyAssertion"),
     DATAPROPERTYASSERTION((byte)16,"DataPropertyAssertion"),
     ISTYPE((byte)17,"IsType"),
-    ANNOTATIONASSERTION((byte)18,"AnnotationAssertion");
+    ANNOTATIONASSERTION((byte)18,"AnnotationAssertion"),
+    MEMBER((byte)19,"Member"),
+    MEMBER_EXPANSION((byte)20,"MemberExpansion"),
+    PROPERTY((byte)21,"Property"),
+    MAPPED_FROM((byte)22,"MappedFrom");
     
 
     private byte _value;

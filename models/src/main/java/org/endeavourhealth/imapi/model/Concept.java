@@ -2,10 +2,7 @@ package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="conceptType")
 @JsonSubTypes({
@@ -13,9 +10,13 @@ import java.util.Set;
     @JsonSubTypes.Type(value= ObjectProperty.class, name="ObjectProperty"),
     @JsonSubTypes.Type(value= DataProperty.class, name="DataProperty"),
     @JsonSubTypes.Type(value= DataType.class, name="DataType"),
-    @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation")})
+    @JsonSubTypes.Type(value= Record.class, name="Record"),
+    @JsonSubTypes.Type(value= ValueSet.class, name="ValueSet"),
+    @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation"),
+   @JsonSubTypes.Type(value= LegacyConcept.class,name="LegacyConcept")})
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
-        "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA"})
+        "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"
+   ,"property","member","memberExpansion","mappedFrom","recordModel"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
     private String iri;
@@ -28,12 +29,21 @@ public class Concept implements IMAnnotated {
     private Set<ConceptReference> isA;
     private Set<Annotation> annotations;
     private ConceptType conceptType;
+
     private Set<ClassExpression> subClassOf;
     private Set<ClassExpression> equivalentTo;
     private ClassExpression expression;
     private Set<ConceptReference> DisjointWith;
-    private List<Synonym> synonym;
+    private List<TermCode> synonym;
+    private List<ConceptReference> containedIn;
     private boolean isRef;
+    private Map<String,String> stats;
+    private List<PropertyConstraint> property;
+    private List<Concept> recordModel;
+
+
+    
+
 
 
 
@@ -47,6 +57,7 @@ public class Concept implements IMAnnotated {
 
     public Concept() {
         this.setConceptType(ConceptType.CLASSONLY);
+
     }
 
     @Override
@@ -216,10 +227,22 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
+    /**
+     * @deprecated use property constraints instead
+     * @return
+     */
+    @Deprecated
     @JsonProperty("Expression")
     public ClassExpression getExpression(){
         return expression;
     }
+
+    /**
+     * @deprecated use property constraints instead
+     * @param cex
+     * @return
+     */
+    @Deprecated
     public Concept setExpression(ClassExpression cex){
         this.expression = cex;
         return this;
@@ -260,15 +283,15 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
-    public List<Synonym> getSynonym() {
+    public List<TermCode> getSynonym() {
         return synonym;
     }
 
-    public Concept setSynonym(List<Synonym> synonym) {
+    public Concept setSynonym(List<TermCode> synonym) {
         this.synonym = synonym;
         return this;
     }
-    public Concept addSynonym(Synonym synonym){
+    public Concept addSynonym(TermCode synonym){
         if (this.synonym==null)
             this.synonym= new ArrayList<>();
         this.synonym.add(synonym);
@@ -282,6 +305,63 @@ public class Concept implements IMAnnotated {
 
     public Concept setRef(boolean ref) {
         isRef = ref;
+        return this;
+    }
+
+    public List<ConceptReference> getContainedIn() {
+        return containedIn;
+    }
+
+    public Concept setContainedIn(List<ConceptReference> containedIn) {
+        this.containedIn = containedIn;
+        return this;
+    }
+    public Concept addContainedIn(ConceptReference container){
+        if (this.containedIn==null)
+            this.containedIn= new ArrayList<>();
+        this.containedIn.add(container);
+        return this;
+    }
+
+
+    @JsonProperty("Statistics")
+    public Map<String, String> getStats() {
+        return stats;
+    }
+
+    public Concept setStats(Map<String, String> stats) {
+        this.stats = stats;
+        return this;
+    }
+    @JsonProperty("Property")
+    public List<PropertyConstraint> getProperty() {
+        return property;
+    }
+
+    public Concept setProperty(List<PropertyConstraint> property) {
+        this.property = property;
+        return this;
+    }
+    public Concept addProperty(PropertyConstraint property){
+        if (this.property==null)
+            this.property= new ArrayList<>();
+        this.property.add(property);
+        return this;
+    }
+
+    @JsonProperty("RecordModel")
+    public List<Concept> getRecordModel() {
+        return recordModel;
+    }
+
+    public Concept setRecordModel(List<Concept> recordModel) {
+        this.recordModel = recordModel;
+        return this;
+    }
+    public Concept addRecordModel(Concept model){
+        if (this.recordModel==null)
+            this.recordModel= new ArrayList<>();
+        this.recordModel.add(model);
         return this;
     }
 }

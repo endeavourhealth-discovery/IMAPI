@@ -21,6 +21,8 @@ public class ClassExpression implements IMEntity, IMAnnotated{
     private int group;
     private Set<Annotation> annotations;
     private ConceptReference module;
+    private List<PropertyConstraint> propertyConstraint;
+    private boolean exclude;
 
 
     @JsonProperty("Inferred")
@@ -209,6 +211,31 @@ public class ClassExpression implements IMEntity, IMAnnotated{
 
     public ClassExpression setModule(ConceptReference module) {
         this.module = module;
+        return this;
+    }
+
+    public List<PropertyConstraint> getPropertyConstraint() {
+        return propertyConstraint;
+    }
+
+    public ClassExpression setPropertyConstraint(List<PropertyConstraint> propertyConstraint) {
+        this.propertyConstraint = propertyConstraint;
+        return this;
+    }
+    public ClassExpression addPropertyConstraint(PropertyConstraint constraint){
+        if (this.propertyConstraint==null)
+            this.propertyConstraint= new ArrayList<>();
+        this.propertyConstraint.add(constraint);
+        return this;
+    }
+
+    @JsonProperty("Exclude")
+    public boolean isExclude() {
+        return exclude;
+    }
+
+    public ClassExpression setExclude(boolean exclude) {
+        this.exclude = exclude;
         return this;
     }
 }

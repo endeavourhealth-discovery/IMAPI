@@ -15,6 +15,8 @@ public class Ontology {
     private DocumentInfo documentInfo;
     private Set<Concept> concept;
     private Set<Individual> individual;
+    private Set<TermCode> termCode;
+
 
 
 
@@ -126,4 +128,23 @@ public class Ontology {
         this.individual.add(individual);
         return this;
     }
+
+    @JsonProperty("TermConcept")
+    public Set<TermCode> getTermConcept() {
+        return termCode;
+    }
+
+    public Ontology setTermConcept(Set<TermCode> termCode) {
+        this.termCode = termCode;
+        return this;
+    }
+
+    public Ontology addTermConcept(TermCode term){
+        if (this.getTermConcept()==null)
+            this.termCode = new HashSet<>();
+        this.termCode.add(term);
+        return this;
+    }
+
+
 }

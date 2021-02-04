@@ -202,7 +202,8 @@ public class ConceptServiceV3 implements IConceptService {
         // transform the data
         if(rows != null) {
         	immediateChildren = rows.stream()
-	        	.map(row -> toConceptReferenceNode(classificationNativeQueries.getClassificaton(row).getChild(), classificationNativeQueries.getChildHasChildren(row)))
+                .filter(row -> classificationNativeQueries.getClassificaton(row).getChild().getStatus().getDbid() != ConceptStatus.INACTIVE.getValue())
+                .map(row -> toConceptReferenceNode(classificationNativeQueries.getClassificaton(row).getChild(), classificationNativeQueries.getChildHasChildren(row)))
 	            .sorted(Comparator.comparing(ConceptReferenceNode::getName))
 	            .collect(Collectors.toList());        	
         }
@@ -217,7 +218,9 @@ public class ConceptServiceV3 implements IConceptService {
         Set<Classification> classifications = classificationRepository.findByChild_Iri(iri);
 
         return classifications.stream()
+            .filter(c -> c.getParent().getStatus().getDbid() != ConceptStatus.INACTIVE.getValue())
             .map(row -> new ConceptReferenceNode(row.getParent().getIri(), row.getParent().getName()))
+            .sorted(Comparator.comparing(ConceptReferenceNode::getName))
             .collect(Collectors.toList());
     }
 

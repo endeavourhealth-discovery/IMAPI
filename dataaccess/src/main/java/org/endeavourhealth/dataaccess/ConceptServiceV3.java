@@ -157,6 +157,7 @@ public class ConceptServiceV3 implements IConceptService {
             .map(r -> new SearchResponseConcept()
                 .setName(r.getName())
                 .setIri(r.getIri())
+                .setConceptType(ConceptType.byValue(r.getType()))
                 .setCode(r.getCode())
                 .setScheme(
                     r.getScheme() == null

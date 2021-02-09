@@ -13,6 +13,7 @@ public class SearchResponseConcept {
     private ConceptReference scheme;
     private ConceptType conceptType;
     private List<ConceptReference> types = new ArrayList<>();
+    private Integer weighting;
 
     public String getName() {
         return name;
@@ -65,6 +66,15 @@ public class SearchResponseConcept {
 
     public SearchResponseConcept setTypes(List<ConceptReference> types) {
         this.types = types;
+        return this;
+    }
+
+    public Integer getWeighting() {
+        return weighting;
+    }
+
+    public SearchResponseConcept setWeighting(Integer weighting) {
+        this.weighting = weighting;
         return this;
     }
 }

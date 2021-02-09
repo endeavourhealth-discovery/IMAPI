@@ -161,6 +161,7 @@ public class ConceptServiceV3 implements IConceptService {
                 .setName(r.getName())
                 .setIri(r.getIri())
                 .setConceptType(ConceptType.byValue(r.getType()))
+                .setWeighting(r.getWeighting())
                 .setCode(r.getCode())
                 .setScheme(
                     r.getScheme() == null

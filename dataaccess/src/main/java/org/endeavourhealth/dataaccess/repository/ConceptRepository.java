@@ -38,7 +38,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         ") x " +
-        "ORDER BY LENGTH(x.name) " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> search(@Param("terms") String terms, @Param("full") String full, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
@@ -59,7 +59,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         ") x " +
-        "ORDER BY LENGTH(x.name) " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacy(@Param("terms") String terms, @Param("full") String full, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
@@ -86,7 +86,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         ") x " +
-        "ORDER BY LENGTH(x.name) " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacySchemes(@Param("terms") String terms, @Param("full") String full, @Param("schemes") List<String> schemes, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
@@ -119,7 +119,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         ") x " +
-        "ORDER BY LENGTH(x.name) " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
 	List<Concept> searchType(@Param("term") String terms, @Param("full") String full, @Param("root") String root, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
@@ -146,7 +146,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         ") x " +
-        "ORDER BY LENGTH(x.name) " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacyType(@Param("term") String terms, @Param("full") String full, @Param("root") String root, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
@@ -180,7 +180,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         ") x " +
-        "ORDER BY LENGTH(x.name) " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacyTypeSchemes(@Param("term") String terms, @Param("full") String full, @Param("root") String root, @Param("schemes") List<String> schemes, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 }

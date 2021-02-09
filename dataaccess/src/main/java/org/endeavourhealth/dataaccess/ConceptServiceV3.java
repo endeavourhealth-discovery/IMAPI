@@ -83,11 +83,13 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> findByNameLike(String term, String root, boolean includeLegacy, Integer limit) {
+    public List<ConceptReference> findByNameLike(String full, String root, boolean includeLegacy, Integer limit) {
         if (limit == null)
             limit = DEFAULT_LIMIT;
 
-        term = Arrays.stream(term.split(" "))
+        List<Byte> status = Arrays.asList(ConceptStatus.DRAFT.getValue(),ConceptStatus.ACTIVE.getValue());
+
+        String terms = Arrays.stream(full.split(" "))
             .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w)
             .collect(Collectors.joining(" "));
@@ -95,12 +97,12 @@ public class ConceptServiceV3 implements IConceptService {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
             result = (includeLegacy)
-                ? conceptRepository.searchLegacy(term, limit)
-                : conceptRepository.search(term, limit);
+                ? conceptRepository.searchLegacy(terms, full, status, limit)
+                : conceptRepository.search(terms, full, status, limit);
         else
             result = (includeLegacy)
-                ? conceptRepository.searchType(term, root, limit)
-                : conceptRepository.searchLegacyType(term, root, limit);
+                ? conceptRepository.searchType(terms, full, root, status, limit)
+                : conceptRepository.searchLegacyType(terms, full, root, status, limit);
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))
@@ -137,20 +139,21 @@ public class ConceptServiceV3 implements IConceptService {
     public List<SearchResponseConcept> advancedSearch(SearchRequest request) {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
 
-        String terms = Arrays.stream(request.getTerms().split(" "))
+        String full = request.getTerms();
+        String terms = Arrays.stream(full.split(" "))
             .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
+        List<Byte> status = request.getStatuses() == null || request.getStatuses().isEmpty()
+            ? Arrays.stream(ConceptStatus.values()).map(ConceptStatus::getValue).collect(Collectors.toList())
+            : request.getStatuses();
+
         if (request.getCodeSchemes() == null || request.getCodeSchemes().isEmpty())
-            result = conceptRepository.searchLegacy(terms, request.getSize());
+            result = conceptRepository.searchLegacy(terms, full, status, request.getSize());
         else {
             List<String> schemeIris = request.getCodeSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
-            result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
-        }
-
-        if (request.getStatuses() != null && !request.getStatuses().isEmpty()) {
-            result = result.stream().filter(c -> request.getStatuses().contains(c.getStatus().getDbid())).collect(Collectors.toList());
+            result = conceptRepository.searchLegacySchemes(terms, full, schemeIris, status, request.getSize());
         }
 
         List<SearchResponseConcept> src = result.stream()

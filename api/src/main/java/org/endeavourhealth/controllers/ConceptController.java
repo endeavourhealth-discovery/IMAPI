@@ -8,6 +8,7 @@ import org.endeavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -112,7 +113,7 @@ public class ConceptController {
     }
 
     @GetMapping(value = "/{iri}/usages")
-    public List<ConceptReference> conceptUsages(@PathVariable("iri") String iri) {
+    public List<ConceptSummary> conceptUsages(@PathVariable("iri") String iri) {
         return conceptService.usages(iri);
     }
 

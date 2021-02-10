@@ -12,7 +12,7 @@ import org.endeavourhealth.dataaccess.entity.Axiom;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.slf4j.Logger;
@@ -136,7 +136,7 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<SearchResponseConcept> advancedSearch(SearchRequest request) {
+    public List<ConceptSummary> advancedSearch(SearchRequest request) {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
 
         String full = request.getTerms();
@@ -156,8 +156,8 @@ public class ConceptServiceV3 implements IConceptService {
             result = conceptRepository.searchLegacySchemes(terms, full, schemeIris, status, request.getSize());
         }
 
-        List<SearchResponseConcept> src = result.stream()
-            .map(r -> new SearchResponseConcept()
+        List<ConceptSummary> src = result.stream()
+            .map(r -> new ConceptSummary()
                 .setName(r.getName())
                 .setIri(r.getIri())
                 .setConceptType(ConceptType.byValue(r.getType()))
@@ -262,7 +262,7 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> usages(String iri) {
+    public List<ConceptSummary> usages(String iri) {
         Set<String> children = classificationRepository.findByParent_Iri(iri).stream()
             .map(c -> c.getChild().getIri())
             .collect(Collectors.toSet());
@@ -271,8 +271,15 @@ public class ConceptServiceV3 implements IConceptService {
             .map(exp -> exp.getAxiom().getConcept())
             .filter(c -> !children.contains(c.getIri()))
             .distinct()
-            .map(c -> new ConceptReference(c.getIri(), c.getName()))
-            .sorted(Comparator.comparing(ConceptReference::getName))
+            .map(c -> new ConceptSummary()
+                .setIri(c.getIri())
+                .setName(c.getName())
+                .setCode(c.getCode())
+                .setScheme(c.getScheme() == null ? null : new ConceptReference(c.getScheme().getIri(), c.getName()))
+                .setConceptType(ConceptType.byValue(c.getType()))
+                .setWeighting(c.getWeighting())
+            )
+            .sorted(Comparator.comparing(ConceptSummary::getName))
             .collect(Collectors.toList());
     }
 

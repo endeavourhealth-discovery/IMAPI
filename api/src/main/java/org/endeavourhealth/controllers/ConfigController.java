@@ -1,8 +1,7 @@
 package org.endeavourhealth.controllers;
 
 import org.endeavourhealth.dataaccess.IConfigService;
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,7 +25,7 @@ public class ConfigController {
     // IConceptService conceptService = new ConceptServiceRDF4J();
 
     @GetMapping(value = "/quickAccess")
-    public List<SearchResponseConcept> getQuickAccess() {
+    public List<ConceptSummary> getQuickAccess() {
         return configService.getQuickAccess();
     }
 }

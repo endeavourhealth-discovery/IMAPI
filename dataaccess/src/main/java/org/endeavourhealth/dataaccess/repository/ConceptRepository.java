@@ -17,26 +17,29 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "   AND c.code = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "   AND c.iri = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
@@ -44,20 +47,23 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   WHERE c.code = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   WHERE c.iri = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
@@ -65,26 +71,29 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND c.code = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND c.iri = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
@@ -92,7 +101,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
@@ -100,8 +109,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "   AND c.code = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
@@ -109,8 +119,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "   AND c.iri = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
@@ -118,6 +129,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
@@ -125,26 +137,29 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
         "   WHERE c.code = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
         "   WHERE c.iri = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
@@ -153,7 +168,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
@@ -161,8 +176,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND c.code = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
@@ -170,8 +186,9 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND c.iri = :full " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         "   UNION " +
-        "   SELECT c.* " +
+        "   (SELECT c.* " +
         "   FROM concept c " +
         "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
         "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
@@ -179,6 +196,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)

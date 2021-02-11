@@ -16,7 +16,7 @@ import java.util.*;
    @JsonSubTypes.Type(value= LegacyConcept.class,name="LegacyConcept")})
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
         "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"
-   ,"property","member","memberExpansion","mappedFrom","recordModel"})
+   ,"property","member","memberExpansion","mappedFrom","recordModel","role"})
 public class Concept implements IMAnnotated {
     private Integer dbid;
     private String iri;
@@ -29,7 +29,6 @@ public class Concept implements IMAnnotated {
     private Set<ConceptReference> isA;
     private Set<Annotation> annotations;
     private ConceptType conceptType;
-
     private Set<ClassExpression> subClassOf;
     private Set<ClassExpression> equivalentTo;
     private ClassExpression expression;
@@ -40,6 +39,7 @@ public class Concept implements IMAnnotated {
     private Map<String,String> stats;
     private List<PropertyConstraint> property;
     private List<Concept> recordModel;
+    private Set<Relationship> role;
 
 
     
@@ -362,6 +362,21 @@ public class Concept implements IMAnnotated {
         if (this.recordModel==null)
             this.recordModel= new ArrayList<>();
         this.recordModel.add(model);
+        return this;
+    }
+
+    public Set<Relationship> getRole() {
+        return role;
+    }
+
+    public Concept setRole(Set<Relationship> role) {
+        this.role = role;
+        return this;
+    }
+    public Concept addRole(Relationship role){
+        if (this.role==null)
+            this.role= new HashSet<>();
+        this.role.add(role);
         return this;
     }
 }

@@ -15,69 +15,190 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
 
 	Concept findByDbid(int concept);
 
-    @Query(value = "SELECT c.* " +
-        "FROM concept c " +
-        "LEFT JOIN concept s ON s.dbid = c.scheme " +
-        "WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
-        "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-        "AND c.status < 2 " +
-        "ORDER BY LENGTH(c.name) " +
+    @Query(value = "SELECT * " +
+        "FROM (" +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
+        "   AND c.code = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
+        "   AND c.iri = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
+        "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        ") x " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> search(@Param("term") String term, @Param("limit") Integer limit);
+    List<Concept> search(@Param("terms") String terms, @Param("full") String full, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
-    @Query(value = "SELECT c.* " +
-        "FROM concept c " +
-        "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-        "AND c.status < 2 " +
-        "ORDER BY LENGTH(c.name) " +
+    @Query(value = "SELECT * " +
+        "FROM (" +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   WHERE c.code = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   WHERE c.iri = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        ") x " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> searchLegacy(@Param("term") String term, @Param("limit") Integer limit);
+    List<Concept> searchLegacy(@Param("terms") String terms, @Param("full") String full, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
-    @Query(value = "SELECT c.* " +
-        "FROM concept c " +
-        "LEFT JOIN concept s ON s.dbid = c.scheme " +
-        "WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
-        "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-        "AND c.status < 2 " +
-        "ORDER BY LENGTH(c.name) " +
+    @Query(value = "SELECT * " +
+        "FROM (" +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
+        "   AND c.code = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
+        "   AND c.iri = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
+        "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        ") x " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> searchLegacySchemes(@Param("term") String term, @Param("schemes") List<String> schemes, @Param("limit") Integer limit);
+    List<Concept> searchLegacySchemes(@Param("terms") String terms, @Param("full") String full, @Param("schemes") List<String> schemes, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
-    @Query(value = "SELECT c.* " +
-        "FROM concept c " +
-        "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 " +
-        "JOIN concept t ON t.dbid = tct.target " +
-        "LEFT JOIN concept s ON s.dbid = c.scheme " +
-        "WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105') " +
-        "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-        "AND t.iri = :root " +
-        "AND c.status < 2 " +
-        "ORDER BY LENGTH(c.name) " +
+    @Query(value = "SELECT * " +
+        "FROM (" +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
+        "   AND c.code = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
+        "   AND c.iri = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (':891101000252101', ':891071000252105')) " +
+        "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        ") x " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-	List<Concept> searchType(@Param("term") String term, @Param("root") String root, @Param("limit") Integer limit);
+	List<Concept> searchType(@Param("term") String terms, @Param("full") String full, @Param("root") String root, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
-    @Query(value = "SELECT c.* " +
-        "FROM concept c " +
-        "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 " +
-        "JOIN concept t ON t.dbid = tct.target " +
-        "WHERE MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-        "AND t.iri = :root " +
-        "AND c.status < 2 " +
-        "ORDER BY LENGTH(c.name) " +
+    @Query(value = "SELECT * " +
+        "FROM (" +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   WHERE c.code = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   WHERE c.iri = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        ") x " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> searchLegacyType(@Param("term") String term, @Param("root") String root, @Param("limit") Integer limit);
+    List<Concept> searchLegacyType(@Param("term") String terms, @Param("full") String full, @Param("root") String root, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
 
-    @Query(value = "SELECT c.* " +
-        "FROM concept c " +
-        "JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 " +
-        "JOIN concept t ON t.dbid = tct.target " +
-        "LEFT JOIN concept s ON s.dbid = c.scheme " +
-        "WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
-        "AND MATCH(c.name) AGAINST (:term IN BOOLEAN MODE) " +
-        "AND t.iri = :root " +
-        "AND c.status < 2 " +
-        "ORDER BY LENGTH(c.name) " +
+    @Query(value = "SELECT * " +
+        "FROM (" +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
+        "   AND c.code = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
+        "   AND c.iri = :full " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT c.* " +
+        "   FROM concept c " +
+        "   JOIN concept_tct tct ON tct.source = c.dbid AND tct.level > 0 "+
+        "   JOIN concept t ON t.dbid = tct.target AND t.iri = :root "+
+        "   LEFT JOIN concept s ON s.dbid = c.scheme " +
+        "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
+        "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        ") x " +
+        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> searchLegacyTypeSchemes(@Param("term") String term, @Param("root") String root, @Param("schemes") List<String> schemes, @Param("limit") Integer limit);
+    List<Concept> searchLegacyTypeSchemes(@Param("term") String terms, @Param("full") String full, @Param("root") String root, @Param("schemes") List<String> schemes, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 }

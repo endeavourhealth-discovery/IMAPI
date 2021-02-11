@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -356,6 +357,42 @@ public class ConceptServiceV3 implements IConceptService {
 
         if (!expand)
             result.addAllExcluded(exclusions.values());
+
+        return result;
+    }
+
+    @Override
+    public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
+        ValueSetMembership result = new ValueSetMembership();
+
+        Concept valueSet = getConcept(valueSetIri);
+
+        if (valueSet instanceof ValueSet) {
+            List<ConceptReference> included = new ArrayList<>();
+            List<ConceptReference> excluded = new ArrayList<>();
+            ((ValueSet) valueSet).getMember().forEach(m -> {
+                if (m.isExclude())
+                    excluded.add(m.getClazz());
+                else
+                    included.add(m.getClazz());
+            });
+
+            for (ConceptReference m : included) {
+                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+                if (match.isPresent()) {
+                    result.setIncludedBy(m);
+                    break;
+                }
+            }
+
+            for (ConceptReference m : excluded) {
+                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+                if (match.isPresent()) {
+                    result.setExcludedBy(m);
+                    break;
+                }
+            }
+        }
 
         return result;
     }

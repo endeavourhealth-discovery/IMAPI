@@ -8,10 +8,12 @@ import org.endeavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -112,7 +114,7 @@ public class ConceptController {
     }
 
     @GetMapping(value = "/{iri}/usages")
-    public List<ConceptReference> conceptUsages(@PathVariable("iri") String iri) {
+    public List<ConceptSummary> conceptUsages(@PathVariable("iri") String iri) {
         return conceptService.usages(iri);
     }
 
@@ -166,6 +168,11 @@ public class ConceptController {
         }
 
         return sb.toString();
+    }
+
+    @GetMapping(value = "/{iri}/isMemberOf/{valueSetIri}")
+    public ValueSetMembership isMemberOfValueSet(@PathVariable("iri") String conceptIri, @PathVariable("valueSetIri") String valueSetIri) {
+        return conceptService.isValuesetMember(valueSetIri, conceptIri);
     }
 
 

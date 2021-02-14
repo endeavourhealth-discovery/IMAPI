@@ -16,9 +16,10 @@ import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,12 +237,12 @@ public class ConceptServiceRDF4J implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> usages(String iri) {
+    public List<ConceptSummary> usages(String iri) {
         return null;
     }
 
     @Override
-    public List<SearchResponseConcept> advancedSearch(SearchRequest request) {
+    public List<ConceptSummary> advancedSearch(SearchRequest request) {
         return null;
     }
 
@@ -293,6 +294,11 @@ public class ConceptServiceRDF4J implements IConceptService {
         }
 
         return result;
+    }
+
+    @Override
+    public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
+        return new ValueSetMembership();
     }
 
     @Override

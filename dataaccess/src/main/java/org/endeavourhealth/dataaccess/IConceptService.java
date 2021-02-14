@@ -4,8 +4,9 @@ import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 
 import java.util.List;
 
@@ -23,13 +24,15 @@ public interface IConceptService {
 
     ConceptReference create(Concept concept);
 
-    List<ConceptReference> usages(String iri);
+    List<ConceptSummary> usages(String iri);
 
-    List<SearchResponseConcept> advancedSearch(SearchRequest request);
+    List<ConceptSummary> advancedSearch(SearchRequest request);
 
     List<Concept> getAncestorDefinitions(String iri);
 
     ExportValueSet getValueSetMembers(String iri, boolean expand);
+
+    ValueSetMembership isValuesetMember(String valueSetIri, String memberIri);
 
     List<ConceptReference> getCoreMappedFromLegacy(String legacyIri);
     List<ConceptReference> getLegacyMappedToCore(String coreIri);

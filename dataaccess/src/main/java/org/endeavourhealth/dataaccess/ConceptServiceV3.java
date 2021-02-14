@@ -12,9 +12,10 @@ import org.endeavourhealth.dataaccess.entity.Axiom;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,11 +84,13 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> findByNameLike(String term, String root, boolean includeLegacy, Integer limit) {
+    public List<ConceptReference> findByNameLike(String full, String root, boolean includeLegacy, Integer limit) {
         if (limit == null)
             limit = DEFAULT_LIMIT;
 
-        term = Arrays.stream(term.split(" "))
+        List<Byte> status = Arrays.asList(ConceptStatus.DRAFT.getValue(),ConceptStatus.ACTIVE.getValue());
+
+        String terms = Arrays.stream(full.split(" "))
             .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w)
             .collect(Collectors.joining(" "));
@@ -95,12 +98,12 @@ public class ConceptServiceV3 implements IConceptService {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
         if (root == null || root.isEmpty())
             result = (includeLegacy)
-                ? conceptRepository.searchLegacy(term, limit)
-                : conceptRepository.search(term, limit);
+                ? conceptRepository.searchLegacy(terms, full, status, limit)
+                : conceptRepository.search(terms, full, status, limit);
         else
             result = (includeLegacy)
-                ? conceptRepository.searchType(term, root, limit)
-                : conceptRepository.searchLegacyType(term, root, limit);
+                ? conceptRepository.searchType(terms, full, root, status, limit)
+                : conceptRepository.searchLegacyType(terms, full, root, status, limit);
 
         return result.stream()
             .map(r -> new ConceptReference(r.getIri(), r.getName()))
@@ -134,29 +137,32 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<SearchResponseConcept> advancedSearch(SearchRequest request) {
+    public List<ConceptSummary> advancedSearch(SearchRequest request) {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
 
-        String terms = Arrays.stream(request.getTerms().split(" "))
+        String full = request.getTerms();
+        String terms = Arrays.stream(full.split(" "))
             .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
+        List<Byte> status = request.getStatuses() == null || request.getStatuses().isEmpty()
+            ? Arrays.stream(ConceptStatus.values()).map(ConceptStatus::getValue).collect(Collectors.toList())
+            : request.getStatuses();
+
         if (request.getCodeSchemes() == null || request.getCodeSchemes().isEmpty())
-            result = conceptRepository.searchLegacy(terms, request.getSize());
+            result = conceptRepository.searchLegacy(terms, full, status, request.getSize());
         else {
             List<String> schemeIris = request.getCodeSchemes().stream().map(ConceptReference::getIri).collect(Collectors.toList());
-            result = conceptRepository.searchLegacySchemes(terms, schemeIris, request.getSize());
+            result = conceptRepository.searchLegacySchemes(terms, full, schemeIris, status, request.getSize());
         }
 
-        if (request.getStatuses() != null && !request.getStatuses().isEmpty()) {
-            result = result.stream().filter(c -> request.getStatuses().contains(c.getStatus().getDbid())).collect(Collectors.toList());
-        }
-
-        List<SearchResponseConcept> src = result.stream()
-            .map(r -> new SearchResponseConcept()
+        List<ConceptSummary> src = result.stream()
+            .map(r -> new ConceptSummary()
                 .setName(r.getName())
                 .setIri(r.getIri())
+                .setConceptType(ConceptType.byValue(r.getType()))
+                .setWeighting(r.getWeighting())
                 .setCode(r.getCode())
                 .setScheme(
                     r.getScheme() == null
@@ -257,7 +263,7 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     @Override
-    public List<ConceptReference> usages(String iri) {
+    public List<ConceptSummary> usages(String iri) {
         Set<String> children = classificationRepository.findByParent_Iri(iri).stream()
             .map(c -> c.getChild().getIri())
             .collect(Collectors.toSet());
@@ -266,8 +272,15 @@ public class ConceptServiceV3 implements IConceptService {
             .map(exp -> exp.getAxiom().getConcept())
             .filter(c -> !children.contains(c.getIri()))
             .distinct()
-            .map(c -> new ConceptReference(c.getIri(), c.getName()))
-            .sorted(Comparator.comparing(ConceptReference::getName))
+            .map(c -> new ConceptSummary()
+                .setIri(c.getIri())
+                .setName(c.getName())
+                .setCode(c.getCode())
+                .setScheme(c.getScheme() == null ? null : new ConceptReference(c.getScheme().getIri(), c.getName()))
+                .setConceptType(ConceptType.byValue(c.getType()))
+                .setWeighting(c.getWeighting())
+            )
+            .sorted(Comparator.comparing(ConceptSummary::getName))
             .collect(Collectors.toList());
     }
 
@@ -344,6 +357,42 @@ public class ConceptServiceV3 implements IConceptService {
 
         if (!expand)
             result.addAllExcluded(exclusions.values());
+
+        return result;
+    }
+
+    @Override
+    public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
+        ValueSetMembership result = new ValueSetMembership();
+
+        Concept valueSet = getConcept(valueSetIri);
+
+        if (valueSet instanceof ValueSet) {
+            List<ConceptReference> included = new ArrayList<>();
+            List<ConceptReference> excluded = new ArrayList<>();
+            ((ValueSet) valueSet).getMember().forEach(m -> {
+                if (m.isExclude())
+                    excluded.add(m.getClazz());
+                else
+                    included.add(m.getClazz());
+            });
+
+            for (ConceptReference m : included) {
+                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+                if (match.isPresent()) {
+                    result.setIncludedBy(m);
+                    break;
+                }
+            }
+
+            for (ConceptReference m : excluded) {
+                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+                if (match.isPresent()) {
+                    result.setExcludedBy(m);
+                    break;
+                }
+            }
+        }
 
         return result;
     }

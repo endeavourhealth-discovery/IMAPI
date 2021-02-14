@@ -1,10 +1,9 @@
 package org.endeavourhealth.dataaccess;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.search.SearchResponseConcept;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 
 import java.util.List;
 
 public interface IConfigService {
-    List<SearchResponseConcept> getQuickAccess();
+    List<ConceptSummary> getQuickAccess();
 }

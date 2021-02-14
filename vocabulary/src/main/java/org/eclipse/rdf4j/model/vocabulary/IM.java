@@ -4,7 +4,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 
 public class IM {
-    public static final String NAMESPACE = "http://www.DiscoveryDataService.org/InformationModel/Ontology#";
+    public static final String NAMESPACE = "http://www.EndeavourHealth.org/InformationModel/Ontology#";
     public static final String PREFIX = "im";
     public static final Namespace NS = Vocabularies.createNamespace(PREFIX, NAMESPACE);
     public static final IRI MODULE = Vocabularies.createIRI(NAMESPACE, "module");

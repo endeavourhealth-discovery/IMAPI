@@ -13,6 +13,7 @@ public class Record extends Concept{
       this.setConceptType(ConceptType.RECORD);
    }
 
+   @JsonProperty("TargetClass")
    public ConceptReference getTargetClass() {
       return targetClass;
    }

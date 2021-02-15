@@ -4,16 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import java.util.*;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="conceptType")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value= Concept.class, name="Class"),
-    @JsonSubTypes.Type(value= ObjectProperty.class, name="ObjectProperty"),
-    @JsonSubTypes.Type(value= DataProperty.class, name="DataProperty"),
-    @JsonSubTypes.Type(value= DataType.class, name="DataType"),
-    @JsonSubTypes.Type(value= Record.class, name="Record"),
-    @JsonSubTypes.Type(value= ValueSet.class, name="ValueSet"),
-    @JsonSubTypes.Type(value= AnnotationProperty.class, name="Annotation"),
-   @JsonSubTypes.Type(value= LegacyConcept.class,name="LegacyConcept")})
+
 @JsonPropertyOrder({"conceptType","status","version","isRef","iri","name","description",
         "code","scheme","annotations","expression","subClassOf",",equivalentTo","DisjointWith","isA","containedIn"
    ,"property","member","memberExpansion","mappedFrom","recordModel","role"})
@@ -40,9 +31,22 @@ public class Concept implements IMAnnotated {
     private List<PropertyConstraint> property;
     private List<Concept> recordModel;
     private Set<Relationship> role;
-
-
-    
+    private List<ClassExpression> member;
+    private List<ConceptReference> memberExpansion;
+    private Set<PropertyAxiom> subObjectPropertyOf;
+    private PropertyAxiom inversePropertyOf;
+    private Set<ClassExpression> objectPropertyRange;
+    private Set<ClassExpression> propertyDomain;
+    private Set<SubPropertyChain> subPropertyChain;
+    private Axiom isFunctional;
+    private Axiom isSymmetric;
+    private Axiom isTransitive;
+    private Axiom isReflexive;
+    private DataTypeDefinition dataTypeDefinition;
+    private Set<PropertyAxiom> subDataPropertyOf;
+    private Set<DataPropertyRange> dataPropertyRange;
+    private Set<PropertyAxiom> subAnnotationPropertyOf;
+    private List<ConceptReference> mappedFrom;
 
 
 
@@ -59,6 +63,7 @@ public class Concept implements IMAnnotated {
         this.setConceptType(ConceptType.CLASSONLY);
 
     }
+
 
     @Override
     public Integer getDbid() {
@@ -379,4 +384,232 @@ public class Concept implements IMAnnotated {
         this.role.add(role);
         return this;
     }
+    @JsonProperty("Member")
+    public List<ClassExpression> getMember() {
+        return member;
+    }
+
+    public Concept setMember(List<ClassExpression> member) {
+        this.member = member;
+        return this;
+    }
+    public Concept addMember (ClassExpression expression){
+        if (this.member==null)
+            this.member= new ArrayList<>();
+        member.add(expression);
+        return this;
+    }
+
+    @JsonProperty("MemberExpansion")
+    public List<ConceptReference> getMemberExpansion() {
+        return memberExpansion;
+    }
+
+    public Concept setMemberExpansion(List<ConceptReference> memberExpansion) {
+        this.memberExpansion = memberExpansion;
+        return this;
+    }
+    public Concept addMemberExpansion(ConceptReference expansion){
+        if (this.memberExpansion==null)
+            this.memberExpansion= new ArrayList<>();
+        this.memberExpansion.add(expansion);
+        return this;
+    }
+    @JsonProperty("IsFunctional")
+    public Axiom getIsFunctional() {
+        return isFunctional;
+    }
+
+    public void setIsFunctional(Axiom isFunctional) {
+        this.isFunctional = isFunctional;
+    }
+
+    @JsonProperty("IsSymmetric")
+    public Axiom getIsSymmetric() {
+        return isSymmetric;
+    }
+
+    public void setIsSymmetric(Axiom isSymmetric) {
+        this.isSymmetric = isSymmetric;
+    }
+    @JsonProperty("IsTransitive")
+    public Axiom getIsTransitive() {
+        return isTransitive;
+    }
+
+    public void setIsTransitive(Axiom isTransitive) {
+        this.isTransitive = isTransitive;
+    }
+
+    @JsonProperty("IsReflexive")
+    public Axiom getIsReflexive() {
+        return isReflexive;
+    }
+
+    public void setIsReflexive(Axiom isReflexive) {
+        this.isReflexive = isReflexive;
+    }
+
+    @JsonProperty("SubObjectPropertyOf")
+    public Set<PropertyAxiom> getSubObjectPropertyOf() {
+        return subObjectPropertyOf;
+    }
+
+    public Concept setSubObjectPropertyOf(Set<PropertyAxiom> subObjectPropertyOf) {
+        this.subObjectPropertyOf = subObjectPropertyOf;
+        return this;
+    }
+
+    public Concept addSubObjectPropertyOf(PropertyAxiom subObjectPropertyOf) {
+        if (this.subObjectPropertyOf == null)
+            this.subObjectPropertyOf = new HashSet<>();
+        this.subObjectPropertyOf.add(subObjectPropertyOf);
+
+        return this;
+    }
+
+    @JsonProperty("InversePropertyOf")
+    public PropertyAxiom getInversePropertyOf() {
+        return inversePropertyOf;
+    }
+
+    public Concept setInversePropertyOf(PropertyAxiom inversePropertyOf) {
+        this.inversePropertyOf = inversePropertyOf;
+        return this;
+    }
+
+    @JsonProperty("ObjectPropertyRange")
+    public Set<ClassExpression> getObjectPropertyRange() {
+        return objectPropertyRange;
+    }
+
+    public Concept setObjectPropertyRange(Set<ClassExpression> propertyRange) {
+        this.objectPropertyRange = propertyRange;
+        return this;
+    }
+    public Concept addObjectPropertyRange(ClassExpression range) {
+        if (this.objectPropertyRange == null)
+            this.objectPropertyRange = new HashSet<>();
+        this.objectPropertyRange.add(range);
+
+        return this;
+    }
+
+    @JsonProperty("PropertyDomain")
+    public Set<ClassExpression> getPropertyDomain() {
+        return propertyDomain;
+    }
+
+    public Concept setPropertyDomain(Set<ClassExpression> propertyDomain) {
+        this.propertyDomain = propertyDomain;
+        return this;
+    }
+    public Concept addPropertyDomain(ClassExpression domain) {
+        if (this.propertyDomain == null)
+            this.propertyDomain = new HashSet<>();
+        this.propertyDomain.add(domain);
+
+        return this;
+    }
+
+
+
+    @JsonProperty("SubPropertyChain")
+    public Set<SubPropertyChain> getSubPropertyChain() {
+        return subPropertyChain;
+    }
+
+    public Concept setSubPropertyChain(Set<SubPropertyChain> subPropertyChain) {
+        this.subPropertyChain = subPropertyChain;
+        return this;
+    }
+
+    public Concept addSubPropertyChain(SubPropertyChain subPropertyChain) {
+        if (this.subPropertyChain == null)
+            this.subPropertyChain = new HashSet<>();
+
+        this.subPropertyChain.add(subPropertyChain);
+        return this;
+    }
+    @JsonProperty("DataTypeDefinition")
+    public DataTypeDefinition getDataTypeDefinition() {
+        return dataTypeDefinition;
+    }
+
+    public Concept setDataTypeDefinition(DataTypeDefinition dataTypeDefinition) {
+        this.dataTypeDefinition = dataTypeDefinition;
+        return this;
+    }
+
+    @JsonProperty("SubDataPropertyOf")
+    public Set<PropertyAxiom> getSubDataPropertyOf() {
+        return subDataPropertyOf;
+    }
+
+    public Concept setSubDataPropertyOf(Set<PropertyAxiom> subDataPropertyOf) {
+        this.subDataPropertyOf = subDataPropertyOf;
+        return this;
+    }
+    public Concept addSubDataPropertyOf(PropertyAxiom prop) {
+        if (this.subDataPropertyOf == null)
+            this.subDataPropertyOf = new HashSet<>();
+        this.subDataPropertyOf.add(prop);
+
+        return this;
+    }
+
+
+    @JsonProperty("DataPropertyRange")
+    public Set<DataPropertyRange> getDataPropertyRange() {
+        return dataPropertyRange;
+    }
+
+    public Concept setDataPropertyRange(Set<DataPropertyRange> dataPropertyRange) {
+        this.dataPropertyRange = dataPropertyRange;
+        return this;
+    }
+    public Concept addDataPropertyRange(DataPropertyRange range) {
+        if (this.dataPropertyRange == null)
+            this.dataPropertyRange = new HashSet<>();
+        this.dataPropertyRange.add(range);
+        return this;
+    }
+
+    @JsonProperty("SubAnnotationPropertyOf")
+    public Set<PropertyAxiom> getSubAnnotationPropertyOf() {
+        return subAnnotationPropertyOf;
+    }
+
+    public Concept setSubAnnotationPropertyOf(Set<PropertyAxiom> subAnnotationPropertyOf) {
+        this.subAnnotationPropertyOf = subAnnotationPropertyOf;
+        return this;
+    }
+
+    public Concept addSubAnnotationPropertyOf(PropertyAxiom sub) {
+        if (this.subAnnotationPropertyOf == null)
+            this.subAnnotationPropertyOf = new HashSet<>();
+
+        this.subAnnotationPropertyOf.add(sub);
+        return this;
+    }
+
+    @JsonProperty("MappedFrom")
+    public List<ConceptReference> getMappedFrom() {
+        return mappedFrom;
+    }
+
+    public Concept setMappedFrom(List<ConceptReference> mappedFrom) {
+        this.mappedFrom = mappedFrom;
+        return this;
+    }
+    public Concept addMappedFrom(ConceptReference mappedFrom){
+        if (this.mappedFrom==null)
+            this.mappedFrom= new ArrayList<>();
+        this.mappedFrom.add(mappedFrom);
+        return this;
+    }
+
+
+
+
 }

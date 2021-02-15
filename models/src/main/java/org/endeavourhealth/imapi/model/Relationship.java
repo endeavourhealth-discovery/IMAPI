@@ -16,6 +16,7 @@ public class Relationship {
    private Set<Relationship> role;
    private int group;
 
+
    public ConceptReference getProperty() {
       return property;
    }

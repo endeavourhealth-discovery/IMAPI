@@ -361,11 +361,11 @@ public class ConceptServiceRDF4J implements IConceptService {
         Concept result;
 
         if (model.contains(iri, RDF.TYPE, IM.RECORD))
-            result = new Record();
+            result = new Concept(ConceptType.RECORD);
         else if (model.contains(iri, RDF.TYPE, IM.VALUESET))
-            result = new ValueSet();
+            result = new Concept(ConceptType.RECORD);
         else
-            result = new Concept();
+            result = new Concept(ConceptType.RECORD);
 
         result.setIri(getPrefixIri(iri.stringValue(), model.getNamespaces()));
 
@@ -389,8 +389,8 @@ public class ConceptServiceRDF4J implements IConceptService {
             else if (IM.SYNONYM.equals(p)) result.addSynonym(getTermCode(model, (Resource)o));
             else if (RDFS.SUBCLASSOF.equals(p)) result.addSubClassOf(getExpression(model, (Resource)o));
             else if (SNOMED.IS_A.equals(p)) result.addIsa(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
-            else if (SHACL.PROPERTY.equals(p)) ((Record)result).addProperty(getProperty(model, (Resource)o));
-            else if (IM.HAS_MEMBERS.equals(p)) ((ValueSet)result).addMember(getExpression(model, (Resource)o));
+            else if (SHACL.PROPERTY.equals(p)) result.addProperty(getProperty(model, (Resource) o));
+            else if (IM.HAS_MEMBERS.equals(p)) result.addMember(getExpression(model, (Resource)o));
             else throw new IllegalStateException("Unknown concept property [" + p.stringValue() + "]");
         }
 

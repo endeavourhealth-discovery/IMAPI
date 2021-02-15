@@ -287,12 +287,12 @@ public class ConceptServiceV3 implements IConceptService {
     public ExportValueSet getValueSetMembers(String iri, boolean expand) {
         Concept concept = getConcept(iri);
 
-        if (!(concept instanceof ValueSet))
+        if (concept.getMember()==null)
             return null;
 
         List<ConceptReference> included = new ArrayList<>();
         List<ConceptReference> excluded = new ArrayList<>();
-        ((ValueSet)concept).getMember().forEach(m -> {
+        concept.getMember().forEach(m -> {
             if (m.isExclude())
                 excluded.add(m.getClazz());
             else
@@ -409,21 +409,19 @@ public class ConceptServiceV3 implements IConceptService {
             case CLASSONLY:
                 return new Concept();
             case OBJECTPROPERTY:
-                return new ObjectProperty();
+                return new Concept(ConceptType.OBJECTPROPERTY);
             case DATAPROPERTY:
-                return new DataProperty();
+                return new Concept(ConceptType.DATAPROPERTY);
             case DATATYPE:
-                return new DataType();
+                return new Concept(ConceptType.DATATYPE);
             case ANNOTATION:
-                return new AnnotationProperty();
+                return new Concept(ConceptType.ANNOTATION);
             case INDIVIDUAL:
                 return new Individual();
-            case RECORD:
-                return new Record();
             case VALUESET:
-                return new ValueSet();
+                return new Concept(ConceptType.VALUESET);
             case LEGACY:
-                return new LegacyConcept();
+                return new Concept(ConceptType.LEGACY);
             default:
                 throw new IllegalStateException("Unhandled concept type [" + ct.getName() + "]");
         }
@@ -444,36 +442,30 @@ public class ConceptServiceV3 implements IConceptService {
                 case SUBOBJECTPROPERTY:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(((ObjectProperty) c)::addSubObjectPropertyOf);
+                        .forEach(c::addSubObjectPropertyOf);
                     break;
                 case SUBDATAPROPERTY:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(((DataProperty) c)::addSubDataPropertyOf);
+                        .forEach( c::addSubDataPropertyOf);
                     break;
                 case SUBANNOTATIONPROPERTY:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(((AnnotationProperty) c)::addSubAnnotationPropertyOf);
+                        .forEach(c::addSubAnnotationPropertyOf);
                     break;
                 case OBJECTPROPERTYRANGE:
                     getExpressionsAsStream(a.getExpressions())
-                        .forEach(((ObjectProperty) c)::addObjectPropertyRange);
+                        .forEach( c::addObjectPropertyRange);
                     break;
                 case DATAPROPERTYRANGE:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new DataPropertyRange().setDataType(ref))
-                        .forEach(((DataProperty) c)::addDataPropertyRange);
+                        .forEach(c::addDataPropertyRange);
                     break;
                 case PROPERTYDOMAIN:
-                    if (c instanceof ObjectProperty)
                         getExpressionsAsStream(a.getExpressions())
-                            .forEach(((ObjectProperty) c)::addPropertyDomain);
-                    else if (c instanceof DataProperty)
-                        getExpressionsAsStream(a.getExpressions())
-                            .forEach(((DataProperty) c)::addPropertyDomain);
-                    else
-                        throw new IllegalStateException("Property domain on non-property");
+                            .forEach(c::addPropertyDomain);
                     break;
                 case DISJOINTWITH:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
@@ -483,60 +475,39 @@ public class ConceptServiceV3 implements IConceptService {
                     SubPropertyChain chain = new SubPropertyChain();
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .forEach(chain::addProperty);
-
-                    ((ObjectProperty) c).addSubPropertyChain(chain);
+                    c.addSubPropertyChain(chain);
                     break;
                 case INVERSEPROPERTYOF:
                     getExpressionsAsConceptReferenceStream(a.getExpressions())
                         .map(ref -> new PropertyAxiom().setProperty(ref))
                         .findFirst()
-                        .ifPresent(((ObjectProperty) c)::setInversePropertyOf);
+                        .ifPresent(c::setInversePropertyOf);
                     break;
                 case ISFUNCTIONAL:
-                    if (c instanceof ObjectProperty)
-                        ((ObjectProperty) c).setIsFunctional(new org.endeavourhealth.imapi.model.Axiom());
-                    else if (c instanceof DataProperty)
-                        ((DataProperty) c).setIsFunctional(new org.endeavourhealth.imapi.model.Axiom());
-                    else
-                        throw new IllegalStateException("IsFunctional on non-property");
+                    c.setIsFunctional(new org.endeavourhealth.imapi.model.Axiom());
                     break;
                 case ISTRANSITIVE:
-                    if (c instanceof ObjectProperty)
-                        ((ObjectProperty) c).setIsTransitive(new org.endeavourhealth.imapi.model.Axiom());
-                    else
-                        throw new IllegalStateException("IsTransitive on non-object-property");
+                         c.setIsTransitive(new org.endeavourhealth.imapi.model.Axiom());
                     break;
                 case ISSYMMETRIC:
-                    if (c instanceof ObjectProperty)
-                        ((ObjectProperty) c).setIsSymmetric(new org.endeavourhealth.imapi.model.Axiom());
-                    else
-                        throw new IllegalStateException("IsSymmetric on non-object-property");
+                        c.setIsSymmetric(new org.endeavourhealth.imapi.model.Axiom());
                     break;
                 case ISREFLEXIVE:
-                    if (c instanceof ObjectProperty)
-                        ((ObjectProperty) c).setIsReflexive(new org.endeavourhealth.imapi.model.Axiom());
-                    else
-                        throw new IllegalStateException("IsReflexive on non-object-property");
+                        c.setIsReflexive(new org.endeavourhealth.imapi.model.Axiom());
                     break;
                 case PROPERTY:
-                    if (c instanceof Record)
                         getExpressionsAsStream(a.getExpressions())
                             .findFirst()
                             .ifPresent(cex -> c.setProperty(cex.getPropertyConstraint()));
-                    else
-                        throw new IllegalStateException("Property on non-record");
                     break;
                 case MEMBER:
-                    if (c instanceof ValueSet)
                         getExpressionsAsStream(a.getExpressions())
-                        .forEach(((ValueSet) c)::addMember);
-                    else
-                        throw new IllegalStateException("Member on non-valueset");
+                        .forEach( c::addMember);
                     break;
                 case MAPPED_FROM:
                     getExpressionsAsStream(a.getExpressions())
                         .map(ClassExpression::getClazz)
-                        .forEach(((LegacyConcept)c)::addMappedFrom);
+                        .forEach(c::addMappedFrom);
                     break;
                 default:
                     throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");

@@ -56,10 +56,10 @@ public class ObjectModelVisitor {
         if (concept.getDisjointWith() != null)
             this.DisjointWithVisitor.visit(concept.getDisjointWith());
 
-        if (concept instanceof ValueSet && ((ValueSet)concept).getMember() != null) {
-            this.MemberListVisitor.visit(((ValueSet) concept).getMember());
-            visit(((ValueSet) concept).getMember());
-            this.MemberListExitVisitor.visit(((ValueSet) concept).getMember());
+        if (concept.getMember() != null) {
+            this.MemberListVisitor.visit(concept.getMember());
+            visit(concept.getMember());
+            this.MemberListExitVisitor.visit(concept.getMember());
         }
     }
 

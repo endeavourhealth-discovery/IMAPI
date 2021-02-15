@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ConceptType {
+
     CLASSONLY((byte)0, "Class"),
     OBJECTPROPERTY((byte)1, "ObjectProperty"),
     DATAPROPERTY((byte)2, "DataProperty"),
@@ -14,7 +15,6 @@ public enum ConceptType {
     FOLDER((byte)8,"Folder"),
     TERM((byte)9,"Term"),
     LEGACY((byte)10,"Legacy");
-
 
     private byte _value;
     private String _name;

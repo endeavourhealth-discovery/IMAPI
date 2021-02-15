@@ -199,12 +199,10 @@ public class Concept implements IMAnnotated {
 
 
     @JsonProperty("conceptType")
-    @JsonIgnore
     public ConceptType getConceptType() {
         return conceptType;
     }
 
-    @JsonIgnore
     public Concept setConceptType(ConceptType conceptType) {
         this.conceptType = conceptType;
         return this;

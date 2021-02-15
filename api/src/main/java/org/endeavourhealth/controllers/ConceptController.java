@@ -33,21 +33,13 @@ public class ConceptController {
 
     @Autowired
     @Qualifier("ConceptServiceV3")
+//    @Qualifier("ConceptServiceRDF4J")
     IConceptService conceptService;
-    
+
     @Autowired
     ImLangConverter imLangConverter;
 
 
-    // IConceptService conceptService = new ConceptServiceRDF4J();
-
-    @GetMapping(value = "/")
-    public List<ConceptReference> search(@RequestParam(name = "nameTerm") String nameTerm,
-                                        @RequestParam(name = "root", required = false) String root,
-                                        @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy,
-                                        @RequestParam(name = "limit", required = false) Integer limit) {
-        return conceptService.findByNameLike(nameTerm, root, includeLegacy, limit);
-    }
 
     @PostMapping(value = "/search")
     public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
@@ -67,16 +59,29 @@ public class ConceptController {
         return imLangConverter.convertToImLang(conceptService.getConcept(iri));
     }
 
-    @GetMapping(value = "/{iri}/reference")
-    public ConceptReference getConceptReference(@PathVariable("iri") String iri) {
-        return conceptService.getConceptReference(iri);
+    @GetMapping(value = "/{iri}/children")
+    public List<ConceptReferenceNode> getConceptChildren(@PathVariable("iri") String iri,
+                                                         @RequestParam(name = "page", required = false) Integer page,
+                                                         @RequestParam(name = "size", required = false) Integer size,
+                                                         @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy
+    ) {
+        return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
     }
 
     @GetMapping(value = "/{iri}/parentHierarchy")
     public List<ConceptReferenceNode> getConceptParentHierarchy(@PathVariable("iri") String iri) {
-    	List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
-    	
-    	return parents;
+        List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
+
+        return parents;
+    }
+
+    @GetMapping(value = "/{iri}/parents")
+    public List<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri,
+                                                        @RequestParam(name = "page", required = false) Integer page,
+                                                        @RequestParam(name = "size", required = false) Integer size,
+                                                        @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy
+    ) {
+        return conceptService.getImmediateParents(iri, page, size, includeLegacy);
     }
 
     @GetMapping(value = "/{iri}/parents/definitions")
@@ -84,43 +89,24 @@ public class ConceptController {
         return conceptService.getAncestorDefinitions(iri);
     }
 
-    @GetMapping(value = "/{iri}/hasChildren")
-    public Boolean getConceptHasChildren(@PathVariable("iri") String iri, @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
-        return conceptService.getHasChildren(iri, includeLegacy);
-    }
-
-    @PostMapping(value = "/haveChildren")
-    public List<String> getConceptsHaveChildren(@RequestBody List<String> iris, @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
-        return conceptService.getHaveChildren(iris, includeLegacy);
-    }
-
-
-    @GetMapping(value = "/{iri}/children")
-    public List<ConceptReferenceNode> getConceptChildren(@PathVariable("iri") String iri,
-                                                    @RequestParam(name = "page", required = false) Integer page,
-                                                    @RequestParam(name = "size", required = false) Integer size,
-                                                    @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy
-    ) {
-        return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
-    }
-
-    @GetMapping(value = "/{iri}/parents")
-    public List<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri,
-                                                         @RequestParam(name = "page", required = false) Integer page,
-                                                         @RequestParam(name = "size", required = false) Integer size,
-                                                         @RequestParam(name = "includeLegacy", required = false) boolean includeLegacy
-    ) {
-        return conceptService.getImmediateParents(iri, page, size, includeLegacy);
-    }
-
     @GetMapping(value = "/{iri}/usages")
     public List<ConceptSummary> conceptUsages(@PathVariable("iri") String iri) {
         return conceptService.usages(iri);
     }
 
+    @GetMapping(value = "/{iri}/mappedFrom")
+    public List<ConceptReference> getCoreMappedFromLegacy(@PathVariable("iri") String legacyIri) {
+        return conceptService.getCoreMappedFromLegacy(legacyIri);
+    }
+
+    @GetMapping(value = "/{iri}/mappedTo")
+    public List<ConceptReference> getLegacyMappedToCore(@PathVariable("iri") String coreIri) {
+        return conceptService.getLegacyMappedToCore(coreIri);
+    }
+
     @PostMapping(value = "/{iri}/isWhichType")
     public List<ConceptReference> conceptIsWhichType(@PathVariable("iri") String iri,
-                                                    @RequestBody List<String> candidates) {
+                                                     @RequestBody List<String> candidates) {
         return conceptService.isWhichType(iri, candidates);
     }
 
@@ -173,16 +159,5 @@ public class ConceptController {
     @GetMapping(value = "/{iri}/isMemberOf/{valueSetIri}")
     public ValueSetMembership isMemberOfValueSet(@PathVariable("iri") String conceptIri, @PathVariable("valueSetIri") String valueSetIri) {
         return conceptService.isValuesetMember(valueSetIri, conceptIri);
-    }
-
-
-    @GetMapping(value = "/{iri}/mappedFrom")
-    public List<ConceptReference> getCoreMappedFromLegacy(@PathVariable("iri") String legacyIri) {
-        return conceptService.getCoreMappedFromLegacy(legacyIri);
-    }
-
-    @GetMapping(value = "/{iri}/mappedTo")
-    public List<ConceptReference> getLegacyMappedToCore(@PathVariable("iri") String coreIri) {
-        return conceptService.getLegacyMappedToCore(coreIri);
     }
 }

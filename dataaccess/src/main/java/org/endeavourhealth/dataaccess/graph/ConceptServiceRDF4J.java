@@ -22,6 +22,8 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +32,8 @@ import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prefixIri;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 
+@Component
+@Qualifier("ConceptServiceRDF4J")
 public class ConceptServiceRDF4J implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceRDF4J.class);
 
@@ -68,49 +72,6 @@ public class ConceptServiceRDF4J implements IConceptService {
                     return null;
             }
         }
-    }
-
-    @Override
-    public List<ConceptReference> findByNameLike(String term, String root, boolean includeLegacy, Integer limit) {
-        List<ConceptReference> result = new ArrayList<>();
-        try (RepositoryConnection conn = db.getConnection()) {
-            if (limit == null)
-                limit = 20;
-
-            String qry = "SELECT ?s ?n\n" +
-                "WHERE {\n" +
-                "    ?s rdfs:label ?n .\n" +
-                "    OPTIONAL { ?s :has_scheme ?cs. }\n" +
-                "    FILTER (\n" +
-                "        CONTAINS(LCASE(?n), ?text)\n" +
-                "        && ?cs = :891101000252101\n" +
-                "    )\n" +
-                "} LIMIT " + limit;
-
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
-                .bind("text", literal(term));
-
-            try (PrefixedTupleQueryResult matches = query.evaluate()) {
-                for (BindingSet bs : matches) {
-                    result.add(new ConceptReference(
-                        bs.getValue("s").stringValue(),
-                        bs.getValue("n").stringValue()
-                    ));
-                }
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public Boolean getHasChildren(String iri, boolean includeLegacy) {
-        return null;
-    }
-
-    @Override
-    public List<String> getHaveChildren(List<String> iris, boolean includeLegacy) {
-        return null;
     }
 
     @Override
@@ -229,11 +190,6 @@ public class ConceptServiceRDF4J implements IConceptService {
             }
         }
         return result;
-    }
-
-    @Override
-    public ConceptReference create(Concept concept) {
-        return null;
     }
 
     @Override

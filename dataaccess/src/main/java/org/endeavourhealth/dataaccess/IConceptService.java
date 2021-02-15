@@ -13,16 +13,11 @@ import java.util.List;
 public interface IConceptService {
     Concept getConcept(String iri);
     ConceptReference getConceptReference(String iri);
-    List<ConceptReference> findByNameLike(String term, String root, boolean includeLegacy, Integer limit);
-    Boolean getHasChildren(String iri, boolean includeLegacy);
-    List<String> getHaveChildren(List<String> iris, boolean includeLegacy);
     List<ConceptReferenceNode> getImmediateChildren(String iri, Integer page, Integer size, boolean includeLegacy);
     List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size, boolean includeLegacy);
     List<ConceptReferenceNode> getParentHierarchy(String iri);
 
     List<ConceptReference> isWhichType(String iri, List<String> candidates);
-
-    ConceptReference create(Concept concept);
 
     List<ConceptSummary> usages(String iri);
 

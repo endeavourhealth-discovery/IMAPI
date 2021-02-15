@@ -52,7 +52,7 @@ public class ConfigService implements IConfigService {
 	                    c.getScheme().getName())
 	                );
 	
-	            src.setTypes(conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, Arrays.asList(candidates))
+	            src.setIsDescendentOf(conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, Arrays.asList(candidates))
 	                .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
 	                .sorted(Comparator.comparing(ConceptReference::getName))
 	                .collect(Collectors.toList()));

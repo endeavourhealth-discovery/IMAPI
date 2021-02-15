@@ -12,7 +12,7 @@ public class ConceptSummary {
     private String code;
     private ConceptReference scheme;
     private ConceptType conceptType;
-    private List<ConceptReference> types = new ArrayList<>();
+    private List<ConceptReference> isDescendentOf = new ArrayList<>();
     private Integer weighting;
 
     public String getName() {
@@ -60,12 +60,12 @@ public class ConceptSummary {
         return this;
     }
 
-    public List<ConceptReference> getTypes() {
-        return types;
+    public List<ConceptReference> getIsDescendentOf() {
+        return isDescendentOf;
     }
 
-    public ConceptSummary setTypes(List<ConceptReference> types) {
-        this.types = types;
+    public ConceptSummary setIsDescendentOf(List<ConceptReference> isDescendentOf) {
+        this.isDescendentOf = isDescendentOf;
         return this;
     }
 

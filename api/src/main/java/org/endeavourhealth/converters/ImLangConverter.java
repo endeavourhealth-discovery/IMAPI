@@ -127,7 +127,10 @@ public class ImLangConverter {
 	}
 
 	private String convertConceptReferrenceToString(ConceptReference conceptReference) {
-		return MessageFormat.format("\"{0} | {1}\"", conceptReference.getIri(), conceptReference.getName());
+	    if (conceptReference != null)
+		    return MessageFormat.format("\"{0} | {1}\"", conceptReference.getIri(), conceptReference.getName());
+	    else
+	        return "";
 	}
 
 }

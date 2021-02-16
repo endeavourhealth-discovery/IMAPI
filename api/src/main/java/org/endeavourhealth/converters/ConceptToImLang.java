@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 import org.endeavourhealth.imapi.model.ClassExpression;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.PropertyConstraint;
 import org.springframework.stereotype.Component;
 import org.testcontainers.shaded.org.apache.commons.lang.StringUtils;
 
@@ -22,9 +23,15 @@ public class ConceptToImLang {
 
 		// add members
 		imLangConcept = translateMembers(concept, imLangConcept);
+		
+		// add properties
+		imLangConcept = translateProperties(concept, imLangConcept);
 
 		// add equivalentTo
 		imLangConcept = translateEquivalentTo(concept, imLangConcept);
+		
+		imLangConcept = StringUtils.removeEnd(imLangConcept, ";");
+		imLangConcept = imLangConcept.concat(".\n");
 
 		return imLangConcept;
 	}
@@ -51,17 +58,8 @@ public class ConceptToImLang {
 		if (concept.getSubClassOf() != null) {
 			imLangConcept = imLangConcept.concat("SubClassOf ");
 			for (ClassExpression subClass : concept.getSubClassOf()) {
-				
-				if (subClass.getClazz() != null) {
+				if(subClass.getClazz() != null) {
 					imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(subClass.getClazz()) + ", ");
-				}
-				
-				if (subClass.getIntersection() != null) {
-					for (ClassExpression intersection : subClass.getIntersection()) {
-						if (intersection.getClazz() != null) {
-							imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(intersection.getClazz()) + ", ");
-						}
-					}
 				}
 			}
 			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
@@ -69,27 +67,33 @@ public class ConceptToImLang {
 		}
 		return imLangConcept;
 	}
-
+	
+	
 	private String translateMembers(Concept concept, String imLangConcept) {
-		if(concept.getSubClassOf() != null) {
-			for (ClassExpression subClass : concept.getSubClassOf()) {
-				if(subClass.getIntersection() != null) {
-					for (ClassExpression intersection : subClass.getIntersection()) {
-						if (intersection.getObjectPropertyValue() != null && intersection.getObjectPropertyValue().getValueType() != null) {
-							imLangConcept = imLangConcept.concat("member " + convertConceptReferrenceToString(intersection.getObjectPropertyValue().getValueType()));
-						}
-						
-						if (intersection.getObjectPropertyValue() != null && intersection.getObjectPropertyValue().getExpression() != null) {
-							for (ClassExpression member : intersection.getObjectPropertyValue().getExpression().getUnion()) {
-								imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(member.getClazz()) + ",");
-							}
-							imLangConcept = imLangConcept.concat(".\n");
-						}
-					}
-				}
+		if (concept.getMember() != null) {
+			imLangConcept = imLangConcept.concat("member ");
+			for (ClassExpression member : concept.getMember()) {
+				imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(member.getClazz()) + ", ");
 			}
+			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
+			imLangConcept = imLangConcept.concat(";\n");
 		}
-		
+		return imLangConcept;
+	}
+	
+	private String translateProperties(Concept concept, String imLangConcept) {
+		if (concept.getProperty() != null) {
+			imLangConcept = imLangConcept.concat("property ");
+			for (PropertyConstraint propertyConstraint : concept.getProperty()) {
+				imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]", 
+						convertConceptReferrenceToString(propertyConstraint.getProperty()),
+						convertConceptReferrenceToString(propertyConstraint.getValueClass()),
+						propertyConstraint.getMin()
+						));
+			}
+			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
+			imLangConcept = imLangConcept.concat(";\n");
+		}
 		return imLangConcept;
 	}
 
@@ -120,7 +124,7 @@ public class ConceptToImLang {
 					}
 				}
 			}
-			imLangConcept = imLangConcept.concat(".");
+			imLangConcept = imLangConcept.concat(";");
 		}
 		
 		return imLangConcept;

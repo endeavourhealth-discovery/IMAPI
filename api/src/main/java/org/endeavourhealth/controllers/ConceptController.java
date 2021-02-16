@@ -59,12 +59,16 @@ public class ConceptController {
     
     @GetMapping(value = "/{iri}", produces = "application/imlang")
     public String getConceptImLang(@PathVariable("iri") String iri) {
-        return conceptToImLang.translateConceptToImLang(conceptService.getConcept(iri));
+    	
+    	String conceptDefinition = conceptToImLang.translateConceptToImLang(conceptService.getConcept(iri));
+    	imLangToConcept.translateDefinitionToConcept(conceptDefinition);
+    	
+        return conceptDefinition;
     }
     
-    @PostMapping(value = "/{iri}")
-    public Concept saveConcept(@PathVariable("iri") String iri, @RequestBody String conceptDefintion) {
-        return imLangToConcept.translateDefintionToConcept(conceptDefintion);
+    @PostMapping
+    public Concept saveConcept(@RequestBody String conceptDefinition) {
+        return imLangToConcept.translateDefinitionToConcept(conceptDefinition);
     }
 
     @GetMapping(value = "/{iri}/children")

@@ -2,8 +2,8 @@ package org.endeavourhealth.controllers;
 
 import java.util.List;
 
-import org.endeavourhealth.dataaccess.graph.ConceptServiceRDF4J;
-import org.endeavourhealth.converters.ImLangConverter;
+import org.endeavourhealth.converters.ConceptToImLang;
+import org.endeavourhealth.converters.ImLangToConcept;
 import org.endeavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
@@ -37,7 +37,10 @@ public class ConceptController {
     IConceptService conceptService;
 
     @Autowired
-    ImLangConverter imLangConverter;
+    ConceptToImLang conceptToImLang;
+    
+    @Autowired
+    ImLangToConcept imLangToConcept;
 
 
 
@@ -56,7 +59,12 @@ public class ConceptController {
     
     @GetMapping(value = "/{iri}", produces = "application/imlang")
     public String getConceptImLang(@PathVariable("iri") String iri) {
-        return imLangConverter.convertToImLang(conceptService.getConcept(iri));
+        return conceptToImLang.translateConceptToImLang(conceptService.getConcept(iri));
+    }
+    
+    @PostMapping(value = "/{iri}")
+    public Concept saveConcept(@PathVariable("iri") String iri, @RequestBody String conceptDefintion) {
+        return imLangToConcept.translateDefintionToConcept(conceptDefintion);
     }
 
     @GetMapping(value = "/{iri}/children")

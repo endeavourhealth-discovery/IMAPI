@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import org.testcontainers.shaded.org.apache.commons.lang.StringUtils;
 
 @Component
-public class ImLangConverter {
+public class ConceptToImLang {
 
-	public String convertToImLang(Concept concept) {
+	public String translateConceptToImLang(Concept concept) {
 		String imLangConcept = "";
 
 		// add coreConcept

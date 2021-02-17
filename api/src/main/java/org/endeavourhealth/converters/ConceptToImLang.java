@@ -39,7 +39,7 @@ public class ConceptToImLang {
 	private String translateCoreConcept(Concept concept, String imLangConcept) {
 		// add iri
 		imLangConcept = imLangConcept.concat(concept.getIri() + "\n");
-
+		
 		// add type
 		imLangConcept = imLangConcept.concat("type " + concept.getConceptType().getName() + ";\n");
 
@@ -51,6 +51,7 @@ public class ConceptToImLang {
 
 		// add code
 		imLangConcept = imLangConcept.concat("code \"" + concept.getCode() + "\";\n");
+		
 		return imLangConcept;
 	}
 

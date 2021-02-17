@@ -66,7 +66,7 @@ public class ConceptController {
         return conceptDefinition;
     }
     
-    @PostMapping
+    @PostMapping()
     public Concept saveConcept(@RequestBody String conceptDefinition) {
         return imLangToConcept.translateDefinitionToConcept(conceptDefinition);
     }

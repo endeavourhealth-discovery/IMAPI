@@ -7,7 +7,6 @@ import org.endeavourhealth.imapi.model.ClassExpression;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptStatus;
 import org.endeavourhealth.imapi.model.ConceptType;
-import org.endeavourhealth.imapi.model.PropertyConstraint;
 import org.endeavourhealth.informationmanager.parser.IMLangLexer;
 import org.endeavourhealth.informationmanager.parser.IMLangParser;
 import org.springframework.stereotype.Component;
@@ -33,7 +32,7 @@ public class ImLangToConcept {
 		concept.setStatus(ConceptStatus.byName(parser.status().getText()));
 
 		// SubclassOf
-		if (parser.subclassOf().getText() != null) {
+		if (!parser.subclassOf().getText().isEmpty()) {
 			String[] subclasses = parser.subclassOf().getText().split(",");
 			for (String subclass : subclasses) {
 				ClassExpression classExpression = new ClassExpression();
@@ -43,7 +42,7 @@ public class ImLangToConcept {
 		}
 
 		// Members
-		if (parser.members().getText() != null) {
+		if (!parser.members().getText().isEmpty()) {
 			String[] members = parser.members().getText().split(",");
 			for (String member : members) {
 				ClassExpression classExpression = new ClassExpression();
@@ -53,7 +52,7 @@ public class ImLangToConcept {
 		}
 
 		// EquivalentTo
-		if (parser.equivalentTo().getText() != null) {
+		if (!parser.equivalentTo().getText().isEmpty()) {
 			String[] equivalentTo = parser.equivalentTo().getText().split(",");
 			for (String equivalent : equivalentTo) {
 				ClassExpression classExpression = new ClassExpression();

@@ -384,26 +384,10 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     private Concept getConceptInstance(ConceptType ct) {
-        switch (ct) {
-            case CLASSONLY:
-                return new Concept();
-            case OBJECTPROPERTY:
-                return new Concept(ConceptType.OBJECTPROPERTY);
-            case DATAPROPERTY:
-                return new Concept(ConceptType.DATAPROPERTY);
-            case DATATYPE:
-                return new Concept(ConceptType.DATATYPE);
-            case ANNOTATION:
-                return new Concept(ConceptType.ANNOTATION);
-            case INDIVIDUAL:
-                return new Individual();
-            case VALUESET:
-                return new Concept(ConceptType.VALUESET);
-            case LEGACY:
-                return new Concept(ConceptType.LEGACY);
-            default:
-                throw new IllegalStateException("Unhandled concept type [" + ct.getName() + "]");
-        }
+        if (ct == ConceptType.INDIVIDUAL)
+            return new Individual();
+        else
+            return new Concept(ct);
     }
 
     private void reconstructConcept(Concept c, List<Axiom> axioms) {

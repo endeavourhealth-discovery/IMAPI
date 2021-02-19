@@ -17,7 +17,6 @@ public class DataTypeDefinition extends Axiom{
 
 
 
-    @JsonProperty("OneOf")
     public Set<String> getOneOf() {
         return oneOf;
     }
@@ -33,7 +32,6 @@ public class DataTypeDefinition extends Axiom{
         return this;
     }
 
-    @JsonProperty("DataType")
     public ConceptReference getDataType() {
         return dataType;
     }

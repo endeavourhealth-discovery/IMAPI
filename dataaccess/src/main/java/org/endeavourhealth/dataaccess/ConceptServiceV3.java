@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import org.endeavourhealth.dataaccess.entity.Classification;
 import org.endeavourhealth.dataaccess.entity.ConceptTct;
 import org.endeavourhealth.dataaccess.entity.Expression;
-import org.endeavourhealth.dataaccess.entity.PropertyValue;
+import org.endeavourhealth.dataaccess.entity.PropertyValueEnt;
 import org.endeavourhealth.dataaccess.entity.Axiom;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.*;
@@ -309,10 +309,10 @@ public class ConceptServiceV3 implements IConceptService {
 
         Concept valueSet = getConcept(valueSetIri);
 
-        if (valueSet instanceof ValueSet) {
+        if (valueSet.getMember()!=null) {
             List<ConceptReference> included = new ArrayList<>();
             List<ConceptReference> excluded = new ArrayList<>();
-            ((ValueSet) valueSet).getMember().forEach(m -> {
+            valueSet.getMember().forEach(m -> {
                 if (m.isExclude())
                     excluded.add(m.getClazz());
                 else
@@ -475,9 +475,9 @@ public class ConceptServiceV3 implements IConceptService {
                         c.setIsReflexive(new org.endeavourhealth.imapi.model.Axiom());
                     break;
                 case PROPERTY:
-                        getExpressionsAsStream(a.getExpressions())
-                            .findFirst()
-                            .ifPresent(cex -> c.setProperty(cex.getPropertyConstraint()));
+                        getPropertyValuesAsStream(a.getExpressions())
+                            .forEach(c::addProperty);
+
                     break;
                 case MEMBER:
                         getExpressionsAsStream(a.getExpressions())
@@ -488,6 +488,9 @@ public class ConceptServiceV3 implements IConceptService {
                         .map(ClassExpression::getClazz)
                         .forEach(c::addMappedFrom);
                     break;
+                case ROLE:
+                    getConceptRoleAsStream(a.getExpressions())
+                        .forEach(c::addRole);
                 default:
                     throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
 
@@ -499,6 +502,46 @@ public class ConceptServiceV3 implements IConceptService {
         return expressions.stream()
             .filter(exp -> exp.getParent() == null)
             .map(exp -> setClassExpression(exp, expressions, new ClassExpression()));
+    }
+
+    private Stream<PropertyValue> getPropertyValuesAsStream(List<Expression> expressions) {
+        return expressions.stream()
+            .filter(exp -> exp.getParent() == null)
+            .map(exp -> setPropertyValue(exp, expressions, new PropertyValue()));
+    }
+
+    private PropertyValue setPropertyValue(Expression exp, List<Expression> expressions, PropertyValue pv) {
+        PropertyValueEnt pv1 = exp.getPropertyValue().get(0);
+        pv.setProperty(new ConceptReference(pv1.getProperty().getIri()));
+        pv.setMin(pv1.getMinCardinality());
+        pv.setMax(pv1.getMaxCardinality());
+        if (pv1.getMaxCardinality().equals(pv1.getMaxCardinality()))
+            pv.setQuantification(QuantificationType.SOME);
+        pv.setValueType(new ConceptReference(pv1.getValueType().getIri()));
+        pv.setValueData(pv1.getValueData());
+
+        return pv;
+    }
+
+    private Stream<ConceptRole> getConceptRoleAsStream(List<Expression> expressions) {
+        return expressions.stream()
+            .filter(exp -> exp.getParent() == null)
+            .map(exp -> setRole(exp, expressions, new ConceptRole()));
+
+    }
+    private ConceptRole setRole(Expression exp, List<Expression> expressions, ConceptRole role) {
+
+        PropertyValueEnt pv1 = exp.getPropertyValue().get(0);
+        role.setProperty(new ConceptReference(pv1.getProperty().getIri()));
+        role.setValueType(new ConceptReference(pv1.getValueType().getIri()));
+        role.setValueData(pv1.getValueData());
+        role.setRole(
+            expressions.stream()
+                .filter(ex -> exp.getDbid().equals(ex.getParent()))
+                .map(ex -> setRole(ex, expressions, new ConceptRole()))
+                .collect(Collectors.toSet())
+        );
+        return role;
     }
 
     private ClassExpression setClassExpression(Expression exp, List<Expression> expressions, ClassExpression cex) {
@@ -534,8 +577,8 @@ public class ConceptServiceV3 implements IConceptService {
                 );
                 return cex;
             case OBJECTPROPERTYVALUE:
-                PropertyValue pv1 = exp.getPropertyValue().get(0);
-                ObjectPropertyValue opv = new ObjectPropertyValue();
+                PropertyValueEnt pv1 = exp.getPropertyValue().get(0);
+                PropertyValue opv = new PropertyValue();
 
                 opv.setProperty(new ConceptReference(pv1.getProperty().getIri(), pv1.getProperty().getName()))
                     .setValueData(pv1.getValueData())
@@ -547,19 +590,19 @@ public class ConceptServiceV3 implements IConceptService {
                 if (pv1.getValueExpression() != null)
                     opv.setExpression(setClassExpression(pv1.getValueExpression(), expressions, new ClassExpression()));
 
-                cex.setObjectPropertyValue(opv);
+                cex.setPropertyValue(opv);
                 return cex;
             case DATAPROPERTYVALUE:
-                PropertyValue pv2 = exp.getPropertyValue().get(0);
-                DataPropertyValue dpv = new DataPropertyValue();
+                PropertyValueEnt pv2 = exp.getPropertyValue().get(0);
+                PropertyValue dpv = new PropertyValue();
                 dpv.setProperty(new ConceptReference(pv2.getProperty().getIri(), pv2.getProperty().getName()))
                     .setValueData(pv2.getValueData())
                     .setMin(pv2.getMinCardinality())
                     .setMax(pv2.getMaxCardinality());
                 if (pv2.getValueType() != null)
-                    dpv.setDataType(new ConceptReference(pv2.getValueType().getIri(), pv2.getValueType().getName()));
+                    dpv.setValueType(new ConceptReference(pv2.getValueType().getIri(), pv2.getValueType().getName()));
 
-                cex.setDataPropertyValue(dpv);
+                cex.setPropertyValue(dpv);
                 return cex;
             case COMPLEMENTOF:
                 expressions.stream()
@@ -568,13 +611,7 @@ public class ConceptServiceV3 implements IConceptService {
                     .findFirst()
                     .ifPresent(cex::setComplementOf);
                 return cex;
-            case PROPERTY_CONSTRAINT:
-                cex.setPropertyConstraint(
-                    exp.getPropertyValue().stream()
-                        .map(this::toPropertyConstraint)
-                        .collect(Collectors.toList())
-                );
-                return cex;
+
             default:
                 throw new IllegalStateException("Unknown expression type [" + et.getName() + "]");
         }
@@ -589,13 +626,7 @@ public class ConceptServiceV3 implements IConceptService {
             );
     }
 
-    private PropertyConstraint toPropertyConstraint(PropertyValue pv) {
-        return new PropertyConstraint()
-            .setProperty(new ConceptReference(pv.getProperty().getIri(), pv.getProperty().getName()))
-            .setValueClass(new ConceptReference(pv.getValueType().getIri(), pv.getValueType().getName()))
-            .setMin(pv.getMinCardinality())
-            .setMax(pv.getMaxCardinality());
-    }
+
 
     private ConceptReferenceNode toConceptReferenceNode(org.endeavourhealth.dataaccess.entity.Concept concept, boolean hasChildren) {
     	ConceptReferenceNode conceptReferenceNode = new ConceptReferenceNode(concept.getIri());

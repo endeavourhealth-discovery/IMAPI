@@ -15,7 +15,9 @@ public enum ExpressionType {
     COMPLEMENTOF((byte)8, "ComplementOf"),
     DATATYPE((byte)9,"DataType"),
     OBJECTVALUE((byte)10,"ObjectValue"),
-    PROPERTY_CONSTRAINT((byte)11,"PropertyConstraint");
+    //PROPERTY_CONSTRAINT((byte)11,"PropertyConstraint"),
+    PROPERTY_VALUE((byte)12,"PropertyValue"),
+    ROLE((byte)13,"Role");
 
     private byte _value;
     private String _name;

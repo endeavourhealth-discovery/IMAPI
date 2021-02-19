@@ -7,7 +7,6 @@ public class Annotation {
     private ConceptReference property;
     private String value;
 
-    @JsonProperty("Property")
     public ConceptReference getProperty() {
         return property;
     }
@@ -16,16 +15,8 @@ public class Annotation {
         this.property = property;
         return this;
     }
-    ///
-
-    @JsonIgnore
-    public Annotation setProperty(String property) {
-        this.property = new ConceptReference(property);
-        return this;
-    }
 
 
-    @JsonProperty("Value")
     public String getValue() {
         return value;
     }

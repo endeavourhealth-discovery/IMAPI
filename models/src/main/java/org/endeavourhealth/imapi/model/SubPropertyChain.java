@@ -8,7 +8,7 @@ import java.util.Set;
 public class SubPropertyChain extends Axiom{
     private Set<ConceptReference> property;
 
-    @JsonProperty("Property")
+
     public Set<ConceptReference> getProperty() {
         return property;
     }

@@ -75,12 +75,12 @@ public class ImLangConverter {
 			for (ClassExpression subClass : concept.getSubClassOf()) {
 				if(subClass.getIntersection() != null) {
 					for (ClassExpression intersection : subClass.getIntersection()) {
-						if (intersection.getObjectPropertyValue() != null && intersection.getObjectPropertyValue().getValueType() != null) {
-							imLangConcept = imLangConcept.concat("member " + convertConceptReferrenceToString(intersection.getObjectPropertyValue().getValueType()));
+						if (intersection.getPropertyValue() != null && intersection.getPropertyValue().getValueType() != null) {
+							imLangConcept = imLangConcept.concat("member " + convertConceptReferrenceToString(intersection.getPropertyValue().getValueType()));
 						}
 						
-						if (intersection.getObjectPropertyValue() != null && intersection.getObjectPropertyValue().getExpression() != null) {
-							for (ClassExpression member : intersection.getObjectPropertyValue().getExpression().getUnion()) {
+						if (intersection.getPropertyValue() != null && intersection.getPropertyValue().getExpression() != null) {
+							for (ClassExpression member : intersection.getPropertyValue().getExpression().getUnion()) {
 								imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(member.getClazz()) + ",");
 							}
 							imLangConcept = imLangConcept.concat(".\n");
@@ -106,12 +106,12 @@ public class ImLangConverter {
 							imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(intersection.getClazz()) + ",\n");
 						}
 						
-						if(intersection.getObjectPropertyValue() != null) {
+						if(intersection.getPropertyValue() != null) {
 							
 							imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]", 
-									convertConceptReferrenceToString(intersection.getObjectPropertyValue().getProperty()),
-									convertConceptReferrenceToString(intersection.getObjectPropertyValue().getValueType()),
-									intersection.getObjectPropertyValue().getMin()
+									convertConceptReferrenceToString(intersection.getPropertyValue().getProperty()),
+									convertConceptReferrenceToString(intersection.getPropertyValue().getValueType()),
+									intersection.getPropertyValue().getMin()
 									));
 							if(i != equivalentTo.getIntersection().size()) {
 								imLangConcept = imLangConcept.concat(",\n");

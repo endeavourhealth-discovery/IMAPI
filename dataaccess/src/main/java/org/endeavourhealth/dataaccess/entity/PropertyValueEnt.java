@@ -3,7 +3,7 @@ package org.endeavourhealth.dataaccess.entity;
 import javax.persistence.*;
 
 @Entity
-public class PropertyValue {
+public class PropertyValueEnt {
 
 	@Id()
 	private Integer dbid;
@@ -25,7 +25,7 @@ public class PropertyValue {
     private String valueData;
 
 
-    public PropertyValue() {
+    public PropertyValueEnt() {
 		super();
 	}
 
@@ -33,7 +33,7 @@ public class PropertyValue {
         return dbid;
     }
 
-    public PropertyValue setDbid(Integer dbid) {
+    public PropertyValueEnt setDbid(Integer dbid) {
         this.dbid = dbid;
         return this;
     }
@@ -42,7 +42,7 @@ public class PropertyValue {
         return expression;
     }
 
-    public PropertyValue setExpression(Expression expression) {
+    public PropertyValueEnt setExpression(Expression expression) {
         this.expression = expression;
         return this;
     }
@@ -51,7 +51,7 @@ public class PropertyValue {
         return property;
     }
 
-    public PropertyValue setProperty(Concept property) {
+    public PropertyValueEnt setProperty(Concept property) {
         this.property = property;
         return this;
     }
@@ -60,7 +60,7 @@ public class PropertyValue {
         return valueType;
     }
 
-    public PropertyValue setValueType(Concept valueType) {
+    public PropertyValueEnt setValueType(Concept valueType) {
         this.valueType = valueType;
         return this;
     }
@@ -69,7 +69,7 @@ public class PropertyValue {
         return inverse;
     }
 
-    public PropertyValue setInverse(Byte inverse) {
+    public PropertyValueEnt setInverse(Byte inverse) {
         this.inverse = inverse;
         return this;
     }
@@ -78,7 +78,7 @@ public class PropertyValue {
         return minCardinality;
     }
 
-    public PropertyValue setMinCardinality(Integer minCardinality) {
+    public PropertyValueEnt setMinCardinality(Integer minCardinality) {
         this.minCardinality = minCardinality;
         return this;
     }
@@ -87,7 +87,7 @@ public class PropertyValue {
         return maxCardinality;
     }
 
-    public PropertyValue setMaxCardinality(Integer maxCardinality) {
+    public PropertyValueEnt setMaxCardinality(Integer maxCardinality) {
         this.maxCardinality = maxCardinality;
         return this;
     }
@@ -96,7 +96,7 @@ public class PropertyValue {
         return valueExpression;
     }
 
-    public PropertyValue setValueExpression(Expression valueExpression) {
+    public PropertyValueEnt setValueExpression(Expression valueExpression) {
         this.valueExpression = valueExpression;
         return this;
     }
@@ -105,7 +105,7 @@ public class PropertyValue {
         return valueData;
     }
 
-    public PropertyValue setValueData(String valueData) {
+    public PropertyValueEnt setValueData(String valueData) {
         this.valueData = valueData;
         return this;
     }

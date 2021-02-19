@@ -388,8 +388,8 @@ public class ConceptServiceRDF4J implements IConceptService {
             throw new IllegalStateException("Attempted getExpression on non iri/bnode");
     }
 
-    private PropertyConstraint getProperty(Model model, Resource r) {
-        PropertyConstraint result = new PropertyConstraint();
+    private PropertyValue getProperty(Model model, Resource r) {
+        PropertyValue result = new PropertyValue();
 
         Iterable<Statement> items = model.getStatements(r, null, null);
 
@@ -400,7 +400,7 @@ public class ConceptServiceRDF4J implements IConceptService {
             if (SHACL.CLASS.equals(p)) result.setProperty(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
             else if (SHACL.MIN_COUNT.equals(p)) result.setMin(((Literal)o).intValue());
             else if (SHACL.MAX_COUNT.equals(p)) result.setMax(((Literal)o).intValue());
-            else if (SHACL.PATH.equals(p)) result.setDataType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
+            else if (SHACL.PATH.equals(p)) result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
             else throw new IllegalStateException("Unknown property type [" + p.toString() + "]");
         }
 

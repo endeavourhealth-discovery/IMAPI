@@ -13,8 +13,8 @@ public class ObjectModelVisitor {
     public interface IConceptReferenceListVisitor { void visit(List<ConceptReference> conceptReferences); }
     public interface IExpressionVisitor { void visit(ClassExpression expression); }
     public interface IConceptReferenceVisitor { void visit(ConceptReference conceptReference); }
-    public interface IObjectPropertyValueVisitor { void visit(ObjectPropertyValue objectPropertyValue); }
-    public interface IDataPropertyValueVisitor { void visit(DataPropertyValue dataPropertyValue); }
+    public interface IPropertyValueVisitor { void visit(PropertyValue propertyValue); }
+    public interface IDataPropertyValueVisitor { void visit(PropertyValue propertyValue); }
     public interface IAnnotationSetVisitor { void visit(Set<Annotation> annotations); }
     public interface IMemberListVisitor { void visit(List<ClassExpression> members); }
 
@@ -28,8 +28,8 @@ public class ObjectModelVisitor {
     public IExpressionListVisitor UnionVisitor = (expressions) -> {};
     public IExpressionVisitor ComplementOfVisitor = (expression) -> {};
     public IExpressionVisitor ComplementOfExitVisitor = (expression) -> {};
-    public IObjectPropertyValueVisitor ObjectPropertyValueVisitor = (objectPropertyValue) -> {};
-    public IObjectPropertyValueVisitor ObjectPropertyValueExitVisitor = (objectPropertyValue) -> {};
+    public IPropertyValueVisitor PropertyValueVisitor = (propertyValue) -> {};
+    public IPropertyValueVisitor PropertyValueExitVisitor = (propertyValue) -> {};
     public IDataPropertyValueVisitor DataPropertyValueVisitor = (dataPropertyValue) -> {};
     public IConceptReferenceListVisitor ObjectOneOfVisitor = (conceptReferences) -> {};
     public IAnnotationSetVisitor AnnotationsVisitor = (annotations) -> {};
@@ -89,11 +89,11 @@ public class ObjectModelVisitor {
             this.ComplementOfExitVisitor.visit(expression.getComplementOf());
         }
 
-        if (expression.getObjectPropertyValue() != null)
-            this.visit(expression.getObjectPropertyValue());
+        if (expression.getPropertyValue() != null)
+            this.visit(expression.getPropertyValue());
 
-        if (expression.getDataPropertyValue() != null)
-            this.visit(expression.getDataPropertyValue());
+        if (expression.getPropertyValue() != null)
+            this.visit(expression.getPropertyValue());
 
         if (expression.getObjectOneOf() != null)
             this.visit(expression.getObjectOneOf());
@@ -104,17 +104,13 @@ public class ObjectModelVisitor {
         this.ExpressionExitVisitor.visit(expression);
     }
 
-    private void visit(ObjectPropertyValue objectPropertyValue) {
-        this.ObjectPropertyValueVisitor.visit(objectPropertyValue);
+    private void visit(PropertyValue propertyValue) {
+        this.PropertyValueVisitor.visit(propertyValue);
 
-        if (objectPropertyValue.getExpression() != null)
-            this.visit(objectPropertyValue.getExpression());
+        if (propertyValue.getExpression() != null)
+            this.visit(propertyValue.getExpression());
 
-        this.ObjectPropertyValueExitVisitor.visit(objectPropertyValue);
-    }
-
-    private void visit(DataPropertyValue dataPropertyValue) {
-        this.DataPropertyValueVisitor.visit(dataPropertyValue);
+        this.PropertyValueExitVisitor.visit(propertyValue);
     }
 
     private void visit(List<ConceptReference> objectOneOf) {

@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({"id","property","dataType","exactValue","oneOf","dataTypeRestriction"})
+@JsonPropertyOrder({"id","property","dataType"})
 public class DataPropertyRange extends Axiom{
     private ConceptReference dataType;
 
 
-    @JsonProperty("DataType")
+
     public ConceptReference getDataType() {
         return dataType;
     }
@@ -18,12 +18,5 @@ public class DataPropertyRange extends Axiom{
         this.dataType = dataType;
         return this;
     }
-
-    @JsonIgnore
-    public DataPropertyRange setDataType(String dataType) {
-        this.dataType = new ConceptReference(dataType);
-        return this;
-    }
-
 
 }

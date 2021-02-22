@@ -306,29 +306,36 @@ public class ConceptServiceV3 implements IConceptService {
     @Override
     public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
         ValueSetMembership result = new ValueSetMembership();
+
         Concept valueSet = getConcept(valueSetIri);
-        List<ConceptReference> included = new ArrayList<>();
-        List<ConceptReference> excluded = new ArrayList<>();
-        valueSet.getMember().forEach(m -> {
-            if (m.isExclude())
-                excluded.add(m.getClazz());
-            else
-                included.add(m.getClazz());
-        });
-        for (ConceptReference m : included) {
-            Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
-            if (match.isPresent()) {
-                result.setIncludedBy(m);
-                break;
+
+        if (valueSet.getMember()!=null) {
+            List<ConceptReference> included = new ArrayList<>();
+            List<ConceptReference> excluded = new ArrayList<>();
+            valueSet.getMember().forEach(m -> {
+                if (m.isExclude())
+                    excluded.add(m.getClazz());
+                else
+                    included.add(m.getClazz());
+            });
+
+            for (ConceptReference m : included) {
+                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+                if (match.isPresent()) {
+                    result.setIncludedBy(m);
+                    break;
+                }
+            }
+
+            for (ConceptReference m : excluded) {
+                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+                if (match.isPresent()) {
+                    result.setExcludedBy(m);
+                    break;
+                }
             }
         }
-        for (ConceptReference m : excluded) {
-            Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
-            if (match.isPresent()) {
-                result.setExcludedBy(m);
-                break;
-            }
-        }
+
         return result;
     }
 

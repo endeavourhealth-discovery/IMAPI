@@ -2,11 +2,7 @@ package org.endeavourhealth.converters;
 
 import java.text.MessageFormat;
 
-import org.endeavourhealth.imapi.model.ClassExpression;
-import org.endeavourhealth.imapi.model.Concept;
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ConceptType;
-import org.endeavourhealth.imapi.model.PropertyConstraint;
+import org.endeavourhealth.imapi.model.*;
 import org.springframework.stereotype.Component;
 import org.testcontainers.shaded.org.apache.commons.lang.StringUtils;
 
@@ -106,10 +102,10 @@ public class ConceptToImLang {
 	private String translateProperties(Concept concept, String imLangConcept) {
 		if (concept.getProperty() != null) {
 			imLangConcept = imLangConcept.concat("property ");
-			for (PropertyConstraint propertyConstraint : concept.getProperty()) {
+			for (PropertyValue propertyConstraint : concept.getProperty()) {
 				imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]",
 						convertConceptReferrenceToString(propertyConstraint.getProperty()),
-						convertConceptReferrenceToString(propertyConstraint.getValueClass()),
+						convertConceptReferrenceToString(propertyConstraint.getValueType()),
 						propertyConstraint.getMin()));
 			}
 			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
@@ -132,14 +128,14 @@ public class ConceptToImLang {
 									.concat(convertConceptReferrenceToString(intersection.getClazz()) + ",\n");
 						}
 
-						if (intersection.getObjectPropertyValue() != null) {
+						if (intersection.getPropertyValue() != null) {
 
 							imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]",
 									convertConceptReferrenceToString(
-											intersection.getObjectPropertyValue().getProperty()),
+											intersection.getPropertyValue().getProperty()),
 									convertConceptReferrenceToString(
-											intersection.getObjectPropertyValue().getValueType()),
-									intersection.getObjectPropertyValue().getMin()));
+											intersection.getPropertyValue().getValueType()),
+									intersection.getPropertyValue().getMin()));
 							if (i != equivalentTo.getIntersection().size()) {
 								imLangConcept = imLangConcept.concat(",\n");
 							}

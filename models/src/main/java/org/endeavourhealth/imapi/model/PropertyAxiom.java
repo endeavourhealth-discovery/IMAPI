@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PropertyAxiom extends Axiom {
     private ConceptReference property;
 
-    @JsonProperty("Property")
+
     public ConceptReference getProperty() {
         return property;
     }
@@ -16,10 +16,5 @@ public class PropertyAxiom extends Axiom {
         return this;
     }
 
-    @JsonIgnore
-    public PropertyAxiom setProperty(String property) {
-        this.property = new ConceptReference(property);
-        return this;
-    }
 
 }

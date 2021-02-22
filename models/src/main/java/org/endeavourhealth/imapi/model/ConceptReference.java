@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model;
 public class ConceptReference {
     private String iri;
     private String name;
+    private EntailmentConstraint entailment;
 
     public ConceptReference() {}
 
@@ -30,6 +31,15 @@ public class ConceptReference {
 
     public ConceptReference setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public EntailmentConstraint getEntailment() {
+        return entailment;
+    }
+
+    public ConceptReference setEntailment(EntailmentConstraint entailment) {
+        this.entailment = entailment;
         return this;
     }
 }

@@ -28,9 +28,8 @@ public class Concept implements IMAnnotated {
     private List<ConceptReference> containedIn;
     private boolean isRef;
     private Map<String,String> stats;
-    private List<PropertyConstraint> property;
+    private List<PropertyValue> property;
     private List<Concept> recordModel;
-    private Set<Relationship> role;
     private List<ClassExpression> member;
     private List<ConceptReference> memberExpansion;
     private Set<PropertyAxiom> subObjectPropertyOf;
@@ -47,6 +46,7 @@ public class Concept implements IMAnnotated {
     private Set<DataPropertyRange> dataPropertyRange;
     private Set<PropertyAxiom> subAnnotationPropertyOf;
     private List<ConceptReference> mappedFrom;
+    private Set<ConceptRole> role;
 
 
 
@@ -337,15 +337,15 @@ public class Concept implements IMAnnotated {
         return this;
     }
     @JsonProperty("Property")
-    public List<PropertyConstraint> getProperty() {
+    public List<PropertyValue> getProperty() {
         return property;
     }
 
-    public Concept setProperty(List<PropertyConstraint> property) {
+    public Concept setProperty(List<PropertyValue> property) {
         this.property = property;
         return this;
     }
-    public Concept addProperty(PropertyConstraint property){
+    public Concept addProperty(PropertyValue property){
         if (this.property==null)
             this.property= new ArrayList<>();
         this.property.add(property);
@@ -368,20 +368,7 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
-    public Set<Relationship> getRole() {
-        return role;
-    }
 
-    public Concept setRole(Set<Relationship> role) {
-        this.role = role;
-        return this;
-    }
-    public Concept addRole(Relationship role){
-        if (this.role==null)
-            this.role= new HashSet<>();
-        this.role.add(role);
-        return this;
-    }
     @JsonProperty("Member")
     public List<ClassExpression> getMember() {
         return member;
@@ -607,7 +594,19 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
+    public Set<ConceptRole> getRole() {
+        return role;
+    }
 
+    public Concept setRole(Set<ConceptRole> role) {
+        this.role = role;
+        return this;
+    }
 
-
+    public Concept addRole(ConceptRole role){
+        if (this.role==null)
+            this.role= new HashSet<>();
+        this.role.add(role);
+        return this;
+    }
 }

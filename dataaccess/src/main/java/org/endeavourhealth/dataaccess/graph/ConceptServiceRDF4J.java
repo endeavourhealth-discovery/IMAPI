@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prefixIri;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prepare;
 
 @Component
 @Qualifier("ConceptServiceRDF4J")
@@ -58,13 +59,13 @@ public class ConceptServiceRDF4J implements IConceptService {
     @Override
     public ConceptReference getConceptReference(String iri) {
         try (RepositoryConnection conn = db.getConnection()) {
-            String qry = "SELECT ?n\n" +
+            String sql = "SELECT ?n\n" +
                 "WHERE { ?subj rdfs:label ?n }";
 
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
+            PrefixedTupleQuery qry = prepare(conn, sql)
                 .bind("subj", prefixIri(iri));
 
-            try (PrefixedTupleQueryResult matches = query.evaluate()) {
+            try (PrefixedTupleQueryResult matches = qry.evaluate()) {
                 if (matches.hasNext()) {
                     BindingSet bs = matches.next();
                     return new ConceptReference(iri, bs.getValue("n").stringValue());
@@ -86,7 +87,7 @@ public class ConceptServiceRDF4J implements IConceptService {
                 "}\n" +
                 "ORDER BY ?n";
 
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
+            PrefixedTupleQuery query = prepare(conn, qry)
                 .bind("parent", prefixIri(iri));
 
             try (PrefixedTupleQueryResult matches = query.evaluate()) {
@@ -115,7 +116,7 @@ public class ConceptServiceRDF4J implements IConceptService {
                 "}\n" +
                 "ORDER BY ?n";
 
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
+            PrefixedTupleQuery query = prepare(conn, qry)
                 .bind("child", prefixIri(iri));
 
             try (PrefixedTupleQueryResult matches = query.evaluate()) {
@@ -141,7 +142,7 @@ public class ConceptServiceRDF4J implements IConceptService {
                 "   rdfs:label ?n.\n" +
                 "}";
 
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
+            PrefixedTupleQuery query = prepare(conn, qry)
                 .bind("child", prefixIri(iri));
 
             try (PrefixedTupleQueryResult matches = query.evaluate()) {
@@ -173,7 +174,7 @@ public class ConceptServiceRDF4J implements IConceptService {
             }
             qry += "))\n}";
 
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
+            PrefixedTupleQuery query = prepare(conn, qry)
                 .bind("s", prefixIri(iri));
 
             for (int i = 0; i < candidates.size(); i++) {
@@ -199,7 +200,36 @@ public class ConceptServiceRDF4J implements IConceptService {
 
     @Override
     public List<ConceptSummary> advancedSearch(SearchRequest request) {
-        return null;
+        List<ConceptSummary> result = new ArrayList<>();
+
+        try (RepositoryConnection conn = db.getConnection()) {
+            String sql = "SELECT * \n" +
+                "WHERE { \n" +
+                "\t?iri rdfs:label ?label\n" +
+                "      OPTIONAL { ?iri :code ?code }\n" +
+                "    filter (\n" +
+                "        contains(?label, ?term) || \n" +
+                "        contains(?iri, ?term) ||\n" +
+                "        contains(?code, ?term)\n" +
+                "    )\n" +
+                "} limit 20 \n";
+
+            PrefixedTupleQuery qry = prepare(conn, sql)
+                .bind("term", literal(request.getTermFilter()));
+
+            try (PrefixedTupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet row = rs.next();
+                    result.add(new ConceptSummary()
+                        .setIri(row.getValue("iri").stringValue())
+                        .setName(row.getValue("label").stringValue())
+                        .setCode(row.getValue("code").stringValue())
+                    );
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -235,7 +265,7 @@ public class ConceptServiceRDF4J implements IConceptService {
                 "    ?cs rdfs:label ?csn .\n" +
                 "}";
 
-            PrefixedTupleQuery query = PrefixedTupleQuery.prepare(conn, qry)
+            PrefixedTupleQuery query = prepare(conn, qry)
                 .bind("s", prefixIri(iri));
 
             try (PrefixedTupleQueryResult matches = query.evaluate()) {
@@ -325,9 +355,9 @@ public class ConceptServiceRDF4J implements IConceptService {
         if (model.contains(iri, RDF.TYPE, IM.RECORD))
             result = new Concept(ConceptType.RECORD);
         else if (model.contains(iri, RDF.TYPE, IM.VALUESET))
-            result = new Concept(ConceptType.RECORD);
+            result = new Concept(ConceptType.VALUESET);
         else
-            result = new Concept(ConceptType.RECORD);
+            result = new Concept(ConceptType.CLASSONLY);
 
         result.setIri(getPrefixIri(iri.stringValue(), model.getNamespaces()));
 
@@ -388,8 +418,8 @@ public class ConceptServiceRDF4J implements IConceptService {
             throw new IllegalStateException("Attempted getExpression on non iri/bnode");
     }
 
-    private PropertyConstraint getProperty(Model model, Resource r) {
-        PropertyConstraint result = new PropertyConstraint();
+    private PropertyValue getProperty(Model model, Resource r) {
+        PropertyValue result = new PropertyValue();
 
         Iterable<Statement> items = model.getStatements(r, null, null);
 
@@ -400,7 +430,7 @@ public class ConceptServiceRDF4J implements IConceptService {
             if (SHACL.CLASS.equals(p)) result.setProperty(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
             else if (SHACL.MIN_COUNT.equals(p)) result.setMin(((Literal)o).intValue());
             else if (SHACL.MAX_COUNT.equals(p)) result.setMax(((Literal)o).intValue());
-            else if (SHACL.PATH.equals(p)) result.setDataType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
+            else if (SHACL.PATH.equals(p)) result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
             else throw new IllegalStateException("Unknown property type [" + p.toString() + "]");
         }
 

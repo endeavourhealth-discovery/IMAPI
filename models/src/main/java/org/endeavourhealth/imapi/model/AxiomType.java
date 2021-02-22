@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum AxiomType {
+
     SUBCLASSOF((byte)0, "SubClassOf"),
     EQUIVALENTTO((byte)1, "EquivalentTo"),
     SUBOBJECTPROPERTY((byte)2, "SubObjectPropertyOf"),
@@ -23,10 +24,10 @@ public enum AxiomType {
     ISTYPE((byte)17,"IsType"),
     ANNOTATIONASSERTION((byte)18,"AnnotationAssertion"),
     MEMBER((byte)19,"Member"),
-    MEMBER_EXPANSION((byte)20,"MemberExpansion"),
+    //MEMBER_EXPANSION((byte)20,"MemberExpansion"),
     PROPERTY((byte)21,"Property"),
-    MAPPED_FROM((byte)22,"MappedFrom");
-    
+    MAPPED_FROM((byte)22,"MappedFrom"),
+    ROLE((byte)23,"Role");
 
     private byte _value;
     private String _name;

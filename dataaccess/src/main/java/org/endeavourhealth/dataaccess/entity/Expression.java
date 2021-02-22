@@ -17,7 +17,7 @@ public class Expression {
 	@JoinColumn(name="targetConcept", referencedColumnName="dbid")
 	private Concept targetConcept;
     @OneToMany(mappedBy = "expression")
-    private List<PropertyValue> propertyValue;
+    private List<PropertyValueEnt> propertyValueEnt;
     private Boolean exclude;
 
     public Expression() {
@@ -78,12 +78,12 @@ public class Expression {
         return this;
     }
 
-    public List<PropertyValue> getPropertyValue() {
-        return propertyValue;
+    public List<PropertyValueEnt> getPropertyValue() {
+        return propertyValueEnt;
     }
 
-    public Expression setPropertyValue(List<PropertyValue> propertyValue) {
-        this.propertyValue = propertyValue;
+    public Expression setPropertyValue(List<PropertyValueEnt> propertyValueEnt) {
+        this.propertyValueEnt = propertyValueEnt;
         return this;
     }
 

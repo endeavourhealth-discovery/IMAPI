@@ -9,7 +9,6 @@ public class QuantificationImpl implements Quantification {
    private Integer max;
    private QuantificationType quantificationType;
 
-   @JsonProperty("Min")
    public Integer getMin() {
       return min;
    }
@@ -18,7 +17,7 @@ public class QuantificationImpl implements Quantification {
       this.min = min;
       return this;
    }
-   @JsonProperty("Max")
+
    public Integer getMax() {
       return max;
    }
@@ -28,7 +27,6 @@ public class QuantificationImpl implements Quantification {
       return this;
    }
 
-   @JsonProperty("Quantification")
    public QuantificationType getQuantificationType() {
       if (this.min==null && this.max==null)
          return QuantificationType.ONLY;

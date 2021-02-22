@@ -15,13 +15,12 @@ public class ClassExpression implements IMEntity, IMAnnotated{
     private List<ClassExpression> intersection;
     private List<ClassExpression> union;
     private ClassExpression complementOf;
-    private ObjectPropertyValue objectPropertyValue;
-    private DataPropertyValue dataPropertyValue;
+    private PropertyValue propertyValue;
     private List<ConceptReference> objectOneOf;
     private int group;
     private Set<Annotation> annotations;
     private ConceptReference module;
-    private List<PropertyConstraint> propertyConstraint;
+
     private boolean exclude;
 
 
@@ -98,26 +97,17 @@ public class ClassExpression implements IMEntity, IMAnnotated{
 
 
 
-    @JsonProperty("ObjectPropertyValue")
-    public ObjectPropertyValue getObjectPropertyValue() {
-        return objectPropertyValue;
+    @JsonProperty("PropertyValue")
+    public PropertyValue getPropertyValue() {
+        return propertyValue;
     }
 
-    public ClassExpression setObjectPropertyValue(ObjectPropertyValue propertyValue) {
-        this.objectPropertyValue = propertyValue;
+    public ClassExpression setPropertyValue(PropertyValue propertyValue) {
+        this.propertyValue = propertyValue;
         return this;
     }
 
 
-    @JsonProperty("DataPropertyValue")
-    public DataPropertyValue getDataPropertyValue() {
-        return dataPropertyValue;
-    }
-
-    public ClassExpression setDataPropertyValue(DataPropertyValue propertyValue) {
-        this.dataPropertyValue = propertyValue;
-        return this;
-    }
 
 
 
@@ -214,20 +204,7 @@ public class ClassExpression implements IMEntity, IMAnnotated{
         return this;
     }
 
-    public List<PropertyConstraint> getPropertyConstraint() {
-        return propertyConstraint;
-    }
 
-    public ClassExpression setPropertyConstraint(List<PropertyConstraint> propertyConstraint) {
-        this.propertyConstraint = propertyConstraint;
-        return this;
-    }
-    public ClassExpression addPropertyConstraint(PropertyConstraint constraint){
-        if (this.propertyConstraint==null)
-            this.propertyConstraint= new ArrayList<>();
-        this.propertyConstraint.add(constraint);
-        return this;
-    }
 
     @JsonProperty("Exclude")
     public boolean isExclude() {

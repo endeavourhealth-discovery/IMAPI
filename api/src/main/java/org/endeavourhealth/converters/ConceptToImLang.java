@@ -9,151 +9,151 @@ import org.testcontainers.shaded.org.apache.commons.lang.StringUtils;
 @Component
 public class ConceptToImLang {
 
-	public String translateConceptToImLang(Concept concept) {
-		String imLangConcept = "";
+    public String translateConceptToImLang(Concept concept) {
+        String imLangConcept = "";
 
-		// add coreConcept
-		imLangConcept = translateCoreConcept(concept, imLangConcept);
+        // add coreConcept
+        imLangConcept = translateCoreConcept(concept, imLangConcept);
 
-		// add subClassOf
-		if(concept.getConceptType().equals(ConceptType.CLASSONLY) || 
-				concept.getConceptType().equals(ConceptType.RECORD) ||
-				concept.getConceptType().equals(ConceptType.VALUESET) ||
-				concept.getConceptType().getName() == "Shape") {
-			imLangConcept = translateSubClassOf(concept, imLangConcept);
-		}
+        // add subClassOf
+        if(concept.getConceptType().equals(ConceptType.CLASSONLY) ||
+            concept.getConceptType().equals(ConceptType.RECORD) ||
+            concept.getConceptType().equals(ConceptType.VALUESET) ||
+            concept.getConceptType().getName() == "Shape") {
+            imLangConcept = translateSubClassOf(concept, imLangConcept);
+        }
 
-		// add members
-		if(concept.getConceptType().equals(ConceptType.VALUESET)) {
-			imLangConcept = translateMembers(concept, imLangConcept);
-		}
+        // add members
+        if(concept.getConceptType().equals(ConceptType.VALUESET)) {
+            imLangConcept = translateMembers(concept, imLangConcept);
+        }
 
-		// add properties
-		if(concept.getConceptType().getName() == "Shape") {
-			imLangConcept = translateProperties(concept, imLangConcept);
-		}
+        // add properties
+        if(concept.getConceptType().getName() == "Shape") {
+            imLangConcept = translateProperties(concept, imLangConcept);
+        }
 
-		// add equivalentTo
-		if(concept.getConceptType().equals(ConceptType.CLASSONLY) || 
-				concept.getConceptType().equals(ConceptType.RECORD)) {
-			imLangConcept = translateEquivalentTo(concept, imLangConcept);
-		}
+        // add equivalentTo
+        if(concept.getConceptType().equals(ConceptType.CLASSONLY) ||
+            concept.getConceptType().equals(ConceptType.RECORD)) {
+            imLangConcept = translateEquivalentTo(concept, imLangConcept);
+        }
 
-		imLangConcept = StringUtils.removeEnd(imLangConcept, ";");
-		imLangConcept = imLangConcept.concat(".\n");
+        imLangConcept = StringUtils.removeEnd(imLangConcept, ";");
+        imLangConcept = imLangConcept.concat(".\n");
 
-		return imLangConcept;
-	}
+        return imLangConcept;
+    }
 
-	private String translateCoreConcept(Concept concept, String imLangConcept) {
-		// add iri
-		imLangConcept = imLangConcept.concat(concept.getIri() + "\n");
+    private String translateCoreConcept(Concept concept, String imLangConcept) {
+        // add iri
+        imLangConcept = imLangConcept.concat(concept.getIri() + "\n");
 
-		// add type
-		imLangConcept = imLangConcept.concat("type " + concept.getConceptType().getName() + ";\n");
+        // add type
+        imLangConcept = imLangConcept.concat("type " + concept.getConceptType().getName() + ";\n");
 
-		// add name
-		imLangConcept = imLangConcept.concat("Name \"" + concept.getName() + "\";\n");
+        // add name
+        imLangConcept = imLangConcept.concat("Name \"" + concept.getName() + "\";\n");
 
-		// add description
-		imLangConcept = imLangConcept.concat("description \"" + concept.getDescription() + "\";\n");
+        // add description
+        imLangConcept = imLangConcept.concat("description \"" + concept.getDescription() + "\";\n");
 
-		// add code
-		imLangConcept = imLangConcept.concat("code \"" + concept.getCode() + "\";\n");
+        // add code
+        imLangConcept = imLangConcept.concat("code \"" + concept.getCode() + "\";\n");
 
-		// add scheme
-		imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
+        // add scheme
+        imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
 
-		// add status
-		imLangConcept = imLangConcept.concat("status " + concept.getStatus() + ";\n");
+        // add status
+        imLangConcept = imLangConcept.concat("status " + concept.getStatus() + ";\n");
 
-		// add version
-		imLangConcept = imLangConcept.concat("version \"" + concept.getVersion() + "\";\n");
+        // add version
+        imLangConcept = imLangConcept.concat("version \"" + concept.getVersion() + "\";\n");
 
-		return imLangConcept;
-	}
+        return imLangConcept;
+    }
 
-	private String translateSubClassOf(Concept concept, String imLangConcept) {
-		if (concept.getSubClassOf() != null) {
-			imLangConcept = imLangConcept.concat("SubClassOf ");
-			for (ClassExpression subClass : concept.getSubClassOf()) {
-				if (subClass.getClazz() != null) {
-					imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(subClass.getClazz()) + ", ");
-				}
-			}
-			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
-			imLangConcept = imLangConcept.concat(";\n");
-		}
-		return imLangConcept;
-	}
+    private String translateSubClassOf(Concept concept, String imLangConcept) {
+        if (concept.getSubClassOf() != null) {
+            imLangConcept = imLangConcept.concat("SubClassOf ");
+            for (ClassExpression subClass : concept.getSubClassOf()) {
+                if (subClass.getClazz() != null) {
+                    imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(subClass.getClazz()) + ", ");
+                }
+            }
+            imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
+            imLangConcept = imLangConcept.concat(";\n");
+        }
+        return imLangConcept;
+    }
 
-	private String translateMembers(Concept concept, String imLangConcept) {
-		if (concept.getMember() != null) {
-			imLangConcept = imLangConcept.concat("member ");
-			for (ClassExpression member : concept.getMember()) {
-				imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(member.getClazz()) + ", ");
-			}
-			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
-			imLangConcept = imLangConcept.concat(";\n");
-		}
-		return imLangConcept;
-	}
+    private String translateMembers(Concept concept, String imLangConcept) {
+        if (concept.getMember() != null) {
+            imLangConcept = imLangConcept.concat("member ");
+            for (ClassExpression member : concept.getMember()) {
+                imLangConcept = imLangConcept.concat(convertConceptReferrenceToString(member.getClazz()) + ", ");
+            }
+            imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
+            imLangConcept = imLangConcept.concat(";\n");
+        }
+        return imLangConcept;
+    }
 
-	private String translateProperties(Concept concept, String imLangConcept) {
-		if (concept.getProperty() != null) {
-			imLangConcept = imLangConcept.concat("property ");
-			for (PropertyValue propertyConstraint : concept.getProperty()) {
-				imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]",
-						convertConceptReferrenceToString(propertyConstraint.getProperty()),
-						convertConceptReferrenceToString(propertyConstraint.getValueType()),
-						propertyConstraint.getMin()));
-			}
-			imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
-			imLangConcept = imLangConcept.concat(";\n");
-		}
-		return imLangConcept;
-	}
+    private String translateProperties(Concept concept, String imLangConcept) {
+        if (concept.getProperty() != null) {
+            imLangConcept = imLangConcept.concat("property ");
+            for (PropertyValue propertyConstraint : concept.getProperty()) {
+                imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]",
+                    convertConceptReferrenceToString(propertyConstraint.getProperty()),
+                    convertConceptReferrenceToString(propertyConstraint.getValueType()),
+                    propertyConstraint.getMin()));
+            }
+            imLangConcept = StringUtils.removeEnd(imLangConcept, ", ");
+            imLangConcept = imLangConcept.concat(";\n");
+        }
+        return imLangConcept;
+    }
 
-	private String translateEquivalentTo(Concept concept, String imLangConcept) {
-		if (concept.getEquivalentTo() != null) {
-			imLangConcept = imLangConcept.concat("equivalentTo ");
-			for (ClassExpression equivalentTo : concept.getEquivalentTo()) {
-				if (equivalentTo.getIntersection() != null) {
+    private String translateEquivalentTo(Concept concept, String imLangConcept) {
+        if (concept.getEquivalentTo() != null) {
+            imLangConcept = imLangConcept.concat("equivalentTo ");
+            for (ClassExpression equivalentTo : concept.getEquivalentTo()) {
+                if (equivalentTo.getIntersection() != null) {
 
-					int i = 0;
-					for (ClassExpression intersection : equivalentTo.getIntersection()) {
-						i++;
-						if (intersection.getClazz() != null) {
-							imLangConcept = imLangConcept
-									.concat(convertConceptReferrenceToString(intersection.getClazz()) + ",\n");
-						}
+                    int i = 0;
+                    for (ClassExpression intersection : equivalentTo.getIntersection()) {
+                        i++;
+                        if (intersection.getClazz() != null) {
+                            imLangConcept = imLangConcept
+                                .concat(convertConceptReferrenceToString(intersection.getClazz()) + ",\n");
+                        }
 
-						if (intersection.getPropertyValue() != null) {
+                        if (intersection.getPropertyValue() != null) {
 
-							imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]",
-									convertConceptReferrenceToString(
-											intersection.getPropertyValue().getProperty()),
-									convertConceptReferrenceToString(
-											intersection.getPropertyValue().getValueType()),
-									intersection.getPropertyValue().getMin()));
-							if (i != equivalentTo.getIntersection().size()) {
-								imLangConcept = imLangConcept.concat(",\n");
-							}
-						}
-					}
-				}
-			}
-			imLangConcept = imLangConcept.concat(";");
-		}
+                            imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}; minCount {2}]",
+                                convertConceptReferrenceToString(
+                                    intersection.getPropertyValue().getProperty()),
+                                convertConceptReferrenceToString(
+                                    intersection.getPropertyValue().getValueType()),
+                                intersection.getPropertyValue().getMin()));
+                            if (i != equivalentTo.getIntersection().size()) {
+                                imLangConcept = imLangConcept.concat(",\n");
+                            }
+                        }
+                    }
+                }
+            }
+            imLangConcept = imLangConcept.concat(";");
+        }
 
-		return imLangConcept;
-	}
+        return imLangConcept;
+    }
 
-	private String convertConceptReferrenceToString(ConceptReference conceptReference) {
-		if (conceptReference != null)
-			return MessageFormat.format("\"{0} | {1}\"", conceptReference.getIri(), conceptReference.getName());
-		else
-			return "";
-	}
+    private String convertConceptReferrenceToString(ConceptReference conceptReference) {
+        if (conceptReference != null)
+            return MessageFormat.format("\"{0} | {1}\"", conceptReference.getIri(), conceptReference.getName());
+        else
+            return "";
+    }
 
 }

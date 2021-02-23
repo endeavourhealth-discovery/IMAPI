@@ -54,7 +54,7 @@ public class ConceptRole {
       this.subrole = subrole;
       return this;
    }
-   public ConceptRole addSubrol(ConceptRole subrole){
+   public ConceptRole addSubrole(ConceptRole subrole){
       if (this.subrole==null)
          this.subrole= new HashSet<>();
       this.subrole.add(subrole);

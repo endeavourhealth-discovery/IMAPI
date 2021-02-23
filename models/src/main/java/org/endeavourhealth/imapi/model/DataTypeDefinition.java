@@ -8,10 +8,10 @@ import java.util.Set;
 public class DataTypeDefinition extends Axiom{
     private ConceptReference dataType;
     private Set<String> oneOf;
-    private String minOperator;
-    private String minValue;
-    private String maxOperator;
-    private String maxValue;
+    private String minInclusive;
+    private String minExclusive;
+    private String maxInclusive;
+    private String maxExclusive;
     private String pattern;
 
 
@@ -42,25 +42,7 @@ public class DataTypeDefinition extends Axiom{
     }
 
 
-    public DataTypeDefinition setMinOperator(String minOperator) {
-        this.minOperator= minOperator;
-        return this;
-    }
 
-    @JsonProperty("minOperator")
-    public String getMinOperator() {
-        return this.minOperator;
-    }
-
-    public DataTypeDefinition setMaxOperator(String maxOperator) {
-        this.maxOperator= maxOperator;
-        return this;
-    }
-
-    @JsonProperty("maxOperator")
-    public String getMaxOperator() {
-        return this.maxOperator;
-    }
 
     public DataTypeDefinition setPattern(String pattern) {
         this.pattern=pattern;
@@ -72,24 +54,39 @@ public class DataTypeDefinition extends Axiom{
         return this.pattern;
     }
 
-    @JsonProperty("minValue")
-    public String getMinValue() {
-        return minValue;
+    public String getMinInclusive() {
+        return minInclusive;
     }
 
-    public DataTypeDefinition setMinValue(String minValue) {
-        this.minValue= minValue;
+    public DataTypeDefinition setMinInclusive(String minInclusive) {
+        this.minInclusive = minInclusive;
         return this;
     }
 
-
-    @JsonProperty("maxValue")
-    public String getMaxValue() {
-        return this.maxValue;
+    public String getMinExclusive() {
+        return minExclusive;
     }
 
-    public DataTypeDefinition setMaxValue(String maxValue) {
-        this.maxValue= maxValue;
+    public DataTypeDefinition setMinExclusive(String minExclusive) {
+        this.minExclusive = minExclusive;
+        return this;
+    }
+
+    public String getMaxInclusive() {
+        return maxInclusive;
+    }
+
+    public DataTypeDefinition setMaxInclusive(String maxInclusive) {
+        this.maxInclusive = maxInclusive;
+        return this;
+    }
+
+    public String getMaxExclusive() {
+        return maxExclusive;
+    }
+
+    public DataTypeDefinition setMaxExclusive(String maxExclusive) {
+        this.maxExclusive = maxExclusive;
         return this;
     }
 }

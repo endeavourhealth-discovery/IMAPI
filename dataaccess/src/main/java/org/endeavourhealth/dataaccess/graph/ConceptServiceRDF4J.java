@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prefixIri;
 import static org.eclipse.rdf4j.model.util.Values.iri;
@@ -49,10 +50,13 @@ public class ConceptServiceRDF4J implements IConceptService {
         try (RepositoryConnection conn = db.getConnection()) {
             Model model = getDefinition(conn, iri);
             if (model.isEmpty()) {
-                LOG.error("Unable to load concept [{}]\n", iri);
+            //   LOG.error("Unable to load concept [{}]\n", iri);
                 return null;
             } else
                 return toConcept(getFullIri(iri, conn.getNamespaces().stream().collect(Collectors.toSet())), model);
+        } catch (DataFormatException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -349,7 +353,7 @@ public class ConceptServiceRDF4J implements IConceptService {
         }
     }
 
-    private Concept toConcept(IRI iri, Model model) {
+    private Concept toConcept(IRI iri, Model model) throws DataFormatException {
         Concept result;
 
         if (model.contains(iri, RDF.TYPE, IM.RECORD))
@@ -361,18 +365,18 @@ public class ConceptServiceRDF4J implements IConceptService {
 
         result.setIri(getPrefixIri(iri.stringValue(), model.getNamespaces()));
 
-
+        /*
         WriterConfig config = new WriterConfig();
         config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
         Rio.write(model, System.out, RDFFormat.TURTLE, config);
 
+         */
 
         Iterable<Statement> items = model.getStatements(iri, null, null);
-
         for(Statement s : items) {
             Value p = s.getPredicate();
             Value o = s.getObject();
-            if (RDF.TYPE.equals(p)) result.setConceptType(fromIri(o.stringValue()));
+            if (RDF.TYPE.equals(p)) setConceptTypes(result,o.stringValue());
             else if (RDFS.LABEL.equals(p)) result.setName(o.stringValue());
             else if (RDFS.COMMENT.equals(p)) result.setDescription(o.stringValue());
             else if (IM.CODE.equals(p)) result.setCode(o.stringValue());
@@ -381,21 +385,115 @@ public class ConceptServiceRDF4J implements IConceptService {
             else if (IM.SYNONYM.equals(p)) result.addSynonym(getTermCode(model, (Resource)o));
             else if (RDFS.SUBCLASSOF.equals(p)) result.addSubClassOf(getExpression(model, (Resource)o));
             else if (SNOMED.IS_A.equals(p)) result.addIsa(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
-            else if (SHACL.PROPERTY.equals(p)) result.addProperty(getProperty(model, (Resource) o));
+            else if (SHACL.PROPERTY.equals(p)) result.addProperty(getPropertyValue(model, (Resource) o));
             else if (IM.HAS_MEMBERS.equals(p)) result.addMember(getExpression(model, (Resource)o));
-            else throw new IllegalStateException("Unknown concept property [" + p.stringValue() + "]");
+            else if (OWL.EQUIVALENTCLASS.equals(p)){
+                getEquivalentTo(result,model, (Resource) o);
+            }
+            else if (OWL.ANNOTATION.equals(p)) result.addAnnotation(getAnnotation(model,(Resource)o));
+            else if (o.isLiteral())
+                System.err.println("Literal");
+            else
+                result.addRole(getConceptRole(model,(Resource) o));
+
+
         }
 
         return result;
     }
 
-    private ConceptType fromIri(String iri) {
-        if (iri.equals(OWL.CLASS.stringValue())) return ConceptType.CLASSONLY;
-        else if (iri.equals(RDFS.DATATYPE.stringValue())) return ConceptType.DATATYPE;
-        else if (iri.equals(OWL.OBJECTPROPERTY.stringValue())) return ConceptType.OBJECTPROPERTY;
-        else if (iri.equals(IM.RECORD.stringValue())) return ConceptType.RECORD;
-        else if (iri.equals(IM.VALUESET.stringValue())) return ConceptType.VALUESET;
+    private Annotation getAnnotation(Model model, Resource s) {
+        Annotation annotation= new Annotation();
+        Iterable<Statement> items = model.getStatements(s, null, null);
+        for (Statement item : items) {
+            Value p = item.getPredicate();
+            Value o = item.getObject();
+            annotation.setProperty(new ConceptReference(getPrefixIri(p.stringValue(),model.getNamespaces())));
+            annotation.setValue(o.stringValue());
+        }
+        return annotation;
+    }
+
+    private ConceptRole getConceptRole(Model model, Resource s) {
+        ConceptRole result= new ConceptRole();
+        Iterable<Statement> items = model.getStatements(s, null, null);
+        for (Statement item : items) {
+            Value p = item.getPredicate();
+            Value o = item.getObject();
+            result.setProperty(new ConceptReference(getPrefixIri(p.stringValue(),model.getNamespaces())));
+            if (o.isIRI())
+                result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(),model.getNamespaces())));
+            else
+               if ((o.isLiteral())) {
+                   result.setValueData(o.stringValue());
+               } else
+                   result.addSubrole(getConceptRole(model,(Resource) o));
+
+
+
+        }
+        return result;
+
+    }
+
+    private void setConceptTypes(Concept concept,String iri) {
+        if (iri.equals(OWL.CLASS.stringValue())) concept.setConceptType(ConceptType.CLASSONLY);
+        else if (iri.equals(RDFS.DATATYPE.stringValue())) concept.setConceptType(ConceptType.DATATYPE);
+        else if (iri.equals(OWL.OBJECTPROPERTY.stringValue())) concept.setConceptType(ConceptType.OBJECTPROPERTY);
+        else if (iri.equals(IM.RECORD.stringValue())) concept.setConceptType(ConceptType.RECORD);
+        else if (iri.equals(OWL.DATATYPEPROPERTY.stringValue())) concept.setConceptType(ConceptType.DATAPROPERTY);
+        else if (iri.equals(OWL.ANNOTATIONPROPERTY.stringValue())) concept.setConceptType(ConceptType.ANNOTATION);
+        else if (iri.equals(IM.LEGACY.stringValue())) concept.setConceptType(ConceptType.LEGACY);
+        else if (iri.equals(IM.VALUESET.stringValue())) concept.setConceptType(ConceptType.VALUESET);
+        else if (iri.equals((OWL.FUNCTIONALPROPERTY.stringValue()))) concept.setIsFunctional(new Axiom());
+        else if (iri.equals((OWL.REFLEXIVEPROPERTY.stringValue()))) concept.setIsReflexive(new Axiom());
+        else if (iri.equals((OWL.SYMMETRICPROPERTY.stringValue()))) concept.setIsSymmetric(new Axiom());
+        else if (iri.equals((OWL.TRANSITIVEPROPERTY.stringValue()))) concept.setIsTransitive(new Axiom());
+
         else throw new IllegalStateException("Unknown concept type [" + iri + "]");
+    }
+
+    private void getEquivalentTo(Concept concept,Model model, Resource s) throws DataFormatException {
+        //Maybe a class expression or a data type
+        Iterable<Statement> items = model.getStatements(s, null, null);
+
+        for (Statement item : items) {
+            Value p = item.getPredicate();
+            Value o = item.getObject();
+            if (OWL.WITHRESTRICTIONS.equals(p) || OWL.ONDATATYPE.equals(p) || RDFS.DATATYPE.equals(o)) {
+                concept.setDataTypeDefinition(getDataTypeDefinition(model, s));
+                return;
+            } else {
+                concept.addEquivalentTo(getExpression(model,s));
+            }
+        }
+    }
+
+    private DataTypeDefinition getDataTypeDefinition(Model model, Resource s) throws DataFormatException {
+        DataTypeDefinition dtd= new DataTypeDefinition();
+        Iterable<Statement> items = model.getStatements(s, null, null);
+
+        for (Statement item : items) {
+            Value p = item.getPredicate();
+            Value o = item.getObject();
+            if (OWL.ONDATATYPE.equals(p))
+                dtd.setDataType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
+            if (OWL.WITHRESTRICTIONS.equals(p)){
+                return getRestrictions(model,dtd,(Resource)o);
+            }
+        }
+        return dtd;
+    }
+
+    private DataTypeDefinition getRestrictions(Model model, DataTypeDefinition dtd, Resource s) throws DataFormatException {
+        Iterable<Statement> items = model.getStatements(s, null, null);
+
+        for (Statement item : items) {
+            Value p = item.getPredicate();
+            Value o = item.getObject();
+        }
+        throw new DataFormatException("restrictions not yet supported");
+
     }
 
     private ClassExpression getExpression(Model model, Resource s) {
@@ -404,13 +502,28 @@ public class ConceptServiceRDF4J implements IConceptService {
         if (s.isIRI())
             return result.setClazz(getPrefixIri(s.stringValue(), model.getNamespaces()));
         else if (s.isBNode()) {
+
             Iterable<Statement> items = model.getStatements(s, null, null);
 
             for (Statement item : items) {
                 Value p = item.getPredicate();
                 Value o = item.getObject();
-                if (OWL.INTERSECTIONOF.equals(p)) result.addIntersection(getExpression(model, (Resource) o));
-                else throw new IllegalStateException("Unknown expression type [" + p.stringValue() + "]");
+                if (OWL.INTERSECTIONOF.equals(p))
+                    result.addIntersection(getExpression(model, (Resource) o));
+                else if (OWL.UNIONOF.equals(p))
+                    result.addUnion(getExpression(model, (Resource) o));
+                else if (OWL.ONPROPERTY.equals(p) || OWL.SOMEVALUESFROM.equals(p) || OWL.MINCARDINALITY.equals(p)
+                    || OWL.MAXCARDINALITY.equals(p)) {
+                    result.setPropertyValue(getPropertyValue(model, s));
+                    return result;
+                } else if (OWL.RESTRICTION.equals(o)) {
+                    result.setPropertyValue(getPropertyValue(model, s));
+                    return result;
+                } else if (OWL.COMPLEMENTOF.equals(p)) {
+                    result.setComplementOf(getExpression(model, (Resource) o));
+                }
+                else if (!RDF.TYPE.equals(p))
+                 throw new IllegalStateException("Unknown expression type [" + p.stringValue() + "]");
             }
 
             return result;
@@ -418,23 +531,38 @@ public class ConceptServiceRDF4J implements IConceptService {
             throw new IllegalStateException("Attempted getExpression on non iri/bnode");
     }
 
-    private PropertyValue getProperty(Model model, Resource r) {
+    private List<ConceptReference> getOneOfs(Model model, Resource o) {
+        return null;
+    }
+
+    private PropertyValue getPropertyValue(Model model, Resource s) {
         PropertyValue result = new PropertyValue();
 
-        Iterable<Statement> items = model.getStatements(r, null, null);
+        Iterable<Statement> items = model.getStatements(s, null, null);
 
-        for (Statement s : items) {
-            Value p = s.getPredicate();
-            Value o = s.getObject();
+        for (Statement item : items) {
+            Value p = item.getPredicate();
+            Value o = item.getObject();
+            if (OWL.ONPROPERTY.equals(p))
+                result.setProperty(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
+            if (OWL.CLASS.equals(p))
+                if (o.isIRI())
+                    result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
+                else
+                    result.setExpression(getExpression(model,(Resource) o));
+            if (OWL.MINCARDINALITY.equals(p))
+                result.setMin(Integer.parseInt(o.stringValue()));
+            if (OWL.MAXCARDINALITY.equals(p))
+                result.setMax(Integer.parseInt(o.stringValue()));
+            if (OWL.SOMEVALUESFROM.equals(p))
+                if (o.isIRI())
+                    result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
+                else
+                    result.setExpression(getExpression(model,(Resource) o));
 
-            if (SHACL.CLASS.equals(p)) result.setProperty(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
-            else if (SHACL.MIN_COUNT.equals(p)) result.setMin(((Literal)o).intValue());
-            else if (SHACL.MAX_COUNT.equals(p)) result.setMax(((Literal)o).intValue());
-            else if (SHACL.PATH.equals(p)) result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
-            else throw new IllegalStateException("Unknown property type [" + p.toString() + "]");
         }
-
         return result;
+
     }
 
     private TermCode getTermCode(Model model, Resource r) {

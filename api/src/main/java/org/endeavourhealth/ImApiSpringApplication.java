@@ -13,11 +13,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
-@EnableAutoConfiguration
 @Configuration
 @EnableSwagger2
 @EnableJpaRepositories("org.endeavourhealth")
-@ComponentScan(basePackages = "org.endeavourhealth")
 @EntityScan("org.endeavourhealth")
 public class ImApiSpringApplication extends SpringBootServletInitializer {
 

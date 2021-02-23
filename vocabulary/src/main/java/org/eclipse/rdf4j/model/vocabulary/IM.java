@@ -19,6 +19,9 @@ public class IM {
     public static final IRI HAS_EXPANSION = Vocabularies.createIRI(NAMESPACE, "hasExpansion");
     public static final IRI IS_CONTAINED_IN = Vocabularies.createIRI(NAMESPACE,"isContainedIn");
     public static final IRI LEGACY = Vocabularies.createIRI(NAMESPACE,"Legacy");
+    public static final String XSD_NAMESPACE= "http://www.w3.org/2001/XMLSchema#";
+    public static final IRI PATTERN= Vocabularies.createIRI(XSD_NAMESPACE,"pattern");
+
 
 
 

@@ -495,6 +495,10 @@ public class ConceptServiceRDF4J implements IConceptService {
         for (Statement item : items) {
             Value p = item.getPredicate();
             Value o = item.getObject();
+            if (IM.PATTERN.equals(p)) {
+                dtd.setPattern(o.stringValue());
+                return dtd;
+            }
         }
         throw new DataFormatException("restrictions not yet supported");
 

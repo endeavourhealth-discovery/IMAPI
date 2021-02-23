@@ -16,6 +16,8 @@ import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.model.visitor.ObjectModelVisitor;
+import org.endeavourhealth.imapi.model.visitor.ValueSetMemberParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,22 +235,13 @@ public class ConceptServiceV3 implements IConceptService {
     public ExportValueSet getValueSetMembers(String iri, boolean expand) {
         Concept concept = getConcept(iri);
 
-        if (concept.getMember()==null)
-            return null;
-
-        List<ConceptReference> included = new ArrayList<>();
-        List<ConceptReference> excluded = new ArrayList<>();
-        concept.getMember().forEach(m -> {
-            if (m.isExclude())
-                excluded.add(m.getClazz());
-            else
-                included.add(m.getClazz());
-        });
-
+        ObjectModelVisitor visitor = new ObjectModelVisitor();
+        ValueSetMemberParser parser = new ValueSetMemberParser(visitor);
+        visitor.visit(concept);
 
         Map<String, ValueSetMember> inclusions = new HashMap<>();
 
-        for(ConceptReference cr: included) {
+        for(ConceptReference cr: parser.included) {
             org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
 
             ValueSetMember vsm = new ValueSetMember()
@@ -270,7 +263,7 @@ public class ConceptServiceV3 implements IConceptService {
         }
 
         Map<String, ValueSetMember> exclusions = new HashMap<>();
-        for(ConceptReference cr: excluded) {
+        for(ConceptReference cr: parser.excluded) {
             org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
 
             ValueSetMember vsm = new ValueSetMember()
@@ -313,16 +306,11 @@ public class ConceptServiceV3 implements IConceptService {
         Concept valueSet = getConcept(valueSetIri);
 
         if (valueSet.getMember()!=null) {
-            List<ConceptReference> included = new ArrayList<>();
-            List<ConceptReference> excluded = new ArrayList<>();
-            valueSet.getMember().forEach(m -> {
-                if (m.isExclude())
-                    excluded.add(m.getClazz());
-                else
-                    included.add(m.getClazz());
-            });
+            ObjectModelVisitor visitor = new ObjectModelVisitor();
+            ValueSetMemberParser parser = new ValueSetMemberParser(visitor);
+            visitor.visit(valueSet);
 
-            for (ConceptReference m : included) {
+            for (ConceptReference m : parser.included) {
                 Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
                 if (match.isPresent()) {
                     result.setIncludedBy(m);
@@ -330,7 +318,7 @@ public class ConceptServiceV3 implements IConceptService {
                 }
             }
 
-            for (ConceptReference m : excluded) {
+            for (ConceptReference m : parser.excluded) {
                 Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
                 if (match.isPresent()) {
                     result.setExcludedBy(m);
@@ -538,7 +526,6 @@ public class ConceptServiceV3 implements IConceptService {
             case CLASS:
                 org.endeavourhealth.dataaccess.entity.Concept c = exp.getTargetConcept();
                 cex.setClazz(new ConceptReference(c.getIri(), c.getName()));
-                cex.setExclude(exp.getExclude());
                 return cex;
             case INTERSECTION:
                 cex.setIntersection(

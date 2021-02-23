@@ -21,9 +21,6 @@ public class ClassExpression implements IMEntity, IMAnnotated{
     private Set<Annotation> annotations;
     private ConceptReference module;
 
-    private boolean exclude;
-
-
     @JsonProperty("Inferred")
     public Boolean getInferred() {
         return inferred;
@@ -201,18 +198,6 @@ public class ClassExpression implements IMEntity, IMAnnotated{
 
     public ClassExpression setModule(ConceptReference module) {
         this.module = module;
-        return this;
-    }
-
-
-
-    @JsonProperty("Exclude")
-    public boolean isExclude() {
-        return exclude;
-    }
-
-    public ClassExpression setExclude(boolean exclude) {
-        this.exclude = exclude;
         return this;
     }
 }

@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import org.endeavourhealth.dataaccess.entity.Classification;
 import org.endeavourhealth.dataaccess.entity.ConceptTct;
 import org.endeavourhealth.dataaccess.entity.Expression;
-import org.endeavourhealth.dataaccess.entity.PropertyValueEnt;
+import org.endeavourhealth.dataaccess.entity.PropertyValue;
 import org.endeavourhealth.dataaccess.entity.Axiom;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.*;
@@ -488,20 +488,20 @@ public class ConceptServiceV3 implements IConceptService {
             .map(exp -> setClassExpression(exp, expressions, new ClassExpression()));
     }
 
-    private Stream<PropertyValue> getPropertyValuesAsStream(List<Expression> expressions) {
+    private Stream<org.endeavourhealth.imapi.model.PropertyValue> getPropertyValuesAsStream(List<Expression> expressions) {
         return expressions.stream()
             .filter(exp -> exp.getParent() == null)
-            .map(exp -> setPropertyValue(exp, expressions, new PropertyValue()));
+            .map(exp -> setPropertyValue(exp, expressions, new org.endeavourhealth.imapi.model.PropertyValue()));
     }
 
-    private PropertyValue setPropertyValue(Expression exp, List<Expression> expressions, PropertyValue pv) {
-        PropertyValueEnt pv1 = exp.getPropertyValue().get(0);
-        pv.setProperty(new ConceptReference(pv1.getProperty().getIri()));
+    private org.endeavourhealth.imapi.model.PropertyValue setPropertyValue(Expression exp, List<Expression> expressions, org.endeavourhealth.imapi.model.PropertyValue pv) {
+        PropertyValue pv1 = exp.getPropertyValue().get(0);
+        pv.setProperty(new ConceptReference(pv1.getProperty().getIri(), pv1.getProperty().getName()));
         pv.setMin(pv1.getMinCardinality());
         pv.setMax(pv1.getMaxCardinality());
-        if (pv1.getMaxCardinality().equals(pv1.getMaxCardinality()))
+        if (pv1.getMinCardinality() != null && pv1.getMinCardinality().equals(pv1.getMaxCardinality()))
             pv.setQuantification(QuantificationType.SOME);
-        pv.setValueType(new ConceptReference(pv1.getValueType().getIri()));
+        pv.setValueType(new ConceptReference(pv1.getValueType().getIri(), pv1.getValueType().getName()));
         pv.setValueData(pv1.getValueData());
 
         return pv;
@@ -515,7 +515,7 @@ public class ConceptServiceV3 implements IConceptService {
     }
     private ConceptRole setRole(Expression exp, List<Expression> expressions, ConceptRole role) {
 
-        PropertyValueEnt pv1 = exp.getPropertyValue().get(0);
+        PropertyValue pv1 = exp.getPropertyValue().get(0);
         role.setProperty(new ConceptReference(pv1.getProperty().getIri()));
         role.setValueType(new ConceptReference(pv1.getValueType().getIri()));
         role.setValueData(pv1.getValueData());
@@ -561,8 +561,8 @@ public class ConceptServiceV3 implements IConceptService {
                 );
                 return cex;
             case OBJECTPROPERTYVALUE:
-                PropertyValueEnt pv1 = exp.getPropertyValue().get(0);
-                PropertyValue opv = new PropertyValue();
+                PropertyValue pv1 = exp.getPropertyValue().get(0);
+                org.endeavourhealth.imapi.model.PropertyValue opv = new org.endeavourhealth.imapi.model.PropertyValue();
 
                 opv.setProperty(new ConceptReference(pv1.getProperty().getIri(), pv1.getProperty().getName()))
                     .setValueData(pv1.getValueData())
@@ -577,8 +577,8 @@ public class ConceptServiceV3 implements IConceptService {
                 cex.setPropertyValue(opv);
                 return cex;
             case DATAPROPERTYVALUE:
-                PropertyValueEnt pv2 = exp.getPropertyValue().get(0);
-                PropertyValue dpv = new PropertyValue();
+                PropertyValue pv2 = exp.getPropertyValue().get(0);
+                org.endeavourhealth.imapi.model.PropertyValue dpv = new org.endeavourhealth.imapi.model.PropertyValue();
                 dpv.setProperty(new ConceptReference(pv2.getProperty().getIri(), pv2.getProperty().getName()))
                     .setValueData(pv2.getValueData())
                     .setMin(pv2.getMinCardinality())

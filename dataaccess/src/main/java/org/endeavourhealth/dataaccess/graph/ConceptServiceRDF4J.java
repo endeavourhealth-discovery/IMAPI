@@ -45,6 +45,10 @@ public class ConceptServiceRDF4J implements IConceptService {
         db = new HTTPRepository("http://localhost:7200/", "InformationModel");
     }
 
+    protected ConceptServiceRDF4J(Repository repo) {
+        db = repo;
+    }
+
     @Override
     public Concept getConcept(String iri) {
         try (RepositoryConnection conn = db.getConnection()) {
@@ -331,7 +335,7 @@ public class ConceptServiceRDF4J implements IConceptService {
         return fullIri.replace(namespace.get().getName(), namespace.get().getPrefix() + ":");
     }
 
-    private Model getDefinition(RepositoryConnection conn, String iri) {
+    protected Model getDefinition(RepositoryConnection conn, String iri) {
         Model result = new TreeModel();
 
         Set<Namespace> namespaces = conn.getNamespaces().stream().collect(Collectors.toSet());

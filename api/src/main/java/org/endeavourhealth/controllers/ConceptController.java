@@ -177,7 +177,7 @@ public class ConceptController {
     
     @PostMapping
     public ResponseEntity<Concept> createConcept(@RequestBody Optional<Concept> concept, @RequestParam Optional<String> definitionText) {
-    	if(concept.isEmpty() && definitionText.isEmpty()) {
+    	if((!concept.isPresent()) && (!definitionText.isPresent())) {
     		return ResponseEntity.badRequest().build();
     	}
 //    	TODO save concept

@@ -178,6 +178,9 @@ public class ConceptServiceV3 implements IConceptService {
     }
 
     public List<ConceptReferenceNode> getParentHierarchy(String iri) {
+        if ("owl:Thing".equals(iri))
+            return null;
+
         // TODO : Optimize via TCT and/or ancestor map
         Set<Classification> classifications = classificationRepository.findByChild_Iri(iri);
 
@@ -503,6 +506,7 @@ public class ConceptServiceV3 implements IConceptService {
             pv.setQuantification(QuantificationType.SOME);
         pv.setValueType(new ConceptReference(pv1.getValueType().getIri(), pv1.getValueType().getName()));
         pv.setValueData(pv1.getValueData());
+
 
         return pv;
     }

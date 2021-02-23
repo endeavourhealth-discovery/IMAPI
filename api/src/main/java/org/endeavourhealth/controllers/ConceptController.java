@@ -3,6 +3,7 @@ package org.endeavourhealth.controllers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.endeavourhealth.dataaccess.graph.ConceptServiceRDF4J;
 import org.endeavourhealth.converters.ImLangConverter;
@@ -18,6 +19,7 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -165,12 +167,21 @@ public class ConceptController {
     
     @GetMapping(value = "/referenceSuggestions")
     public List<ConceptReference> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
-    	System.out.println(keyword);
-    	System.out.println(word);
+//    	TODO generate and return suggestions
     	return new ArrayList<ConceptReference>(Arrays. asList(
 	    			new ConceptReference(":961000252104", "method (attribute)"), 
 	    			new ConceptReference(":1271000252102", "Hospital inpatient admission"),
 	    			new ConceptReference(":1911000252103", "Transfer event")
     			));
+    }
+    
+    @PostMapping
+    public ResponseEntity<Concept> createConcept(@RequestBody Optional<Concept> concept, @RequestParam Optional<String> definitionText) {
+    	if(concept.isEmpty() && definitionText.isEmpty()) {
+    		return ResponseEntity.badRequest().build();
+    	}
+//    	TODO save concept
+//    	TODO create concept from definitionText
+    	return concept.isPresent() ? ResponseEntity.ok(concept.get()) : ResponseEntity.ok(new Concept());
     }
 }

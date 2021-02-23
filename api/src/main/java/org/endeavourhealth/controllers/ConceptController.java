@@ -1,5 +1,7 @@
 package org.endeavourhealth.controllers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.endeavourhealth.dataaccess.graph.ConceptServiceRDF4J;
@@ -159,5 +161,16 @@ public class ConceptController {
     @GetMapping(value = "/{iri}/isMemberOf/{valueSetIri}")
     public ValueSetMembership isMemberOfValueSet(@PathVariable("iri") String conceptIri, @PathVariable("valueSetIri") String valueSetIri) {
         return conceptService.isValuesetMember(valueSetIri, conceptIri);
+    }
+    
+    @GetMapping(value = "/referenceSuggestions")
+    public List<ConceptReference> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
+    	System.out.println(keyword);
+    	System.out.println(word);
+    	return new ArrayList<ConceptReference>(Arrays. asList(
+	    			new ConceptReference(":961000252104", "method (attribute)"), 
+	    			new ConceptReference(":1271000252102", "Hospital inpatient admission"),
+	    			new ConceptReference(":1911000252103", "Transfer event")
+    			));
     }
 }

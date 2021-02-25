@@ -31,6 +31,10 @@ public class Concept implements IMAnnotated {
     private List<PropertyValue> property;
     private List<Concept> recordModel;
     private List<ClassExpression> member;
+    private List<Concept> memberClass;
+    private List<ConceptReference> memberInstance;
+    private List<Concept> memberExc;
+    private List<ConceptReference> memberExcInstance;
     private List<ConceptReference> memberExpansion;
     private Set<PropertyAxiom> subObjectPropertyOf;
     private PropertyAxiom inversePropertyOf;
@@ -609,4 +613,69 @@ public class Concept implements IMAnnotated {
         this.role.add(role);
         return this;
     }
+
+    public List<Concept> getMemberClass() {
+        return memberClass;
+    }
+
+    public Concept setMemberClass(List<Concept> memberClass) {
+        this.memberClass = memberClass;
+        return this;
+    }
+    public Concept addMemberClass(Concept concept){
+        if (this.memberClass==null)
+            this.memberClass= new ArrayList<>();
+        this.memberClass.add(concept);
+        return this;
+    }
+
+    public List<ConceptReference> getMemberInstance() {
+        return memberInstance;
+    }
+
+    public Concept setMemberInstance(List<ConceptReference> memberInstance) {
+        this.memberInstance = memberInstance;
+        return this;
+    }
+    public Concept addMemberInstance(ConceptReference concept){
+        if (this.memberInstance==null)
+            this.memberInstance= new ArrayList<>();
+        this.memberInstance.add(concept);
+        return this;
+    }
+
+
+    public List<Concept> getMemberExc() {
+        return memberExc;
+    }
+
+    public Concept setMemberExclusion(List<Concept> memberExlusion) {
+        this.memberExc = memberExlusion;
+        return this;
+    }
+
+    public Concept addMemberExc(Concept concept){
+        if (this.memberExc==null)
+            this.memberExc= new ArrayList<>();
+        this.memberExc.add(concept);
+        return this;
+    }
+
+    public List<ConceptReference> getMemberExcInstance() {
+        return memberExcInstance;
+    }
+
+    public Concept setMemberExcInstance(List<ConceptReference> memberExclusionInstance) {
+        this.memberExcInstance = memberExclusionInstance;
+        return this;
+    }
+
+    public Concept addMemberExcInstance(ConceptReference concept){
+        if (this.memberExcInstance==null)
+            this.memberExcInstance= new ArrayList<>();
+        this.memberExcInstance.add(concept);
+        return this;
+    }
+
+
 }

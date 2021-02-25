@@ -21,6 +21,9 @@ public class IM {
     public static final IRI LEGACY = Vocabularies.createIRI(NAMESPACE,"Legacy");
     public static final String XSD_NAMESPACE= "http://www.w3.org/2001/XMLSchema#";
     public static final IRI PATTERN= Vocabularies.createIRI(XSD_NAMESPACE,"pattern");
+    public static final IRI HAS_MEMBER_EXCLUSION = Vocabularies.createIRI(XSD_NAMESPACE,"hasMemberExclusion");
+    public static final IRI HAS_MEMBER_INSTANCE = Vocabularies.createIRI(XSD_NAMESPACE,"hasMemberInstance");
+    public static final IRI HAS_MEMBER_EXC_INSTANCE = Vocabularies.createIRI(XSD_NAMESPACE,"hasMemberExcInstance");
 
 
 

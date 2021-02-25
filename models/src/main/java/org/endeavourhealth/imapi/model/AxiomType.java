@@ -27,7 +27,10 @@ public enum AxiomType {
     //MEMBER_EXPANSION((byte)20,"MemberExpansion"),
     PROPERTY((byte)21,"Property"),
     MAPPED_FROM((byte)22,"MappedFrom"),
-    ROLE((byte)23,"Role");
+    ROLE((byte)23,"Role"),
+    MEMBER_EXC((byte)24,"MemberExclusion"),
+    MEMBER_INSTANCE((byte)25,"MemberInstance"),
+    MEMBER_EXC_INSTANCE((byte)26,"MemberInstanceExclusion");
 
     private byte _value;
     private String _name;

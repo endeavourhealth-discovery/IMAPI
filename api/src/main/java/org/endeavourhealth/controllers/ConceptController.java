@@ -3,9 +3,8 @@ package org.endeavourhealth.controllers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
 import org.endeavourhealth.dataaccess.graph.ConceptServiceRDF4J;
+import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.converters.ImLangConverter;
 import org.endeavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
@@ -19,7 +18,6 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -176,12 +174,9 @@ public class ConceptController {
     }
     
     @PostMapping
-    public ResponseEntity<Concept> createConcept(@RequestBody Optional<Concept> concept, @RequestParam Optional<String> definitionText) {
-    	if((!concept.isPresent()) && (!definitionText.isPresent())) {
-    		return ResponseEntity.badRequest().build();
-    	}
+    public Concept createConcept(@RequestBody ConceptDto conceptDto) {
+//    	TODO convert conceptDto to concept
 //    	TODO save concept
-//    	TODO create concept from definitionText
-    	return concept.isPresent() ? ResponseEntity.ok(concept.get()) : ResponseEntity.ok(new Concept());
+    	return new Concept();
     }
 }

@@ -10,10 +10,6 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.WriterConfig;
-import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
@@ -40,9 +36,14 @@ public class ConceptServiceRDF4J implements IConceptService {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceRDF4J.class);
 
     private Repository db;
+    private RepositoryType repositoryType;
 
     public ConceptServiceRDF4J() {
-        db = new HTTPRepository("http://localhost:7200/", "InformationModel");
+        String repositoryUrl = System.getenv("GRAPH_REPOSITORY_URL");
+        String repositoryId = System.getenv("GRAPH_REPOSITORY_ID");
+        repositoryType = RepositoryType.valueOf(System.getenv("GRAPH_REPOSITORY_TYPE"));
+
+        db = new HTTPRepository(repositoryUrl, repositoryId);
     }
 
     protected ConceptServiceRDF4J(Repository repo) {
@@ -213,25 +214,21 @@ public class ConceptServiceRDF4J implements IConceptService {
         try (RepositoryConnection conn = db.getConnection()) {
             String sql = "SELECT * \n" +
                 "WHERE { \n" +
-                "\t?iri rdfs:label ?label\n" +
-                "      OPTIONAL { ?iri :code ?code }\n" +
-                "    filter (\n" +
-                "        contains(?label, ?term) || \n" +
-                "        contains(?iri, ?term) ||\n" +
-                "        contains(?code, ?term)\n" +
-                "    )\n" +
+                getLuceneSparql(MatchType.FUZZY) +
+                "    ?lucMatch rdfs:label ?label\n" +
+                "      OPTIONAL { ?lucMatch :code ?code }\n" +
                 "} limit 20 \n";
 
             PrefixedTupleQuery qry = prepare(conn, sql)
-                .bind("term", literal(request.getTermFilter()));
+                .bind("lucTerm", literal(request.getTermFilter()));
 
             try (PrefixedTupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet row = rs.next();
                     result.add(new ConceptSummary()
-                        .setIri(row.getValue("iri").stringValue())
+                        .setIri(row.getValue("lucMatch").stringValue())
                         .setName(row.getValue("label").stringValue())
-                        .setCode(row.getValue("code").stringValue())
+                        .setCode(row.getValue("code") != null ? row.getValue("code").stringValue() : null)
                     );
                 }
             }
@@ -589,5 +586,41 @@ public class ConceptServiceRDF4J implements IConceptService {
 
 
         return result;
+    }
+
+    /***
+     * Returns a lucene search query to be injected into Sparql based on repository type.
+     * Term should be bound to "?lucTerm"
+     * Adds the following to the SPARQL query:-
+     * ?lucMatch - Matching subject (iri)
+     * ?lucScore - Match score
+     *
+     * @param matchType Type of string matching to perform
+     * @return SPARQL segment string
+     */
+    private String getLuceneSparql(MatchType matchType) {
+        switch (this.repositoryType) {
+            case GRAPHDB:
+                return getLuceneSparqlGraphDb(matchType);
+            default:
+                throw new IllegalStateException("Unsupported lucene implementation");
+        }
+    }
+
+    private String getLuceneSparqlGraphDb(MatchType matchType) {
+        switch (matchType) {
+            case EXACT:
+                return "\t?lucMatch luc:myTestIndex ?lucTerm ;\n\tluc:score ?lucScore .\n";
+            case STARTS:
+                return "\tBIND(CONCAT(?lucTerm, \"*\") AS ?lucTermStarts) .\n\t?lucMatch luc:myTestIndex ?lucTermStarts ;\n\tluc:score ?lucScore .\n";
+            case ENDS:
+                return "\tBIND(CONCAT(\"*\", ?lucTerm) AS ?lucTermStarts) .\n\t?lucMatch luc:myTestIndex ?lucTermStarts ;\n\tluc:score ?lucScore .\n";
+            case CONTAINS:
+                return "\tBIND(CONCAT(\"*\", ?lucTerm, \"*\") AS ?lucTermStarts) .\n\t?lucMatch luc:myTestIndex ?lucTermStarts ;\n\tluc:score ?lucScore .\n";
+            case FUZZY:
+                return "\tBIND(CONCAT(?lucTerm, \"~\") AS ?lucTermStarts) .\n\t?lucMatch luc:myTestIndex ?lucTermStarts ;\n\tluc:score ?lucScore .\n";
+            default:
+                throw new IllegalStateException("Unsupported lucene match type");
+        }
     }
 }

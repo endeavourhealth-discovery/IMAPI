@@ -24,8 +24,9 @@ public class IM {
     public static final IRI HAS_MEMBER_EXCLUSION = Vocabularies.createIRI(XSD_NAMESPACE,"hasMemberExclusion");
     public static final IRI HAS_MEMBER_INSTANCE = Vocabularies.createIRI(XSD_NAMESPACE,"hasMemberInstance");
     public static final IRI HAS_MEMBER_EXC_INSTANCE = Vocabularies.createIRI(XSD_NAMESPACE,"hasMemberExcInstance");
-
-
+    public static final IRI IS_A= Vocabularies.createIRI(NAMESPACE,"isA");
+    public static final IRI ROLE_GROUP= Vocabularies.createIRI(NAMESPACE,"roleGroup");
+    public static final IRI IN_ROLE_GROUP_OF= Vocabularies.createIRI(NAMESPACE,"inrRoleGroupOf");
 
 
 }

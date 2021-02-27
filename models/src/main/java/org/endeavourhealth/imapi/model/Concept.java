@@ -31,9 +31,8 @@ public class Concept implements IMAnnotated {
     private List<PropertyValue> property;
     private List<Concept> recordModel;
     private List<ClassExpression> member;
-    private List<Concept> memberClass;
     private List<ConceptReference> memberInstance;
-    private List<Concept> memberExc;
+    private List<ClassExpression> memberExc;
     private List<ConceptReference> memberExcInstance;
     private List<ConceptReference> memberExpansion;
     private Set<PropertyAxiom> subObjectPropertyOf;
@@ -614,20 +613,6 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
-    public List<Concept> getMemberClass() {
-        return memberClass;
-    }
-
-    public Concept setMemberClass(List<Concept> memberClass) {
-        this.memberClass = memberClass;
-        return this;
-    }
-    public Concept addMemberClass(Concept concept){
-        if (this.memberClass==null)
-            this.memberClass= new ArrayList<>();
-        this.memberClass.add(concept);
-        return this;
-    }
 
     public List<ConceptReference> getMemberInstance() {
         return memberInstance;
@@ -645,19 +630,19 @@ public class Concept implements IMAnnotated {
     }
 
 
-    public List<Concept> getMemberExc() {
+    public List<ClassExpression> getMemberExc() {
         return memberExc;
     }
 
-    public Concept setMemberExclusion(List<Concept> memberExlusion) {
+    public Concept setMemberExclusion(List<ClassExpression> memberExlusion) {
         this.memberExc = memberExlusion;
         return this;
     }
 
-    public Concept addMemberExc(Concept concept){
+    public Concept addMemberExc(ClassExpression exp){
         if (this.memberExc==null)
             this.memberExc= new ArrayList<>();
-        this.memberExc.add(concept);
+        this.memberExc.add(exp);
         return this;
     }
 

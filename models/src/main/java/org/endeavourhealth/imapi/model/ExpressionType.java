@@ -17,7 +17,8 @@ public enum ExpressionType {
     OBJECTVALUE((byte)10,"ObjectValue"),
     //PROPERTY_CONSTRAINT((byte)11,"PropertyConstraint"),
     PROPERTY_VALUE((byte)12,"PropertyValue"),
-    ROLE((byte)13,"Role");
+    ROLE((byte)13,"Role"),
+    INSTANCE((byte)14,"Instance");
 
     private byte _value;
     private String _name;

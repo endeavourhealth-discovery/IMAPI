@@ -390,13 +390,12 @@ public class ConceptServiceRDF4J implements IConceptService {
             else if (IM.HAS_MEMBERS.equals(p)) result.addMember(getExpression(model, (Resource)o));
             else if (OWL.EQUIVALENTCLASS.equals(p)){
                 getEquivalentTo(result,model, (Resource) o);
+            } else if (IM.ROLE_GROUP.equals(p)){
+                result.addRoleGroup(getConceptRoleGroup(model,(Resource) o));
             }
             else if (OWL.ANNOTATION.equals(p)) result.addAnnotation(getAnnotation(model,(Resource)o));
             else if (o.isLiteral())
                 System.err.println("Literal");
-            else
-                result.addRole(getConceptRole(model,(Resource) o));
-
 
         }
 
@@ -415,21 +414,22 @@ public class ConceptServiceRDF4J implements IConceptService {
         return annotation;
     }
 
-    private ConceptRole getConceptRole(Model model, Resource s) {
-        ConceptRole result= new ConceptRole();
+    private ConceptRoleGroup getConceptRoleGroup(Model model, Resource s) throws DataFormatException {
+        ConceptRoleGroup result= new ConceptRoleGroup();
         Iterable<Statement> items = model.getStatements(s, null, null);
         for (Statement item : items) {
             Value p = item.getPredicate();
             Value o = item.getObject();
-            result.setProperty(new ConceptReference(getPrefixIri(p.stringValue(),model.getNamespaces())));
+            ConceptRole role= new ConceptRole();
+            result.addRole(role);
+            role.setProperty(new ConceptReference(getPrefixIri(p.stringValue(),model.getNamespaces())));
             if (o.isIRI())
-                result.setValueType(new ConceptReference(getPrefixIri(o.stringValue(),model.getNamespaces())));
+                role.setValueType(new ConceptReference(getPrefixIri(o.stringValue(),model.getNamespaces())));
             else
                if ((o.isLiteral())) {
-                   result.setValueData(o.stringValue());
+                   role.setValueData(o.stringValue());
                } else
-                   result.addSubrole(getConceptRole(model,(Resource) o));
-
+                throw new DataFormatException("nested role groups not supported ");
 
 
         }

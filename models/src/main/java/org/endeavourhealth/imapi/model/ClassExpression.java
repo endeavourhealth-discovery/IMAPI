@@ -20,7 +20,7 @@ public class ClassExpression implements IMEntity, IMAnnotated{
     private int group;
     private Set<Annotation> annotations;
     private ConceptReference module;
-    private ConceptReference instance;
+
 
     @JsonProperty("Inferred")
     public Boolean getInferred() {
@@ -202,12 +202,5 @@ public class ClassExpression implements IMEntity, IMAnnotated{
         return this;
     }
 
-    public ConceptReference getInstance() {
-        return instance;
-    }
 
-    public ClassExpression setInstance(ConceptReference instance) {
-        this.instance = instance;
-        return this;
-    }
 }

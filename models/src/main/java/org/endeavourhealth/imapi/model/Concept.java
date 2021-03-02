@@ -31,9 +31,6 @@ public class Concept implements IMAnnotated {
     private List<PropertyValue> property;
     private List<Concept> recordModel;
     private List<ClassExpression> member;
-    private List<ConceptReference> memberInstance;
-    private List<ClassExpression> memberExc;
-    private List<ConceptReference> memberExcInstance;
     private List<ConceptReference> memberExpansion;
     private Set<PropertyAxiom> subObjectPropertyOf;
     private PropertyAxiom inversePropertyOf;
@@ -49,7 +46,7 @@ public class Concept implements IMAnnotated {
     private Set<DataPropertyRange> dataPropertyRange;
     private Set<PropertyAxiom> subAnnotationPropertyOf;
     private List<ConceptReference> mappedFrom;
-    private Set<ConceptRole> role;
+    private Set<ConceptRoleGroup> roleGroup;
 
 
 
@@ -597,70 +594,24 @@ public class Concept implements IMAnnotated {
         return this;
     }
 
-    public Set<ConceptRole> getRole() {
-        return role;
+    public Set<ConceptRoleGroup> getRoleGroup() {
+        return roleGroup;
     }
 
-    public Concept setRole(Set<ConceptRole> role) {
-        this.role = role;
+    public Concept setRoleGroup(Set<ConceptRoleGroup> role) {
+        this.roleGroup = role;
         return this;
     }
 
-    public Concept addRole(ConceptRole role){
-        if (this.role==null)
-            this.role= new HashSet<>();
-        this.role.add(role);
-        return this;
-    }
-
-
-    public List<ConceptReference> getMemberInstance() {
-        return memberInstance;
-    }
-
-    public Concept setMemberInstance(List<ConceptReference> memberInstance) {
-        this.memberInstance = memberInstance;
-        return this;
-    }
-    public Concept addMemberInstance(ConceptReference concept){
-        if (this.memberInstance==null)
-            this.memberInstance= new ArrayList<>();
-        this.memberInstance.add(concept);
+    public Concept addRoleGroup(ConceptRoleGroup roleGroup){
+        if (this.roleGroup==null)
+            this.roleGroup= new HashSet<>();
+        this.roleGroup.add(roleGroup);
         return this;
     }
 
 
-    public List<ClassExpression> getMemberExc() {
-        return memberExc;
-    }
 
-    public Concept setMemberExclusion(List<ClassExpression> memberExlusion) {
-        this.memberExc = memberExlusion;
-        return this;
-    }
-
-    public Concept addMemberExc(ClassExpression exp){
-        if (this.memberExc==null)
-            this.memberExc= new ArrayList<>();
-        this.memberExc.add(exp);
-        return this;
-    }
-
-    public List<ConceptReference> getMemberExcInstance() {
-        return memberExcInstance;
-    }
-
-    public Concept setMemberExcInstance(List<ConceptReference> memberExclusionInstance) {
-        this.memberExcInstance = memberExclusionInstance;
-        return this;
-    }
-
-    public Concept addMemberExcInstance(ConceptReference concept){
-        if (this.memberExcInstance==null)
-            this.memberExcInstance= new ArrayList<>();
-        this.memberExcInstance.add(concept);
-        return this;
-    }
 
 
 }

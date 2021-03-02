@@ -10,7 +10,6 @@ public class Individual extends Concept{
     private ConceptReference isType;
 
 
-
     public Individual(){
         this.setConceptType(ConceptType.INDIVIDUAL);
     }

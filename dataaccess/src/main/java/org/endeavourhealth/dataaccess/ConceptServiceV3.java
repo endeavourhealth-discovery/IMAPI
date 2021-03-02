@@ -465,7 +465,7 @@ public class ConceptServiceV3 implements IConceptService {
                     break;
                 case ROLE:
                     getConceptRoleAsStream(a.getExpressions())
-                        .forEach(c::addRole);
+                        .forEach(c::addRoleGroup);
                 default:
                     throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
 
@@ -499,24 +499,28 @@ public class ConceptServiceV3 implements IConceptService {
         return pv;
     }
 
-    private Stream<ConceptRole> getConceptRoleAsStream(List<Expression> expressions) {
+    private Stream<ConceptRoleGroup> getConceptRoleAsStream(List<Expression> expressions) {
         return expressions.stream()
             .filter(exp -> exp.getParent() == null)
-            .map(exp -> setRole(exp, expressions, new ConceptRole()));
+            .map(exp -> setRoleGroup(exp, expressions, new ConceptRoleGroup()));
 
     }
+
+    private ConceptRoleGroup setRoleGroup(Expression exp, List<Expression> expressions, ConceptRoleGroup roleGroup) {
+        roleGroup.setRole(
+            expressions.stream()
+            .filter(ex -> exp.getDbid().equals(ex.getParent()))
+            .map(ex -> setRole(ex,expressions, new ConceptRole()))
+            .collect(Collectors.toList()));
+        return roleGroup;
+    }
+
     private ConceptRole setRole(Expression exp, List<Expression> expressions, ConceptRole role) {
 
         PropertyValue pv1 = exp.getPropertyValue().get(0);
         role.setProperty(new ConceptReference(pv1.getProperty().getIri()));
         role.setValueType(new ConceptReference(pv1.getValueType().getIri()));
         role.setValueData(pv1.getValueData());
-        role.setRole(
-            expressions.stream()
-                .filter(ex -> exp.getDbid().equals(ex.getParent()))
-                .map(ex -> setRole(ex, expressions, new ConceptRole()))
-                .collect(Collectors.toSet())
-        );
         return role;
     }
 

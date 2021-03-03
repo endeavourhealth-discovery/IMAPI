@@ -28,6 +28,8 @@ public class IM {
     public static final IRI ROLE_GROUP= Vocabularies.createIRI(NAMESPACE,"roleGroup");
     public static final IRI IN_ROLE_GROUP_OF= Vocabularies.createIRI(NAMESPACE,"inrRoleGroupOf");
     public static final IRI IS_INSTANCE_OF = Vocabularies.createIRI(NAMESPACE,"isInstanceOf");
+    public static final IRI DM_OP = Vocabularies.createIRI(NAMESPACE,"modelObjectProperty");
+    public static final IRI DM_DP = Vocabularies.createIRI(NAMESPACE,"modelDataProperty");
 
 
 }

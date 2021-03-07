@@ -1,5 +1,8 @@
 package org.endeavourhealth.dataaccess.graph;
 
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.dataaccess.IConceptService;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.Namespace;
@@ -621,6 +624,103 @@ public class ConceptServiceRDF4J implements IConceptService {
                 return "\tBIND(CONCAT(?lucTerm, \"~\") AS ?lucTermStarts) .\n\t?lucMatch luc:myTestIndex ?lucTermStarts ;\n\tluc:score ?lucScore .\n";
             default:
                 throw new IllegalStateException("Unsupported lucene match type");
+        }
+    }
+    /**
+     * Returns the fully expanded list of value set members from a value set definition
+     * @param iri  a string representation in full iri form e.g. http//.....#VSET_category_operations
+     * @return a Set of concept references
+     */
+
+    public Set<String> getValueSetExpansion(String iri){
+        Concept valueSet= getConcept(iri);
+        Set<String> members= new HashSet<>();
+        String queryText= getValueSetQueryText(valueSet);
+        try (RepositoryConnection conn = db.getConnection()) {
+            TupleQuery query = conn.prepareTupleQuery(queryText);
+            TupleQueryResult result= query.evaluate();
+            while (result.hasNext()){
+                BindingSet set= result.next();
+                members.add(set.getValue("concept").stringValue());
+            }
+        }catch (QueryEvaluationException e) {
+            e.printStackTrace();
+
+        }
+        return members;
+    }
+
+    private String getValueSetQueryText(Concept valueSet) {
+        int memberCount = 0;
+
+        //Now build the query based on the value set concept
+        StringBuilder query = new StringBuilder("");
+        for (ClassExpression exp : valueSet.getMember()) {
+            memberCount++;
+            if (memberCount > 1)
+                query.append("UNION {\n");
+            else query.append("{\n");
+            if (exp.getClazz() != null) {
+                setSimpleEntailment(exp, query);
+                query.append("}\n");
+            } else if (exp.getIntersection() != null) {
+                setRefinedEntailment(exp, query);
+                query.append("}\n");
+            }
+        }
+        StringBuilder queryText= new StringBuilder("");
+        db.getConnection().getNamespaces().stream().forEach(ns-> queryText.append("PREFIX ")
+        .append(ns.getPrefix()).append(": <").append(ns.getName()).append(">\n"));
+
+        queryText.append("SELECT ?concept\n");
+        queryText.append("WHERE {\n");
+        queryText.append(query.toString());
+        queryText.append("}");
+        return queryText.toString();
+    }
+
+    private void setSimpleEntailment(ClassExpression exp,StringBuilder query) {
+        query.append("  ?concept :isA ")
+            .append(exp.getClazz().getIri())
+            .append("\n");
+    }
+
+    private void setRefinedEntailment(ClassExpression exp,StringBuilder query) {
+        Map<String, String> group = new HashMap<>();
+        List<Map<String, String>> groups = new ArrayList<>();
+        groups.add(group);
+
+        for (ClassExpression inter : exp.getIntersection()) {
+            if (inter.getClazz() != null) {
+                query.append("   ?concept <").append(IM.IS_A).append("> ")
+                    .append(inter.getClazz().getIri())
+                    .append(". \n");
+            } else if (inter.getPropertyValue() != null) {
+                group.put(inter.getPropertyValue().getProperty().getIri(),
+                    inter.getPropertyValue().getValueType().getIri());
+            }
+        }
+        if (!groups.isEmpty()){
+            int groupNumber = -1;
+            int attNumber = -1;
+            for (Map<String,String> roleGroup:groups){
+                if (roleGroup.size()>0) {
+                    groupNumber++;
+                    query.append("   ?concept <").append(IM.ROLE_GROUP).append("> ")
+                        .append("?group_").append(groupNumber).append(".\n");
+                    for (String att:roleGroup.keySet()){
+                        attNumber++;
+                        query.append("?group_").append(groupNumber).append(" ");
+                        query.append("?att_").append(attNumber).append(" ");
+                        query.append("?val_").append(attNumber).append(". \n");
+                        query.append("?att_").append(attNumber).append(" <")
+                            .append(IM.IS_A).append("> ").append(att).append(". \n");
+                        query.append("?val_").append(attNumber).append(" <")
+                            .append(IM.IS_A).append("> ")
+                            .append(roleGroup.get(att)).append(". \n");
+                    }
+                }
+            }
         }
     }
 }

@@ -632,7 +632,7 @@ public class ConceptServiceRDF4J implements IConceptService {
      * @return a Set of concept references
      */
 
-    public Set<String> getValueSetExpansion(String iri){
+    public Set<String> getValueSetExpansion(String iri) throws DataFormatException {
         Concept valueSet= getConcept(iri);
         Set<String> members= new HashSet<>();
         String queryText= getValueSetQueryText(valueSet);
@@ -650,7 +650,7 @@ public class ConceptServiceRDF4J implements IConceptService {
         return members;
     }
 
-    private String getValueSetQueryText(Concept valueSet) {
+    private String getValueSetQueryText(Concept valueSet) throws DataFormatException {
         int memberCount = 0;
 
         //Now build the query based on the value set concept
@@ -685,7 +685,7 @@ public class ConceptServiceRDF4J implements IConceptService {
             .append("\n");
     }
 
-    private void setRefinedEntailment(ClassExpression exp,StringBuilder query) {
+    private void setRefinedEntailment(ClassExpression exp,StringBuilder query) throws DataFormatException {
         Map<String, String> group = new HashMap<>();
         List<Map<String, String>> groups = new ArrayList<>();
         groups.add(group);
@@ -698,6 +698,13 @@ public class ConceptServiceRDF4J implements IConceptService {
             } else if (inter.getPropertyValue() != null) {
                 group.put(inter.getPropertyValue().getProperty().getIri(),
                     inter.getPropertyValue().getValueType().getIri());
+            } else if (inter.getComplementOf()!=null){
+                ClassExpression negation= inter.getComplementOf();
+                if (negation.getClazz()!=null)
+                    query.append("FILTER NOT EXISTS { ?concept <").append(IM.IS_A).append("> ")
+                        .append(negation.getClazz().getIri()).append("}\n");
+                else
+                    throw new DataFormatException("Complex negation not supported in this version");
             }
         }
         if (!groups.isEmpty()){

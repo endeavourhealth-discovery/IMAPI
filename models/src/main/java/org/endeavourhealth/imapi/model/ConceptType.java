@@ -14,7 +14,8 @@ public enum ConceptType {
     VALUESET((byte)7,"ValueSet"),
     FOLDER((byte)8,"Folder"),
     TERM((byte)9,"Term"),
-    LEGACY((byte)10,"Legacy");
+    LEGACY((byte)10,"Legacy"),
+    CATEGORY_GROUP((byte)11, "CategoryGroup");
 
     private byte _value;
     private String _name;

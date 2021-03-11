@@ -12,6 +12,10 @@ public class TTNode extends TTValue {
         return this;
     }
 
+    TTValue get(TTIriRef predicate) {
+        return predicateValues.get(predicate);
+    }
+
     public HashMap<TTIriRef, TTValue> getPredicateMap() {
         return this.predicateValues;
     }
@@ -26,16 +30,20 @@ public class TTNode extends TTValue {
         return true;
     }
 
-    TTLiteral getAsLiteral(TTIriRef predicate) {
+    public TTLiteral getAsLiteral(TTIriRef predicate) {
         return (TTLiteral) predicateValues.get(predicate);
     }
 
-    TTIriRef getAsIriRef(TTIriRef predicate) {
+    public TTIriRef getAsIriRef(TTIriRef predicate) {
         return (TTIriRef) predicateValues.get(predicate);
     }
 
     public TTArray getAsArray(TTIriRef predicate) {
         return (TTArray) predicateValues.get(predicate);
+    }
+
+    public TTNode getAsNode(TTIriRef predicate) {
+        return (TTNode) predicateValues.get(predicate);
     }
 
 }

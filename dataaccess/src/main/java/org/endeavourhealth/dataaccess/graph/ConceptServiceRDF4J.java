@@ -13,6 +13,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.endeavourhealth.dataaccess.graph.tripletree.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
@@ -28,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
+import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prefixIri;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -728,6 +730,125 @@ public class ConceptServiceRDF4J implements IConceptService {
                     }
                 }
             }
+        }
+    }
+
+    // TODO: OWL.SOMEVALUESFROM ??? - Single object vs Single element array?
+    private List<IRI> arrayPredicates = Arrays.asList(OWL.EQUIVALENTCLASS, OWL.INTERSECTIONOF);
+
+    public TTConcept getTTConcept(String conceptIri) {
+        try (RepositoryConnection conn = db.getConnection()) {
+            IRI iri = getFullIri(conceptIri, conn.getNamespaces().stream().collect(Collectors.toSet()));
+
+            TTConcept result = new TTConcept(iri.stringValue());
+
+            Set<Namespace> namespaces = conn.getNamespaces().stream().collect(Collectors.toSet());
+            namespaces.forEach(ns -> result.addPrefix(ns.getName(), ns.getPrefix()));
+
+            Iterable<Statement> items = conn.getStatements(iri, null, null);
+            for (Statement item : items) {
+                IRI p = item.getPredicate();
+                Value v = item.getObject();
+
+                setPredicateValueOnNode(conn, result, p, v);
+            }
+            return result;
+        }
+    }
+
+    private void populateTTNode(RepositoryConnection conn, TTNode result, Resource resource) {
+        Iterable<Statement> items = conn.getStatements(resource, null, null);
+
+        for(Statement item : items) {
+            IRI p = item.getPredicate();
+            Value v = item.getObject();
+
+            setPredicateValueOnNode(conn, result, p, v);
+        }
+    }
+
+    private void setPredicateValueOnNode(RepositoryConnection conn, TTNode result, IRI p, Value v) {
+        TTNode target = result;
+
+        if(arrayPredicates.contains(p)) {
+            addToArray(conn, result, p, v);
+        } else {
+            setNodeValue(conn, p, v, target);
+        }
+    }
+
+    private void setNodeValue(RepositoryConnection conn, IRI p, Value v, TTNode target) {
+        if (v.isIRI())
+            target.set(p, (IRI) v);
+        else if (v.isLiteral())
+            target.set(p, (Literal) v);
+        else if (v.isBNode()) {
+            TTNode bnode = new TTNode();
+            populateTTNode(conn, bnode, (BNode) v);
+            target.set(p, bnode);
+        } else {
+            System.err.println("Unhandled node value type");
+        }
+    }
+
+    private void addToArray(RepositoryConnection conn, TTNode result, IRI p, Value v) {
+        TTArray array = result.getAsArray(p);
+        if (array == null) {
+            array = new TTArray();
+            result.set(p, array);
+        }
+        if (v.isIRI())
+            array.add((IRI) v);
+        else if (v.isLiteral())
+            array.add((Literal) v);
+        else if (v.isBNode()) {
+            TTNode bnode = new TTNode();
+            array.add(bnode);
+            populateTTNode(conn, bnode, (BNode) v);
+        } else
+            System.err.println("Unhandled array member");
+    }
+
+    public void saveTTConcept(TTConcept concept) {
+        // TODO: Upsert!!!
+
+        Model m = new TreeModel();
+
+        for(TTPrefix prefix : concept.getPrefixes())
+            m.setNamespace(prefix.getPrefix(), prefix.getIri());
+
+        IRI iri = iri(concept.getIri());
+
+        addTTNodeToModel(m, iri, concept);
+
+        try (RepositoryConnection conn = db.getConnection()) {
+            for(TTPrefix prefix : concept.getPrefixes())
+                conn.setNamespace(prefix.getPrefix(), prefix.getIri());
+            conn.add(m);
+        }
+    }
+
+    private void addTTNodeToModel(Model m, Resource r, TTNode n) {
+        for (Map.Entry<IRI, TTValue> entry : n.getPredicateMap().entrySet()) {
+            addTTValueToModel(m, r, entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void addTTValueToModel(Model m, Resource r, IRI p, TTValue v) {
+        if (v.isIriRef()) {
+            m.add(r, p, iri(v.asIriRef().getIri()));
+        } else if (v.isLiteral()) {
+            m.add(r, p, v.asLiteral().getValue());
+        } else if (v.isNode()) {
+            BNode bNode = bnode();
+            m.add(r, p, bNode);
+            addTTNodeToModel(m, bNode, v.asNode());
+        } else if (v.isList()) {
+            for (TTValue item : v.asArray().getElements()) {
+                addTTValueToModel(m, r, p, item);
+            }
+        } else {
+            System.err.println("Unhandled TTValue type");
         }
     }
 }

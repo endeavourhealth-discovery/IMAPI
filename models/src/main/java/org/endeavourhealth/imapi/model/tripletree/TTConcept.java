@@ -1,9 +1,7 @@
-package org.endeavourhealth.dataaccess.graph.tripletree;
+package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,22 +51,7 @@ public class TTConcept extends TTNode {
     }
 
     @Override
-    public TTConcept set(IRI predicate, IRI iri) {
-        return set(predicate, new TTIriRef(iri));
-    }
-
-    @Override
-    public TTConcept set(IRI predicate, IRI iri, String name) {
-        return set(predicate, new TTIriRef(iri, name));
-    }
-
-    @Override
-    public TTConcept set(IRI predicate, Literal literal) {
-        return set(predicate, new TTLiteral(literal));
-    }
-
-    @Override
-    public TTConcept set(IRI predicate, TTValue value) {
+    public TTConcept set(TTIriRef predicate, TTValue value) {
         super.set(predicate, value);
         return this;
     }

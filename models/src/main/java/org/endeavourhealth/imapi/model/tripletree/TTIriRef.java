@@ -1,29 +1,33 @@
-package org.endeavourhealth.dataaccess.graph.tripletree;
-
-import org.eclipse.rdf4j.model.IRI;
-
-import static org.eclipse.rdf4j.model.util.Values.iri;
+package org.endeavourhealth.imapi.model.tripletree;
 
 public class TTIriRef extends TTValue {
-    private IRI iri;
+    public static TTIriRef iri(String iri) {
+        return new TTIriRef(iri);
+    }
+
+    public static TTIriRef iri(String iri, String name) {
+        return new TTIriRef(iri, name);
+    }
+
+    private String iri;
     private String name;
 
     public TTIriRef() {
     }
-    public TTIriRef(IRI iri) {
+    public TTIriRef(String iri) {
         this.iri = iri;
     }
-    public TTIriRef(IRI iri, String name) {
+    public TTIriRef(String iri, String name) {
         this.iri = iri;
         this.name = name;
     }
 
     public String getIri() {
-        return this.iri.stringValue();
+        return this.iri;
     }
 
     public TTIriRef setIri(String iri) {
-        this.iri = iri(iri);
+        this.iri = iri;
         return this;
     }
 

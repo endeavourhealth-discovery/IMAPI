@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.TreeModel;
-import org.eclipse.rdf4j.model.vocabulary.IM;
+import org.eclipse.rdf4j.model.util.Values;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -13,12 +16,13 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
-import org.endeavourhealth.dataaccess.graph.tripletree.TTConcept;
-import org.endeavourhealth.dataaccess.graph.tripletree.TTNodeTreeTest;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.junit.Test;
 
 
 import static org.eclipse.rdf4j.model.util.Values.*;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.Assert.*;
 
 public class ConceptServiceRDF4JTest {
@@ -27,8 +31,7 @@ public class ConceptServiceRDF4JTest {
         Repository db = new SailRepository(new MemoryStore());
         ConceptServiceRDF4J svc = new ConceptServiceRDF4J(db);
 
-        TTNodeTreeTest test = new TTNodeTreeTest();
-        TTConcept concept = test.getTestConcept();
+        TTConcept concept = getTestConcept();
 
         svc.saveTTConcept(concept);
 
@@ -60,8 +63,7 @@ public class ConceptServiceRDF4JTest {
         Repository db = new SailRepository(new MemoryStore());
         ConceptServiceRDF4J svc = new ConceptServiceRDF4J(db);
 
-        TTNodeTreeTest test = new TTNodeTreeTest();
-        TTConcept expected = test.getTestConcept();
+        TTConcept expected = getTestConcept();
 
         svc.saveTTConcept(expected);
 
@@ -87,25 +89,52 @@ public class ConceptServiceRDF4JTest {
     private Model createBaseModel() {
         Model m = new TreeModel();
 
-        IRI concept = iri("http://envhealth.info/im#25451000252115");
+        IRI concept = Values.iri("http://envhealth.info/im#25451000252115");
 
         m.add(concept, RDF.TYPE, OWL.CLASS);
-        m.add(concept, RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"));
-        m.add(concept, IM.CODE, literal("25451000252115"));
-        m.add(concept, IM.HAS_SCHEME, iri("http://snomed.info/sct#891071000252105"));
+        m.add(concept, RDFS.LABEL, Values.literal("Adverse reaction to Amlodipine Besilate"));
+        m.add(concept, Values.iri(IM.CODE.getIri()), Values.literal("25451000252115"));
+        m.add(concept, Values.iri(IM.HAS_SCHEME.getIri()), Values.iri("http://snomed.info/sct#891071000252105"));
 
         BNode equivalent = bnode();
         m.add(concept, OWL.EQUIVALENTCLASS, equivalent);
 
-        m.add(equivalent, OWL.INTERSECTIONOF, iri("http://snomed.info/sct#62014003"));
+        m.add(equivalent, OWL.INTERSECTIONOF, Values.iri("http://snomed.info/sct#62014003"));
 
         BNode restriction = bnode();
         m.add(equivalent, OWL.INTERSECTIONOF, restriction);
 
         m.add(restriction, RDF.TYPE, OWL.RESTRICTION);
-        m.add(restriction, OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003"));
-        m.add(restriction, OWL.SOMEVALUESFROM, iri("http://snomed.info/sct#384976003"));
+        m.add(restriction, OWL.ONPROPERTY, Values.iri("http://snomed.info/sct#246075003"));
+        m.add(restriction, OWL.SOMEVALUESFROM, Values.iri("http://snomed.info/sct#384976003"));
 
         return m;
+    }
+
+    public TTConcept getTestConcept() {
+        return new TTConcept("http://envhealth.info/im#25451000252115")
+/*            .addPrefix("http://envhealth.info/im#", "")
+            .addPrefix("http://snomed.info/sct#", "sn")
+            .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
+            .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs")
+            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf")*/
+
+            .set(org.endeavourhealth.imapi.vocabulary.RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
+            .set(IM.CODE, literal("25451000252115"))
+            .set(IM.HAS_SCHEME, iri("http://snomed.info/sct#891071000252105"))
+
+            .set(org.endeavourhealth.imapi.vocabulary.RDF.TYPE, org.endeavourhealth.imapi.vocabulary.OWL.CLASS)
+            .set(org.endeavourhealth.imapi.vocabulary.OWL.EQUIVALENTCLASS, new TTArray()
+                .add(new TTNode()
+                    .set(org.endeavourhealth.imapi.vocabulary.OWL.INTERSECTIONOF, new TTArray()
+                        .add(iri("http://snomed.info/sct#62014003"))
+                        .add(new TTNode()
+                            .set(org.endeavourhealth.imapi.vocabulary.RDF.TYPE, org.endeavourhealth.imapi.vocabulary.OWL.RESTRICTION)
+                            .set(org.endeavourhealth.imapi.vocabulary.OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003"))
+                            .set(org.endeavourhealth.imapi.vocabulary.OWL.SOMEVALUESFROM, iri("http://snomed.info/sct#384976003"))
+                        )
+                    )
+                )
+            );
     }
 }

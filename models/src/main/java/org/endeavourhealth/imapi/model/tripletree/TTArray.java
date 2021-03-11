@@ -1,26 +1,10 @@
-package org.endeavourhealth.dataaccess.graph.tripletree;
-
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
+package org.endeavourhealth.imapi.model.tripletree;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TTArray extends TTValue {
     List<TTValue> elements = new ArrayList<>();
-
-    public TTArray add(Literal value) {
-        return add(new TTLiteral(value));
-    }
-
-    public TTArray add(IRI iri) {
-        return add(new TTIriRef(iri));
-    }
-
-    public TTArray add(IRI iri, String name) {
-        return add(new TTIriRef(iri, name));
-    }
-
 
     public TTArray add(TTValue value) {
         if (elements == null)

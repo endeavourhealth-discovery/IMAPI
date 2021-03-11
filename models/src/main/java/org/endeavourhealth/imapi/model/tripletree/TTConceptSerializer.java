@@ -1,10 +1,8 @@
-package org.endeavourhealth.dataaccess.graph.tripletree;
+package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.apache.commons.collections4.map.PredicatedMap;
-import org.eclipse.rdf4j.model.IRI;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -49,11 +47,11 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
     }
 
     private void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
-        HashMap<IRI, TTValue> predicates = node.getPredicateMap();
+        HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
 
         if (predicates != null && !predicates.isEmpty()) {
-            Set<Map.Entry<IRI, TTValue>> entries = predicates.entrySet();
-            for(Map.Entry<IRI, TTValue> entry : entries) {
+            Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
+            for(Map.Entry<TTIriRef, TTValue> entry : entries) {
                 serializeFieldValue(entry.getKey().toString(), entry.getValue(), gen);
             }
         }
@@ -80,7 +78,7 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
                 gen.writeStringField("name", ref.getName());
             gen.writeEndObject();
         } else if (value.isLiteral()) {
-            gen.writeString(value.asLiteral().getValue().stringValue());
+            gen.writeString(value.asLiteral().getValue());
 /*
             gen.writeStartObject();
             gen.writeStringField("value", value.asLiteral().stringValue());

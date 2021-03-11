@@ -1,4 +1,4 @@
-package org.endeavourhealth.dataaccess.graph.tripletree;
+package org.endeavourhealth.imapi.model.tripletree;
 
 public abstract class TTValue {
     public boolean isLiteral() { return false; }

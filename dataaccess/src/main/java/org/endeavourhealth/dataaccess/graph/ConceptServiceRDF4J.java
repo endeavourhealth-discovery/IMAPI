@@ -1,5 +1,6 @@
 package org.endeavourhealth.dataaccess.graph;
 
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -13,13 +14,16 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
-import org.endeavourhealth.dataaccess.graph.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,11 +33,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
-import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prefixIri;
-import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.dataaccess.graph.PrefixedTupleQuery.prepare;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
 @Qualifier("ConceptServiceRDF4J")
@@ -225,7 +228,7 @@ public class ConceptServiceRDF4J implements IConceptService {
                 "} limit 20 \n";
 
             PrefixedTupleQuery qry = prepare(conn, sql)
-                .bind("lucTerm", literal(request.getTermFilter()));
+                .bind("lucTerm", Values.literal(request.getTermFilter()));
 
             try (PrefixedTupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -312,7 +315,7 @@ public class ConceptServiceRDF4J implements IConceptService {
     private IRI getFullIri(String prefixedIri, Collection<Namespace> namespaces) {
         // Check if already full Iri
         if (prefixedIri.startsWith("http://") || prefixedIri.startsWith("https://"))
-            return iri(prefixedIri);
+            return Values.iri(prefixedIri);
 
         String[] parts = prefixedIri.split(":");
 
@@ -321,7 +324,7 @@ public class ConceptServiceRDF4J implements IConceptService {
         if (!namespace.isPresent())
             throw new IllegalStateException("Unknown namespace prefix [" + parts[0] + "]");
 
-        return iri(namespace.get().getName() + parts[1]);
+        return Values.iri(namespace.get().getName() + parts[1]);
     }
 
     private String getPrefixIri(String fullIri, Collection<Namespace> namespaces) {
@@ -362,9 +365,9 @@ public class ConceptServiceRDF4J implements IConceptService {
     private Concept toConcept(IRI iri, Model model) throws DataFormatException {
         Concept result;
 
-        if (model.contains(iri, RDF.TYPE, IM.RECORD))
+        if (model.contains(iri, RDF.TYPE, Values.iri(IM.RECORD.getIri())))
             result = new Concept(ConceptType.RECORD);
-        else if (model.contains(iri, RDF.TYPE, IM.VALUESET))
+        else if (model.contains(iri, RDF.TYPE, Values.iri(IM.VALUESET.getIri())))
             result = new Concept(ConceptType.VALUESET);
         else
             result = new Concept(ConceptType.CLASSONLY);
@@ -446,11 +449,11 @@ public class ConceptServiceRDF4J implements IConceptService {
         if (iri.equals(OWL.CLASS.stringValue())) concept.setConceptType(ConceptType.CLASSONLY);
         else if (iri.equals(RDFS.DATATYPE.stringValue())) concept.setConceptType(ConceptType.DATATYPE);
         else if (iri.equals(OWL.OBJECTPROPERTY.stringValue())) concept.setConceptType(ConceptType.OBJECTPROPERTY);
-        else if (iri.equals(IM.RECORD.stringValue())) concept.setConceptType(ConceptType.RECORD);
+        else if (iri.equals(IM.RECORD.getIri())) concept.setConceptType(ConceptType.RECORD);
         else if (iri.equals(OWL.DATATYPEPROPERTY.stringValue())) concept.setConceptType(ConceptType.DATAPROPERTY);
         else if (iri.equals(OWL.ANNOTATIONPROPERTY.stringValue())) concept.setConceptType(ConceptType.ANNOTATION);
-        else if (iri.equals(IM.LEGACY.stringValue())) concept.setConceptType(ConceptType.LEGACY);
-        else if (iri.equals(IM.VALUESET.stringValue())) concept.setConceptType(ConceptType.VALUESET);
+        else if (iri.equals(IM.LEGACY.getIri())) concept.setConceptType(ConceptType.LEGACY);
+        else if (iri.equals(IM.VALUESET.getIri())) concept.setConceptType(ConceptType.VALUESET);
         else if (iri.equals((OWL.FUNCTIONALPROPERTY.stringValue()))) concept.setIsFunctional(new Axiom());
         else if (iri.equals((OWL.REFLEXIVEPROPERTY.stringValue()))) concept.setIsReflexive(new Axiom());
         else if (iri.equals((OWL.SYMMETRICPROPERTY.stringValue()))) concept.setIsSymmetric(new Axiom());
@@ -497,7 +500,7 @@ public class ConceptServiceRDF4J implements IConceptService {
         for (Statement item : items) {
             Value p = item.getPredicate();
             Value o = item.getObject();
-            if (IM.PATTERN.equals(p)) {
+            if (XSD.PATTERN.getIri().equals(p.stringValue())) {
                 dtd.setPattern(o.stringValue());
                 return dtd;
             }
@@ -779,28 +782,28 @@ public class ConceptServiceRDF4J implements IConceptService {
 
     private void setNodeValue(RepositoryConnection conn, IRI p, Value v, TTNode target) {
         if (v.isIRI())
-            target.set(p, (IRI) v);
+            target.set(iri(p.stringValue()), iri(v.stringValue()));
         else if (v.isLiteral())
-            target.set(p, (Literal) v);
+            target.set(iri(p.stringValue()), literal(v.stringValue()));
         else if (v.isBNode()) {
             TTNode bnode = new TTNode();
             populateTTNode(conn, bnode, (BNode) v);
-            target.set(p, bnode);
+            target.set(iri(p.stringValue()), bnode);
         } else {
             System.err.println("Unhandled node value type");
         }
     }
 
     private void addToArray(RepositoryConnection conn, TTNode result, IRI p, Value v) {
-        TTArray array = result.getAsArray(p);
+        TTArray array = result.getAsArray(iri(p.stringValue()));
         if (array == null) {
             array = new TTArray();
-            result.set(p, array);
+            result.set(iri(p.stringValue()), array);
         }
         if (v.isIRI())
-            array.add((IRI) v);
+            array.add(iri(v.stringValue()));
         else if (v.isLiteral())
-            array.add((Literal) v);
+            array.add(literal(v.stringValue()));
         else if (v.isBNode()) {
             TTNode bnode = new TTNode();
             array.add(bnode);
@@ -817,7 +820,7 @@ public class ConceptServiceRDF4J implements IConceptService {
         for(TTPrefix prefix : concept.getPrefixes())
             m.setNamespace(prefix.getPrefix(), prefix.getIri());
 
-        IRI iri = iri(concept.getIri());
+        IRI iri = Values.iri(concept.getIri());
 
         addTTNodeToModel(m, iri, concept);
 
@@ -829,18 +832,18 @@ public class ConceptServiceRDF4J implements IConceptService {
     }
 
     private void addTTNodeToModel(Model m, Resource r, TTNode n) {
-        for (Map.Entry<IRI, TTValue> entry : n.getPredicateMap().entrySet()) {
-            addTTValueToModel(m, r, entry.getKey(), entry.getValue());
+        for (Map.Entry<TTIriRef, TTValue> entry : n.getPredicateMap().entrySet()) {
+            addTTValueToModel(m, r, Values.iri(entry.getKey().getIri()), entry.getValue());
         }
     }
 
     private void addTTValueToModel(Model m, Resource r, IRI p, TTValue v) {
         if (v.isIriRef()) {
-            m.add(r, p, iri(v.asIriRef().getIri()));
+            m.add(r, p, Values.iri(v.asIriRef().getIri()));
         } else if (v.isLiteral()) {
-            m.add(r, p, v.asLiteral().getValue());
+            m.add(r, p, Values.literal(v.asLiteral().getValue()));
         } else if (v.isNode()) {
-            BNode bNode = bnode();
+            BNode bNode = Values.bnode();
             m.add(r, p, bNode);
             addTTNodeToModel(m, bNode, v.asNode());
         } else if (v.isList()) {

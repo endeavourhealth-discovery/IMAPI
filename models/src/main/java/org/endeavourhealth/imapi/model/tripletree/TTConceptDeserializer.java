@@ -1,4 +1,4 @@
-package org.endeavourhealth.dataaccess.graph.tripletree;
+package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
     private Map<String, String> prefixMap = new HashMap<>();
@@ -81,7 +81,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
 
     private TTValue getJsonNodeAsValue(JsonNode node) {
         if (node.isTextual())
-            return new TTLiteral(literal(node.asText()));
+            return literal(node.asText());
 /*
         if (node.has("value") && node.has("type") && node.size() == 2)
             return new TripleTreeLiteral(literal(node.get("value").asText(), iri(node.get("type").asText())));
@@ -89,9 +89,9 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
         else if (node.isObject()) {
             if (node.has("iri")) {
                 if (node.has("name"))
-                    return new TTIriRef(iri(expand(node.get("iri").asText())), node.get("name").asText());
+                    return iri(expand(node.get("iri").asText()), node.get("name").asText());
                 else
-                    return new TTIriRef(iri(expand(node.get("iri").asText())));
+                    return iri(expand(node.get("iri").asText()));
             } else {
                 TTNode result = new TTNode();
                 populateTTNodeFromJson(result, node);

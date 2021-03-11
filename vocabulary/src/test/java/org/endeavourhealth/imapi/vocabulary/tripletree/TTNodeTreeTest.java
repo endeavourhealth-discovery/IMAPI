@@ -103,20 +103,19 @@ public class TTNodeTreeTest {
     }
 
     private void checkConcept(TTConcept concept) {
-/*        Assert.equals("Adverse reaction to Amlodipine Besilate", concept
+        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", concept
             .getAsLiteral(RDFS.LABEL)
             .getValue()
-            .stringValue()
         );
-        Assert.equals(2, concept
+        Assert.assertEquals(2, concept
             .getAsArray(OWL.EQUIVALENTCLASS)
             .get(0).asNode()
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
-        Assert.equals("http://snomed.info/sct#384976003", concept
+        Assert.assertEquals("http://snomed.info/sct#384976003", concept
             .getAsArray(OWL.EQUIVALENTCLASS).get(0)
             .asNode().getAsArray(OWL.INTERSECTIONOF).get(1)
             .asNode().getAsIriRef(OWL.SOMEVALUESFROM).getIri()
-        );*/
+        );
     }
 }

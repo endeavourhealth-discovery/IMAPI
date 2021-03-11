@@ -47,11 +47,11 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
     }
 
     private void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
-        HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
+        HashMap<String, TTValue> predicates = node.getPredicateMap();
 
         if (predicates != null && !predicates.isEmpty()) {
-            Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
-            for(Map.Entry<TTIriRef, TTValue> entry : entries) {
+            Set<Map.Entry<String, TTValue>> entries = predicates.entrySet();
+            for(Map.Entry<String, TTValue> entry : entries) {
                 serializeFieldValue(entry.getKey().toString(), entry.getValue(), gen);
             }
         }

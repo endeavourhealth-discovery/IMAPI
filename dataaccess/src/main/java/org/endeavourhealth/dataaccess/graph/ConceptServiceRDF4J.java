@@ -832,8 +832,8 @@ public class ConceptServiceRDF4J implements IConceptService {
     }
 
     private void addTTNodeToModel(Model m, Resource r, TTNode n) {
-        for (Map.Entry<TTIriRef, TTValue> entry : n.getPredicateMap().entrySet()) {
-            addTTValueToModel(m, r, Values.iri(entry.getKey().getIri()), entry.getValue());
+        for (Map.Entry<String, TTValue> entry : n.getPredicateMap().entrySet()) {
+            addTTValueToModel(m, r, Values.iri(entry.getKey()), entry.getValue());
         }
     }
 

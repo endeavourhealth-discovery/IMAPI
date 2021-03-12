@@ -395,7 +395,7 @@ public class ConceptServiceRDF4J implements IConceptService {
             else if (RDFS.SUBCLASSOF.equals(p)) result.addSubClassOf(getExpression(model, (Resource)o));
             else if (SNOMED.IS_A.equals(p)) result.addIsa(new ConceptReference(getPrefixIri(o.stringValue(), model.getNamespaces())));
             else if (SHACL.PROPERTY.equals(p)) result.addProperty(getPropertyValue(model, (Resource) o));
-            else if (IM.HAS_MEMBERS.equals(p)) result.addMember(getExpression(model, (Resource)o));
+            else if (IM.HAS_MEMBER.equals(p)) result.addMember(getExpression(model, (Resource)o));
             else if (OWL.EQUIVALENTCLASS.equals(p)){
                 getEquivalentTo(result,model, (Resource) o);
             } else if (IM.ROLE_GROUP.equals(p)){

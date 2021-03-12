@@ -14,4 +14,19 @@ public class OWL {
     public static final TTIriRef RESTRICTION = iri(NAMESPACE + "Restriction");
     public static final TTIriRef ONPROPERTY = iri(NAMESPACE + "onProperty");
     public static final TTIriRef SOMEVALUESFROM = iri(NAMESPACE + "someValuesFrom");
+    public static final TTIriRef OBJECTPROPERTY = iri(NAMESPACE + "ObjectProperty");
+    public static final TTIriRef DATAPROPERTY = iri(NAMESPACE + "DataProperty");
+    public static final TTIriRef ANNOTATIONPROPERTY = iri(NAMESPACE + "AnnotationProperty");
+    public static final TTIriRef INVERSEOF = iri(NAMESPACE + "inverseOf");
+    public static final TTIriRef INVERSEOBJECTPROPERTY = iri(NAMESPACE + "inverseOf");
+    public static final TTIriRef PROPERTYCHAIN = iri(NAMESPACE + "propertyChainAxiom");
+    public static final TTIriRef TRANSITIVE = iri(NAMESPACE + "TransitiveProperty");
+    public static final TTIriRef FUNCTIONAL = iri(NAMESPACE + "FunctionalProperty");
+    public static final TTIriRef SYMMETRIC = iri(NAMESPACE + "SymmetricProperty");
+    public static final TTIriRef REFLEXIVE = iri(NAMESPACE + "ReflexiveProperty");
+    public static final TTIriRef ONDATATYPE = iri(NAMESPACE + "onDatatype");
+    public static final TTIriRef WITHRESTRICTIONS = iri(NAMESPACE + "withRestrictions");
+    public static final TTIriRef MAXCARDINALITY = iri(NAMESPACE + "maxQualifiedCardinality");
+    public static final TTIriRef MINCARDINALITY = iri(NAMESPACE + "minQualifiedCardinality");
+
 }

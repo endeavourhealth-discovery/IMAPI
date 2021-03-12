@@ -24,7 +24,7 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
     @Override
     public void serialize(TTConcept concept, JsonGenerator gen, SerializerProvider prov) throws IOException {
         gen.writeStartObject();
-        // serializePrefixes(concept.getPrefixes(), gen);
+        serializePrefixes(concept.getPrefixes(), gen);
         gen.writeStringField("iri", prefix(concept.getIri()));
         serializeNode(concept, gen);
         gen.writeEndObject();
@@ -102,6 +102,6 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
         if (prefix == null)
             return iri;
         else
-            return iri.replace(path, prefix + ":");
+            return iri.replace(path, prefix);
     }
 }

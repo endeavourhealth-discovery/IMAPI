@@ -48,7 +48,7 @@ public class TTNodeTreeTest {
         checkConcept(adverseReaction);
     }
 
-    // @Test
+    @Test
     public void flipFlopTest() throws JsonProcessingException {
         TTConcept adverseReaction = getTestConcept();
 
@@ -76,12 +76,12 @@ public class TTNodeTreeTest {
     }
 
     public TTConcept getTestConcept() {
-        return new TTConcept("http://envhealth.info/im#25451000252115")
-/*            .addPrefix("http://envhealth.info/im#", "")
-            .addPrefix("http://snomed.info/sct#", "sn")
-            .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
-            .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs")
-            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf")*/
+        return new TTConcept("http://endhealth.info/im#25451000252115")
+            .addPrefix("http://endhealth.info/im#", ":")
+            .addPrefix("http://snomed.info/sct#", "sn:")
+            .addPrefix("http://www.w3.org/2002/07/owl#", "owl:")
+            .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
+            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")
 
             .set(RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
             .set(IM.CODE, literal("25451000252115"))

@@ -11,9 +11,12 @@ public class OWL {
     public static final TTIriRef CLASS= iri(NAMESPACE +"Class");
     public static final TTIriRef EQUIVALENTCLASS = iri(NAMESPACE + "equivalentClass");
     public static final TTIriRef INTERSECTIONOF = iri(NAMESPACE + "intersectionOf");
+    public static final TTIriRef UNIONOF = iri(NAMESPACE + "unionOf");
     public static final TTIriRef RESTRICTION = iri(NAMESPACE + "Restriction");
     public static final TTIriRef ONPROPERTY = iri(NAMESPACE + "onProperty");
+    public static final TTIriRef ONCLASS = iri(NAMESPACE + "onClass");
     public static final TTIriRef SOMEVALUESFROM = iri(NAMESPACE + "someValuesFrom");
+    public static final TTIriRef ALLVALUESFROM = iri(NAMESPACE + "allValuesFrom");
     public static final TTIriRef OBJECTPROPERTY = iri(NAMESPACE + "ObjectProperty");
     public static final TTIriRef DATAPROPERTY = iri(NAMESPACE + "DataProperty");
     public static final TTIriRef ANNOTATIONPROPERTY = iri(NAMESPACE + "AnnotationProperty");
@@ -28,5 +31,11 @@ public class OWL {
     public static final TTIriRef WITHRESTRICTIONS = iri(NAMESPACE + "withRestrictions");
     public static final TTIriRef MAXCARDINALITY = iri(NAMESPACE + "maxQualifiedCardinality");
     public static final TTIriRef MINCARDINALITY = iri(NAMESPACE + "minQualifiedCardinality");
+    public static final TTIriRef ONDATARANGE = iri(NAMESPACE + "onDataRange");
+    public static final TTIriRef HASVALUE = iri(NAMESPACE + "hasValue");
+    public static final TTIriRef COMPLEMENTOF = iri(NAMESPACE + "complementOf");
+    public static final TTIriRef ONEOF = iri(NAMESPACE + "oneOf");
+
+
 
 }

@@ -12,4 +12,6 @@ public class SHACL {
    public static final TTIriRef MAXINCLUSIVE= iri(NAMESPACE +"maxInclusive");
    public static final TTIriRef MAXEXCLUSIVE= iri(NAMESPACE +"maxExclusive");
    public static final TTIriRef PROPERTY= iri(NAMESPACE +"property");
+   public static final TTIriRef MINCOUNT= iri(NAMESPACE +"minCount");
+   public static final TTIriRef MAXCOUNT= iri(NAMESPACE +"maxCount");
 }

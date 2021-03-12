@@ -19,8 +19,8 @@ public class TTLiteral extends TTValue {
         return new TTLiteral(value, type, typeName);
     }
 
-    String value;
-    TTIriRef type;
+    private String value;
+    private TTIriRef type;
 
     public TTLiteral() {}
     public TTLiteral(String value) {
@@ -43,6 +43,15 @@ public class TTLiteral extends TTValue {
 
     public TTLiteral setValue(String value) {
         this.value = value;
+        return this;
+    }
+
+    public TTIriRef getType() {
+        return type;
+    }
+
+    public TTLiteral setType(TTIriRef type) {
+        this.type = type;
         return this;
     }
 

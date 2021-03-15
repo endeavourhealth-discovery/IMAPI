@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -114,21 +115,21 @@ public class TTNodeTreeTest {
         visitor.NodeVisitor = (predicate, node) -> {
             System.out.println("N " + indent +(predicate == null ? "" : predicate.getIri()) + "{");
             i.getAndIncrement();
-            indent.set("\t".repeat(i.get()));
+            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
         };
         visitor.NodeExitVisitor = (predicate, node) -> {
             i.getAndDecrement();
-            indent.set("\t".repeat(i.get()));
+            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
             System.out.println("N " + indent +"}");
         };
         visitor.ListVisitor = (predicate, list) -> {
             System.out.println("A " + indent +"[");
             i.getAndIncrement();
-            indent.set("\t".repeat(i.get()));
+            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
         };
         visitor.ListExitVisitor = (predicate, list) -> {
             i.getAndDecrement();
-            indent.set("\t".repeat(i.get()));
+            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
             System.out.println("A " + indent +"]");
         };
 

@@ -19,6 +19,7 @@ public class IM {
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
     public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyConcept");
     public static final TTIriRef IS_A= iri(NAMESPACE +"isA");
+    public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
     public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
     public static final TTIriRef IN_ROLE_GROUP_OF= iri(NAMESPACE +"inRoleGroupOf");
     public static final TTIriRef IS_INSTANCE_OF = iri(NAMESPACE +"isInstanceOf");

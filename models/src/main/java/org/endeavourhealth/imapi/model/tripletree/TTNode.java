@@ -12,7 +12,7 @@ public class TTNode extends TTValue {
         return this;
     }
 
-    TTValue get(TTIriRef predicate) {
+    public TTValue get(TTIriRef predicate) {
         return predicateValues.get(predicate.getIri());
     }
 

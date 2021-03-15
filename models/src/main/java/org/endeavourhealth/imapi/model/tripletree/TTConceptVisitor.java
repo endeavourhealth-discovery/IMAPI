@@ -1,11 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import org.endeavourhealth.imapi.model.ClassExpression;
-import org.endeavourhealth.imapi.model.visitor.ObjectModelVisitor;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class TTConceptVisitor {
     public interface ITTLiteralVisitor { void visit(TTIriRef predicate, TTLiteral literal); }
@@ -21,7 +17,7 @@ public class TTConceptVisitor {
     public ITTListVisitor ListExitVisitor = (predicate, list) -> {};
 
     public void visit(TTConcept concept) {
-        visit(null, (TTNode) concept);
+        visit(null, concept);
     }
 
     public void visit(TTIriRef predicate, TTNode node) {

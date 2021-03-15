@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
 import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.ConceptStatus;
 import org.endeavourhealth.imapi.model.ConceptType;
 
 import java.util.ArrayList;
@@ -10,10 +11,30 @@ public class ConceptSummary {
     private String name;
     private String iri;
     private String code;
+    private String description;
+    private ConceptStatus status;
     private ConceptReference scheme;
     private ConceptType conceptType;
     private List<ConceptReference> isDescendentOf = new ArrayList<>();
     private Integer weighting;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ConceptStatus getStatus() {
+        return status;
+    }
+
+    public ConceptSummary setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public ConceptSummary setStatus(ConceptStatus status) {
+        this.status = status;
+        return this;
+    }
 
     public String getName() {
         return name;

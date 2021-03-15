@@ -99,11 +99,15 @@ public class ConceptServiceV3 implements IConceptService {
             ? Arrays.stream(ConceptStatus.values()).map(ConceptStatus::getValue).collect(Collectors.toList())
             : request.getStatusFilter();
 
+        List<Byte> conceptType = request.getTypeFilter() == null || request.getTypeFilter().isEmpty()
+                ? Arrays.stream(ConceptType.values()).map(ConceptType::getValue).collect(Collectors.toList())
+                : request.getTypeFilter();
+
         if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
-            result = conceptRepository.searchLegacy(terms, full, status, request.getSize());
+            result = conceptRepository.searchLegacy(terms, full, status,conceptType, request.getSize());
         else {
             List<String> schemeIris = request.getSchemeFilter().stream().map(ConceptReference::getIri).collect(Collectors.toList());
-            result = conceptRepository.searchLegacySchemes(terms, full, schemeIris, status, request.getSize());
+            result = conceptRepository.searchLegacySchemes(terms, full, schemeIris, status,conceptType, request.getSize());
         }
 
         List<ConceptSummary> src = result.stream()
@@ -113,6 +117,8 @@ public class ConceptServiceV3 implements IConceptService {
                 .setConceptType(ConceptType.byValue(r.getType()))
                 .setWeighting(r.getWeighting())
                 .setCode(r.getCode())
+                    .setDescription(r.getDescription())
+                    .setStatus(ConceptStatus.valueOf(r.getStatus().getName()))
                 .setScheme(
                     r.getScheme() == null
                         ? null

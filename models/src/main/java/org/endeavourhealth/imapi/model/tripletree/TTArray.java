@@ -23,6 +23,20 @@ public class TTArray extends TTValue {
         return elements.get(index);
     }
 
+    public TTNode getAsNode(int index) {
+        return (TTNode)elements.get(index);
+    }
+    public TTLiteral getAsLiteral(int index) {
+        return (TTLiteral)elements.get(index);
+    }
+    public TTIriRef getAsIriRef(int index) {
+        return (TTIriRef)elements.get(index);
+    }
+    public TTArray getAsArray(int index) {
+        return (TTArray)elements.get(index);
+    }
+
+
     public int size() {
         return elements.size();
     }

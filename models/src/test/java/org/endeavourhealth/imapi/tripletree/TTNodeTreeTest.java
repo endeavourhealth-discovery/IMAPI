@@ -1,12 +1,12 @@
-package org.endeavourhealth.imapi.vocabulary.tripletree;
+package org.endeavourhealth.imapi.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -14,9 +14,35 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTNodeTreeTest {
+
+    @Test
+    public void testTTIriRefEquality() {
+        // Same iri  - EQUAL
+        TTIriRef test1 = iri("http://endhealth.info/im#11111");
+        TTIriRef test2 = iri("http://endhealth.info/im#11111");
+        Assert.assertEquals(test1, test2);
+        Assert.assertEquals(test1.hashCode(), test2.hashCode());
+
+        // Same iri, different name - EQUAL
+        test1 = iri("http://endhealth.info/im#11111", "test1");
+        test2 = iri("http://endhealth.info/im#11111", "test2");
+        Assert.assertEquals(test1, test2);
+        Assert.assertEquals(test1.hashCode(), test2.hashCode());
+
+        // Different iri, same name - NOT EQUAL
+        test1 = iri("http://endhealth.info/im#11111", "test1");
+        test2 = iri("http://endhealth.info/im#22222", "test1");
+        Assert.assertNotEquals(test1, test2);
+        Assert.assertNotEquals(test1.hashCode(), test2.hashCode());
+
+        // Different iri, different name - NOT EQUAL
+        test1 = iri("http://endhealth.info/im#11111", "test1");
+        test2 = iri("http://endhealth.info/im#22222", "test2");
+        Assert.assertNotEquals(test1, test2);
+        Assert.assertNotEquals(test1.hashCode(), test2.hashCode());
+    }
 
     @Test
     public void tripleTreeTest() throws JsonProcessingException {
@@ -77,17 +103,18 @@ public class TTNodeTreeTest {
 
     public TTConcept getTestConcept() {
         return new TTConcept("http://endhealth.info/im#25451000252115")
-            .addPrefix("http://endhealth.info/im#", ":")
+/*            .addPrefix("http://endhealth.info/im#", ":")
             .addPrefix("http://snomed.info/sct#", "sn:")
             .addPrefix("http://www.w3.org/2002/07/owl#", "owl:")
             .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
-            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")
+            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")*/
 
-            .set(RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
-            .set(IM.CODE, literal("25451000252115"))
-            .set(IM.HAS_SCHEME, iri("http://snomed.info/sct#891071000252105"))
+            .setName("Adverse reaction to Amlodipine Besilate")
+            .setDescription("Adverse reaction to Amlodipine Besilate or its derivatives")
+            .setCode("25451000252115")
+            .setScheme(iri("http://snomed.info/sct#891071000252105", "SNOMED"))
+            .setType(OWL.CLASS)
 
-            .set(RDF.TYPE, OWL.CLASS)
             .set(OWL.EQUIVALENTCLASS, new TTArray()
                 .add(new TTNode()
                     .set(OWL.INTERSECTIONOF, new TTArray()
@@ -107,15 +134,16 @@ public class TTNodeTreeTest {
             .getAsLiteral(RDFS.LABEL)
             .getValue()
         );
+        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", concept.getName());
         Assert.assertEquals(2, concept
             .getAsArray(OWL.EQUIVALENTCLASS)
-            .get(0).asNode()
+            .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
         Assert.assertEquals("http://snomed.info/sct#384976003", concept
-            .getAsArray(OWL.EQUIVALENTCLASS).get(0)
-            .asNode().getAsArray(OWL.INTERSECTIONOF).get(1)
-            .asNode().getAsIriRef(OWL.SOMEVALUESFROM).getIri()
+            .getAsArray(OWL.EQUIVALENTCLASS)
+            .getAsNode(0).getAsArray(OWL.INTERSECTIONOF)
+            .getAsNode(1).getAsIriRef(OWL.SOMEVALUESFROM).getIri()
         );
     }
 }

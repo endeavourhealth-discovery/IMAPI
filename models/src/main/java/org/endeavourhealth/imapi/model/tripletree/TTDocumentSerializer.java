@@ -90,9 +90,9 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    }
 
    private void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
-      HashMap<String, TTValue> predicates = node.getPredicateMap();
+      HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
       if (predicates != null && !predicates.isEmpty()) {
-         Set<Map.Entry<String, TTValue>> entries = predicates.entrySet();
+         Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
          if (predicateTemplate!=null &&(predicateTemplate.get(node.getClass())!=null)){
             List<String> order= predicateTemplate.get(node.getClass());
             for (String predicate:order){
@@ -100,14 +100,14 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
                if (value!=null)
                   serializeFieldValue(predicate,value,gen );
             }
-            for(Map.Entry<String, TTValue> entry : entries) {
-               if (!order.contains(entry.getKey()))
+            for(Map.Entry<TTIriRef, TTValue> entry : entries) {
+               if (!order.contains(entry.getKey().getIri()))
                   serializeFieldValue(entry.getKey().toString(), entry.getValue(), gen);
             }
 
          } else {
-            for (Map.Entry<String, TTValue> entry : entries) {
-               serializeFieldValue(entry.getKey().toString(), entry.getValue(), gen);
+            for (Map.Entry<TTIriRef, TTValue> entry : entries) {
+               serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
             }
          }
       }

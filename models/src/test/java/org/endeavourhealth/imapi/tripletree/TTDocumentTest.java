@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.vocabulary.tripletree;
+package org.endeavourhealth.imapi.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

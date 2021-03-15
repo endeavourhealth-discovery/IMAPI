@@ -3,15 +3,15 @@ package org.endeavourhealth.imapi.tripletree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTConcept;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -99,6 +99,40 @@ public class TTNodeTreeTest {
         JsonNode actual = om.readTree(out);
 
         Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testVisitor() {
+        TTConcept concept = getTestConcept();
+        TTConceptVisitor visitor = new TTConceptVisitor();
+
+        AtomicInteger i = new AtomicInteger();
+        AtomicReference<String> indent = new AtomicReference<>("");
+
+        visitor.LiteralVisitor = (predicate, literal) -> System.out.println("L " + indent + predicate.getIri() + " : " + literal.getValue());
+        visitor.IriRefVisitor = (predicate, iriRef) -> System.out.println("I " + indent + predicate.getIri() + " : " + iriRef.getIri());
+        visitor.NodeVisitor = (predicate, node) -> {
+            System.out.println("N " + indent +(predicate == null ? "" : predicate.getIri()) + "{");
+            i.getAndIncrement();
+            indent.set("\t".repeat(i.get()));
+        };
+        visitor.NodeExitVisitor = (predicate, node) -> {
+            i.getAndDecrement();
+            indent.set("\t".repeat(i.get()));
+            System.out.println("N " + indent +"}");
+        };
+        visitor.ListVisitor = (predicate, list) -> {
+            System.out.println("A " + indent +"[");
+            i.getAndIncrement();
+            indent.set("\t".repeat(i.get()));
+        };
+        visitor.ListExitVisitor = (predicate, list) -> {
+            i.getAndDecrement();
+            indent.set("\t".repeat(i.get()));
+            System.out.println("A " + indent +"]");
+        };
+
+        visitor.visit(concept);
     }
 
     public TTConcept getTestConcept() {

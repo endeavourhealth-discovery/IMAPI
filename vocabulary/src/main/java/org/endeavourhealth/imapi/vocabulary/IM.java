@@ -7,7 +7,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class IM {
     public static final String NAMESPACE = "http://endhealth.info/im#";
     public static final String PREFIX = "im";
-    public static final TTIriRef MODULE = iri(NAMESPACE + "module");
     public static final TTIriRef ONTOLOGY = iri(NAMESPACE + "ontology");
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
@@ -31,7 +30,11 @@ public class IM {
     public static final TTIriRef DM_OP = iri(NAMESPACE +"modelObjectProperty");
     public static final TTIriRef DM_DP = iri(NAMESPACE +"modelDataProperty");
     public static final TTIriRef CATEGORYSET = iri(NAMESPACE +"CategorySet");
+    public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef HAS_CATEGORY = iri(NAMESPACE +"hasCategory");
+    public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
+    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
+    public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
 
 
 

@@ -3,7 +3,6 @@ package org.endeavourhealth.controllers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.endeavourhealth.dataaccess.graph.ConceptServiceRDF4J;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.converters.ImLangConverter;
 import org.endeavourhealth.dataaccess.IConceptService;
@@ -35,7 +34,6 @@ public class ConceptController {
 
 	@Autowired
 	@Qualifier("ConceptServiceV3")
-//    @Qualifier("ConceptServiceRDF4J")
 	IConceptService conceptService;
 
 	@Autowired

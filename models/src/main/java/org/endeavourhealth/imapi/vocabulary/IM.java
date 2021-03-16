@@ -36,6 +36,8 @@ public class IM {
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
+    public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
+    public static final TTIriRef HAS_SYNONYM = iri(NAMESPACE +"hasSynonym");
 
 
 

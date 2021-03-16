@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class TTConceptSerializer extends StdSerializer<TTConcept> {
-    private Map<String, String> prefixMap = new HashMap<>();
+    private Map<String, String> contextMap = new HashMap<>();
 
     public TTConceptSerializer() {
         this(null);
@@ -23,35 +25,33 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
 
     @Override
     public void serialize(TTConcept concept, JsonGenerator gen, SerializerProvider prov) throws IOException {
+
         gen.writeStartObject();
-        serializePrefixes(concept.getPrefixes(), gen);
-        gen.writeStringField("iri", prefix(concept.getIri()));
+        serializeContexts(concept.getPrefixes(), gen);
+        gen.writeStringField("@id",prefix(concept.getIri()));
         serializeNode(concept, gen);
         gen.writeEndObject();
     }
 
-    private void serializePrefixes(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
+    private void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
         if (prefixes != null && !prefixes.isEmpty()) {
-            gen.writeArrayFieldStart("prefixes");
+            gen.writeFieldName("@context");
+            gen.writeStartObject();
 
             for(TTPrefix prefix : prefixes) {
-                prefixMap.put(prefix.getIri(), prefix.getPrefix());
-                gen.writeStartObject();
-                gen.writeStringField("prefix", prefix.getPrefix());
-                gen.writeStringField("iri", prefix.getIri());
-                gen.writeEndObject();
+                contextMap.put(prefix.getIri(), prefix.getPrefix());
+                gen.writeStringField(prefix.getPrefix(),prefix.getIri());
             }
 
-            gen.writeEndArray();
+            gen.writeEndObject();
         }
     }
 
     private void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
         HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
-
         if (predicates != null && !predicates.isEmpty()) {
             Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
-            for(Map.Entry<TTIriRef, TTValue> entry : entries) {
+            for (Map.Entry<TTIriRef, TTValue> entry : entries) {
                 serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
             }
         }
@@ -63,28 +63,35 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
             serializeValue(value, gen);
             gen.writeEndArray();
         } else {
-            gen.writeFieldName(prefix(field));
-            serializeValue(value, gen);
+            if (value.isLiteral()) {
+                if (value.asLiteral().getValue() != null) {
+                    gen.writeFieldName(prefix(field));
+                    serializeValue(value, gen);
+                }
+            } else {
+                gen.writeFieldName(prefix(field));
+                serializeValue(value, gen);
+            }
         }
     }
 
     private void serializeValue(TTValue value, JsonGenerator gen) throws IOException {
         if (value.isIriRef()) {
             TTIriRef ref = value.asIriRef();
-
             gen.writeStartObject();
-            gen.writeStringField("iri", prefix(ref.getIri()));
+            gen.writeStringField("@id", prefix(ref.getIri()));
             if (ref.getName() != null && !ref.getName().isEmpty())
                 gen.writeStringField("name", ref.getName());
             gen.writeEndObject();
         } else if (value.isLiteral()) {
-            gen.writeString(value.asLiteral().getValue());
-/*
-            gen.writeStartObject();
-            gen.writeStringField("value", value.asLiteral().stringValue());
-            gen.writeStringField("type", value.asLiteral().getDatatype().toString());
-            gen.writeEndObject();
-*/
+            if (value.asLiteral().getType()!=null){
+                gen.writeStartObject();
+                gen.writeStringField("@value",value.asLiteral().getValue());
+                gen.writeStringField("@type",prefix(value.asLiteral().getType().getIri()));
+                gen.writeEndObject();
+            } else
+                gen.writeString(value.asLiteral().getValue());
+
         } else if (value.isNode()) {
             gen.writeStartObject();
             serializeNode((TTNode)value, gen);
@@ -97,11 +104,12 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
     }
 
     private String prefix(String iri) {
-        String path = iri.substring(0, Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#")) + 1);
-        String prefix = prefixMap.get(path);
+        int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
+        String path = iri.substring(0, end + 1);
+        String prefix = contextMap.get(path);
         if (prefix == null)
             return iri;
         else
-            return iri.replace(path, prefix);
+            return prefix + ":" + iri.substring(end + 1);
     }
 }

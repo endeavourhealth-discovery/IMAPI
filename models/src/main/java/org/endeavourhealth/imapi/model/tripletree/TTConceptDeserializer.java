@@ -32,20 +32,38 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
 
         TTConcept result = new TTConcept();
 
-        populatePrefixesFromJson(result, (ArrayNode) node.get("prefixes"));
-        result.setIri(expand(node.get("iri").asText()));
-        populateTTNodeFromJson(result, node);
+        populatePrefixesFromJson(result, node);
+        populateConceptFromJson(node, result);
 
         return result;
     }
 
-    private void populatePrefixesFromJson(TTConcept result, ArrayNode prefixes) {
-        if (prefixes != null && prefixes.elements() != null) {
-            Iterator<JsonNode> iterator = prefixes.elements();
-            while (iterator.hasNext()) {
-                JsonNode prefix = iterator.next();
-                result.addPrefix(prefix.get("iri").asText(), prefix.get("prefix").asText());
-                prefixMap.put(prefix.get("prefix").asText(), prefix.get("iri").asText());
+    private void populateConceptFromJson(JsonNode node, TTConcept result) {
+        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            String key = field.getKey();
+            JsonNode value = field.getValue();
+            if ("@id".equals(key))
+                result.setIri(expand(value.textValue()));
+            else if (!"@context".equals(key))
+                result.set(iri(expand(key)),getJsonNodeAsValue(value));
+        }
+    }
+
+    private void populatePrefixesFromJson(TTConcept concept, JsonNode document) {
+        JsonNode context= document.get("@context");
+        if (context!=null){
+            Iterator<Map.Entry<String, JsonNode>> fields = context.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                String key= field.getKey();
+                JsonNode value= field.getValue();
+                if (value.isTextual())
+                    if (value.textValue().startsWith("http:")) {
+                        concept.addPrefix(new TTPrefix(value.textValue(), key));
+                        prefixMap.put(key,value.asText());
+                    }
             }
         }
     }
@@ -55,13 +73,12 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> field = iterator.next();
             String key = field.getKey();
-            JsonNode value = field.getValue();
-
-            if (!"iri".equals(key) && !"prefixes".equals(key)) {
+            if (!"@context".equals(key)) {
+                JsonNode value = field.getValue();
                 if (value.isArray()) {
-                    result.set(iri(expand(field.getKey())), getArrayNodeAsTripleTreeArray((ArrayNode) value));
+                    result.set(iri(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
                 } else {
-                    result.set(iri(expand(field.getKey())), getJsonNodeAsValue(value));
+                    result.set(iri(expand(key)), getJsonNodeAsValue(value));
                 }
             }
         }
@@ -82,16 +99,12 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
     private TTValue getJsonNodeAsValue(JsonNode node) {
         if (node.isTextual())
             return literal(node.asText());
-/*
-        if (node.has("value") && node.has("type") && node.size() == 2)
-            return new TripleTreeLiteral(literal(node.get("value").asText(), iri(node.get("type").asText())));
-*/
         else if (node.isObject()) {
-            if (node.has("iri")) {
+            if (node.has("@id")) {
                 if (node.has("name"))
-                    return iri(expand(node.get("iri").asText()), node.get("name").asText());
+                    return iri(expand(node.get("@id").asText()), node.get("name").asText());
                 else
-                    return iri(expand(node.get("iri").asText()));
+                    return iri(expand(node.get("@id").asText()));
             } else {
                 TTNode result = new TTNode();
                 populateTTNodeFromJson(result, node);
@@ -106,11 +119,12 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
     }
 
     private String expand(String iri) {
-        String prefix = iri.substring(0, iri.indexOf(":") + 1);
+        int colonPos = iri.indexOf(":");
+        String prefix = iri.substring(0, colonPos);
         String path = prefixMap.get(prefix);
         if (path == null)
             return iri;
         else
-            return iri.replace(prefix, path);
+            return path + iri.substring(colonPos + 1);
     }
 }

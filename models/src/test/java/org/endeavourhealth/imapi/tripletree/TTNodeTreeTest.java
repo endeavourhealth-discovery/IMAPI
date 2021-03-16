@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -10,9 +9,11 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -89,15 +90,15 @@ public class TTNodeTreeTest {
         // Reserialize
         String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        System.out.println("=======================================");
+        System.out.println("================= IN ==================");
         System.out.println(json);
-        System.out.println("---------------------------------------");
+        System.out.println("----------------- OUT -----------------");
         System.out.println(out);
         System.out.println("=======================================");
 
         // Compare
-        JsonNode expected = om.readTree(json);
-        JsonNode actual = om.readTree(out);
+        String expected = Arrays.stream(json.split("\n")).sorted().collect(Collectors.joining("\n"));
+        String actual = Arrays.stream(out.split("\n")).sorted().collect(Collectors.joining("\n"));
 
         Assert.assertEquals(expected, actual);
     }
@@ -138,11 +139,11 @@ public class TTNodeTreeTest {
 
     public TTConcept getTestConcept() {
         return new TTConcept("http://endhealth.info/im#25451000252115")
-/*            .addPrefix("http://endhealth.info/im#", ":")
-            .addPrefix("http://snomed.info/sct#", "sn:")
-            .addPrefix("http://www.w3.org/2002/07/owl#", "owl:")
-            .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
-            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")*/
+            .addPrefix("http://endhealth.info/im#", "im")
+            .addPrefix("http://snomed.info/sct#", "sn")
+            .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
+            .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs")
+            .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf")
 
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription("Adverse reaction to Amlodipine Besilate or its derivatives")

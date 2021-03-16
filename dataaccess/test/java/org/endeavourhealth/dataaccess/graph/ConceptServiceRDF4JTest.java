@@ -13,8 +13,11 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
-import org.endeavourhealth.imapi.vocabulary.*;
 import org.junit.Test;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 
 import static org.eclipse.rdf4j.model.util.Values.*;

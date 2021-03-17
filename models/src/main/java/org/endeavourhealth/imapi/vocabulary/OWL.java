@@ -35,6 +35,7 @@ public class OWL {
     public static final TTIriRef HASVALUE = iri(NAMESPACE + "hasValue");
     public static final TTIriRef COMPLEMENTOF = iri(NAMESPACE + "complementOf");
     public static final TTIriRef ONEOF = iri(NAMESPACE + "oneOf");
+    public static final TTIriRef NAMEDINDIVIDUAL = iri(NAMESPACE + "NamedIndividual");
 
 
 

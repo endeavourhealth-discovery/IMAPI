@@ -6,6 +6,7 @@ public abstract class TTValue {
     public boolean isList() { return false; }
     public boolean isNode() { return false; }
 
+
     public TTLiteral asLiteral() {return null; }
     public TTIriRef asIriRef() {return null; }
     public TTArray asArray() {return null; }

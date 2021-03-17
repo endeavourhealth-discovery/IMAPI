@@ -50,24 +50,24 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   (SELECT c.* " +
         "   FROM concept c " +
         "   WHERE c.code = :full " +
-        "   AND c.status IN (:status) " +
+        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
         "   LIMIT :limit) " +
         "   UNION " +
         "   (SELECT c.* " +
         "   FROM concept c " +
         "   WHERE c.iri = :full " +
-        "   AND c.status IN (:status) " +
+        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
         "   LIMIT :limit) " +
         "   UNION " +
         "   (SELECT c.* " +
         "   FROM concept c " +
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
-        "   AND c.status IN (:status) " +
+        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
         "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> searchLegacy(@Param("terms") String terms, @Param("full") String full, @Param("status") List<Byte> status, @Param("limit") Integer limit);
+    List<Concept> searchLegacy(@Param("terms") String terms, @Param("full") String full,@Param("conceptType") List<Byte> conceptType, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
     @Query(value = "SELECT * " +
         "FROM (" +
@@ -76,7 +76,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND c.code = :full " +
-        "   AND c.status IN (:status) " +
+        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
         "   LIMIT :limit) " +
         "   UNION " +
         "   (SELECT c.* " +
@@ -84,7 +84,7 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND c.iri = :full " +
-        "   AND c.status IN (:status) " +
+        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
         "   LIMIT :limit) " +
         "   UNION " +
         "   (SELECT c.* " +
@@ -92,12 +92,12 @@ public interface ConceptRepository extends JpaRepository<Concept, String> {
         "   LEFT JOIN concept s ON s.dbid = c.scheme " +
         "   WHERE (c.scheme IS NULL OR s.iri IN (:schemes)) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
-        "   AND c.status IN (:status) " +
+        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
         "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
-    List<Concept> searchLegacySchemes(@Param("terms") String terms, @Param("full") String full, @Param("schemes") List<String> schemes, @Param("status") List<Byte> status, @Param("limit") Integer limit);
+    List<Concept> searchLegacySchemes(@Param("terms") String terms, @Param("full") String full, @Param("schemes") List<String> schemes,@Param("conceptType") List<Byte> conceptType, @Param("status") List<Byte> status, @Param("limit") Integer limit);
 
     @Query(value = "SELECT * " +
         "FROM (" +

@@ -6,150 +6,152 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PropertyValue extends QuantificationImpl{
+public class PropertyValue extends QuantificationImpl {
 
-   private ConceptReference property;
-   private ConceptReference valueType;
-   private ConceptReference inverseOf;
-   private Set<String> oneOf;
-   private String minInclusive;
-   private String minExclusive;
-   private String maxInclusive;
-   private String maxExclusive;
-   private String pattern;
-   private String valueData;
-   private String individual;
-   private ClassExpression expression;
-   private int group;
+	private ConceptReference property;
+	private ConceptReference valueType;
+	private ConceptReference inverseOf;
+	private Set<String> oneOf;
+	private String minInclusive;
+	private String minExclusive;
+	private String maxInclusive;
+	private String maxExclusive;
+	private String pattern;
+	private String valueData;
+	private String individual;
+	private ClassExpression expression;
+	private int group;
+	private ConceptReference inheritedFrom;
 
+	public ConceptReference getProperty() {
+		return property;
+	}
 
-   public ConceptReference getProperty() {
-      return property;
-   }
+	public PropertyValue setProperty(ConceptReference property) {
+		this.property = property;
+		return this;
+	}
 
-   public PropertyValue setProperty(ConceptReference property) {
-      this.property = property;
-      return this;
-   }
+	public String getValueData() {
+		return valueData;
+	}
 
+	public PropertyValue setValueData(String valueData) {
+		this.valueData = valueData;
+		return this;
+	}
 
+	public Set<String> getOneOf() {
+		return oneOf;
+	}
 
+	public PropertyValue setOneOf(Set<String> oneOf) {
+		this.oneOf = oneOf;
+		return this;
+	}
 
-   public String getValueData() {
-      return valueData;
-   }
+	public PropertyValue addOneOf(String oneOf) {
+		if (this.oneOf == null)
+			this.oneOf = new HashSet<>();
+		this.oneOf.add(oneOf);
+		return this;
+	}
 
-   public PropertyValue setValueData(String valueData) {
-      this.valueData = valueData;
-      return this;
-   }
+	public String getPattern() {
+		return pattern;
+	}
 
-   public Set<String> getOneOf() {
-      return oneOf;
-   }
+	public PropertyValue setPattern(String pattern) {
+		this.pattern = pattern;
+		return this;
+	}
 
-   public PropertyValue setOneOf(Set<String> oneOf) {
-      this.oneOf = oneOf;
-      return this;
-   }
+	public ConceptReference getValueType() {
+		return valueType;
+	}
 
-   public PropertyValue addOneOf(String oneOf){
-      if (this.oneOf==null)
-         this.oneOf= new HashSet<>();
-      this.oneOf.add(oneOf);
-      return this;
-   }
+	public PropertyValue setValueType(ConceptReference objectType) {
+		this.valueType = objectType;
+		return this;
+	}
 
-   
+	public ConceptReference getInverseOf() {
+		return inverseOf;
+	}
 
+	public PropertyValue setInverseOf(ConceptReference inverseOf) {
+		this.inverseOf = inverseOf;
+		return this;
+	}
 
-   public String getPattern() {
-      return pattern;
-   }
+	public String getMinInclusive() {
+		return minInclusive;
+	}
 
-   public PropertyValue setPattern(String pattern) {
-      this.pattern = pattern;
-      return this;
-   }
+	public PropertyValue setMinInclusive(String minInclusive) {
+		this.minInclusive = minInclusive;
+		return this;
+	}
 
-   public ConceptReference getValueType() {
-      return valueType;
-   }
+	public String getMinExclusive() {
+		return minExclusive;
+	}
 
-   public PropertyValue setValueType(ConceptReference objectType) {
-      this.valueType = objectType;
-      return this;
-   }
+	public PropertyValue setMinExclusive(String minExclusive) {
+		this.minExclusive = minExclusive;
+		return this;
+	}
 
-   public ConceptReference getInverseOf() {
-      return inverseOf;
-   }
+	public String getMaxInclusive() {
+		return maxInclusive;
+	}
 
-   public PropertyValue setInverseOf(ConceptReference inverseOf) {
-      this.inverseOf = inverseOf;
-      return this;
-   }
+	public PropertyValue setMaxInclusive(String maxInclusive) {
+		this.maxInclusive = maxInclusive;
+		return this;
+	}
 
-   public String getMinInclusive() {
-      return minInclusive;
-   }
+	public String getMaxExclusive() {
+		return maxExclusive;
+	}
 
-   public PropertyValue setMinInclusive(String minInclusive) {
-      this.minInclusive = minInclusive;
-      return this;
-   }
+	public PropertyValue setMaxExclusive(String maxExclusive) {
+		this.maxExclusive = maxExclusive;
+		return this;
+	}
 
-   public String getMinExclusive() {
-      return minExclusive;
-   }
+	public String getIndividual() {
+		return individual;
+	}
 
-   public PropertyValue setMinExclusive(String minExclusive) {
-      this.minExclusive = minExclusive;
-      return this;
-   }
+	public PropertyValue setIndividual(String individual) {
+		this.individual = individual;
+		return this;
+	}
 
-   public String getMaxInclusive() {
-      return maxInclusive;
-   }
+	public ClassExpression getExpression() {
+		return expression;
+	}
 
-   public PropertyValue setMaxInclusive(String maxInclusive) {
-      this.maxInclusive = maxInclusive;
-      return this;
-   }
+	public PropertyValue setExpression(ClassExpression expression) {
+		this.expression = expression;
+		return this;
+	}
 
-   public String getMaxExclusive() {
-      return maxExclusive;
-   }
+	public int getGroup() {
+		return group;
+	}
 
-   public PropertyValue setMaxExclusive(String maxExclusive) {
-      this.maxExclusive = maxExclusive;
-      return this;
-   }
+	public PropertyValue setGroup(int group) {
+		this.group = group;
+		return this;
+	}
 
-   public String getIndividual() {
-      return individual;
-   }
+	public ConceptReference getInheritedFrom() {
+		return inheritedFrom;
+	}
 
-   public PropertyValue setIndividual(String individual) {
-      this.individual = individual;
-      return this;
-   }
-
-   public ClassExpression getExpression() {
-      return expression;
-   }
-
-   public PropertyValue setExpression(ClassExpression expression) {
-      this.expression = expression;
-      return this;
-   }
-
-   public int getGroup() {
-      return group;
-   }
-
-   public PropertyValue setGroup(int group) {
-      this.group = group;
-      return this;
-   }
+	public void setInheritedFrom(ConceptReference inheritedFrom) {
+		this.inheritedFrom = inheritedFrom;
+	}
 }

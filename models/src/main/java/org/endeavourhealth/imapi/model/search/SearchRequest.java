@@ -9,6 +9,7 @@ import java.util.List;
 public class SearchRequest {
     private String termFilter;
     private List<Byte> statusFilter = new ArrayList<>();
+    private List<Byte> typeFilter = new ArrayList<>();
     private List<ConceptReference> schemeFilter = new ArrayList<>();
     private List<String> descendentFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
@@ -30,6 +31,15 @@ public class SearchRequest {
 
     public SearchRequest setStatusFilter(List<Byte> statusFilter) {
         this.statusFilter = statusFilter;
+        return this;
+    }
+
+    public List<Byte> getTypeFilter() {
+        return typeFilter;
+    }
+
+    public SearchRequest setTypeFilter(List<Byte> typeFilter) {
+        this.typeFilter = typeFilter;
         return this;
     }
 

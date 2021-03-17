@@ -3,20 +3,20 @@ package org.endeavourhealth.imapi.model.tripletree;
 import java.util.HashMap;
 
 public class TTNode extends TTValue {
-    private HashMap<String, TTValue> predicateValues = new HashMap<>();
+    private HashMap<TTIriRef, TTValue> predicateValues = new HashMap<>();
 
     public TTNode() {}
 
     public TTNode set(TTIriRef predicate, TTValue value) {
-        predicateValues.put(predicate.getIri(), value);
+        predicateValues.put(predicate, value);
         return this;
     }
 
-    TTValue get(TTIriRef predicate) {
-        return predicateValues.get(predicate.getIri());
+    public TTValue get(TTIriRef predicate) {
+        return predicateValues.get(predicate);
     }
 
-    public HashMap<String, TTValue> getPredicateMap() {
+    public HashMap<TTIriRef, TTValue> getPredicateMap() {
         return this.predicateValues;
     }
 
@@ -31,19 +31,19 @@ public class TTNode extends TTValue {
     }
 
     public TTLiteral getAsLiteral(TTIriRef predicate) {
-        return (TTLiteral) predicateValues.get(predicate.getIri());
+        return (TTLiteral) predicateValues.get(predicate);
     }
 
     public TTIriRef getAsIriRef(TTIriRef predicate) {
-        return (TTIriRef) predicateValues.get(predicate.getIri());
+        return (TTIriRef) predicateValues.get(predicate);
     }
 
     public TTArray getAsArray(TTIriRef predicate) {
-        return (TTArray) predicateValues.get(predicate.getIri());
+        return (TTArray) predicateValues.get(predicate);
     }
 
     public TTNode getAsNode(TTIriRef predicate) {
-        return (TTNode) predicateValues.get(predicate.getIri());
+        return (TTNode) predicateValues.get(predicate);
     }
 
 }

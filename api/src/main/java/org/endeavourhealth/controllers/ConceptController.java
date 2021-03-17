@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/concept")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class ConceptController {
 
 	@Autowired
@@ -174,7 +174,7 @@ public class ConceptController {
 			properties.addAll(concept.getProperty());
 		}
 		List<ConceptReferenceNode> parentHierarchy = conceptService.getParentHierarchy(iri);
-		if (parentHierarchy.size() != 0) {
+		if (parentHierarchy != null && parentHierarchy.size() != 0) {
 			conceptService.getParentHierarchy(iri).forEach(parent -> {
 				Concept parentConcept = conceptService.getConcept(parent.getIri());
 				ConceptReference parentReference = new ConceptReference(parentConcept.getIri(),

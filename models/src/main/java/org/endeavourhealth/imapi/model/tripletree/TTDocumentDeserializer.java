@@ -129,11 +129,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
    }
 
    private String expand(String iri) {
-      String prefix = iri.substring(0, iri.indexOf(":") + 1);
+      int colonPos = iri.indexOf(":");
+      String prefix = iri.substring(0, colonPos);
       String path = prefixMap.get(prefix);
       if (path == null)
          return iri;
       else
-         return iri.replace(prefix, path);
+         return path + iri.substring(colonPos + 1);
    }
 }

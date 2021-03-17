@@ -3,6 +3,10 @@ package org.endeavourhealth.controllers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.graph.ConceptServiceRDF4J;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.converters.ImLangConverter;
@@ -178,5 +182,101 @@ public class ConceptController {
 //    	TODO convert conceptDto to concept
 //    	TODO save concept
     	return new Concept();
+    }
+
+    @GetMapping(value = "/{iri}/test")
+    public JsonNode getTTConcept(@PathVariable("iri") String conceptIri) throws JsonProcessingException {
+        // return conceptService.getTTConcept(conceptIri);
+        return new ObjectMapper().readTree("{      \"iri\": \"http://envhealth.info/im#25451000252115\",\n" +
+                "      \"http://envhealth.info/im#code\": \"25451000252115\",\n" +
+                "      \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\",\n" +
+                "      \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\n" +
+                "        \"http://www.w3.org/2002/07/owl#intersectionOf\": [{\n" +
+                "          \"iri\": \"http://snomed.info/sct#62014003\",\n" +
+                "          \"name\": \"Drug reaction\"\n" +
+                "        }, {\n" +
+                "          \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\n" +
+                "            \"iri\": \"http://snomed.info/sct#384976003\",\n" +
+                "            \"name\": \"Amlodipine besilate (substance)\"\n" +
+                "          },\n" +
+                "          \"http://www.w3.org/2002/07/owl#onProperty\": {\n" +
+                "            \"iri\": \"http://snomed.info/sct#246075003\",\n" +
+                "            \"name\": \"Causative agent (attribute)\"\n" +
+                "          },\n" +
+                "          \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\n" +
+                "            \"iri\": \"http://www.w3.org/2002/07/owl#Restriction\",\n" +
+                "            \"name\": \"Restriction\"\n" +
+                "          }\n" +
+                "        }]\n" +
+                "      }],\n" +
+                "      \"http://envhealth.info/im#scheme\": {\n" +
+                "        \"iri\": \"http://envhealth.info/im#891071000252105\",\n" +
+                "        \"iri\": \"Snomed code\"\n" +
+                "      },\n" +
+                "      \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\n" +
+                "        \"iri\": \"http://www.w3.org/2002/07/owl#Class\",\n" +
+                "        \"name\": \"Class\"\n" +
+                "      }\n" +
+                "    };\n");
+    }
+
+    @GetMapping(value = "/formSchema")
+    public JsonNode getTTFormSchema() throws JsonProcessingException {
+
+        return new ObjectMapper().readTree("[\n" +
+                "  {\n" +
+                "\t\"predicate\": \"http://www.w3.org/2000/01/rdf-schema#label\",\n" +
+                "\t\"fieldType\": \"TTEdit\",\n" +
+                "\t\"label\": \"Label\",\n" +
+                "\t\"size\": 12\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"predicate\": \"http://envhealth.info/im#scheme\",\n" +
+                "\t\"fieldType\": \"TTIRIEdit\",\n" +
+                "\t\"label\": \"Scheme\",\n" +
+                "\t\"size\": 4\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"predicate\": \"http://envhealth.info/im#code\",\n" +
+                "\t\"fieldType\": \"TTEdit\",\n" +
+                "\t\"label\": \"Code\",\n" +
+                "\t\"size\": 8\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"predicate\": \"http://www.w3.org/2002/07/owl#equivalentClass\",\n" +
+                "\t\"fieldType\": \"TTExpressionList\",\n" +
+                "\t\"label\": \"Equivalent to\",\n" +
+                "\t\"size\": 12\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"predicate\": \"http://www.w3.org/2002/07/owl#intersectionOf\",\n" +
+                "\t\"fieldType\": \"TTExpressionList\",\n" +
+                "\t\"label\": \"Intersection\",\n" +
+                "\t\"size\": 12\n" +
+                "  }\n" +
+                "]");
+    }
+
+    @GetMapping(value = "/namespaces")
+    public JsonNode getNamespaces() throws JsonProcessingException {
+
+        return new ObjectMapper().readTree("[\n" +
+                "  {\n" +
+                "\t\"uri\": \"http://www.w3.org/2000/01/rdf-schema#\",\n" +
+                "\t\"prefix\": \"rdfs:\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"uri\": \"http://envhealth.info/im#\",\n" +
+                "\t\"prefix\": \"im:\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"uri\": \"http://www.w3.org/2002/07/owl#\",\n" +
+                "\t\"prefix\": \"owl:\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "\t\"uri\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\n" +
+                "\t\"prefix\": \"rdf:\"\n" +
+                "  }\n" +
+                "]");
     }
 }

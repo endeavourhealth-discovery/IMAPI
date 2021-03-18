@@ -195,17 +195,40 @@ public class ConceptController {
 	public GraphDto getGraphData(@PathVariable("iri") String iri) {
 		Concept concept = conceptService.getConcept(iri);
 		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
-		List<GraphDto> graphChildren = new ArrayList<GraphDto>();
+		
+		GraphDto graphParents = new GraphDto().setName("Parents");
+		GraphDto graphChildren = new GraphDto().setName("Children");
+		GraphDto graphProps = new GraphDto().setName("Properties");
+		
 		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
 		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
+		List<PropertyValue> properties = getAllProperties(iri);
+		
 		parents.forEach(parent -> {
-			GraphDto graphChild = new GraphDto().setIri(parent.getIri()).setName(parent.getName()).setPropertyType("is a");
-			graphChildren.add(graphChild);
+			GraphDto graphParent = new GraphDto().setIri(parent.getIri()).setName(parent.getName())
+					.setPropertyType("is a");
+			graphParents.getChildren().add(graphParent);
 		});
-//		children.forEach(child -> {
-//			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
-//			graphChildren.add(graphChild);
-//		});
-		return graphData.setChildren(graphChildren);
+		children.forEach(child -> {
+			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
+			graphChildren.getChildren().add(graphChild);
+		});
+		properties.forEach(prop -> {
+			GraphDto graphProp = new GraphDto()
+					.setIri(prop.getProperty().getIri())
+					.setName(prop.getProperty().getName())
+					.setInheritedFromName(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")
+					.setInheritedFromIri(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "")
+					.setPropertyType(prop.getProperty().getName())
+					.setValueTypeIri(prop.getValueType().getIri())
+					.setValueTypeName(prop.getValueType().getName());
+			graphProps.getChildren().add(graphProp);
+		});
+		
+		graphData.getChildren().add(graphParents);
+		graphData.getChildren().add(graphChildren);
+		graphData.getChildren().add(graphProps);
+
+		return graphData;
 	}
 }

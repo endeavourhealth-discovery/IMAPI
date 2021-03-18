@@ -1,5 +1,6 @@
 package org.endeavourhealth.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GraphDto {
@@ -7,11 +8,33 @@ public class GraphDto {
 	String name;
 	String iri;
 	String propertyType;
+	String valueTypeIri;
+	String valueTypeName;
 	String inheritedFromIri;
 	String inheritedFromName;
 	List<GraphDto> children;
 	
-	public GraphDto() {}
+	public GraphDto() {
+		this.children = new ArrayList<GraphDto>();
+	}
+
+	public String getValueTypeIri() {
+		return valueTypeIri;
+	}
+
+	public GraphDto setValueTypeIri(String valueTypeIri) {
+		this.valueTypeIri = valueTypeIri;
+		return this;
+	}
+
+	public String getValueTypeName() {
+		return valueTypeName;
+	}
+
+	public GraphDto setValueTypeName(String valueTypeName) {
+		this.valueTypeName = valueTypeName;
+		return this;
+	}
 
 	public String getName() {
 		return name;

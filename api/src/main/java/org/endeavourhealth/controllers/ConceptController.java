@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.endeavourhealth.dto.ConceptDto;
+import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.converters.ImLangConverter;
 import org.endeavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
@@ -188,5 +189,23 @@ public class ConceptController {
 			});
 		}
 		return properties;
+	}
+
+	@GetMapping(value = "/{iri}/graph")
+	public GraphDto getGraphData(@PathVariable("iri") String iri) {
+		Concept concept = conceptService.getConcept(iri);
+		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
+		List<GraphDto> graphChildren = new ArrayList<GraphDto>();
+		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
+		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
+		parents.forEach(parent -> {
+			GraphDto graphChild = new GraphDto().setIri(parent.getIri()).setName(parent.getName()).setPropertyType("is a");
+			graphChildren.add(graphChild);
+		});
+//		children.forEach(child -> {
+//			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
+//			graphChildren.add(graphChild);
+//		});
+		return graphData.setChildren(graphChildren);
 	}
 }

@@ -159,13 +159,15 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       }
    }
 
+
    private String prefix(String iri) {
-      String path = iri.substring(0, Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#")) + 1);
+      int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
+      String path = iri.substring(0, end + 1);
       String prefix = contextMap.get(path);
       if (prefix == null)
          return iri;
       else
-         return iri.replace(path, prefix);
+         return prefix + ":" + iri.substring(end + 1);
    }
 }
 

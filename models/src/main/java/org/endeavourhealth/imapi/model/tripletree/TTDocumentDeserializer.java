@@ -115,7 +115,13 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                   return iri(expand(node.get("@id").asText()), node.get("name").asText());
                else
                   return iri(expand(node.get("@id").asText()));
-            } else {
+         } else if (node.has("@value")){
+               TTLiteral result= literal(node.get("@value").textValue());
+               if (node.has("@type"))
+                  result.setType(iri(node.get("@type").asText()));
+               return result;
+            }
+            else {
             TTNode result = new TTNode();
             populateTTNodeFromJson(result, node);
             return result;
@@ -129,11 +135,15 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
    }
 
    private String expand(String iri) {
-      String prefix = iri.substring(0, iri.indexOf(":") + 1);
-      String path = prefixMap.get(prefix);
-      if (path == null)
+      int colonPos = iri.indexOf(":");
+      if (colonPos>-1) {
+         String prefix = iri.substring(0, colonPos);
+         String path = prefixMap.get(prefix);
+         if (path == null)
+            return iri;
+         else
+            return path + iri.substring(colonPos + 1);
+      } else
          return iri;
-      else
-         return iri.replace(prefix, path);
    }
 }

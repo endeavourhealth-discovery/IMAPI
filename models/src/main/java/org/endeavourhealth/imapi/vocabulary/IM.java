@@ -7,7 +7,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class IM {
     public static final String NAMESPACE = "http://endhealth.info/im#";
     public static final String PREFIX = "im";
-    public static final TTIriRef ONTOLOGY = iri(NAMESPACE + "ontology");
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
@@ -20,8 +19,7 @@ public class IM {
     public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyConcept");
     public static final TTIriRef IS_A= iri(NAMESPACE +"isA");
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
-    public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
-    public static final TTIriRef IN_ROLE_GROUP_OF= iri(NAMESPACE +"inRoleGroupOf");
+    public static final TTIriRef INFERRED_ROLE= iri(NAMESPACE +"inferredRole");
     public static final TTIriRef IS_INSTANCE_OF = iri(NAMESPACE +"isInstanceOf");
     public static final TTIriRef QUERYSET = iri(NAMESPACE +"QuerySet");
     public static final TTIriRef MODELTYPE = iri(NAMESPACE +"modelType");
@@ -38,6 +36,9 @@ public class IM {
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
     public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
     public static final TTIriRef HAS_SYNONYM = iri(NAMESPACE +"hasSynonym");
+    public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
+    public static final TTIriRef INFERRED_PROPERTY = iri(NAMESPACE +"inferredProperty");
+    public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
 
 
 

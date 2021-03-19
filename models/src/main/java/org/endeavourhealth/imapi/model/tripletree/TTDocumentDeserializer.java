@@ -96,8 +96,10 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          Iterator<Map.Entry<String, JsonNode>> fields = conceptNode.fields();
          while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals("@id"))
+            if (field.getKey().equals("@id")) {
                concept.setIri(expand(field.getValue().textValue()));
+              // System.out.println(concept.getIri());
+            }
             else
                concept.set(iri(expand(field.getKey())),getJsonNodeAsValue(field.getValue()));
          }

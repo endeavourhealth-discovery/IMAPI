@@ -102,7 +102,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
             }
             for(Map.Entry<TTIriRef, TTValue> entry : entries) {
                if (!order.contains(entry.getKey().getIri()))
-                  serializeFieldValue(entry.getKey().toString(), entry.getValue(), gen);
+                  serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
             }
 
          } else {

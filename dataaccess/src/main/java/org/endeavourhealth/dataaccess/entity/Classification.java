@@ -46,8 +46,7 @@ import javax.persistence.SqlResultSetMapping;
     		+ "JOIN module m ON c.module = m.dbid\n"
     		+ "JOIN concept p ON p.dbid = c.parent\n"
     		+ "JOIN concept r ON r.dbid = c.child\n"
-    		+ "WHERE p.iri = :parentIri\n"
-    		+ "GROUP BY c.child;",
+    		+ "WHERE p.iri = :parentIri\n",
     resultSetMapping = Classification.CLASSIFICATION_WITH_CHILD_HAS_CHILDREN_MAPPING,
     resultClass = Classification.class
 )
@@ -74,8 +73,7 @@ import javax.persistence.SqlResultSetMapping;
 	    		+ "JOIN concept r ON r.dbid = c.child\n"
 	    		+ "JOIN namespace n ON n.dbid = r.namespace\n"
 	    		+ "WHERE p.iri = :parentIri\n"
-	    		+ "AND n.prefix IN (:namespacePrefixes)\n"
-	    		+ "GROUP BY c.child;",
+	    		+ "AND n.prefix IN (:namespacePrefixes)\n",
 	    resultSetMapping = Classification.CLASSIFICATION_WITH_CHILD_HAS_CHILDREN_MAPPING,
 	    resultClass = Classification.class
 )

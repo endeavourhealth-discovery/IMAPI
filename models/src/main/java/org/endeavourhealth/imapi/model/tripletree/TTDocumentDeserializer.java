@@ -51,8 +51,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
             Map.Entry<String, JsonNode> field = fields.next();
             String key= field.getKey();
             JsonNode value= field.getValue();
-            if (value.isTextual())
-               if (value.textValue().startsWith("http:")) {
+            if (value.isTextual()) {
                   result.addPrefix(new TTPrefix(value.textValue(), key));
                   prefixMap.put(key,value.asText());
                }

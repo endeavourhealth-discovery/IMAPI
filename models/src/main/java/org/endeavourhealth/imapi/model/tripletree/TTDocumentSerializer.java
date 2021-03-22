@@ -3,12 +3,13 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
@@ -17,7 +18,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    private Map<String, String> contextMap = new HashMap<>();
-   private Map<Class,List<String>> predicateTemplate;
+   private List<TTIriRef> predicateTemplate;
 
    public TTDocumentSerializer() {
       this(null);
@@ -31,8 +32,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    @Override
    public void serialize(TTDocument document, JsonGenerator gen, SerializerProvider prov) throws IOException {
 
-      if (document.getPredicateTemplate()!=null)
-         this.predicateTemplate= document.getPredicateTemplate();
+      setPredicateOrder();
       gen.writeStartObject();
       serializeContexts(document.getPrefixes(), gen);
       if (document.getGraph()!=null) {
@@ -65,6 +65,17 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       gen.writeEndObject();
    }
 
+   private void setPredicateOrder() {
+      predicateTemplate = new ArrayList<>();
+      predicateTemplate.add(RDF.TYPE);
+      predicateTemplate.add(RDFS.LABEL);
+      predicateTemplate.add(RDFS.COMMENT);
+      predicateTemplate.add(IM.CODE);
+      predicateTemplate.add(IM.HAS_SCHEME);
+      predicateTemplate.add(IM.STATUS);
+      predicateTemplate.add(IM.IS_A);
+   }
+
    private void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
       if (prefixes != null && !prefixes.isEmpty()) {
          gen.writeFieldName("@context");
@@ -93,16 +104,15 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
       if (predicates != null && !predicates.isEmpty()) {
          Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
-         if (predicateTemplate!=null &&(predicateTemplate.get(node.getClass())!=null)){
-            List<String> order= predicateTemplate.get(node.getClass());
-            for (String predicate:order){
-               TTValue value= node.get(iri(predicate));
+         if (node instanceof TTConcept){
+            for (TTIriRef predicate:predicateTemplate){
+               TTValue value= node.get(predicate);
                if (value!=null)
-                  serializeFieldValue(predicate,value,gen );
+                  serializeFieldValue(predicate.getIri(),value,gen );
             }
             for(Map.Entry<TTIriRef, TTValue> entry : entries) {
-               if (!order.contains(entry.getKey().getIri()))
-                  serializeFieldValue(entry.getKey().toString(), entry.getValue(), gen);
+               if (!predicateTemplate.contains(entry.getKey()))
+                  serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
             }
 
          } else {

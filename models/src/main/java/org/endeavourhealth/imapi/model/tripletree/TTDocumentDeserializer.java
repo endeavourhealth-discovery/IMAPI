@@ -51,8 +51,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
             Map.Entry<String, JsonNode> field = fields.next();
             String key= field.getKey();
             JsonNode value= field.getValue();
-            if (value.isTextual())
-               if (value.textValue().startsWith("http:")) {
+            if (value.isTextual()) {
                   result.addPrefix(new TTPrefix(value.textValue(), key));
                   prefixMap.put(key,value.asText());
                }
@@ -96,8 +95,10 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          Iterator<Map.Entry<String, JsonNode>> fields = conceptNode.fields();
          while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals("@id"))
+            if (field.getKey().equals("@id")) {
                concept.setIri(expand(field.getValue().textValue()));
+              // System.out.println(concept.getIri());
+            }
             else
                concept.set(iri(expand(field.getKey())),getJsonNodeAsValue(field.getValue()));
          }

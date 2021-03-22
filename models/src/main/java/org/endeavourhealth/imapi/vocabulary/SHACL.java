@@ -14,4 +14,11 @@ public class SHACL {
    public static final TTIriRef PROPERTY= iri(NAMESPACE +"property");
    public static final TTIriRef MINCOUNT= iri(NAMESPACE +"minCount");
    public static final TTIriRef MAXCOUNT= iri(NAMESPACE +"maxCount");
+   public static final TTIriRef HASVALUE= iri(NAMESPACE +"hasValue");
+   public static final TTIriRef PATTERN= iri(NAMESPACE +"pattern");
+   public static final TTIriRef PATH= iri(NAMESPACE +"path");
+   public static final TTIriRef INVERSEPATH= iri(NAMESPACE +"inversePath");
+   public static final TTIriRef CLASS= iri(NAMESPACE +"class");
+   public static final TTIriRef DATATYPE= iri(NAMESPACE +"datatype");
 }
+

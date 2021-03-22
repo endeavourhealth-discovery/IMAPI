@@ -41,7 +41,7 @@ public class IM {
 
     //Inferred grouping predicates
     public static final TTIriRef ROLES= iri(NAMESPACE +"roles");
-    public static final TTIriRef FIELD_GROUP = iri(NAMESPACE +"roleGroup");
+    public static final TTIriRef FIELD_GROUPS = iri(NAMESPACE +"roleGroups");
 
 
     //Concept status values

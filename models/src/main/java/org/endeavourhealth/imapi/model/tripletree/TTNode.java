@@ -16,6 +16,8 @@ public class TTNode extends TTValue {
         return predicateValues.get(predicate);
     }
 
+    public boolean has(TTIriRef predicate) { return predicateValues.containsKey(predicate); }
+
     public HashMap<TTIriRef, TTValue> getPredicateMap() {
         return this.predicateValues;
     }

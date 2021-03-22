@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.ui;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -11,62 +12,15 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class IntelliSenseTest {
+    private TTNode restriction;
+    private IntelliSenseRequest request;
 
-    @Test
-    public void testIntelliSense() {
-        IntelliSenseRequest request = getTestRequest();
+    @Before
+    public void setData() {
+        restriction = new TTNode()
+            .set(RDF.TYPE, OWL.RESTRICTION);
 
-        IntelliSense intelliSense = new IntelliSense();
-
-        intelliSense.evaluate(request, this::printResult);
-    }
-
-    private void printResult(String action, Stack<TTTuple> stack) {
-        System.out.println("Success!");
-
-        System.out.println("Action: [" + action + "]");
-
-        System.out.println("========== STACK ==========");
-        while (!stack.isEmpty()) {
-            TTTuple t = stack.pop();
-            TTIriRef p = t.getPredicate();
-            TTValue v = t.getValue();
-            if (p == null)
-                System.out.print("P: (root)\t");
-            else
-                System.out.print("P: [" + p.getIri() + "]\t");
-
-            if (v.isLiteral())
-                System.out.println("V: [" + v.asLiteral().getValue() + "]");
-            else if (v.isIriRef())
-                System.out.println("V: [" + v.asIriRef().getIri() + " | " + v.asIriRef().getName() + "]");
-            else if (v.isNode())
-                System.out.println("V: Node");
-            else if (v.isList())
-                System.out.println("V: List[]");
-            else
-                System.out.println("V: ????");
-        }
-    }
-
-    public IntelliSenseRequest getTestRequest() {
-        List<TTValue> index = new ArrayList<>();
-        index.add(OWL.EQUIVALENTCLASS);
-        index.add(literal("0"));
-        index.add(OWL.INTERSECTIONOF);
-        index.add(literal("1"));
-        index.add(OWL.ONPROPERTY);
-
-        return new IntelliSenseRequest()
-            .setIndex(index)
-            .setAction("SUGGEST")
-            .setConcept(
-                getTestConcept()
-            );
-    }
-
-    private TTConcept getTestConcept() {
-        return new TTConcept("http://endhealth.info/im#25451000252115")
+        TTConcept concept = new TTConcept("http://endhealth.info/im#25451000252115")
             .addPrefix("http://endhealth.info/im#", "im")
             .addPrefix("http://snomed.info/sct#", "sn")
             .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
@@ -82,14 +36,81 @@ public class IntelliSenseTest {
             .set(OWL.EQUIVALENTCLASS, new TTArray()
                 .add(new TTNode()
                     .set(OWL.INTERSECTIONOF, new TTArray()
-                        .add(iri("http://snomed.info/sct#62014003"))
-                        .add(new TTNode()
-                            .set(RDF.TYPE, OWL.RESTRICTION)
-                            .set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003"))           // <-- "Position"
-                            .set(OWL.SOMEVALUESFROM, iri("http://snomed.info/sct#384976003"))
-                        )
+                        .add(iri("http://snomed.info/sct#62014003", "Drug"))
+                        .add(restriction)
                     )
                 )
             );
+
+        request = new IntelliSenseRequest()
+            .setConcept(concept);
+    }
+
+    @Test
+    public void testIntelliSense_SUGGEST() {
+        IntelliSense intelliSense = new IntelliSense();
+
+        request.setAction("SUGGEST")
+            .setIndex(OWL.EQUIVALENTCLASS,
+                literal("0"),
+                OWL.INTERSECTIONOF,
+                literal("0")
+            );
+
+        // First test
+        System.out.println("=============== SUGGEST 1 ===============");
+
+        List<TTValue> result = intelliSense.evaluate(request);
+        printResult(result);
+
+        // Second test
+        System.out.println("=============== SUGGEST 2 ===============");
+        restriction.set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003", "Caus"));
+
+        request.setIndex(OWL.EQUIVALENTCLASS,
+            literal("0"),
+            OWL.INTERSECTIONOF,
+            literal("1"),
+            OWL.ONPROPERTY
+        );
+
+        result = intelliSense.evaluate(request);
+        printResult(result);
+    }
+
+    @Test
+    public void testIntelliSense_ADD() {
+        IntelliSense intelliSense = new IntelliSense();
+
+        request
+            .setAction("ADD")
+            .setIndex(OWL.EQUIVALENTCLASS,
+                literal("0"),
+                OWL.INTERSECTIONOF,
+                literal("1"));
+
+        // First test
+        System.out.println("=============== ADD 1 ===============");
+        List<TTValue> result = intelliSense.evaluate(request);
+        printResult(result);
+
+        // Second test
+        System.out.println("=============== ADD 2 ===============");
+        restriction.set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003", "Causative agent"));
+
+        result = intelliSense.evaluate(request);
+        printResult(result);
+    }
+
+    private void printResult(List<TTValue> result) {
+        for(TTValue v : result) {
+            if (v.isIriRef()) {
+                System.out.println("I: " + v.asIriRef().getIri() + "|" + v.asIriRef().getName());
+            } else if (v.isLiteral()) {
+                System.out.println("V: " + v.asLiteral().getValue());
+            } else {
+                System.err.println("Unhandled result value type!");
+            }
+        }
     }
 }

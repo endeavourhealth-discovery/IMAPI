@@ -4,8 +4,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 public class IntelliSenseRequest {
     private List<TTValue> index = new ArrayList<>();
@@ -18,6 +18,11 @@ public class IntelliSenseRequest {
 
     public IntelliSenseRequest setIndex(List<TTValue> index) {
         this.index = index;
+        return this;
+    }
+
+    public IntelliSenseRequest setIndex(TTValue ...index) {
+        this.index = Arrays.asList(index);
         return this;
     }
 

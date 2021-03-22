@@ -79,7 +79,7 @@ public class TTConcept extends TTNode {
 
     public TTConcept addType(TTIriRef type) {
         TTArray types = getAsArray(RDF.TYPE);
-        if (type == null) {
+        if (types == null) {
             types = new TTArray();
             setType(types);
         }

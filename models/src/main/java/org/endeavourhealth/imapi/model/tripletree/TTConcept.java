@@ -72,13 +72,13 @@ public class TTConcept extends TTNode {
         return this.getAsIriRef(IM.HAS_SCHEME);
     }
 
-    public TTConcept setType(TTIriRef type) {
+    public TTConcept setType(TTArray type) {
         set(RDF.TYPE, type);
         return this;
     }
 
-    public TTIriRef getType() {
-        return getAsIriRef(RDF.TYPE);
+    public TTArray getType() {
+        return getAsArray(RDF.TYPE);
     }
 
     public List<TTPrefix> getPrefixes() {

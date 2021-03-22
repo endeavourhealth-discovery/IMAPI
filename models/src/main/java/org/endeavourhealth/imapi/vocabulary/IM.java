@@ -40,7 +40,7 @@ public class IM {
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
 
     //Inferred grouping predicates
-    public static final TTIriRef ROLE = iri(NAMESPACE +"role");
+    public static final TTIriRef ROLES= iri(NAMESPACE +"roles");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE +"roleGroup");
 
 

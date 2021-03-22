@@ -51,12 +51,10 @@ public class TTDocumentTest {
       result.setGraph("http://testgraph");
       result.addPrefix(new TTPrefix("http://endhealth.info/im#","im"));
       result.addConcept( new TTConcept("http://endhealth.info/im#TestConcept")
-          .set(IM.MODELTYPE,TTIriRef.iri("im:ValueSet"))
+          .set(RDF.TYPE,TTIriRef.iri("im:ValueSet"))
           .set(RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
           .set(IM.CODE,literal("25451000252115").setType(iri("xsd:integer")))
           .set(IM.HAS_SCHEME, iri("http://snomed.info/sct#891071000252105"))
-
-          .set(RDF.TYPE, OWL.CLASS)
           .set(OWL.EQUIVALENTCLASS, new TTArray()
               .add(new TTNode()
                   .set(OWL.INTERSECTIONOF, new TTArray()

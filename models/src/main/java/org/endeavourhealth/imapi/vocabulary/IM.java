@@ -12,7 +12,7 @@ public class IM {
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
-    public static final TTIriRef MODELTYPE = iri(NAMESPACE +"modelType");
+    public static final TTIriRef OWL_CHARACTERISTICS = iri(NAMESPACE+  "characteristics");
 
     //Synonyms
     public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
@@ -40,7 +40,7 @@ public class IM {
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
 
     //Inferred grouping predicates
-    public static final TTIriRef ROLE_GROUP = iri(NAMESPACE +"roleGroup");
+    public static final TTIriRef ROLE = iri(NAMESPACE +"role");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE +"roleGroup");
 
 
@@ -48,6 +48,9 @@ public class IM {
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE +"Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE +"Inactive");
+
+    //Legacy Mapping
+    public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"mappedFrom");
 
     public static final TTIriRef DM_OP = iri(NAMESPACE +"modelObjectProperty");
     public static final TTIriRef DM_DP = iri(NAMESPACE +"modelDataProperty");

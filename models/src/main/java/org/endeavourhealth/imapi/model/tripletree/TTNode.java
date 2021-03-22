@@ -20,6 +20,11 @@ public class TTNode extends TTValue {
         return this.predicateValues;
     }
 
+    public TTNode setPredicateMap(HashMap<TTIriRef,TTValue> predicateMap) {
+        this.predicateValues= predicateMap;
+        return this;
+    }
+
     @Override
     public TTNode asNode() {
         return this;

@@ -238,6 +238,10 @@ public class ConceptController {
 	public List<String> getParentProperties(String iri, List<String> flatParentIris) {
 		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
 		
+		if(parents == null) {
+			return flatParentIris;
+		}
+		
 		for(ConceptReferenceNode parent: parents) {
 			flatParentIris.add(parent.getIri());
             getParentProperties(parent.getIri(), flatParentIris);

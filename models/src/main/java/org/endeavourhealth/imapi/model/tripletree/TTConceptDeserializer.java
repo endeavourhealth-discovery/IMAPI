@@ -106,9 +106,17 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
                 else
                     return iri(expand(node.get("@id").asText()));
             } else {
-                TTNode result = new TTNode();
-                populateTTNodeFromJson(result, node);
-                return result;
+                if (node.has("@value")){
+                    TTLiteral result= literal(node.get("@value").textValue());
+                    if (node.has("@type"))
+                        result.setType(iri(node.get("@type").asText()));
+                    return result;
+
+                } else {
+                    TTNode result = new TTNode();
+                    populateTTNodeFromJson(result, node);
+                    return result;
+                }
             }
         } else if (node.isArray()) {
             return  getArrayNodeAsTripleTreeArray((ArrayNode) node);

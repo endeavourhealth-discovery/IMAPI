@@ -51,8 +51,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
             Map.Entry<String, JsonNode> field = fields.next();
             String key= field.getKey();
             JsonNode value= field.getValue();
-            if (value.isTextual())
-               if (value.textValue().startsWith("http:")) {
+            if (value.isTextual()) {
                   result.addPrefix(new TTPrefix(value.textValue(), key));
                   prefixMap.put(key,value.asText());
                }
@@ -96,8 +95,10 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          Iterator<Map.Entry<String, JsonNode>> fields = conceptNode.fields();
          while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals("@id"))
+            if (field.getKey().equals("@id")) {
                concept.setIri(expand(field.getValue().textValue()));
+              // System.out.println(concept.getIri());
+            }
             else
                concept.set(iri(expand(field.getKey())),getJsonNodeAsValue(field.getValue()));
          }
@@ -115,7 +116,13 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                   return iri(expand(node.get("@id").asText()), node.get("name").asText());
                else
                   return iri(expand(node.get("@id").asText()));
-            } else {
+         } else if (node.has("@value")){
+               TTLiteral result= literal(node.get("@value").textValue());
+               if (node.has("@type"))
+                  result.setType(iri(node.get("@type").asText()));
+               return result;
+            }
+            else {
             TTNode result = new TTNode();
             populateTTNodeFromJson(result, node);
             return result;
@@ -130,11 +137,14 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
 
    private String expand(String iri) {
       int colonPos = iri.indexOf(":");
-      String prefix = iri.substring(0, colonPos);
-      String path = prefixMap.get(prefix);
-      if (path == null)
+      if (colonPos>-1) {
+         String prefix = iri.substring(0, colonPos);
+         String path = prefixMap.get(prefix);
+         if (path == null)
+            return iri;
+         else
+            return path + iri.substring(colonPos + 1);
+      } else
          return iri;
-      else
-         return path + iri.substring(colonPos + 1);
    }
 }

@@ -46,8 +46,6 @@ public class TTDocumentTest {
    }
 
 
-
-
    public TTDocument getTestDocument() {
       TTDocument result= new TTDocument();
       result.setGraph("http://testgraph");
@@ -55,7 +53,7 @@ public class TTDocumentTest {
       result.addConcept( new TTConcept("http://endhealth.info/im#TestConcept")
           .set(IM.MODELTYPE,TTIriRef.iri("im:ValueSet"))
           .set(RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
-          .set(IM.CODE, literal("25451000252115"))
+          .set(IM.CODE,literal("25451000252115").setType(iri("xsd:integer")))
           .set(IM.HAS_SCHEME, iri("http://snomed.info/sct#891071000252105"))
 
           .set(RDF.TYPE, OWL.CLASS)

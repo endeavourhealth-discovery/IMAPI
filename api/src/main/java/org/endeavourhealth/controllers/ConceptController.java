@@ -2,8 +2,12 @@ package org.endeavourhealth.controllers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.endeavourhealth.dto.ConceptDto;
+import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.converters.ImLangConverter;
 import org.endeavourhealth.dataaccess.IConceptService;
 import org.endeavourhealth.imapi.model.Concept;
@@ -173,10 +177,12 @@ public class ConceptController {
 		if (concept.getProperty() != null) {
 			properties.addAll(concept.getProperty());
 		}
-		List<ConceptReferenceNode> parentHierarchy = conceptService.getParentHierarchy(iri);
-		if (parentHierarchy != null && parentHierarchy.size() != 0) {
-			conceptService.getParentHierarchy(iri).forEach(parent -> {
-				Concept parentConcept = conceptService.getConcept(parent.getIri());
+		
+		List<String> flatParentIris = getParentProperties(iri, new ArrayList<String>());
+
+		if (flatParentIris.size() != 0) {
+			flatParentIris.forEach(parentIri -> {
+				Concept parentConcept = conceptService.getConcept(parentIri);
 				ConceptReference parentReference = new ConceptReference(parentConcept.getIri(),
 						parentConcept.getName());
 				if (parentConcept.getProperty() != null) {
@@ -188,5 +194,55 @@ public class ConceptController {
 			});
 		}
 		return properties;
+	}
+
+	@GetMapping(value = "/{iri}/graph")
+	public GraphDto getGraphData(@PathVariable("iri") String iri) {
+		Concept concept = conceptService.getConcept(iri);
+		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
+
+		GraphDto graphParents = new GraphDto().setName("Parents");
+		GraphDto graphChildren = new GraphDto().setName("Children");
+		GraphDto graphProps = new GraphDto().setName("Properties");
+
+		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
+		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
+		List<PropertyValue> properties = getAllProperties(iri);
+
+		parents.forEach(parent -> {
+			GraphDto graphParent = new GraphDto().setIri(parent.getIri()).setName(parent.getName())
+					.setPropertyType("is a");
+			graphParents.getChildren().add(graphParent);
+		});
+		children.forEach(child -> {
+			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
+			graphChildren.getChildren().add(graphChild);
+		});
+		properties.forEach(prop -> {
+			GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
+					.setName(prop.getProperty().getName())
+					.setInheritedFromName(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")
+					.setInheritedFromIri(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "")
+					.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
+					.setValueTypeName(prop.getValueType().getName());
+			graphProps.getChildren().add(graphProp);
+		});
+
+		graphData.getChildren().add(graphParents);
+		graphData.getChildren().add(graphChildren);
+		graphData.getChildren().add(graphProps);
+
+		return graphData;
+	}
+	
+	public List<String> getParentProperties(String iri, List<String> flatParentIris) {
+		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
+		
+		for(ConceptReferenceNode parent: parents) {
+			flatParentIris.add(parent.getIri());
+            getParentProperties(parent.getIri(), flatParentIris);
+        }
+		
+		return flatParentIris;
 	}
 }

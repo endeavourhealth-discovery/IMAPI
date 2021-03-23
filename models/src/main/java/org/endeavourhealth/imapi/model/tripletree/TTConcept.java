@@ -100,6 +100,15 @@ public class TTConcept extends TTNode {
         return getAsArray(RDF.TYPE);
     }
 
+    public TTIriRef getStatus(){
+        return this.getAsIriRef(IM.STATUS);
+    }
+
+    public TTConcept setStatus(TTIriRef status) {
+        set(IM.STATUS, status);
+        return this;
+    }
+
     public List<TTPrefix> getPrefixes() {
         return prefixes;
     }

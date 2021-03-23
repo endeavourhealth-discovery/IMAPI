@@ -86,6 +86,15 @@ public class TTConcept extends TTNode {
         types.add(type);
         return this;
     }
+    public boolean isType(TTIriRef type){
+        if (this.getType()!=null){
+            if (this.getType().getElements().contains(type))
+                return true;
+            else
+                return false;
+        }
+        return false;
+    }
 
     public TTArray getType() {
         return getAsArray(RDF.TYPE);

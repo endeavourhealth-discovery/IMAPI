@@ -62,6 +62,9 @@ public class IM {
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
+    public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
+    public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
+    public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
 
 
 }

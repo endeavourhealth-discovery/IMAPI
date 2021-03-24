@@ -107,7 +107,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
                     return iri(expand(node.get("@id").asText()));
             } else {
                 if (node.has("@value")){
-                    TTLiteral result= literal(node.get("@value").textValue());
+                    TTLiteral result= literal(node.get("@value").toString());
                     if (node.has("@type"))
                         result.setType(iri(node.get("@type").asText()));
                     return result;

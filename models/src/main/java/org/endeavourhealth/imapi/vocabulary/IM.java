@@ -52,6 +52,7 @@ public class IM {
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE +"Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE +"Inactive");
+    public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"891071000252105");
 
     //Legacy Mapping
     public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"mappedFrom");

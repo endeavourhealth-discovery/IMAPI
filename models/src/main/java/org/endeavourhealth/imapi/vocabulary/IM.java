@@ -55,12 +55,16 @@ public class IM {
     public static final TTIriRef DM_OP = iri(NAMESPACE +"modelObjectProperty");
     public static final TTIriRef DM_DP = iri(NAMESPACE +"modelDataProperty");
 
-
+    //Code schemes
     public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
     public static final TTIriRef CODE_SCHEME_READ = iri(NAMESPACE +"891141000252104");
+    public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"891051000252101");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
+    public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
+    public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
+    public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
 
 
 }

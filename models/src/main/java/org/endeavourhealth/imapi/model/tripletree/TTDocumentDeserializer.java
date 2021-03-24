@@ -110,11 +110,11 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
 
    private TTValue getJsonNodeAsValue(JsonNode node) {
       if (node.isTextual())
-         return literal(node.asText());
+         return literal(node.textValue());
       if (node.isLong())
-         return literal(node.asText(), XSD.LONG);
+         return literal(node.longValue());
       if (node.isInt())
-         return literal(node.asText(),XSD.INTEGER);
+         return literal(node.intValue());
       else if (node.isObject()) {
          if (node.has("@id")) {
                if (node.has("name"))

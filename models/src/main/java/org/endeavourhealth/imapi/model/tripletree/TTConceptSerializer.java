@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -84,14 +85,7 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
                 gen.writeStringField("name", ref.getName());
             gen.writeEndObject();
         } else if (value.isLiteral()) {
-            if (value.asLiteral().getType()!=null){
-                gen.writeStartObject();
-                gen.writeStringField("@value",value.asLiteral().getValue());
-                gen.writeStringField("@type",prefix(value.asLiteral().getType().getIri()));
-                gen.writeEndObject();
-            } else
-                gen.writeString(value.asLiteral().getValue());
-
+            serializeLiteral(value.asLiteral(), gen);
         } else if (value.isNode()) {
             gen.writeStartObject();
             serializeNode((TTNode)value, gen);
@@ -101,6 +95,29 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
                 serializeValue(v, gen);
             }
         }
+    }
+
+    private void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
+        if (literal.getType()!=null){
+            gen.writeStartObject();
+            if (XSD.STRING.equals(literal.getType()))
+                gen.writeStringField("@value", literal.getValue());
+            else if (XSD.BOOLEAN.equals(literal.getType()))
+                gen.writeBooleanField("@value", literal.booleanValue());
+            else if (XSD.INTEGER.equals(literal.getType()))
+                gen.writeNumberField("@value", literal.intValue());
+            else if (XSD.LONG.equals(literal.getType()))
+                gen.writeNumberField("@value", literal.longValue());
+            else if (XSD.PATTERN.equals(literal.getType()))
+                gen.writeStringField("@value", literal.getValue());
+            else
+                throw new IOException("Unhandled literal type ["+literal.getType().getIri()+"]");
+
+            gen.writeStringField("@type",prefix(literal.getType().getIri()));
+            gen.writeEndObject();
+        } else
+            // No type, assume string
+            gen.writeString(literal.getValue());
     }
 
     private String prefix(String iri) {

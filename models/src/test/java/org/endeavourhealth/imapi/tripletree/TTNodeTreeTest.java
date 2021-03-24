@@ -13,9 +13,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTNodeTreeTest {
 
@@ -157,8 +159,15 @@ public class TTNodeTreeTest {
                         .add(iri("http://snomed.info/sct#62014003"))
                         .add(new TTNode()
                             .set(RDF.TYPE, OWL.RESTRICTION)
-                            .set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003"))
+                            .set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003", "\"quoted with \\'s\""))
                             .set(OWL.SOMEVALUESFROM, iri("http://snomed.info/sct#384976003"))
+                        )
+                        .add(new TTNode()
+                            .set(RDF.TYPE, OWL.RESTRICTION)
+                            .set(OWL.ONPROPERTY, literal("\"quoted with \\'s\""))
+                            .set(OWL.SOMEVALUESFROM, literal(12345))
+                            .set(OWL.CLASS, literal(true))
+                            .set(OWL.ONEOF, literal(Pattern.compile("test.*")))
                         )
                     )
                 )
@@ -171,7 +180,7 @@ public class TTNodeTreeTest {
             .getValue()
         );
         Assert.assertEquals("Adverse reaction to Amlodipine Besilate", concept.getName());
-        Assert.assertEquals(2, concept
+        Assert.assertEquals(3, concept
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)

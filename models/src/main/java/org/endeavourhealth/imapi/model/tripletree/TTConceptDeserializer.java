@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -38,7 +40,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
         return result;
     }
 
-    private void populateConceptFromJson(JsonNode node, TTConcept result) {
+    private void populateConceptFromJson(JsonNode node, TTConcept result) throws IOException {
         Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
@@ -68,7 +70,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
         }
     }
 
-    private void populateTTNodeFromJson(TTNode result, JsonNode node) {
+    private void populateTTNodeFromJson(TTNode result, JsonNode node) throws IOException {
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> field = iterator.next();
@@ -84,7 +86,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
         }
     }
 
-    private TTArray getArrayNodeAsTripleTreeArray(ArrayNode arrayNode) {
+    private TTArray getArrayNodeAsTripleTreeArray(ArrayNode arrayNode) throws IOException {
         TTArray result = new TTArray();
 
         Iterator<JsonNode> iterator = arrayNode.elements();
@@ -96,7 +98,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
         return result;
     }
 
-    private TTValue getJsonNodeAsValue(JsonNode node) {
+    private TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
         if (node.isTextual())
             return literal(node.asText());
         else if (node.isObject()) {
@@ -107,11 +109,7 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
                     return iri(expand(node.get("@id").asText()));
             } else {
                 if (node.has("@value")){
-                    TTLiteral result= literal(node.get("@value").toString());
-                    if (node.has("@type"))
-                        result.setType(iri(node.get("@type").asText()));
-                    return result;
-
+                    return getJsonNodeAsLiteral(node);
                 } else {
                     TTNode result = new TTNode();
                     populateTTNodeFromJson(result, node);
@@ -124,6 +122,25 @@ public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
             System.err.println("Unhandled node type!");
             return null;
         }
+    }
+
+    private TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {
+        if (!node.has("@type"))
+            return literal(node.get("@value").textValue());
+
+        TTIriRef type = iri(node.get("@type").asText());
+        if (XSD.STRING.equals(type))
+            return literal(node.get("@value").textValue());
+        else if (XSD.BOOLEAN.equals(type))
+            return literal(node.get("@value").booleanValue());
+        else if (XSD.INTEGER.equals(type))
+            return literal(node.get("@value").intValue());
+        else if (XSD.LONG.equals(type))
+            return literal(node.get("@value").longValue());
+        else if (XSD.PATTERN.equals(type))
+            return literal(Pattern.compile(node.get("@value").textValue()));
+        else
+            throw new IOException("Unhandled literal type ["+type.getIri()+"]");
     }
 
     private String expand(String iri) {

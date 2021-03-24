@@ -177,8 +177,8 @@ public class ConceptController {
 		if (concept.getProperty() != null) {
 			properties.addAll(concept.getProperty());
 		}
-		
-		List<String> flatParentIris = getParentProperties(iri, new ArrayList<String>());
+
+		List<String> flatParentIris = getFlatParentHierarchy(iri, new ArrayList<String>());
 
 		if (flatParentIris.size() != 0) {
 			flatParentIris.forEach(parentIri -> {
@@ -187,13 +187,19 @@ public class ConceptController {
 						parentConcept.getName());
 				if (parentConcept.getProperty() != null) {
 					parentConcept.getProperty().forEach(property -> {
-						property.setInheritedFrom(parentReference);
-						properties.add(property);
+						if (!containsProperty(properties, property.getProperty().getIri())) {
+							property.setInheritedFrom(parentReference);
+							properties.add(property);
+						}
 					});
 				}
 			});
 		}
 		return properties;
+	}
+
+	public boolean containsProperty(List<PropertyValue> properties, String propertyIri) {
+		return properties.stream().filter(o -> o.getProperty().getIri().equals(propertyIri)).findFirst().isPresent();
 	}
 
 	@GetMapping(value = "/{iri}/graph")
@@ -234,19 +240,19 @@ public class ConceptController {
 
 		return graphData;
 	}
-	
-	public List<String> getParentProperties(String iri, List<String> flatParentIris) {
+
+	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
 		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
-		
-		if(parents == null) {
+
+		if (parents == null) {
 			return flatParentIris;
 		}
-		
-		for(ConceptReferenceNode parent: parents) {
+
+		for (ConceptReferenceNode parent : parents) {
 			flatParentIris.add(parent.getIri());
-            getParentProperties(parent.getIri(), flatParentIris);
-        }
-		
+			getFlatParentHierarchy(parent.getIri(), flatParentIris);
+		}
+
 		return flatParentIris;
 	}
 }

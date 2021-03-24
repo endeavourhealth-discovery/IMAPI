@@ -63,6 +63,11 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
     public static final TTIriRef CODE_SCHEME_READ = iri(NAMESPACE +"891141000252104");
     public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"891051000252101");
+    public static final TTIriRef CODE_SCHEME_ICD10 = iri(NAMESPACE +"891021000252109");
+    public static final TTIriRef CODE_SCHEME_OPCS4 = iri(NAMESPACE +"891041000252103");
+    public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"891031000252107");
+    public static final TTIriRef CODE_SCHEME_TPP = iri(NAMESPACE +"631000252102");
+    public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"891081000252108");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

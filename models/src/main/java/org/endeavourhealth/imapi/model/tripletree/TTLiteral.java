@@ -4,9 +4,14 @@ import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.util.regex.Pattern;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class TTLiteral extends TTValue {
     // Static helpers
     public static TTLiteral literal(String value, TTIriRef type) {
+        return new TTLiteral(value, type);
+    }
+    public static TTLiteral literal(String value, String type) {
         return new TTLiteral(value, type);
     }
     public static TTLiteral literal(String value) {
@@ -33,6 +38,10 @@ public class TTLiteral extends TTValue {
     public TTLiteral(String value, TTIriRef type) {
         this.value = value;
         this.type = type;
+    }
+    public TTLiteral(String value, String type) {
+        this.value = value;
+        this.type = iri(type);
     }
 
     // Type specific constructors

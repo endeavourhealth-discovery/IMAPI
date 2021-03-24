@@ -15,4 +15,5 @@ public class XSD {
     public static final TTIriRef INTEGER= iri(NAMESPACE +"integer");
     public static final TTIriRef STRING= iri(NAMESPACE +"string");
     public static final TTIriRef BOOLEAN= iri(NAMESPACE +"boolean");
+    public static final TTIriRef LONG= iri(NAMESPACE +"long");
 }

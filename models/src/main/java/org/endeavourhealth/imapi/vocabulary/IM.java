@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.vocabulary;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import javax.print.attribute.standard.MediaSize;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class IM {
@@ -31,6 +33,8 @@ public class IM {
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
+    public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE+"isMemberOf");
+
     //Document collection predicates
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.util.*;
@@ -111,7 +112,9 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       if (node.isTextual())
          return literal(node.asText());
       if (node.isLong())
-         return literal(node.asText());
+         return literal(node.asText(), XSD.LONG);
+      if (node.isInt())
+         return literal(node.asText(),XSD.INTEGER);
       else if (node.isObject()) {
          if (node.has("@id")) {
                if (node.has("name"))

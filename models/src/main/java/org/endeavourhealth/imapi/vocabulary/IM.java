@@ -27,6 +27,7 @@ public class IM {
     public static final TTIriRef CATEGORYSET = iri(NAMESPACE +"CategorySet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
+    public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");

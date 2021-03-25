@@ -14,16 +14,15 @@ public class IM {
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
-    public static final TTIriRef OWL_CHARACTERISTICS = iri(NAMESPACE+  "characteristics");
 
     //Synonyms
     public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
 
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
-    public static final TTIriRef VALUESET = iri(NAMESPACE + "ValueSet");
+    public static final TTIriRef SET = iri(NAMESPACE + "Set");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
-    public static final TTIriRef QUERYSET = iri(NAMESPACE +"QuerySet");
+    public static final TTIriRef SET_QUERY = iri(NAMESPACE +"SetQuery");
     public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyConcept");
     public static final TTIriRef CATEGORYSET = iri(NAMESPACE +"CategorySet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
@@ -33,7 +32,6 @@ public class IM {
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
-    public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE+"isMemberOf");
 
     //Document collection predicates
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
@@ -44,9 +42,9 @@ public class IM {
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
 
     //Inferred grouping predicates
-    public static final TTIriRef ROLES= iri(NAMESPACE +"roles");
-    public static final TTIriRef FIELD_GROUPS = iri(NAMESPACE +"roleGroups");
-
+    public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
+    public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
+    public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
 
     //Concept status values
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
@@ -57,8 +55,7 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"mappedFrom");
 
-    public static final TTIriRef DM_OP = iri(NAMESPACE +"modelObjectProperty");
-    public static final TTIriRef DM_DP = iri(NAMESPACE +"modelDataProperty");
+
 
     //Code schemes
     public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
@@ -72,9 +69,7 @@ public class IM {
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
-    public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
-    public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
-    public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
+
 
 
 }

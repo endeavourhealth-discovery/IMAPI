@@ -3,10 +3,7 @@ package org.endeavourhealth.imapi.tripletree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,7 +50,7 @@ public class TTDocumentTest {
       result.addConcept( new TTConcept("http://endhealth.info/im#TestConcept")
           .set(RDF.TYPE,TTIriRef.iri("im:ValueSet"))
           .set(RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
-          .set(IM.CODE,literal("25451000252115").setType(iri("xsd:integer")))
+          .set(IM.CODE,literal("25451000252115").setType(XSD.LONG))
           .set(IM.HAS_SCHEME, iri("http://snomed.info/sct#891071000252105"))
           .set(OWL.EQUIVALENTCLASS, new TTArray()
               .add(new TTNode()

@@ -6,15 +6,18 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
    private Map<String, String> prefixMap = new HashMap<>();
+   private TTNodeDeserializer helper;
 
    public TTDocumentDeserializer() {
       this(null);
@@ -29,8 +32,13 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
       TTDocument result = new TTDocument();
+      helper= new TTNodeDeserializer(prefixMap);
 
-      populatePrefixesFromJson(result, node);
+      List<TTPrefix> prefixes = new ArrayList<>();
+
+      helper.populatePrefixesFromJson(node,prefixes);
+      if (!prefixes.isEmpty())
+         result.setPrefixes(prefixes);
       if (node.get("@graph")!=null)
          result.setGraph(node.get("@graph").get("@id").asText());
       if (node.get("concepts")!=null) {
@@ -43,49 +51,9 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       return result;
    }
 
-   private void populatePrefixesFromJson(TTDocument result, JsonNode document) {
-      JsonNode context= document.get("@context");
-      if (context!=null){
-         Iterator<Map.Entry<String, JsonNode>> fields = context.fields();
-         while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            String key= field.getKey();
-            JsonNode value= field.getValue();
-            if (value.isTextual()) {
-                  result.addPrefix(new TTPrefix(value.textValue(), key));
-                  prefixMap.put(key,value.asText());
-               }
-         }
-      }
 
-   }
 
-   private void populateTTNodeFromJson(TTNode result, JsonNode node) {
-      Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
-      while (iterator.hasNext()) {
-         Map.Entry<String, JsonNode> field = iterator.next();
-         String key = field.getKey();
-         JsonNode value = field.getValue();
-         if (value.isArray()) {
-               result.set(iri(expand(field.getKey())), getArrayNodeAsTripleTreeArray((ArrayNode) value));
-         } else {
-               result.set(iri(expand(field.getKey())), getJsonNodeAsValue(value));
-            }
-         }
-   }
-
-   private TTArray getArrayNodeAsTripleTreeArray(ArrayNode arrayNode) {
-      TTArray result = new TTArray();
-
-      Iterator<JsonNode> iterator = arrayNode.elements();
-      while(iterator.hasNext()) {
-         JsonNode value = iterator.next();
-         result.add(getJsonNodeAsValue(value));
-      }
-
-      return result;
-   }
-   private List<TTConcept> getConcepts(ArrayNode arrayNode) {
+   private List<TTConcept> getConcepts(ArrayNode arrayNode) throws IOException {
       List result = new ArrayList();
       Iterator<JsonNode> iterator = arrayNode.elements();
       while(iterator.hasNext()) {
@@ -96,57 +64,15 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
             if (field.getKey().equals("@id")) {
-               concept.setIri(expand(field.getValue().textValue()));
+               concept.setIri(helper.expand(field.getValue().textValue()));
               // System.out.println(concept.getIri());
             }
             else
-               concept.set(iri(expand(field.getKey())),getJsonNodeAsValue(field.getValue()));
+               concept.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
          }
       }
 
       return result;
    }
 
-   private TTValue getJsonNodeAsValue(JsonNode node) {
-      if (node.isTextual())
-         return literal(node.asText());
-      if (node.isLong())
-         return literal(node.asText());
-      else if (node.isObject()) {
-         if (node.has("@id")) {
-               if (node.has("name"))
-                  return iri(expand(node.get("@id").asText()), node.get("name").asText());
-               else
-                  return iri(expand(node.get("@id").asText()));
-         } else if (node.has("@value")){
-               TTLiteral result= literal(node.get("@value").textValue());
-               if (node.has("@type"))
-                  result.setType(iri(node.get("@type").asText()));
-               return result;
-            }
-            else {
-            TTNode result = new TTNode();
-            populateTTNodeFromJson(result, node);
-            return result;
-         }
-      } else if (node.isArray()) {
-         return  getArrayNodeAsTripleTreeArray((ArrayNode) node);
-      } else {
-         System.err.println("Unhandled node type!");
-         return null;
-      }
-   }
-
-   private String expand(String iri) {
-      int colonPos = iri.indexOf(":");
-      if (colonPos>-1) {
-         String prefix = iri.substring(0, colonPos);
-         String path = prefixMap.get(prefix);
-         if (path == null)
-            return iri;
-         else
-            return path + iri.substring(colonPos + 1);
-      } else
-         return iri;
-   }
 }

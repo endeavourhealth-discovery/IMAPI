@@ -77,8 +77,36 @@ public class TTConcept extends TTNode {
         return this;
     }
 
+    public TTConcept addType(TTIriRef type) {
+        TTArray types = getAsArray(RDF.TYPE);
+        if (types == null) {
+            types = new TTArray();
+            setType(types);
+        }
+        types.add(type);
+        return this;
+    }
+    public boolean isType(TTIriRef type){
+        if (this.getType()!=null){
+            if (this.getType().getElements().contains(type))
+                return true;
+            else
+                return false;
+        }
+        return false;
+    }
+
     public TTArray getType() {
         return getAsArray(RDF.TYPE);
+    }
+
+    public TTIriRef getStatus(){
+        return this.getAsIriRef(IM.STATUS);
+    }
+
+    public TTConcept setStatus(TTIriRef status) {
+        set(IM.STATUS, status);
+        return this;
     }
 
     public List<TTPrefix> getPrefixes() {

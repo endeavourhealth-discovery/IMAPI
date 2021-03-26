@@ -20,5 +20,11 @@ public class SHACL {
    public static final TTIriRef INVERSEPATH= iri(NAMESPACE +"inversePath");
    public static final TTIriRef CLASS= iri(NAMESPACE +"class");
    public static final TTIriRef DATATYPE= iri(NAMESPACE +"datatype");
+   public static final TTIriRef SPARQL= iri(NAMESPACE +"sparql");
+   public static final TTIriRef SELECT= iri(NAMESPACE +"select");
+   public static final TTIriRef PARAMETER= iri(NAMESPACE +"parameter");
+   public static final TTIriRef IRI= iri(NAMESPACE +"iri");
+   public static final TTIriRef OPTIONAL= iri(NAMESPACE +"optional");
+
 }
 

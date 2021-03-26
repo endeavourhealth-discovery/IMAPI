@@ -2,14 +2,12 @@ package org.endeavourhealth.controllers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.endeavourhealth.dto.ConceptDto;
-import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.converters.ImLangConverter;
 import org.endeavourhealth.dataaccess.IConceptService;
+import org.endeavourhealth.dto.ConceptDto;
+import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.imapi.model.Concept;
 import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
@@ -22,6 +20,7 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -164,6 +163,7 @@ public class ConceptController {
 	}
 
 	@PostMapping
+	@PreAuthorize("isAuthenticated()")
 	public Concept createConcept(@RequestBody ConceptDto conceptDto) {
 //    	TODO convert conceptDto to concept
 //    	TODO save concept

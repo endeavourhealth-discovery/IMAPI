@@ -18,7 +18,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  * DeSerializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument Deserializer
  */
 public class TTNodeDeserializer {
-   private Map<String, String> prefixMap = new HashMap<>();
+   private Map<String, String> prefixMap;
 
    /**
     *
@@ -38,7 +38,7 @@ public class TTNodeDeserializer {
             String key= field.getKey();
             JsonNode value= field.getValue();
             if (value.isTextual())
-               if (value.textValue().startsWith("http:")) {
+               if (value.textValue().startsWith("http")) {
                   prefixes.add(new TTPrefix(value.textValue(), key));
                   prefixMap.put(key,value.asText());
                }

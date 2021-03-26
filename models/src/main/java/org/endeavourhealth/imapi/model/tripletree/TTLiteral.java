@@ -47,7 +47,7 @@ public class TTLiteral extends TTValue {
     // Type specific constructors
     public TTLiteral(String value) {
         this.value = value;
-        this.type = XSD.STRING;
+        //overly typed? this.type = XSD.STRING;
     }
     public TTLiteral(Boolean value) {
         this.value = value.toString();

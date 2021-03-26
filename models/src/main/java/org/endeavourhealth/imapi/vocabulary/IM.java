@@ -22,15 +22,15 @@ public class IM {
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
     public static final TTIriRef SET = iri(NAMESPACE + "Set");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
-    public static final TTIriRef SET_QUERY = iri(NAMESPACE +"SetQuery");
+    public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
     public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyConcept");
-    public static final TTIriRef CATEGORYSET = iri(NAMESPACE +"CategorySet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
+    public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
 
@@ -55,6 +55,12 @@ public class IM {
 
     //Legacy Mapping
     public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"mappedFrom");
+
+    //SPARQL parameters
+    public static final TTIriRef QUERY_VARIABLE = iri(NAMESPACE +"queryVariable");
+    public static final TTIriRef CALL_QUERY= iri(NAMESPACE +"callQuery");
+
+
 
 
 

@@ -111,8 +111,6 @@ public class TTNodeDeserializer {
          return literal(node.get("@value").booleanValue());
       else if (XSD.INTEGER.equals(type))
          return literal(node.get("@value").intValue());
-      else if (XSD.LONG.equals(type))
-         return literal(node.get("@value").longValue());
       else if (XSD.PATTERN.equals(type))
          return literal(Pattern.compile(node.get("@value").textValue()));
       else

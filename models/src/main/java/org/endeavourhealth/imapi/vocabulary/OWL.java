@@ -30,10 +30,6 @@ public class OWL {
     public static final TTIriRef ONDATATYPE = iri(NAMESPACE + "onDatatype");
     public static final TTIriRef WITHRESTRICTIONS = iri(NAMESPACE + "withRestrictions");
     public static final TTIriRef MAXCARDINALITY = iri(NAMESPACE + "maxQualifiedCardinality");
-    public static final TTIriRef MININCLUSIVE= iri(NAMESPACE +"minInclusive");
-    public static final TTIriRef MINEXCLUSIVE= iri(NAMESPACE +"minExclusive");
-    public static final TTIriRef MAXINCLUSIVE= iri(NAMESPACE +"maxInclusive");
-    public static final TTIriRef MAXEXCLUSIVE= iri(NAMESPACE +"maxExclusive");
     public static final TTIriRef MINCARDINALITY = iri(NAMESPACE + "minQualifiedCardinality");
     public static final TTIriRef ONDATARANGE = iri(NAMESPACE + "onDataRange");
     public static final TTIriRef HASVALUE = iri(NAMESPACE + "hasValue");

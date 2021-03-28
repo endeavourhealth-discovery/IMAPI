@@ -11,24 +11,26 @@ import java.util.Map;
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
 public class TTDocument extends TTNode{
-   private String graph;
+   private TTIriRef graph;
    private List<TTPrefix> prefixes = new ArrayList<>();
    private List<TTConcept> concepts;
    private List<TTConcept> individuals;
    private Map<Class,List<String>> predicateTemplate;
 
-   public String getGraph() {
+   public TTIriRef getGraph() {
       return graph;
    }
 
+   public TTDocument(TTIriRef defaultGraph){
+      this.graph= defaultGraph;
+   }
    public TTDocument(){
-
    }
    public TTDocument(Map<Class,List<String>> predicateTemplate){
       this.predicateTemplate= predicateTemplate;
    }
 
-   public TTDocument setGraph(String graph) {
+   public TTDocument setGraph(TTIriRef graph) {
       this.graph = graph;
       return this;
    }

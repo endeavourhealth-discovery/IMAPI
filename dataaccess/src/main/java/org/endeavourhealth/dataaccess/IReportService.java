@@ -9,5 +9,6 @@ public interface IReportService {
     List<SimpleCount> getConceptTypeReport();
     List<SimpleCount> getConceptSchemeReport();
     List<SimpleCount> getConceptStatusReport();
+    List<SimpleCount> getConceptCategoryReport();
 
 }

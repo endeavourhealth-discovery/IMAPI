@@ -19,20 +19,27 @@ public class ReportController {
     ReportService reportService;
 
     @GetMapping("concept/type")
-    public List<SimpleCount> getConceptTypeReport(){
+    public List<SimpleCount> getConceptTypeReport() {
 
         return reportService.getConceptTypeReport();
     }
 
     @GetMapping("concept/scheme")
-    public List<SimpleCount> getConceptSchemeReport(){
+    public List<SimpleCount> getConceptSchemeReport() {
 
         return reportService.getConceptSchemeReport();
     }
 
     @GetMapping("concept/status")
-    public List<SimpleCount> getConceptStatusReport(){
+    public List<SimpleCount> getConceptStatusReport() {
 
         return reportService.getConceptStatusReport();
+    }
+
+    @GetMapping("concept/category")
+    public List<SimpleCount> getConceptCategoryReport() {
+
+        return reportService.getConceptCategoryReport();
+
     }
 }

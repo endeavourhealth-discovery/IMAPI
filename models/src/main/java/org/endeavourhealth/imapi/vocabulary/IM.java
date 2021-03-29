@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import javax.print.attribute.standard.MediaSize;
 
@@ -76,6 +77,12 @@ public class IM {
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
+    public static final TTIriRef GRAPH_ICD10 = iri(NAMESPACE +"ICD10");
+    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(NAMESPACE +"EMIS");
+    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(NAMESPACE +"OPCS4");
+    public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(NAMESPACE +"READ2");
+    public static final TTIriRef GRAPH_CTV3 = TTIriRef.iri(NAMESPACE +"CTV3");
+    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(NAMESPACE +"TPP");
 
 
 

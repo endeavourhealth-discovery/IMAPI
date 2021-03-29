@@ -11,8 +11,10 @@ public class TTIriRef extends TTValue {
         return new TTIriRef(iri, name);
     }
 
+
     private String iri;
     private String name;
+
 
     public TTIriRef() {
     }
@@ -23,6 +25,7 @@ public class TTIriRef extends TTValue {
         this.iri = iri;
         this.name = name;
     }
+
 
     public String getIri() {
         return this.iri;
@@ -64,4 +67,6 @@ public class TTIriRef extends TTValue {
     public int hashCode() {
         return Objects.hash(iri);
     }
+
+
 }

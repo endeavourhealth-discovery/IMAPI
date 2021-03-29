@@ -105,8 +105,6 @@ public class TTNodeSerializer {
             gen.writeBooleanField("@value", literal.booleanValue());
          else if (XSD.INTEGER.equals(literal.getType()))
             gen.writeNumberField("@value", literal.intValue());
-         else if (XSD.LONG.equals(literal.getType()))
-            gen.writeNumberField("@value", literal.longValue());
          else if (XSD.PATTERN.equals(literal.getType()))
             gen.writeStringField("@value", literal.getValue());
          else

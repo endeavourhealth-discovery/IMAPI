@@ -23,9 +23,7 @@ public class TTLiteral extends TTValue {
     public static TTLiteral literal(Integer value) {
         return new TTLiteral(value);
     }
-    public static TTLiteral literal(Long value) {
-        return new TTLiteral(value);
-    }
+
     public static TTLiteral literal(Pattern value) {
         return new TTLiteral(value);
     }
@@ -57,10 +55,7 @@ public class TTLiteral extends TTValue {
         this.value = value.toString();
         this.type = XSD.INTEGER;
     }
-    public TTLiteral(Long value) {
-        this.value = value.toString();
-        this.type = XSD.LONG;
-    }
+
     public TTLiteral(Pattern value) {
         this.value = value.toString();
         this.type = XSD.PATTERN;

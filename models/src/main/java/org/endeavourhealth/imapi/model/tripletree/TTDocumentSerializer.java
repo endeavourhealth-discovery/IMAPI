@@ -41,7 +41,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       if (document.getGraph()!=null) {
          gen.writeFieldName("@graph");
          gen.writeStartObject();
-         gen.writeStringField("@id", helper.prefix(document.getGraph()));
+         gen.writeStringField("@id", helper.prefix(document.getGraph().getIri()));
          gen.writeEndObject();
       }
       if (document.getConcepts()!=null) {

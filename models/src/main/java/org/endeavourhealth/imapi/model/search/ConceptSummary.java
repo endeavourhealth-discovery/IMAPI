@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ConceptStatus;
-import org.endeavourhealth.imapi.model.ConceptType;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,29 +10,11 @@ public class ConceptSummary {
     private String iri;
     private String code;
     private String description;
-    private ConceptStatus status;
-    private ConceptReference scheme;
-    private ConceptType conceptType;
-    private List<ConceptReference> isDescendentOf = new ArrayList<>();
+    private TTIriRef status;
+    private TTIriRef scheme;
+    private TTIriRef conceptType;
+    private List<TTIriRef> isDescendentOf = new ArrayList<>();
     private Integer weighting;
-
-    public String getDescription() {
-        return description;
-    }
-
-    public ConceptStatus getStatus() {
-        return status;
-    }
-
-    public ConceptSummary setDescription(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public ConceptSummary setStatus(ConceptStatus status) {
-        this.status = status;
-        return this;
-    }
 
     public String getName() {
         return name;
@@ -63,29 +43,47 @@ public class ConceptSummary {
         return this;
     }
 
-    public ConceptReference getScheme() {
+    public String getDescription() {
+        return description;
+    }
+
+    public ConceptSummary setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public TTIriRef getStatus() {
+        return status;
+    }
+
+    public ConceptSummary setStatus(TTIriRef status) {
+        this.status = status;
+        return this;
+    }
+
+    public TTIriRef getScheme() {
         return scheme;
     }
 
-    public ConceptSummary setScheme(ConceptReference scheme) {
+    public ConceptSummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
     }
 
-    public ConceptType getConceptType() {
+    public TTIriRef getConceptType() {
         return conceptType;
     }
 
-    public ConceptSummary setConceptType(ConceptType conceptType) {
+    public ConceptSummary setConceptType(TTIriRef conceptType) {
         this.conceptType = conceptType;
         return this;
     }
 
-    public List<ConceptReference> getIsDescendentOf() {
+    public List<TTIriRef> getIsDescendentOf() {
         return isDescendentOf;
     }
 
-    public ConceptSummary setIsDescendentOf(List<ConceptReference> isDescendentOf) {
+    public ConceptSummary setIsDescendentOf(List<TTIriRef> isDescendentOf) {
         this.isDescendentOf = isDescendentOf;
         return this;
     }

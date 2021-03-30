@@ -1,8 +1,6 @@
 package org.endeavourhealth.dto;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ConceptStatus;
-import org.endeavourhealth.imapi.model.ConceptType;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class ConceptDto {
 
@@ -10,10 +8,10 @@ public class ConceptDto {
 	private String name;
 	private String description;
 	private String code;
-	private ConceptReference scheme;
-	private ConceptStatus status;
+	private TTIriRef scheme;
+	private TTIriRef status;
 	private Integer version;
-	private ConceptType conceptType;
+	private TTIriRef conceptType;
 	private String definitionText;
 
 	public String getIri() {
@@ -48,19 +46,19 @@ public class ConceptDto {
 		this.code = code;
 	}
 
-	public ConceptReference getScheme() {
+	public TTIriRef getScheme() {
 		return scheme;
 	}
 
-	public void setScheme(ConceptReference scheme) {
+	public void setScheme(TTIriRef scheme) {
 		this.scheme = scheme;
 	}
 
-	public ConceptStatus getStatus() {
+	public TTIriRef getStatus() {
 		return status;
 	}
 
-	public void setStatus(ConceptStatus status) {
+	public void setStatus(TTIriRef status) {
 		this.status = status;
 	}
 
@@ -72,11 +70,11 @@ public class ConceptDto {
 		this.version = version;
 	}
 
-	public ConceptType getConceptType() {
+	public TTIriRef getConceptType() {
 		return conceptType;
 	}
 
-	public void setConceptType(ConceptType conceptType) {
+	public void setConceptType(TTIriRef conceptType) {
 		this.conceptType = conceptType;
 	}
 

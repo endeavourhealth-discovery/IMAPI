@@ -1,151 +1,144 @@
 package org.endeavourhealth.dataaccess.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-public class Concept {
+public class Concept implements Serializable {
+    @Id()
+    private Integer dbid;
 
-	@Id()
-	private Integer dbid;
-	
-	@OneToOne()
-	@JoinColumn(name="namespace", referencedColumnName="dbid")
-	private Namespace namespace;
-	private Byte type;
-	private String iri;
-	private String name;
-	private String description;
-	private String code;
-    @OneToOne()
-    @JoinColumn(name="scheme", referencedColumnName="dbid")
-	private Concept scheme;
-	@OneToOne()
-	@JoinColumn(name="status", referencedColumnName="dbid")
-	private ConceptStatus status;
-	private Integer weighting;
-    @OneToOne()
-    @JoinColumn(name="expression", referencedColumnName="dbid")
-	private Expression expression;
+    @Column(unique = true)
+    private String iri;
 
-	public Concept() {
-		super();
-	}
+    private String name;
+    private String description;
+    private String code;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="scheme", referencedColumnName = "iri", nullable = true)
+    private Concept scheme;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="status", referencedColumnName = "iri", nullable = true)
+    private Concept status;
+    private String definition;
+    private LocalDateTime updated;
 
-	public Integer getDbid() {
-		return dbid;
-	}
+    @OneToMany()
+    private List<ConceptType> types;
 
-	public void setDbid(Integer dbid) {
-		this.dbid = dbid;
-	}
-
-	public Namespace getNamespace() {
-		return namespace;
-	}
-
-	public void setNamespace(Namespace namespace) {
-		this.namespace = namespace;
-	}
-
-    public Byte getType() {
-        return type;
+    public Integer getDbid() {
+        return dbid;
     }
 
-    public Concept setType(Byte type) {
-        this.type = type;
+    public Concept setDbid(Integer dbid) {
+        this.dbid = dbid;
         return this;
     }
 
     public String getIri() {
-		return iri;
-	}
-
-	public void setIri(String iri) {
-		this.iri = iri;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public Concept getScheme() {
-		return scheme;
-	}
-
-	public void setScheme(Concept scheme) {
-		this.scheme = scheme;
-	}
-
-	public ConceptStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(ConceptStatus status) {
-		this.status = status;
-	}
-
-	public Integer getWeighting() {
-		return weighting;
-	}
-
-	public void setWeighting(Integer weighting) {
-		this.weighting = weighting;
-	}
-
-    public Expression getExpression() {
-        return expression;
+        return iri;
     }
 
-    public Concept setExpression(Expression expression) {
-        this.expression = expression;
+    public Concept setIri(String iri) {
+        this.iri = iri;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Concept setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Concept setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public Concept setCode(String code) {
+        this.code = code;
+        return this;
+    }
+    public Concept getScheme() {
+        return scheme;
+    }
+
+    public Concept setScheme(Concept scheme) {
+        this.scheme = scheme;
+        return this;
+    }
+
+    public Concept getStatus() {
+        return status;
+    }
+
+    public Concept setStatus(Concept status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getDefinition() {
+        return definition;
+    }
+
+    public Concept setDefinition(String definition) {
+        this.definition = definition;
+        return this;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public Concept setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+        return this;
+    }
+
+    public List<ConceptType> getTypes() {
+        return types;
+    }
+
+    public Concept setTypes(List<ConceptType> types) {
+        this.types = types;
         return this;
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((dbid == null) ? 0 : dbid.hashCode());
-		return result;
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((dbid == null) ? 0 : dbid.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Concept other = (Concept) obj;
-		if (dbid == null) {
-			if (other.dbid != null)
-				return false;
-		} else if (!dbid.equals(other.dbid))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Concept other = (Concept) obj;
+        if (dbid == null) {
+            if (other.dbid != null)
+                return false;
+        } else if (!dbid.equals(other.dbid))
+            return false;
+        return true;
+    }
 }

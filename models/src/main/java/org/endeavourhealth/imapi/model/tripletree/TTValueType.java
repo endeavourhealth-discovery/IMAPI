@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.endeavourhealth.imapi.model.ConceptType;
 
 public enum TTValueType {
    IRIREF((byte)0, "IRIRef"),

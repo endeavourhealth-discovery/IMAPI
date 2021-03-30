@@ -3,8 +3,8 @@ package org.endeavourhealth.dataaccess;
 import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
 import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
-import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +47,11 @@ public class ConfigService implements IConfigService {
 	                .setCode(c.getCode());
 	
 	            if (c.getScheme() != null)
-	                src.setScheme(new ConceptReference(
-	                    c.getScheme().getIri(),
-	                    c.getScheme().getName())
-	                );
+	                src.setScheme(new TTIriRef(c.getScheme().getIri(), c.getScheme().getName()));
 	
-	            src.setIsDescendentOf(conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, Arrays.asList(candidates))
-	                .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
-	                .sorted(Comparator.comparing(ConceptReference::getName))
+	            src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
+	                .stream().map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
+	                .sorted(Comparator.comparing(TTIriRef::getName))
 	                .collect(Collectors.toList()));
 	
 	            result.add(src);

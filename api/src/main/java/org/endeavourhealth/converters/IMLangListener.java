@@ -1,7 +1,7 @@
 package org.endeavourhealth.converters;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.endeavourhealth.imapi.model.Concept;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.informationmanager.parser.IMLangBaseListener;
 import org.endeavourhealth.informationmanager.parser.IMLangParser.CodeContext;
 import org.endeavourhealth.informationmanager.parser.IMLangParser.DescriptionContext;
@@ -10,7 +10,7 @@ import org.endeavourhealth.informationmanager.parser.IMLangParser.NameContext;
 
 public class IMLangListener extends IMLangBaseListener {
 
-    Concept concept = new Concept();
+    TTConcept concept = new TTConcept();
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) { // see gramBaseListener for allowed functions
@@ -37,11 +37,11 @@ public class IMLangListener extends IMLangBaseListener {
         concept.setCode(ctx.getText().replace("code", "").replaceAll("\"", ""));
     }
 
-    public Concept getConcept() {
+    public TTConcept getConcept() {
         return concept;
     }
 
-    public void setConcept(Concept concept) {
+    public void setConcept(TTConcept concept) {
         this.concept = concept;
     }
 }

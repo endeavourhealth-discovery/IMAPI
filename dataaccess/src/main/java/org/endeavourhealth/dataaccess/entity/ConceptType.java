@@ -7,22 +7,21 @@ import javax.persistence.OneToOne;
 import java.time.LocalDateTime;
 
 @Entity
-public class ConceptTerm {
+public class ConceptType {
 
     @Id()
     private Integer dbid;
     @OneToOne()
     @JoinColumn(name = "concept", referencedColumnName = "dbid")
     private Concept concept;
-    private String term;
-    private String code;
+    private String type;
     private LocalDateTime updated;
 
     public Integer getDbid() {
         return dbid;
     }
 
-    public ConceptTerm setDbid(Integer dbid) {
+    public ConceptType setDbid(Integer dbid) {
         this.dbid = dbid;
         return this;
     }
@@ -31,26 +30,17 @@ public class ConceptTerm {
         return concept;
     }
 
-    public ConceptTerm setConcept(Concept concept) {
+    public ConceptType setConcept(Concept concept) {
         this.concept = concept;
         return this;
     }
 
-    public String getTerm() {
-        return term;
+    public String getType() {
+        return type;
     }
 
-    public ConceptTerm setTerm(String term) {
-        this.term = term;
-        return this;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public ConceptTerm setCode(String code) {
-        this.code = code;
+    public ConceptType setType(String type) {
+        this.type = type;
         return this;
     }
 
@@ -58,7 +48,7 @@ public class ConceptTerm {
         return updated;
     }
 
-    public ConceptTerm setUpdated(LocalDateTime updated) {
+    public ConceptType setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
     }
@@ -79,7 +69,7 @@ public class ConceptTerm {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ConceptTerm other = (ConceptTerm) obj;
+        ConceptType other = (ConceptType) obj;
         if (dbid == null) {
             if (other.dbid != null)
                 return false;

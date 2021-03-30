@@ -1,25 +1,25 @@
 package org.endeavourhealth.imapi.model.valuset;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class ValueSetMembership {
-    private ConceptReference includedBy;
-    private ConceptReference excludedBy;
+    private TTIriRef includedBy;
+    private TTIriRef excludedBy;
 
-    public ConceptReference getIncludedBy() {
+    public TTIriRef getIncludedBy() {
         return includedBy;
     }
 
-    public ValueSetMembership setIncludedBy(ConceptReference includedBy) {
+    public ValueSetMembership setIncludedBy(TTIriRef includedBy) {
         this.includedBy = includedBy;
         return this;
     }
 
-    public ConceptReference getExcludedBy() {
+    public TTIriRef getExcludedBy() {
         return excludedBy;
     }
 
-    public ValueSetMembership setExcludedBy(ConceptReference excludedBy) {
+    public ValueSetMembership setExcludedBy(TTIriRef excludedBy) {
         this.excludedBy = excludedBy;
         return this;
     }

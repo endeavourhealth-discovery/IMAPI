@@ -50,18 +50,17 @@ public class ReportService implements IReportService{
 
     @Override
     public List<SimpleCount> getConceptCategoryReport() {
-        List<SimpleCount> typeList= getConceptTypeReport();
         List<SimpleCount> result = new ArrayList<>();
 
         int dmCount = 0;
         int ontCount = 0;
         int vsCount =0;
-        for (SimpleCount t:typeList){
-            if(IM.VALUESET.getIri().equals(t.getLabel())){
+        for (org.endeavourhealth.dataaccess.entity.SimpleCount t : simpleCountRepository.getConceptTypeReport()) {
+            if(IM.VALUESET.getIri().equals(t.getIri())){
                 vsCount = t.getCount();
-            }else if(OWL.OBJECTPROPERTY.getIri().equals(t.getLabel()) ||
-                OWL.DATAPROPERTY.getIri().equals(t.getLabel()) ||
-                IM.RECORD.getIri().equals(t.getLabel())){
+            }else if(OWL.OBJECTPROPERTY.getIri().equals(t.getIri()) ||
+                OWL.DATAPROPERTY.getIri().equals(t.getIri()) ||
+                IM.RECORD.getIri().equals(t.getIri())){
                 dmCount = dmCount + t.getCount();
             }else {
                 ontCount = ontCount + t.getCount();

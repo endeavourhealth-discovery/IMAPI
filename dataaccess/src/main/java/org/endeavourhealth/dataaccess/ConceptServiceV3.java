@@ -75,7 +75,7 @@ public class ConceptServiceV3 {
         Set<Tct> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri_AndLevel(iri, IM.IS_A.getIri(), 0);
 
         for (Tct child: children) {
-            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus())) {
+            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus().getIri())) {
                 if (includeLegacy || coreNamespacePrefixes.contains(getPath(child.getDescendant().getIri())))
                     immediateChildren.add(
                         new ConceptReferenceNode(child.getDescendant().getIri(), child.getDescendant().getName())
@@ -91,7 +91,7 @@ public class ConceptServiceV3 {
         Set<Tct> children = conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndLevel(iri, IM.IS_A.getIri(), 0);
 
         for (Tct child: children) {
-            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus())) {
+            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus().getIri())) {
                 if (includeLegacy || coreNamespacePrefixes.contains(getPath(child.getDescendant().getIri())))
                     immediateParents.add(
                         new ConceptReferenceNode(child.getAncestor().getIri(), child.getAncestor().getName())
@@ -221,7 +221,6 @@ public class ConceptServiceV3 {
 
 
         Map<String, ValueSetMember> inclusions = new HashMap<>();
-
         for(ValueSetMember inc: included) {
             inclusions.put(inc.getConcept().getIri(), inc);
 
@@ -236,7 +235,7 @@ public class ConceptServiceV3 {
         }
 
         Map<String, ValueSetMember> exclusions = new HashMap<>();
-        for(ValueSetMember inc: included) {
+        for(ValueSetMember inc: excluded) {
             exclusions.put(inc.getConcept().getIri(), inc);
 
             if (expand) {

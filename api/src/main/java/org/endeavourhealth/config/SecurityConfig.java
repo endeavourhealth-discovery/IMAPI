@@ -8,12 +8,15 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration  
 @EnableGlobalMethodSecurity(prePostEnabled = true)  
 public class SecurityConfig extends WebSecurityConfigurerAdapter {  
-    protected void configure(final HttpSecurity http) throws Exception {}
+    protected void configure(final HttpSecurity http) throws Exception {
+        http.csrf().disable();
+    }
 
     public void configure(final WebSecurity web) throws Exception {
         web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
@@ -23,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowUrlEncodedSlash(true);
         firewall.setAllowUrlEncodedDoubleSlash(true);
-        firewall.setAllowedHttpMethods(Collections.singleton("GET"));
+        firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST"));
         return firewall;
     }
 }

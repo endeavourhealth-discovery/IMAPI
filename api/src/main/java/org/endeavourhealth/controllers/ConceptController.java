@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -187,11 +186,14 @@ public class ConceptController {
                         for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
                             TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
                             if (properties.stream().noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
-                                properties.add(new PropertyValue()
+                                PropertyValue pv = new PropertyValue()
                                     .setInheritedFrom(inheritedFrom)
-                                    .setProperty(propertyPath)
-                                    .setValueType(property.asNode().get(SHACL.CLASS).asIriRef())
-                                );
+                                    .setProperty(propertyPath);
+
+                                if (property.asNode().has(SHACL.CLASS)) pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
+                                if (property.asNode().has(SHACL.DATATYPE)) pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+
+                                properties.add(pv);
                             }
                         }
                     }

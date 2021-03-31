@@ -155,7 +155,7 @@ public class ConceptServiceV3 {
         if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
             result = conceptRepository.searchLegacy(terms, full, request.getStatusFilter(), request.getTypeFilter(), request.getSize());
         else {
-            result = conceptRepository.searchLegacySchemes(terms, full, request.getSchemeFilter(), request.getStatusFilter(), request.getTypeFilter(), request.getSize());
+            result = conceptRepository.searchLegacySchemes(terms, full, request.getSchemeFilter(), request.getTypeFilter(), request.getStatusFilter(), request.getSize());
         }
 
         List<ConceptSummary> src = result.stream()

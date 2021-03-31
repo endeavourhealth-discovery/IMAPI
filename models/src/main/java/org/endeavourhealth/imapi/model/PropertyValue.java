@@ -1,16 +1,16 @@
 package org.endeavourhealth.imapi.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class PropertyValue extends QuantificationImpl {
+public class PropertyValue {
 
-	private ConceptReference property;
-	private ConceptReference valueType;
-	private ConceptReference inverseOf;
+	private TTIriRef property;
+	private TTIriRef valueType;
+	private TTIriRef inverseOf;
 	private Set<String> oneOf;
 	private String minInclusive;
 	private String minExclusive;
@@ -19,15 +19,15 @@ public class PropertyValue extends QuantificationImpl {
 	private String pattern;
 	private String valueData;
 	private String individual;
-	private ClassExpression expression;
+	private TTNode expression;
 	private int group;
-	private ConceptReference inheritedFrom;
+	private TTIriRef inheritedFrom;
 
-	public ConceptReference getProperty() {
+	public TTIriRef getProperty() {
 		return property;
 	}
 
-	public PropertyValue setProperty(ConceptReference property) {
+	public PropertyValue setProperty(TTIriRef property) {
 		this.property = property;
 		return this;
 	}
@@ -66,20 +66,20 @@ public class PropertyValue extends QuantificationImpl {
 		return this;
 	}
 
-	public ConceptReference getValueType() {
+	public TTIriRef getValueType() {
 		return valueType;
 	}
 
-	public PropertyValue setValueType(ConceptReference objectType) {
+	public PropertyValue setValueType(TTIriRef objectType) {
 		this.valueType = objectType;
 		return this;
 	}
 
-	public ConceptReference getInverseOf() {
+	public TTIriRef getInverseOf() {
 		return inverseOf;
 	}
 
-	public PropertyValue setInverseOf(ConceptReference inverseOf) {
+	public PropertyValue setInverseOf(TTIriRef inverseOf) {
 		this.inverseOf = inverseOf;
 		return this;
 	}
@@ -129,11 +129,11 @@ public class PropertyValue extends QuantificationImpl {
 		return this;
 	}
 
-	public ClassExpression getExpression() {
+	public TTNode getExpression() {
 		return expression;
 	}
 
-	public PropertyValue setExpression(ClassExpression expression) {
+	public PropertyValue setExpression(TTNode expression) {
 		this.expression = expression;
 		return this;
 	}
@@ -147,11 +147,12 @@ public class PropertyValue extends QuantificationImpl {
 		return this;
 	}
 
-	public ConceptReference getInheritedFrom() {
+	public TTIriRef getInheritedFrom() {
 		return inheritedFrom;
 	}
 
-	public void setInheritedFrom(ConceptReference inheritedFrom) {
+	public PropertyValue setInheritedFrom(TTIriRef inheritedFrom) {
 		this.inheritedFrom = inheritedFrom;
+		return this;
 	}
 }

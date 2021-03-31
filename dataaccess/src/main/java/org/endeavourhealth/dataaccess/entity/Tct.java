@@ -4,62 +4,69 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import java.time.LocalDateTime;
 
 @Entity
-public class ConceptTerm {
+public class Tct {
 
     @Id()
     private Integer dbid;
+
     @OneToOne()
-    @JoinColumn(name = "concept", referencedColumnName = "dbid")
-    private Concept concept;
-    private String term;
-    private String code;
-    private LocalDateTime updated;
+    @JoinColumn(name="ancestor", referencedColumnName="dbid")
+    private Concept ancestor;
+
+    @OneToOne()
+    @JoinColumn(name="descendant", referencedColumnName="dbid")
+    private Concept descendant;
+
+    @OneToOne()
+    @JoinColumn(name="type", referencedColumnName="dbid")
+    private Concept type;
+
+    private Integer level;
 
     public Integer getDbid() {
         return dbid;
     }
 
-    public ConceptTerm setDbid(Integer dbid) {
+    public Tct setDbid(Integer dbid) {
         this.dbid = dbid;
         return this;
     }
 
-    public Concept getConcept() {
-        return concept;
+    public Concept getAncestor() {
+        return ancestor;
     }
 
-    public ConceptTerm setConcept(Concept concept) {
-        this.concept = concept;
+    public Tct setAncestor(Concept ancestor) {
+        this.ancestor = ancestor;
         return this;
     }
 
-    public String getTerm() {
-        return term;
+    public Concept getDescendant() {
+        return descendant;
     }
 
-    public ConceptTerm setTerm(String term) {
-        this.term = term;
+    public Tct setDescendant(Concept descendent) {
+        this.descendant = descendent;
         return this;
     }
 
-    public String getCode() {
-        return code;
+    public Concept getType() {
+        return type;
     }
 
-    public ConceptTerm setCode(String code) {
-        this.code = code;
+    public Tct setType(Concept type) {
+        this.type = type;
         return this;
     }
 
-    public LocalDateTime getUpdated() {
-        return updated;
+    public Integer getLevel() {
+        return level;
     }
 
-    public ConceptTerm setUpdated(LocalDateTime updated) {
-        this.updated = updated;
+    public Tct setLevel(Integer level) {
+        this.level = level;
         return this;
     }
 
@@ -79,7 +86,7 @@ public class ConceptTerm {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ConceptTerm other = (ConceptTerm) obj;
+        Tct other = (Tct) obj;
         if (dbid == null) {
             if (other.dbid != null)
                 return false;

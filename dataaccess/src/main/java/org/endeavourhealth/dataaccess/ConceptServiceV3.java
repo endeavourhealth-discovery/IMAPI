@@ -1,91 +1,148 @@
 package org.endeavourhealth.dataaccess;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.endeavourhealth.dataaccess.entity.Classification;
-import org.endeavourhealth.dataaccess.entity.ConceptTct;
-import org.endeavourhealth.dataaccess.entity.Expression;
-import org.endeavourhealth.dataaccess.entity.PropertyValue;
-import org.endeavourhealth.dataaccess.entity.Axiom;
-import org.endeavourhealth.dataaccess.repository.*;
-import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.dataaccess.entity.Concept;
+import org.endeavourhealth.dataaccess.entity.Tct;
+import org.endeavourhealth.dataaccess.entity.Tpl;
+import org.endeavourhealth.dataaccess.repository.ConceptRepository;
+import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
+import org.endeavourhealth.dataaccess.repository.ConceptTripleRepository;
+import org.endeavourhealth.dataaccess.repository.ValueSetRepository;
+import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
-import org.endeavourhealth.imapi.model.visitor.ObjectModelVisitor;
-import org.endeavourhealth.imapi.model.visitor.ValueSetMemberParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Component
-@Qualifier("ConceptServiceV3")
-public class ConceptServiceV3 implements IConceptService {
-    private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
-    private static final Integer DEFAULT_LIMIT = 20;
-    private static final String DEFAULT_CONCEPT_REFERENCE_NAME = "";
-    
+public class ConceptServiceV3 {
     @Value("#{'${discovery.dataaccess.core-namespace-prefixes}'.split(',')}")
     List<String> coreNamespacePrefixes;
-    
+
     @Autowired
     ConceptRepository conceptRepository;
 
     @Autowired
-    ExpressionRepository expressionRepository;
-
-    @Autowired
-    AxiomRepository axiomRepository;
-
-    @Autowired
-    ClassificationRepository classificationRepository;
-
-    @Autowired
     ConceptTctRepository conceptTctRepository;
-    
+
     @Autowired
-    ClassificationNativeQueries classificationNativeQueries;
+    ConceptTripleRepository conceptTripleRepository;
 
     @Autowired
     ValueSetRepository valueSetRepository;
 
-    @Autowired
-    MemberRepository memberRepository;
+    private ObjectMapper om = new ObjectMapper();
 
-
-    @Override
-    public ConceptReference getConceptReference(String iri) {
-        org.endeavourhealth.dataaccess.entity.Concept concept = conceptRepository.findByIri(iri);
-        if (concept == null) {
-            LOG.error("Unable to load concept reference [{}]\n", iri);
+    public TTConcept getConcept(String iri) {
+        Concept concept = conceptRepository.findByIri(iri);
+        if (concept == null)
             return null;
-        } else {
-            return new ConceptReference(iri, concept.getName());
+
+        try {
+            return om.readValue(concept.getDefinition(), TTConcept.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    @Override
-    public Concept getConcept(String iri) {
-        org.endeavourhealth.dataaccess.entity.Concept concept = conceptRepository.findByIri(iri);
-
-        if (concept == null) {
-            LOG.error("Unable to load concept [{}]\n", iri);
+    public TTIriRef getConceptReference(String iri) {
+        Concept concept = conceptRepository.findByIri(iri);
+        if (concept == null)
             return null;
-        }
 
-        return hydrateConcept(concept);
+        return new TTIriRef(concept.getIri(), concept.getName());
     }
 
-    @Override
+    public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
+
+        List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
+
+        Set<Tct> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri_AndLevel(iri, IM.IS_A.getIri(), 0);
+
+        for (Tct child: children) {
+            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus().getIri())) {
+                if (includeLegacy || coreNamespacePrefixes.contains(getPath(child.getDescendant().getIri())))
+                    immediateChildren.add(
+                        new ConceptReferenceNode(child.getDescendant().getIri(), child.getDescendant().getName())
+                    );
+            }
+        }
+        return immediateChildren;
+    }
+
+    public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size, boolean includeLegacy) {
+        List<ConceptReferenceNode> immediateParents = new ArrayList<>();
+
+        Set<Tct> children = conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndLevel(iri, IM.IS_A.getIri(), 0);
+
+        for (Tct child: children) {
+            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus().getIri())) {
+                if (includeLegacy || coreNamespacePrefixes.contains(getPath(child.getDescendant().getIri())))
+                    immediateParents.add(
+                        new ConceptReferenceNode(child.getAncestor().getIri(), child.getAncestor().getName())
+                    );
+            }
+        }
+        return immediateParents;
+    }
+
+    public List<ConceptReferenceNode> getParentHierarchy(String iri) {
+        if (OWL.THING.equals(iri))
+            return null;
+
+        List<ConceptReferenceNode> parents = getImmediateParents(iri, null, null, false);
+
+        // Recurse parents' parents
+        for(ConceptReferenceNode parent: parents) {
+            List<ConceptReferenceNode> grandParents = getParentHierarchy(parent.getIri());
+
+            parent.setParents(grandParents);
+        }
+
+        return parents;
+    }
+
+    public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
+        return conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates)
+            .stream().map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
+            .sorted(Comparator.comparing(TTIriRef::getName))
+            .collect(Collectors.toList());
+    }
+
+    public List<ConceptSummary> usages(String iri) {
+        Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
+            .map(t -> t.getDescendant().getIri())
+            .collect(Collectors.toSet());
+
+        return conceptTripleRepository.findByObject_Iri(iri).stream()
+            .map(Tpl::getSubject)
+            .filter(subject -> !children.contains(subject.getIri()))
+            .distinct()
+            .map(c -> new ConceptSummary()
+                .setIri(c.getIri())
+                .setName(c.getName())
+                .setCode(c.getCode())
+                .setScheme(c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName()))
+            )
+            // .sorted(Comparator.comparing(ConceptSummary::getName))
+            .collect(Collectors.toList());
+    }
+
     public List<ConceptSummary> advancedSearch(SearchRequest request) {
         List<org.endeavourhealth.dataaccess.entity.Concept> result;
 
@@ -95,34 +152,25 @@ public class ConceptServiceV3 implements IConceptService {
             .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));
 
-        List<Byte> status = request.getStatusFilter() == null || request.getStatusFilter().isEmpty()
-            ? Arrays.stream(ConceptStatus.values()).map(ConceptStatus::getValue).collect(Collectors.toList())
-            : request.getStatusFilter();
-
-        List<Byte> conceptType = request.getTypeFilter() == null || request.getTypeFilter().isEmpty()
-            ? Arrays.stream(ConceptType.values()).map(ConceptType::getValue).collect(Collectors.toList())
-            : request.getTypeFilter();
-
         if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
-            result = conceptRepository.searchLegacy(terms, full, status, conceptType, request.getSize());
+            result = conceptRepository.searchLegacy(terms, full, request.getStatusFilter(), request.getTypeFilter(), request.getSize());
         else {
-            List<String> schemeIris = request.getSchemeFilter().stream().map(ConceptReference::getIri).collect(Collectors.toList());
-            result = conceptRepository.searchLegacySchemes(terms, full, schemeIris, status, conceptType, request.getSize());
+            result = conceptRepository.searchLegacySchemes(terms, full, request.getSchemeFilter(), request.getTypeFilter(), request.getStatusFilter(), request.getSize());
         }
 
         List<ConceptSummary> src = result.stream()
             .map(r -> new ConceptSummary()
                 .setName(r.getName())
                 .setIri(r.getIri())
-                .setConceptType(ConceptType.byValue(r.getType()))
-                .setWeighting(r.getWeighting())
+                // .setConceptType(new TTIriRef(r.getTypes()))
+                // .setWeighting(r.getWeighting())
                 .setCode(r.getCode())
                 .setDescription(r.getDescription())
-                .setStatus(ConceptStatus.byValue(r.getStatus().getDbid()))
+                .setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
                 .setScheme(
                     r.getScheme() == null
                         ? null
-                        : new ConceptReference(r.getScheme().getIri(), r.getScheme().getName())
+                        : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName())
 
                 ))
             .collect(Collectors.toList());
@@ -134,158 +182,68 @@ public class ConceptServiceV3 implements IConceptService {
 
         return src;
     }
-    
-    @Override
-    public List<Concept> getAncestorDefinitions(String iri) {
-        Set<ConceptTct> result = conceptTctRepository.findBySource_IriOrderByLevel(iri);
 
-        return result.stream()
-            .filter(t -> !iri.equals(t.getTarget().getIri()))
-            .map(t -> hydrateConcept(t.getTarget()))
-            .collect(Collectors.toList());
-    }
-
-    public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
-    	List<ConceptReferenceNode> immediateChildren;
-               
-        Pageable page = getPage(pageIndex, pageSize);
-        
-        // get the data
-        List<Object[]> rows;
-        if(page != null) {
-        	// TODO - adapt for paging
-        	rows = getClassificationsPage(page, iri, getNamespacePrefixes(includeLegacy));
-        }
-        else {
-        	rows = getClassifications(iri, getNamespacePrefixes(includeLegacy));
-        }
-        
-        // transform the data
-        if(rows != null) {
-        	immediateChildren = rows.stream()
-                .filter(row -> classificationNativeQueries.getClassificaton(row).getChild().getStatus().getDbid() != ConceptStatus.INACTIVE.getValue())
-                .map(row -> toConceptReferenceNode(classificationNativeQueries.getClassificaton(row).getChild(), classificationNativeQueries.getChildHasChildren(row)))
-	            .sorted(Comparator.comparing(ConceptReferenceNode::getName))
-	            .collect(Collectors.toList());        	
-        }
-        else {
-        	immediateChildren = new ArrayList<>();
-        }
-        
-        return immediateChildren;
-    }
-
-    public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
-        Set<Classification> classifications = classificationRepository.findByChild_Iri(iri);
-
-        return classifications.stream()
-            .filter(c -> c.getParent().getStatus().getDbid() != ConceptStatus.INACTIVE.getValue())
-            .map(row -> new ConceptReferenceNode(row.getParent().getIri(), row.getParent().getName()))
-            .sorted(Comparator.comparing(ConceptReferenceNode::getName))
-            .collect(Collectors.toList());
-    }
-
-    public List<ConceptReferenceNode> getParentHierarchy(String iri) {
-        if ("owl:Thing".equals(iri))
+    public List<TTConcept> getAncestorDefinitions(String iri) {
+        try {
+            List<TTConcept> result = new ArrayList<>();
+            for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
+                Concept t = tct.getAncestor();
+                if (!iri.equals(t.getIri())) {
+                    TTConcept concept = om.readValue(t.getDefinition(), TTConcept.class);
+                    result.add(concept);
+                }
+            }
+            return result;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
             return null;
-
-        // TODO : Optimize via TCT and/or ancestor map
-        Set<Classification> classifications = classificationRepository.findByChild_Iri(iri);
-
-        List<ConceptReferenceNode> parents = classifications.stream()
-                .map(classification -> toConceptReferenceNode(classification.getParent(), true))
-                .sorted(Comparator.comparing(ConceptReferenceNode::getName))
-                .collect(Collectors.toList());
-
-        // Recurse parents' parents
-        for(ConceptReferenceNode parent: parents) {
-            List<ConceptReferenceNode> grandParents = getParentHierarchy(parent.getIri());
-            
-			parent.setParents(grandParents);
         }
-
-        return parents;   
     }
 
-    @Override
-    public List<ConceptReference> isWhichType(String iri, List<String> candidates) {
-        return conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, candidates)
-            .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
-            .sorted(Comparator.comparing(ConceptReference::getName))
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ConceptSummary> usages(String iri) {
-        Set<String> children = classificationRepository.findByParent_Iri(iri).stream()
-            .map(c -> c.getChild().getIri())
+    public ExportValueSet getValueSetMembers(String iri, boolean expand) {
+        Set<ValueSetMember> included = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(iri, IM.HAS_MEMBER.getIri()).stream()
+            .map(Tpl::getObject)
+            .map(inc -> new ValueSetMember()
+                .setConcept(new TTIriRef(inc.getIri(), inc.getName()))
+                .setCode(inc.getCode())
+                .setScheme(inc.getScheme() == null ? null : new TTIriRef(inc.getScheme().getIri(), inc.getScheme().getName()))
+            )
             .collect(Collectors.toSet());
 
-        return expressionRepository.findByTargetConcept_Iri(iri).stream()
-            .map(exp -> exp.getAxiom().getConcept())
-            .filter(c -> !children.contains(c.getIri()))
-            .distinct()
-            .map(c -> new ConceptSummary()
-                .setIri(c.getIri())
-                .setName(c.getName())
-                .setCode(c.getCode())
-                .setScheme(c.getScheme() == null ? null : new ConceptReference(c.getScheme().getIri(), c.getName()))
-                .setConceptType(ConceptType.byValue(c.getType()))
-                .setWeighting(c.getWeighting())
+        Set<ValueSetMember> excluded = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(iri, IM.NOT_MEMBER.getIri()).stream()
+            .map(Tpl::getObject)
+            .map(inc -> new ValueSetMember()
+                .setConcept(new TTIriRef(inc.getIri(), inc.getName()))
+                .setCode(inc.getCode())
+                .setScheme(inc.getScheme() == null ? null : new TTIriRef(inc.getScheme().getIri(), inc.getScheme().getName()))
             )
-            .sorted(Comparator.comparing(ConceptSummary::getName))
-            .collect(Collectors.toList());
-    }
+            .collect(Collectors.toSet());
 
-    @Override
-    public ExportValueSet getValueSetMembers(String iri, boolean expand) {
-        Concept concept = getConcept(iri);
-
-        ObjectModelVisitor visitor = new ObjectModelVisitor();
-        ValueSetMemberParser parser = new ValueSetMemberParser(visitor);
-        visitor.visit(concept);
 
         Map<String, ValueSetMember> inclusions = new HashMap<>();
-
-        for(ConceptReference cr: parser.included) {
-            org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
-
-            ValueSetMember vsm = new ValueSetMember()
-                .setConcept(new ConceptReference(c.getIri(), c.getName()))
-                .setCode(c.getCode());
-            if (c.getScheme() != null)
-                vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
-
-            inclusions.put(c.getIri(), vsm);
+        for(ValueSetMember inc: included) {
+            inclusions.put(inc.getConcept().getIri(), inc);
 
             if (expand) {
-                valueSetRepository.expandMember(cr.getIri())
+                valueSetRepository.expandMember(inc.getConcept().getIri())
                     .forEach(m -> inclusions.put(m.getConceptIri(), new ValueSetMember()
-                        .setConcept(new ConceptReference(m.getConceptIri(), m.getConceptName()))
+                        .setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
                         .setCode(m.getCode())
-                        .setScheme(new ConceptReference(m.getSchemeIri(), m.getSchemeName()))
+                        .setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))
                     ));
             }
         }
 
         Map<String, ValueSetMember> exclusions = new HashMap<>();
-        for(ConceptReference cr: parser.excluded) {
-            org.endeavourhealth.dataaccess.entity.Concept c = conceptRepository.findByIri(cr.getIri());
-
-            ValueSetMember vsm = new ValueSetMember()
-                .setConcept(new ConceptReference(c.getIri(), c.getName()))
-                .setCode(c.getCode());
-            if (c.getScheme() != null)
-                vsm.setScheme(new ConceptReference(c.getScheme().getIri(), c.getScheme().getName()));
-
-            exclusions.put(c.getIri(), vsm);
+        for(ValueSetMember inc: excluded) {
+            exclusions.put(inc.getConcept().getIri(), inc);
 
             if (expand) {
-                valueSetRepository.expandMember(cr.getIri())
+                valueSetRepository.expandMember(inc.getConcept().getIri())
                     .forEach(m -> exclusions.put(m.getConceptIri(), new ValueSetMember()
-                        .setConcept(new ConceptReference(m.getConceptIri(), m.getConceptName()))
+                        .setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
                         .setCode(m.getCode())
-                        .setScheme(new ConceptReference(m.getSchemeIri(), m.getSchemeName()))
+                        .setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))
                     ));
             }
         }
@@ -296,7 +254,7 @@ public class ConceptServiceV3 implements IConceptService {
         }
 
         ExportValueSet result = new ExportValueSet()
-            .setValueSet(new ConceptReference(concept.getIri(), concept.getName()))
+            .setValueSet(getConceptReference(iri))
             .addAllIncluded(inclusions.values());
 
         if (!expand)
@@ -305,18 +263,20 @@ public class ConceptServiceV3 implements IConceptService {
         return result;
     }
 
-    @Override
     public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
         ValueSetMembership result = new ValueSetMembership();
 
-        Concept valueSet = getConcept(valueSetIri);
+        Set<TTIriRef> included = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.HAS_MEMBER.getIri()).stream()
+            .map(Tpl::getObject)
+            .map(inc -> new TTIriRef(inc.getIri(), inc.getName()))
+            .collect(Collectors.toSet());
 
-        if (valueSet.getMember()!=null) {
-            ObjectModelVisitor visitor = new ObjectModelVisitor();
-            ValueSetMemberParser parser = new ValueSetMemberParser(visitor);
-            visitor.visit(valueSet);
+        Set<TTIriRef> excluded = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.NOT_MEMBER.getIri()).stream()
+            .map(Tpl::getObject)
+            .map(inc -> new TTIriRef(inc.getIri(), inc.getName()))
+            .collect(Collectors.toSet());
 
-            for (ConceptReference m : parser.included) {
+            for (TTIriRef m : included) {
                 Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
                 if (match.isPresent()) {
                     result.setIncludedBy(m);
@@ -324,353 +284,44 @@ public class ConceptServiceV3 implements IConceptService {
                 }
             }
 
-            for (ConceptReference m : parser.excluded) {
+            for (TTIriRef m : excluded) {
                 Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
                 if (match.isPresent()) {
                     result.setExcludedBy(m);
                     break;
                 }
             }
-        }
 
         return result;
     }
 
-    @Override
-    public List<ConceptReference> getCoreMappedFromLegacy(String legacyIri) {
-        return memberRepository.getCoreMappedFromLegacy(legacyIri)
-            .stream()
-            .map(c -> new ConceptReference(c.getIri(), c.getName()))
+    public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
+        return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.MAPPED_FROM.getIri()).stream()
+            .map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName()))
             .collect(Collectors.toList());
     }
 
-    @Override
-    public List<ConceptReference> getLegacyMappedToCore(String coreIri) {
-        return memberRepository.getLegacyMappedToCore(coreIri)
-            .stream()
-            .map(c -> new ConceptReference(c.getIri(), c.getName()))
+    public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
+        return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MAPPED_FROM.getIri()).stream()
+            .map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName()))
             .collect(Collectors.toList());
     }
 
-
-    // PRIVATE METHODS ----------------------------------------------------------------------------------------------------
-
-    private Concept hydrateConcept(org.endeavourhealth.dataaccess.entity.Concept concept) {
-        ConceptType ct = ConceptType.byValue(concept.getType());
-        Concept c = getConceptInstance(ct);
-
-        c.setIri(concept.getIri())
-            .setName(concept.getName())
-            .setDescription(concept.getDescription())
-            .setCode(concept.getCode())
-            .setStatus(ConceptStatus.byValue(concept.getStatus().getDbid()));
-
-        if (concept.getScheme() != null)
-            c.setScheme(new ConceptReference(concept.getScheme().getIri(), concept.getScheme().getName()));
-
-        // Check for concept expression
-        if (concept.getExpression() != null)
-            c.setExpression(setClassExpression(concept.getExpression(), null, new ClassExpression()));
-
-        // remainder of properties
-        List<Axiom> axioms = axiomRepository.findByIri(concept.getIri());
-
-        reconstructConcept(c, axioms);
-
-        return c;
-    }
-
-    private Concept getConceptInstance(ConceptType ct) {
-        if (ct == ConceptType.INDIVIDUAL)
-            return new Individual();
-        else
-            return new Concept(ct);
-    }
-
-    private void reconstructConcept(Concept c, List<Axiom> axioms) {
-        for (Axiom a : axioms) {
-            AxiomType at = AxiomType.byValue(a.getType());
-            switch (at) {
-                case SUBCLASSOF:
-                    getExpressionsAsStream(a.getExpressions())
-                        .forEach(c::addSubClassOf);
-                    break;
-                case EQUIVALENTTO:
-                    getExpressionsAsStream(a.getExpressions())
-                        .forEach(c::addEquivalentTo);
-                    break;
-                case SUBOBJECTPROPERTY:
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(c::addSubObjectPropertyOf);
-                    break;
-                case SUBDATAPROPERTY:
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach( c::addSubDataPropertyOf);
-                    break;
-                case SUBANNOTATIONPROPERTY:
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .forEach(c::addSubAnnotationPropertyOf);
-                    break;
-                case OBJECTPROPERTYRANGE:
-                    getExpressionsAsStream(a.getExpressions())
-                        .forEach( c::addObjectPropertyRange);
-                    break;
-                case DATAPROPERTYRANGE:
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .map(ref -> new DataPropertyRange().setDataType(ref))
-                        .forEach(c::addDataPropertyRange);
-                    break;
-                case PROPERTYDOMAIN:
-                        getExpressionsAsStream(a.getExpressions())
-                            .forEach(c::addPropertyDomain);
-                    break;
-                case DISJOINTWITH:
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .forEach(c::addDisjointWith);
-                    break;
-                case SUBPROPERTYCHAIN:
-                    SubPropertyChain chain = new SubPropertyChain();
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .forEach(chain::addProperty);
-                    c.addSubPropertyChain(chain);
-                    break;
-                case INVERSEPROPERTYOF:
-                    getExpressionsAsConceptReferenceStream(a.getExpressions())
-                        .map(ref -> new PropertyAxiom().setProperty(ref))
-                        .findFirst()
-                        .ifPresent(c::setInversePropertyOf);
-                    break;
-                case ISFUNCTIONAL:
-                    c.setIsFunctional(new org.endeavourhealth.imapi.model.Axiom());
-                    break;
-                case ISTRANSITIVE:
-                         c.setIsTransitive(new org.endeavourhealth.imapi.model.Axiom());
-                    break;
-                case ISSYMMETRIC:
-                        c.setIsSymmetric(new org.endeavourhealth.imapi.model.Axiom());
-                    break;
-                case ISREFLEXIVE:
-                        c.setIsReflexive(new org.endeavourhealth.imapi.model.Axiom());
-                    break;
-                case PROPERTY:
-                        getPropertyValuesAsStream(a.getExpressions())
-                            .forEach(c::addProperty);
-
-                    break;
-                case MEMBER:
-                        getExpressionsAsStream(a.getExpressions())
-                        .forEach( c::addMember);
-                    break;
-                case MAPPED_FROM:
-                    getExpressionsAsStream(a.getExpressions())
-                        .map(ClassExpression::getClazz)
-                        .forEach(c::addMappedFrom);
-                    break;
-                case ROLE:
-                    getConceptRoleAsStream(a.getExpressions())
-                        .forEach(c::addRoleGroup);
-                default:
-                    throw new IllegalStateException("Unknown axiom type [" + at.getName() + "]");
-
-            }
-        }
-    }
-
-    private Stream<ClassExpression> getExpressionsAsStream(List<Expression> expressions) {
-        return expressions.stream()
-            .filter(exp -> exp.getParent() == null)
-            .map(exp -> setClassExpression(exp, expressions, new ClassExpression()));
-    }
-
-    private Stream<org.endeavourhealth.imapi.model.PropertyValue> getPropertyValuesAsStream(List<Expression> expressions) {
-        return expressions.stream()
-            .filter(exp -> exp.getParent() == null)
-            .map(exp -> setPropertyValue(exp, expressions, new org.endeavourhealth.imapi.model.PropertyValue()));
-    }
-
-    private org.endeavourhealth.imapi.model.PropertyValue setPropertyValue(Expression exp, List<Expression> expressions, org.endeavourhealth.imapi.model.PropertyValue pv) {
-        PropertyValue pv1 = exp.getPropertyValue().get(0);
-        pv.setProperty(new ConceptReference(pv1.getProperty().getIri(), pv1.getProperty().getName()));
-        pv.setMin(pv1.getMinCardinality());
-        pv.setMax(pv1.getMaxCardinality());
-        if (pv1.getMinCardinality() != null && pv1.getMinCardinality().equals(pv1.getMaxCardinality()))
-            pv.setQuantification(QuantificationType.SOME);
-        pv.setValueType(new ConceptReference(pv1.getValueType().getIri(), pv1.getValueType().getName()));
-        pv.setValueData(pv1.getValueData());
-
-
-        return pv;
-    }
-
-    private Stream<ConceptRoleGroup> getConceptRoleAsStream(List<Expression> expressions) {
-        return expressions.stream()
-            .filter(exp -> exp.getParent() == null)
-            .map(exp -> setRoleGroup(exp, expressions, new ConceptRoleGroup()));
-
-    }
-
-    private ConceptRoleGroup setRoleGroup(Expression exp, List<Expression> expressions, ConceptRoleGroup roleGroup) {
-        roleGroup.setRole(
-            expressions.stream()
-            .filter(ex -> exp.getDbid().equals(ex.getParent()))
-            .map(ex -> setRole(ex,expressions, new ConceptRole()))
-            .collect(Collectors.toList()));
-        return roleGroup;
-    }
-
-    private ConceptRole setRole(Expression exp, List<Expression> expressions, ConceptRole role) {
-
-        PropertyValue pv1 = exp.getPropertyValue().get(0);
-        role.setProperty(new ConceptReference(pv1.getProperty().getIri()));
-        role.setValueType(new ConceptReference(pv1.getValueType().getIri()));
-        role.setValueData(pv1.getValueData());
-        return role;
-    }
-
-    private ClassExpression setClassExpression(Expression exp, List<Expression> expressions, ClassExpression cex) {
-        ExpressionType et = ExpressionType.byValue(exp.getType());
-        switch (et) {
-            case CLASS:
-                org.endeavourhealth.dataaccess.entity.Concept c = exp.getTargetConcept();
-                cex.setClazz(new ConceptReference(c.getIri(), c.getName()));
-                return cex;
-            case INTERSECTION:
-                cex.setIntersection(
-                    expressions.stream()
-                        .filter(ex -> exp.getDbid().equals(ex.getParent()))
-                        .map(ex -> setClassExpression(ex, expressions, new ClassExpression()))
-                        .collect(Collectors.toList())
-                );
-                return cex;
-            case UNION:
-                cex.setUnion(
-                    expressions.stream()
-                        .filter(ex -> exp.getDbid().equals(ex.getParent()))
-                        .map(ex -> setClassExpression(ex, expressions, new ClassExpression()))
-                        .collect(Collectors.toList())
-                );
-                return cex;
-            case OBJECTONEOF:
-                cex.setObjectOneOf(
-                    expressions.stream()
-                        .filter(ex -> exp.getDbid().equals(ex.getParent()))
-                        .map(ex -> new ConceptReference().setIri(ex.getTargetConcept().getIri()).setName(ex.getTargetConcept().getName()))
-                        .collect(Collectors.toList())
-                );
-                return cex;
-            case OBJECTPROPERTYVALUE:
-                PropertyValue pv1 = exp.getPropertyValue().get(0);
-                org.endeavourhealth.imapi.model.PropertyValue opv = new org.endeavourhealth.imapi.model.PropertyValue();
-
-                opv.setProperty(new ConceptReference(pv1.getProperty().getIri(), pv1.getProperty().getName()))
-                    .setValueData(pv1.getValueData())
-                    .setMin(pv1.getMinCardinality())
-                    .setMax(pv1.getMaxCardinality());
-                if (pv1.getValueType() != null)
-                    opv.setValueType(new ConceptReference(pv1.getValueType().getIri(), pv1.getValueType().getName()));
-
-                if (pv1.getValueExpression() != null)
-                    opv.setExpression(setClassExpression(pv1.getValueExpression(), expressions, new ClassExpression()));
-
-                cex.setPropertyValue(opv);
-                return cex;
-            case DATAPROPERTYVALUE:
-                PropertyValue pv2 = exp.getPropertyValue().get(0);
-                org.endeavourhealth.imapi.model.PropertyValue dpv = new org.endeavourhealth.imapi.model.PropertyValue();
-                dpv.setProperty(new ConceptReference(pv2.getProperty().getIri(), pv2.getProperty().getName()))
-                    .setValueData(pv2.getValueData())
-                    .setMin(pv2.getMinCardinality())
-                    .setMax(pv2.getMaxCardinality());
-                if (pv2.getValueType() != null)
-                    dpv.setValueType(new ConceptReference(pv2.getValueType().getIri(), pv2.getValueType().getName()));
-
-                cex.setPropertyValue(dpv);
-                return cex;
-            case COMPLEMENTOF:
-                expressions.stream()
-                    .filter(ex -> exp.getDbid().equals(ex.getParent()))
-                    .map(ex -> setClassExpression(ex, expressions, new ClassExpression()))
-                    .findFirst()
-                    .ifPresent(cex::setComplementOf);
-                return cex;
-
-            default:
-                throw new IllegalStateException("Unknown expression type [" + et.getName() + "]");
-        }
-    }
-
-    private Stream<ConceptReference> getExpressionsAsConceptReferenceStream(List<Expression> expressions) {
-        return expressions.stream()
-            .filter(exp -> exp.getTargetConcept() != null)
-            .map(exp -> new ConceptReference()
-                .setIri(exp.getTargetConcept().getIri())
-                .setName(exp.getTargetConcept().getName())
-            );
-    }
-
-
-
-    private ConceptReferenceNode toConceptReferenceNode(org.endeavourhealth.dataaccess.entity.Concept concept, boolean hasChildren) {
-    	ConceptReferenceNode conceptReferenceNode = new ConceptReferenceNode(concept.getIri());
-    	
-    	String name = concept.getName();
-    	if(name == null) {
-    		name = DEFAULT_CONCEPT_REFERENCE_NAME;
-    	}
-    	
-    	conceptReferenceNode.setName(name);
-    	conceptReferenceNode.setHasChildren(hasChildren);
-    	
-    	return conceptReferenceNode;
-    }
-    
-    private List<Object[]> getClassifications(String parentIri, List<String> namespacePrefixes) {
-    	List<Object[]> rawResult;
-    	
-    	if(namespacePrefixes != null && namespacePrefixes.size() > 0) { 	
-    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, namespacePrefixes);
-    	}
-    	else {
-    		rawResult = classificationNativeQueries.findClassificationByParentIri(parentIri);
-    	}
-    	
-    	return rawResult;
-    }
-    
-    // TODO - adapt for paging
-    private List<Object[]> getClassificationsPage(Pageable page, String parentIri, List<String> namespacePrefixes) {
-    	List<Object[]> rawResult;
-    	
-    	if(namespacePrefixes != null && namespacePrefixes.size() > 0) { 	
-    		rawResult = classificationNativeQueries.findClassificationByParentIriAndChildNamespace(parentIri, namespacePrefixes);
-    	}
-    	else {
-    		rawResult = classificationNativeQueries.findClassificationByParentIri(parentIri);
-    	}
-    	
-    	return rawResult;
-    }
-    
-	private List<String> getNamespacePrefixes(boolean includeLegacy) {
-		// null means everything
-
-        return (includeLegacy) ? null : coreNamespacePrefixes;
-	}    
-     
     private Pageable getPage(Integer pageIndex, Integer pageSize) {
-    	Pageable page = null;
-    	
-    	// defaults
+        Pageable page = null;
+
+        // defaults
         if (pageIndex != null && pageIndex <= 0) pageIndex = 1;
         if (pageSize != null && pageSize <= 0) pageSize = 20;
-        
+
         if(pageIndex != null && pageSize != null) {
-        	page = PageRequest.of(pageIndex - 1, pageSize);
+            page = PageRequest.of(pageIndex - 1, pageSize);
         }
-    	
-		return page;
-	}
+
+        return page;
+    }
+
+    private String getPath(String iri) {
+        return iri.substring(0, Math.max(iri.lastIndexOf("/"), iri.lastIndexOf('#'))+1);
+    }
 }

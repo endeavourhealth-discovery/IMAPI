@@ -47,6 +47,11 @@ public class TTArray extends TTValue {
     }
 
     @Override
+    public List<TTValue> asArrayElements() {
+        return this.getElements();
+    }
+
+    @Override
     public boolean isList() {
         return true;
     }

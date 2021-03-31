@@ -2,8 +2,9 @@ package org.endeavourhealth.dataaccess;
 
 
 import org.endeavourhealth.dataaccess.repository.SimpleCountRepository;
-import org.endeavourhealth.imapi.model.ConceptType;
 import org.endeavourhealth.imapi.model.report.SimpleCount;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,12 @@ public class ReportService implements IReportService{
 
     @Override
     public List<SimpleCount> getConceptTypeReport() {
-         return simpleCountRepository.getConceptTypeReport()
-             .stream()
-             .map(t -> new SimpleCount(t.getLabel(),t.getCount()))
-             .collect(Collectors.toList());
+        List<SimpleCount> list = new ArrayList<>();
+        for (org.endeavourhealth.dataaccess.entity.SimpleCount t : simpleCountRepository.getConceptTypeReport()) {
+            SimpleCount simpleCount = new SimpleCount(t.getLabel(), t.getCount());
+            list.add(simpleCount);
+        }
+        return list;
     }
 
     @Override
@@ -47,17 +50,17 @@ public class ReportService implements IReportService{
 
     @Override
     public List<SimpleCount> getConceptCategoryReport() {
-        List<SimpleCount> typeList= getConceptTypeReport();
         List<SimpleCount> result = new ArrayList<>();
 
         int dmCount = 0;
         int ontCount = 0;
         int vsCount =0;
-        for (SimpleCount t:typeList){
-            if(ConceptType.VALUESET.getName().equals(t.getLabel())){
+        for (org.endeavourhealth.dataaccess.entity.SimpleCount t : simpleCountRepository.getConceptTypeReport()) {
+            if(IM.VALUESET.getIri().equals(t.getIri())){
                 vsCount = t.getCount();
-            }else if(ConceptType.OBJECTPROPERTY.getName().equals(t.getLabel()) ||
-                ConceptType.DATAPROPERTY.getName().equals(t.getLabel()) || ConceptType.RECORD.getName().equals(t.getLabel())){
+            }else if(OWL.OBJECTPROPERTY.getIri().equals(t.getIri()) ||
+                OWL.DATAPROPERTY.getIri().equals(t.getIri()) ||
+                IM.RECORD.getIri().equals(t.getIri())){
                 dmCount = dmCount + t.getCount();
             }else {
                 ontCount = ontCount + t.getCount();

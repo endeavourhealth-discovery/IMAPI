@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.endeavourhealth.imapi.model.Concept;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.informationmanager.parser.IMLangLexer;
 import org.endeavourhealth.informationmanager.parser.IMLangParser;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ImLangToConcept {
 
-    public Concept translateDefinitionToConcept(String conceptDefinition) {
+    public TTConcept translateDefinitionToConcept(String conceptDefinition) {
 
         System.out.println(conceptDefinition);
 

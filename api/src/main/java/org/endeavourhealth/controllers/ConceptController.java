@@ -4,26 +4,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.endeavourhealth.converters.ImLangConverter;
-import org.endeavourhealth.dataaccess.IConceptService;
+import org.endeavourhealth.converters.ConceptToImLang;
+import org.endeavourhealth.dataaccess.ConceptServiceV3;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.dto.GraphDto;
-import org.endeavourhealth.imapi.model.Concept;
-import org.endeavourhealth.imapi.model.ConceptReference;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,84 +37,83 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConceptController {
 
 	@Autowired
-	@Qualifier("ConceptServiceV3")
-	IConceptService conceptService;
+    ConceptServiceV3 conceptService;
 
 	@Autowired
-	ImLangConverter imLangConverter;
+    ConceptToImLang conceptToImLang;
 
 	@PostMapping(value = "/search")
 	public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
 		return new SearchResponse().setConcepts(conceptService.advancedSearch(request));
 	}
 
-	@GetMapping(value = "/{iri}", produces = "application/json")
-	public Concept getConcept(@PathVariable("iri") String iri) {
+	@GetMapping(value = "", produces = "application/json")
+	public TTConcept getConcept(@RequestParam(name = "iri") String iri) {
 		return conceptService.getConcept(iri);
 	}
 
-	@GetMapping(value = "/{iri}", produces = "application/imlang")
-	public String getConceptImLang(@PathVariable("iri") String iri) {
-		return imLangConverter.convertToImLang(conceptService.getConcept(iri));
+	@GetMapping(value = "", produces = "application/imlang")
+	public String getConceptImLang(@RequestParam(name = "iri") String iri) {
+		return conceptToImLang.translateConceptToImLang(conceptService.getConcept(iri));
 	}
 
-	@GetMapping(value = "/{iri}/children")
-	public List<ConceptReferenceNode> getConceptChildren(@PathVariable("iri") String iri,
+	@GetMapping(value = "/children")
+	public List<ConceptReferenceNode> getConceptChildren(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
 		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
 	}
 
-	@GetMapping(value = "/{iri}/parentHierarchy")
-	public List<ConceptReferenceNode> getConceptParentHierarchy(@PathVariable("iri") String iri) {
+	@GetMapping(value = "/parentHierarchy")
+	public List<ConceptReferenceNode> getConceptParentHierarchy(@RequestParam(name = "iri") String iri) {
 		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
 
 		return parents;
 	}
 
-	@GetMapping(value = "/{iri}/parents")
-	public List<ConceptReferenceNode> getConceptParents(@PathVariable("iri") String iri,
+	@GetMapping(value = "/parents")
+	public List<ConceptReferenceNode> getConceptParents(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
 		return conceptService.getImmediateParents(iri, page, size, includeLegacy);
 	}
 
-	@GetMapping(value = "/{iri}/parents/definitions")
-	public List<Concept> getConceptAncestorDefinitions(@PathVariable("iri") String iri) {
+	@GetMapping(value = "/parents/definitions")
+	public List<TTConcept> getConceptAncestorDefinitions(@RequestParam(name = "iri") String iri) {
 		return conceptService.getAncestorDefinitions(iri);
 	}
 
-	@GetMapping(value = "/{iri}/usages")
-	public List<ConceptSummary> conceptUsages(@PathVariable("iri") String iri) {
+	@GetMapping(value = "/usages")
+	public List<ConceptSummary> conceptUsages(@RequestParam(name = "iri") String iri) {
 		return conceptService.usages(iri);
 	}
 
-	@GetMapping(value = "/{iri}/mappedFrom")
-	public List<ConceptReference> getCoreMappedFromLegacy(@PathVariable("iri") String legacyIri) {
+	@GetMapping(value = "/mappedFrom")
+	public List<TTIriRef> getCoreMappedFromLegacy(@RequestParam(name = "iri") String legacyIri) {
 		return conceptService.getCoreMappedFromLegacy(legacyIri);
 	}
 
-	@GetMapping(value = "/{iri}/mappedTo")
-	public List<ConceptReference> getLegacyMappedToCore(@PathVariable("iri") String coreIri) {
+	@GetMapping(value = "/mappedTo")
+	public List<TTIriRef> getLegacyMappedToCore(@RequestParam(name = "iri") String coreIri) {
 		return conceptService.getLegacyMappedToCore(coreIri);
 	}
 
-	@PostMapping(value = "/{iri}/isWhichType")
-	public List<ConceptReference> conceptIsWhichType(@PathVariable("iri") String iri,
+	@PostMapping(value = "/isWhichType")
+	public List<TTIriRef> conceptIsWhichType(@RequestParam(name = "iri") String iri,
 			@RequestBody List<String> candidates) {
 		return conceptService.isWhichType(iri, candidates);
 	}
 
-	@GetMapping(value = "/{iri}/members")
-	public ExportValueSet valueSetMembersJson(@PathVariable("iri") String iri,
+	@GetMapping(value = "/members")
+	public ExportValueSet valueSetMembersJson(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "expanded", required = false) boolean expanded) {
 		return conceptService.getValueSetMembers(iri, expanded);
 	}
 
-	@GetMapping(value = "/{iri}/members", produces = { "text/csv" })
-	public String valueSetMembersCSV(@PathVariable("iri") String iri,
+	@GetMapping(value = "/members", produces = { "text/csv" })
+	public String valueSetMembersCSV(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "expanded", required = false) boolean expanded) {
 		ExportValueSet exportValueSet = conceptService.getValueSetMembers(iri, expanded);
 
@@ -147,64 +147,65 @@ public class ConceptController {
 		return sb.toString();
 	}
 
-	@GetMapping(value = "/{iri}/isMemberOf/{valueSetIri}")
-	public ValueSetMembership isMemberOfValueSet(@PathVariable("iri") String conceptIri,
-			@PathVariable("valueSetIri") String valueSetIri) {
+	@GetMapping(value = "/isMemberOf")
+	public ValueSetMembership isMemberOfValueSet(@RequestParam(name = "iri") String conceptIri,
+			@RequestParam("valueSetIri") String valueSetIri) {
 		return conceptService.isValuesetMember(valueSetIri, conceptIri);
 	}
 
 	@GetMapping(value = "/referenceSuggestions")
-	public List<ConceptReference> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
+	public List<TTIriRef> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
 //    	TODO generate and return suggestions
-		return new ArrayList<ConceptReference>(
-				Arrays.asList(new ConceptReference(":961000252104", "method (attribute)"),
-						new ConceptReference(":1271000252102", "Hospital inpatient admission"),
-						new ConceptReference(":1911000252103", "Transfer event")));
+		return new ArrayList<TTIriRef>(
+				Arrays.asList(new TTIriRef(":961000252104", "method (attribute)"),
+						new TTIriRef(":1271000252102", "Hospital inpatient admission"),
+						new TTIriRef(":1911000252103", "Transfer event")));
 	}
 
 	@PostMapping
 	@PreAuthorize("isAuthenticated()")
-	public Concept createConcept(@RequestBody ConceptDto conceptDto) {
+	public TTConcept createConcept(@RequestBody ConceptDto conceptDto) {
 //    	TODO convert conceptDto to concept
 //    	TODO save concept
-		return new Concept().setCode(conceptDto.getCode());
+		return new TTConcept().setCode(conceptDto.getCode());
 	}
 
-	@GetMapping(value = "/{iri}/properties")
-	public List<PropertyValue> getAllProperties(@PathVariable("iri") String iri) {
-		Concept concept = conceptService.getConcept(iri);
+	@GetMapping(value = "/properties")
+	public List<PropertyValue> getAllProperties(@RequestParam(name = "iri") String iri) {
+		TTConcept concept = conceptService.getConcept(iri);
 		List<PropertyValue> properties = new ArrayList<PropertyValue>();
-		if (concept.getProperty() != null) {
-			properties.addAll(concept.getProperty());
-		}
 
-		List<String> flatParentIris = getFlatParentHierarchy(iri, new ArrayList<String>());
+        if (concept.has(IM.PROPERTY_GROUP)) {
+            for (TTValue propertyGroup : concept.getAsArray(IM.PROPERTY_GROUP).getElements()) {
+                if (propertyGroup.isNode()) {
+                    TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
+                        ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
+                        : null;
 
-		if (flatParentIris.size() != 0) {
-			flatParentIris.forEach(parentIri -> {
-				Concept parentConcept = conceptService.getConcept(parentIri);
-				ConceptReference parentReference = new ConceptReference(parentConcept.getIri(),
-						parentConcept.getName());
-				if (parentConcept.getProperty() != null) {
-					parentConcept.getProperty().forEach(property -> {
-						if (!containsProperty(properties, property.getProperty().getIri())) {
-							property.setInheritedFrom(parentReference);
-							properties.add(property);
-						}
-					});
-				}
-			});
-		}
+                    if (propertyGroup.asNode().has(SHACL.PROPERTY)) {
+                        for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
+                            TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
+                            if (properties.stream().noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
+                                PropertyValue pv = new PropertyValue()
+                                    .setInheritedFrom(inheritedFrom)
+                                    .setProperty(propertyPath);
+
+                                if (property.asNode().has(SHACL.CLASS)) pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
+                                if (property.asNode().has(SHACL.DATATYPE)) pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+
+                                properties.add(pv);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 		return properties;
 	}
 
-	public boolean containsProperty(List<PropertyValue> properties, String propertyIri) {
-		return properties.stream().filter(o -> o.getProperty().getIri().equals(propertyIri)).findFirst().isPresent();
-	}
-
-	@GetMapping(value = "/{iri}/graph")
-	public GraphDto getGraphData(@PathVariable("iri") String iri) {
-		Concept concept = conceptService.getConcept(iri);
+	@GetMapping(value = "/graph")
+	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) {
+		TTConcept concept = conceptService.getConcept(iri);
 		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
 
 		GraphDto graphParents = new GraphDto().setName("Parents");

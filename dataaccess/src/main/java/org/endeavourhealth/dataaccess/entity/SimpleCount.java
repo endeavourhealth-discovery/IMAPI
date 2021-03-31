@@ -8,24 +8,27 @@ public class SimpleCount {
 
     @Id
     private int dbid;
+    private String iri;
     private String label;
     private Integer count;
 
-    public SimpleCount() {
+    public int getDbid() {
+        return dbid;
     }
 
-    public SimpleCount(int dbid, String label, Integer count) {
+    public SimpleCount setDbid(int dbid) {
         this.dbid = dbid;
-        this.label = label;
-        this.count = count;
+        return this;
     }
 
-    public SimpleCount(String label, Integer count) {
-        this.label = label;
-        this.count = count;
+    public String getIri() {
+        return iri;
     }
 
-
+    public SimpleCount setIri(String iri) {
+        this.iri = iri;
+        return this;
+    }
 
     public String getLabel() {
         return label;
@@ -42,15 +45,6 @@ public class SimpleCount {
 
     public SimpleCount setCount(Integer count) {
         this.count = count;
-        return this;
-    }
-
-    public int getDbid() {
-        return dbid;
-    }
-
-    public SimpleCount setDbid(int dbid) {
-        this.dbid = dbid;
         return this;
     }
 }

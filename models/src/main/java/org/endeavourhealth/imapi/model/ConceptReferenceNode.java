@@ -1,9 +1,11 @@
 package org.endeavourhealth.imapi.model;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConceptReferenceNode extends ConceptReference {
+public class ConceptReferenceNode extends TTIriRef {
     private List<ConceptReferenceNode> parents;
     private List<ConceptReferenceNode> children;
     private String moduleId;

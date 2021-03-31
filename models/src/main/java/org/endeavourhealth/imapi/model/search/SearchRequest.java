@@ -1,16 +1,15 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ConceptType;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchRequest {
     private String termFilter;
-    private List<Byte> statusFilter = new ArrayList<>();
-    private List<Byte> typeFilter = new ArrayList<>();
-    private List<ConceptReference> schemeFilter = new ArrayList<>();
+    private List<String> statusFilter = new ArrayList<>();
+    private List<String> typeFilter = new ArrayList<>();
+    private List<String> schemeFilter = new ArrayList<>();
     private List<String> descendentFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
     private int page = 1;
@@ -25,29 +24,29 @@ public class SearchRequest {
         return this;
     }
 
-    public List<Byte> getStatusFilter() {
+    public List<String> getStatusFilter() {
         return statusFilter;
     }
 
-    public SearchRequest setStatusFilter(List<Byte> statusFilter) {
+    public SearchRequest setStatusFilter(List<String> statusFilter) {
         this.statusFilter = statusFilter;
         return this;
     }
 
-    public List<Byte> getTypeFilter() {
+    public List<String> getTypeFilter() {
         return typeFilter;
     }
 
-    public SearchRequest setTypeFilter(List<Byte> typeFilter) {
+    public SearchRequest setTypeFilter(List<String> typeFilter) {
         this.typeFilter = typeFilter;
         return this;
     }
 
-    public List<ConceptReference> getSchemeFilter() {
+    public List<String> getSchemeFilter() {
         return schemeFilter;
     }
 
-    public SearchRequest setSchemeFilter(List<ConceptReference> schemeFilter) {
+    public SearchRequest setSchemeFilter(List<String> schemeFilter) {
         this.schemeFilter = schemeFilter;
         return this;
     }

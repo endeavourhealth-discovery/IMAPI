@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class TTNode extends TTValue {
     private HashMap<TTIriRef, TTValue> predicateValues = new HashMap<>();
@@ -46,8 +47,14 @@ public class TTNode extends TTValue {
     }
 
     public TTArray getAsArray(TTIriRef predicate) {
-        return (TTArray) predicateValues.get(predicate);
+        return predicateValues.get(predicate).asArray();
     }
+
+    public List<TTValue> getAsArrayElements(TTIriRef predicate) {
+        return predicateValues.get(predicate).asArrayElements();
+    }
+
+
 
     public TTNode getAsNode(TTIriRef predicate) {
         return (TTNode) predicateValues.get(predicate);

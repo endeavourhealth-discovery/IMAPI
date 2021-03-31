@@ -1,22 +1,22 @@
 package org.endeavourhealth.imapi.model.valuset;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ExportValueSet {
-    private ConceptReference valueSet;
+    private TTIriRef valueSet;
     // private ConceptReference relationship;
     private List<ValueSetMember> included = new ArrayList<>();
     private List<ValueSetMember> excluded = new ArrayList<>();
 
-    public ConceptReference getValueSet() {
+    public TTIriRef getValueSet() {
         return valueSet;
     }
 
-    public ExportValueSet setValueSet(ConceptReference valueSet) {
+    public ExportValueSet setValueSet(TTIriRef valueSet) {
         this.valueSet = valueSet;
         return this;
     }

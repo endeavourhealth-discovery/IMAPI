@@ -37,10 +37,15 @@ public class RuntimeController {
         return runtimeService.getCodeForTypeTerm(scheme, context, term, autoCreate);
     }
 
-    @GetMapping("/Concept")
-    public Integer getConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
+    @GetMapping(value = "/Concept")
+    public String getConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
                                                 @RequestParam("code") String code){
-        return runtimeService.getConceptDbidForSchemeCode(scheme,code );
+        Integer result = runtimeService.getConceptDbidForSchemeCode(scheme,code);
+        if(result == null){
+            return null;
+        }else{
+            return result.toString();
+        }
     }
 
     @GetMapping("/Concept/Core")
@@ -49,7 +54,7 @@ public class RuntimeController {
         return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
     }
 
-    @GetMapping("/Concept/Code")
+    @GetMapping(value = "/Concept/Code")
     public String getCodeForConceptDbid(@RequestParam("dbid") Integer dbid) throws Exception {
        return runtimeService.getCodeForConceptDbid(dbid);
     }

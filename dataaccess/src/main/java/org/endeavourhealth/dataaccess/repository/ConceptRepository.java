@@ -71,4 +71,20 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "ORDER BY x.type DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacySchemes(@Param("terms") String terms, @Param("full") String full, @Param("schemes") List<String> schemes,@Param("conceptType") List<String> conceptType, @Param("status") List<String> status, @Param("limit") Integer limit);
+
+    @Query(value = "SELECT c.iri " +
+        "FROM concept c " +
+        "WHERE c.scheme = :scheme AND c.code = :code  ", nativeQuery = true)
+    String getConceptIdForSchemeCode(@Param("scheme") String scheme,@Param("code") String code);
+
+    @Query(value = "SELECT c.code " +
+        "FROM concept c " +
+        "WHERE c.dbid = :dbid ", nativeQuery = true)
+    String getCodeForConceptDbid(@Param(("dbid")) Integer dbid);
+
+    @Query(value = "SELECT c.dbid " +
+        "FROM concept c " +
+        "WHERE c.scheme = :scheme AND c.code = :code  ", nativeQuery = true)
+    Integer getConceptdbidForSchemeCode(@Param("scheme") String scheme,@Param("code") String code);
+
 }

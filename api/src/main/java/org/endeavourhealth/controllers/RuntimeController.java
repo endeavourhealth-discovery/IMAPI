@@ -1,29 +1,32 @@
 package org.endeavourhealth.controllers;
 
+import org.endeavourhealth.dataaccess.RuntimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "api/runtime", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+@RequestMapping(value = "api/runtime", produces = "text/plain")
 @CrossOrigin(origins = "*")
 public class RuntimeController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RuntimeController.class);
+    @Autowired
+    RuntimeService runtimeService;
 
-    @GetMapping("/Concept/Id")
+    @GetMapping(value = "/Concept/Id")
     public String getConceptIdForSchemeCode(@RequestParam("scheme") String scheme,
                                             @RequestParam("code") String code){
 
-        return null;
+        return runtimeService.getConceptIdForSchemeCode(scheme, code);
     }
 
     @GetMapping("/Concept/Core/Code")
     public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
                                                  @RequestParam("code") String code,
                                                  @RequestParam("snomedOnly") Boolean snomedOnly){
-       return null;
+       return runtimeService.getMappedCoreCodeForSchemeCode(scheme, code, snomedOnly);
     }
 
     @GetMapping("/Term/Code")
@@ -31,40 +34,37 @@ public class RuntimeController {
                                      @RequestParam("context") String context,
                                      @RequestParam("term") String term,
                                      @RequestParam("autoCreate") boolean autoCreate){
-        return null;
+        return runtimeService.getCodeForTypeTerm(scheme, context, term, autoCreate);
     }
 
     @GetMapping("/Concept")
-    public Integer getConceptDbidForSchemeCode(@RequestParam("context") String context,
-                                                @RequestParam("scheme") String scheme,
-                                                @RequestParam("code") String code,
-                                                @RequestParam("autoCreate") boolean autoCreate,
-                                                @RequestParam("term") String term ){
-        return null;
+    public Integer getConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
+                                                @RequestParam("code") String code){
+        return runtimeService.getConceptDbidForSchemeCode(scheme,code );
     }
 
     @GetMapping("/Concept/Core")
     public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
                                                           @RequestParam("code") String code){
-        return null;
+        return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
     }
 
     @GetMapping("/Concept/Code")
     public String getCodeForConceptDbid(@RequestParam("dbid") Integer dbid) throws Exception {
-       return null;
+       return runtimeService.getCodeForConceptDbid(dbid);
     }
 
     @GetMapping("/Term")
     public Integer getConceptDbidForTypeTerm(@RequestParam("type") String type,
                                               @RequestParam("term") String term,
                                               @RequestParam("autoCreate") boolean autoCreate){
-       return null;
+       return runtimeService.getConceptDbidForTypeTerm(type,term,autoCreate);
     }
 
     @GetMapping("/Term/Core")
     public Integer getMappedCoreConceptDbidForTypeTerm(@RequestParam("type") String type,
                                                         @RequestParam("term") String term){
-       return null;
+       return runtimeService.getMappedCoreConceptDbidForTypeTerm(type, term);
     }
 
 

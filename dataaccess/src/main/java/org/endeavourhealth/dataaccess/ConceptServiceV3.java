@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTConceptVisitor;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class ConceptServiceV3 {
@@ -53,7 +55,9 @@ public class ConceptServiceV3 {
             return null;
 
         try {
-            return om.readValue(concept.getDefinition(), TTConcept.class);
+            TTConcept result = om.readValue(concept.getDefinition(), TTConcept.class);
+            populateMissingNames(result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -323,5 +327,43 @@ public class ConceptServiceV3 {
 
     private String getPath(String iri) {
         return iri.substring(0, Math.max(iri.lastIndexOf("/"), iri.lastIndexOf('#'))+1);
+    }
+
+    private Set<TTIriRef> populateMissingNames(TTConcept concept) {
+        // Get both predicate and object TTIriRefs
+        List<TTIriRef> iriRefs = new ArrayList<>();
+        Set<TTIriRef> predicates = new HashSet<>();
+
+        TTConceptVisitor visitor = new TTConceptVisitor();
+        visitor.IriRefVisitor = ((predicate, iriRef) -> {
+            if (iriRef.getName() == null || iriRef.getName().isEmpty())
+                iriRefs.add(iriRef);
+        });
+        visitor.PredicateVisitor = (predicates::add);
+        visitor.visit(concept);
+
+        // Get the list of iris to lookup
+        Set<String> nameless = Stream.of(iriRefs, predicates)
+            .flatMap(Collection::stream)
+            .map(TTIriRef::getIri)
+            .collect(Collectors.toSet());
+
+        // Lookup and generate map
+        Map<String, String> iriNameMap = new HashMap<>();
+        for (Concept concept1 : conceptRepository.findAllByIriIn(nameless))
+            iriNameMap.put(concept1.getIri(), concept1.getName());
+
+        // Populate names
+        iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
+        predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
+
+        // Return named predicate list
+        return predicates;
+    }
+
+    private void stripIriRefNames(TTConcept concept) {
+        TTConceptVisitor visitor = new TTConceptVisitor();
+        visitor.IriRefVisitor = ((predicate, iriRef) -> iriRef.setName(null));
+        visitor.visit(concept);
     }
 }

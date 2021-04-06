@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.entity.Tct;
 import org.endeavourhealth.dataaccess.entity.Tpl;
-import org.endeavourhealth.dataaccess.repository.ConceptRepository;
-import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
-import org.endeavourhealth.dataaccess.repository.ConceptTripleRepository;
-import org.endeavourhealth.dataaccess.repository.ValueSetRepository;
+import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -46,6 +43,9 @@ public class ConceptServiceV3 {
 
     @Autowired
     ValueSetRepository valueSetRepository;
+
+    @Autowired
+    ConceptTermRepository conceptTermRepository;
 
     private ObjectMapper om = new ObjectMapper();
 
@@ -309,6 +309,10 @@ public class ConceptServiceV3 {
         return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MAPPED_FROM.getIri()).stream()
             .map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName()))
             .collect(Collectors.toList());
+    }
+
+    public List<String> getSynonyms(String iri ){
+        return conceptTermRepository.getSynonyms(iri);
     }
 
     private Pageable getPage(Integer pageIndex, Integer pageSize) {

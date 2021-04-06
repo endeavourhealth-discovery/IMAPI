@@ -246,6 +246,12 @@ public class ConceptController {
 		return graphData;
 	}
 
+	@GetMapping("/synonyms")
+	public List<String> getSynonyms(@RequestParam(name = "iri") String iri ){
+		return conceptService.getSynonyms(iri);
+	}
+
+
 	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
 		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
 

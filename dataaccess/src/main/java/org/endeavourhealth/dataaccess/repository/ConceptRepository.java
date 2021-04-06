@@ -7,33 +7,38 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface ConceptRepository extends JpaRepository<Concept, Integer> {
 
 	Concept findByIri(String concept);
+    List<Concept> findAllByIriIn(Set<String> iris);
 
     @Query(value = "SELECT * " +
         "FROM (" +
-        "   (SELECT c.* " +
+        "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
+        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
         "   WHERE c.code = :full " +
-        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
+        "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
         "   UNION " +
-        "   (SELECT c.* " +
+        "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
+        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
         "   WHERE c.iri = :full " +
-        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
+        "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
         "   UNION " +
-        "   (SELECT c.* " +
+        "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
+        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
-        "   AND c.status IN (:status) " + "   AND c.type IN (:conceptType) " +
+        "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
         ") x " +
-        "ORDER BY x.type DESC, x.weighting DESC, LENGTH(x.name) " +
+        "ORDER BY x.type DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacy(@Param("terms") String terms, @Param("full") String full,@Param("conceptType") List<String> conceptType, @Param("status") List<String> status, @Param("limit") Integer limit);
 

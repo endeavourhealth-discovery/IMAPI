@@ -186,16 +186,13 @@ public class ConceptController {
                         for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
                             TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
                             if (properties.stream().noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
-                            	if(inheritedFrom != null) inheritedFrom.setName(getConcept(inheritedFrom.getIri()).getName());
                             	PropertyValue pv = new PropertyValue()
                                     .setInheritedFrom(inheritedFrom)
                                     .setProperty(propertyPath);
                                 
-                                propertyPath.setName(getConcept(propertyPath.getIri()).getName());
                                 if (property.asNode().has(SHACL.CLASS)) pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
                                 if (property.asNode().has(SHACL.DATATYPE)) pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
-                                TTConcept valueType = getConcept(pv.getValueType().getIri());
-                                if(valueType != null) pv.getValueType().setName(valueType.getName());
+                                
                                 properties.add(pv);
                             }
                         }
@@ -222,9 +219,7 @@ public class ConceptController {
 
 		if(parents !=null) {
 			parents.forEach(parent -> {
-				String parentIri = parent.asIriRef().getIri();
-				String parentName = getConcept(parentIri).getName();
-				GraphDto graphParent = new GraphDto().setIri(parentIri).setName(parentName)
+				GraphDto graphParent = new GraphDto().setIri(parent.asIriRef().getIri()).setName(parent.asIriRef().getName())
 						.setPropertyType("is a");
 				graphParents.getChildren().add(graphParent);
 			});

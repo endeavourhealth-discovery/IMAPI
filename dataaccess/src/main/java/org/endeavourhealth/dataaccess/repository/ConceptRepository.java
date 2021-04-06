@@ -37,6 +37,14 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT DISTINCT c.*, ct.type " +
+        "   FROM concept c " +
+        "   JOIN concept_term t ON c.dbid = t.concept " +
+        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   WHERE MATCH(t.term) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
         ") x " +
         "ORDER BY x.type DESC, LENGTH(x.name) " +
         "LIMIT :limit", nativeQuery = true)
@@ -65,6 +73,15 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
         "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
+        "   AND c.status IN (:status) " +
+        "   LIMIT :limit) " +
+        "   UNION " +
+        "   (SELECT DISTINCT c.*, ct.type " +
+        "   FROM concept c " +
+        "   JOIN concept_term t ON c.dbid = t.concept " +
+        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
+        "   AND MATCH(t.term) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
         ") x " +

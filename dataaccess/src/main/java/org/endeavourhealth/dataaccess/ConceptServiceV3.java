@@ -16,358 +16,317 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
 public class ConceptServiceV3 {
-    @Value("#{'${discovery.dataaccess.core-namespace-prefixes}'.split(',')}")
-    List<String> coreNamespacePrefixes;
+	@Value("#{'${discovery.dataaccess.core-namespace-prefixes}'.split(',')}")
+	List<String> coreNamespacePrefixes;
 
-    @Autowired
-    ConceptRepository conceptRepository;
+	@Autowired
+	ConceptRepository conceptRepository;
 
-    @Autowired
-    ConceptTctRepository conceptTctRepository;
+	@Autowired
+	ConceptTctRepository conceptTctRepository;
 
-    @Autowired
-    ConceptTripleRepository conceptTripleRepository;
+	@Autowired
+	ConceptTripleRepository conceptTripleRepository;
 
-    @Autowired
-    ValueSetRepository valueSetRepository;
+	@Autowired
+	ValueSetRepository valueSetRepository;
 
-    @Autowired
-    ConceptTermRepository conceptTermRepository;
+	@Autowired
+	ConceptTermRepository conceptTermRepository;
 
-    private ObjectMapper om = new ObjectMapper();
+	private ObjectMapper om = new ObjectMapper();
 
-    public TTConcept getConcept(String iri) {
-        Concept concept = conceptRepository.findByIri(iri);
-        if (concept == null)
-            return null;
+	public TTConcept getConcept(String iri) {
+		Concept concept = conceptRepository.findByIri(iri);
+		if (concept == null)
+			return null;
 
-        try {
-            TTConcept result = om.readValue(concept.getDefinition(), TTConcept.class);
-            populateMissingNames(result);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+		try {
+			TTConcept result = om.readValue(concept.getDefinition(), TTConcept.class);
+			populateMissingNames(result);
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-    public TTIriRef getConceptReference(String iri) {
-        Concept concept = conceptRepository.findByIri(iri);
-        if (concept == null)
-            return null;
+	public TTIriRef getConceptReference(String iri) {
+		Concept concept = conceptRepository.findByIri(iri);
+		if (concept == null)
+			return null;
 
-        return new TTIriRef(concept.getIri(), concept.getName());
-    }
+		return new TTIriRef(concept.getIri(), concept.getName());
+	}
 
-    public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
+	public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
 
         List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
+		
+		List<String> results = conceptTripleRepository.findImmediateChildrenByIri(iri);
+		results.forEach(result -> {
+			String[] values = result.split(",");
+			if (IM.ACTIVE.getIri().equals(values[2])) {
+				ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
+				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri());
+				child.setHasChildren(children.size() != 0);
+				immediateChildren.add(child);
+			}	
+		});
 
-        Set<Tct> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri_AndLevel(iri, IM.IS_A.getIri(), 0);
+		return immediateChildren;
 
-        for (Tct child: children) {
-            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus().getIri())) {
-                if (includeLegacy || coreNamespacePrefixes.contains(getPath(child.getDescendant().getIri())))
-                    immediateChildren.add(
-                        new ConceptReferenceNode(child.getDescendant().getIri(), child.getDescendant().getName())
-                    );
-            }
-        }
-        return immediateChildren;
-    }
+	}
 
-    public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size, boolean includeLegacy) {
+	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size, boolean includeLegacy) {
         List<ConceptReferenceNode> immediateParents = new ArrayList<>();
+		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri);
 
-        Set<Tct> children = conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndLevel(iri, IM.IS_A.getIri(), 0);
+		results.forEach(result -> {
+			String[] values = result.split(",");
+			if (IM.ACTIVE.getIri().equals(values[2])) {
+				immediateParents.add(new ConceptReferenceNode(values[0], values[1]));
+			}	
+		});
 
-        for (Tct child: children) {
-            if (IM.ACTIVE.getIri().equals(child.getDescendant().getStatus().getIri())) {
-                if (includeLegacy || coreNamespacePrefixes.contains(getPath(child.getDescendant().getIri())))
-                    immediateParents.add(
-                        new ConceptReferenceNode(child.getAncestor().getIri(), child.getAncestor().getName())
-                    );
-            }
-        }
-        return immediateParents;
-    }
+		return immediateParents;
+	}
 
-    public List<ConceptReferenceNode> getParentHierarchy(String iri) {
-        if (OWL.THING.equals(iri))
-            return null;
+	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
+		return conceptTctRepository
+				.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates).stream()
+				.map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
+				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
+	}
 
-        List<ConceptReferenceNode> parents = getImmediateParents(iri, null, null, false);
+	public List<ConceptSummary> usages(String iri) {
+		Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
+				.map(t -> t.getDescendant().getIri()).collect(Collectors.toSet());
 
-        // Recurse parents' parents
-        for(ConceptReferenceNode parent: parents) {
-            List<ConceptReferenceNode> grandParents = getParentHierarchy(parent.getIri());
+		return conceptTripleRepository.findByObject_Iri(iri).stream().map(Tpl::getSubject)
+				.filter(subject -> !children.contains(subject.getIri())).distinct()
+				.map(c -> new ConceptSummary().setIri(c.getIri()).setName(c.getName()).setCode(c.getCode()).setScheme(
+						c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName())))
+				// .sorted(Comparator.comparing(ConceptSummary::getName))
+				.collect(Collectors.toList());
+	}
 
-            parent.setParents(grandParents);
-        }
+	public List<ConceptSummary> advancedSearch(SearchRequest request) {
+		List<org.endeavourhealth.dataaccess.entity.Concept> result;
 
-        return parents;
-    }
+		String full = request.getTermFilter();
+		String terms = Arrays.stream(full.split(" ")).filter(t -> t.trim().length() >= 3).map(w -> "+" + w + "*")
+				.collect(Collectors.joining(" "));
 
-    public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
-        return conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates)
-            .stream().map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
-            .sorted(Comparator.comparing(TTIriRef::getName))
-            .collect(Collectors.toList());
-    }
+		if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
+			result = conceptRepository.searchLegacy(terms, full, request.getTypeFilter(), request.getStatusFilter(),
+					request.getSize());
+		else {
+			result = conceptRepository.searchLegacySchemes(terms, full, request.getSchemeFilter(),
+					request.getTypeFilter(), request.getStatusFilter(), request.getSize());
+		}
 
-    public List<ConceptSummary> usages(String iri) {
-        Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
-            .map(t -> t.getDescendant().getIri())
-            .collect(Collectors.toSet());
+		List<ConceptSummary> src = result.stream().map(r -> new ConceptSummary().setName(r.getName()).setIri(r.getIri())
+				// .setConceptType(new TTIriRef(r.getTypes()))
+				// .setWeighting(r.getWeighting())
+				.setCode(r.getCode()).setDescription(r.getDescription())
+				.setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
+				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName())
 
-        return conceptTripleRepository.findByObject_Iri(iri).stream()
-            .map(Tpl::getSubject)
-            .filter(subject -> !children.contains(subject.getIri()))
-            .distinct()
-            .map(c -> new ConceptSummary()
-                .setIri(c.getIri())
-                .setName(c.getName())
-                .setCode(c.getCode())
-                .setScheme(c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName()))
-            )
-            // .sorted(Comparator.comparing(ConceptSummary::getName))
-            .collect(Collectors.toList());
-    }
+				)).collect(Collectors.toList());
 
-    public List<ConceptSummary> advancedSearch(SearchRequest request) {
-        List<org.endeavourhealth.dataaccess.entity.Concept> result;
+		List<String> types = request.getMarkIfDescendentOf();
+		if (types != null && !types.isEmpty()) {
+			src.forEach(s -> s.setIsDescendentOf(this.isWhichType(s.getIri(), types)));
+		}
 
-        String full = request.getTermFilter();
-        String terms = Arrays.stream(full.split(" "))
-            .filter(t -> t.trim().length() >= 3)
-            .map(w -> "+" + w + "*")
-            .collect(Collectors.joining(" "));
+		return src;
+	}
 
-        if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
-            result = conceptRepository.searchLegacy(terms, full,  request.getTypeFilter(),request.getStatusFilter(), request.getSize());
-        else {
-            result = conceptRepository.searchLegacySchemes(terms, full, request.getSchemeFilter(), request.getTypeFilter(), request.getStatusFilter(), request.getSize());
-        }
+	public List<TTConcept> getAncestorDefinitions(String iri) {
+		try {
+			List<TTConcept> result = new ArrayList<>();
+			for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
+				Concept t = tct.getAncestor();
+				if (!iri.equals(t.getIri())) {
+					TTConcept concept = om.readValue(t.getDefinition(), TTConcept.class);
+					result.add(concept);
+				}
+			}
+			return result;
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-        List<ConceptSummary> src = result.stream()
-            .map(r -> new ConceptSummary()
-                .setName(r.getName())
-                .setIri(r.getIri())
-                // .setConceptType(new TTIriRef(r.getTypes()))
-                // .setWeighting(r.getWeighting())
-                .setCode(r.getCode())
-                .setDescription(r.getDescription())
-                .setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
-                .setScheme(
-                    r.getScheme() == null
-                        ? null
-                        : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName())
+	public ExportValueSet getValueSetMembers(String iri, boolean expand) {
+		Set<ValueSetMember> included = conceptTripleRepository
+				.findBySubject_Iri_AndPredicate_Iri(iri, IM.HAS_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.map(inc -> new ValueSetMember().setConcept(new TTIriRef(inc.getIri(), inc.getName()))
+						.setCode(inc.getCode())
+						.setScheme(inc.getScheme() == null ? null
+								: new TTIriRef(inc.getScheme().getIri(), inc.getScheme().getName())))
+				.collect(Collectors.toSet());
 
-                ))
-            .collect(Collectors.toList());
+		Set<ValueSetMember> excluded = conceptTripleRepository
+				.findBySubject_Iri_AndPredicate_Iri(iri, IM.NOT_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.map(inc -> new ValueSetMember().setConcept(new TTIriRef(inc.getIri(), inc.getName()))
+						.setCode(inc.getCode())
+						.setScheme(inc.getScheme() == null ? null
+								: new TTIriRef(inc.getScheme().getIri(), inc.getScheme().getName())))
+				.collect(Collectors.toSet());
 
-        List<String> types = request.getMarkIfDescendentOf();
-        if (types != null && !types.isEmpty()) {
-            src.forEach(s -> s.setIsDescendentOf(this.isWhichType(s.getIri(), types)));
-        }
+		Map<String, ValueSetMember> inclusions = new HashMap<>();
+		for (ValueSetMember inc : included) {
+			inclusions.put(inc.getConcept().getIri(), inc);
 
-        return src;
-    }
+			if (expand) {
+				valueSetRepository.expandMember(inc.getConcept().getIri())
+						.forEach(m -> inclusions.put(m.getConceptIri(),
+								new ValueSetMember().setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
+										.setCode(m.getCode())
+										.setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))));
+			}
+		}
 
-    public List<TTConcept> getAncestorDefinitions(String iri) {
-        try {
-            List<TTConcept> result = new ArrayList<>();
-            for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
-                Concept t = tct.getAncestor();
-                if (!iri.equals(t.getIri())) {
-                    TTConcept concept = om.readValue(t.getDefinition(), TTConcept.class);
-                    result.add(concept);
-                }
-            }
-            return result;
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+		Map<String, ValueSetMember> exclusions = new HashMap<>();
+		for (ValueSetMember inc : excluded) {
+			exclusions.put(inc.getConcept().getIri(), inc);
 
-    public ExportValueSet getValueSetMembers(String iri, boolean expand) {
-        Set<ValueSetMember> included = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(iri, IM.HAS_MEMBER.getIri()).stream()
-            .map(Tpl::getObject)
-            .map(inc -> new ValueSetMember()
-                .setConcept(new TTIriRef(inc.getIri(), inc.getName()))
-                .setCode(inc.getCode())
-                .setScheme(inc.getScheme() == null ? null : new TTIriRef(inc.getScheme().getIri(), inc.getScheme().getName()))
-            )
-            .collect(Collectors.toSet());
+			if (expand) {
+				valueSetRepository.expandMember(inc.getConcept().getIri())
+						.forEach(m -> exclusions.put(m.getConceptIri(),
+								new ValueSetMember().setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
+										.setCode(m.getCode())
+										.setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))));
+			}
+		}
 
-        Set<ValueSetMember> excluded = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(iri, IM.NOT_MEMBER.getIri()).stream()
-            .map(Tpl::getObject)
-            .map(inc -> new ValueSetMember()
-                .setConcept(new TTIriRef(inc.getIri(), inc.getName()))
-                .setCode(inc.getCode())
-                .setScheme(inc.getScheme() == null ? null : new TTIriRef(inc.getScheme().getIri(), inc.getScheme().getName()))
-            )
-            .collect(Collectors.toSet());
+		if (expand) {
+			// Remove exclusions by key
+			exclusions.forEach((k, v) -> inclusions.remove(k));
+		}
 
+		ExportValueSet result = new ExportValueSet().setValueSet(getConceptReference(iri))
+				.addAllIncluded(inclusions.values());
 
-        Map<String, ValueSetMember> inclusions = new HashMap<>();
-        for(ValueSetMember inc: included) {
-            inclusions.put(inc.getConcept().getIri(), inc);
+		if (!expand)
+			result.addAllExcluded(exclusions.values());
 
-            if (expand) {
-                valueSetRepository.expandMember(inc.getConcept().getIri())
-                    .forEach(m -> inclusions.put(m.getConceptIri(), new ValueSetMember()
-                        .setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
-                        .setCode(m.getCode())
-                        .setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))
-                    ));
-            }
-        }
+		return result;
+	}
 
-        Map<String, ValueSetMember> exclusions = new HashMap<>();
-        for(ValueSetMember inc: excluded) {
-            exclusions.put(inc.getConcept().getIri(), inc);
+	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
+		ValueSetMembership result = new ValueSetMembership();
 
-            if (expand) {
-                valueSetRepository.expandMember(inc.getConcept().getIri())
-                    .forEach(m -> exclusions.put(m.getConceptIri(), new ValueSetMember()
-                        .setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
-                        .setCode(m.getCode())
-                        .setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))
-                    ));
-            }
-        }
+		Set<TTIriRef> included = conceptTripleRepository
+				.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.HAS_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.map(inc -> new TTIriRef(inc.getIri(), inc.getName())).collect(Collectors.toSet());
 
-        if (expand) {
-            // Remove exclusions by key
-            exclusions.forEach((k,v) -> inclusions.remove(k));
-        }
+		Set<TTIriRef> excluded = conceptTripleRepository
+				.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.NOT_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.map(inc -> new TTIriRef(inc.getIri(), inc.getName())).collect(Collectors.toSet());
 
-        ExportValueSet result = new ExportValueSet()
-            .setValueSet(getConceptReference(iri))
-            .addAllIncluded(inclusions.values());
+		for (TTIriRef m : included) {
+			Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository
+					.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+			if (match.isPresent()) {
+				result.setIncludedBy(m);
+				break;
+			}
+		}
 
-        if (!expand)
-            result.addAllExcluded(exclusions.values());
+		for (TTIriRef m : excluded) {
+			Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository
+					.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+			if (match.isPresent()) {
+				result.setExcludedBy(m);
+				break;
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
-        ValueSetMembership result = new ValueSetMembership();
+	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
+		return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.MAPPED_FROM.getIri()).stream()
+				.map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName())).collect(Collectors.toList());
+	}
 
-        Set<TTIriRef> included = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.HAS_MEMBER.getIri()).stream()
-            .map(Tpl::getObject)
-            .map(inc -> new TTIriRef(inc.getIri(), inc.getName()))
-            .collect(Collectors.toSet());
+	public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
+		return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MAPPED_FROM.getIri()).stream()
+				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
+	}
 
-        Set<TTIriRef> excluded = conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.NOT_MEMBER.getIri()).stream()
-            .map(Tpl::getObject)
-            .map(inc -> new TTIriRef(inc.getIri(), inc.getName()))
-            .collect(Collectors.toSet());
+	public List<String> getSynonyms(String iri) {
+		return conceptTermRepository.getSynonyms(iri);
+	}
 
-            for (TTIriRef m : included) {
-                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
-                if (match.isPresent()) {
-                    result.setIncludedBy(m);
-                    break;
-                }
-            }
+	private Pageable getPage(Integer pageIndex, Integer pageSize) {
+		Pageable page = null;
 
-            for (TTIriRef m : excluded) {
-                Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
-                if (match.isPresent()) {
-                    result.setExcludedBy(m);
-                    break;
-                }
-            }
+		// defaults
+		if (pageIndex != null && pageIndex <= 0)
+			pageIndex = 1;
+		if (pageSize != null && pageSize <= 0)
+			pageSize = 20;
 
-        return result;
-    }
+		if (pageIndex != null && pageSize != null) {
+			page = PageRequest.of(pageIndex - 1, pageSize);
+		}
 
-    public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
-        return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.MAPPED_FROM.getIri()).stream()
-            .map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName()))
-            .collect(Collectors.toList());
-    }
+		return page;
+	}
 
-    public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
-        return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MAPPED_FROM.getIri()).stream()
-            .map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName()))
-            .collect(Collectors.toList());
-    }
+	private String getPath(String iri) {
+		return iri.substring(0, Math.max(iri.lastIndexOf("/"), iri.lastIndexOf('#')) + 1);
+	}
 
-    public List<String> getSynonyms(String iri ){
-        return conceptTermRepository.getSynonyms(iri);
-    }
+	private Set<TTIriRef> populateMissingNames(TTConcept concept) {
+		// Get both predicate and object TTIriRefs
+		List<TTIriRef> iriRefs = new ArrayList<>();
+		Set<TTIriRef> predicates = new HashSet<>();
 
-    private Pageable getPage(Integer pageIndex, Integer pageSize) {
-        Pageable page = null;
+		TTConceptVisitor visitor = new TTConceptVisitor();
+		visitor.IriRefVisitor = ((predicate, iriRef) -> {
+			if (iriRef.getName() == null || iriRef.getName().isEmpty())
+				iriRefs.add(iriRef);
+		});
+		visitor.PredicateVisitor = (predicates::add);
+		visitor.visit(concept);
 
-        // defaults
-        if (pageIndex != null && pageIndex <= 0) pageIndex = 1;
-        if (pageSize != null && pageSize <= 0) pageSize = 20;
+		// Get the list of iris to lookup
+		Set<String> nameless = Stream.of(iriRefs, predicates).flatMap(Collection::stream).map(TTIriRef::getIri)
+				.collect(Collectors.toSet());
 
-        if(pageIndex != null && pageSize != null) {
-            page = PageRequest.of(pageIndex - 1, pageSize);
-        }
+		// Lookup and generate map
+		Map<String, String> iriNameMap = new HashMap<>();
+		for (Concept concept1 : conceptRepository.findAllByIriIn(nameless))
+			iriNameMap.put(concept1.getIri(), concept1.getName());
 
-        return page;
-    }
+		// Populate names
+		iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
+		predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
 
-    private String getPath(String iri) {
-        return iri.substring(0, Math.max(iri.lastIndexOf("/"), iri.lastIndexOf('#'))+1);
-    }
+		// Return named predicate list
+		return predicates;
+	}
 
-    private Set<TTIriRef> populateMissingNames(TTConcept concept) {
-        // Get both predicate and object TTIriRefs
-        List<TTIriRef> iriRefs = new ArrayList<>();
-        Set<TTIriRef> predicates = new HashSet<>();
-
-        TTConceptVisitor visitor = new TTConceptVisitor();
-        visitor.IriRefVisitor = ((predicate, iriRef) -> {
-            if (iriRef.getName() == null || iriRef.getName().isEmpty())
-                iriRefs.add(iriRef);
-        });
-        visitor.PredicateVisitor = (predicates::add);
-        visitor.visit(concept);
-
-        // Get the list of iris to lookup
-        Set<String> nameless = Stream.of(iriRefs, predicates)
-            .flatMap(Collection::stream)
-            .map(TTIriRef::getIri)
-            .collect(Collectors.toSet());
-
-        // Lookup and generate map
-        Map<String, String> iriNameMap = new HashMap<>();
-        for (Concept concept1 : conceptRepository.findAllByIriIn(nameless))
-            iriNameMap.put(concept1.getIri(), concept1.getName());
-
-        // Populate names
-        iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-        predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-
-        // Return named predicate list
-        return predicates;
-    }
-
-    private void stripIriRefNames(TTConcept concept) {
-        TTConceptVisitor visitor = new TTConceptVisitor();
-        visitor.IriRefVisitor = ((predicate, iriRef) -> iriRef.setName(null));
-        visitor.visit(concept);
-    }
+	private void stripIriRefNames(TTConcept concept) {
+		TTConceptVisitor visitor = new TTConceptVisitor();
+		visitor.IriRefVisitor = ((predicate, iriRef) -> iriRef.setName(null));
+		visitor.visit(concept);
+	}
 }

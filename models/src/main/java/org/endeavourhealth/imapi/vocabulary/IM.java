@@ -52,7 +52,9 @@ public class IM {
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"891071000252105");
 
     //Legacy Mapping
-    public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"mappedFrom");
+    public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"matchedTo");
+    public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
+
 
     //SPARQL parameters
     public static final TTIriRef QUERY_VARIABLE = iri(NAMESPACE +"queryVariable");

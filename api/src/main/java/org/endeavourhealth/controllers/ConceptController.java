@@ -3,10 +3,8 @@ package org.endeavourhealth.controllers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
-import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;

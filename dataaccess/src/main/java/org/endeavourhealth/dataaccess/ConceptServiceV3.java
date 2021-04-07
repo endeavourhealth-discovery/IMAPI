@@ -80,8 +80,10 @@ public class ConceptServiceV3 {
 			if (IM.ACTIVE.getIri().equals(values[2])) {
 				ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
 				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri());
+				System.out.println(children.size());
+				System.out.println(children.size() != 0);
 				child.setHasChildren(children.size() != 0);
-				immediateChildren.add(new ConceptReferenceNode(values[0], values[1]));
+				immediateChildren.add(child);
 			}	
 		});
 

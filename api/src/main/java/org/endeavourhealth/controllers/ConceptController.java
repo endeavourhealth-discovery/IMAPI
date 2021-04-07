@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
+import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
@@ -63,13 +64,6 @@ public class ConceptController {
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
 		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
-	}
-
-	@GetMapping(value = "/parentHierarchy")
-	public List<ConceptReferenceNode> getConceptParentHierarchy(@RequestParam(name = "iri") String iri) {
-		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
-
-		return parents;
 	}
 
 	@GetMapping(value = "/parents")
@@ -210,11 +204,11 @@ public class ConceptController {
 		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
 
 		GraphDto graphParents = new GraphDto().setName("Parents");
-//		GraphDto graphChildren = new GraphDto().setName("Children");
+		GraphDto graphChildren = new GraphDto().setName("Children");
 		GraphDto graphProps = new GraphDto().setName("Properties");
 		
 		List<TTValue> parents = concept.getAsArray(IM.IS_A).getElements();
-//		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
+		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
 		List<PropertyValue> properties = getAllProperties(iri);
 
 		if(parents !=null) {
@@ -225,10 +219,10 @@ public class ConceptController {
 			});
 		}
 		
-//		children.forEach(child -> {
-//			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
-//			graphChildren.getChildren().add(graphChild);
-//		});
+		children.forEach(child -> {
+			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
+			graphChildren.getChildren().add(graphChild);
+		});
 		properties.forEach(prop -> {
 			GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
 					.setName(prop.getProperty().getName())
@@ -240,7 +234,7 @@ public class ConceptController {
 		});
 
 		graphData.getChildren().add(graphParents);
-//		graphData.getChildren().add(graphChildren);
+		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);
 
 		return graphData;
@@ -253,7 +247,7 @@ public class ConceptController {
 
 
 	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
-		List<ConceptReferenceNode> parents = conceptService.getParentHierarchy(iri);
+		 List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
 
 		if (parents == null) {
 			return flatParentIris;

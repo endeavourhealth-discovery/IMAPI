@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import javax.print.attribute.standard.MediaSize;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

@@ -25,6 +25,7 @@ public class SHACL {
    public static final TTIriRef PARAMETER= iri(NAMESPACE +"parameter");
    public static final TTIriRef IRI= iri(NAMESPACE +"iri");
    public static final TTIriRef OPTIONAL= iri(NAMESPACE +"optional");
-
+   public static final TTIriRef NODESHAPE= iri(NAMESPACE +"NodeShape");
+   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"TargetClass");
 }
 

@@ -16,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
-   private Map<String, String> prefixMap = new HashMap<>();
+   private TTContext context = new TTContext();
    private TTNodeDeserializer helper;
 
    public TTDocumentDeserializer() {
@@ -32,13 +32,13 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
       TTDocument result = new TTDocument();
-      helper= new TTNodeDeserializer(prefixMap);
+      helper= new TTNodeDeserializer(context);
 
       List<TTPrefix> prefixes = new ArrayList<>();
 
       helper.populatePrefixesFromJson(node,prefixes);
       if (!prefixes.isEmpty())
-         result.setPrefixes(prefixes);
+         result.setContext(context);
       if (node.get("@graph")!=null)
          result.setGraph(iri(helper.expand(node.get("@graph").get("@id").asText())));
       if (node.get("concepts")!=null) {

@@ -13,21 +13,32 @@ import java.util.Set;
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument serializer
  */
 public class TTNodeSerializer {
-   private Map<String, String> contextMap = new HashMap<>();
+   private TTContext contextMap;
    private List<TTIriRef> predicateTemplate;
+   private boolean usePrefixes = false;
    /**
     *
     * @param contextMap the context object for the JSON-LD document
     */
-   public TTNodeSerializer(Map<String, String> contextMap){
-      this.contextMap= contextMap;
+   public TTNodeSerializer(TTContext contextMap){
+      this.contextMap = contextMap;
    }
-   public TTNodeSerializer(Map<String, String> contextMap,List<TTIriRef> predicateTemplate){
-      this.contextMap= contextMap;
+   public TTNodeSerializer(TTContext contextMap,List<TTIriRef> predicateTemplate){
+      this.contextMap = contextMap;
       this.predicateTemplate= predicateTemplate;
    }
+    public TTNodeSerializer(TTContext contextMap, boolean usePrefixes){
+        this.contextMap = contextMap;
+        this.usePrefixes = usePrefixes;
+    }
+    public TTNodeSerializer(TTContext contextMap,List<TTIriRef> predicateTemplate, boolean usePrefixes){
+        this.contextMap= contextMap;
+        this.predicateTemplate= predicateTemplate;
+        this.usePrefixes = usePrefixes;
+    }
 
-   public void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
+
+    public void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
       if (predicateTemplate!=null)
          serializeOrdered(node,gen);
       else {
@@ -118,22 +129,19 @@ public class TTNodeSerializer {
    }
 
    public String prefix(String iri) {
-      int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
-      String path = iri.substring(0, end + 1);
-      String prefix = contextMap.get(path);
-      if (prefix == null)
-         return iri;
-      else
-         return prefix + ":" + iri.substring(end + 1);
+       if (usePrefixes)
+        return contextMap.prefix(iri);
+       else
+           return contextMap.expand(iri);
    }
 
    public void serializeContexts(List<TTPrefix> prefixes, JsonGenerator gen) throws IOException {
-      if (prefixes != null && !prefixes.isEmpty()) {
+      if (usePrefixes && prefixes != null && !prefixes.isEmpty()) {
          gen.writeFieldName("@context");
          gen.writeStartObject();
 
          for(TTPrefix prefix : prefixes) {
-            contextMap.put(prefix.getIri(), prefix.getPrefix());
+            contextMap.add(prefix.getIri(), prefix.getPrefix());
             gen.writeStringField(prefix.getPrefix(),prefix.getIri());
          }
          gen.writeFieldName("concepts");

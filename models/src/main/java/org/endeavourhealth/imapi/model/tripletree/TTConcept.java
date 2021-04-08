@@ -15,7 +15,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 @JsonDeserialize(using = TTConceptDeserializer.class)
 public class TTConcept extends TTNode {
     private String iri;
-    private List<TTPrefix> prefixes = new ArrayList<>();
+    private TTContext context = new TTContext();
 
     public TTConcept() {}
 
@@ -111,32 +111,27 @@ public class TTConcept extends TTNode {
         return this;
     }
 
+    public TTConcept setContext(TTContext context) {
+        this.context = context;
+        return this;
+    }
+
     public List<TTPrefix> getPrefixes() {
-        return prefixes;
-    }
-
-    public TTConcept setPrefixes(List<TTPrefix> prefixes) {
-        this.prefixes = prefixes;
-        return this;
-    }
-
-    public TTConcept addPrefix(TTPrefix prefix) {
-        if (prefix != null) {
-            if (prefixes == null) {
-                prefixes = new ArrayList<>();
-            }
-            prefixes.add(prefix);
-        }
-        return this;
+        return context.getPrefixes();
     }
 
     public TTConcept addPrefix(String iri, String prefix) {
-        return addPrefix(new TTPrefix(iri, prefix));
+        context.add(iri, prefix);
+        return this;
     }
 
     @Override
     public TTConcept set(TTIriRef predicate, TTValue value) {
         super.set(predicate, value);
         return this;
+    }
+
+    public TTContext getContext() {
+        return context;
     }
 }

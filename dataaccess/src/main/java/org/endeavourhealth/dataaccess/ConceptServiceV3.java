@@ -70,10 +70,11 @@ public class ConceptServiceV3 {
 		return new TTIriRef(concept.getIri(), concept.getName());
 	}
 
-	public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize, boolean includeLegacy) {
+	public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize,
+			boolean includeLegacy) {
 
-        List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
-		
+		List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
+
 		List<String> results = conceptTripleRepository.findImmediateChildrenByIri(iri);
 		results.forEach(result -> {
 			String[] values = result.split(",");
@@ -82,22 +83,23 @@ public class ConceptServiceV3 {
 				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri());
 				child.setHasChildren(children.size() != 0);
 				immediateChildren.add(child);
-			}	
+			}
 		});
 
 		return immediateChildren;
 
 	}
 
-	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size, boolean includeLegacy) {
-        List<ConceptReferenceNode> immediateParents = new ArrayList<>();
+	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size,
+			boolean includeLegacy) {
+		List<ConceptReferenceNode> immediateParents = new ArrayList<>();
 		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri);
 
 		results.forEach(result -> {
 			String[] values = result.split(",");
 			if (IM.ACTIVE.getIri().equals(values[2])) {
 				immediateParents.add(new ConceptReferenceNode(values[0], values[1]));
-			}	
+			}
 		});
 
 		return immediateParents;
@@ -138,7 +140,7 @@ public class ConceptServiceV3 {
 		}
 
 		List<ConceptSummary> src = result.stream().map(r -> new ConceptSummary().setName(r.getName()).setIri(r.getIri())
-				// .setConceptType(new TTIriRef(r.getTypes()))
+				.setConceptType(getConcept(r.getIri()).getType())
 				// .setWeighting(r.getWeighting())
 				.setCode(r.getCode()).setDescription(r.getDescription())
 				.setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))

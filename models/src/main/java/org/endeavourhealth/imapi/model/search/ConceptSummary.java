@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.search;
 
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class ConceptSummary {
     private String description;
     private TTIriRef status;
     private TTIriRef scheme;
-    private TTIriRef conceptType;
+    private TTArray conceptType;
     private List<TTIriRef> isDescendentOf = new ArrayList<>();
     private Integer weighting;
 
@@ -70,11 +71,11 @@ public class ConceptSummary {
         return this;
     }
 
-    public TTIriRef getConceptType() {
+    public TTArray getConceptType() {
         return conceptType;
     }
 
-    public ConceptSummary setConceptType(TTIriRef conceptType) {
+    public ConceptSummary setConceptType(TTArray conceptType) {
         this.conceptType = conceptType;
         return this;
     }

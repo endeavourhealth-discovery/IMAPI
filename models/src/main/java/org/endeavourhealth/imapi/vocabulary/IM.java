@@ -54,6 +54,8 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
+    public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
+    public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
 
 
     //SPARQL parameters

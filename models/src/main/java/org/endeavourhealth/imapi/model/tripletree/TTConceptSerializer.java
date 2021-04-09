@@ -14,7 +14,6 @@ import java.util.Set;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTConceptSerializer extends StdSerializer<TTConcept> {
-    private Map<String, String> contextMap = new HashMap<>();
     private TTNodeSerializer helper;
 
     public TTConceptSerializer() {
@@ -27,8 +26,10 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
 
     @Override
     public void serialize(TTConcept concept, JsonGenerator gen, SerializerProvider prov) throws IOException {
+        Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
+        usePrefixes = (usePrefixes != null && usePrefixes);
 
-        helper= new TTNodeSerializer(contextMap);
+        helper= new TTNodeSerializer(concept.getContext(), usePrefixes);
         gen.writeStartObject();
         helper.serializeContexts(concept.getPrefixes(), gen);
         gen.writeStringField("@id",helper.prefix(concept.getIri()));

@@ -18,21 +18,21 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  * DeSerializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument Deserializer
  */
 public class TTNodeDeserializer {
-   private Map<String, String> prefixMap;
+   private TTContext context;
 
    /**
     *
-    * @param prefixMap the map of prefixes to namespaces in string form.
+    * @param context the map of prefixes to namespaces in string form.
     */
-   public TTNodeDeserializer(Map<String, String> prefixMap){
-      this.prefixMap= prefixMap;
+   public TTNodeDeserializer(TTContext context){
+      this.context = context;
    }
 
 
-   public Map<String,String> populatePrefixesFromJson(JsonNode document,List<TTPrefix> prefixes) {
-      JsonNode context= document.get("@context");
-      if (context!=null){
-         Iterator<Map.Entry<String, JsonNode>> fields = context.fields();
+   public void populatePrefixesFromJson(JsonNode document,List<TTPrefix> prefixes) {
+      JsonNode contextNode = document.get("@context");
+      if (contextNode !=null){
+         Iterator<Map.Entry<String, JsonNode>> fields = contextNode.fields();
          while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
             String key= field.getKey();
@@ -40,11 +40,10 @@ public class TTNodeDeserializer {
             if (value.isTextual())
                if (value.textValue().startsWith("http")) {
                   prefixes.add(new TTPrefix(value.textValue(), key));
-                  prefixMap.put(key,value.asText());
+                  context.add(value.asText(), key);
                }
          }
       }
-      return prefixMap;
    }
 
    public void populateTTNodeFromJson(TTNode result, JsonNode node) throws IOException {
@@ -118,13 +117,7 @@ public class TTNodeDeserializer {
    }
 
    public String expand(String iri) {
-      int colonPos = iri.indexOf(":");
-      String prefix = iri.substring(0, colonPos);
-      String path = prefixMap.get(prefix);
-      if (path == null)
-         return iri;
-      else
-         return path + iri.substring(colonPos + 1);
+        return context.expand(iri);
    }
 
 }

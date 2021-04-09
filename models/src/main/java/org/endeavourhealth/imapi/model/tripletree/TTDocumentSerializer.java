@@ -17,7 +17,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * <p>Uses @context for prefixes and common annotation elements</p>
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
-   private Map<String, String> contextMap = new HashMap<>();
    private List<TTIriRef> predicateTemplate;
    private TTNodeSerializer helper;
 
@@ -32,10 +31,11 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
 
    @Override
    public void serialize(TTDocument document, JsonGenerator gen, SerializerProvider prov) throws IOException {
-
+        Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
+        usePrefixes = (usePrefixes != null && usePrefixes);
 
       setPredicateOrder();
-      helper= new TTNodeSerializer(contextMap,predicateTemplate);
+      helper= new TTNodeSerializer(document.getContext(), predicateTemplate, usePrefixes);
       gen.writeStartObject();
       helper.serializeContexts(document.getPrefixes(), gen);
       if (document.getGraph()!=null) {

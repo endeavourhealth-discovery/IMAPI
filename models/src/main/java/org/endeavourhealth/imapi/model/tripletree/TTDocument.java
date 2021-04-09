@@ -10,94 +10,102 @@ import java.util.Map;
 
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
-public class TTDocument extends TTNode{
-   private TTIriRef graph;
-   private List<TTPrefix> prefixes = new ArrayList<>();
-   private List<TTConcept> concepts;
-   private List<TTConcept> individuals;
-   private Map<Class,List<String>> predicateTemplate;
+public class TTDocument extends TTNode {
+    private TTIriRef graph;
+    private TTContext context = new TTContext();
+    private List<TTConcept> concepts;
+    private List<TTConcept> individuals;
+    private Map<Class, List<String>> predicateTemplate;
 
-   public TTIriRef getGraph() {
-      return graph;
-   }
+    public TTIriRef getGraph() {
+        return graph;
+    }
 
-   public TTDocument(TTIriRef defaultGraph){
-      this.graph= defaultGraph;
-   }
-   public TTDocument(){
-   }
-   public TTDocument(Map<Class,List<String>> predicateTemplate){
-      this.predicateTemplate= predicateTemplate;
-   }
+    public TTDocument(TTIriRef defaultGraph) {
+        this.graph = defaultGraph;
+    }
 
-   public TTDocument setGraph(TTIriRef graph) {
-      this.graph = graph;
-      return this;
-   }
+    public TTDocument() {
+    }
 
-   public List<TTPrefix> getPrefixes() {
-      return prefixes;
-   }
+    public TTDocument setContext(TTContext context) {
+        this.context = context;
+        return this;
+    }
 
-   public TTDocument setPrefixes(List<TTPrefix> prefixes) {
-      this.prefixes = prefixes;
-      return this;
-   }
-   public TTDocument addPrefix(TTPrefix prefix) {
-      if (prefix != null) {
-         if (prefixes == null) {
-            prefixes = new ArrayList<>();
-         }
-         prefixes.add(prefix);
-      }
-      return this;
-   }
-   public TTDocument addPrefix(String iri, String prefix) {
-      return addPrefix(new TTPrefix(iri, prefix));
-   }
+    public TTDocument(Map<Class, List<String>> predicateTemplate) {
+        this.predicateTemplate = predicateTemplate;
+    }
 
-   public Map<Class, List<String>> getPredicateTemplate() {
-      return predicateTemplate;
-   }
+    public TTDocument setGraph(TTIriRef graph) {
+        this.graph = graph;
+        return this;
+    }
 
-   public TTDocument setPredicateTemplate(Map<Class, List<String>> predicateTemplate) {
-      this.predicateTemplate = predicateTemplate;
-      return this;
-   }
+    public List<TTPrefix> getPrefixes() {
+        return context.getPrefixes();
+    }
 
-   @Override
-   public TTDocument set(TTIriRef predicate, TTValue value) {
-      super.set(predicate, value);
-      return this;
-   }
+    public TTDocument addPrefix(TTPrefix directive) {
+        addPrefix(directive.getIri(), directive.getPrefix());
+        return this;
+    }
 
-   public List<TTConcept> getConcepts() {
-      return concepts;
-   }
+    public TTDocument addPrefix(String iri, String prefix) {
+        context.add(iri, prefix);
+        return this;
+    }
 
-   public TTDocument setConcepts(List<TTConcept> concepts) {
-      this.concepts = concepts;
-      return this;
-   }
-   public TTDocument addConcept(TTConcept concept){
-      if (this.concepts==null)
-         this.concepts= new ArrayList<>();
-      this.concepts.add(concept);
-      return this;
-   }
+    public Map<Class, List<String>> getPredicateTemplate() {
+        return predicateTemplate;
+    }
 
-   public List<TTConcept> getIndividuals() {
-      return individuals;
-   }
+    public TTDocument setPredicateTemplate(Map<Class, List<String>> predicateTemplate) {
+        this.predicateTemplate = predicateTemplate;
+        return this;
+    }
 
-   public TTDocument setIndividuals(List<TTConcept> individuals) {
-      this.individuals = individuals;
-      return this;
-   }
-   public TTDocument addIndividual(TTConcept concept){
-      if (this.individuals==null)
-         this.individuals= new ArrayList<>();
-      this.individuals.add(concept);
-      return this;
-   }
+    @Override
+    public TTDocument set(TTIriRef predicate, TTValue value) {
+        super.set(predicate, value);
+        return this;
+    }
+
+    public List<TTConcept> getConcepts() {
+        return concepts;
+    }
+
+    public TTDocument setConcepts(List<TTConcept> concepts) {
+        this.concepts = concepts;
+        return this;
+    }
+
+    public TTDocument addConcept(TTConcept concept) {
+        if (this.concepts == null)
+            this.concepts = new ArrayList<>();
+        concept.setContext(this.context);
+        this.concepts.add(concept);
+        return this;
+    }
+
+    public List<TTConcept> getIndividuals() {
+        return individuals;
+    }
+
+    public TTDocument setIndividuals(List<TTConcept> individuals) {
+        this.individuals = individuals;
+        return this;
+    }
+
+    public TTDocument addIndividual(TTConcept concept) {
+        if (this.individuals == null)
+            this.individuals = new ArrayList<>();
+        concept.setContext(this.context);
+        this.individuals.add(concept);
+        return this;
+    }
+
+    public TTContext getContext() {
+        return this.context;
+    }
 }

@@ -75,12 +75,12 @@ public class ConceptServiceV3 {
 
 		List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
 
-		List<String> results = conceptTripleRepository.findImmediateChildrenByIri(iri);
+		List<String> results = conceptTripleRepository.findImmediateChildrenByIri(iri, pageSize, pageSize*pageIndex-1);
 		results.forEach(result -> {
 			String[] values = result.split(",");
 			if (IM.ACTIVE.getIri().equals(values[2])) {
 				ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
-				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri());
+				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri(), pageSize, pageSize*(pageIndex-1));
 				child.setHasChildren(children.size() != 0);
 				child.setType(getConcept(values[0]).getType());
 				immediateChildren.add(child);
@@ -94,7 +94,7 @@ public class ConceptServiceV3 {
 	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size,
 			boolean includeLegacy) {
 		List<ConceptReferenceNode> immediateParents = new ArrayList<>();
-		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri);
+		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri, size , size*(page-1));
 
 		results.forEach(result -> {
 			String[] values = result.split(",");

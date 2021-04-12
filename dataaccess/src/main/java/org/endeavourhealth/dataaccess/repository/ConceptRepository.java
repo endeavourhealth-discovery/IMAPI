@@ -23,21 +23,21 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "FROM (" +
         "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE c.code = :full " +
         "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
         "   UNION " +
         "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE c.iri = :full " +
         "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
         "   UNION " +
         "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
@@ -45,7 +45,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "   (SELECT DISTINCT c.*, ct.type " +
         "   FROM concept c " +
         "   JOIN concept_term t ON c.dbid = t.concept " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE MATCH(t.term) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
         "   LIMIT :limit) " +
@@ -58,7 +58,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "FROM (" +
         "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
         "   AND c.code = :full " +
         "   AND c.status IN (:status) " +
@@ -66,7 +66,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "   UNION " +
         "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
         "   AND c.iri = :full " +
         "   AND c.status IN (:status) " +
@@ -74,7 +74,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "   UNION " +
         "   (SELECT c.*, ct.type " +
         "   FROM concept c " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
         "   AND MATCH(c.name) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +
@@ -83,7 +83,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "   (SELECT DISTINCT c.*, ct.type " +
         "   FROM concept c " +
         "   JOIN concept_term t ON c.dbid = t.concept " +
-        "   JOIN concept_type ct ON c.dbid = ct.dbid AND ct.type IN (:conceptType) " +
+        "   JOIN concept_type ct ON c.dbid = ct.concept AND ct.type IN (:conceptType) " +
         "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
         "   AND MATCH(t.term) AGAINST (:terms IN BOOLEAN MODE) " +
         "   AND c.status IN (:status) " +

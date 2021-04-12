@@ -220,8 +220,18 @@ public class ConceptController {
 		GraphDto graphParents = new GraphDto().setName("Parents");
 		GraphDto graphChildren = new GraphDto().setName("Children");
 		GraphDto graphProps = new GraphDto().setName("Properties");
+		
+		List<TTValue> parents = new ArrayList<TTValue>();
+		
+		TTValue value = concept.get(IM.IS_A);
+		if (value != null) {
+			if (value.isList()) {
+				parents = concept.getAsArrayElements(IM.IS_A);
+			} else {
+				parents.add(value);
+			}
+		}
 
-		List<TTValue> parents = concept.getAsArray(IM.IS_A).getElements();
 		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
 		List<PropertyValue> properties = getAllProperties(iri);
 

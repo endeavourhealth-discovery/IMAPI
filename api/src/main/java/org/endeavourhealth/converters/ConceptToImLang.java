@@ -71,7 +71,9 @@ public class ConceptToImLang {
         imLangConcept = imLangConcept.concat("code \"" + concept.getCode() + "\";\n");
 
         // add scheme
-        imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
+        if (concept.getScheme() != null) {
+        	imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
+        }
 
         // add status
         imLangConcept = imLangConcept.concat("status " + convertConceptReferenceToString(concept.getStatus()) + ";\n");

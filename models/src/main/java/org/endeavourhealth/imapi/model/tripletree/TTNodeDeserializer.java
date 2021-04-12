@@ -106,10 +106,12 @@ public class TTNodeDeserializer {
       TTIriRef type = iri(expand(node.get("@type").asText()));
       if (XSD.STRING.equals(type))
          return literal(node.get("@value").textValue());
-      else if (XSD.BOOLEAN.equals(type))
-         return literal(node.get("@value").booleanValue());
-      else if (XSD.INTEGER.equals(type))
-         return literal(node.get("@value").intValue());
+      else if (XSD.BOOLEAN.equals(type)) {
+         return literal(Boolean.valueOf(node.get("@value").asText()));
+      }
+      else if (XSD.INTEGER.equals(type)) {
+         return literal(Integer.valueOf(node.get("@value").asText()));
+      }
       else if (XSD.PATTERN.equals(type))
          return literal(Pattern.compile(node.get("@value").textValue()));
       else

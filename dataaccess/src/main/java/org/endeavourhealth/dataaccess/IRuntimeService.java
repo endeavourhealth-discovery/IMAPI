@@ -1,5 +1,8 @@
 package org.endeavourhealth.dataaccess;
 
+import org.eclipse.rdf4j.query.algebra.Str;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+
 import java.sql.Connection;
 
 public interface IRuntimeService {
@@ -12,6 +15,7 @@ public interface IRuntimeService {
     String getCodeForConceptDbid(Integer dbid);
     Integer getConceptDbidForTypeTerm(String type, String term, Boolean autoCreate);
     Integer getMappedCoreConceptDbidForTypeTerm(String type, String term);
+    Boolean checkConceptByCodeSchemeInVSet(String code, String scheme, String vSet);
 
 
 }

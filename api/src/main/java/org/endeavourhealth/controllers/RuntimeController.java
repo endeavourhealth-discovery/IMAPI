@@ -1,10 +1,8 @@
 package org.endeavourhealth.controllers;
 
+
 import org.endeavourhealth.dataaccess.RuntimeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -72,9 +70,11 @@ public class RuntimeController {
        return runtimeService.getMappedCoreConceptDbidForTypeTerm(type, term);
     }
 
+    @GetMapping("/Concept/isValueSetMember")
+    public Boolean checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet){
+        return  runtimeService.checkConceptByCodeSchemeInVSet(code, scheme,vSet);
+    }
 
-
-
-
+    
 
 }

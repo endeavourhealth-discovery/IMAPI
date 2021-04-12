@@ -51,4 +51,15 @@ public class RuntimeService  implements IRuntimeService{
     public Integer getMappedCoreConceptDbidForTypeTerm(String type, String term) {
         return null;
     }
+
+
+    @Override
+    public Boolean checkConceptByCodeSchemeInVSet(String code, String scheme, String vSet){
+        if(conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) == null)
+            return false;
+        if(conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet)==null)
+            return true;
+        else
+            return false;
+    }
 }

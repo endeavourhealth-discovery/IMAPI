@@ -41,9 +41,10 @@ public class IM {
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
 
     //Inferred grouping predicates
-    public static final TTIriRef ROLE_GROUP= iri(NAMESPACE +"roleGroup");
     public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
     public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
+    public static final TTIriRef GROUP_NUMBER = iri(NAMESPACE +"groupNumber");
+    public static final TTIriRef ROLE_GROUP = iri(NAMESPACE +"roleGroup");
 
     //Concept status values
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
@@ -54,6 +55,8 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
+    public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
+    public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
 
 
     //SPARQL parameters

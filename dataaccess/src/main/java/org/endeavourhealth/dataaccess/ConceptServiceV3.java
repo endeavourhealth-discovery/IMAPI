@@ -75,26 +75,34 @@ public class ConceptServiceV3 {
 
 		List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
 
+		if(pageIndex==null)
+		    pageIndex= 1;
+		if(pageSize ==null)
+		    pageSize=Integer.MAX_VALUE;
 		List<String> results = conceptTripleRepository.findImmediateChildrenByIri(iri, pageSize, pageSize*pageIndex-1);
-		results.forEach(result -> {
-			String[] values = result.split(",");
-			if (IM.ACTIVE.getIri().equals(values[2])) {
-				ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
-				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri(), pageSize, pageSize*(pageIndex-1));
-				child.setHasChildren(children.size() != 0);
-				child.setType(getConcept(values[0]).getType());
-				immediateChildren.add(child);
-			}
-		});
+        for (String result : results) {
+            String[] values = result.split(",");
+            if (IM.ACTIVE.getIri().equals(values[2])) {
+                ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
+                List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri(), pageSize, pageSize * (pageIndex - 1));
+                child.setHasChildren(children.size() != 0);
+                child.setType(getConcept(values[0]).getType());
+                immediateChildren.add(child);
+            }
+        }
 
-		return immediateChildren;
+        return immediateChildren;
 
 	}
 
-	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer page, Integer size,
+	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
 			boolean includeLegacy) {
 		List<ConceptReferenceNode> immediateParents = new ArrayList<>();
-		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri, size , size*(page-1));
+        if(pageIndex==null)
+            pageIndex= 1;
+        if(pageSize ==null)
+            pageSize=Integer.MAX_VALUE;
+		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri, pageSize , pageSize*(pageIndex-1));
 
 		results.forEach(result -> {
 			String[] values = result.split(",");

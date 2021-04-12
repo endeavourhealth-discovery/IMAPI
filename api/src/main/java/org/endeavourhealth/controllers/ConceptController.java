@@ -162,10 +162,10 @@ public class ConceptController {
 		return new TTConcept().setCode(conceptDto.getCode());
 	}
 
-	@GetMapping(value = "/properties")
-	public List<PropertyValue> getAllProperties(@RequestParam(name = "iri") String iri) {
+	@GetMapping(value = "/roles")
+	public List<PropertyValue> getRoles(@RequestParam(name = "iri") String iri) {
 		TTConcept concept = conceptService.getConcept(iri);
-		List<PropertyValue> properties = new ArrayList<PropertyValue>();
+		List<PropertyValue> roles = new ArrayList<PropertyValue>();
 
 		if (concept.has(IM.ROLE_GROUP)) {
 			for (TTValue roleGroup : concept.getAsArray(IM.ROLE_GROUP).getElements()) {
@@ -174,12 +174,20 @@ public class ConceptController {
 					role.forEach((key, value) -> {
 						if (key.getIri() != "http://endhealth.info/im#counter") {
 							PropertyValue pv = new PropertyValue().setProperty(key).setValueType(value.asIriRef());
-							properties.add(pv);
+							roles.add(pv);
 						}
 					});
 				}
 			}
 		}
+
+		return roles;
+	}
+
+	@GetMapping(value = "/properties")
+	public List<PropertyValue> getAllProperties(@RequestParam(name = "iri") String iri) {
+		TTConcept concept = conceptService.getConcept(iri);
+		List<PropertyValue> properties = new ArrayList<PropertyValue>();
 
 		if (concept.has(IM.PROPERTY_GROUP)) {
 			for (TTValue propertyGroup : concept.getAsArray(IM.PROPERTY_GROUP).getElements()) {
@@ -220,9 +228,10 @@ public class ConceptController {
 		GraphDto graphParents = new GraphDto().setName("Parents");
 		GraphDto graphChildren = new GraphDto().setName("Children");
 		GraphDto graphProps = new GraphDto().setName("Properties");
-		
+		GraphDto graphRoles = new GraphDto().setName("Roles");
+
 		List<TTValue> parents = new ArrayList<TTValue>();
-		
+
 		TTValue value = concept.get(IM.IS_A);
 		if (value != null) {
 			if (value.isList()) {
@@ -234,6 +243,7 @@ public class ConceptController {
 
 		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
 		List<PropertyValue> properties = getAllProperties(iri);
+		List<PropertyValue> roles = getRoles(iri);
 
 		if (parents != null) {
 			parents.forEach(parent -> {
@@ -256,10 +266,17 @@ public class ConceptController {
 					.setValueTypeName(prop.getValueType().getName());
 			graphProps.getChildren().add(graphProp);
 		});
+		roles.forEach(role -> {
+			GraphDto graphRole = new GraphDto().setIri(role.getProperty().getIri())
+					.setName(role.getProperty().getName()).setPropertyType(role.getProperty().getName())
+					.setValueTypeIri(role.getValueType().getIri()).setValueTypeName(role.getValueType().getName());
+			graphRoles.getChildren().add(graphRole);
+		});
 
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);
+		graphData.getChildren().add(graphRoles);
 
 		return graphData;
 	}

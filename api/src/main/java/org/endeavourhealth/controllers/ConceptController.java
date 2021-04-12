@@ -2,6 +2,7 @@ package org.endeavourhealth.controllers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
@@ -36,10 +37,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConceptController {
 
 	@Autowired
-    ConceptServiceV3 conceptService;
+	ConceptServiceV3 conceptService;
 
 	@Autowired
-    ConceptToImLang conceptToImLang;
+	ConceptToImLang conceptToImLang;
 
 	@PostMapping(value = "/search")
 	public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
@@ -148,10 +149,9 @@ public class ConceptController {
 	@GetMapping(value = "/referenceSuggestions")
 	public List<TTIriRef> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
 //    	TODO generate and return suggestions
-		return new ArrayList<TTIriRef>(
-				Arrays.asList(new TTIriRef(":961000252104", "method (attribute)"),
-						new TTIriRef(":1271000252102", "Hospital inpatient admission"),
-						new TTIriRef(":1911000252103", "Transfer event")));
+		return new ArrayList<TTIriRef>(Arrays.asList(new TTIriRef(":961000252104", "method (attribute)"),
+				new TTIriRef(":1271000252102", "Hospital inpatient admission"),
+				new TTIriRef(":1911000252103", "Transfer event")));
 	}
 
 	@PostMapping
@@ -167,56 +167,72 @@ public class ConceptController {
 		TTConcept concept = conceptService.getConcept(iri);
 		List<PropertyValue> properties = new ArrayList<PropertyValue>();
 
-        if (concept.has(IM.PROPERTY_GROUP)) {
-            for (TTValue propertyGroup : concept.getAsArray(IM.PROPERTY_GROUP).getElements()) {
-                if (propertyGroup.isNode()) {
-                    TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
-                        ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
-                        : null;
+		if (concept.has(IM.ROLE_GROUP)) {
+			for (TTValue roleGroup : concept.getAsArray(IM.ROLE_GROUP).getElements()) {
+				if (roleGroup.isNode()) {
+					HashMap<TTIriRef, TTValue> role = roleGroup.asNode().getPredicateMap();
+					role.forEach((key, value) -> {
+						if (key.getIri() != "http://endhealth.info/im#counter") {
+							PropertyValue pv = new PropertyValue().setProperty(key).setValueType(value.asIriRef());
+							properties.add(pv);
+						}
+					});
+				}
+			}
+		}
 
-                    if (propertyGroup.asNode().has(SHACL.PROPERTY)) {
-                        for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
-                            TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
-                            if (properties.stream().noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
-                            	PropertyValue pv = new PropertyValue()
-                                    .setInheritedFrom(inheritedFrom)
-                                    .setProperty(propertyPath);
-                                
-                                if (property.asNode().has(SHACL.CLASS)) pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
-                                if (property.asNode().has(SHACL.DATATYPE)) pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
-                                
-                                properties.add(pv);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+		if (concept.has(IM.PROPERTY_GROUP)) {
+			for (TTValue propertyGroup : concept.getAsArray(IM.PROPERTY_GROUP).getElements()) {
+				if (propertyGroup.isNode()) {
+					TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
+							? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
+							: null;
+
+					if (propertyGroup.asNode().has(SHACL.PROPERTY)) {
+						for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
+							TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
+							if (properties.stream()
+									.noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
+								PropertyValue pv = new PropertyValue().setInheritedFrom(inheritedFrom)
+										.setProperty(propertyPath);
+
+								if (property.asNode().has(SHACL.CLASS))
+									pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
+								if (property.asNode().has(SHACL.DATATYPE))
+									pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+
+								properties.add(pv);
+							}
+						}
+					}
+				}
+			}
+		}
 		return properties;
 	}
 
 	@GetMapping(value = "/graph")
 	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) {
 		TTConcept concept = conceptService.getConcept(iri);
-		
+
 		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
 
 		GraphDto graphParents = new GraphDto().setName("Parents");
 		GraphDto graphChildren = new GraphDto().setName("Children");
 		GraphDto graphProps = new GraphDto().setName("Properties");
-		
+
 		List<TTValue> parents = concept.getAsArray(IM.IS_A).getElements();
 		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
 		List<PropertyValue> properties = getAllProperties(iri);
 
-		if(parents !=null) {
+		if (parents != null) {
 			parents.forEach(parent -> {
-				GraphDto graphParent = new GraphDto().setIri(parent.asIriRef().getIri()).setName(parent.asIriRef().getName())
-						.setPropertyType("is a");
+				GraphDto graphParent = new GraphDto().setIri(parent.asIriRef().getIri())
+						.setName(parent.asIriRef().getName()).setPropertyType("is a");
 				graphParents.getChildren().add(graphParent);
 			});
 		}
-		
+
 		children.forEach(child -> {
 			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
 			graphChildren.getChildren().add(graphChild);
@@ -239,13 +255,12 @@ public class ConceptController {
 	}
 
 	@GetMapping("/synonyms")
-	public List<String> getSynonyms(@RequestParam(name = "iri") String iri ){
+	public List<String> getSynonyms(@RequestParam(name = "iri") String iri) {
 		return conceptService.getSynonyms(iri);
 	}
 
-
 	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
-		 List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
+		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
 
 		if (parents == null) {
 			return flatParentIris;

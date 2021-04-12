@@ -82,6 +82,7 @@ public class ConceptServiceV3 {
 				ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
 				List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri());
 				child.setHasChildren(children.size() != 0);
+				child.setType(getConcept(values[0]).getType());
 				immediateChildren.add(child);
 			}
 		});
@@ -98,7 +99,9 @@ public class ConceptServiceV3 {
 		results.forEach(result -> {
 			String[] values = result.split(",");
 			if (IM.ACTIVE.getIri().equals(values[2])) {
-				immediateParents.add(new ConceptReferenceNode(values[0], values[1]));
+				ConceptReferenceNode parent = new ConceptReferenceNode(values[0], values[1]);
+				parent.setType(getConcept(values[0]).getType());
+				immediateParents.add(parent);
 			}
 		});
 

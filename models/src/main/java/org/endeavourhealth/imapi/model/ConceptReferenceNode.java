@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model;
 
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -10,7 +11,8 @@ public class ConceptReferenceNode extends TTIriRef {
     private List<ConceptReferenceNode> children;
     private String moduleId;
     private boolean hasChildren;
-
+    private TTArray type;
+    
     public ConceptReferenceNode() {
     }
 
@@ -74,6 +76,14 @@ public class ConceptReferenceNode extends TTIriRef {
 
 	public boolean isHasChildren() {
 		return hasChildren;
+	}
+
+	public TTArray getType() {
+		return type;
+	}
+
+	public void setType(TTArray type) {
+		this.type = type;
 	}
     
     

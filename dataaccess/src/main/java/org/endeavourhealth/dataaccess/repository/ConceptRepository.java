@@ -142,5 +142,32 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "where c.code = :code and c.scheme = :scheme " , nativeQuery = true)
     Concept isCoreCodeSchemeExcludedInVSet(@Param("code") String code, @Param("scheme") String scheme, @Param("vSet") String vSet);
 
+    @Query(value = "select s.*" +
+            "from concept c " +
+            "join tpl tl on tl.subject = c.dbid " +
+            "join concept cl on cl.dbid = tl.object " +
+            "join concept clp on clp.dbid = tl.predicate and clp.iri = 'http://endhealth.info/im#matchedTo' " +
+            "join tct t on t.descendant = cl.dbid " +
+            "join concept a on a.dbid = t.ancestor " +
+            "join concept tt on tt.dbid = t.type and tt.iri = 'http://endhealth.info/im#isA' " +
+            "join tpl l on l.object = a.dbid " +
+            "join concept p on p.dbid = l.predicate and p.iri = 'http://endhealth.info/im#hasMembers' " +
+            "join concept s on s.dbid = l.subject and s.iri = :vSet " +
+            "where c.code = :code and c.scheme = :scheme" , nativeQuery = true)
+    Concept isLegacyCodeSchemeIncludedInVSet(@Param("code") String code, @Param("scheme") String scheme, @Param("vSet") String vSet);
+
+    @Query(value = "select s.* " +
+            "from concept c " +
+            "join tpl tl on tl.subject = c.dbid " +
+            "join concept cl on cl.dbid = tl.object " +
+            "join concept clp on clp.dbid = tl.predicate and clp.iri = 'http://endhealth.info/im#matchedTo' " +
+            "join tct t on t.descendant = cl.dbid " +
+            "join concept a on a.dbid = t.ancestor " +
+            "join concept tt on tt.dbid = t.type and tt.iri = 'http://endhealth.info/im#isA' " +
+            "join tpl l on l.object = a.dbid " +
+            "join concept p on p.dbid = l.predicate and p.iri = 'http://endhealth.info/im#notMembers' " +
+            "join concept s on s.dbid = l.subject and s.iri = :vSet " +
+            "where c.code = :code and c.scheme = :scheme" , nativeQuery = true)
+    Concept isLegacyCodeSchemeExcludedInVSet(@Param("code") String code, @Param("scheme") String scheme, @Param("vSet") String vSet);
 
 }

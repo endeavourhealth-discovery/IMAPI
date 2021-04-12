@@ -1,11 +1,12 @@
 package org.endeavourhealth.dataaccess;
 
+import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RuntimeService  implements IRuntimeService{
+public class RuntimeService  implements IRuntimeService {
 
     @Autowired
     ConceptRepository conceptRepository;
@@ -28,7 +29,7 @@ public class RuntimeService  implements IRuntimeService{
 
     @Override
     public Integer getConceptDbidForSchemeCode(String scheme, String code) {
-        return  conceptRepository.getConceptdbidForSchemeCode(scheme,code);
+        return conceptRepository.getConceptdbidForSchemeCode(scheme, code);
     }
 
     @Override
@@ -54,12 +55,24 @@ public class RuntimeService  implements IRuntimeService{
 
 
     @Override
-    public Boolean checkConceptByCodeSchemeInVSet(String code, String scheme, String vSet){
-        if(conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) == null)
-            return false;
-        if(conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet)==null)
-            return true;
-        else
-            return false;
+    public Boolean checkConceptByCodeSchemeInVSet(String code, String scheme, String vSet) {
+        Concept concept = conceptRepository.findByCodeAndScheme(code, scheme);
+        if (concept.getIri().contains("snomed")) {
+            if (conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) == null)
+                return false;
+            if (conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet) == null)
+                return true;
+            else
+                return false;
+        }
+        else{
+            if (conceptRepository.isLegacyCodeSchemeIncludedInVSet(code, scheme, vSet) == null)
+                return false;
+            if (conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) == null)
+                return true;
+            else
+                return false;
+        }
     }
 }
+

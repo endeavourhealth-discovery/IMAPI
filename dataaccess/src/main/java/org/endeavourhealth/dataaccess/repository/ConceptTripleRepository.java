@@ -12,26 +12,25 @@ public interface ConceptTripleRepository extends JpaRepository<Tpl, String> {
     Set<Tpl> findByObject_Iri(String iri);
     Set<Tpl> findBySubject_Iri_AndPredicate_Iri(String iri, String predicate);
     Set<Tpl> findByObject_Iri_AndPredicate_Iri(String iri, String predicate);
-    
-    @Query(value = "SELECT o.iri, o.name, o.status " +
-            "FROM concept c " +
-    		"JOIN tpl t ON t.subject = c.dbid " +
-            "JOIN concept p ON p.dbid = t.predicate AND p.iri IN " +
-    		"('http://endhealth.info/im#isA', 'http://endhealth.info/im#isContainedIn') " +
-            "JOIN concept o ON o.dbid = t.object " +
-    		"WHERE c.iri = :iri " +
-            "LIMIT :size OFFSET :row ", nativeQuery = true)
-    List<String> findImmediateParentsByIri(String iri, int size, int row);
+    List<Tpl> findAllBySubjectAndGraph(int subject, int graph);
 
-    @Query(value = "SELECT o.iri, o.name, o.status " +
+    @Query(value = "SELECT t.* " +
             "FROM concept c " +
-    		"JOIN tpl t ON t.object = c.dbid " +
+            "JOIN tpl t ON t.subject = c.dbid " +
             "JOIN concept p ON p.dbid = t.predicate AND p.iri IN " +
-    		"('http://endhealth.info/im#isA', 'http://endhealth.info/im#isContainedIn') " +
+            "('http://endhealth.info/im#isA', 'http://endhealth.info/im#isContainedIn') " +
+            "JOIN concept o ON o.dbid = t.object " +
+            "WHERE c.iri = :iri ", nativeQuery = true)
+    List<Tpl> findImmediateParentsByIri(String iri, Pageable pageable);
+
+    @Query(value = "SELECT t.* " +
+            "FROM concept c " +
+            "JOIN tpl t ON t.object = c.dbid " +
+            "JOIN concept p ON p.dbid = t.predicate AND p.iri IN " +
+            "('http://endhealth.info/im#isA', 'http://endhealth.info/im#isContainedIn') " +
             "JOIN concept o ON o.dbid = t.subject " +
-    		"WHERE c.iri = :iri " +
-            "LIMIT :size OFFSET :row ", nativeQuery = true)
-    List<String> findImmediateChildrenByIri(String iri, int size, int row);
+            "WHERE c.iri = :iri  ", nativeQuery = true)
+    List<Tpl> findImmediateChildrenByIri(String iri, Pageable pageable);
 
     @Modifying
     @Query(value = "INSERT INTO tpl (subject, graph, group_number, predicate, object) " +

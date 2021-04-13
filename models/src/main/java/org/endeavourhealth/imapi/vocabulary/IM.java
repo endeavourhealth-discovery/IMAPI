@@ -61,6 +61,7 @@ public class IM {
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
+    public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
 
 
     //SPARQL parameters

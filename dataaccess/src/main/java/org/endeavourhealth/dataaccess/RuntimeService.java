@@ -53,26 +53,24 @@ public class RuntimeService  implements IRuntimeService {
         return null;
     }
 
-
     @Override
-    public Boolean checkConceptByCodeSchemeInVSet(String code, String scheme, String vSet) {
-        Concept concept = conceptRepository.findByCodeAndScheme(code, scheme);
-        if (concept.getIri().contains("snomed")) {
-            if (conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) == null)
-                return false;
-            if (conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet) == null)
-                return true;
-            else
-                return false;
-        }
-        else{
-            if (conceptRepository.isLegacyCodeSchemeIncludedInVSet(code, scheme, vSet) == null)
-                return false;
-            if (conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) == null)
-                return true;
-            else
-                return false;
-        }
+    public Boolean isInVSet(String code, String scheme, String vSet){
+        return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
     }
+
+    private Boolean included(String code, String scheme, String vSet) {
+
+        return conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) != null
+                || conceptRepository.isLegacyCodeSchemeIncludedInVSet(code, scheme, vSet) != null;
+
+    }
+
+    private Boolean excluded(String code, String scheme, String vSet) {
+
+        return conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet) != null
+                || conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) != null;
+
+    }
+
 }
 

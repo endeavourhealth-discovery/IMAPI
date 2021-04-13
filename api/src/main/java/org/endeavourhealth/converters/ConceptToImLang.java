@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
@@ -71,7 +72,9 @@ public class ConceptToImLang {
         imLangConcept = imLangConcept.concat("code \"" + concept.getCode() + "\";\n");
 
         // add scheme
-        imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
+        if (concept.getScheme() != null) {
+        	imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
+        }
 
         // add status
         imLangConcept = imLangConcept.concat("status " + convertConceptReferenceToString(concept.getStatus()) + ";\n");
@@ -94,10 +97,10 @@ public class ConceptToImLang {
                             imLangConcept = imLangConcept.concat(convertConceptReferenceToString(intersection.asIriRef()) + ",\n");
                         else if (intersection.isNode()) {
                             TTIriRef property = intersection.asNode().getAsIriRef(OWL.ONPROPERTY);
-                            TTIriRef range = intersection.asNode().getAsIriRef(OWL.SOMEVALUESFROM);
+                            TTNode range = intersection.asNode().getAsNode(OWL.SOMEVALUESFROM);
                             imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}],\n",
                                 convertConceptReferenceToString(property),
-                                convertConceptReferenceToString(range)
+                                convertConceptReferenceToString(range.asIriRef())
                             ));
                         }
                     }

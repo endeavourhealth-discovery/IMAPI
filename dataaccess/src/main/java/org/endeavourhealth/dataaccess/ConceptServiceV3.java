@@ -277,12 +277,12 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
-		return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.MAPPED_FROM.getIri()).stream()
+		return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.HAS_MAP.getIri()).stream()
 				.map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName())).collect(Collectors.toList());
 	}
 
 	public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
-		return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MAPPED_FROM.getIri()).stream()
+		return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri()).stream()
 				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
 	}
 

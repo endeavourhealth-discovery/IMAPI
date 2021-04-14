@@ -228,6 +228,8 @@ public class ConceptController {
 		GraphDto graphParents = new GraphDto().setName("Parents");
 		GraphDto graphChildren = new GraphDto().setName("Children");
 		GraphDto graphProps = new GraphDto().setName("Properties");
+		GraphDto graphInheritedProps = new GraphDto().setName("Inherited");
+		GraphDto graphDirectProps = new GraphDto().setName("Direct");
 		GraphDto graphRoles = new GraphDto().setName("Roles");
 
 		List<TTValue> parents = new ArrayList<TTValue>();
@@ -257,22 +259,43 @@ public class ConceptController {
 			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
 			graphChildren.getChildren().add(graphChild);
 		});
+		
 		properties.forEach(prop -> {
-			GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-					.setName(prop.getProperty().getName())
-					.setInheritedFromName(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")
-					.setInheritedFromIri(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "")
-					.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-					.setValueTypeName(prop.getValueType().getName());
-			graphProps.getChildren().add(graphProp);
+			if(null != prop.getInheritedFrom()) {
+				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
+						.setName(prop.getProperty().getName())
+						.setInheritedFromName(prop.getInheritedFrom().getName())
+						.setInheritedFromIri(prop.getInheritedFrom().getIri())
+						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
+						.setValueTypeName(prop.getValueType().getName());
+				graphInheritedProps.getChildren().add(graphProp);
+			} else {
+				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
+						.setName(prop.getProperty().getName())
+						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
+						.setValueTypeName(prop.getValueType().getName());
+				graphDirectProps.getChildren().add(graphProp);
+			}
+//			GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
+//					.setName(prop.getProperty().getName())
+//					.setInheritedFromName(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")
+//					.setInheritedFromIri(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "")
+//					.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
+//					.setValueTypeName(prop.getValueType().getName());
+//			graphProps.getChildren().add(graphProp);
 		});
+		
 		roles.forEach(role -> {
 			GraphDto graphRole = new GraphDto().setIri(role.getProperty().getIri())
 					.setName(role.getProperty().getName()).setPropertyType(role.getProperty().getName())
 					.setValueTypeIri(role.getValueType().getIri()).setValueTypeName(role.getValueType().getName());
 			graphRoles.getChildren().add(graphRole);
 		});
+		
+		graphProps.getChildren().add(graphDirectProps);
+		graphProps.getChildren().add(graphInheritedProps);
 
+		
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);

@@ -12,10 +12,10 @@ import java.util.Set;
 
 @Repository
 public interface ConceptTripleRepository extends JpaRepository<Tpl, String> {
-    Set<Tpl> findByObject_Iri(String iri);
-    Set<Tpl> findBySubject_Iri_AndPredicate_Iri(String iri, String predicate);
-    Set<Tpl> findByObject_Iri_AndPredicate_Iri(String iri, String predicate);
-    List<Tpl> findAllBySubjectAndGraph(int subject, int graph);
+    Set<Tpl> findAllByObject_Iri(String iri);
+    Set<Tpl> findAllBySubject_Iri_AndPredicate_Iri(String iri, String predicate);
+    Set<Tpl> findAllByObject_Iri_AndPredicate_Iri(String iri, String predicate);
+    List<Tpl> findAllBySubject_Dbid_AndGraph_Dbid(int subject, int graph);
 
     @Query(value = "SELECT t.* " +
             "FROM concept c " +

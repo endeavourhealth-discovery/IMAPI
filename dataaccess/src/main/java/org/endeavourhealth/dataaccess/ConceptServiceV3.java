@@ -130,7 +130,7 @@ public class ConceptServiceV3 {
 		Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
 				.map(t -> t.getDescendant().getIri()).collect(Collectors.toSet());
 
-		return conceptTripleRepository.findByObject_Iri(iri).stream().map(Tpl::getSubject)
+		return conceptTripleRepository.findAllByObject_Iri(iri).stream().map(Tpl::getSubject)
 				.filter(subject -> !children.contains(subject.getIri())).distinct()
 				.map(c -> new ConceptSummary().setIri(c.getIri()).setName(c.getName()).setCode(c.getCode()).setScheme(
 						c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName())))
@@ -189,7 +189,7 @@ public class ConceptServiceV3 {
 
 	public ExportValueSet getValueSetMembers(String iri, boolean expand) {
 		Set<ValueSetMember> included = conceptTripleRepository
-				.findBySubject_Iri_AndPredicate_Iri(iri, IM.HAS_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.findAllBySubject_Iri_AndPredicate_Iri(iri, IM.HAS_MEMBER.getIri()).stream().map(Tpl::getObject)
 				.map(inc -> new ValueSetMember().setConcept(new TTIriRef(inc.getIri(), inc.getName()))
 						.setCode(inc.getCode())
 						.setScheme(inc.getScheme() == null ? null
@@ -197,7 +197,7 @@ public class ConceptServiceV3 {
 				.collect(Collectors.toSet());
 
 		Set<ValueSetMember> excluded = conceptTripleRepository
-				.findBySubject_Iri_AndPredicate_Iri(iri, IM.NOT_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.findAllBySubject_Iri_AndPredicate_Iri(iri, IM.NOT_MEMBER.getIri()).stream().map(Tpl::getObject)
 				.map(inc -> new ValueSetMember().setConcept(new TTIriRef(inc.getIri(), inc.getName()))
 						.setCode(inc.getCode())
 						.setScheme(inc.getScheme() == null ? null
@@ -248,11 +248,11 @@ public class ConceptServiceV3 {
 		ValueSetMembership result = new ValueSetMembership();
 
 		Set<TTIriRef> included = conceptTripleRepository
-				.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.HAS_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.findAllBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.HAS_MEMBER.getIri()).stream().map(Tpl::getObject)
 				.map(inc -> new TTIriRef(inc.getIri(), inc.getName())).collect(Collectors.toSet());
 
 		Set<TTIriRef> excluded = conceptTripleRepository
-				.findBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.NOT_MEMBER.getIri()).stream().map(Tpl::getObject)
+				.findAllBySubject_Iri_AndPredicate_Iri(valueSetIri, IM.NOT_MEMBER.getIri()).stream().map(Tpl::getObject)
 				.map(inc -> new TTIriRef(inc.getIri(), inc.getName())).collect(Collectors.toSet());
 
 		for (TTIriRef m : included) {
@@ -277,12 +277,12 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
-		return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.HAS_MAP.getIri()).stream()
+		return conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(legacyIri, IM.HAS_MAP.getIri()).stream()
 				.map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName())).collect(Collectors.toList());
 	}
 
 	public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
-		return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri()).stream()
+		return conceptTripleRepository.findAllByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri()).stream()
 				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
 	}
 

@@ -73,42 +73,45 @@ public class ConceptServiceV3 {
 	public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize,
 			boolean includeLegacy) {
 
-		List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
+        List<ConceptReferenceNode> immediateChildren = new ArrayList<>();
 
-		if(pageIndex==null)
-		    pageIndex= 1;
-		if(pageSize ==null)
-		    pageSize=Integer.MAX_VALUE;
-		List<String> results = conceptTripleRepository.findImmediateChildrenByIri(iri, pageSize, pageSize*pageIndex-1);
-        for (String result : results) {
-            String[] values = result.split(",");
-            if (IM.ACTIVE.getIri().equals(values[2])) {
-                ConceptReferenceNode child = new ConceptReferenceNode(values[0], values[1]);
-                List<String> children = conceptTripleRepository.findImmediateChildrenByIri(child.getIri(), pageSize, pageSize * (pageIndex - 1));
+        Pageable pageable = null;
+        if (pageIndex != null && pageSize!=null){
+            pageable = PageRequest.of(pageIndex - 1, pageSize);
+        }
+
+        List<Tpl> results = conceptTripleRepository
+                .findImmediateChildrenByIri(iri, pageable);
+        for (Tpl result : results) {
+            if (IM.ACTIVE.getIri().equals(result.getSubject().getStatus().getIri())) {
+                ConceptReferenceNode child = new ConceptReferenceNode(result.getSubject().getIri(), result.getSubject().getName());
+                List<Tpl> children = conceptTripleRepository
+                        .findImmediateChildrenByIri(iri, pageable);
                 child.setHasChildren(children.size() != 0);
-                child.setType(getConcept(values[0]).getType());
+                child.setType(getConcept(result.getSubject().getIri()).getType());
                 immediateChildren.add(child);
             }
         }
 
         return immediateChildren;
 
-	}
+    }
 
 	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
 			boolean includeLegacy) {
 		List<ConceptReferenceNode> immediateParents = new ArrayList<>();
-        if(pageIndex==null)
-            pageIndex= 1;
-        if(pageSize ==null)
-            pageSize=Integer.MAX_VALUE;
-		List<String> results = conceptTripleRepository.findImmediateParentsByIri(iri, pageSize , pageSize*(pageIndex-1));
 
+        Pageable pageable = null;
+        if (pageIndex != null && pageSize!=null){
+            pageable = PageRequest.of(pageIndex - 1, pageSize);
+        }
+
+        List<Tpl> results = conceptTripleRepository
+                .findImmediateParentsByIri(iri, pageable);
 		results.forEach(result -> {
-			String[] values = result.split(",");
-			if (IM.ACTIVE.getIri().equals(values[2])) {
-				ConceptReferenceNode parent = new ConceptReferenceNode(values[0], values[1]);
-				parent.setType(getConcept(values[0]).getType());
+			if (IM.ACTIVE.getIri().equals(result.getObject().getStatus().getIri())) {
+				ConceptReferenceNode parent = new ConceptReferenceNode(result.getObject().getIri(), result.getObject().getName());
+				parent.setType(getConcept(result.getObject().getIri()).getType());
 				immediateParents.add(parent);
 			}
 		});
@@ -274,12 +277,12 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
-		return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.MAPPED_FROM.getIri()).stream()
+		return conceptTripleRepository.findBySubject_Iri_AndPredicate_Iri(legacyIri, IM.HAS_MAP.getIri()).stream()
 				.map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName())).collect(Collectors.toList());
 	}
 
 	public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
-		return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MAPPED_FROM.getIri()).stream()
+		return conceptTripleRepository.findByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri()).stream()
 				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
 	}
 

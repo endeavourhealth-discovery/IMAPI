@@ -1,7 +1,6 @@
 package org.endeavourhealth.dataaccess.repository;
 
 import org.endeavourhealth.dataaccess.entity.Concept;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -13,6 +13,9 @@ public class IM {
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
 
+    //Concept tope level triples
+    public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
+
     //Synonyms
     public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
 
@@ -45,6 +48,7 @@ public class IM {
     public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
     public static final TTIriRef GROUP_NUMBER = iri(NAMESPACE +"groupNumber");
     public static final TTIriRef ROLE_GROUP = iri(NAMESPACE +"roleGroup");
+    public static final TTIriRef ROLE = iri(NAMESPACE +"role");
 
     //Concept status values
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
@@ -53,10 +57,11 @@ public class IM {
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"891071000252105");
 
     //Legacy Mapping
-    public static final TTIriRef MAPPED_FROM = iri(NAMESPACE +"matchedTo");
+    public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
+    public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
 
 
     //SPARQL parameters

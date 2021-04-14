@@ -15,7 +15,7 @@ public interface IRuntimeService {
     String getCodeForConceptDbid(Integer dbid);
     Integer getConceptDbidForTypeTerm(String type, String term, Boolean autoCreate);
     Integer getMappedCoreConceptDbidForTypeTerm(String type, String term);
-    Boolean checkConceptByCodeSchemeInVSet(String code, String scheme, String vSet);
+    Boolean isInVSet(String code, String scheme, String vSet);
 
 
 }

@@ -32,8 +32,8 @@ public class PrefixTest {
                     .set(RDFS.LABEL, literal("Bronchial asthma"))
             ))
             .set(IM.IS_CHILD_OF, iri("r2:H3..."))
-            .set(IM.MAPPED_FROM, new TTArray().add(
-                iri("sn:195967001")
+            .set(IM.HAS_MAP, new TTArray().add(
+               new TTNode().set(IM.MATCHED_TO, new TTArray().add(iri("sn:195967001")))
             ));
 
         ObjectMapper om = new ObjectMapper();
@@ -69,9 +69,9 @@ public class PrefixTest {
                     .set(RDFS.LABEL, literal("Bronchial asthma"))
             ))
             .set(IM.IS_CHILD_OF, iri("r2:H3..."))
-            .set(IM.MAPPED_FROM, new TTArray().add(
-                iri("sn:195967001")
-            ));
+           .set(IM.HAS_MAP, new TTArray().add(
+              new TTNode().set(IM.MATCHED_TO, new TTArray().add(iri("sn:195967001")))
+        ));
 
         document.addConcept(c);
 
@@ -108,8 +108,8 @@ public class PrefixTest {
                     .set(RDFS.LABEL, literal("Bronchial asthma"))
             ))
             .set(IM.IS_CHILD_OF, iri("r2:H3..."))
-            .set(IM.MAPPED_FROM, new TTArray().add(
-                iri("sn:195967001")
+            .set(IM.HAS_MAP, new TTArray().add(
+                new TTNode().set(IM.MATCHED_TO, new TTArray().add(iri("sn:195967001")))
             ));
 
         document.addConcept(c);

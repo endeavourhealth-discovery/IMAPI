@@ -9,7 +9,10 @@ public class TTNode extends TTValue {
     public TTNode() {}
 
     public TTNode set(TTIriRef predicate, TTValue value) {
-        predicateValues.put(predicate, value);
+        if (value==null)
+            predicateValues.remove(predicate);
+        else
+            predicateValues.put(predicate, value);
         return this;
     }
 

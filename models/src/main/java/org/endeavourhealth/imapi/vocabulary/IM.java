@@ -12,6 +12,7 @@ public class IM {
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
+    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
 
     //Concept tope level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");

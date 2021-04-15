@@ -16,6 +16,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
 	Concept findByIri(String concept);
     List<Concept> findAllByIriIn(Set<String> iris);
     Concept findByCodeAndScheme(String code, String scheme);
+    Concept findByDbid(Integer dbid);
 
 
     @Query(value = "SELECT * " +
@@ -92,21 +93,6 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "LIMIT :limit", nativeQuery = true)
     List<Concept> searchLegacySchemes(@Param("terms") String terms, @Param("full") String full, @Param("schemes") List<String> schemes,@Param("conceptType") List<String> conceptType, @Param("status") List<String> status, @Param("limit") Integer limit);
 
-    @Query(value = "SELECT c.iri " +
-        "FROM concept c " +
-        "WHERE c.scheme = :scheme AND c.code = :code  ", nativeQuery = true)
-    String getConceptIdForSchemeCode(@Param("scheme") String scheme,@Param("code") String code);
-
-    @Query(value = "SELECT c.code " +
-        "FROM concept c " +
-        "WHERE c.dbid = :dbid ", nativeQuery = true)
-    String getCodeForConceptDbid(@Param(("dbid")) Integer dbid);
-
-    @Query(value = "SELECT c.dbid " +
-        "FROM concept c " +
-        "WHERE c.scheme = :scheme AND c.code = :code  ", nativeQuery = true)
-    Integer getConceptdbidForSchemeCode(@Param("scheme") String scheme,@Param("code") String code);
-
     @Modifying
     @Query(value = "INSERT INTO concept (iri,`name`, description, code, scheme, status,definition) " +
         "VALUES (:iri, :name, :description, :code, :scheme, :status, :definition)", nativeQuery = true)
@@ -118,6 +104,7 @@ public interface ConceptRepository extends JpaRepository<Concept, Integer> {
         "SET iri = :iri , name = :name, description = :description, code = :code, scheme = :scheme, status = :status,definition = :definition ", nativeQuery = true)
     Concept updateConcept(@Param("iri") String iri,@Param("name") String name,@Param("description") String description,@Param("code") String code,
                        @Param("scheme") String scheme,@Param("status") String  status,@Param("definition") String definition);
+
 
     @Query(value = "select s.* " +
         "from concept c " +

@@ -82,8 +82,9 @@ public class ConceptReferenceNode extends TTIriRef {
 		return type;
 	}
 
-	public void setType(TTArray type) {
+	public ConceptReferenceNode setType(TTArray type) {
 		this.type = type;
+		return this;
 	}
     
     

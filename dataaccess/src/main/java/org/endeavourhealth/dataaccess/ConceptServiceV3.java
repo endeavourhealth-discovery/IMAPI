@@ -180,7 +180,6 @@ public class ConceptServiceV3 {
 		List<ConceptSummary> result = matchingConcept.stream()
 				.map(c -> convertConceptToConceptSummary(c, full))
 				.sorted(Comparator.comparingInt(ConceptSummary::getWeighting))
-				.filter(distinctByKey(ConceptSummary::getIri))
 				.collect(Collectors.toList());
 
 		List<String> types = request.getMarkIfDescendentOf();
@@ -191,11 +190,6 @@ public class ConceptServiceV3 {
 		return result;
 	}
 
-	public static <T> Predicate<T> distinctByKey(
-			Function<? super T, ?> keyExtractor) {
-		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-	}
 
 	private List<SearchResult> searchLegacy(String terms, String full, List<String> conceptType, List<String> status, Integer limit) {
 		List<SearchResult> concepts = new ArrayList<>();
@@ -228,7 +222,8 @@ public class ConceptServiceV3 {
 				.setCode(r.getCode())
 				.setDescription(r.getDescription())
 				.setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
-				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName()));
+				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName()))
+				.setMatch(r.getId().getMatch());
 	}
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {

@@ -35,6 +35,8 @@ public class IM {
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
+    public static final TTIriRef SOME_OF = iri(NAMESPACE +"someOf");
+    public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
 
     //Document collection predicates
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
@@ -63,6 +65,8 @@ public class IM {
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
     public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
+
+
 
 
     //SPARQL parameters

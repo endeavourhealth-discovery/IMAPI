@@ -35,6 +35,15 @@ public interface ConceptTripleRepository extends JpaRepository<Tpl, String> {
             "WHERE c.iri = :iri  ", nativeQuery = true)
     List<Tpl> findImmediateChildrenByIri(String iri, Pageable pageable);
 
+    @Query(value = "SELECT t.* " +
+            "FROM concept c " +
+            "JOIN tpl t ON t.object = c.dbid " +
+            "JOIN concept p ON p.dbid = t.predicate AND p.iri IN " +
+            "('http://endhealth.info/im#isA', 'http://endhealth.info/im#isContainedIn') " +
+            "JOIN concept o ON o.dbid = t.subject " +
+            "WHERE c.iri = :iri  ", nativeQuery = true)
+    List<Tpl> findImmediateChildrenByIri(String iri);
+
     @Modifying
     @Query(value = "INSERT INTO tpl (subject, graph, group_number, predicate, object) " +
         "VALUES (:subject, :graph, :group_number, :predicate, :object)", nativeQuery = true)

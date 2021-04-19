@@ -3,6 +3,7 @@ package org.endeavourhealth.dataaccess;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.Concept;
+import org.endeavourhealth.dataaccess.entity.SearchResult;
 import org.endeavourhealth.dataaccess.entity.Tct;
 import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.repository.*;
@@ -22,6 +23,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,6 +48,9 @@ public class ConceptServiceV3 {
 
 	@Autowired
 	ConceptTermRepository conceptTermRepository;
+
+	@Autowired
+	SearchRepository searchRepository;
 
 	private ObjectMapper om = new ObjectMapper();
 
@@ -99,6 +106,22 @@ public class ConceptServiceV3 {
 						.setType(getConcept(t.getSubject().getIri()).getType())).collect(Collectors.toList());
 	}
 
+	public List<ConceptReferenceNode> getDescendants(String iri) {
+		return getChildren(iri);
+	}
+
+	private List<ConceptReferenceNode> getChildren(String iri){
+		List<ConceptReferenceNode> descendant =conceptTripleRepository
+				.findImmediateChildrenByIri(iri).stream()
+				.map(t -> new ConceptReferenceNode(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
+		for (ConceptReferenceNode child : descendant) {
+			if(child.isHasChildren()) {
+				descendant.addAll(getChildren(child.getIri()));
+			}
+		}
+		return descendant;
+	}
+
 	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
 			boolean includeLegacy) {
 
@@ -138,21 +161,25 @@ public class ConceptServiceV3 {
 	}
 
 	public List<ConceptSummary> advancedSearch(SearchRequest request) {
-		List<org.endeavourhealth.dataaccess.entity.Concept> matchingConcept;
+		List<SearchResult> matchingConcept;
 
 		String full = request.getTermFilter();
 		String terms = Arrays.stream(full.split(" ")).filter(t -> t.trim().length() >= 3).map(w -> "+" + w + "*")
 				.collect(Collectors.joining(" "));
 
 		if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
-			matchingConcept = conceptRepository.searchLegacy(terms, full, request.getTypeFilter(), request.getStatusFilter(),
+			matchingConcept = searchLegacy(terms, full, request.getTypeFilter(), request.getStatusFilter(),
 					request.getSize());
 		else {
-			matchingConcept = conceptRepository.searchLegacySchemes(terms, full, request.getSchemeFilter(),
+			matchingConcept = searchLegacyScheme(terms, full, request.getSchemeFilter(),
 					request.getTypeFilter(), request.getStatusFilter(), request.getSize());
 		}
 
-		List<ConceptSummary> result = convertConceptToConceptSummary(matchingConcept);
+		List<ConceptSummary> result = matchingConcept.stream()
+				.map(c -> convertConceptToConceptSummary(c, full))
+				.sorted(Comparator.comparingInt(ConceptSummary::getWeighting))
+				.filter(distinctByKey(ConceptSummary::getIri))
+				.collect(Collectors.toList());
 
 		List<String> types = request.getMarkIfDescendentOf();
 		if (types != null && !types.isEmpty()) {
@@ -162,15 +189,34 @@ public class ConceptServiceV3 {
 		return result;
 	}
 
-	private List<ConceptSummary> convertConceptToConceptSummary(List<Concept> matchingConcept) {
-		return matchingConcept.stream()
-				.map(r -> new ConceptSummary().setName(r.getName()).setIri(r.getIri())
-				.setConceptType(getConcept(r.getIri()).getType())
-				// .setWeighting(r.getWeighting())
-				.setCode(r.getCode()).setDescription(r.getDescription())
-				.setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
-				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName()))
-				).collect(Collectors.toList());
+	public static <T> Predicate<T> distinctByKey(
+			Function<? super T, ?> keyExtractor) {
+		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+	}
+
+
+
+	private List<SearchResult> searchLegacy(String terms, String full, List<String> conceptType, List<String> status, Integer limit) {
+		List<SearchResult> concepts = new ArrayList<>();
+
+		concepts.addAll(searchRepository.findLegacyByCode(full, conceptType, status, limit));
+		concepts.addAll(searchRepository.findLegacyByIri(full, conceptType, status, limit));
+		concepts.addAll(searchRepository.findLegacyByName(terms, conceptType, status, limit));
+		concepts.addAll(searchRepository.findLegacyByTerm(terms, conceptType, status, limit));
+
+		return concepts;
+	}
+
+	private List<SearchResult> searchLegacyScheme(String terms, String full, List<String> schemes, List<String> conceptType, List<String> status, Integer limit){
+		List<SearchResult> concepts = new ArrayList<>();
+
+		concepts.addAll(searchRepository.findLegacySchemesByCode(full, schemes, conceptType, status, limit));
+		concepts.addAll(searchRepository.findLegacySchemesByIri(full, schemes, conceptType, status, limit));
+		concepts.addAll(searchRepository.findLegacySchemesByName(terms, schemes, conceptType, status, limit));
+		concepts.addAll(searchRepository.findLegacySchemesByTerm(terms, schemes, conceptType, status, limit));
+
+		return concepts;
 	}
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {
@@ -329,4 +375,6 @@ public class ConceptServiceV3 {
 		visitor.IriRefVisitor = ((predicate, iriRef) -> iriRef.setName(null));
 		visitor.visit(concept);
 	}
+
+
 }

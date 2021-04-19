@@ -214,17 +214,18 @@ public class ConceptServiceV3 {
 	}
 
 	private ConceptSummary convertConceptToConceptSummary(SearchResult r,String full) {
-		return new ConceptSummary()
-				.setName(r.getName())
-				.setIri(r.getIri())
-				.setConceptType(getConcept(r.getIri()).getType())
-				.setWeighting(Levenshtein.calculate(full, r.getId().getMatch()))
-				.setCode(r.getCode())
-				.setDescription(r.getDescription())
-				.setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
+        return new ConceptSummary()
+            .setName(r.getName())
+            .setMatch(r.getId().getMatch())
+            .setIri(r.getIri())
+            .setConceptType(getConcept(r.getIri()).getType())
+            .setWeighting(Levenshtein.calculate(full, r.getId().getMatch()))
+            .setCode(r.getCode())
+            .setDescription(r.getDescription())
+            .setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
 				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName()))
 				.setMatch(r.getId().getMatch());
-	}
+    }
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {
 		try {

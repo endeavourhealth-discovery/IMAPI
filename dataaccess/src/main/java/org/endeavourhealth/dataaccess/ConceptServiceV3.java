@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -137,6 +138,7 @@ public class ConceptServiceV3 {
 		return conceptTripleRepository
 				.findImmediateParentsByIri(iri, pageable).stream()
 				.filter(t -> IM.ACTIVE.getIri().equals(t.getObject().getStatus().getIri()))
+				.filter(t -> !OWL.THING.getIri().equals(t.getObject().getIri()))
 				.map(t -> new ConceptReferenceNode(t.getObject().getIri(), t.getObject().getName())
 						.setType(getConcept(t.getObject().getIri()).getType())).collect(Collectors.toList());
 	}
@@ -194,8 +196,6 @@ public class ConceptServiceV3 {
 		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
 		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
 	}
-
-
 
 	private List<SearchResult> searchLegacy(String terms, String full, List<String> conceptType, List<String> status, Integer limit) {
 		List<SearchResult> concepts = new ArrayList<>();

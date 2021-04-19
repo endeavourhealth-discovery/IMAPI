@@ -282,13 +282,6 @@ public class ConceptController {
 						.setValueTypeName(prop.getValueType().getName());
 				graphDirectProps.getChildren().add(graphProp);
 			}
-//			GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-//					.setName(prop.getProperty().getName())
-//					.setInheritedFromName(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : "")
-//					.setInheritedFromIri(prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "")
-//					.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-//					.setValueTypeName(prop.getValueType().getName());
-//			graphProps.getChildren().add(graphProp);
 		});
 		
 		roles.forEach(role -> {

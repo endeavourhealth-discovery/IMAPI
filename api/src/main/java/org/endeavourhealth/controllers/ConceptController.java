@@ -65,6 +65,12 @@ public class ConceptController {
 		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
 	}
 
+	@GetMapping(value = "/children/download",produces = {"text/csv"})
+	public String downloadChildren(@RequestParam(name = "iri") String iri){
+		List<ConceptReferenceNode> descendants = conceptService.getDescendants(iri);
+		return  null;
+	}
+
 	@GetMapping(value = "/parents")
 	public List<ConceptReferenceNode> getConceptParents(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,

@@ -16,6 +16,7 @@ public class ConceptSummary {
     private TTArray conceptType;
     private List<TTIriRef> isDescendentOf = new ArrayList<>();
     private Integer weighting;
+    private String match;
 
     public String getName() {
         return name;
@@ -95,6 +96,15 @@ public class ConceptSummary {
 
     public ConceptSummary setWeighting(Integer weighting) {
         this.weighting = weighting;
+        return this;
+    }
+
+    public String getMatch() {
+        return match;
+    }
+
+    public ConceptSummary setMatch(String match) {
+        this.match = match;
         return this;
     }
 }

@@ -219,6 +219,18 @@ public class ConceptServiceV3 {
 		return concepts;
 	}
 
+	private ConceptSummary convertConceptToConceptSummary(SearchResult r,String full) {
+		return new ConceptSummary()
+				.setName(r.getName())
+				.setIri(r.getIri())
+				.setConceptType(getConcept(r.getIri()).getType())
+				.setWeighting(Levenshtein.calculate(full, r.getId().getMatch()))
+				.setCode(r.getCode())
+				.setDescription(r.getDescription())
+				.setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
+				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName()));
+	}
+
 	public List<TTConcept> getAncestorDefinitions(String iri) {
 		try {
 			List<TTConcept> result = new ArrayList<>();

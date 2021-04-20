@@ -35,6 +35,8 @@ public class IM {
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
+    public static final TTIriRef SOME_OF = iri(NAMESPACE +"someOf");
+    public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
 
     //Document collection predicates
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
@@ -65,6 +67,8 @@ public class IM {
     public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
 
 
+
+
     //SPARQL parameters
     public static final TTIriRef QUERY_VARIABLE = iri(NAMESPACE +"queryVariable");
     public static final TTIriRef CALL_QUERY= iri(NAMESPACE +"callQuery");
@@ -91,6 +95,15 @@ public class IM {
     public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(NAMESPACE +"READ2");
     public static final TTIriRef GRAPH_CTV3 = TTIriRef.iri(NAMESPACE +"CTV3");
     public static final TTIriRef GRAPH_TPP = TTIriRef.iri(NAMESPACE +"TPP");
+    public static final TTIriRef GRAPH_MAP_ICD10 = iri(NAMESPACE +"ICD10Maps");
+    public static final TTIriRef GRAPH_MAP_EMIS = TTIriRef.iri(NAMESPACE +"EMISMaps");
+    public static final TTIriRef GRAPH_MAP_OPCS4 = TTIriRef.iri(NAMESPACE +"OPCS4Maps");
+    public static final TTIriRef GRAPH_MAP_READ2 = TTIriRef.iri(NAMESPACE +"READ2Maps");
+    public static final TTIriRef GRAPH_MAP_CTV3 = TTIriRef.iri(NAMESPACE +"CTV3Maps");
+    public static final TTIriRef GRAPH_MAP_TPP = TTIriRef.iri(NAMESPACE +"TPPMaps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
+
 
 
 

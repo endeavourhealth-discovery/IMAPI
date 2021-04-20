@@ -1,9 +1,22 @@
 package org.endeavourhealth.controllers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
 import org.endeavourhealth.dto.ConceptDto;
@@ -22,6 +35,9 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,10 +81,232 @@ public class ConceptController {
 		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
 	}
 
-	@GetMapping(value = "/children/download",produces = {"text/csv"})
-	public String downloadChildren(@RequestParam(name = "iri") String iri){
+	@GetMapping(value = "/children/download", produces = { "text/csv" })
+	public byte[] downloadChildren(@RequestParam(name = "iri") String iri) {
 		List<ConceptReferenceNode> descendants = conceptService.getDescendants(iri);
-		return  null;
+		return null;
+	}
+
+	@GetMapping(value = "/download")
+	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
+			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
+			@RequestParam(required = false) boolean roles) {
+		TTConcept concept = getConcept(iri);
+
+		Workbook workbook = new XSSFWorkbook();
+
+		if (children) {
+			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false);
+			Sheet sheet = workbook.createSheet("Children");
+			sheet.setColumnWidth(0, 20000);
+			sheet.setColumnWidth(1, 20000);
+
+			Row header = sheet.createRow(0);
+
+			Cell headerCell = header.createCell(0);
+			headerCell.setCellValue("Name");
+
+			headerCell = header.createCell(1);
+			headerCell.setCellValue("Iri");
+
+			for (ConceptReferenceNode child : childrenList) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue(child.getName());
+				cell = row.createCell(1);
+				cell.setCellValue(child.getIri());
+			}
+		}
+
+		if (parents) {
+			List<TTValue> parentList = new ArrayList<TTValue>();
+
+			TTValue value = concept.get(IM.IS_A);
+			if (value != null) {
+				if (value.isList()) {
+					parentList = concept.getAsArrayElements(IM.IS_A);
+				} else {
+					parentList.add(value);
+				}
+			}
+
+			Sheet sheet = workbook.createSheet("Parents");
+			sheet.setColumnWidth(0, 20000);
+			sheet.setColumnWidth(1, 20000);
+
+			Row header = sheet.createRow(0);
+
+			Cell headerCell = header.createCell(0);
+			headerCell.setCellValue("Name");
+
+			headerCell = header.createCell(1);
+			headerCell.setCellValue("Iri");
+
+			for (TTValue parent : parentList) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue(parent.asIriRef().getName());
+				cell = row.createCell(1);
+				cell.setCellValue(parent.asIriRef().getIri());
+			}
+		}
+
+		if (properties) {
+			List<PropertyValue> propertyList = getAllProperties(iri);
+			Sheet sheet = workbook.createSheet("Properties");
+			sheet.setColumnWidth(0, 10000);
+			sheet.setColumnWidth(1, 10000);
+			sheet.setColumnWidth(2, 10000);
+			sheet.setColumnWidth(3, 10000);
+			sheet.setColumnWidth(4, 10000);
+			sheet.setColumnWidth(5, 10000);
+
+			Row header = sheet.createRow(0);
+			Cell headerCell = header.createCell(0);
+			headerCell.setCellValue("Property Name");
+			headerCell = header.createCell(1);
+			headerCell.setCellValue("Property Iri");
+			headerCell = header.createCell(2);
+			headerCell.setCellValue("ValueType Name");
+			headerCell = header.createCell(3);
+			headerCell.setCellValue("ValueType Iri");
+			headerCell = header.createCell(4);
+			headerCell.setCellValue("InheritedFrom Name");
+			headerCell = header.createCell(5);
+			headerCell.setCellValue("InheritedFrom Iri");
+
+			for (PropertyValue property : propertyList) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue(property.getProperty().getName());
+				cell = row.createCell(1);
+				cell.setCellValue(property.getProperty().getIri());
+				cell = row.createCell(2);
+				cell.setCellValue(property.getValueType().getName());
+				cell = row.createCell(3);
+				cell.setCellValue(property.getValueType().getIri());
+
+				if (null != property.getInheritedFrom()) {
+					cell = row.createCell(4);
+					cell.setCellValue(property.getInheritedFrom().getName());
+					cell = row.createCell(5);
+					cell.setCellValue(property.getInheritedFrom().getIri());
+				}
+			}
+		}
+
+		if (members) {
+			ExportValueSet exportValueSet = conceptService.getValueSetMembers(iri, false);
+			Sheet sheet = workbook.createSheet("Members");
+
+			sheet.setColumnWidth(0, 1000);
+			sheet.setColumnWidth(1, 10000);
+			sheet.setColumnWidth(2, 10000);
+			sheet.setColumnWidth(3, 10000);
+			sheet.setColumnWidth(4, 10000);
+			sheet.setColumnWidth(5, 10000);
+			sheet.setColumnWidth(6, 10000);
+
+			Row header = sheet.createRow(0);
+			Cell headerCell = header.createCell(0);
+			headerCell.setCellValue("Included");
+			headerCell = header.createCell(1);
+			headerCell.setCellValue("Member Name");
+			headerCell = header.createCell(2);
+			headerCell.setCellValue("Member Iri");
+			headerCell = header.createCell(3);
+			headerCell.setCellValue("Member Code");
+			headerCell = header.createCell(4);
+			headerCell.setCellValue("MemberScheme Name");
+			headerCell = header.createCell(5);
+			headerCell.setCellValue("MemberScheme Iri");
+
+			for (ValueSetMember c : exportValueSet.getIncluded()) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue("Yes");
+				cell = row.createCell(1);
+				cell.setCellValue(c.getConcept().getName());
+				cell = row.createCell(2);
+				cell.setCellValue(c.getConcept().getIri());
+				cell = row.createCell(3);
+				cell.setCellValue(c.getCode());
+				
+				if (c.getScheme() != null) {
+					cell = row.createCell(4);
+					cell.setCellValue(c.getScheme().getIri());
+					cell = row.createCell(5);
+					cell.setCellValue(c.getScheme().getName());
+				}
+			}
+			
+			for (ValueSetMember c : exportValueSet.getExcluded()) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue("No");
+				cell = row.createCell(1);
+				cell.setCellValue(c.getConcept().getName());
+				cell = row.createCell(2);
+				cell.setCellValue(c.getConcept().getIri());
+				cell = row.createCell(3);
+				cell.setCellValue(c.getCode());
+				
+				if (c.getScheme() != null) {
+					cell = row.createCell(4);
+					cell.setCellValue(c.getScheme().getIri());
+					cell = row.createCell(5);
+					cell.setCellValue(c.getScheme().getName());
+				}
+			}
+
+		}
+
+		if (roles) {
+			List<PropertyValue> roleList = getRoles(iri);
+			Sheet sheet = workbook.createSheet("Properties");
+			sheet.setColumnWidth(0, 10000);
+			sheet.setColumnWidth(1, 10000);
+			sheet.setColumnWidth(2, 10000);
+			sheet.setColumnWidth(3, 10000);
+			sheet.setColumnWidth(4, 10000);
+			sheet.setColumnWidth(5, 10000);
+
+			Row header = sheet.createRow(0);
+			Cell headerCell = header.createCell(0);
+			headerCell.setCellValue("Role Name");
+			headerCell = header.createCell(1);
+			headerCell.setCellValue("Role Iri");
+			headerCell = header.createCell(2);
+			headerCell.setCellValue("ValueType Name");
+			headerCell = header.createCell(3);
+			headerCell.setCellValue("ValueType Iri");
+
+			for (PropertyValue property : roleList) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue(property.getProperty().getName());
+				cell = row.createCell(1);
+				cell.setCellValue(property.getProperty().getIri());
+				cell = row.createCell(2);
+				cell.setCellValue(property.getValueType().getName());
+				cell = row.createCell(3);
+				cell.setCellValue(property.getValueType().getIri());
+			}
+		}
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			workbook.write(outputStream);
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(new MediaType("application", "force-download"));
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + concept.getName() + ".xlsx");
+
+		return new HttpEntity(outputStream.toByteArray(), headers);
 	}
 
 	@GetMapping(value = "/parents")
@@ -265,36 +503,33 @@ public class ConceptController {
 			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
 			graphChildren.getChildren().add(graphChild);
 		});
-		
+
 		properties.forEach(prop -> {
-			if(null != prop.getInheritedFrom()) {
+			if (null != prop.getInheritedFrom()) {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName())
-						.setInheritedFromName(prop.getInheritedFrom().getName())
+						.setName(prop.getProperty().getName()).setInheritedFromName(prop.getInheritedFrom().getName())
 						.setInheritedFromIri(prop.getInheritedFrom().getIri())
 						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
 						.setValueTypeName(prop.getValueType().getName());
 				graphInheritedProps.getChildren().add(graphProp);
 			} else {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName())
-						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-						.setValueTypeName(prop.getValueType().getName());
+						.setName(prop.getProperty().getName()).setPropertyType(prop.getProperty().getName())
+						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName());
 				graphDirectProps.getChildren().add(graphProp);
 			}
 		});
-		
+
 		roles.forEach(role -> {
 			GraphDto graphRole = new GraphDto().setIri(role.getProperty().getIri())
 					.setName(role.getProperty().getName()).setPropertyType(role.getProperty().getName())
 					.setValueTypeIri(role.getValueType().getIri()).setValueTypeName(role.getValueType().getName());
 			graphRoles.getChildren().add(graphRole);
 		});
-		
+
 		graphProps.getChildren().add(graphDirectProps);
 		graphProps.getChildren().add(graphInheritedProps);
 
-		
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);

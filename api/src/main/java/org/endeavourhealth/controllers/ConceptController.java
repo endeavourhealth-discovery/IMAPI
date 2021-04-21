@@ -10,6 +10,7 @@ import java.util.List;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
 import org.endeavourhealth.dto.ConceptDto;
+import org.endeavourhealth.dto.DownloadDto;
 import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
@@ -84,10 +85,18 @@ public class ConceptController {
 			@RequestParam boolean roles, @RequestParam boolean inactive) {
 		TTConcept concept = getConcept(iri);
 		XlsHelper xls = new XlsHelper();
+		DownloadDto downloadDto = new DownloadDto();
 
 		if (children) {
 			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false);
-			xls.addChildren(childrenList);
+			switch (format) {
+			case "excel":
+				xls.addChildren(childrenList);
+				break;
+			case "json":
+				downloadDto.setChildren(childrenList);
+				break;
+			}
 		}
 
 		if (parents) {
@@ -100,23 +109,51 @@ public class ConceptController {
 					parentList.add(value);
 				}
 			}
+			switch (format) {
+			case "excel":
+				xls.addParents(parentList);
+				break;
+			case "json":
+				downloadDto.setParents(parentList);
+				break;
+			}
 
-			xls.addParents(parentList);
 		}
 
 		if (properties) {
 			List<PropertyValue> propertyList = getAllProperties(iri);
-			xls.addProperties(propertyList);
+			switch (format) {
+			case "excel":
+				xls.addProperties(propertyList);
+				break;
+			case "json":
+				downloadDto.setProperties(propertyList);
+				break;
+			}
 		}
 
 		if (members) {
 			ExportValueSet exportValueSet = conceptService.getValueSetMembers(iri, false);
-			xls.addMembers(exportValueSet);
+			switch (format) {
+			case "excel":
+				xls.addMembers(exportValueSet);
+				break;
+			case "json":
+				downloadDto.setMembers(exportValueSet);
+				break;
+			}
 		}
 
 		if (roles) {
 			List<PropertyValue> roleList = getRoles(iri);
-			xls.addRoles(roleList);
+			switch (format) {
+			case "excel":
+				xls.addRoles(roleList);
+				break;
+			case "json":
+				downloadDto.setRoles(roleList);
+				break;
+			}
 		}
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -127,13 +164,13 @@ public class ConceptController {
 			e.printStackTrace();
 		}
 
-		String filename = concept.getName() + " " + LocalDate.now() + ".xlsx";
-
+		String filename = concept.getName() + " " + LocalDate.now() + (format.equals("excel") ? ".xlsx" : ".json");
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(new MediaType("application", "force-download"));
-		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
+		headers.setContentType(
+				format.equals("excel") ? new MediaType("application", "force-download") : MediaType.APPLICATION_JSON);
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + "\"");
 
-		return new HttpEntity(outputStream.toByteArray(), headers);
+		return new HttpEntity(format.equals("excel") ? outputStream.toByteArray() : downloadDto, headers);
 	}
 
 	@GetMapping(value = "/parents")

@@ -94,6 +94,11 @@ public class ConceptController {
 		TTConcept concept = getConcept(iri);
 
 		Workbook workbook = new XSSFWorkbook();
+		
+		XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+		CellStyle headerStyle = workbook.createCellStyle();
+		font.setBold(true);
+		headerStyle.setFont(font);
 
 		if (children) {
 			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false);
@@ -105,9 +110,11 @@ public class ConceptController {
 
 			Cell headerCell = header.createCell(0);
 			headerCell.setCellValue("Name");
+			headerCell.setCellStyle(headerStyle);
 
 			headerCell = header.createCell(1);
 			headerCell.setCellValue("Iri");
+			headerCell.setCellStyle(headerStyle);
 
 			for (ConceptReferenceNode child : childrenList) {
 				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -138,9 +145,11 @@ public class ConceptController {
 
 			Cell headerCell = header.createCell(0);
 			headerCell.setCellValue("Name");
+			headerCell.setCellStyle(headerStyle);
 
 			headerCell = header.createCell(1);
 			headerCell.setCellValue("Iri");
+			headerCell.setCellStyle(headerStyle);
 
 			for (TTValue parent : parentList) {
 				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -164,16 +173,22 @@ public class ConceptController {
 			Row header = sheet.createRow(0);
 			Cell headerCell = header.createCell(0);
 			headerCell.setCellValue("Property Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(1);
 			headerCell.setCellValue("Property Iri");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(2);
 			headerCell.setCellValue("ValueType Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(3);
 			headerCell.setCellValue("ValueType Iri");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(4);
 			headerCell.setCellValue("InheritedFrom Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(5);
 			headerCell.setCellValue("InheritedFrom Iri");
+			headerCell.setCellStyle(headerStyle);
 
 			for (PropertyValue property : propertyList) {
 				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -210,16 +225,22 @@ public class ConceptController {
 			Row header = sheet.createRow(0);
 			Cell headerCell = header.createCell(0);
 			headerCell.setCellValue("Included");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(1);
 			headerCell.setCellValue("Member Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(2);
 			headerCell.setCellValue("Member Iri");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(3);
 			headerCell.setCellValue("Member Code");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(4);
 			headerCell.setCellValue("MemberScheme Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(5);
 			headerCell.setCellValue("MemberScheme Iri");
+			headerCell.setCellStyle(headerStyle);
 
 			for (ValueSetMember c : exportValueSet.getIncluded()) {
 				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -263,7 +284,7 @@ public class ConceptController {
 
 		if (roles) {
 			List<PropertyValue> roleList = getRoles(iri);
-			Sheet sheet = workbook.createSheet("Properties");
+			Sheet sheet = workbook.createSheet("Roles");
 			sheet.setColumnWidth(0, 10000);
 			sheet.setColumnWidth(1, 10000);
 			sheet.setColumnWidth(2, 10000);
@@ -274,12 +295,16 @@ public class ConceptController {
 			Row header = sheet.createRow(0);
 			Cell headerCell = header.createCell(0);
 			headerCell.setCellValue("Role Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(1);
 			headerCell.setCellValue("Role Iri");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(2);
 			headerCell.setCellValue("ValueType Name");
+			headerCell.setCellStyle(headerStyle);
 			headerCell = header.createCell(3);
 			headerCell.setCellValue("ValueType Iri");
+			headerCell.setCellStyle(headerStyle);
 
 			for (PropertyValue property : roleList) {
 				Row row = sheet.createRow(sheet.getLastRowNum() + 1);

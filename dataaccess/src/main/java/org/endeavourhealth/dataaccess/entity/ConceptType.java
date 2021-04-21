@@ -1,12 +1,10 @@
 package org.endeavourhealth.dataaccess.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name="concept_type")
 public class ConceptType {
 
     @Id()

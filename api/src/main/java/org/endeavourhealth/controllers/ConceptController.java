@@ -2,25 +2,16 @@ package org.endeavourhealth.controllers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.dto.GraphDto;
+import org.endeavourhealth.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
@@ -92,42 +83,15 @@ public class ConceptController {
 			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
 			@RequestParam boolean roles, @RequestParam boolean inactive) {
 		TTConcept concept = getConcept(iri);
-
-		Workbook workbook = new XSSFWorkbook();
-		
-		XSSFFont font = ((XSSFWorkbook) workbook).createFont();
-		CellStyle headerStyle = workbook.createCellStyle();
-		font.setBold(true);
-		headerStyle.setFont(font);
+		XlsHelper xls = new XlsHelper();
 
 		if (children) {
 			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false);
-			Sheet sheet = workbook.createSheet("Children");
-			sheet.setColumnWidth(0, 20000);
-			sheet.setColumnWidth(1, 20000);
-
-			Row header = sheet.createRow(0);
-
-			Cell headerCell = header.createCell(0);
-			headerCell.setCellValue("Name");
-			headerCell.setCellStyle(headerStyle);
-
-			headerCell = header.createCell(1);
-			headerCell.setCellValue("Iri");
-			headerCell.setCellStyle(headerStyle);
-
-			for (ConceptReferenceNode child : childrenList) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue(child.getName());
-				cell = row.createCell(1);
-				cell.setCellValue(child.getIri());
-			}
+			xls.addChildren(childrenList);
 		}
 
 		if (parents) {
 			List<TTValue> parentList = new ArrayList<TTValue>();
-
 			TTValue value = concept.get(IM.IS_A);
 			if (value != null) {
 				if (value.isList()) {
@@ -137,199 +101,37 @@ public class ConceptController {
 				}
 			}
 
-			Sheet sheet = workbook.createSheet("Parents");
-			sheet.setColumnWidth(0, 20000);
-			sheet.setColumnWidth(1, 20000);
-
-			Row header = sheet.createRow(0);
-
-			Cell headerCell = header.createCell(0);
-			headerCell.setCellValue("Name");
-			headerCell.setCellStyle(headerStyle);
-
-			headerCell = header.createCell(1);
-			headerCell.setCellValue("Iri");
-			headerCell.setCellStyle(headerStyle);
-
-			for (TTValue parent : parentList) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue(parent.asIriRef().getName());
-				cell = row.createCell(1);
-				cell.setCellValue(parent.asIriRef().getIri());
-			}
+			xls.addParents(parentList);
 		}
 
 		if (properties) {
 			List<PropertyValue> propertyList = getAllProperties(iri);
-			Sheet sheet = workbook.createSheet("Properties");
-			sheet.setColumnWidth(0, 10000);
-			sheet.setColumnWidth(1, 10000);
-			sheet.setColumnWidth(2, 10000);
-			sheet.setColumnWidth(3, 10000);
-			sheet.setColumnWidth(4, 10000);
-			sheet.setColumnWidth(5, 10000);
-
-			Row header = sheet.createRow(0);
-			Cell headerCell = header.createCell(0);
-			headerCell.setCellValue("Property Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(1);
-			headerCell.setCellValue("Property Iri");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(2);
-			headerCell.setCellValue("ValueType Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(3);
-			headerCell.setCellValue("ValueType Iri");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(4);
-			headerCell.setCellValue("InheritedFrom Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(5);
-			headerCell.setCellValue("InheritedFrom Iri");
-			headerCell.setCellStyle(headerStyle);
-
-			for (PropertyValue property : propertyList) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue(property.getProperty().getName());
-				cell = row.createCell(1);
-				cell.setCellValue(property.getProperty().getIri());
-				cell = row.createCell(2);
-				cell.setCellValue(property.getValueType().getName());
-				cell = row.createCell(3);
-				cell.setCellValue(property.getValueType().getIri());
-
-				if (null != property.getInheritedFrom()) {
-					cell = row.createCell(4);
-					cell.setCellValue(property.getInheritedFrom().getName());
-					cell = row.createCell(5);
-					cell.setCellValue(property.getInheritedFrom().getIri());
-				}
-			}
+			xls.addProperties(propertyList);
 		}
 
 		if (members) {
 			ExportValueSet exportValueSet = conceptService.getValueSetMembers(iri, false);
-			Sheet sheet = workbook.createSheet("Members");
-
-			sheet.setColumnWidth(0, 1000);
-			sheet.setColumnWidth(1, 10000);
-			sheet.setColumnWidth(2, 10000);
-			sheet.setColumnWidth(3, 10000);
-			sheet.setColumnWidth(4, 10000);
-			sheet.setColumnWidth(5, 10000);
-			sheet.setColumnWidth(6, 10000);
-
-			Row header = sheet.createRow(0);
-			Cell headerCell = header.createCell(0);
-			headerCell.setCellValue("Included");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(1);
-			headerCell.setCellValue("Member Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(2);
-			headerCell.setCellValue("Member Iri");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(3);
-			headerCell.setCellValue("Member Code");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(4);
-			headerCell.setCellValue("MemberScheme Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(5);
-			headerCell.setCellValue("MemberScheme Iri");
-			headerCell.setCellStyle(headerStyle);
-
-			for (ValueSetMember c : exportValueSet.getIncluded()) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue("Yes");
-				cell = row.createCell(1);
-				cell.setCellValue(c.getConcept().getName());
-				cell = row.createCell(2);
-				cell.setCellValue(c.getConcept().getIri());
-				cell = row.createCell(3);
-				cell.setCellValue(c.getCode());
-				
-				if (c.getScheme() != null) {
-					cell = row.createCell(4);
-					cell.setCellValue(c.getScheme().getIri());
-					cell = row.createCell(5);
-					cell.setCellValue(c.getScheme().getName());
-				}
-			}
-			
-			for (ValueSetMember c : exportValueSet.getExcluded()) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue("No");
-				cell = row.createCell(1);
-				cell.setCellValue(c.getConcept().getName());
-				cell = row.createCell(2);
-				cell.setCellValue(c.getConcept().getIri());
-				cell = row.createCell(3);
-				cell.setCellValue(c.getCode());
-				
-				if (c.getScheme() != null) {
-					cell = row.createCell(4);
-					cell.setCellValue(c.getScheme().getIri());
-					cell = row.createCell(5);
-					cell.setCellValue(c.getScheme().getName());
-				}
-			}
-
+			xls.addMembers(exportValueSet);
 		}
 
 		if (roles) {
 			List<PropertyValue> roleList = getRoles(iri);
-			Sheet sheet = workbook.createSheet("Roles");
-			sheet.setColumnWidth(0, 10000);
-			sheet.setColumnWidth(1, 10000);
-			sheet.setColumnWidth(2, 10000);
-			sheet.setColumnWidth(3, 10000);
-			sheet.setColumnWidth(4, 10000);
-			sheet.setColumnWidth(5, 10000);
-
-			Row header = sheet.createRow(0);
-			Cell headerCell = header.createCell(0);
-			headerCell.setCellValue("Role Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(1);
-			headerCell.setCellValue("Role Iri");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(2);
-			headerCell.setCellValue("ValueType Name");
-			headerCell.setCellStyle(headerStyle);
-			headerCell = header.createCell(3);
-			headerCell.setCellValue("ValueType Iri");
-			headerCell.setCellStyle(headerStyle);
-
-			for (PropertyValue property : roleList) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue(property.getProperty().getName());
-				cell = row.createCell(1);
-				cell.setCellValue(property.getProperty().getIri());
-				cell = row.createCell(2);
-				cell.setCellValue(property.getValueType().getName());
-				cell = row.createCell(3);
-				cell.setCellValue(property.getValueType().getIri());
-			}
+			xls.addRoles(roleList);
 		}
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
-			workbook.write(outputStream);
-			workbook.close();
+			xls.getWorkbook().write(outputStream);
+			xls.getWorkbook().close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+		String filename = concept.getName() + " " + LocalDate.now() + ".xlsx";
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("application", "force-download"));
-		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + concept.getName() + ".xlsx");
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
 
 		return new HttpEntity(outputStream.toByteArray(), headers);
 	}

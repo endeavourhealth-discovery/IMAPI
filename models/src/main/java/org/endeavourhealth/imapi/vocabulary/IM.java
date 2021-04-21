@@ -86,6 +86,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"891031000252107");
     public static final TTIriRef CODE_SCHEME_TPP = iri(NAMESPACE +"631000252102");
     public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"891081000252108");
+    public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"1000131000252104");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

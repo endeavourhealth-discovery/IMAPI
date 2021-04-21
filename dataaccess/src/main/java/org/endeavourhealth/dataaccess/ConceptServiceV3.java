@@ -159,7 +159,7 @@ public class ConceptServiceV3 {
 				.filter(subject -> !children.contains(subject.getIri())).distinct()
 				.map(c -> new ConceptSummary().setIri(c.getIri()).setName(c.getName()).setCode(c.getCode()).setScheme(
 						c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName())))
-				.sorted(Comparator.comparing(ConceptSummary::getName))
+				.sorted(Comparator.comparing(ConceptSummary::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.collect(Collectors.toList());
 	}
 
@@ -193,7 +193,6 @@ public class ConceptServiceV3 {
 
 	private ConceptSummary convertConceptToConceptSummary(ConceptSearch r,String full) {
 		TTArray types = new TTArray();
-		//types.add(OWL.CLASS);
 		conceptTypeRepository.findAllByConcept_Dbid(r.getConcept().getDbid()).forEach(ct -> types.add(new TTIriRef().setIri(ct.getType())));
 		return new ConceptSummary()
 				.setName(r.getConcept().getName())

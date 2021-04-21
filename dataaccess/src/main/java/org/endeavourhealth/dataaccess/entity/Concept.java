@@ -25,8 +25,9 @@ public class Concept implements Serializable {
     private String definition;
     private LocalDateTime updated;
 
-    @OneToMany()
-    private List<ConceptType> types;
+//    @OneToMany()
+//    //@JoinTable(name = "concept_type", joinColumns = @JoinColumn(name = "dbid", referencedColumnName = "concept"))
+//    private List<ConceptType> type;
 
     public Integer getDbid() {
         return dbid;
@@ -108,14 +109,14 @@ public class Concept implements Serializable {
         return this;
     }
 
-    public List<ConceptType> getTypes() {
-        return types;
-    }
-
-    public Concept setTypes(List<ConceptType> types) {
-        this.types = types;
-        return this;
-    }
+//    public List<ConceptType> getType() {
+//        return type;
+//    }
+//
+//    public Concept setType(List<ConceptType> types) {
+//        this.type = types;
+//        return this;
+//    }
 
     @Override
     public int hashCode() {

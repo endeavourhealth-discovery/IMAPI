@@ -2,14 +2,12 @@ package org.endeavourhealth.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.dataaccess.entity.Concept;
-import org.endeavourhealth.dataaccess.entity.SearchResult;
-import org.endeavourhealth.dataaccess.entity.Tct;
-import org.endeavourhealth.dataaccess.entity.Tpl;
+import org.endeavourhealth.dataaccess.entity.*;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.imapi.model.tripletree.TTConceptVisitor;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -24,9 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +47,12 @@ public class ConceptServiceV3 {
 
 	@Autowired
 	SearchRepository searchRepository;
+
+	@Autowired
+	ConceptSearchRepository conceptSearchRepository;
+
+	@Autowired
+	ConceptTypeRepository conceptTypeRepository;
 
 	private ObjectMapper om = new ObjectMapper();
 
@@ -158,22 +159,22 @@ public class ConceptServiceV3 {
 				.filter(subject -> !children.contains(subject.getIri())).distinct()
 				.map(c -> new ConceptSummary().setIri(c.getIri()).setName(c.getName()).setCode(c.getCode()).setScheme(
 						c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName())))
-				// .sorted(Comparator.comparing(ConceptSummary::getName))
+				.sorted(Comparator.comparing(ConceptSummary::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.collect(Collectors.toList());
 	}
 
 	public List<ConceptSummary> advancedSearch(SearchRequest request) {
-		List<SearchResult> matchingConcept;
+		List<ConceptSearch> matchingConcept;
 
 		String full = request.getTermFilter();
 		String terms = Arrays.stream(full.split(" ")).filter(t -> t.trim().length() >= 3).map(w -> "+" + w + "*")
 				.collect(Collectors.joining(" "));
 
 		if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
-			matchingConcept = searchLegacy(terms, full, request.getTypeFilter(), request.getStatusFilter(),
+			matchingConcept = conceptSearchRepository.findLegacyByTerm(terms,request.getTypeFilter(), request.getStatusFilter(),
 					request.getSize());
 		else {
-			matchingConcept = searchLegacyScheme(terms, full, request.getSchemeFilter(),
+			matchingConcept = conceptSearchRepository.findLegacySchemesByTerm(terms,request.getSchemeFilter(),
 					request.getTypeFilter(), request.getStatusFilter(), request.getSize());
 		}
 
@@ -190,42 +191,22 @@ public class ConceptServiceV3 {
 		return result;
 	}
 
+	private ConceptSummary convertConceptToConceptSummary(ConceptSearch r,String full) {
+		TTArray types = new TTArray();
+		conceptTypeRepository.findAllByConcept_Dbid(r.getConcept().getDbid()).forEach(ct -> types.add(new TTIriRef().setIri(ct.getType())));
+		return new ConceptSummary()
+				.setName(r.getConcept().getName())
+				.setMatch(r.getTerm())
+				.setIri(r.getConcept().getIri())
+				.setWeighting(Levenshtein.calculate(full, r.getTerm()))
+				.setCode(r.getConcept().getCode())
+				.setDescription(r.getConcept().getDescription())
+				.setConceptType(types)
+				.setStatus(new TTIriRef(r.getConcept().getStatus().getIri(), r.getConcept().getStatus().getName()))
+				.setScheme(r.getConcept().getScheme() == null ? null
+						: new TTIriRef(r.getConcept().getScheme().getIri(), r.getConcept().getScheme().getName()));
 
-	private List<SearchResult> searchLegacy(String terms, String full, List<String> conceptType, List<String> status, Integer limit) {
-		List<SearchResult> concepts = new ArrayList<>();
-
-		concepts.addAll(searchRepository.findLegacyByCode(full, conceptType, status, limit));
-		concepts.addAll(searchRepository.findLegacyByIri(full, conceptType, status, limit));
-		concepts.addAll(searchRepository.findLegacyByName(terms, conceptType, status, limit));
-		concepts.addAll(searchRepository.findLegacyByTerm(terms, conceptType, status, limit));
-
-		return concepts;
 	}
-
-	private List<SearchResult> searchLegacyScheme(String terms, String full, List<String> schemes, List<String> conceptType, List<String> status, Integer limit){
-		List<SearchResult> concepts = new ArrayList<>();
-
-		concepts.addAll(searchRepository.findLegacySchemesByCode(full, schemes, conceptType, status, limit));
-		concepts.addAll(searchRepository.findLegacySchemesByIri(full, schemes, conceptType, status, limit));
-		concepts.addAll(searchRepository.findLegacySchemesByName(terms, schemes, conceptType, status, limit));
-		concepts.addAll(searchRepository.findLegacySchemesByTerm(terms, schemes, conceptType, status, limit));
-
-		return concepts;
-	}
-
-	private ConceptSummary convertConceptToConceptSummary(SearchResult r,String full) {
-        return new ConceptSummary()
-            .setName(r.getName())
-            .setMatch(r.getId().getMatch())
-            .setIri(r.getIri())
-            .setConceptType(getConcept(r.getIri()).getType())
-            .setWeighting(Levenshtein.calculate(full, r.getId().getMatch()))
-            .setCode(r.getCode())
-            .setDescription(r.getDescription())
-            .setStatus(new TTIriRef(r.getStatus().getIri(), r.getStatus().getName()))
-				.setScheme(r.getScheme() == null ? null : new TTIriRef(r.getScheme().getIri(), r.getScheme().getName()))
-				.setMatch(r.getId().getMatch());
-    }
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {
 		try {

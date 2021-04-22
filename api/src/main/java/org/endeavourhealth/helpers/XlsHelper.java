@@ -61,7 +61,7 @@ public class XlsHelper {
 
 	}
 
-	public void addParents(List<TTValue> parentList) {
+	public void addParents(List<ConceptReferenceNode> parentList) {
 		Sheet sheet = workbook.createSheet("Parents");
 		sheet.setColumnWidth(0, 20000);
 		sheet.setColumnWidth(1, 20000);

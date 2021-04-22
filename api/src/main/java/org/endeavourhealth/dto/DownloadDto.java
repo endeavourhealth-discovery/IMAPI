@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 public class DownloadDto implements Serializable {
 
 	private List<ConceptReferenceNode> children;
-	private List<TTValue> parents;
+	private List<ConceptReferenceNode> parents;
 	private List<PropertyValue> properties;
 	private ExportValueSet members;
 	private List<PropertyValue> roles;
@@ -24,11 +24,11 @@ public class DownloadDto implements Serializable {
 		this.children = children;
 	}
 
-	public List<TTValue> getParents() {
+	public List<ConceptReferenceNode> getParents() {
 		return parents;
 	}
 
-	public void setParents(List<TTValue> parents) {
+	public void setParents(List<ConceptReferenceNode> parents) {
 		this.parents = parents;
 	}
 

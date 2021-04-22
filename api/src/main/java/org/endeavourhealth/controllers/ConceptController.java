@@ -70,7 +70,7 @@ public class ConceptController {
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
-		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
+		return conceptService.getImmediateChildren(iri, page, size, includeLegacy, false);
 	}
 
 	@GetMapping(value = "/children/download", produces = { "text/csv" })
@@ -88,7 +88,7 @@ public class ConceptController {
 		DownloadDto downloadDto = new DownloadDto();
 
 		if (children) {
-			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false);
+			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false, inactive);
 			switch (format) {
 			case "excel":
 				xls.addChildren(childrenList);
@@ -100,15 +100,7 @@ public class ConceptController {
 		}
 
 		if (parents) {
-			List<TTValue> parentList = new ArrayList<TTValue>();
-			TTValue value = concept.get(IM.IS_A);
-			if (value != null) {
-				if (value.isList()) {
-					parentList = concept.getAsArrayElements(IM.IS_A);
-				} else {
-					parentList.add(value);
-				}
-			}
+			List<ConceptReferenceNode> parentList = conceptService.getImmediateParents(iri, null, null, false, inactive);
 			switch (format) {
 			case "excel":
 				xls.addParents(parentList);
@@ -178,7 +170,7 @@ public class ConceptController {
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
-		return conceptService.getImmediateParents(iri, page, size, includeLegacy);
+		return conceptService.getImmediateParents(iri, page, size, includeLegacy, false);
 	}
 
 	@GetMapping(value = "/parents/definitions")
@@ -351,7 +343,7 @@ public class ConceptController {
 			}
 		}
 
-		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
+		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false, false);
 		List<PropertyValue> properties = getAllProperties(iri);
 		List<PropertyValue> roles = getRoles(iri);
 
@@ -408,7 +400,7 @@ public class ConceptController {
 	}
 
 	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
-		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
+		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false, false);
 
 		if (parents == null) {
 			return flatParentIris;

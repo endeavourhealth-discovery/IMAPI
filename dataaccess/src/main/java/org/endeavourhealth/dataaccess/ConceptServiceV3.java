@@ -80,7 +80,7 @@ public class ConceptServiceV3 {
 	}
 
 	public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize,
-			boolean includeLegacy) {
+			boolean includeLegacy, boolean inactive) {
 
         List<ConceptReferenceNode> result = new ArrayList<>();
 
@@ -89,7 +89,7 @@ public class ConceptServiceV3 {
             pageable = PageRequest.of(pageIndex - 1, pageSize);
         }
 
-        List<ConceptReferenceNode> immediateChildren = getActiveChildren(iri, pageable);
+        List<ConceptReferenceNode> immediateChildren = inactive ? getAllStatusChildren(iri, pageable) : getActiveChildren(iri, pageable);
         for (ConceptReferenceNode child : immediateChildren) {
                 List<Tpl> grandChildren = conceptTripleRepository
                         .findImmediateChildrenByIri(child.getIri(), pageable);
@@ -104,6 +104,13 @@ public class ConceptServiceV3 {
 		return conceptTripleRepository
 				.findImmediateChildrenByIri(iri, pageable).stream()
 				.filter(t -> IM.ACTIVE.getIri().equals(t.getSubject().getStatus().getIri()))
+				.map(t -> new ConceptReferenceNode(t.getSubject().getIri(), t.getSubject().getName())
+						.setType(getConcept(t.getSubject().getIri()).getType())).collect(Collectors.toList());
+	}
+	
+	private List<ConceptReferenceNode> getAllStatusChildren(String iri, Pageable pageable) {
+		return conceptTripleRepository
+				.findImmediateChildrenByIri(iri, pageable).stream()
 				.map(t -> new ConceptReferenceNode(t.getSubject().getIri(), t.getSubject().getName())
 						.setType(getConcept(t.getSubject().getIri()).getType())).collect(Collectors.toList());
 	}
@@ -125,15 +132,24 @@ public class ConceptServiceV3 {
 	}
 
 	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
-			boolean includeLegacy) {
+			boolean includeLegacy, boolean inactive) {
 
         Pageable pageable = null;
         if (pageIndex != null && pageSize!=null){
             pageable = PageRequest.of(pageIndex - 1, pageSize);
         }
 
-		return getActiveParents(iri, pageable);
+		return inactive ? getAllStatusParents(iri, pageable) : getActiveParents(iri, pageable);
 	}
+	
+	private List<ConceptReferenceNode> getAllStatusParents(String iri, Pageable pageable) {
+		return conceptTripleRepository
+				.findImmediateParentsByIri(iri, pageable).stream()
+				.filter(t -> !OWL.THING.getIri().equals(t.getObject().getIri()))
+				.map(t -> new ConceptReferenceNode(t.getObject().getIri(), t.getObject().getName())
+						.setType(getConcept(t.getObject().getIri()).getType())).collect(Collectors.toList());
+	}
+
 
 	private List<ConceptReferenceNode> getActiveParents(String iri, Pageable pageable) {
 		return conceptTripleRepository

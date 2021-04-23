@@ -283,18 +283,23 @@ public class ConceptController {
 				graphDirectProps.getChildren().add(graphProp);
 			}
 		});
-		
-		roles.forEach(role -> {
-			GraphDto graphRole = new GraphDto().setIri(role.getProperty().getIri())
-					.setName(role.getProperty().getName()).setPropertyType(role.getProperty().getName())
-					.setValueTypeIri(role.getValueType().getIri()).setValueTypeName(role.getValueType().getName());
-			graphRoles.getChildren().add(graphRole);
-		});
-		
-		graphProps.getChildren().add(graphDirectProps);
+
+        for (PropertyValue role : roles) {
+            GraphDto graphRole = new GraphDto()
+                .setIri(role.getProperty().getIri())
+                .setName(role.getProperty().getName())
+                .setPropertyType(role.getProperty().getName());
+            if (role.getValueType() != null) {
+                graphRole
+                    .setValueTypeIri(role.getValueType().getIri())
+                    .setValueTypeName(role.getValueType().getName());
+            }
+            graphRoles.getChildren().add(graphRole);
+        }
+
+        graphProps.getChildren().add(graphDirectProps);
 		graphProps.getChildren().add(graphInheritedProps);
 
-		
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);

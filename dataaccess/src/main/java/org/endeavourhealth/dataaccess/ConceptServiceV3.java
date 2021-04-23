@@ -62,7 +62,7 @@ public class ConceptServiceV3 {
 			return null;
 
 		try {
-			TTConcept result = om.readValue(concept.getDefinition(), TTConcept.class);
+			TTConcept result = om.readValue(concept.getJson(), TTConcept.class);
 			populateMissingNames(result);
 			return result;
 		} catch (Exception e) {
@@ -199,6 +199,7 @@ public class ConceptServiceV3 {
 				.setMatch(r.getTerm())
 				.setIri(r.getConcept().getIri())
 				.setWeighting(Levenshtein.calculate(full, r.getTerm()))
+				// .setWeighting(r.getWeighting())
 				.setCode(r.getConcept().getCode())
 				.setDescription(r.getConcept().getDescription())
 				.setConceptType(types)
@@ -214,7 +215,7 @@ public class ConceptServiceV3 {
 			for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
 				Concept t = tct.getAncestor();
 				if (!iri.equals(t.getIri())) {
-					TTConcept concept = om.readValue(t.getDefinition(), TTConcept.class);
+					TTConcept concept = om.readValue(t.getJson(), TTConcept.class);
 					result.add(concept);
 				}
 			}

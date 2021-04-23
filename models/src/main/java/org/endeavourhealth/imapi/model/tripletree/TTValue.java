@@ -1,11 +1,20 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 public abstract class TTValue {
+    @JsonIgnore
     public boolean isLiteral() { return false; }
+
+    @JsonIgnore
     public boolean isIriRef() {return false; }
+
+    @JsonIgnore
     public boolean isList() { return false; }
+
+    @JsonIgnore
     public boolean isNode() { return false; }
 
     public TTLiteral asLiteral() {return null; }

@@ -10,11 +10,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Set;
 
 @Service
 public class RuntimeService  implements IRuntimeService {
     private static final Logger LOG = LoggerFactory.getLogger(RuntimeService.class);
+    private static final Map<String, String> schemeMap = Map.of(
+        "SNOMED",IM.CODE_SCHEME_SNOMED.getIri(),
+        "READ2",IM.CODE_SCHEME_READ.getIri(),
+        "CTV3",IM.CODE_SCHEME_CTV3.getIri(),
+        "ICD10",IM.CODE_SCHEME_ICD10.getIri(),
+        "OPCS4",IM.CODE_SCHEME_OPCS4.getIri(),
+        "EMIS_LOCAL",IM.CODE_SCHEME_EMIS.getIri(),
+        "TPP_LOCAL",IM.CODE_SCHEME_TPP.getIri(),
+        "BartsCerner",IM.CODE_SCHEME_BARTS.getIri()
+    );
 
     @Autowired
     ConceptRepository conceptRepository;
@@ -83,24 +94,27 @@ public class RuntimeService  implements IRuntimeService {
     }
 
     @Override
-    public Boolean isInVSet(String code, String scheme, String vSet){
+    public Boolean isInVSet(String code, String v1Scheme, String vSet){
+        if (code == null || code.isEmpty() || v1Scheme == null || v1Scheme.isEmpty() || vSet == null || vSet.isEmpty())
+            return false;
+
+        String scheme = schemeMap.get(v1Scheme);
+
+        // return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
+
         int r = (int)(Math.random()*1000);
         return r != 10;
-        // return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
+
     }
 
     private Boolean included(String code, String scheme, String vSet) {
-
         return conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) != null
                 || conceptRepository.isLegacyCodeSchemeIncludedInVSet(code, scheme, vSet) != null;
-
     }
 
     private Boolean excluded(String code, String scheme, String vSet) {
-
         return conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet) != null
                 || conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) != null;
-
     }
 
     private Concept getMappedCoreConcept(String scheme, String code){
@@ -113,10 +127,5 @@ public class RuntimeService  implements IRuntimeService {
         Tpl map = maps.stream().findFirst().get();
         return map.getObject();
     }
-
-    private Boolean snomedOnlyFalse(Boolean snomedOnly, String iri){
-        return snomedOnly && !IM.CODE_SCHEME_SNOMED.getIri().equals(iri);
-    }
-
 }
 

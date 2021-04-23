@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +54,7 @@ public class TTArray extends TTValue {
     }
 
     @Override
+    @JsonIgnore
     public boolean isList() {
         return true;
     }

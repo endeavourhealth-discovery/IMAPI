@@ -86,6 +86,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"891031000252107");
     public static final TTIriRef CODE_SCHEME_TPP = iri(NAMESPACE +"631000252102");
     public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"891081000252108");
+    public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"1000131000252104");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
@@ -95,12 +96,6 @@ public class IM {
     public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(NAMESPACE +"READ2");
     public static final TTIriRef GRAPH_CTV3 = TTIriRef.iri(NAMESPACE +"CTV3");
     public static final TTIriRef GRAPH_TPP = TTIriRef.iri(NAMESPACE +"TPP");
-    public static final TTIriRef GRAPH_MAP_ICD10 = iri(NAMESPACE +"ICD10Maps");
-    public static final TTIriRef GRAPH_MAP_EMIS = TTIriRef.iri(NAMESPACE +"EMISMaps");
-    public static final TTIriRef GRAPH_MAP_OPCS4 = TTIriRef.iri(NAMESPACE +"OPCS4Maps");
-    public static final TTIriRef GRAPH_MAP_READ2 = TTIriRef.iri(NAMESPACE +"READ2Maps");
-    public static final TTIriRef GRAPH_MAP_CTV3 = TTIriRef.iri(NAMESPACE +"CTV3Maps");
-    public static final TTIriRef GRAPH_MAP_TPP = TTIriRef.iri(NAMESPACE +"TPPMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
 

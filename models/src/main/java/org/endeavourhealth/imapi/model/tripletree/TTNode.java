@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,6 +39,7 @@ public class TTNode extends TTValue {
     }
 
     @Override
+    @JsonIgnore
     public boolean isNode() {
         return true;
     }

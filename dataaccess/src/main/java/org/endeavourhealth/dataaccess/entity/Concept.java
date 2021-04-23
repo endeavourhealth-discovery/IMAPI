@@ -3,7 +3,6 @@ package org.endeavourhealth.dataaccess.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 public class Concept implements Serializable {
@@ -22,7 +21,7 @@ public class Concept implements Serializable {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="status", referencedColumnName = "iri", nullable = true)
     private Concept status;
-    private String definition;
+    private String json;
     private LocalDateTime updated;
 
 //    @OneToMany()
@@ -91,12 +90,12 @@ public class Concept implements Serializable {
         return this;
     }
 
-    public String getDefinition() {
-        return definition;
+    public String getJson() {
+        return json;
     }
 
-    public Concept setDefinition(String definition) {
-        this.definition = definition;
+    public Concept setJson(String definition) {
+        this.json = definition;
         return this;
     }
 

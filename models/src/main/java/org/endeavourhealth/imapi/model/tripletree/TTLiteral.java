@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.util.regex.Pattern;
@@ -102,6 +103,7 @@ public class TTLiteral extends TTValue {
     }
 
     @Override
+    @JsonIgnore
     public boolean isLiteral() {
         return true;
     }

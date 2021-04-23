@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class TTIriRef extends TTValue {
@@ -51,6 +53,7 @@ public class TTIriRef extends TTValue {
     }
 
     @Override
+    @JsonIgnore
     public boolean isIriRef() {
         return true;
     }

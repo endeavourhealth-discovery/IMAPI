@@ -71,8 +71,8 @@ public class RuntimeController {
     }
 
     @GetMapping("/Concept/isValueSetMember")
-    public Boolean checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet){
-        return  runtimeService.isInVSet(code, scheme,vSet);
+    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet){
+        return runtimeService.isInVSet(code, scheme,vSet).toString();
     }
 
 }

@@ -73,7 +73,7 @@ public class ConceptToImLang {
 
         // add scheme
         if (concept.getScheme() != null) {
-        	imLangConcept = imLangConcept.concat("scheme \"" + concept.getScheme().getIri() + "\";\n");
+        	imLangConcept = imLangConcept.concat("scheme " + convertConceptReferenceToString(concept.getScheme()) + ";\n");
         }
 
         // add status
@@ -155,8 +155,11 @@ public class ConceptToImLang {
     private String convertConceptReferenceToString(TTIriRef conceptReference) {
         if (conceptReference == null)
             return "\"\"";
+        
+        String[] strings = conceptReference.getIri().split("/");
+        String abbrIri = strings[strings.length - 1].replaceAll("#", ":");
 
-        String result = "\"" + conceptReference.getIri();
+        String result = "\"" + abbrIri;
         if (conceptReference.getName() != null && !conceptReference.getName().isEmpty())
             result += " | " + conceptReference.getName();
 

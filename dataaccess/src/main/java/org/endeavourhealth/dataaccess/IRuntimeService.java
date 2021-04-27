@@ -1,5 +1,6 @@
 package org.endeavourhealth.dataaccess;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.rdf4j.query.algebra.Str;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 
@@ -15,7 +16,7 @@ public interface IRuntimeService {
     String getCodeForConceptDbid(Integer dbid);
     Integer getConceptDbidForTypeTerm(String type, String term, Boolean autoCreate);
     Integer getMappedCoreConceptDbidForTypeTerm(String type, String term);
-    Boolean isInVSet(String code, String scheme, String vSet);
+    Boolean isInVSet(String code, String scheme, String vSet) throws JsonProcessingException;
 
 
 }

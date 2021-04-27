@@ -1,5 +1,8 @@
 package org.endeavourhealth.controllers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,7 +10,9 @@ import java.util.List;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
 import org.endeavourhealth.dto.ConceptDto;
+import org.endeavourhealth.dto.DownloadDto;
 import org.endeavourhealth.dto.GraphDto;
+import org.endeavourhealth.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
@@ -22,6 +27,9 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,13 +70,99 @@ public class ConceptController {
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
-		return conceptService.getImmediateChildren(iri, page, size, includeLegacy);
+		return conceptService.getImmediateChildren(iri, page, size, includeLegacy, false);
 	}
 
-	@GetMapping(value = "/children/download",produces = {"text/csv"})
-	public String downloadChildren(@RequestParam(name = "iri") String iri){
+	@GetMapping(value = "/children/download", produces = { "text/csv" })
+	public byte[] downloadChildren(@RequestParam(name = "iri") String iri) {
 		List<ConceptReferenceNode> descendants = conceptService.getDescendants(iri);
-		return  null;
+		return null;
+	}
+
+	@GetMapping(value = "/download")
+	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
+			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
+			@RequestParam boolean roles, @RequestParam boolean inactive) {
+		TTConcept concept = getConcept(iri);
+		XlsHelper xls = new XlsHelper();
+		DownloadDto downloadDto = new DownloadDto();
+
+		if (children) {
+			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false, inactive);
+			switch (format) {
+			case "excel":
+				xls.addChildren(childrenList);
+				break;
+			case "json":
+				downloadDto.setChildren(childrenList);
+				break;
+			}
+		}
+
+		if (parents) {
+			List<ConceptReferenceNode> parentList = conceptService.getImmediateParents(iri, null, null, false, inactive);
+			switch (format) {
+			case "excel":
+				xls.addParents(parentList);
+				break;
+			case "json":
+				downloadDto.setParents(parentList);
+				break;
+			}
+
+		}
+
+		if (properties) {
+			List<PropertyValue> propertyList = getAllProperties(iri);
+			switch (format) {
+			case "excel":
+				xls.addProperties(propertyList);
+				break;
+			case "json":
+				downloadDto.setProperties(propertyList);
+				break;
+			}
+		}
+
+		if (members) {
+			ExportValueSet exportValueSet = conceptService.getValueSetMembers(iri, false);
+			switch (format) {
+			case "excel":
+				xls.addMembers(exportValueSet);
+				break;
+			case "json":
+				downloadDto.setMembers(exportValueSet);
+				break;
+			}
+		}
+
+		if (roles) {
+			List<PropertyValue> roleList = getRoles(iri);
+			switch (format) {
+			case "excel":
+				xls.addRoles(roleList);
+				break;
+			case "json":
+				downloadDto.setRoles(roleList);
+				break;
+			}
+		}
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			xls.getWorkbook().write(outputStream);
+			xls.getWorkbook().close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String filename = concept.getName() + " " + LocalDate.now() + (format.equals("excel") ? ".xlsx" : ".json");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(
+				format.equals("excel") ? new MediaType("application", "force-download") : MediaType.APPLICATION_JSON);
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + "\"");
+
+		return new HttpEntity(format.equals("excel") ? outputStream.toByteArray() : downloadDto, headers);
 	}
 
 	@GetMapping(value = "/parents")
@@ -76,7 +170,7 @@ public class ConceptController {
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
 			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
-		return conceptService.getImmediateParents(iri, page, size, includeLegacy);
+		return conceptService.getImmediateParents(iri, page, size, includeLegacy, false);
 	}
 
 	@GetMapping(value = "/parents/definitions")
@@ -249,7 +343,7 @@ public class ConceptController {
 			}
 		}
 
-		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false);
+		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false, false);
 		List<PropertyValue> properties = getAllProperties(iri);
 		List<PropertyValue> roles = getRoles(iri);
 
@@ -265,21 +359,19 @@ public class ConceptController {
 			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
 			graphChildren.getChildren().add(graphChild);
 		});
-		
+
 		properties.forEach(prop -> {
-			if(null != prop.getInheritedFrom()) {
+			if (null != prop.getInheritedFrom()) {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName())
-						.setInheritedFromName(prop.getInheritedFrom().getName())
+						.setName(prop.getProperty().getName()).setInheritedFromName(prop.getInheritedFrom().getName())
 						.setInheritedFromIri(prop.getInheritedFrom().getIri())
 						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
 						.setValueTypeName(prop.getValueType().getName());
 				graphInheritedProps.getChildren().add(graphProp);
 			} else {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName())
-						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-						.setValueTypeName(prop.getValueType().getName());
+						.setName(prop.getProperty().getName()).setPropertyType(prop.getProperty().getName())
+						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName());
 				graphDirectProps.getChildren().add(graphProp);
 			}
 		});
@@ -314,7 +406,7 @@ public class ConceptController {
 	}
 
 	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
-		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false);
+		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false, false);
 
 		if (parents == null) {
 			return flatParentIris;

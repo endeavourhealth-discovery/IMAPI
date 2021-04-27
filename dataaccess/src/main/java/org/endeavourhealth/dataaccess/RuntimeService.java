@@ -1,5 +1,6 @@
 package org.endeavourhealth.dataaccess;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
@@ -16,22 +17,18 @@ import java.util.Set;
 @Service
 public class RuntimeService  implements IRuntimeService {
     private static final Logger LOG = LoggerFactory.getLogger(RuntimeService.class);
-    private static final Map<String, String> schemeMap = Map.of(
-        "SNOMED",IM.CODE_SCHEME_SNOMED.getIri(),
-        "READ2",IM.CODE_SCHEME_READ.getIri(),
-        "CTV3",IM.CODE_SCHEME_CTV3.getIri(),
-        "ICD10",IM.CODE_SCHEME_ICD10.getIri(),
-        "OPCS4",IM.CODE_SCHEME_OPCS4.getIri(),
-        "EMIS_LOCAL",IM.CODE_SCHEME_EMIS.getIri(),
-        "TPP_LOCAL",IM.CODE_SCHEME_TPP.getIri(),
-        "BartsCerner",IM.CODE_SCHEME_BARTS.getIri()
-    );
+    private static Map<String, String> schemeMap ;
+
+    @Autowired
+    ConfigService configService;
 
     @Autowired
     ConceptRepository conceptRepository;
 
     @Autowired
     ConceptTripleRepository conceptTripleRepository;
+
+
 
     @Override
     public String getConceptIdForSchemeCode(String scheme, String code) {
@@ -94,15 +91,15 @@ public class RuntimeService  implements IRuntimeService {
     }
 
     @Override
-    public Boolean isInVSet(String code, String v1Scheme, String vSet){
+    public Boolean isInVSet(String code, String v1Scheme, String vSet) throws JsonProcessingException {
         if (code == null || code.isEmpty() || v1Scheme == null || v1Scheme.isEmpty() || vSet == null || vSet.isEmpty())
             return false;
 
-        String scheme = schemeMap.get(v1Scheme);
+        String scheme = getSchemeMap().get(v1Scheme);
 
         // return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
 
-        int r = (int)(Math.random()*1000);
+        int r = (int)(Math.random()*100);
         return r != 10;
 
     }
@@ -126,6 +123,12 @@ public class RuntimeService  implements IRuntimeService {
             LOG.warn("Multiple maps found for scheme "+ scheme + " and code "+ code);
         Tpl map = maps.stream().findFirst().get();
         return map.getObject();
+    }
+
+    private Map<String, String> getSchemeMap() throws JsonProcessingException {
+        if(schemeMap==null)
+             schemeMap = configService.getConfig("schemeMap", Map.class);
+        return schemeMap;
     }
 }
 

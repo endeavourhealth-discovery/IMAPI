@@ -1,6 +1,7 @@
 package org.endeavourhealth.controllers;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.dataaccess.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -71,7 +72,7 @@ public class RuntimeController {
     }
 
     @GetMapping("/Concept/isValueSetMember")
-    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet){
+    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException {
         return runtimeService.isInVSet(code, scheme,vSet).toString();
     }
 

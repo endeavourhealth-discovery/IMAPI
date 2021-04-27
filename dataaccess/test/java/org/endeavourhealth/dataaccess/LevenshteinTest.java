@@ -7,17 +7,49 @@ import static org.junit.jupiter.api.Assertions.*;
 class LevenshteinTest {
 
     @Test
-    void calculateAsthma() {
-        String term = "Asthma";
-        System.out.println(Levenshtein.calculate(term, "Mixed Asthma"));
-        System.out.println(Levenshtein.calculate(term, "Asthma (disorder)"));
+    void calculateEqual() {
+        String testString = "Asthma (disorder)";
+        int actual = Levenshtein.calculate(testString, testString);
+        assertEquals(0, actual);
     }
 
     @Test
-    void calculate() {
-        String term = "Encounter";
-        System.out.println(Levenshtein.calculate(term, "http://endhealth.info/EncounterTerm#LE_1"));
-        System.out.println(Levenshtein.calculate(term, "Encounter (record type)"));
+    void calculate1Edit() {
+        String testString = "Asthma (disorder)";
+        String editString = "Bsthma (disorder)";
+        int actual = Levenshtein.calculate(testString, editString);
+        assertEquals(1, actual);
     }
 
+    @Test
+    void calculateSymmetric() {
+        String testString = "Asthma (disorder)";
+        String editString = "Encounter (record type)";
+        int actual = Levenshtein.calculate(testString, editString);
+        int expected = Levenshtein.calculate(editString, testString);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void calculateSwap() {
+        // TODO - Add in "swap" check
+        String testString = "Asthma (disorder)";
+        String editString = "Ashtma (disorder)";
+        int actual = Levenshtein.calculate(testString, editString);
+        assertEquals(2, actual);
+    }
+
+    @Test
+    void calculateEmpty() {
+        String testString = "";
+        int actual = Levenshtein.calculate(testString, testString);
+        assertEquals(0, actual);
+    }
+
+    @Test
+    void calculateNull() {
+        String testString = null;
+        int actual = Levenshtein.calculate(testString, testString);
+        assertEquals(0, actual);
+    }
 }

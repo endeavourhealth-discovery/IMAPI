@@ -27,9 +27,6 @@ import java.util.stream.Stream;
 
 @Component
 public class ConceptServiceV3 {
-	@Value("#{'${discovery.dataaccess.core-namespace-prefixes}'.split(',')}")
-	List<String> coreNamespacePrefixes;
-
 	@Autowired
 	ConceptRepository conceptRepository;
 
@@ -309,26 +306,6 @@ public class ConceptServiceV3 {
 		return conceptTermRepository.getSynonyms(iri);
 	}
 
-	private Pageable getPage(Integer pageIndex, Integer pageSize) {
-		Pageable page = null;
-
-		// defaults
-		if (pageIndex != null && pageIndex <= 0)
-			pageIndex = 1;
-		if (pageSize != null && pageSize <= 0)
-			pageSize = 20;
-
-		if (pageIndex != null && pageSize != null) {
-			page = PageRequest.of(pageIndex - 1, pageSize);
-		}
-
-		return page;
-	}
-
-	private String getPath(String iri) {
-		return iri.substring(0, Math.max(iri.lastIndexOf("/"), iri.lastIndexOf('#')) + 1);
-	}
-
 	private Set<TTIriRef> populateMissingNames(TTConcept concept) {
 		// Get both predicate and object TTIriRefs
 		List<TTIriRef> iriRefs = new ArrayList<>();
@@ -358,12 +335,4 @@ public class ConceptServiceV3 {
 		// Return named predicate list
 		return predicates;
 	}
-
-	private void stripIriRefNames(TTConcept concept) {
-		TTConceptVisitor visitor = new TTConceptVisitor();
-		visitor.IriRefVisitor = ((predicate, iriRef) -> iriRef.setName(null));
-		visitor.visit(concept);
-	}
-
-
 }

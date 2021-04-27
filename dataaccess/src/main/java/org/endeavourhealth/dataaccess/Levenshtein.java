@@ -5,6 +5,9 @@ import java.util.Arrays;
 public class Levenshtein {
 
     public static int calculate(String x, String y) {
+        if (x == null || y == null)
+            return 0;
+
         x = x.toLowerCase();
         y = y.toLowerCase();
 

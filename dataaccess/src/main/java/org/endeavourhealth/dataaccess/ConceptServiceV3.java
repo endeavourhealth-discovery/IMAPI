@@ -91,13 +91,12 @@ public class ConceptServiceV3 {
 
         List<ConceptReferenceNode> immediateChildren = inactive ? getAllStatusChildren(iri, pageable) : getActiveChildren(iri, pageable);
         for (ConceptReferenceNode child : immediateChildren) {
-                List<Tpl> grandChildren = conceptTripleRepository
-                        .findImmediateChildrenByIri(child.getIri(), pageable);
+                List<ConceptReferenceNode> grandChildren = inactive ? getAllStatusChildren(child.getIri(), pageable)
+						: getActiveChildren(child.getIri(), pageable);
                 child.setHasChildren(grandChildren.size() != 0);
                 result.add(child);
         }
         return result;
-
     }
 
 	private List<ConceptReferenceNode> getActiveChildren(String iri, Pageable pageable) {
@@ -113,22 +112,6 @@ public class ConceptServiceV3 {
 				.findImmediateChildrenByIri(iri, pageable).stream()
 				.map(t -> new ConceptReferenceNode(t.getSubject().getIri(), t.getSubject().getName())
 						.setType(getConcept(t.getSubject().getIri()).getType())).collect(Collectors.toList());
-	}
-
-	public List<ConceptReferenceNode> getDescendants(String iri) {
-		return getChildren(iri);
-	}
-
-	private List<ConceptReferenceNode> getChildren(String iri){
-		List<ConceptReferenceNode> descendant =conceptTripleRepository
-				.findImmediateChildrenByIri(iri).stream()
-				.map(t -> new ConceptReferenceNode(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
-		for (ConceptReferenceNode child : descendant) {
-			if(child.isHasChildren()) {
-				descendant.addAll(getChildren(child.getIri()));
-			}
-		}
-		return descendant;
 	}
 
 	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,

@@ -73,12 +73,6 @@ public class ConceptController {
 		return conceptService.getImmediateChildren(iri, page, size, includeLegacy, false);
 	}
 
-	@GetMapping(value = "/children/download", produces = { "text/csv" })
-	public byte[] downloadChildren(@RequestParam(name = "iri") String iri) {
-		List<ConceptReferenceNode> descendants = conceptService.getDescendants(iri);
-		return null;
-	}
-
 	@GetMapping(value = "/download")
 	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
 			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,

@@ -27,9 +27,6 @@ import java.util.stream.Stream;
 
 @Component
 public class ConceptServiceV3 {
-	@Value("#{'${discovery.dataaccess.core-namespace-prefixes}'.split(',')}")
-	List<String> coreNamespacePrefixes;
-
 	@Autowired
 	ConceptRepository conceptRepository;
 

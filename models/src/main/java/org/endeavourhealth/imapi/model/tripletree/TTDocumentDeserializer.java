@@ -45,7 +45,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          result.setConcepts(getConcepts(node.withArray("concepts")));
       }
       if (node.get("individuals")!=null){
-         result.setIndividuals(getConcepts(node.withArray("individuals")));
+         result.setIndividuals(getInstances(node.withArray("individuals")));
       }
 
       return result;
@@ -69,6 +69,28 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
             }
             else
                concept.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
+         }
+      }
+
+      return result;
+   }
+
+
+   private List<TTInstance> getInstances(ArrayNode arrayNode) throws IOException {
+      List result = new ArrayList();
+      Iterator<JsonNode> iterator = arrayNode.elements();
+      while(iterator.hasNext()) {
+         JsonNode instanceNode = iterator.next();
+         TTInstance instance= new TTInstance();
+         result.add(instance);
+         Iterator<Map.Entry<String, JsonNode>> fields = instanceNode.fields();
+         while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            if (field.getKey().equals("@id")) {
+               instance.setIri(helper.expand(field.getValue().textValue()));
+            }
+            else
+               instance.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
          }
       }
 

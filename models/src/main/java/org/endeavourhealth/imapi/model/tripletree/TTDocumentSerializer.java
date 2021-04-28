@@ -56,10 +56,10 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       }
       if (document.getIndividuals()!=null) {
          gen.writeArrayFieldStart("individuals");
-         for (TTConcept concept: document.getIndividuals()){
+         for (TTInstance instance: document.getIndividuals()){
             gen.writeStartObject();
-            gen.writeStringField("@id",helper.prefix(concept.getIri()));
-            helper.serializeNode(concept, gen);
+            gen.writeStringField("@id",helper.prefix(instance.getIri()));
+            helper.serializeNode(instance, gen);
             gen.writeEndObject();
          }
          gen.writeEndArray();

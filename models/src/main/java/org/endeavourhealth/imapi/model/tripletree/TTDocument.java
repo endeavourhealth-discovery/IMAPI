@@ -14,7 +14,7 @@ public class TTDocument extends TTNode {
     private TTIriRef graph;
     private TTContext context = new TTContext();
     private List<TTConcept> concepts;
-    private List<TTConcept> individuals;
+    private List<TTInstance> individuals;
     private Map<Class, List<String>> predicateTemplate;
 
     public TTIriRef getGraph() {
@@ -88,20 +88,20 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-    public List<TTConcept> getIndividuals() {
+    public List<TTInstance> getIndividuals() {
         return individuals;
     }
 
-    public TTDocument setIndividuals(List<TTConcept> individuals) {
+    public TTDocument setIndividuals(List<TTInstance> individuals) {
         this.individuals = individuals;
         return this;
     }
 
-    public TTDocument addIndividual(TTConcept concept) {
+    public TTDocument addIndividual(TTInstance instance) {
         if (this.individuals == null)
             this.individuals = new ArrayList<>();
-        concept.setContext(this.context);
-        this.individuals.add(concept);
+        instance.setContext(this.context);
+        this.individuals.add(instance);
         return this;
     }
 

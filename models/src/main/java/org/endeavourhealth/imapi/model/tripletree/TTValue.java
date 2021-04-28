@@ -16,10 +16,12 @@ public abstract class TTValue {
 
     @JsonIgnore
     public boolean isNode() { return false; }
+    public boolean isTypedIri() { return false;}
 
     public TTLiteral asLiteral() {return null; }
     public TTIriRef asIriRef() {return null; }
     public TTArray asArray() {return null; }
     public List<TTValue> asArrayElements() {return null; }
     public TTNode asNode() {return null; }
+    public TTIriRef asTypedIri() {return null;}
 }

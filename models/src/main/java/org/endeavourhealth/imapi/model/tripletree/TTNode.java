@@ -18,11 +18,18 @@ public class TTNode extends TTValue {
         return this;
     }
 
+
+
+
     public TTValue get(TTIriRef predicate) {
         return predicateValues.get(predicate);
     }
 
-    public boolean has(TTIriRef predicate) { return predicateValues.containsKey(predicate); }
+    public boolean has(TTIriRef predicate) {
+        if (predicateValues.containsKey(predicate))
+            return true;
+        return false;
+    }
 
     public HashMap<TTIriRef, TTValue> getPredicateMap() {
         return this.predicateValues;
@@ -59,7 +66,6 @@ public class TTNode extends TTValue {
     public List<TTValue> getAsArrayElements(TTIriRef predicate) {
         return predicateValues.get(predicate).asArrayElements();
     }
-
 
 
     public TTNode getAsNode(TTIriRef predicate) {

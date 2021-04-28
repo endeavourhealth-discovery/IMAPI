@@ -17,8 +17,7 @@ public class IM {
     //Concept tope level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
 
-    //Synonyms
-    public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
+
 
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
@@ -29,9 +28,12 @@ public class IM {
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
+    public static final TTIriRef TERM_CODE = iri(NAMESPACE + "TermCode");
+    public static final TTIriRef TERM = iri(NAMESPACE + "Term");
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
+    public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
@@ -65,7 +67,8 @@ public class IM {
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
     public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
-
+    public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
+    public static final TTIriRef IS_TERM_FOR = iri(NAMESPACE + "isTermFor");
 
 
 
@@ -75,18 +78,16 @@ public class IM {
 
 
 
-
-
     //Code schemes
     public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
     public static final TTIriRef CODE_SCHEME_READ = iri(NAMESPACE +"891141000252104");
-    public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"891051000252101");
+    public static final TTIriRef CODE_SCHEME_TPP = iri(NAMESPACE +"891051000252101");
     public static final TTIriRef CODE_SCHEME_ICD10 = iri(NAMESPACE +"891021000252109");
     public static final TTIriRef CODE_SCHEME_OPCS4 = iri(NAMESPACE +"891041000252103");
     public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"891031000252107");
-    public static final TTIriRef CODE_SCHEME_TPP = iri(NAMESPACE +"631000252102");
     public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"891081000252108");
     public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"1000131000252104");
+    public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"1000141000252108");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
@@ -51,6 +52,7 @@ public class TTIriRef extends TTValue {
     }
 
 
+    @JsonProperty("@id")
     public String getIri() {
         return this.iri;
     }

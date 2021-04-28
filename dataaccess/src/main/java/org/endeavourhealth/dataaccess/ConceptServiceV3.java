@@ -189,7 +189,9 @@ public class ConceptServiceV3 {
 
 	private ConceptSummary convertConceptToConceptSummary(ConceptSearch r,String full) {
 		TTArray types = new TTArray();
-		conceptTypeRepository.findAllByConcept_Dbid(r.getConcept().getDbid()).forEach(ct -> types.add(new TTIriRef().setIri(ct.getType())));
+		conceptTypeRepository.findAllByConcept_Dbid(r.getConcept().getDbid()).forEach(ct -> types.add(
+		    new TTIriRef().setIri(ct.getType().getIri()).setName(ct.getType().getName()))
+        );
 		return new ConceptSummary()
 				.setName(r.getConcept().getName())
 				.setMatch(r.getTerm())

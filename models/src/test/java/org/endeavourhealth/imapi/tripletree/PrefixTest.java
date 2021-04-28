@@ -21,11 +21,11 @@ public class PrefixTest {
             .addPrefix(RDFS.NAMESPACE,"rdfs")
             .addPrefix(XSD.NAMESPACE,"xsd")
             .addPrefix("http://endhealth.info/READ2#","r2")
-            .setIri("r2:H33..")
+            .setIri("emis:H33")
             .setName("Asthma")
             .setDescription("Asthma")
-            .setCode("H33..")
-            .setScheme(IM.CODE_SCHEME_READ)
+            .setCode("H33")
+            .setScheme(IM.CODE_SCHEME_EMIS)
             .set(IM.SYNONYM, new TTArray().add(
                 new TTNode()
                     .set(IM.CODE, literal("11"))
@@ -58,11 +58,11 @@ public class PrefixTest {
         document.addPrefix("http://endhealth.info/READ2#","r2");
 
         TTConcept c = new TTConcept()
-            .setIri("r2:H33..")
+            .setIri("emis:H33")
             .setName("Asthma")
             .setDescription("Asthma")
-            .setCode("H33..")
-            .setScheme(IM.CODE_SCHEME_READ)
+            .setCode("H33")
+            .setScheme(IM.CODE_SCHEME_EMIS)
             .set(IM.SYNONYM, new TTArray().add(
                 new TTNode()
                     .set(IM.CODE, literal("11"))
@@ -97,11 +97,11 @@ public class PrefixTest {
         document.addPrefix("http://endhealth.info/READ2#","r2");
 
         TTConcept c = new TTConcept()
-            .setIri("r2:H33..")
+            .setIri("emis:H33")
             .setName("Asthma")
             .setDescription("Asthma")
-            .setCode("H33..")
-            .setScheme(IM.CODE_SCHEME_READ)
+            .setCode("H33")
+            .setScheme(IM.CODE_SCHEME_EMIS)
             .set(IM.SYNONYM, new TTArray().add(
                 new TTNode()
                     .set(IM.CODE, literal("11"))

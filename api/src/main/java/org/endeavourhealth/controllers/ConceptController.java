@@ -82,7 +82,8 @@ public class ConceptController {
 		DownloadDto downloadDto = new DownloadDto();
 
 		if (children) {
-			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false, inactive);
+			List<ConceptReferenceNode> childrenList = conceptService.getImmediateChildren(iri, null, null, false,
+					inactive);
 			switch (format) {
 			case "excel":
 				xls.addChildren(childrenList);
@@ -94,7 +95,8 @@ public class ConceptController {
 		}
 
 		if (parents) {
-			List<ConceptReferenceNode> parentList = conceptService.getImmediateParents(iri, null, null, false, inactive);
+			List<ConceptReferenceNode> parentList = conceptService.getImmediateParents(iri, null, null, false,
+					inactive);
 			switch (format) {
 			case "excel":
 				xls.addParents(parentList);
@@ -302,6 +304,10 @@ public class ConceptController {
 									pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
 								if (property.asNode().has(SHACL.DATATYPE))
 									pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+								if (property.asNode().has(SHACL.MAXCOUNT))
+									pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
+								if (property.asNode().has(SHACL.MINCOUNT))
+									pv.setMinExclusive(property.asNode().get(SHACL.MINCOUNT).asLiteral().getValue());
 
 								properties.add(pv);
 							}
@@ -360,12 +366,14 @@ public class ConceptController {
 						.setName(prop.getProperty().getName()).setInheritedFromName(prop.getInheritedFrom().getName())
 						.setInheritedFromIri(prop.getInheritedFrom().getIri())
 						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-						.setValueTypeName(prop.getValueType().getName());
+						.setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
+						.setMin(prop.getMinExclusive());
 				graphInheritedProps.getChildren().add(graphProp);
 			} else {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
 						.setName(prop.getProperty().getName()).setPropertyType(prop.getProperty().getName())
-						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName());
+						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
+						.setMin(prop.getMinExclusive());
 				graphDirectProps.getChildren().add(graphProp);
 			}
 		});

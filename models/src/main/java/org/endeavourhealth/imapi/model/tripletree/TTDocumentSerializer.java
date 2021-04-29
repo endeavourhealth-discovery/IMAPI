@@ -44,7 +44,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          gen.writeStringField("@id", helper.prefix(document.getGraph().getIri()));
          gen.writeEndObject();
       }
-      if (document.getConcepts()!=null) {
+      if (document.getConcepts()!=null&&!document.getConcepts().isEmpty()) {
          gen.writeArrayFieldStart("concepts");
          for (TTConcept concept: document.getConcepts()){
             gen.writeStartObject();
@@ -54,11 +54,12 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          }
          gen.writeEndArray();
       }
-      if (document.getIndividuals()!=null) {
+      if (document.getIndividuals()!=null&&!document.getIndividuals().isEmpty()) {
          gen.writeArrayFieldStart("individuals");
          for (TTInstance instance: document.getIndividuals()){
             gen.writeStartObject();
-            gen.writeStringField("@id",helper.prefix(instance.getIri()));
+            if (instance.getIri()!=null)
+               gen.writeStringField("@id",helper.prefix(instance.getIri()));
             helper.serializeNode(instance, gen);
             gen.writeEndObject();
          }

@@ -12,7 +12,9 @@ public class ConceptType {
     @OneToOne()
     @JoinColumn(name = "concept", referencedColumnName = "dbid")
     private Concept concept;
-    private String type;
+    @OneToOne()
+    @JoinColumn(name = "type", referencedColumnName = "iri")
+    private Concept type;
     private LocalDateTime updated;
 
     public Integer getDbid() {
@@ -33,11 +35,11 @@ public class ConceptType {
         return this;
     }
 
-    public String getType() {
+    public Concept getType() {
         return type;
     }
 
-    public ConceptType setType(String type) {
+    public ConceptType setType(Concept type) {
         this.type = type;
         return this;
     }

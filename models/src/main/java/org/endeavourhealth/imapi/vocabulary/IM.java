@@ -59,7 +59,7 @@ public class IM {
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE +"Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE +"Inactive");
-    public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"891071000252105");
+
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
@@ -72,6 +72,8 @@ public class IM {
 
 
 
+
+
     //SPARQL parameters
     public static final TTIriRef QUERY_VARIABLE = iri(NAMESPACE +"queryVariable");
     public static final TTIriRef CALL_QUERY= iri(NAMESPACE +"callQuery");
@@ -79,15 +81,17 @@ public class IM {
 
 
     //Code schemes
-    public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"891101000252101");
-    public static final TTIriRef CODE_SCHEME_READ = iri(NAMESPACE +"891141000252104");
-    public static final TTIriRef CODE_SCHEME_TPP = iri(NAMESPACE +"891051000252101");
-    public static final TTIriRef CODE_SCHEME_ICD10 = iri(NAMESPACE +"891021000252109");
-    public static final TTIriRef CODE_SCHEME_OPCS4 = iri(NAMESPACE +"891041000252103");
-    public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"891031000252107");
-    public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"891081000252108");
-    public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"1000131000252104");
-    public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"1000141000252108");
+    public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"SnomedCodeScheme");
+    public static final TTIriRef CODE_SCHEME_READ = iri(NAMESPACE +"Read2CodeScheme");
+    public static final TTIriRef CODE_SCHEME_ICD10 = iri(NAMESPACE +"ICD10CodeScheme");
+    public static final TTIriRef CODE_SCHEME_OPCS4 = iri(NAMESPACE +"OPSC49CodeScheme");
+    public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"EMISCodeScheme");
+    public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"BartsCernerCodeScheme");
+    public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"VisionCodeScheme");
+    public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"CTV3TPPCodeScheme");
+    public static final TTIriRef CODE_SCHEME_TERMS = iri(NAMESPACE+"TermOnlyCodeScheme");
+    public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
+    public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

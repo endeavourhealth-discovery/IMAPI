@@ -1,42 +1,71 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchRequest {
-    private String terms;
-    private List<String> types = new ArrayList<>();
-    private List<ConceptReference> codeSchemes = new ArrayList<>();
+    private String termFilter;
+    private List<String> statusFilter = new ArrayList<>();
+    private List<String> typeFilter = new ArrayList<>();
+    private List<String> schemeFilter = new ArrayList<>();
+    private List<String> descendentFilter = new ArrayList<>();
+    private List<String> markIfDescendentOf = new ArrayList<>();
     private int page = 1;
     private int size = 20;
-    private List<Byte> statuses = new ArrayList<>();
 
-    public String getTerms() {
-        return terms;
+    public String getTermFilter() {
+        return termFilter;
     }
 
-    public SearchRequest setTerms(String terms) {
-        this.terms = terms;
+    public SearchRequest setTermFilter(String termFilter) {
+        this.termFilter = termFilter;
         return this;
     }
 
-    public List<String> getTypes() {
-        return types;
+    public List<String> getStatusFilter() {
+        return statusFilter;
     }
 
-    public SearchRequest setTypes(List<String> types) {
-        this.types = types;
+    public SearchRequest setStatusFilter(List<String> statusFilter) {
+        this.statusFilter = statusFilter;
         return this;
     }
 
-    public List<ConceptReference> getCodeSchemes() {
-        return codeSchemes;
+    public List<String> getTypeFilter() {
+        return typeFilter;
     }
 
-    public SearchRequest setCodeSchemes(List<ConceptReference> codeSchemes) {
-        this.codeSchemes = codeSchemes;
+    public SearchRequest setTypeFilter(List<String> typeFilter) {
+        this.typeFilter = typeFilter;
+        return this;
+    }
+
+    public List<String> getSchemeFilter() {
+        return schemeFilter;
+    }
+
+    public SearchRequest setSchemeFilter(List<String> schemeFilter) {
+        this.schemeFilter = schemeFilter;
+        return this;
+    }
+
+    public List<String> getDescendentFilter() {
+        return descendentFilter;
+    }
+
+    public SearchRequest setDescendentFilter(List<String> descendentFilter) {
+        this.descendentFilter = descendentFilter;
+        return this;
+    }
+
+    public List<String> getMarkIfDescendentOf() {
+        return markIfDescendentOf;
+    }
+
+    public SearchRequest setMarkIfDescendentOf(List<String> markIfDescendentOf) {
+        this.markIfDescendentOf = markIfDescendentOf;
         return this;
     }
 
@@ -55,15 +84,6 @@ public class SearchRequest {
 
     public SearchRequest setSize(int size) {
         this.size = size;
-        return this;
-    }
-
-    public List<Byte> getStatuses() {
-        return statuses;
-    }
-
-    public SearchRequest setStatuses(List<Byte> statuses) {
-        this.statuses = statuses;
         return this;
     }
 }

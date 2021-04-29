@@ -1,10 +1,14 @@
 package org.endeavourhealth.dataaccess;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.Concept;
+import org.endeavourhealth.dataaccess.entity.Config;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
 import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
-import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.dataaccess.repository.ConfigRepository;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +26,23 @@ import java.util.stream.Collectors;
 public class ConfigService implements IConfigService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigService.class);
 
+    private ObjectMapper om = new ObjectMapper();
+
     @Autowired
     ConceptRepository conceptRepository;
 
     @Autowired
     ConceptTctRepository conceptTctRepository;
 
+    @Autowired
+    ConfigRepository configRepository;
+
     @Override
-    public List<ConceptSummary> getQuickAccess() {
+    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException {
         LOG.info("getQuickAccess");
 
-        String[] quickAccessIris = new String[] {":SemanticConcept", ":HealthRecord", ":VSET_DataModel", ":VSET_QueryValueSets"};
-        String[] candidates = new String[] {":DiscoveryCommonDataModel", ":VSET_ValueSet", ":SemanticConcept"};
+        String[] quickAccessIris = getConfig("quickAccessIri", String[].class);
+        String[] candidates =  getConfig("quickAccessCandidatesIri", String[].class);
 
         List<ConceptSummary> result = new ArrayList<>();
 
@@ -47,14 +56,11 @@ public class ConfigService implements IConfigService {
 	                .setCode(c.getCode());
 	
 	            if (c.getScheme() != null)
-	                src.setScheme(new ConceptReference(
-	                    c.getScheme().getIri(),
-	                    c.getScheme().getName())
-	                );
+	                src.setScheme(new TTIriRef(c.getScheme().getIri(), c.getScheme().getName()));
 	
-	            src.setTypes(conceptTctRepository.findBySource_Iri_AndTarget_IriIn(iri, Arrays.asList(candidates))
-	                .stream().map(tct -> new ConceptReference(tct.getTarget().getIri(), tct.getTarget().getName()))
-	                .sorted(Comparator.comparing(ConceptReference::getName))
+	            src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
+	                .stream().map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
+	                .sorted(Comparator.comparing(TTIriRef::getName))
 	                .collect(Collectors.toList()));
 	
 	            result.add(src);
@@ -65,5 +71,13 @@ public class ConfigService implements IConfigService {
         }
 
         return result;
+    }
+
+    public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException {
+
+        Config config = configRepository.findByName(name);
+        if(config==null)
+            return null;
+        return om.readValue(config.getConfig(), resultType);
     }
 }

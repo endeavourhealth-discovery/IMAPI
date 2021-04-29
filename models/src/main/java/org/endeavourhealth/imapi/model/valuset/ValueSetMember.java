@@ -1,17 +1,17 @@
 package org.endeavourhealth.imapi.model.valuset;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class ValueSetMember {
-    private ConceptReference concept;
+    private TTIriRef concept;
     private String code;
-    private ConceptReference scheme;
+    private TTIriRef scheme;
 
-    public ConceptReference getConcept() {
+    public TTIriRef getConcept() {
         return concept;
     }
 
-    public ValueSetMember setConcept(ConceptReference concept) {
+    public ValueSetMember setConcept(TTIriRef concept) {
         this.concept = concept;
         return this;
     }
@@ -25,11 +25,11 @@ public class ValueSetMember {
         return this;
     }
 
-    public ConceptReference getScheme() {
+    public TTIriRef getScheme() {
         return scheme;
     }
 
-    public ValueSetMember setScheme(ConceptReference scheme) {
+    public ValueSetMember setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
     }

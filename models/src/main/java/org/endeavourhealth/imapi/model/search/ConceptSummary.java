@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
-import org.endeavourhealth.imapi.model.ConceptType;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,13 @@ public class ConceptSummary {
     private String name;
     private String iri;
     private String code;
-    private ConceptReference scheme;
-    private ConceptType conceptType;
-    private List<ConceptReference> types = new ArrayList<>();
+    private String description;
+    private TTIriRef status;
+    private TTIriRef scheme;
+    private TTArray conceptType;
+    private List<TTIriRef> isDescendentOf = new ArrayList<>();
     private Integer weighting;
+    private String match;
 
     public String getName() {
         return name;
@@ -42,30 +45,48 @@ public class ConceptSummary {
         return this;
     }
 
-    public ConceptReference getScheme() {
+    public String getDescription() {
+        return description;
+    }
+
+    public ConceptSummary setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public TTIriRef getStatus() {
+        return status;
+    }
+
+    public ConceptSummary setStatus(TTIriRef status) {
+        this.status = status;
+        return this;
+    }
+
+    public TTIriRef getScheme() {
         return scheme;
     }
 
-    public ConceptSummary setScheme(ConceptReference scheme) {
+    public ConceptSummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
     }
 
-    public ConceptType getConceptType() {
+    public TTArray getConceptType() {
         return conceptType;
     }
 
-    public ConceptSummary setConceptType(ConceptType conceptType) {
+    public ConceptSummary setConceptType(TTArray conceptType) {
         this.conceptType = conceptType;
         return this;
     }
 
-    public List<ConceptReference> getTypes() {
-        return types;
+    public List<TTIriRef> getIsDescendentOf() {
+        return isDescendentOf;
     }
 
-    public ConceptSummary setTypes(List<ConceptReference> types) {
-        this.types = types;
+    public ConceptSummary setIsDescendentOf(List<TTIriRef> isDescendentOf) {
+        this.isDescendentOf = isDescendentOf;
         return this;
     }
 
@@ -75,6 +96,15 @@ public class ConceptSummary {
 
     public ConceptSummary setWeighting(Integer weighting) {
         this.weighting = weighting;
+        return this;
+    }
+
+    public String getMatch() {
+        return match;
+    }
+
+    public ConceptSummary setMatch(String match) {
+        this.match = match;
         return this;
     }
 }

@@ -1,5 +1,8 @@
 package org.endeavourhealth.controllers;
 
+import java.util.List;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.dataaccess.IConfigService;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("api/config")
-@CrossOrigin
+@CrossOrigin(origins = "*")
 public class ConfigController {
 
 
@@ -25,7 +26,7 @@ public class ConfigController {
     // IConceptService conceptService = new ConceptServiceRDF4J();
 
     @GetMapping(value = "/quickAccess")
-    public List<ConceptSummary> getQuickAccess() {
+    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException {
         return configService.getQuickAccess();
     }
 }

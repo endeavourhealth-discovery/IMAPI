@@ -104,7 +104,7 @@ public class IM {
     public static final TTIriRef GRAPH_MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
 
-
-
+    //Crud operations
+    public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE +"UpdatePredicates");
 
 }

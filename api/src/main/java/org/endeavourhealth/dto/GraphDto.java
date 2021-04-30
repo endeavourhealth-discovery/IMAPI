@@ -12,10 +12,30 @@ public class GraphDto {
 	String valueTypeName;
 	String inheritedFromIri;
 	String inheritedFromName;
+	String min;
+	String max;
 	List<GraphDto> children;
 	
 	public GraphDto() {
 		this.children = new ArrayList<GraphDto>();
+	}
+	
+	public String getMin() {
+		return min;
+	}
+
+	public GraphDto setMin(String min) {
+		this.min = min;
+		return this;
+	}
+	
+	public String getMax() {
+		return min;
+	}
+
+	public GraphDto setMax(String max) {
+		this.max = max;
+		return this;
 	}
 
 	public String getValueTypeIri() {

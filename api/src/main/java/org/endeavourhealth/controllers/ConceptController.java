@@ -337,11 +337,20 @@ public class ConceptController {
 		TTValue value = concept.get(IM.IS_A);
 		if (value != null) {
 			if (value.isList()) {
-				parents = concept.getAsArrayElements(IM.IS_A);
+				parents = value.asArrayElements();
 			} else {
 				parents.add(value);
 			}
 		}
+
+        value = concept.get(IM.IS_CONTAINED_IN);
+        if (value != null) {
+            if (value.isList()) {
+                parents = value.asArrayElements();
+            } else {
+                parents.add(value);
+            }
+        }
 
 		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false, false);
 		List<PropertyValue> properties = getAllProperties(iri);

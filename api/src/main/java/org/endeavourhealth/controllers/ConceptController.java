@@ -3,10 +3,8 @@ package org.endeavourhealth.controllers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptServiceV3;
 import org.endeavourhealth.dto.ConceptDto;
@@ -25,6 +23,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -332,28 +331,12 @@ public class ConceptController {
 		GraphDto graphDirectProps = new GraphDto().setName("Direct");
 		GraphDto graphRoles = new GraphDto().setName("Roles");
 
-		List<TTValue> parents = new ArrayList<TTValue>();
-
-		TTValue value = concept.get(IM.IS_A);
-		if (value != null) {
-			if (value.isList()) {
-				parents = concept.getAsArrayElements(IM.IS_A);
-			} else {
-				parents.add(value);
-			}
-		}
+		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_A));
+        graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_CONTAINED_IN));
 
 		List<ConceptReferenceNode> children = conceptService.getImmediateChildren(iri, null, null, false, false);
 		List<PropertyValue> properties = getAllProperties(iri);
 		List<PropertyValue> roles = getRoles(iri);
-
-		if (parents != null) {
-			parents.forEach(parent -> {
-				GraphDto graphParent = new GraphDto().setIri(parent.asIriRef().getIri())
-						.setName(parent.asIriRef().getName()).setPropertyType("is a");
-				graphParents.getChildren().add(graphParent);
-			});
-		}
 
 		children.forEach(child -> {
 			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
@@ -398,6 +381,32 @@ public class ConceptController {
 
 		return graphData;
 	}
+
+	private List<GraphDto> getConceptDefinedParents(TTConcept concept, TTIriRef predicate) {
+        TTValue parent = concept.get(predicate);
+
+        if (parent == null)
+            return Collections.emptyList();
+
+        List<GraphDto> result = new ArrayList<>();
+        if (parent.isList()) {
+            parent.asArrayElements().forEach(item -> {
+                if (!OWL.THING.equals(item.asIriRef()))
+                    result.add(
+                        new GraphDto().setIri(item.asIriRef().getIri())
+                            .setName(item.asIriRef().getName()).setPropertyType(predicate.getName())
+                    );
+            });
+        } else {
+            if (!OWL.THING.equals(parent.asIriRef()))
+                result.add(
+                    new GraphDto().setIri(parent.asIriRef().getIri())
+                        .setName(parent.asIriRef().getName()).setPropertyType(predicate.getName())
+                );
+        }
+
+        return result;
+    }
 
 	@GetMapping("/synonyms")
 	public List<String> getSynonyms(@RequestParam(name = "iri") String iri) {

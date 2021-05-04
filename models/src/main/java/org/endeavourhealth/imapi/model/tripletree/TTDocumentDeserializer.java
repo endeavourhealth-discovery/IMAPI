@@ -41,6 +41,8 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          result.setContext(context);
       if (node.get("@graph")!=null)
          result.setGraph(iri(helper.expand(node.get("@graph").get("@id").asText())));
+      if (node.get("crudOperation")!=null)
+         result.setCrudOperation(iri(helper.expand(node.get("crudOperation").get("@id").asText())));
       if (node.get("concepts")!=null) {
          result.setConcepts(getConcepts(node.withArray("concepts")));
       }

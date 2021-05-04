@@ -97,11 +97,7 @@ public class RuntimeService  implements IRuntimeService {
 
         String scheme = getSchemeMap().get(v1Scheme);
 
-        // return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
-
-        int r = (int)(Math.random()*100);
-        return r != 10;
-
+        return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
     }
 
     private Boolean included(String code, String scheme, String vSet) {

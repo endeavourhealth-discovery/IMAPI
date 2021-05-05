@@ -13,4 +13,5 @@ public class RDFS {
     public static final TTIriRef SUBPROPERTYOF= iri(NAMESPACE +"subPropertyOf");
     public static final TTIriRef DOMAIN= iri(NAMESPACE +"domain");
     public static final TTIriRef RANGE= iri(NAMESPACE +"range");
+    public static final TTIriRef RESOURCE= iri(NAMESPACE +"Resource");
 }

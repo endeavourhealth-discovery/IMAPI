@@ -74,7 +74,31 @@ public class ConfigServiceTest {
                 .setAncestor(new Concept()
                         .setIri("http://endhealth.info/im#25451000252115")
                         .setName("Adverse reaction to Amlodipine Besilate"));
-        when(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(),any())).thenReturn(Collections.singleton(tct));
+        when(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(), any())).thenReturn(Collections.singleton(tct));
+
+        List<ConceptSummary> actual = configService.getQuickAccess();
+        assertNotNull(actual);
+
+    }
+
+
+    @Test
+    public void getQuickAccess_NullScheme() throws JsonProcessingException {
+        Config config = new Config()
+                .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
+        when(configRepository.findByName(any())).thenReturn(config);
+
+        Concept concept = new Concept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .setName("Adverse reaction to Amlodipine Besilate")
+                .setCode("25451000252115");
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+
+        Tct tct = new Tct()
+                .setAncestor(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate"));
+        when(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(), any())).thenReturn(Collections.singleton(tct));
 
         List<ConceptSummary> actual = configService.getQuickAccess();
         assertNotNull(actual);

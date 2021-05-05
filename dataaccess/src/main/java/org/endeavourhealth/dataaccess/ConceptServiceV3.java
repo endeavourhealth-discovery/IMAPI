@@ -17,7 +17,6 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -57,7 +56,6 @@ public class ConceptServiceV3 {
 		Concept concept = conceptRepository.findByIri(iri);
 		if (concept == null)
 			return null;
-
 		try {
 			TTConcept result = om.readValue(concept.getJson(), TTConcept.class);
 			populateMissingNames(result);
@@ -69,6 +67,8 @@ public class ConceptServiceV3 {
 	}
 
 	public TTIriRef getConceptReference(String iri) {
+		if(iri==null||iri.isEmpty())
+			return null;
 		Concept concept = conceptRepository.findByIri(iri);
 		if (concept == null)
 			return null;
@@ -78,6 +78,9 @@ public class ConceptServiceV3 {
 
 	public List<ConceptReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize,
 			boolean includeLegacy, boolean inactive) {
+
+		if(iri == null || iri.isEmpty())
+			return Collections.emptyList();
 
         List<ConceptReferenceNode> result = new ArrayList<>();
 
@@ -90,7 +93,7 @@ public class ConceptServiceV3 {
         for (ConceptReferenceNode child : immediateChildren) {
                 List<ConceptReferenceNode> grandChildren = inactive ? getAllStatusChildren(child.getIri(), pageable)
 						: getActiveChildren(child.getIri(), pageable);
-                child.setHasChildren(grandChildren.size() != 0);
+                child.setHasChildren(!grandChildren.isEmpty());
                 result.add(child);
         }
         return result;
@@ -113,6 +116,9 @@ public class ConceptServiceV3 {
 
 	public List<ConceptReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
 			boolean includeLegacy, boolean inactive) {
+
+		if(iri == null || iri.isEmpty())
+			return Collections.emptyList();
 
         Pageable pageable = null;
         if (pageIndex != null && pageSize!=null){
@@ -141,6 +147,8 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
+		if(iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty())
+			return Collections.emptyList();
 		return conceptTctRepository
 				.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates).stream()
 				.map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
@@ -148,6 +156,10 @@ public class ConceptServiceV3 {
 	}
 
 	public List<ConceptSummary> usages(String iri) {
+
+		if(iri == null || iri.isEmpty())
+			return Collections.emptyList();
+
 		Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
 				.map(t -> t.getDescendant().getIri()).collect(Collectors.toSet());
 
@@ -160,6 +172,10 @@ public class ConceptServiceV3 {
 	}
 
 	public List<ConceptSummary> advancedSearch(SearchRequest request) {
+
+		if(request==null || request.getTermFilter()==null || request.getTermFilter().isEmpty())
+			return Collections.emptyList();
+
 		List<ConceptSearch> matchingConcept;
 
 		String full = request.getTermFilter();
@@ -208,6 +224,9 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {
+		if(iri == null || iri.isEmpty()){
+			return  Collections.emptyList();
+		}
 		try {
 			List<TTConcept> result = new ArrayList<>();
 			for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
@@ -218,13 +237,17 @@ public class ConceptServiceV3 {
 				}
 			}
 			return result;
-		} catch (JsonProcessingException e) {
+		} catch (JsonProcessingException | IllegalArgumentException e) {
 			e.printStackTrace();
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
 	public ExportValueSet getValueSetMembers(String iri, boolean expand) {
+		if(iri == null || iri.isEmpty()){
+			return  null;
+		}
+
 		Set<ValueSetMember> included =  getMember(iri, IM.HAS_MEMBER);
 		Set<ValueSetMember> excluded = getMember(iri, IM.NOT_MEMBER);
 		Map<String, ValueSetMember> inclusions = expandMember(included,expand);
@@ -266,6 +289,8 @@ public class ConceptServiceV3 {
 	}
 
 	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
+		if(valueSetIri==null || valueSetIri.isEmpty() || memberIri==null || memberIri.isEmpty())
+			return null;
 		ValueSetMembership result = new ValueSetMembership();
 		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.HAS_MEMBER);
 		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
@@ -295,16 +320,22 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
+		if(legacyIri == null || legacyIri.isEmpty())
+			return Collections.emptyList();
 		return conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(legacyIri, IM.HAS_MAP.getIri()).stream()
 				.map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName())).collect(Collectors.toList());
 	}
 
 	public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
+		if(coreIri == null || coreIri.isEmpty())
+			return Collections.emptyList();
 		return conceptTripleRepository.findAllByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri()).stream()
 				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
 	}
 
 	public List<String> getSynonyms(String iri) {
+		if(iri==null||iri.isEmpty())
+			return Collections.emptyList();
 		return conceptTermRepository.getSynonyms(iri);
 	}
 

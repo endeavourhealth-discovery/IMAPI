@@ -97,11 +97,19 @@ public class ConceptToImLang {
                             imLangConcept = imLangConcept.concat(convertConceptReferenceToString(intersection.asIriRef()) + ",\n");
                         else if (intersection.isNode()) {
                             TTIriRef property = intersection.asNode().getAsIriRef(OWL.ONPROPERTY);
-                            TTNode range = intersection.asNode().getAsNode(OWL.SOMEVALUESFROM);
-                            imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}],\n",
-                                convertConceptReferenceToString(property),
-                                convertConceptReferenceToString(range.asIriRef())
-                            ));
+                            try {
+                            	TTNode range = intersection.asNode().getAsNode(OWL.SOMEVALUESFROM);
+                            	imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}],\n",
+		                                convertConceptReferenceToString(property),
+		                                convertConceptReferenceToString(range.asIriRef())
+		                            ));
+							} catch (ClassCastException e) {
+								TTIriRef range = intersection.asNode().getAsIriRef(OWL.SOMEVALUESFROM);
+								imLangConcept = imLangConcept.concat(MessageFormat.format("[{0} {1}],\n",
+		                                convertConceptReferenceToString(property),
+		                                convertConceptReferenceToString(range.asIriRef())
+		                            ));
+							} 
                         }
                     }
                 }

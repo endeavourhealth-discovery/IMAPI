@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -97,11 +98,7 @@ public class RuntimeService  implements IRuntimeService {
 
         String scheme = getSchemeMap().get(v1Scheme);
 
-        // return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
-
-        int r = (int)(Math.random()*100);
-        return r != 10;
-
+        return included(code, scheme, vSet) && !excluded(code, scheme, vSet);
     }
 
     private Boolean included(String code, String scheme, String vSet) {
@@ -121,8 +118,11 @@ public class RuntimeService  implements IRuntimeService {
             return  null;
         if(maps.size()>1)
             LOG.warn("Multiple maps found for scheme "+ scheme + " and code "+ code);
-        Tpl map = maps.stream().findFirst().get();
-        return map.getObject();
+
+        return maps.stream()
+            .findFirst()
+            .map(Tpl::getObject)
+            .orElse(null);
     }
 
     private Map<String, String> getSchemeMap() throws JsonProcessingException {

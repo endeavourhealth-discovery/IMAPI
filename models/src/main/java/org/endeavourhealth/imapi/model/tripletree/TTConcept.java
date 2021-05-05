@@ -134,5 +134,5 @@ public class TTConcept extends TTNode {
     public TTContext getContext() {
         return context;
     }
-    
+
 }

@@ -72,4 +72,21 @@ public class TTNode extends TTValue {
         return (TTNode) predicateValues.get(predicate);
     }
 
+    /**
+     * Adds an object to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, TTValue object){
+        if (this.get(predicate)==null)
+            this.set(predicate,new TTArray().add(object));
+        else if (!this.get(predicate).isList()){
+            TTValue oldObject= this.get(predicate);
+            this.set(predicate,new TTArray().add(oldObject).add(object));
+        } else
+            this.get(predicate).asArray().add(object);
+        return this;
+    }
+
 }

@@ -57,6 +57,9 @@ public class Tpl {
     }
 
     public Concept getObject() {
+    	if(null == object) {
+    		return new Concept();
+    	}
         return object;
     }
 

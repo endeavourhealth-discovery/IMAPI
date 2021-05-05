@@ -17,7 +17,6 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -81,7 +80,7 @@ public class ConceptServiceV3 {
 			boolean includeLegacy, boolean inactive) {
 
 		if(iri == null || iri.isEmpty())
-			return null;
+			return Collections.emptyList();
 
         List<ConceptReferenceNode> result = new ArrayList<>();
 
@@ -94,7 +93,7 @@ public class ConceptServiceV3 {
         for (ConceptReferenceNode child : immediateChildren) {
                 List<ConceptReferenceNode> grandChildren = inactive ? getAllStatusChildren(child.getIri(), pageable)
 						: getActiveChildren(child.getIri(), pageable);
-                child.setHasChildren(grandChildren.size() != 0);
+                child.setHasChildren(!grandChildren.isEmpty());
                 result.add(child);
         }
         return result;
@@ -119,7 +118,7 @@ public class ConceptServiceV3 {
 			boolean includeLegacy, boolean inactive) {
 
 		if(iri == null || iri.isEmpty())
-			return null;
+			return Collections.emptyList();
 
         Pageable pageable = null;
         if (pageIndex != null && pageSize!=null){
@@ -149,7 +148,7 @@ public class ConceptServiceV3 {
 
 	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
 		if(iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty())
-			return null;
+			return Collections.emptyList();
 		return conceptTctRepository
 				.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates).stream()
 				.map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
@@ -159,7 +158,7 @@ public class ConceptServiceV3 {
 	public List<ConceptSummary> usages(String iri) {
 
 		if(iri == null || iri.isEmpty())
-			return null;
+			return Collections.emptyList();
 
 		Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
 				.map(t -> t.getDescendant().getIri()).collect(Collectors.toSet());
@@ -175,7 +174,7 @@ public class ConceptServiceV3 {
 	public List<ConceptSummary> advancedSearch(SearchRequest request) {
 
 		if(request==null || request.getTermFilter()==null || request.getTermFilter().isEmpty())
-			return null;
+			return Collections.emptyList();
 
 		List<ConceptSearch> matchingConcept;
 
@@ -226,7 +225,7 @@ public class ConceptServiceV3 {
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {
 		if(iri == null || iri.isEmpty()){
-			return  null;
+			return  Collections.emptyList();
 		}
 		try {
 			List<TTConcept> result = new ArrayList<>();
@@ -240,7 +239,7 @@ public class ConceptServiceV3 {
 			return result;
 		} catch (JsonProcessingException | IllegalArgumentException e) {
 			e.printStackTrace();
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
@@ -322,21 +321,21 @@ public class ConceptServiceV3 {
 
 	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) {
 		if(legacyIri == null || legacyIri.isEmpty())
-			return null;
+			return Collections.emptyList();
 		return conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(legacyIri, IM.HAS_MAP.getIri()).stream()
 				.map(t -> new TTIriRef(t.getObject().getIri(), t.getObject().getName())).collect(Collectors.toList());
 	}
 
 	public List<TTIriRef> getLegacyMappedToCore(String coreIri) {
 		if(coreIri == null || coreIri.isEmpty())
-			return null;
+			return Collections.emptyList();
 		return conceptTripleRepository.findAllByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri()).stream()
 				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
 	}
 
 	public List<String> getSynonyms(String iri) {
 		if(iri==null||iri.isEmpty())
-			return null;
+			return Collections.emptyList();
 		return conceptTermRepository.getSynonyms(iri);
 	}
 

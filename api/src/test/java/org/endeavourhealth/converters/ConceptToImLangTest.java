@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.util.Assert;
+import static org.junit.jupiter.api.Assertions.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -15,7 +15,7 @@ public class ConceptToImLangTest {
     void translateConceptToImLang() {
         TTConcept concept = getTestConcept();
         String actual = new ConceptToImLang().translateConceptToImLang(concept);
-        Assert.equals(getTestString(), actual);
+        assertEquals(getTestString(), actual);
     }
 
     public TTConcept getTestConcept() {
@@ -49,14 +49,14 @@ public class ConceptToImLangTest {
 
     public String getTestString() {
         return "http://endhealth.info/im#25451000252115\n" +
-            "type \"http://www.w3.org/2002/07/owl#Class\";\n" +
+            "type \"owl:Class\";\n" +
             "Name \"Adverse reaction to Amlodipine Besilate\";\n" +
             "description \"Adverse reaction to Amlodipine Besilate or its derivatives\";\n" +
             "code \"25451000252115\";\n" +
-            "scheme \"http://snomed.info/sct#891071000252105\";\n" +
-            "status \"http://endhealth.info/im#Active | Active\";\n" +
-            "equivalentTo \"http://snomed.info/sct#62014003 | Drug reaction\",\n" +
-            "[\"http://snomed.info/sct#246075003 | Causative agent\" \"http://snomed.info/sct#384976003 | Amlodipine besilate\"];\n" +
+            "scheme \"sct:891071000252105 | SNOMED\";\n" +
+            "status \"im:Active | Active\";\n" +
+            "equivalentTo \"sct:62014003 | Drug reaction\",\n" +
+            "[\"sct:246075003 | Causative agent\" \"sct:384976003 | Amlodipine besilate\"];\n" +
             ".\n";
     }
 }

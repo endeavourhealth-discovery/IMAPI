@@ -41,10 +41,13 @@ public class ConfigService implements IConfigService {
     public List<ConceptSummary> getQuickAccess() throws JsonProcessingException {
         LOG.info("getQuickAccess");
 
+        List<ConceptSummary> result = new ArrayList<>();
+
         String[] quickAccessIris = getConfig("quickAccessIri", String[].class);
         String[] candidates =  getConfig("quickAccessCandidatesIri", String[].class);
 
-        List<ConceptSummary> result = new ArrayList<>();
+        if(quickAccessIris == null || candidates==null)
+            return result;
 
         for(String iri: quickAccessIris) {
             Concept c = conceptRepository.findByIri(iri);

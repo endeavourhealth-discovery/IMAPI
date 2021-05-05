@@ -267,7 +267,7 @@ public class ConceptController {
 				if (roleGroup.isNode()) {
 					HashMap<TTIriRef, TTValue> role = roleGroup.asNode().getPredicateMap();
 					role.forEach((key, value) -> {
-						if (key.getIri() != "http://endhealth.info/im#counter") {
+						if (!IM.COUNTER.equals(key)) {
 							PropertyValue pv = new PropertyValue().setProperty(key).setValueType(value.asIriRef());
 							roles.add(pv);
 						}

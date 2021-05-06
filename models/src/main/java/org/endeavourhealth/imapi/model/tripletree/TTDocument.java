@@ -15,6 +15,7 @@ public class TTDocument extends TTNode {
     private TTContext context = new TTContext();
     private List<TTConcept> concepts;
     private List<TTInstance> individuals;
+    private TTIriRef crudOperation;
     private Map<Class, List<String>> predicateTemplate;
 
     public TTIriRef getGraph() {
@@ -107,5 +108,14 @@ public class TTDocument extends TTNode {
 
     public TTContext getContext() {
         return this.context;
+    }
+
+    public TTIriRef getCrudOperation() {
+        return crudOperation;
+    }
+
+    public TTDocument setCrudOperation(TTIriRef crudOperation) {
+        this.crudOperation = crudOperation;
+        return this;
     }
 }

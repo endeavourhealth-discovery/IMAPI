@@ -47,7 +47,7 @@ public class ConceptServiceV3Test {
     ValueSetRepository valueSetRepository;
 
     @Mock
-    ConceptTermRepository conceptTermRepository;
+    TermCodeRepository termCodeRepository;
 
     @Test
     public void getConcept_NullConcept(){
@@ -650,7 +650,7 @@ public class ConceptServiceV3Test {
     public void getSynonyms_NotNullIri(){
         String term = "Adverse reaction to Amlodipine Besilate";
 
-        when(conceptTermRepository.getSynonyms(any())).thenReturn(Collections.singletonList(term));
+        when(termCodeRepository.getSynonyms(any())).thenReturn(Collections.singletonList(term));
 
         List<String> actual = conceptServiceV3.getSynonyms("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);

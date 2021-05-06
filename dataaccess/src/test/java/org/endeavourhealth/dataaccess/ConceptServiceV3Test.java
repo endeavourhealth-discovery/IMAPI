@@ -245,7 +245,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void usages_NullIri(){
-        List<ConceptSummary> actual = conceptServiceV3.usages(null);
+        List<TTIriRef> actual = conceptServiceV3.usages(null);
 
         assertNotNull(actual);
     }
@@ -267,7 +267,7 @@ public class ConceptServiceV3Test {
                         .setScheme(null));
         when(conceptTripleRepository.findAllByObject_Iri( any())).thenReturn(Collections.singleton(tpl));
 
-        List<ConceptSummary> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
     }
@@ -291,7 +291,7 @@ public class ConceptServiceV3Test {
                                 .setName("Adverse reaction to Amlodipine Besilate")));
         when(conceptTripleRepository.findAllByObject_Iri( any())).thenReturn(Collections.singleton(tpl));
 
-        List<ConceptSummary> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
     }

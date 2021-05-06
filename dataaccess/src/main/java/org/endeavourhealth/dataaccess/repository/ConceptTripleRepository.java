@@ -13,6 +13,7 @@ import java.util.Set;
 @Repository
 public interface ConceptTripleRepository extends JpaRepository<Tpl, String> {
     Set<Tpl> findAllByObject_Iri(String iri);
+    Set<Tpl> findDistinctByObject_IriAndPredicate_IriNot(String objectIri, String predicateIri);
     Set<Tpl> findAllBySubject_Iri_AndPredicate_Iri(String iri, String predicate);
     Set<Tpl> findAllByObject_Iri_AndPredicate_Iri(String iri, String predicate);
     List<Tpl> findAllBySubject_Dbid_AndGraph_Dbid(int subject, int graph);

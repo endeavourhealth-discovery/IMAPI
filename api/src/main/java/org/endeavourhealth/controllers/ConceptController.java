@@ -25,6 +25,8 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/concept")
 @CrossOrigin(origins = "*")
 public class ConceptController {
+    private static final Logger LOG = LoggerFactory.getLogger(ConceptController.class);
 
 	@Autowired
 	ConceptServiceV3 conceptService;
@@ -174,7 +177,7 @@ public class ConceptController {
 	}
 
 	@GetMapping(value = "/usages")
-	public List<ConceptSummary> conceptUsages(@RequestParam(name = "iri") String iri) {
+	public List<TTIriRef> conceptUsages(@RequestParam(name = "iri") String iri) {
 		return conceptService.usages(iri);
 	}
 
@@ -321,6 +324,11 @@ public class ConceptController {
 	@GetMapping(value = "/graph")
 	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) {
 		TTConcept concept = conceptService.getConcept(iri);
+
+		if (concept == null) {
+		    LOG.error("Unable to find concept {}", iri);
+		    return null;
+        }
 
 		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
 

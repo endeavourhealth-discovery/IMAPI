@@ -47,7 +47,7 @@ public class ConceptServiceV3Test {
     ValueSetRepository valueSetRepository;
 
     @Mock
-    ConceptTermRepository conceptTermRepository;
+    TermCodeRepository termCodeRepository;
 
     @Test
     public void getConcept_NullConcept(){
@@ -113,7 +113,7 @@ public class ConceptServiceV3Test {
         List<ConceptReferenceNode> actual = conceptServiceV3
                 .getImmediateChildren(null, 1, 10, true,true);
 
-        assertNull(actual);
+        assertNotNull(actual);
 
     }
 
@@ -156,7 +156,7 @@ public class ConceptServiceV3Test {
         List<ConceptReferenceNode> actual = conceptServiceV3
                 .getImmediateParents(null, 1, 10, true,true);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class ConceptServiceV3Test {
         List<TTIriRef> actual = conceptServiceV3
                 .isWhichType(null, Arrays.asList("A","B"));
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class ConceptServiceV3Test {
         List<TTIriRef> actual = conceptServiceV3
                 .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList());
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class ConceptServiceV3Test {
         List<TTIriRef> actual = conceptServiceV3
                 .isWhichType("http://endhealth.info/im#25451000252115", null);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -223,7 +223,7 @@ public class ConceptServiceV3Test {
         List<TTIriRef> actual = conceptServiceV3
                 .isWhichType(null, null);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -247,7 +247,7 @@ public class ConceptServiceV3Test {
     public void usages_NullIri(){
         List<ConceptSummary> actual = conceptServiceV3.usages(null);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -300,7 +300,7 @@ public class ConceptServiceV3Test {
     public void advancedSearch_NullRequest(){
         List<ConceptSummary> actual = conceptServiceV3.advancedSearch(null);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -309,7 +309,7 @@ public class ConceptServiceV3Test {
 
         List<ConceptSummary> actual = conceptServiceV3.advancedSearch(searchRequest);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -400,7 +400,7 @@ public class ConceptServiceV3Test {
     public void getAncestorDefinitions_NullIri(){
         List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions(null);
 
-        assertNull(actual);
+        assertNotNull(actual);
 
     }
 
@@ -445,7 +445,7 @@ public class ConceptServiceV3Test {
 
         List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
 
-        assertNull(actual);
+        assertNotNull(actual);
 
     }
 
@@ -602,7 +602,7 @@ public class ConceptServiceV3Test {
     public void getCoreMappedFromLegacy_NullIri(){
         List<TTIriRef> actual = conceptServiceV3.getCoreMappedFromLegacy(null);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -623,7 +623,7 @@ public class ConceptServiceV3Test {
     public void getLegacyMappedToCore_NullIri(){
         List<TTIriRef> actual = conceptServiceV3.getLegacyMappedToCore(null);
 
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
@@ -643,14 +643,14 @@ public class ConceptServiceV3Test {
     @Test
     public void getSynonyms_NullIri(){
         List<String> actual = conceptServiceV3.getSynonyms(null);
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
     public void getSynonyms_NotNullIri(){
         String term = "Adverse reaction to Amlodipine Besilate";
 
-        when(conceptTermRepository.getSynonyms(any())).thenReturn(Collections.singletonList(term));
+        when(termCodeRepository.getSynonyms(any())).thenReturn(Collections.singletonList(term));
 
         List<String> actual = conceptServiceV3.getSynonyms("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);

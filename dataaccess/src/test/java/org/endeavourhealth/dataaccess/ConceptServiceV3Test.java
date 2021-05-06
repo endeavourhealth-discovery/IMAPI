@@ -252,20 +252,13 @@ public class ConceptServiceV3Test {
 
     @Test
     public void usages_NotNullIriAndNullScheme(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setName("Adverse reaction to Amlodipine Besilate"))
-                .setDescendant(new Concept().setIri("http://endhealth.info/im#25451000252115"));
-        when(conceptTctRepository.findByAncestor_Iri_AndType_Iri( any(),any())).thenReturn(Collections.singleton(tct));
-
         Tpl tpl = new Tpl()
                 .setSubject(new Concept()
                         .setIri("http://endhealth.info/im#25451000252115")
                         .setName("Adverse reaction to Amlodipine Besilate")
                         .setCode("25451000252115")
                         .setScheme(null));
-        when(conceptTripleRepository.findAllByObject_Iri( any())).thenReturn(Collections.singleton(tpl));
+        when(conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot( any(), any())).thenReturn(Collections.singleton(tpl));
 
         List<TTIriRef> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
 
@@ -274,12 +267,6 @@ public class ConceptServiceV3Test {
 
     @Test
     public void usages_NotNullIriAndNotNullScheme(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setName("Adverse reaction to Amlodipine Besilate"))
-                .setDescendant(new Concept().setIri("http://www.w3.org/2002/07/owl#Class"));
-        when(conceptTctRepository.findByAncestor_Iri_AndType_Iri( any(),any())).thenReturn(Collections.singleton(tct));
 
         Tpl tpl = new Tpl()
                 .setSubject(new Concept()
@@ -289,7 +276,7 @@ public class ConceptServiceV3Test {
                         .setScheme(new Concept()
                                 .setIri("http://endhealth.info/im#25451000252115")
                                 .setName("Adverse reaction to Amlodipine Besilate")));
-        when(conceptTripleRepository.findAllByObject_Iri( any())).thenReturn(Collections.singleton(tpl));
+        when(conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot( any(), any())).thenReturn(Collections.singleton(tpl));
 
         List<TTIriRef> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
 

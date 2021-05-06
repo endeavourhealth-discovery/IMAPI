@@ -63,6 +63,7 @@ public class ConceptServiceV3 {
 
 		if (concept.getJson() == null || concept.getJson().isEmpty()) {
 		    LOG.error("Concept is missing definition {}", iri);
+		    return null;
         }
 
 		try {
@@ -238,8 +239,12 @@ public class ConceptServiceV3 {
 			for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
 				Concept t = tct.getAncestor();
 				if (!iri.equals(t.getIri())) {
-					TTConcept concept = om.readValue(t.getJson(), TTConcept.class);
-					result.add(concept);
+				    if (t.getJson() == null || t.getJson().isEmpty()) {
+				        LOG.error("Concept has no definition {}", t.getIri());
+                    } else {
+                        TTConcept concept = om.readValue(t.getJson(), TTConcept.class);
+                        result.add(concept);
+                    }
 				}
 			}
 			return result;

@@ -16,6 +16,8 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +28,9 @@ import java.util.stream.Stream;
 
 @Component
 public class ConceptServiceV3 {
-	@Autowired
+    private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
+
+    @Autowired
 	ConceptRepository conceptRepository;
 
 	@Autowired
@@ -56,6 +60,12 @@ public class ConceptServiceV3 {
 		Concept concept = conceptRepository.findByIri(iri);
 		if (concept == null)
 			return null;
+
+		if (concept.getJson() == null || concept.getJson().isEmpty()) {
+		    LOG.error("Concept is missing definition {}", iri);
+		    return null;
+        }
+
 		try {
 			TTConcept result = om.readValue(concept.getJson(), TTConcept.class);
 			populateMissingNames(result);
@@ -155,20 +165,17 @@ public class ConceptServiceV3 {
 				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
 	}
 
-	public List<ConceptSummary> usages(String iri) {
+	public List<TTIriRef> usages(String iri) {
 
 		if(iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		Set<String> children = conceptTctRepository.findByAncestor_Iri_AndType_Iri(iri, IM.IS_A.getIri()).stream()
-				.map(t -> t.getDescendant().getIri()).collect(Collectors.toSet());
-
-		return conceptTripleRepository.findAllByObject_Iri(iri).stream().map(Tpl::getSubject)
-				.filter(subject -> !children.contains(subject.getIri())).distinct()
-				.map(c -> new ConceptSummary().setIri(c.getIri()).setName(c.getName()).setCode(c.getCode()).setScheme(
-						c.getScheme() == null ? null : new TTIriRef(c.getScheme().getIri(), c.getScheme().getName())))
-				.sorted(Comparator.comparing(ConceptSummary::getName, Comparator.nullsLast(Comparator.naturalOrder())))
-				.collect(Collectors.toList());
+        return conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot(iri, IM.IS_A.getIri()).stream()
+            .map(Tpl::getSubject)
+            .map(c -> new TTIriRef().setIri(c.getIri()).setName(c.getName()))
+            .sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
+            .distinct()
+            .collect(Collectors.toList());
 	}
 
 	public List<ConceptSummary> advancedSearch(SearchRequest request) {
@@ -232,8 +239,12 @@ public class ConceptServiceV3 {
 			for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
 				Concept t = tct.getAncestor();
 				if (!iri.equals(t.getIri())) {
-					TTConcept concept = om.readValue(t.getJson(), TTConcept.class);
-					result.add(concept);
+				    if (t.getJson() == null || t.getJson().isEmpty()) {
+				        LOG.error("Concept has no definition {}", t.getIri());
+                    } else {
+                        TTConcept concept = om.readValue(t.getJson(), TTConcept.class);
+                        result.add(concept);
+                    }
 				}
 			}
 			return result;

@@ -7,7 +7,7 @@ import javax.persistence.OneToOne;
 import java.time.LocalDateTime;
 
 @Entity
-public class ConceptTerm {
+public class TermCode {
 
     @Id()
     private Integer dbid;
@@ -22,7 +22,7 @@ public class ConceptTerm {
         return dbid;
     }
 
-    public ConceptTerm setDbid(Integer dbid) {
+    public TermCode setDbid(Integer dbid) {
         this.dbid = dbid;
         return this;
     }
@@ -31,7 +31,7 @@ public class ConceptTerm {
         return concept;
     }
 
-    public ConceptTerm setConcept(Concept concept) {
+    public TermCode setConcept(Concept concept) {
         this.concept = concept;
         return this;
     }
@@ -40,7 +40,7 @@ public class ConceptTerm {
         return term;
     }
 
-    public ConceptTerm setTerm(String term) {
+    public TermCode setTerm(String term) {
         this.term = term;
         return this;
     }
@@ -49,7 +49,7 @@ public class ConceptTerm {
         return code;
     }
 
-    public ConceptTerm setCode(String code) {
+    public TermCode setCode(String code) {
         this.code = code;
         return this;
     }
@@ -58,7 +58,7 @@ public class ConceptTerm {
         return updated;
     }
 
-    public ConceptTerm setUpdated(LocalDateTime updated) {
+    public TermCode setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
     }
@@ -79,7 +79,7 @@ public class ConceptTerm {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ConceptTerm other = (ConceptTerm) obj;
+        TermCode other = (TermCode) obj;
         if (dbid == null) {
             if (other.dbid != null)
                 return false;

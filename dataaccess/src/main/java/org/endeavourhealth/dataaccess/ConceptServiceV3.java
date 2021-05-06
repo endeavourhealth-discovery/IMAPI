@@ -39,7 +39,7 @@ public class ConceptServiceV3 {
 	ValueSetRepository valueSetRepository;
 
 	@Autowired
-	ConceptTermRepository conceptTermRepository;
+    TermCodeRepository termCodeRepository;
 
 	@Autowired
 	SearchRepository searchRepository;
@@ -336,7 +336,7 @@ public class ConceptServiceV3 {
 	public List<String> getSynonyms(String iri) {
 		if(iri==null||iri.isEmpty())
 			return Collections.emptyList();
-		return conceptTermRepository.getSynonyms(iri);
+		return termCodeRepository.getSynonyms(iri);
 	}
 
 	private Set<TTIriRef> populateMissingNames(TTConcept concept) {

@@ -16,6 +16,8 @@ public abstract class TTValue {
 
     @JsonIgnore
     public boolean isNode() { return false; }
+
+    @JsonIgnore
     public boolean isTypedIri() { return false;}
 
     public TTLiteral asLiteral() {return null; }

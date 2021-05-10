@@ -1,6 +1,7 @@
 package org.endeavourhealth.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.entity.Config;
@@ -77,6 +78,14 @@ public class ConfigService implements IConfigService {
     }
 
     public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException {
+
+        Config config = configRepository.findByName(name);
+        if(config==null)
+            return null;
+        return om.readValue(config.getConfig(), resultType);
+    }
+
+    public <T> T getConfig(String name, TypeReference<T> resultType) throws JsonProcessingException {
 
         Config config = configRepository.findByName(name);
         if(config==null)

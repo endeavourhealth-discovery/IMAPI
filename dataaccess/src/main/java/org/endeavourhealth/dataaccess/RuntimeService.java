@@ -1,6 +1,7 @@
 package org.endeavourhealth.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
@@ -11,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class RuntimeService  implements IRuntimeService {
@@ -32,12 +33,16 @@ public class RuntimeService  implements IRuntimeService {
 
     @Override
     public String getConceptIdForSchemeCode(String scheme, String code) {
+        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
+            return "";
         return conceptRepository.findByCodeAndScheme(scheme, code).getIri();
 
     }
 
     @Override
     public String getMappedCoreCodeForSchemeCode(String scheme, String code, boolean snomedOnly) {
+        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
+            return "";
         Concept coreConcept = snomedOnly
                 ? getMappedCoreSnomedConcept(scheme, code)
                 : getMappedCoreConcept(scheme, code);
@@ -56,6 +61,19 @@ public class RuntimeService  implements IRuntimeService {
             return null;
     }
 
+    private Concept getMappedCoreConcept(String scheme, String code){
+        Concept legacy = conceptRepository.findByCodeAndScheme(code,scheme);
+        List<Concept> maps = conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(legacy.getIri(), IM.MATCHED_TO.getIri())
+                .stream()
+                .map(Tpl::getObject)
+                .collect(Collectors.toList());
+        if(maps.isEmpty())
+            return  null;
+        if(maps.size()>1)
+            LOG.warn("Multiple maps found for scheme "+ scheme + " and code "+ code);
+        return maps.get(0);
+    }
+
     @Override
     public String getCodeForTypeTerm(String scheme, String context, String term, boolean autoCreate) {
         return null;
@@ -63,11 +81,15 @@ public class RuntimeService  implements IRuntimeService {
 
     @Override
     public Integer getConceptDbidForSchemeCode(String scheme, String code) {
+        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
+            return null;
         return conceptRepository.findByCodeAndScheme(scheme, code).getDbid();
     }
 
     @Override
     public Integer getMappedCoreConceptDbidForSchemeCode(String scheme, String code ) {
+        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
+            return null;
         Concept coreConcept = getMappedCoreConcept(scheme,code);
         if(coreConcept==null)
             return null;
@@ -76,7 +98,8 @@ public class RuntimeService  implements IRuntimeService {
 
     @Override
     public String getCodeForConceptDbid(Integer dbid) {
-
+        if(dbid==null)
+            return "";
         return conceptRepository.findByDbid(dbid).getCode();
     }
 
@@ -110,23 +133,12 @@ public class RuntimeService  implements IRuntimeService {
                 || conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) != null;
     }
 
-    private Concept getMappedCoreConcept(String scheme, String code){
-        Concept legacy = conceptRepository.findByCodeAndScheme(code,scheme);
-        Set<Tpl> maps = conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(legacy.getIri(), IM.MATCHED_TO.getIri());
-        if(maps.size()==0)
-            return  null;
-        if(maps.size()>1)
-            LOG.warn("Multiple maps found for scheme "+ scheme + " and code "+ code);
-
-        return maps.stream()
-            .findFirst()
-            .map(Tpl::getObject)
-            .orElse(null);
-    }
-
     private Map<String, String> getSchemeMap() throws JsonProcessingException {
         if(schemeMap==null)
-             schemeMap = configService.getConfig("schemeMap", Map.class);
+        {
+            TypeReference<HashMap<String,String>> ref = new TypeReference<HashMap<String,String>>() {};
+            schemeMap = configService.getConfig("schemeMap", ref);
+        }
         return schemeMap;
     }
 }

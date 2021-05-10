@@ -1,10 +1,6 @@
 package org.endeavourhealth.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.eclipse.rdf4j.query.algebra.Str;
-import org.endeavourhealth.imapi.model.tripletree.TTConcept;
-
-import java.sql.Connection;
 
 public interface IRuntimeService {
 

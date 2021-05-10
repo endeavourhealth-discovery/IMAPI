@@ -13,6 +13,7 @@ import org.endeavourhealth.dto.GraphDto;
 import org.endeavourhealth.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
@@ -434,5 +435,10 @@ public class ConceptController {
 		}
 
 		return flatParentIris;
+	}
+
+	@GetMapping("/termCode")
+	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) {
+		return conceptService.getConceptTermCodes(iri);
 	}
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.*;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -378,5 +379,17 @@ public class ConceptServiceV3 {
 
 		// Return named predicate list
 		return predicates;
+	}
+
+	public List<TermCode> getConceptTermCodes(String iri) {
+		return termCodeRepository.findAllByConcept_Iri(iri)
+				.stream()
+				.map(termCode ->
+						new TermCode()
+								.setCode(termCode.getCode())
+								.setTerm(termCode.getTerm())
+								.setScheme(new TTIriRef(termCode.getScheme().getIri(), termCode.getScheme().getName()))
+								.setConcept_term_code(termCode.getConceptTermCode())
+		).collect(Collectors.toList());
 	}
 }

@@ -17,4 +17,6 @@ public interface TermCodeRepository extends JpaRepository<TermCode, Integer> {
         "WHERE c.iri = :iri  " +
         "ORDER BY t.term ", nativeQuery = true)
     public List<String> getSynonyms(@Param("iri") String iri );
+
+    public List<TermCode> findAllByConcept_Iri(String iri);
 }

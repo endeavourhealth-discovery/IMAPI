@@ -17,6 +17,10 @@ public class TermCode {
     private String term;
     private String code;
     private LocalDateTime updated;
+    @OneToOne()
+    @JoinColumn(name = "scheme", referencedColumnName = "dbid")
+    private Concept scheme;
+    private String conceptTermCode;
 
     public Integer getDbid() {
         return dbid;
@@ -60,6 +64,24 @@ public class TermCode {
 
     public TermCode setUpdated(LocalDateTime updated) {
         this.updated = updated;
+        return this;
+    }
+
+    public Concept getScheme() {
+        return scheme;
+    }
+
+    public TermCode setScheme(Concept scheme) {
+        this.scheme = scheme;
+        return this;
+    }
+
+    public String getConceptTermCode() {
+        return conceptTermCode;
+    }
+
+    public TermCode setConceptTermCode(String conceptTermCode) {
+        this.conceptTermCode = conceptTermCode;
         return this;
     }
 

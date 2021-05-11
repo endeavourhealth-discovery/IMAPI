@@ -1,4 +1,4 @@
-package org.endeavourhealth.dto;
+package org.endeavourhealth.imapi.model.graph;
 
 import java.util.ArrayList;
 import java.util.List;

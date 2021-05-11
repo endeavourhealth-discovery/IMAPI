@@ -1,12 +1,6 @@
-package org.endeavourhealth.helpers;
+package org.endeavourhealth.dataaccess.helpers;
 
-import java.util.List;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
@@ -14,6 +8,8 @@ import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+
+import java.util.List;
 
 public class XlsHelper {
 
@@ -234,12 +230,12 @@ public class XlsHelper {
 			cell.setCellValue(property.getProperty().getName());
 			cell = row.createCell(1);
 			cell.setCellValue(property.getProperty().getIri());
-			cell = row.createCell(2);
-			cell.setCellValue(property.getValueType().getName());
-			cell = row.createCell(3);
-			cell.setCellValue(property.getValueType().getIri());
+			if(property.getValueType()!=null){
+				cell = row.createCell(2);
+				cell.setCellValue(property.getValueType().getName());
+				cell = row.createCell(3);
+				cell.setCellValue(property.getValueType().getIri());
+			}
 		}
-
 	}
-
 }

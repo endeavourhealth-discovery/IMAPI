@@ -3,26 +3,35 @@ package org.endeavourhealth.dataaccess;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.*;
+import org.endeavourhealth.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.download.DownloadDto;
+import org.endeavourhealth.imapi.model.graph.GraphDto;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTConcept;
-import org.endeavourhealth.imapi.model.tripletree.TTConceptVisitor;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -390,6 +399,298 @@ public class ConceptServiceV3 {
 								.setTerm(termCode.getTerm())
 								.setScheme(new TTIriRef(termCode.getScheme().getIri(), termCode.getScheme().getName()))
 								.setConcept_term_code(termCode.getConceptTermCode())
-		).collect(Collectors.toList());
+				).collect(Collectors.toList());
+	}
+
+	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties, boolean members,
+							   boolean roles, boolean inactive){
+		TTConcept concept = getConcept(iri);
+		XlsHelper xls = new XlsHelper();
+		DownloadDto downloadDto = new DownloadDto();
+
+		if (children)
+			addChildrenToDownload(iri, format, inactive, xls, downloadDto);
+		if (parents)
+			addParentsToDownload(iri, format, inactive, xls, downloadDto);
+		if (properties)
+			addPropertiesToDownload(iri, format, xls, downloadDto);
+		if (members)
+			addMembersToDownload(iri, format, xls, downloadDto);
+		if (roles)
+			addRolesToDownload(iri, format, xls, downloadDto);
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			xls.getWorkbook().write(outputStream);
+			xls.getWorkbook().close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String filename = concept.getName() + " " + LocalDate.now() + (format.equals("excel") ? ".xlsx" : ".json");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(
+				format.equals("excel") ? new MediaType("application", "force-download") : MediaType.APPLICATION_JSON);
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + "\"");
+
+		return new HttpEntity(format.equals("excel") ? outputStream.toByteArray() : downloadDto, headers);
+
+	}
+
+	private void addChildrenToDownload(String iri, String format, boolean inactive, XlsHelper xls, DownloadDto downloadDto) {
+		List<ConceptReferenceNode> childrenList = getImmediateChildren(iri, null, null, false,
+				inactive);
+		switch (format) {
+			case "excel":
+				xls.addChildren(childrenList);
+				break;
+			case "json":
+				downloadDto.setChildren(childrenList);
+				break;
+		}
+	}
+
+	private void addParentsToDownload(String iri, String format, boolean inactive, XlsHelper xls, DownloadDto downloadDto) {
+		List<ConceptReferenceNode> parentList = getImmediateParents(iri, null, null, false,
+				inactive);
+		switch (format) {
+			case "excel":
+				xls.addParents(parentList);
+				break;
+			case "json":
+				downloadDto.setParents(parentList);
+				break;
+		}
+	}
+
+	private void addPropertiesToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto) {
+		List<PropertyValue> propertyList = getAllProperties(iri);
+		switch (format) {
+			case "excel":
+				xls.addProperties(propertyList);
+				break;
+			case "json":
+				downloadDto.setProperties(propertyList);
+				break;
+		}
+	}
+
+	private void addMembersToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto) {
+		ExportValueSet exportValueSet = getValueSetMembers(iri, false);
+		switch (format) {
+			case "excel":
+				xls.addMembers(exportValueSet);
+				break;
+			case "json":
+				downloadDto.setMembers(exportValueSet);
+				break;
+		}
+	}
+
+	private void addRolesToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto) {
+		List<PropertyValue> roleList = getRoles(iri);
+		switch (format) {
+			case "excel":
+				xls.addRoles(roleList);
+				break;
+			case "json":
+				downloadDto.setRoles(roleList);
+				break;
+		}
+	}
+
+	public List<PropertyValue> getAllProperties(String iri) {
+		TTConcept concept = getConcept(iri);
+		List<PropertyValue> properties = new ArrayList<PropertyValue>();
+
+		if (concept.has(IM.PROPERTY_GROUP)) {
+			for (TTValue propertyGroup : concept.getAsArray(IM.PROPERTY_GROUP).getElements()) {
+				if (propertyGroup.isNode()) {
+					TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
+							? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
+							: null;
+					if (propertyGroup.asNode().has(SHACL.PROPERTY)) {
+						for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
+							TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
+							if (properties.stream()
+									.noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
+								properties.add(getPropertyValue(inheritedFrom, property, propertyPath));
+							}
+						}
+					}
+				}
+			}
+		}
+		return properties;
+	}
+
+	private PropertyValue getPropertyValue(TTIriRef inheritedFrom, TTValue property, TTIriRef propertyPath) {
+		PropertyValue pv = new PropertyValue().setInheritedFrom(inheritedFrom)
+				.setProperty(propertyPath);
+
+		if (property.asNode().has(SHACL.CLASS))
+			pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
+		if (property.asNode().has(SHACL.DATATYPE))
+			pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+		if (property.asNode().has(SHACL.MAXCOUNT))
+			pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
+		if (property.asNode().has(SHACL.MINCOUNT))
+			pv.setMinExclusive(property.asNode().get(SHACL.MINCOUNT).asLiteral().getValue());
+		return pv;
+	}
+
+	public List<PropertyValue> getRoles(String iri) {
+		TTConcept concept = getConcept(iri);
+		List<PropertyValue> roles = new ArrayList<PropertyValue>();
+		if(concept == null)
+			return Collections.emptyList();
+		if (concept.has(IM.ROLE_GROUP)) {
+			for (TTValue roleGroup : concept.getAsArray(IM.ROLE_GROUP).getElements()) {
+				if (roleGroup.isNode()) {
+					HashMap<TTIriRef, TTValue> role = roleGroup.asNode().getPredicateMap();
+					role.forEach((key, value) -> {
+						if (!IM.COUNTER.equals(key)) {
+							PropertyValue pv = new PropertyValue().setProperty(key).setValueType(value.asIriRef());
+							roles.add(pv);
+						}
+					});
+				}
+			}
+		}
+		return roles;
+	}
+
+	public String valueSetMembersCSV(String iri, boolean expanded) {
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expanded);
+
+		StringBuilder valueSetMembers = new StringBuilder();
+
+		valueSetMembers.append(
+				"Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
+
+		for (ValueSetMember inc : exportValueSet.getIncluded()) {
+			appendValueSet(exportValueSet, valueSetMembers, inc, "Inc");
+		}
+
+		if (exportValueSet.getExcluded() != null) {
+			for (ValueSetMember exc : exportValueSet.getExcluded()) {
+				appendValueSet(exportValueSet, valueSetMembers, exc, "Exc");
+			}
+		}
+
+		return valueSetMembers.toString();
+	}
+
+	private void appendValueSet(ExportValueSet exportValueSet, StringBuilder valueSetMembers, ValueSetMember setMember, String text) {
+		valueSetMembers.append(text).append("\t").append(exportValueSet.getValueSet().getIri()).append("\t")
+				.append(exportValueSet.getValueSet().getName()).append("\t").append(setMember.getConcept().getIri())
+				.append("\t").append(setMember.getConcept().getName()).append("\t").append(setMember.getCode()).append("\t");
+		if (setMember.getScheme() != null)
+			valueSetMembers.append(setMember.getScheme().getIri()).append("\t").append(setMember.getScheme().getName());
+
+		valueSetMembers.append("\n");
+	}
+
+	public GraphDto getGraphData(String iri) {
+		TTConcept concept = getConcept(iri);
+
+		if (concept == null) {
+			LOG.error("Unable to find concept {}", iri);
+			return null;
+		}
+
+		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
+
+		GraphDto graphParents = new GraphDto().setName("Parents");
+		GraphDto graphChildren = new GraphDto().setName("Children");
+		GraphDto graphProps = new GraphDto().setName("Properties");
+		GraphDto graphInheritedProps = new GraphDto().setName("Inherited");
+		GraphDto graphDirectProps = new GraphDto().setName("Direct");
+		GraphDto graphRoles = new GraphDto().setName("Roles");
+
+		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_A));
+		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_CONTAINED_IN));
+
+		List<ConceptReferenceNode> children = getImmediateChildren(iri, null, null, false, false);
+		List<PropertyValue> properties = getAllProperties(iri);
+		List<PropertyValue> roles = getRoles(iri);
+
+		addChildrenToGraph(graphChildren, children);
+
+		addPropertiesToGraph(graphInheritedProps, graphDirectProps, properties);
+
+		addRolesToGraph(graphRoles, roles);
+
+		if (graphDirectProps.getChildren().size() > 0 || graphInheritedProps.getChildren().size() > 0) {
+			graphProps.getChildren().add(graphDirectProps);
+			graphProps.getChildren().add(graphInheritedProps);
+		}
+		graphData.getChildren().add(graphParents);
+		graphData.getChildren().add(graphChildren);
+		graphData.getChildren().add(graphProps);
+		graphData.getChildren().add(graphRoles);
+
+		return graphData;
+	}
+
+	private List<GraphDto> getConceptDefinedParents(TTConcept concept, TTIriRef predicate) {
+		TTValue parent = concept.get(predicate);
+		if (parent == null)
+			return Collections.emptyList();
+		List<GraphDto> result = new ArrayList<>();
+		if (parent.isList()) {
+			parent.asArrayElements().forEach(item -> {
+				if (!OWL.THING.equals(item.asIriRef()))
+					result.add(
+							new GraphDto().setIri(item.asIriRef().getIri())
+									.setName(item.asIriRef().getName()).setPropertyType(predicate.getName())
+					);
+			});
+		} else {
+			if (!OWL.THING.equals(parent.asIriRef()))
+				result.add(
+						new GraphDto().setIri(parent.asIriRef().getIri())
+								.setName(parent.asIriRef().getName()).setPropertyType(predicate.getName())
+				);
+		}
+		return result;
+	}
+
+	private void addChildrenToGraph(GraphDto graphChildren, List<ConceptReferenceNode> children) {
+		children.forEach(child -> {
+			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
+			graphChildren.getChildren().add(graphChild);
+		});
+	}
+
+	private void addPropertiesToGraph(GraphDto graphInheritedProps, GraphDto graphDirectProps, List<PropertyValue> properties) {
+		properties.forEach(prop -> {
+			if (null != prop.getInheritedFrom()) {
+				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
+						.setName(prop.getProperty().getName()).setInheritedFromName(prop.getInheritedFrom().getName())
+						.setInheritedFromIri(prop.getInheritedFrom().getIri())
+						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
+						.setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
+						.setMin(prop.getMinExclusive());
+				graphInheritedProps.getChildren().add(graphProp);
+			} else {
+				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
+						.setName(prop.getProperty().getName()).setPropertyType(prop.getProperty().getName())
+						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
+						.setMin(prop.getMinExclusive());
+				graphDirectProps.getChildren().add(graphProp);
+			}
+		});
+	}
+
+	private void addRolesToGraph(GraphDto graphRoles, List<PropertyValue> roles) {
+		for (PropertyValue role : roles) {
+			GraphDto graphRole = new GraphDto().setIri(role.getProperty().getIri())
+					.setName(role.getProperty().getName()).setPropertyType(role.getProperty().getName());
+			if (role.getValueType() != null) {
+				graphRole.setValueTypeIri(role.getValueType().getIri()).setValueTypeName(role.getValueType().getName());
+			}
+			graphRoles.getChildren().add(graphRole);
+		}
 	}
 }

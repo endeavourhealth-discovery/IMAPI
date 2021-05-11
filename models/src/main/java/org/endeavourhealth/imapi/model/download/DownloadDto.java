@@ -1,12 +1,11 @@
-package org.endeavourhealth.dto;
-
-import java.io.Serializable;
-import java.util.List;
+package org.endeavourhealth.imapi.model.download;
 
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+
+import java.io.Serializable;
+import java.util.List;
 
 public class DownloadDto implements Serializable {
 

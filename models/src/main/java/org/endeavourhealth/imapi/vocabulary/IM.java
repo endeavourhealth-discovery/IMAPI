@@ -92,6 +92,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_TERMS = iri(NAMESPACE+"TermOnlyCodeScheme");
     public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
+    public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

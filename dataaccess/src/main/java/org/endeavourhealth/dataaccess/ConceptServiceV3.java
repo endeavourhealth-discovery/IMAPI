@@ -391,6 +391,8 @@ public class ConceptServiceV3 {
 	}
 
 	public List<TermCode> getConceptTermCodes(String iri) {
+		if(iri == null || iri.isEmpty())
+			return Collections.emptyList();
 		return termCodeRepository.findAllByConcept_Iri(iri)
 				.stream()
 				.map(termCode ->
@@ -404,6 +406,8 @@ public class ConceptServiceV3 {
 
 	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties, boolean members,
 							   boolean roles, boolean inactive){
+		if(iri==null || iri.isEmpty() || format== null || format.isEmpty())
+			return null;
 		TTConcept concept = getConcept(iri);
 		XlsHelper xls = new XlsHelper();
 		DownloadDto downloadDto = new DownloadDto();
@@ -501,8 +505,12 @@ public class ConceptServiceV3 {
 
 	public List<PropertyValue> getAllProperties(String iri) {
 		TTConcept concept = getConcept(iri);
+		return getAllProperties(concept);
+	}
+	public List<PropertyValue> getAllProperties(TTConcept concept){
 		List<PropertyValue> properties = new ArrayList<PropertyValue>();
-
+		if(concept==null)
+			return  Collections.emptyList();
 		if (concept.has(IM.PROPERTY_GROUP)) {
 			for (TTValue propertyGroup : concept.getAsArray(IM.PROPERTY_GROUP).getElements()) {
 				if (propertyGroup.isNode()) {
@@ -542,7 +550,7 @@ public class ConceptServiceV3 {
 	public List<PropertyValue> getRoles(String iri) {
 		TTConcept concept = getConcept(iri);
 		List<PropertyValue> roles = new ArrayList<PropertyValue>();
-		if(concept == null)
+		if(concept==null)
 			return Collections.emptyList();
 		if (concept.has(IM.ROLE_GROUP)) {
 			for (TTValue roleGroup : concept.getAsArray(IM.ROLE_GROUP).getElements()) {
@@ -562,22 +570,18 @@ public class ConceptServiceV3 {
 
 	public String valueSetMembersCSV(String iri, boolean expanded) {
 		ExportValueSet exportValueSet = getValueSetMembers(iri, expanded);
-
 		StringBuilder valueSetMembers = new StringBuilder();
-
-		valueSetMembers.append(
-				"Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
-
+		valueSetMembers.append("Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
+		if(exportValueSet == null)
+			return valueSetMembers.toString();
 		for (ValueSetMember inc : exportValueSet.getIncluded()) {
 			appendValueSet(exportValueSet, valueSetMembers, inc, "Inc");
 		}
-
 		if (exportValueSet.getExcluded() != null) {
 			for (ValueSetMember exc : exportValueSet.getExcluded()) {
 				appendValueSet(exportValueSet, valueSetMembers, exc, "Exc");
 			}
 		}
-
 		return valueSetMembers.toString();
 	}
 
@@ -612,13 +616,11 @@ public class ConceptServiceV3 {
 		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_CONTAINED_IN));
 
 		List<ConceptReferenceNode> children = getImmediateChildren(iri, null, null, false, false);
-		List<PropertyValue> properties = getAllProperties(iri);
+		List<PropertyValue> properties = getAllProperties(concept);
 		List<PropertyValue> roles = getRoles(iri);
 
 		addChildrenToGraph(graphChildren, children);
-
 		addPropertiesToGraph(graphInheritedProps, graphDirectProps, properties);
-
 		addRolesToGraph(graphRoles, roles);
 
 		if (graphDirectProps.getChildren().size() > 0 || graphInheritedProps.getChildren().size() > 0) {
@@ -667,16 +669,22 @@ public class ConceptServiceV3 {
 		properties.forEach(prop -> {
 			if (null != prop.getInheritedFrom()) {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName()).setInheritedFromName(prop.getInheritedFrom().getName())
+						.setName(prop.getProperty().getName())
+						.setInheritedFromName(prop.getInheritedFrom().getName())
 						.setInheritedFromIri(prop.getInheritedFrom().getIri())
-						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-						.setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
+						.setPropertyType(prop.getProperty().getName())
+						.setValueTypeIri(prop.getValueType().getIri())
+						.setValueTypeName(prop.getValueType().getName())
+						.setMax(prop.getMaxExclusive())
 						.setMin(prop.getMinExclusive());
 				graphInheritedProps.getChildren().add(graphProp);
 			} else {
 				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName()).setPropertyType(prop.getProperty().getName())
-						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
+						.setName(prop.getProperty().getName())
+						.setPropertyType(prop.getProperty().getName())
+						.setValueTypeIri(prop.getValueType().getIri())
+						.setValueTypeName(prop.getValueType().getName())
+						.setMax(prop.getMaxExclusive())
 						.setMin(prop.getMinExclusive());
 				graphDirectProps.getChildren().add(graphProp);
 			}

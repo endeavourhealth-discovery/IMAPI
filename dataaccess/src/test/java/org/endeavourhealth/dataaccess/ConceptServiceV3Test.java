@@ -1,13 +1,19 @@
 package org.endeavourhealth.dataaccess;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.graph.GraphDto;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.springframework.http.HttpEntity;
 import org.endeavourhealth.dataaccess.entity.*;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTConcept;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -437,6 +443,21 @@ public class ConceptServiceV3Test {
     }
 
     @Test
+    public void getAncestorDefinitions_InvalidJson(){
+        Tct tct = new Tct()
+                .setAncestor(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setJson("invalid"));
+
+        when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton((tct)));
+
+        List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
     public void getValueSetMembers_NullIri(){
         ExportValueSet actual = conceptServiceV3.getValueSetMembers(null, true);
 
@@ -510,7 +531,6 @@ public class ConceptServiceV3Test {
                 .thenReturn(Collections.singleton(tpl1));
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
-
         ExportValueSet actual = conceptServiceV3.getValueSetMembers("http://endhealth.info/im#25451000252115", false);
 
         assertNotNull(actual);
@@ -642,6 +662,395 @@ public class ConceptServiceV3Test {
         List<String> actual = conceptServiceV3.getSynonyms("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
+
+    @Test
+    public void getConceptTermCodes_NullIri(){
+        List<org.endeavourhealth.imapi.model.TermCode> actual = conceptServiceV3.getConceptTermCodes(null);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getConceptTermCodes_NotNullIri(){
+        TermCode termCode = new TermCode()
+                .setCode("24951000252112")
+                .setTerm("Adverse reaction to Testogel")
+                .setScheme(new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate"))
+                .setConceptTermCode("32231000252116");
+        when(termCodeRepository.findAllByConcept_Iri(any())).thenReturn(Collections.singletonList(termCode));
+        List<org.endeavourhealth.imapi.model.TermCode> actual = conceptServiceV3.getConceptTermCodes("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void download_NullIri(){
+        HttpEntity actual = conceptServiceV3.download(null, "excel", true, true, true ,true,
+                true, true);
+
+        assertNull(actual);
+
+    }
+
+    @Test
+    public void download_EmptyIri(){
+        HttpEntity actual = conceptServiceV3.download("", "excel", true, true, true ,true,
+                true, true);
+
+        assertNull(actual);
+
+    }
+
+    @Test
+    public void download_NullFormat(){
+        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", null, true,
+                true, true ,true, true, true);
+
+        assertNull(actual);
+
+    }
+
+    @Test
+    public void download_EmptyFormat(){
+        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", "", true,
+                true, true ,true, true, true);
+
+        assertNull(actual);
+
+    }
+
+    @Test
+    public void download_AllSelectionsTrueExcelFormat(){
+
+        List<Tpl> tplList = new ArrayList<>();
+        tplList.add(new Tpl()
+                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
+                .setObject(new Concept().setIri("http://endhealth.info/im#25451000252115")));
+        when(conceptTripleRepository.findImmediateChildrenByIri( any(),any())).thenReturn(tplList);
+        when(conceptTripleRepository.findImmediateParentsByIri( any(),any())).thenReturn(tplList);
+        Concept concept = new Concept().setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}");
+        when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
+        Tpl tpl1 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+        Tpl tpl2 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.NOT_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl1));
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl2));
+        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", "excel", true,
+                true, true ,true, true, true);
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
+    public void download_AllSelectionsTrueJsonFormat(){
+
+        List<Tpl> tplList = new ArrayList<>();
+        tplList.add(new Tpl()
+                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
+                .setObject(new Concept().setIri("http://endhealth.info/im#25451000252115")));
+        when(conceptTripleRepository.findImmediateChildrenByIri( any(),any())).thenReturn(tplList);
+        when(conceptTripleRepository.findImmediateParentsByIri( any(),any())).thenReturn(tplList);
+        Concept concept = new Concept().setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}");
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        Tpl tpl1 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+        Tpl tpl2 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.NOT_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl1));
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl2));
+        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", "json", true,
+                true, true ,true, true, true);
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
+    public void getAllProperties_NullIri(){
+        List<PropertyValue> actual = conceptServiceV3.getAllProperties((String) null);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getAllProperties_NotNullIri() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .set(IM.PROPERTY_GROUP, new TTArray()
+                        .add(new TTNode()
+                                .set(IM.INHERITED_FROM, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
+                                .set(SHACL.PROPERTY, new TTArray()
+                                        .add(new TTNode()
+                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#administrativeGender","Gender"))
+                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+                                        ))));
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        List<PropertyValue> actual = conceptServiceV3.getAllProperties("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getAllProperties_NullInheritedFrom() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .set(IM.PROPERTY_GROUP, new TTArray()
+                        .add(new TTNode()
+                                .set(SHACL.PROPERTY, new TTArray()
+                                        .add(new TTNode()
+                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#administrativeGender","Gender"))
+                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+                                        ))));
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        List<PropertyValue> actual = conceptServiceV3.getAllProperties("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getRoles_NullIri(){
+        List<PropertyValue> actual = conceptServiceV3.getRoles(null);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getRoles_NotNullIri() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .set(IM.ROLE_GROUP, new TTArray()
+                        .add(new TTNode()
+                                .setPredicateMap(new HashMap<>())));
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        List<PropertyValue> actual = conceptServiceV3.getRoles("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void valueSetMembersCSV_NullIri(){
+        String actual = conceptServiceV3.valueSetMembersCSV(null, true);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void valueSetMembersCSV_NotNullIriExpandTrue(){
+        Tpl tpl1 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+        Tpl tpl2 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.NOT_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000552115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl1));
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl2));
+        ValueSetMember valueSetMember = new ValueSetMember()
+                .setConceptIri("http://endhealth.info/im#25451000652115")
+                .setConceptName("Adverse reaction to Amlodipine Besilate")
+                .setCode("25451000252115")
+                .setSchemeIri("http://endhealth.info/im#891071000252105")
+                .setSchemeName("Discovery code");
+
+        when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
+        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        String actual = conceptServiceV3.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void valueSetMembersCSV_NotNullIriExpandFalse(){
+        Tpl tpl1 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+        Tpl tpl2 = new Tpl()
+                .setPredicate(new Concept().setIri(IM.NOT_MEMBER.getIri()))
+                .setObject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000552115")
+                        .setName("Adverse reaction to Amlodipine Besilate")
+                        .setCode("25451000252115")
+                        .setScheme(new Concept()
+                                .setIri("http://endhealth.info/im#891071000252105")
+                                .setName("Discovery code")));
+
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl1));
+        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(tpl2));
+//        ValueSetMember valueSetMember = new ValueSetMember()
+//                .setConceptIri("http://endhealth.info/im#25451000652115")
+//                .setConceptName("Adverse reaction to Amlodipine Besilate")
+//                .setCode("25451000252115")
+//                .setSchemeIri("http://endhealth.info/im#891071000252105")
+//                .setSchemeName("Discovery code");
+//        when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
+        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        String actual = conceptServiceV3.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false);
+        assertNotNull(actual);
+    }
+
+
+    @Test
+    public void getGraphData_NullIri(){
+        GraphDto actual = conceptServiceV3.getGraphData(null);
+        assertNull(actual);
+    }
+
+    @Test
+    public void getGraphData_NotNullIri() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .set(IM.IS_A, new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115")))
+                .set(IM.IS_CONTAINED_IN, new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115")))
+                .set(IM.ROLE_GROUP, new TTArray().add(new TTNode()
+                        .set(RDFS.LABEL, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
+                        .set(RDFS.COMMENT, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
+                ))
+                .set(IM.PROPERTY_GROUP, new TTArray()
+                        .add(new TTNode()
+                                .set(IM.INHERITED_FROM,new TTIriRef("http://endhealth.info/im#25451000252115"))
+                                .set(SHACL.PROPERTY, new TTArray()
+                                        .add(new TTNode()
+                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#25451000252115"))
+                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+                                        ))));
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getGraphData_NullParent() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115");
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getGraphData_NotNullParent() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .set(IM.IS_A, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
+                .set(IM.IS_CONTAINED_IN, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"));
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+
+    @Test
+    public void getGraphData_NullInheritedFrom() throws JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .setName("Adverse reaction to Amlodipine Besilate")
+                .setType(new TTArray())
+                .set(IM.IS_A, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
+                .set(IM.IS_CONTAINED_IN, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
+                .set(IM.PROPERTY_GROUP, new TTArray()
+                        .add(new TTNode()
+                                .set(SHACL.PROPERTY, new TTArray()
+                                        .add(new TTNode()
+                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#25451000252115"))
+                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+                                        ))));
+        String json = new ObjectMapper().writeValueAsString(ttConcept);
+        Concept concept = new Concept().setJson(json);
+        when(conceptRepository.findByIri(any())).thenReturn(concept);
+        List<Tpl> tplList = new ArrayList<>();
+        tplList.add(new Tpl()
+                .setSubject(new Concept()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setStatus(new Concept().setIri("http://endhealth.info/im#Active")))
+                .setObject(new Concept().setIri("http://endhealth.info/im#25451000252115")));
+        when(conceptTripleRepository.findImmediateChildrenByIri(any(),any())).thenReturn(tplList);
+        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+
+
+
+
+
+
+
+
 
 
 }

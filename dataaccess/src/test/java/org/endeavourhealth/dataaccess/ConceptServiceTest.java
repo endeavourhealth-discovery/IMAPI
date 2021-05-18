@@ -30,9 +30,9 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConceptServiceV3Test {
+public class ConceptServiceTest {
     @InjectMocks
-    ConceptServiceV3 conceptServiceV3;
+    ConceptService conceptService;
 
     @Mock
     ConceptRepository conceptRepository;
@@ -58,7 +58,7 @@ public class ConceptServiceV3Test {
     @Test
     public void getConcept_NullConcept(){
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(null);
-        TTConcept actual = conceptServiceV3.getConcept("http://endhealth.info/im#25451000252115") ;
+        TTConcept actual = conceptService.getConcept("http://endhealth.info/im#25451000252115") ;
 
         assertNull(actual);
 
@@ -67,7 +67,7 @@ public class ConceptServiceV3Test {
     public void getConcept_NullJson(){
         Concept concept = new Concept().setJson(null);
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
-        TTConcept actual = conceptServiceV3.getConcept("http://endhealth.info/im#25451000252115") ;
+        TTConcept actual = conceptService.getConcept("http://endhealth.info/im#25451000252115") ;
 
         assertNull(actual);
 
@@ -81,7 +81,7 @@ public class ConceptServiceV3Test {
         when(conceptRepository.findAllByIriIn( anySet()))
                 .thenReturn(Collections.singletonList(unnamedParent));
         String name = "Adverse reaction caused by drug (disorder)";
-        TTConcept actual = conceptServiceV3.getConcept("http://endhealth.info/im#25451000252115") ;
+        TTConcept actual = conceptService.getConcept("http://endhealth.info/im#25451000252115") ;
 
         assertEquals(name, actual.getAsArray(IM.IS_A).get(0).asIriRef().getName());
 
@@ -89,7 +89,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void getConceptReference_NullIri(){
-        TTIriRef actual = conceptServiceV3.getConceptReference(null);
+        TTIriRef actual = conceptService.getConceptReference(null);
 
         assertNull(actual);
 
@@ -98,7 +98,7 @@ public class ConceptServiceV3Test {
     @Test
     public void getConceptReference_NullConcept(){
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(null);
-        TTIriRef actual = conceptServiceV3.getConceptReference("http://endhealth.info/im#25451000252115");
+        TTIriRef actual = conceptService.getConceptReference("http://endhealth.info/im#25451000252115");
 
         assertNull(actual);
 
@@ -108,7 +108,7 @@ public class ConceptServiceV3Test {
     public void getConceptReference_NotNullConcept(){
         Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
-        TTIriRef actual = conceptServiceV3.getConceptReference("http://endhealth.info/im#25451000252115");
+        TTIriRef actual = conceptService.getConceptReference("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
 
@@ -116,7 +116,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void getImmediateChildren_NullIri(){
-        List<ConceptReferenceNode> actual = conceptServiceV3
+        List<ConceptReferenceNode> actual = conceptService
                 .getImmediateChildren(null, 1, 10, true,true);
 
         assertNotNull(actual);
@@ -132,7 +132,7 @@ public class ConceptServiceV3Test {
         when(conceptTripleRepository.findImmediateChildrenByIri( any(),any())).thenReturn(tplList);
         Concept concept = new Concept().setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}");
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
-        List<ConceptReferenceNode> actual = conceptServiceV3.getImmediateChildren
+        List<ConceptReferenceNode> actual = conceptService.getImmediateChildren
                 ("http://endhealth.info/im#25451000252115", 1, 10, true,true);
 
         assertNotNull(actual);
@@ -150,7 +150,7 @@ public class ConceptServiceV3Test {
         when(conceptTripleRepository.findImmediateChildrenByIri(any(),any())).thenReturn(tplList);
         Concept concept = new Concept().setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}");
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
-        List<ConceptReferenceNode> actual = conceptServiceV3.getImmediateChildren
+        List<ConceptReferenceNode> actual = conceptService.getImmediateChildren
                 ("http://endhealth.info/im#25451000252115", 1, 10, true,false);
 
         assertNotNull(actual);
@@ -159,7 +159,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void getImmediateParents_NullIri(){
-        List<ConceptReferenceNode> actual = conceptServiceV3
+        List<ConceptReferenceNode> actual = conceptService
                 .getImmediateParents(null, 1, 10, true,true);
 
         assertNotNull(actual);
@@ -174,7 +174,7 @@ public class ConceptServiceV3Test {
         when(conceptTripleRepository.findImmediateParentsByIri( any(),any())).thenReturn(tplList);
         Concept concept = new Concept().setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}");
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
-        List<ConceptReferenceNode> actual = conceptServiceV3.getImmediateParents
+        List<ConceptReferenceNode> actual = conceptService.getImmediateParents
                 ("http://endhealth.info/im#25451000252115", 1, 10, true,true);
 
         assertNotNull(actual);
@@ -193,7 +193,7 @@ public class ConceptServiceV3Test {
         when(conceptTripleRepository.findImmediateParentsByIri( any(),any())).thenReturn(tplList);
         Concept concept = new Concept().setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}");
         when(conceptRepository.findByIri("http://endhealth.info/im#25451000252115")).thenReturn(concept);
-        List<ConceptReferenceNode> actual = conceptServiceV3.getImmediateParents
+        List<ConceptReferenceNode> actual = conceptService.getImmediateParents
                 ("http://endhealth.info/im#25451000252115", 1, 10, true,false);
 
         assertNotNull(actual);
@@ -202,7 +202,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void isWhichType_NullIri(){
-        List<TTIriRef> actual = conceptServiceV3
+        List<TTIriRef> actual = conceptService
                 .isWhichType(null, Arrays.asList("A","B"));
 
         assertNotNull(actual);
@@ -210,7 +210,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void isWhichType_EmptyCandidates(){
-        List<TTIriRef> actual = conceptServiceV3
+        List<TTIriRef> actual = conceptService
                 .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList());
 
         assertNotNull(actual);
@@ -218,7 +218,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void isWhichType_NullCandidates(){
-        List<TTIriRef> actual = conceptServiceV3
+        List<TTIriRef> actual = conceptService
                 .isWhichType("http://endhealth.info/im#25451000252115", null);
 
         assertNotNull(actual);
@@ -226,7 +226,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void isWhichType_NullIriAndCandidates(){
-        List<TTIriRef> actual = conceptServiceV3
+        List<TTIriRef> actual = conceptService
                 .isWhichType(null, null);
 
         assertNotNull(actual);
@@ -242,7 +242,7 @@ public class ConceptServiceV3Test {
         when(conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(any(),any(),any()))
                 .thenReturn(Collections.singleton(tct));
 
-        List<TTIriRef> actual = conceptServiceV3
+        List<TTIriRef> actual = conceptService
                 .isWhichType("http://endhealth.info/im#25451000252115",
                         Collections.singletonList("http://endhealth.info/im#25451000252115"));
 
@@ -251,7 +251,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void usages_NullIri(){
-        List<TTIriRef> actual = conceptServiceV3.usages(null);
+        List<TTIriRef> actual = conceptService.usages(null);
 
         assertNotNull(actual);
     }
@@ -266,7 +266,7 @@ public class ConceptServiceV3Test {
                         .setScheme(null));
         when(conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot( any(), any())).thenReturn(Collections.singleton(tpl));
 
-        List<TTIriRef> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = conceptService.usages("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
     }
@@ -284,14 +284,14 @@ public class ConceptServiceV3Test {
                                 .setName("Adverse reaction to Amlodipine Besilate")));
         when(conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot( any(), any())).thenReturn(Collections.singleton(tpl));
 
-        List<TTIriRef> actual = conceptServiceV3.usages("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = conceptService.usages("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
     }
 
     @Test
     public void advancedSearch_NullRequest(){
-        List<ConceptSummary> actual = conceptServiceV3.advancedSearch(null);
+        List<ConceptSummary> actual = conceptService.advancedSearch(null);
 
         assertNotNull(actual);
     }
@@ -300,7 +300,7 @@ public class ConceptServiceV3Test {
     public void advancedSearch_NullTermFilter(){
         SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
 
-        List<ConceptSummary> actual = conceptServiceV3.advancedSearch(searchRequest);
+        List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -325,7 +325,7 @@ public class ConceptServiceV3Test {
                 .setType(new Concept().setIri("http://www.w3.org/2002/07/owl#Class").setName("Class"));
         when(conceptTypeRepository.findAllByConcept_Dbid(any())).thenReturn(Collections.singletonList(conceptType));
 
-        List<ConceptSummary> actual = conceptServiceV3.advancedSearch(searchRequest);
+        List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -351,7 +351,7 @@ public class ConceptServiceV3Test {
                 .setType(new Concept().setIri("http://www.w3.org/2002/07/owl#Class").setName("Class"));
         when(conceptTypeRepository.findAllByConcept_Dbid(any())).thenReturn(Collections.singletonList(conceptType));
 
-        List<ConceptSummary> actual = conceptServiceV3.advancedSearch(searchRequest);
+        List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -384,14 +384,14 @@ public class ConceptServiceV3Test {
         when(conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(any(),any(),any()))
                 .thenReturn(Collections.singleton(tct));
 
-        List<ConceptSummary> actual = conceptServiceV3.advancedSearch(searchRequest);
+        List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
 
     @Test
     public void getAncestorDefinitions_NullIri(){
-        List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions(null);
+        List<TTConcept> actual = conceptService.getAncestorDefinitions(null);
 
         assertNotNull(actual);
 
@@ -406,7 +406,7 @@ public class ConceptServiceV3Test {
 
         when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton(tct));
 
-        List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions("http://endhealth.info/im#25451000252115");
+        List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
 
@@ -421,7 +421,7 @@ public class ConceptServiceV3Test {
 
         when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton(tct));
 
-        List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
+        List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
 
         assertNotNull(actual);
 
@@ -436,7 +436,7 @@ public class ConceptServiceV3Test {
 
         when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton((tct)));
 
-        List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
+        List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
 
         assertNotNull(actual);
 
@@ -451,7 +451,7 @@ public class ConceptServiceV3Test {
 
         when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton((tct)));
 
-        List<TTConcept> actual = conceptServiceV3.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
+        List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
 
         assertNotNull(actual);
 
@@ -459,7 +459,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void getValueSetMembers_NullIri(){
-        ExportValueSet actual = conceptServiceV3.getValueSetMembers(null, true);
+        ExportValueSet actual = conceptService.getValueSetMembers(null, true);
 
         assertNull(actual);
 
@@ -499,7 +499,7 @@ public class ConceptServiceV3Test {
                 .setSchemeName("Discovery code");
 
         when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
-        ExportValueSet actual = conceptServiceV3.getValueSetMembers("http://endhealth.info/im#25451000252115", true);
+        ExportValueSet actual = conceptService.getValueSetMembers("http://endhealth.info/im#25451000252115", true);
 
         assertNotNull(actual);
 
@@ -531,7 +531,7 @@ public class ConceptServiceV3Test {
                 .thenReturn(Collections.singleton(tpl1));
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
-        ExportValueSet actual = conceptServiceV3.getValueSetMembers("http://endhealth.info/im#25451000252115", false);
+        ExportValueSet actual = conceptService.getValueSetMembers("http://endhealth.info/im#25451000252115", false);
 
         assertNotNull(actual);
 
@@ -539,7 +539,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void isValuesetMember_NullIriAndMember(){
-        ValueSetMembership actual = conceptServiceV3.isValuesetMember(null, null);
+        ValueSetMembership actual = conceptService.isValuesetMember(null, null);
 
         assertNull(actual);
     }
@@ -568,7 +568,7 @@ public class ConceptServiceV3Test {
         when(valueSetRepository.expandMember(tpl1.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember1));
         when(valueSetRepository.expandMember(tpl2.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
-        ValueSetMembership actual = conceptServiceV3.isValuesetMember("http://endhealth.info/im#25451000252115",
+        ValueSetMembership actual = conceptService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.HAS_MEMBER.getIri());
 
         assertNotNull(actual);
@@ -599,7 +599,7 @@ public class ConceptServiceV3Test {
         when(valueSetRepository.expandMember(tpl1.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember1));
         when(valueSetRepository.expandMember(tpl2.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
-        ValueSetMembership actual = conceptServiceV3.isValuesetMember("http://endhealth.info/im#25451000252115",
+        ValueSetMembership actual = conceptService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.NOT_MEMBER.getIri());
 
         assertNotNull(actual);
@@ -607,7 +607,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void getCoreMappedFromLegacy_NullIri(){
-        List<TTIriRef> actual = conceptServiceV3.getCoreMappedFromLegacy(null);
+        List<TTIriRef> actual = conceptService.getCoreMappedFromLegacy(null);
 
         assertNotNull(actual);
     }
@@ -621,14 +621,14 @@ public class ConceptServiceV3Test {
 
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(Collections.singleton(tpl));
 
-        List<TTIriRef> actual = conceptServiceV3.getCoreMappedFromLegacy("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = conceptService.getCoreMappedFromLegacy("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
     }
 
     @Test
     public void getLegacyMappedToCore_NullIri(){
-        List<TTIriRef> actual = conceptServiceV3.getLegacyMappedToCore(null);
+        List<TTIriRef> actual = conceptService.getLegacyMappedToCore(null);
 
         assertNotNull(actual);
     }
@@ -642,14 +642,14 @@ public class ConceptServiceV3Test {
 
         when(conceptTripleRepository.findAllByObject_Iri_AndPredicate_Iri(any(),any())).thenReturn(Collections.singleton(tpl));
 
-        List<TTIriRef> actual = conceptServiceV3.getLegacyMappedToCore("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = conceptService.getLegacyMappedToCore("http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
     }
 
     @Test
     public void getSynonyms_NullIri(){
-        List<String> actual = conceptServiceV3.getSynonyms(null);
+        List<String> actual = conceptService.getSynonyms(null);
         assertNotNull(actual);
     }
 
@@ -659,13 +659,13 @@ public class ConceptServiceV3Test {
 
         when(termCodeRepository.getSynonyms(any())).thenReturn(Collections.singletonList(term));
 
-        List<String> actual = conceptServiceV3.getSynonyms("http://endhealth.info/im#25451000252115");
+        List<String> actual = conceptService.getSynonyms("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void getConceptTermCodes_NullIri(){
-        List<org.endeavourhealth.imapi.model.TermCode> actual = conceptServiceV3.getConceptTermCodes(null);
+        List<org.endeavourhealth.imapi.model.TermCode> actual = conceptService.getConceptTermCodes(null);
         assertNotNull(actual);
     }
 
@@ -677,13 +677,13 @@ public class ConceptServiceV3Test {
                 .setScheme(new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate"))
                 .setConceptTermCode("32231000252116");
         when(termCodeRepository.findAllByConcept_Iri(any())).thenReturn(Collections.singletonList(termCode));
-        List<org.endeavourhealth.imapi.model.TermCode> actual = conceptServiceV3.getConceptTermCodes("http://endhealth.info/im#25451000252115");
+        List<org.endeavourhealth.imapi.model.TermCode> actual = conceptService.getConceptTermCodes("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void download_NullIri(){
-        HttpEntity actual = conceptServiceV3.download(null, "excel", true, true, true ,true,
+        HttpEntity actual = conceptService.download(null, "excel", true, true, true ,true,
                 true, true);
 
         assertNull(actual);
@@ -692,7 +692,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void download_EmptyIri(){
-        HttpEntity actual = conceptServiceV3.download("", "excel", true, true, true ,true,
+        HttpEntity actual = conceptService.download("", "excel", true, true, true ,true,
                 true, true);
 
         assertNull(actual);
@@ -701,7 +701,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void download_NullFormat(){
-        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", null, true,
+        HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", null, true,
                 true, true ,true, true, true);
 
         assertNull(actual);
@@ -710,7 +710,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void download_EmptyFormat(){
-        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", "", true,
+        HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "", true,
                 true, true ,true, true, true);
 
         assertNull(actual);
@@ -751,7 +751,7 @@ public class ConceptServiceV3Test {
                 .thenReturn(Collections.singleton(tpl1));
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
-        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", "excel", true,
+        HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "excel", true,
                 true, true ,true, true, true);
 
         assertNotNull(actual);
@@ -792,7 +792,7 @@ public class ConceptServiceV3Test {
                 .thenReturn(Collections.singleton(tpl1));
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
-        HttpEntity actual = conceptServiceV3.download("http://endhealth.info/im#25451000252115", "json", true,
+        HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "json", true,
                 true, true ,true, true, true);
 
         assertNotNull(actual);
@@ -801,7 +801,7 @@ public class ConceptServiceV3Test {
 
     @Test
     public void getAllProperties_NullIri(){
-        List<PropertyValue> actual = conceptServiceV3.getAllProperties((String) null);
+        List<PropertyValue> actual = conceptService.getAllProperties((String) null);
         assertNotNull(actual);
     }
 
@@ -823,7 +823,7 @@ public class ConceptServiceV3Test {
         String json = new ObjectMapper().writeValueAsString(ttConcept);
         Concept concept = new Concept().setJson(json);
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        List<PropertyValue> actual = conceptServiceV3.getAllProperties("http://endhealth.info/im#25451000252115");
+        List<PropertyValue> actual = conceptService.getAllProperties("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
@@ -844,13 +844,13 @@ public class ConceptServiceV3Test {
         String json = new ObjectMapper().writeValueAsString(ttConcept);
         Concept concept = new Concept().setJson(json);
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        List<PropertyValue> actual = conceptServiceV3.getAllProperties("http://endhealth.info/im#25451000252115");
+        List<PropertyValue> actual = conceptService.getAllProperties("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void getRoles_NullIri(){
-        List<PropertyValue> actual = conceptServiceV3.getRoles(null);
+        List<PropertyValue> actual = conceptService.getRoles(null);
         assertNotNull(actual);
     }
 
@@ -864,13 +864,13 @@ public class ConceptServiceV3Test {
         String json = new ObjectMapper().writeValueAsString(ttConcept);
         Concept concept = new Concept().setJson(json);
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        List<PropertyValue> actual = conceptServiceV3.getRoles("http://endhealth.info/im#25451000252115");
+        List<PropertyValue> actual = conceptService.getRoles("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void valueSetMembersCSV_NullIri(){
-        String actual = conceptServiceV3.valueSetMembersCSV(null, true);
+        String actual = conceptService.valueSetMembersCSV(null, true);
         assertNotNull(actual);
     }
 
@@ -909,7 +909,7 @@ public class ConceptServiceV3Test {
         when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
         Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        String actual = conceptServiceV3.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true);
+        String actual = conceptService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true);
         assertNotNull(actual);
     }
 
@@ -947,14 +947,14 @@ public class ConceptServiceV3Test {
 //        when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
         Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        String actual = conceptServiceV3.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false);
+        String actual = conceptService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false);
         assertNotNull(actual);
     }
 
 
     @Test
     public void getGraphData_NullIri(){
-        GraphDto actual = conceptServiceV3.getGraphData(null);
+        GraphDto actual = conceptService.getGraphData(null);
         assertNull(actual);
     }
 
@@ -982,7 +982,7 @@ public class ConceptServiceV3Test {
         String json = new ObjectMapper().writeValueAsString(ttConcept);
         Concept concept = new Concept().setJson(json);
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        GraphDto actual = conceptService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
@@ -993,7 +993,7 @@ public class ConceptServiceV3Test {
         String json = new ObjectMapper().writeValueAsString(ttConcept);
         Concept concept = new Concept().setJson(json);
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        GraphDto actual = conceptService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
@@ -1006,7 +1006,7 @@ public class ConceptServiceV3Test {
         String json = new ObjectMapper().writeValueAsString(ttConcept);
         Concept concept = new Concept().setJson(json);
         when(conceptRepository.findByIri(any())).thenReturn(concept);
-        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        GraphDto actual = conceptService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
@@ -1039,7 +1039,7 @@ public class ConceptServiceV3Test {
                         .setStatus(new Concept().setIri("http://endhealth.info/im#Active")))
                 .setObject(new Concept().setIri("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri(any(),any())).thenReturn(tplList);
-        GraphDto actual = conceptServiceV3.getGraphData("http://endhealth.info/im#25451000252115");
+        GraphDto actual = conceptService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 

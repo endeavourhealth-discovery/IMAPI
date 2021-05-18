@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Qualifier("ConfigService")
-public class ConfigService implements IConfigService {
+public class ConfigService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigService.class);
 
     private ObjectMapper om = new ObjectMapper();
@@ -38,7 +38,6 @@ public class ConfigService implements IConfigService {
     @Autowired
     ConfigRepository configRepository;
 
-    @Override
     public List<ConceptSummary> getQuickAccess() throws JsonProcessingException {
         LOG.info("getQuickAccess");
 

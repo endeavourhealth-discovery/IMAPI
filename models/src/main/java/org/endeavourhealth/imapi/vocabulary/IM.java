@@ -97,6 +97,7 @@ public class IM {
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
     public static final TTIriRef GRAPH_DISCOVERY= iri("http://endhealth.info/im");
+    public static final TTIriRef GRAPH_REPORTS= iri(NAMESPACE + "Reports");
     public static final TTIriRef GRAPH_ICD10 = iri(NAMESPACE +"ICD10");
     public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(NAMESPACE +"EMIS");
     public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(NAMESPACE +"OPCS4");

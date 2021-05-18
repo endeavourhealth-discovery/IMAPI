@@ -3,7 +3,7 @@ package org.endeavourhealth.controllers;
 import java.util.*;
 
 import org.endeavourhealth.converters.ConceptToImLang;
-import org.endeavourhealth.dataaccess.ConceptServiceV3;
+import org.endeavourhealth.dataaccess.ConceptService;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
@@ -35,7 +35,7 @@ public class ConceptController {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptController.class);
 
 	@Autowired
-	ConceptServiceV3 conceptService;
+    ConceptService conceptService;
 
 	@Autowired
 	ConceptToImLang conceptToImLang;

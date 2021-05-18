@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class ConceptServiceV3 {
-    private static final Logger LOG = LoggerFactory.getLogger(ConceptServiceV3.class);
+public class ConceptService {
+    private static final Logger LOG = LoggerFactory.getLogger(ConceptService.class);
 
     @Autowired
 	ConceptRepository conceptRepository;

@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Qualifier("ReportService")
-public class ReportService implements IReportService{
+public class ReportService {
 
     private interface ReportServiceLambda {
         List<SimpleCount> execute();
@@ -42,7 +46,35 @@ public class ReportService implements IReportService{
         return list;
     }
 
-    @Override
+    public List<SimpleCount> getConceptTypeReportSring() {
+        List<SimpleCount> result;
+
+        result = simpleCountRepository.getConceptTypeReport()
+            .stream()
+            .map(sc -> new SimpleCount(sc.getLabel(), sc.getCount()))
+            .collect(Collectors.toList());
+
+        return result;
+    }
+
+    public List<SimpleCount> getConceptTypeReportNative() throws SQLException {
+        List<SimpleCount> result = new ArrayList<>();
+        try (Connection conn = ConnectionPool.get()) {
+            try (PreparedStatement stmt = conn.prepareStatement("SELECT t.dbid, t.iri as iri, t.name as label, count(1) as `count`\n" +
+                "FROM concept c \n" +
+                "JOIN concept_type ct ON ct.concept = c.dbid \n" +
+                "JOIN concept t on t.iri = ct.type \n" +
+                "GROUP BY t.dbid , t.iri , t.name \n" +
+                "ORDER BY `count` DESC  ")) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while(rs.next())
+                        result.add(new SimpleCount(rs.getString("label"), rs.getInt("count")));
+                }
+            }
+        }
+        return result;
+    }
+
     public List<SimpleCount> getConceptTypeReport() {
       return  getAndCacheReport("Concept Type", () -> simpleCountRepository.getConceptTypeReport()
               .stream()
@@ -50,21 +82,18 @@ public class ReportService implements IReportService{
               .collect(Collectors.toList()));
     }
 
-    @Override
     public List<SimpleCount> getConceptSchemeReport() {
         return  getAndCacheReport("Concept Scheme", () -> simpleCountRepository.getConceptSchemeReport().stream()
                 .map(sc -> new SimpleCount(sc.getLabel(), sc.getCount()))
                 .collect(Collectors.toList()));
     }
 
-    @Override
     public List<SimpleCount> getConceptStatusReport() {
         return  getAndCacheReport("Concept Status", () -> simpleCountRepository.getConceptStatusReport().stream()
                 .map(sc -> new SimpleCount(sc.getLabel(), sc.getCount()))
                 .collect(Collectors.toList()));
     }
 
-    @Override
     public List<SimpleCount> getConceptCategoryReport() {
        return getAndCacheReport("Concept Category", this::getConceptCategoryReportData);
     }

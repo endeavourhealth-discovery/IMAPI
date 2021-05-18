@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class RuntimeService  implements IRuntimeService {
+public class RuntimeService {
     private static final Logger LOG = LoggerFactory.getLogger(RuntimeService.class);
     private static Map<String, String> schemeMap ;
 
@@ -29,9 +29,6 @@ public class RuntimeService  implements IRuntimeService {
     @Autowired
     ConceptTripleRepository conceptTripleRepository;
 
-
-
-    @Override
     public String getConceptIdForSchemeCode(String scheme, String code) {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return "";
@@ -39,7 +36,6 @@ public class RuntimeService  implements IRuntimeService {
 
     }
 
-    @Override
     public String getMappedCoreCodeForSchemeCode(String scheme, String code, boolean snomedOnly) {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return "";
@@ -74,19 +70,16 @@ public class RuntimeService  implements IRuntimeService {
         return maps.get(0);
     }
 
-    @Override
     public String getCodeForTypeTerm(String scheme, String context, String term, boolean autoCreate) {
         return null;
     }
 
-    @Override
     public Integer getConceptDbidForSchemeCode(String scheme, String code) {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return null;
         return conceptRepository.findByCodeAndScheme(scheme, code).getDbid();
     }
 
-    @Override
     public Integer getMappedCoreConceptDbidForSchemeCode(String scheme, String code ) {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return null;
@@ -96,24 +89,20 @@ public class RuntimeService  implements IRuntimeService {
         return  coreConcept.getDbid();
     }
 
-    @Override
     public String getCodeForConceptDbid(Integer dbid) {
         if(dbid==null)
             return "";
         return conceptRepository.findByDbid(dbid).getCode();
     }
 
-    @Override
     public Integer getConceptDbidForTypeTerm(String type, String term, Boolean autoCreate) {
         return null;
     }
 
-    @Override
     public Integer getMappedCoreConceptDbidForTypeTerm(String type, String term) {
         return null;
     }
 
-    @Override
     public Boolean isInVSet(String code, String v1Scheme, String vSet) throws JsonProcessingException {
         if (code == null || code.isEmpty() || v1Scheme == null || v1Scheme.isEmpty() || vSet == null || vSet.isEmpty())
             return false;

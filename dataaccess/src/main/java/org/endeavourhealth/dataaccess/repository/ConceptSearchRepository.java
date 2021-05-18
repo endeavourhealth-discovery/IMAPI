@@ -17,7 +17,7 @@ public interface ConceptSearchRepository extends JpaRepository<ConceptSearch, In
             "   JOIN concept_type ct ON cs.concept_dbid = ct.concept AND ct.type IN (:conceptType) " +
             "   WHERE MATCH(cs.term) AGAINST (:terms IN BOOLEAN MODE)" +
             "   AND c.status IN (:status) " +
-            "   ORDER BY LENGTH(term) " +
+            "   ORDER BY LENGTH(term), term " +
             "   LIMIT :limit", nativeQuery = true)
     List<ConceptSearch> findLegacyByTerm(@Param("terms") String terms, @Param("conceptType") List<String> conceptType,
                                         @Param("status") List<String> status, @Param("limit") Integer limit);
@@ -29,7 +29,7 @@ public interface ConceptSearchRepository extends JpaRepository<ConceptSearch, In
             "   WHERE (c.scheme IS NULL OR c.scheme IN (:schemes)) " +
             "   AND MATCH(cs.term) AGAINST (:terms IN BOOLEAN MODE)" +
             "   AND c.status IN (:status) " +
-            "   ORDER BY LENGTH(term) " +
+            "   ORDER BY LENGTH(term), term " +
             "   LIMIT :limit", nativeQuery = true)
     List<ConceptSearch> findLegacySchemesByTerm(@Param("terms") String terms, @Param("schemes") List<String> schemes,
                                                @Param("conceptType") List<String> conceptType, @Param("status") List<String> status, @Param("limit") Integer limit);

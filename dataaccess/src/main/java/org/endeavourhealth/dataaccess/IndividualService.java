@@ -16,9 +16,9 @@ import java.util.Map;
 public class IndividualService {
     private static final Logger LOG = LoggerFactory.getLogger(IndividualService.class);
 
-    private final IndividualRepository individualRepository = new IndividualRepository();
-    private final IndividualTplRepository individualTplRepository = new IndividualTplRepository();
-    private final IndividualTplDataRepository individualTplDataRepository = new IndividualTplDataRepository();
+    IndividualRepository individualRepository = new IndividualRepository();
+    IndividualTplRepository individualTplRepository = new IndividualTplRepository();
+    IndividualTplDataRepository individualTplDataRepository = new IndividualTplDataRepository();
 
     public TTInstance getIndividual(String iri) throws Exception {
         LOG.debug("getIndividual");

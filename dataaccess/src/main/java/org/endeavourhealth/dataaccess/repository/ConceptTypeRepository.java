@@ -2,7 +2,6 @@ package org.endeavourhealth.dataaccess.repository;
 
 import org.endeavourhealth.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +11,6 @@ import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-@Repository
 public class ConceptTypeRepository extends BaseRepository {
     public TTArray getConceptTypes(String iri) throws SQLException {
         TTArray types = new TTArray();

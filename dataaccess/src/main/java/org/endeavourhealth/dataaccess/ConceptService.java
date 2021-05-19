@@ -55,12 +55,6 @@ public class ConceptService {
 	@Autowired
     TermCodeRepository termCodeRepository;
 
-	@Autowired
-	SearchRepository searchRepository;
-
-	@Autowired
-	ConceptTypeRepository conceptTypeRepository;
-
 	ConceptSearchRepository conceptSearchRepository = new ConceptSearchRepository();
 
 	private ObjectMapper om = new ObjectMapper();

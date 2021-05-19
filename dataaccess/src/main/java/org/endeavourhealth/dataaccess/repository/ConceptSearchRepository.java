@@ -55,7 +55,7 @@ public class ConceptSearchRepository extends BaseRepository {
             sql.add("AND (c.scheme IS NULL OR c.scheme IN " + inList(schemeFilter.size()) + ")");
 
         if (typeFilter != null && !typeFilter.isEmpty())
-            sql.add("AND ct.type IN" + inList(typeFilter.size()));
+            sql.add("AND ct.type IN " + inList(typeFilter.size()));
 
         if (statusFilter != null && !statusFilter.isEmpty())
             sql.add("AND c.status IN " + inList(statusFilter.size()));

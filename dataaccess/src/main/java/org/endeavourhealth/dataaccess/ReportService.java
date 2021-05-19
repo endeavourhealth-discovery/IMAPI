@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,14 +20,14 @@ import java.util.Map;
 public class ReportService {
 
     private interface ReportServiceLambda {
-        List<SimpleCount> execute() throws SQLException;
+        List<SimpleCount> execute() throws Exception;
     }
 
     static final Map<String, SimpleCountCache> cache = new HashMap<>();
 
     SimpleCountRepository simpleCountRepository = new SimpleCountRepository();
 
-    private List<SimpleCount> getAndCacheReport(String reportType, ReportServiceLambda serviceCall) throws SQLException {
+    private List<SimpleCount> getAndCacheReport(String reportType, ReportServiceLambda serviceCall) throws Exception {
         SimpleCountCache report = cache.get(reportType);
         if(report!=null&&!report.cacheOlderThan(30L)){
             return report.getData();
@@ -40,23 +39,23 @@ public class ReportService {
         return list;
     }
 
-    public List<SimpleCount> getConceptTypeReport() throws SQLException {
+    public List<SimpleCount> getConceptTypeReport() throws Exception {
       return  getAndCacheReport("Concept Type", () -> simpleCountRepository.getConceptTypeReport());
     }
 
-    public List<SimpleCount> getConceptSchemeReport() throws SQLException {
+    public List<SimpleCount> getConceptSchemeReport() throws Exception {
         return  getAndCacheReport("Concept Scheme", () -> simpleCountRepository.getConceptSchemeReport());
     }
 
-    public List<SimpleCount> getConceptStatusReport() throws SQLException {
+    public List<SimpleCount> getConceptStatusReport() throws Exception {
         return  getAndCacheReport("Concept Status", () -> simpleCountRepository.getConceptStatusReport());
     }
 
-    public List<SimpleCount> getConceptCategoryReport() throws SQLException {
+    public List<SimpleCount> getConceptCategoryReport() throws Exception {
        return getAndCacheReport("Concept Category", this::getConceptCategoryReportData);
     }
 
-    private List<SimpleCount> getConceptCategoryReportData() throws SQLException {
+    private List<SimpleCount> getConceptCategoryReportData() throws Exception {
         List<SimpleCount> result = new ArrayList<>();
         int dmCount = 0;
         int ontCount = 0;

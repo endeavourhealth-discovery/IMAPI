@@ -12,18 +12,12 @@ public class ConnectionPool {
     private static final Object lock = new Object();
     private static ConnectionPool instance = null;
 
-    public static Connection get() {
+    public static Connection get() throws SQLException {
         synchronized (lock) {
             if (instance == null) {
                 instance = new ConnectionPool();
             }
-
-            try {
                 return instance.dataSource.getConnection();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return null;
-            }
         }
     }
 

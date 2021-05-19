@@ -33,7 +33,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void getConceptTypeReport_GetDataFromRepo() throws SQLException {
+    public void getConceptTypeReport_GetDataFromRepo() throws Exception {
         SimpleCount simpleCount = new SimpleCount().setCount(20);
         when(simpleCountRepository.getConceptTypeReport()).thenReturn(Collections.singletonList(simpleCount));
         List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptTypeReport();
@@ -41,13 +41,13 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void getConceptTypeReport_GetDataFromCaChe() throws SQLException {
+    public void getConceptTypeReport_GetDataFromCaChe() throws Exception {
         List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptTypeReport();
         assertNotNull(actual);
     }
 
     @Test
-    public void getConceptSchemeReport_GetDataFromRepo() throws SQLException {
+    public void getConceptSchemeReport_GetDataFromRepo() throws Exception {
         SimpleCount simpleCount = new SimpleCount().setCount(20);
         when(simpleCountRepository.getConceptSchemeReport()).thenReturn(Collections.singletonList(simpleCount));
         List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptSchemeReport();
@@ -55,7 +55,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void getConceptStatusReport_GetDataFromRepo() throws SQLException {
+    public void getConceptStatusReport_GetDataFromRepo() throws Exception {
         SimpleCount simpleCount = new SimpleCount().setCount(20);
         when(simpleCountRepository.getConceptStatusReport()).thenReturn(Collections.singletonList(simpleCount));
         List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptStatusReport();
@@ -63,7 +63,7 @@ public class ReportServiceTest {
     }
 
     @Test
-    public void getConceptCategoryReport_GetDataFromRepo() throws SQLException {
+    public void getConceptCategoryReport_GetDataFromRepo() throws Exception {
         List<SimpleCount> simpleCount = new ArrayList<>();
            simpleCount.add(new SimpleCount().setCount(20));
            simpleCount.add(new SimpleCount().setLabel(IM.VALUESET.getName()).setCount(20));

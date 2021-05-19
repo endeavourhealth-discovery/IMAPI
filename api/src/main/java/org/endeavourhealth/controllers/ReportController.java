@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -20,24 +19,24 @@ public class ReportController {
     ReportService reportService;
 
     @GetMapping("concept/type")
-    public List<SimpleCount> getConceptTypeReport() throws SQLException {
+    public List<SimpleCount> getConceptTypeReport() throws Exception {
         return reportService.getConceptTypeReport();
     }
 
     @GetMapping("concept/scheme")
-    public List<SimpleCount> getConceptSchemeReport() throws SQLException {
+    public List<SimpleCount> getConceptSchemeReport() throws Exception {
 
         return reportService.getConceptSchemeReport();
     }
 
     @GetMapping("concept/status")
-    public List<SimpleCount> getConceptStatusReport() throws SQLException {
+    public List<SimpleCount> getConceptStatusReport() throws Exception {
 
         return reportService.getConceptStatusReport();
     }
 
     @GetMapping("concept/category")
-    public List<SimpleCount> getConceptCategoryReport() throws SQLException {
+    public List<SimpleCount> getConceptCategoryReport() throws Exception {
 
         return reportService.getConceptCategoryReport();
 

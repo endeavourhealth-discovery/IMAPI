@@ -2,7 +2,6 @@ package org.endeavourhealth.controllers;
 
 import org.endeavourhealth.dataaccess.ReportService;
 import org.endeavourhealth.imapi.model.report.SimpleCount;
-import org.endeavourhealth.imapi.model.tripletree.TTInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,41 +21,23 @@ public class ReportController {
 
     @GetMapping("concept/type")
     public List<SimpleCount> getConceptTypeReport() throws SQLException {
-        long startTime = System.nanoTime();
-        for (int i = 1; i < 10; i++) {
-            List<SimpleCount> instance = reportService.getConceptTypeReportSring();
-        }
-        long endTime = System.nanoTime();
-
-        long duration = (endTime - startTime);
-        System.out.println("Spring " + duration / 1000000);
-
-        startTime = System.nanoTime();
-        for (int i = 1; i < 10; i++) {
-            List<SimpleCount> instance = reportService.getConceptTypeReportNative();
-        }
-        endTime = System.nanoTime();
-
-        duration = (endTime - startTime);
-        System.out.println("Native " + duration / 1000000);
-
         return reportService.getConceptTypeReport();
     }
 
     @GetMapping("concept/scheme")
-    public List<SimpleCount> getConceptSchemeReport() {
+    public List<SimpleCount> getConceptSchemeReport() throws SQLException {
 
         return reportService.getConceptSchemeReport();
     }
 
     @GetMapping("concept/status")
-    public List<SimpleCount> getConceptStatusReport() {
+    public List<SimpleCount> getConceptStatusReport() throws SQLException {
 
         return reportService.getConceptStatusReport();
     }
 
     @GetMapping("concept/category")
-    public List<SimpleCount> getConceptCategoryReport() {
+    public List<SimpleCount> getConceptCategoryReport() throws SQLException {
 
         return reportService.getConceptCategoryReport();
 

@@ -25,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -45,9 +46,6 @@ public class ConceptServiceTest {
 
     @Mock
     ConceptSearchRepository conceptSearchRepository;
-
-    @Mock
-    ConceptTypeRepository conceptTypeRepository;
 
     @Mock
     ValueSetRepository valueSetRepository;
@@ -290,14 +288,14 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void advancedSearch_NullRequest(){
+    public void advancedSearch_NullRequest() throws Exception {
         List<ConceptSummary> actual = conceptService.advancedSearch(null);
 
         assertNotNull(actual);
     }
 
     @Test
-    public void advancedSearch_NullTermFilter(){
+    public void advancedSearch_NullTermFilter() throws Exception {
         SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
 
         List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
@@ -306,24 +304,20 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void advancedSearch_NullSchemeFilter(){
+    public void advancedSearch_NullSchemeFilter() throws Exception {
         SearchRequest searchRequest = new SearchRequest()
                 .setTermFilter("Encounter")
                 .setSchemeFilter(null);
 
-        ConceptSearch conceptSearch = new ConceptSearch().setConcept(new Concept()
-                .setDbid(12608)
+        ConceptSummary conceptSearch = new ConceptSummary()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate")
                 .setDescription(null)
                 .setCode("25451000252115")
-                .setScheme(new Concept().setIri("http://endhealth.info/im#891071000252105").setName("Discovery code"))
-                .setStatus(new Concept().setIri("http://endhealth.info/im#Active").setName("Active")));
-        when(conceptSearchRepository.findLegacyByTerm(any(),any(),any(),any()))
+                .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
+                .setStatus(iri("http://endhealth.info/im#Active", "Active"));
+        when(conceptSearchRepository.advancedSearch(any()))
                 .thenReturn(Collections.singletonList(conceptSearch));
-        ConceptType conceptType = new ConceptType()
-                .setType(new Concept().setIri("http://www.w3.org/2002/07/owl#Class").setName("Class"));
-        when(conceptTypeRepository.findAllByConcept_Dbid(any())).thenReturn(Collections.singletonList(conceptType));
 
         List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 
@@ -331,25 +325,21 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void advancedSearch_NotNullSchemeFilter(){
+    public void advancedSearch_NotNullSchemeFilter() throws Exception {
         SearchRequest searchRequest = new SearchRequest()
                 .setTermFilter("Encounter")
                 .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
         "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
 
-        ConceptSearch conceptSearch = new ConceptSearch().setConcept(new Concept()
-                .setDbid(12608)
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate")
-                .setDescription(null)
-                .setCode("25451000252115")
-                .setScheme(new Concept().setIri("http://endhealth.info/im#891071000252105").setName("Discovery code"))
-                .setStatus(new Concept().setIri("http://endhealth.info/im#Active").setName("Active")));
-        when(conceptSearchRepository.findLegacySchemesByTerm(any(),any(),any(),any(),any()))
-                .thenReturn(Collections.singletonList(conceptSearch));
-        ConceptType conceptType = new ConceptType()
-                .setType(new Concept().setIri("http://www.w3.org/2002/07/owl#Class").setName("Class"));
-        when(conceptTypeRepository.findAllByConcept_Dbid(any())).thenReturn(Collections.singletonList(conceptType));
+        ConceptSummary conceptSearch = new ConceptSummary()
+            .setIri("http://endhealth.info/im#25451000252115")
+            .setName("Adverse reaction to Amlodipine Besilate")
+            .setDescription(null)
+            .setCode("25451000252115")
+            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
+            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
+        when(conceptSearchRepository.advancedSearch(any()))
+            .thenReturn(Collections.singletonList(conceptSearch));
 
         List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 
@@ -357,32 +347,22 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void advancedSearch_NotNullMarkIfDescendentOf(){
+    public void advancedSearch_NotNullMarkIfDescendentOf() throws Exception {
         SearchRequest searchRequest = new SearchRequest()
                 .setTermFilter("Encounter")
                 .setMarkIfDescendentOf(Arrays.asList(":DiscoveryCommonDataModel", ":SemanticConcept", ":VSET_ValueSet"))
                 .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
                         "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
 
-        ConceptSearch conceptSearch = new ConceptSearch().setConcept(new Concept()
-                .setDbid(12608)
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate")
-                .setDescription(null)
-                .setCode("25451000252115")
-                .setScheme(new Concept().setIri("http://endhealth.info/im#891071000252105").setName("Discovery code"))
-                .setStatus(new Concept().setIri("http://endhealth.info/im#Active").setName("Active")));
-        when(conceptSearchRepository.findLegacySchemesByTerm(any(),any(),any(),any(),any()))
-                .thenReturn(Collections.singletonList(conceptSearch));
-        ConceptType conceptType = new ConceptType()
-                .setType(new Concept().setIri("http://www.w3.org/2002/07/owl#Class").setName("Class"));
-        when(conceptTypeRepository.findAllByConcept_Dbid(any())).thenReturn(Collections.singletonList(conceptType));
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                        .setIri("http://www.w3.org/2002/07/owl#Class")
-                        .setName("Class"));
-        when(conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(any(),any(),any()))
-                .thenReturn(Collections.singleton(tct));
+        ConceptSummary conceptSearch = new ConceptSummary()
+            .setIri("http://endhealth.info/im#25451000252115")
+            .setName("Adverse reaction to Amlodipine Besilate")
+            .setDescription(null)
+            .setCode("25451000252115")
+            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
+            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
+        when(conceptSearchRepository.advancedSearch(any()))
+            .thenReturn(Collections.singletonList(conceptSearch));
 
         List<ConceptSummary> actual = conceptService.advancedSearch(searchRequest);
 

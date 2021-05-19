@@ -59,10 +59,9 @@ public class ConceptService {
 	SearchRepository searchRepository;
 
 	@Autowired
-	ConceptSearchRepository conceptSearchRepository;
-
-	@Autowired
 	ConceptTypeRepository conceptTypeRepository;
+
+	ConceptSearchRepository conceptSearchRepository = new ConceptSearchRepository();
 
 	private ObjectMapper om = new ObjectMapper();
 
@@ -188,57 +187,16 @@ public class ConceptService {
             .collect(Collectors.toList());
 	}
 
-	public List<ConceptSummary> advancedSearch(SearchRequest request) {
+	public List<ConceptSummary> advancedSearch(SearchRequest request) throws Exception {
+        if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
+            return Collections.emptyList();
 
-		if(request==null || request.getTermFilter()==null || request.getTermFilter().isEmpty())
-			return Collections.emptyList();
+            List<ConceptSummary> matchingConcept = conceptSearchRepository.advancedSearch(request);
 
-		List<ConceptSearch> matchingConcept;
-
-		String full = request.getTermFilter();
-		String terms = Arrays.stream(full.split(" ")).filter(t -> t.trim().length() >= 3).map(w -> "+" + w + "*")
-				.collect(Collectors.joining(" "));
-
-		if (request.getSchemeFilter() == null || request.getSchemeFilter().isEmpty())
-			matchingConcept = conceptSearchRepository.findLegacyByTerm(terms,request.getTypeFilter(), request.getStatusFilter(),
-					request.getSize());
-		else {
-			matchingConcept = conceptSearchRepository.findLegacySchemesByTerm(terms,request.getSchemeFilter(),
-					request.getTypeFilter(), request.getStatusFilter(), request.getSize());
-		}
-
-		List<ConceptSummary> result = matchingConcept.stream()
-				.map(c -> convertConceptToConceptSummary(c, full))
-				.sorted(Comparator.comparingInt(ConceptSummary::getWeighting))
-				.collect(Collectors.toList());
-
-		List<String> types = request.getMarkIfDescendentOf();
-		if (types != null && !types.isEmpty()) {
-			result.forEach(s -> s.setIsDescendentOf(this.isWhichType(s.getIri(), types)));
-		}
-
-		return result;
-	}
-
-	private ConceptSummary convertConceptToConceptSummary(ConceptSearch r,String full) {
-		TTArray types = new TTArray();
-		conceptTypeRepository.findAllByConcept_Dbid(r.getConcept().getDbid()).forEach(ct -> types.add(
-		    new TTIriRef().setIri(ct.getType().getIri()).setName(ct.getType().getName()))
-        );
-		return new ConceptSummary()
-				.setName(r.getConcept().getName())
-				.setMatch(r.getTerm())
-				.setIri(r.getConcept().getIri())
-				.setWeighting(Levenshtein.calculate(full, r.getTerm()))
-				// .setWeighting(r.getWeighting())
-				.setCode(r.getConcept().getCode())
-				.setDescription(r.getConcept().getDescription())
-				.setConceptType(types)
-				.setStatus(new TTIriRef(r.getConcept().getStatus().getIri(), r.getConcept().getStatus().getName()))
-				.setScheme(r.getConcept().getScheme() == null ? null
-						: new TTIriRef(r.getConcept().getScheme().getIri(), r.getConcept().getScheme().getName()));
-
-	}
+            return matchingConcept.stream()
+                .sorted(Comparator.comparingInt(ConceptSummary::getWeighting))
+                .collect(Collectors.toList());
+    }
 
 	public List<TTConcept> getAncestorDefinitions(String iri) {
 		if(iri == null || iri.isEmpty()){

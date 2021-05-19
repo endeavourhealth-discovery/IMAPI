@@ -41,8 +41,8 @@ public class ConceptController {
 	ConceptToImLang conceptToImLang;
 
 	@PostMapping(value = "/search")
-	public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
-		return new SearchResponse().setConcepts(conceptService.advancedSearch(request));
+	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws Exception {
+        return new SearchResponse().setConcepts(conceptService.advancedSearch(request));
 	}
 
 	@GetMapping(value = "", produces = "application/json")

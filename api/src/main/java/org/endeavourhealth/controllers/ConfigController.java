@@ -1,5 +1,6 @@
 package org.endeavourhealth.controllers;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +24,7 @@ public class ConfigController {
     // IConceptService conceptService = new ConceptServiceRDF4J();
 
     @GetMapping(value = "/quickAccess")
-    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException {
+    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException, SQLException {
         return configService.getQuickAccess();
     }
 }

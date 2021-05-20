@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,13 +33,12 @@ public class ConfigService {
     @Autowired
     ConceptRepository conceptRepository;
 
-    @Autowired
-    ConceptTctRepository conceptTctRepository;
+    ConceptTctRepository conceptTctRepository= new ConceptTctRepository();
 
     @Autowired
     ConfigRepository configRepository;
 
-    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException {
+    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException, SQLException {
         LOG.info("getQuickAccess");
 
         List<ConceptSummary> result = new ArrayList<>();
@@ -62,10 +62,7 @@ public class ConfigService {
 	                src.setScheme(new TTIriRef(c.getScheme().getIri(), c.getScheme().getName()));
 	
 	            src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
-	                .stream().map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
-	                .sorted(Comparator.comparing(TTIriRef::getName))
-	                .collect(Collectors.toList()));
-	
+                        .stream().sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList()));
 	            result.add(src);
             }
             else {

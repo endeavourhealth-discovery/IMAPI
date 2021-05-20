@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -199,7 +200,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isWhichType_NullIri(){
+    public void isWhichType_NullIri() throws SQLException {
         List<TTIriRef> actual = conceptService
                 .isWhichType(null, Arrays.asList("A","B"));
 
@@ -207,7 +208,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isWhichType_EmptyCandidates(){
+    public void isWhichType_EmptyCandidates() throws SQLException {
         List<TTIriRef> actual = conceptService
                 .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList());
 
@@ -215,7 +216,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isWhichType_NullCandidates(){
+    public void isWhichType_NullCandidates() throws SQLException {
         List<TTIriRef> actual = conceptService
                 .isWhichType("http://endhealth.info/im#25451000252115", null);
 
@@ -223,7 +224,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isWhichType_NullIriAndCandidates(){
+    public void isWhichType_NullIriAndCandidates() throws SQLException {
         List<TTIriRef> actual = conceptService
                 .isWhichType(null, null);
 
@@ -231,14 +232,13 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isWhichType_NotNullIriAndCandidates(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                    .setIri("http://www.w3.org/2002/07/owl#Class")
-                    .setName("Class"));
+    public void isWhichType_NotNullIriAndCandidates() throws SQLException {
+        TTIriRef ttIriRef = new TTIriRef()
+                .setIri("http://www.w3.org/2002/07/owl#Class")
+                .setName("Class");
 
         when(conceptTctRepository.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(any(),any(),any()))
-                .thenReturn(Collections.singleton(tct));
+                .thenReturn(Collections.singletonList(ttIriRef));
 
         List<TTIriRef> actual = conceptService
                 .isWhichType("http://endhealth.info/im#25451000252115",
@@ -370,7 +370,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getAncestorDefinitions_NullIri(){
+    public void getAncestorDefinitions_NullIri() throws SQLException {
         List<TTConcept> actual = conceptService.getAncestorDefinitions(null);
 
         assertNotNull(actual);
@@ -378,29 +378,11 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getAncestorDefinitions_NotNullIri(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}"));
+    public void getAncestorDefinitions_NotEqualIri() throws SQLException, JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                .setIri("http://endhealth.info/im#25451000252115");
 
-        when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton(tct));
-
-        List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000252115");
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    public void getAncestorDefinitions_NotEqualIri(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setJson("{\"@id\": \"http://endhealth.info/im#25451000252115\", \"http://endhealth.info/im#isA\": [{\"@id\": \"http://snomed.info/sct#62014003\"}], \"http://endhealth.info/im#code\": \"25451000252115\", \"http://endhealth.info/im#scheme\": {\"@id\": \"http://endhealth.info/im#891071000252105\"}, \"http://endhealth.info/im#status\": {\"@id\": \"http://endhealth.info/im#Active\"}, \"http://endhealth.info/im#roleGroup\": [{\"http://endhealth.info/im#role\": [{\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}], \"http://endhealth.info/im#groupNumber\": {\"@type\": \"http://www.w3.org/2001/XMLSchema#integer\", \"@value\": 0}}], \"http://www.w3.org/2000/01/rdf-schema#label\": \"Adverse reaction to Amlodipine Besilate\", \"http://www.w3.org/2002/07/owl#equivalentClass\": [{\"http://www.w3.org/2002/07/owl#intersectionOf\": [{\"@id\": \"http://snomed.info/sct#62014003\"}, {\"http://www.w3.org/2002/07/owl#onProperty\": {\"@id\": \"http://snomed.info/sct#246075003\"}, \"http://www.w3.org/2002/07/owl#someValuesFrom\": {\"@id\": \"http://snomed.info/sct#384976003\"}, \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": {\"@id\": \"http://www.w3.org/2002/07/owl#Restriction\"}}]}], \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\": [{\"@id\": \"http://www.w3.org/2002/07/owl#Class\"}]}"));
-
-        when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton(tct));
-
+        when(conceptTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(any(),any())).thenReturn(Collections.singletonList(ttConcept));
         List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
 
         assertNotNull(actual);
@@ -408,28 +390,11 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getAncestorDefinitions_NullJson(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                                .setIri("http://endhealth.info/im#25451000252115")
-                                .setJson(null));
+    public void getAncestorDefinitions_EqualIri() throws SQLException, JsonProcessingException {
+        TTConcept ttConcept = new TTConcept()
+                                .setIri("http://endhealth.info/im#25451000552115");
 
-        when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton((tct)));
-
-        List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    public void getAncestorDefinitions_InvalidJson(){
-        Tct tct = new Tct()
-                .setAncestor(new Concept()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setJson("invalid"));
-
-        when(conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(any(),any())).thenReturn(Collections.singleton((tct)));
+        when(conceptTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(any(),any())).thenReturn(Collections.singletonList(ttConcept));
 
         List<TTConcept> actual = conceptService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
 
@@ -628,34 +593,20 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getSynonyms_NullIri(){
-        List<String> actual = conceptService.getSynonyms(null);
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void getSynonyms_NotNullIri(){
-        String term = "Adverse reaction to Amlodipine Besilate";
-
-        when(termCodeRepository.getSynonyms(any())).thenReturn(Collections.singletonList(term));
-
-        List<String> actual = conceptService.getSynonyms("http://endhealth.info/im#25451000252115");
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void getConceptTermCodes_NullIri(){
+    public void getConceptTermCodes_NullIri() throws SQLException {
         List<org.endeavourhealth.imapi.model.TermCode> actual = conceptService.getConceptTermCodes(null);
         assertNotNull(actual);
     }
 
     @Test
-    public void getConceptTermCodes_NotNullIri(){
-        TermCode termCode = new TermCode()
+    public void getConceptTermCodes_NotNullIri() throws SQLException {
+        org.endeavourhealth.imapi.model.TermCode termCode = new org.endeavourhealth.imapi.model.TermCode()
                 .setCode("24951000252112")
                 .setTerm("Adverse reaction to Testogel")
-                .setScheme(new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate"))
-                .setConceptTermCode("32231000252116");
+                .setScheme(new TTIriRef()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setName("Adverse reaction to Amlodipine Besilate"))
+                .setConcept_term_code("32231000252116");
         when(termCodeRepository.findAllByConcept_Iri(any())).thenReturn(Collections.singletonList(termCode));
         List<org.endeavourhealth.imapi.model.TermCode> actual = conceptService.getConceptTermCodes("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);

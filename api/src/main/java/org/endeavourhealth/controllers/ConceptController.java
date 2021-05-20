@@ -1,5 +1,6 @@
 package org.endeavourhealth.controllers;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import org.endeavourhealth.converters.ConceptToImLang;
@@ -79,7 +80,7 @@ public class ConceptController {
 	}
 
 	@GetMapping(value = "/parents/definitions")
-	public List<TTConcept> getConceptAncestorDefinitions(@RequestParam(name = "iri") String iri) {
+	public List<TTConcept> getConceptAncestorDefinitions(@RequestParam(name = "iri") String iri) throws SQLException {
 		return conceptService.getAncestorDefinitions(iri);
 	}
 
@@ -100,7 +101,7 @@ public class ConceptController {
 
 	@PostMapping(value = "/isWhichType")
 	public List<TTIriRef> conceptIsWhichType(@RequestParam(name = "iri") String iri,
-			@RequestBody List<String> candidates) {
+			@RequestBody List<String> candidates) throws SQLException {
 		return conceptService.isWhichType(iri, candidates);
 	}
 
@@ -153,11 +154,6 @@ public class ConceptController {
 		return conceptService.getGraphData(iri);
 	}
 
-	@GetMapping("/synonyms")
-	public List<String> getSynonyms(@RequestParam(name = "iri") String iri) {
-		return conceptService.getSynonyms(iri);
-	}
-
 	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
 		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false, false);
 
@@ -174,7 +170,7 @@ public class ConceptController {
 	}
 
 	@GetMapping("/termCode")
-	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) {
+	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) throws SQLException {
 		return conceptService.getConceptTermCodes(iri);
 	}
 }

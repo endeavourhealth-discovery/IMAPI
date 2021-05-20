@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,8 +44,7 @@ public class ConceptService {
     @Autowired
 	ConceptRepository conceptRepository;
 
-	@Autowired
-	ConceptTctRepository conceptTctRepository;
+	ConceptTctRepository conceptTctRepository = new ConceptTctRepository();
 
 	@Autowired
 	ConceptTripleRepository conceptTripleRepository;
@@ -52,8 +52,7 @@ public class ConceptService {
 	@Autowired
 	ValueSetRepository valueSetRepository;
 
-	@Autowired
-    TermCodeRepository termCodeRepository;
+	TermCodeRepository termCodeRepository = new TermCodeRepository();
 
 	ConceptSearchRepository conceptSearchRepository = new ConceptSearchRepository();
 
@@ -159,13 +158,12 @@ public class ConceptService {
 						.setType(getConcept(t.getObject().getIri()).getType())).collect(Collectors.toList());
 	}
 
-	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
+	public List<TTIriRef> isWhichType(String iri, List<String> candidates) throws SQLException {
 		if(iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty())
 			return Collections.emptyList();
 		return conceptTctRepository
-				.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates).stream()
-				.map(tct -> new TTIriRef(tct.getAncestor().getIri(), tct.getAncestor().getName()))
-				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
+				.findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(iri, IM.IS_A.getIri(), candidates)
+				.stream().sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
 	}
 
 	public List<TTIriRef> usages(String iri) {
@@ -192,21 +190,15 @@ public class ConceptService {
                 .collect(Collectors.toList());
     }
 
-	public List<TTConcept> getAncestorDefinitions(String iri) {
+	public List<TTConcept> getAncestorDefinitions(String iri) throws SQLException {
 		if(iri == null || iri.isEmpty()){
 			return  Collections.emptyList();
 		}
 		try {
 			List<TTConcept> result = new ArrayList<>();
-			for (Tct tct : conceptTctRepository.findByDescendant_Iri_AndType_OrderByLevel(iri, IM.IS_A.getIri())) {
-				Concept t = tct.getAncestor();
-				if (!iri.equals(t.getIri())) {
-				    if (t.getJson() == null || t.getJson().isEmpty()) {
-				        LOG.error("Concept has no definition {}", t.getIri());
-                    } else {
-                        TTConcept concept = om.readValue(t.getJson(), TTConcept.class);
-                        result.add(concept);
-                    }
+			for (TTConcept ttConcept : conceptTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(iri, IM.IS_A.getIri())) {
+				if (!iri.equals(ttConcept.getIri())) {
+					result.add(ttConcept);
 				}
 			}
 			return result;
@@ -306,12 +298,6 @@ public class ConceptService {
 				.map(t -> new TTIriRef(t.getSubject().getIri(), t.getSubject().getName())).collect(Collectors.toList());
 	}
 
-	public List<String> getSynonyms(String iri) {
-		if(iri==null||iri.isEmpty())
-			return Collections.emptyList();
-		return termCodeRepository.getSynonyms(iri);
-	}
-
 	private Set<TTIriRef> populateMissingNames(TTConcept concept) {
 		// Get both predicate and object TTIriRefs
 		List<TTIriRef> iriRefs = new ArrayList<>();
@@ -342,18 +328,10 @@ public class ConceptService {
 		return predicates;
 	}
 
-	public List<TermCode> getConceptTermCodes(String iri) {
+	public List<TermCode> getConceptTermCodes(String iri) throws SQLException {
 		if(iri == null || iri.isEmpty())
 			return Collections.emptyList();
-		return termCodeRepository.findAllByConcept_Iri(iri)
-				.stream()
-				.map(termCode ->
-						new TermCode()
-								.setCode(termCode.getCode())
-								.setTerm(termCode.getTerm())
-								.setScheme(new TTIriRef(termCode.getScheme().getIri(), termCode.getScheme().getName()))
-								.setConcept_term_code(termCode.getConceptTermCode())
-				).collect(Collectors.toList());
+		return termCodeRepository.findAllByConcept_Iri(iri);
 	}
 
 	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties, boolean members,

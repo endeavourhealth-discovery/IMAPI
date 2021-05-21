@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,7 +104,7 @@ public class RuntimeService {
         return null;
     }
 
-    public Boolean isInVSet(String code, String v1Scheme, String vSet) throws JsonProcessingException {
+    public Boolean isInVSet(String code, String v1Scheme, String vSet) throws JsonProcessingException, SQLException {
         if (code == null || code.isEmpty() || v1Scheme == null || v1Scheme.isEmpty() || vSet == null || vSet.isEmpty())
             return false;
 
@@ -122,7 +123,7 @@ public class RuntimeService {
                 || conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) != null;
     }
 
-    private Map<String, String> getSchemeMap() throws JsonProcessingException {
+    private Map<String, String> getSchemeMap() throws JsonProcessingException, SQLException {
         if(schemeMap==null)
         {
             TypeReference<HashMap<String,String>> ref = new TypeReference<HashMap<String,String>>() {};

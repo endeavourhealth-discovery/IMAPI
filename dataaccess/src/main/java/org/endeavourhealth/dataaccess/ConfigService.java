@@ -35,8 +35,8 @@ public class ConfigService {
 
     ConceptTctRepository conceptTctRepository= new ConceptTctRepository();
 
-    @Autowired
-    ConfigRepository configRepository;
+
+    ConfigRepository configRepository = new ConfigRepository();
 
     public List<ConceptSummary> getQuickAccess() throws JsonProcessingException, SQLException {
         LOG.info("getQuickAccess");
@@ -73,7 +73,7 @@ public class ConfigService {
         return result;
     }
 
-    public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException {
+    public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException, SQLException {
 
         Config config = configRepository.findByName(name);
         if(config==null)
@@ -81,7 +81,7 @@ public class ConfigService {
         return om.readValue(config.getConfig(), resultType);
     }
 
-    public <T> T getConfig(String name, TypeReference<T> resultType) throws JsonProcessingException {
+    public <T> T getConfig(String name, TypeReference<T> resultType) throws JsonProcessingException, SQLException {
 
         Config config = configRepository.findByName(name);
         if(config==null)

@@ -49,8 +49,7 @@ public class ConceptService {
 	@Autowired
 	ConceptTripleRepository conceptTripleRepository;
 
-	@Autowired
-	ValueSetRepository valueSetRepository;
+	ValueSetRepository valueSetRepository = new ValueSetRepository();
 
 	TermCodeRepository termCodeRepository = new TermCodeRepository();
 
@@ -208,7 +207,7 @@ public class ConceptService {
 		}
 	}
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expand) {
+	public ExportValueSet getValueSetMembers(String iri, boolean expand) throws SQLException {
 		if(iri == null || iri.isEmpty()){
 			return  null;
 		}
@@ -238,38 +237,36 @@ public class ConceptService {
 				.collect(Collectors.toSet());
 	}
 
-	private Map<String, ValueSetMember> expandMember(Set<ValueSetMember> valueSetMembers, boolean expand){
+	private Map<String, ValueSetMember> expandMember(Set<ValueSetMember> valueSetMembers, boolean expand) throws SQLException {
 		Map<String, ValueSetMember> memberHashMap = new HashMap<>();
 		for (ValueSetMember member : valueSetMembers) {
 			memberHashMap.put(member.getConcept().getIri(), member);
+
 			if (expand) {
 				valueSetRepository.expandMember(member.getConcept().getIri())
-						.forEach(m -> memberHashMap.put(m.getConceptIri(),
-								new ValueSetMember().setConcept(new TTIriRef(m.getConceptIri(), m.getConceptName()))
-										.setCode(m.getCode())
-										.setScheme(new TTIriRef(m.getSchemeIri(), m.getSchemeName()))));
+						.forEach(m -> memberHashMap.put(m.getConcept().getIri(),m));
 			}
 		}
 		return memberHashMap;
 	}
 
-	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
+	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) throws SQLException {
 		if(valueSetIri==null || valueSetIri.isEmpty() || memberIri==null || memberIri.isEmpty())
 			return null;
 		ValueSetMembership result = new ValueSetMembership();
 		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.HAS_MEMBER);
 		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
 		for (TTIriRef m : included) {
-			Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository
-					.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+			Optional<ValueSetMember> match = valueSetRepository
+					.expandMember(m.getIri()).stream().filter(em -> em.getConcept().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setIncludedBy(m);
 				break;
 			}
 		}
 		for (TTIriRef m : excluded) {
-			Optional<org.endeavourhealth.dataaccess.entity.ValueSetMember> match = valueSetRepository
-					.expandMember(m.getIri()).stream().filter(em -> em.getConceptIri().equals(memberIri)).findFirst();
+			Optional<ValueSetMember> match = valueSetRepository
+					.expandMember(m.getIri()).stream().filter(em -> em.getConcept().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setExcludedBy(m);
 				break;
@@ -335,7 +332,7 @@ public class ConceptService {
 	}
 
 	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties, boolean members,
-							   boolean roles, boolean inactive){
+							   boolean roles, boolean inactive) throws SQLException {
 		if(iri==null || iri.isEmpty() || format== null || format.isEmpty())
 			return null;
 		TTConcept concept = getConcept(iri);
@@ -409,7 +406,7 @@ public class ConceptService {
 		}
 	}
 
-	private void addMembersToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto) {
+	private void addMembersToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto) throws SQLException {
 		ExportValueSet exportValueSet = getValueSetMembers(iri, false);
 		switch (format) {
 			case "excel":
@@ -498,7 +495,7 @@ public class ConceptService {
 		return roles;
 	}
 
-	public String valueSetMembersCSV(String iri, boolean expanded) {
+	public String valueSetMembersCSV(String iri, boolean expanded) throws SQLException {
 		ExportValueSet exportValueSet = getValueSetMembers(iri, expanded);
 		StringBuilder valueSetMembers = new StringBuilder();
 		valueSetMembers.append("Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");

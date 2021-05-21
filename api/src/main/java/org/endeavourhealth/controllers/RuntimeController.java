@@ -6,6 +6,8 @@ import org.endeavourhealth.dataaccess.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
+
 @RestController
 @RequestMapping(value = "api/runtime", produces = "text/plain")
 @CrossOrigin(origins = "*")
@@ -72,7 +74,7 @@ public class RuntimeController {
     }
 
     @GetMapping("/Concept/isValueSetMember")
-    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException {
+    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException, SQLException {
         return runtimeService.isInVSet(code, scheme,vSet).toString();
     }
 

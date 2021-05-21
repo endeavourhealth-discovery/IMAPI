@@ -67,7 +67,7 @@ public class ConceptController {
 	@GetMapping(value = "/download")
 	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
 			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
-			@RequestParam boolean roles, @RequestParam boolean inactive) {
+			@RequestParam boolean roles, @RequestParam boolean inactive) throws SQLException {
 		return conceptService.download(iri, format, children, parents, properties, members, roles, inactive);
 	}
 
@@ -107,19 +107,19 @@ public class ConceptController {
 
 	@GetMapping(value = "/members")
 	public ExportValueSet valueSetMembersJson(@RequestParam(name = "iri") String iri,
-			@RequestParam(name = "expanded", required = false) boolean expanded) {
+			@RequestParam(name = "expanded", required = false) boolean expanded) throws SQLException {
 		return conceptService.getValueSetMembers(iri, expanded);
 	}
 
 	@GetMapping(value = "/members", produces = { "text/csv" })
 	public String valueSetMembersCSV(@RequestParam(name = "iri") String iri,
-			@RequestParam(name = "expanded", required = false) boolean expanded) {
+			@RequestParam(name = "expanded", required = false) boolean expanded) throws SQLException {
 		return conceptService.valueSetMembersCSV(iri, expanded);
 	}
 
 	@GetMapping(value = "/isMemberOf")
 	public ValueSetMembership isMemberOfValueSet(@RequestParam(name = "iri") String conceptIri,
-			@RequestParam("valueSetIri") String valueSetIri) {
+			@RequestParam("valueSetIri") String valueSetIri) throws SQLException {
 		return conceptService.isValuesetMember(valueSetIri, conceptIri);
 	}
 

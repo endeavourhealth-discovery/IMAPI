@@ -403,7 +403,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getValueSetMembers_NullIri(){
+    public void getValueSetMembers_NullIri() throws SQLException {
         ExportValueSet actual = conceptService.getValueSetMembers(null, true);
 
         assertNull(actual);
@@ -411,7 +411,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getValueSetMembers_ExpandTrue(){
+    public void getValueSetMembers_ExpandTrue() throws SQLException {
 
         Tpl tpl1 = new Tpl()
                 .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
@@ -436,12 +436,10 @@ public class ConceptServiceTest {
                 .thenReturn(Collections.singleton(tpl1));
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
-        ValueSetMember valueSetMember = new ValueSetMember()
-                .setConceptIri("http://endhealth.info/im#25451000252115")
-                .setConceptName("Adverse reaction to Amlodipine Besilate")
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setConcept(iri("http://endhealth.info/im#25451000652115","Adverse reaction to Amlodipine Besilate"))
                 .setCode("25451000252115")
-                .setSchemeIri("http://endhealth.info/im#891071000252105")
-                .setSchemeName("Discovery code");
+                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
         when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
         ExportValueSet actual = conceptService.getValueSetMembers("http://endhealth.info/im#25451000252115", true);
@@ -451,7 +449,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void getValueSetMembers_ExpandFalse(){
+    public void getValueSetMembers_ExpandFalse() throws SQLException {
 
         Tpl tpl1 = new Tpl()
                 .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
@@ -483,14 +481,14 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isValuesetMember_NullIriAndMember(){
+    public void isValuesetMember_NullIriAndMember() throws SQLException {
         ValueSetMembership actual = conceptService.isValuesetMember(null, null);
 
         assertNull(actual);
     }
 
     @Test
-    public void isValuesetMember_NotNullIriAndHasMember(){
+    public void isValuesetMember_NotNullIriAndHasMember() throws SQLException {
         Tpl tpl1 = new Tpl()
                 .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
                 .setObject(new Concept()
@@ -506,10 +504,10 @@ public class ConceptServiceTest {
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
 
-        ValueSetMember valueSetMember1 = new ValueSetMember()
-                .setConceptIri(IM.HAS_MEMBER.getIri());
-        ValueSetMember valueSetMember2 = new ValueSetMember()
-                .setConceptIri(IM.NOT_MEMBER.getIri());
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setConcept(iri(IM.HAS_MEMBER.getIri()));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setConcept(iri(IM.NOT_MEMBER.getIri()));
         when(valueSetRepository.expandMember(tpl1.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember1));
         when(valueSetRepository.expandMember(tpl2.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
@@ -520,7 +518,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void isValuesetMember_NotNullIriAndNotMember(){
+    public void isValuesetMember_NotNullIriAndNotMember() throws SQLException {
         Tpl tpl1 = new Tpl()
                 .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
                 .setObject(new Concept()
@@ -537,10 +535,10 @@ public class ConceptServiceTest {
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
 
-        ValueSetMember valueSetMember1 = new ValueSetMember()
-                .setConceptIri(IM.HAS_MEMBER.getIri());
-        ValueSetMember valueSetMember2 = new ValueSetMember()
-                .setConceptIri(IM.NOT_MEMBER.getIri());
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setConcept(iri(IM.HAS_MEMBER.getIri()));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setConcept(iri(IM.NOT_MEMBER.getIri()));
         when(valueSetRepository.expandMember(tpl1.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember1));
         when(valueSetRepository.expandMember(tpl2.getObject().getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
@@ -613,7 +611,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void download_NullIri(){
+    public void download_NullIri() throws SQLException {
         HttpEntity actual = conceptService.download(null, "excel", true, true, true ,true,
                 true, true);
 
@@ -622,7 +620,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void download_EmptyIri(){
+    public void download_EmptyIri() throws SQLException {
         HttpEntity actual = conceptService.download("", "excel", true, true, true ,true,
                 true, true);
 
@@ -631,7 +629,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void download_NullFormat(){
+    public void download_NullFormat() throws SQLException {
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", null, true,
                 true, true ,true, true, true);
 
@@ -640,7 +638,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void download_EmptyFormat(){
+    public void download_EmptyFormat() throws SQLException {
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "", true,
                 true, true ,true, true, true);
 
@@ -649,7 +647,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void download_AllSelectionsTrueExcelFormat(){
+    public void download_AllSelectionsTrueExcelFormat() throws SQLException {
 
         List<Tpl> tplList = new ArrayList<>();
         tplList.add(new Tpl()
@@ -690,7 +688,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void download_AllSelectionsTrueJsonFormat(){
+    public void download_AllSelectionsTrueJsonFormat() throws SQLException {
 
         List<Tpl> tplList = new ArrayList<>();
         tplList.add(new Tpl()
@@ -800,13 +798,13 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void valueSetMembersCSV_NullIri(){
+    public void valueSetMembersCSV_NullIri() throws SQLException {
         String actual = conceptService.valueSetMembersCSV(null, true);
         assertNotNull(actual);
     }
 
     @Test
-    public void valueSetMembersCSV_NotNullIriExpandTrue(){
+    public void valueSetMembersCSV_NotNullIriExpandTrue() throws SQLException {
         Tpl tpl1 = new Tpl()
                 .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
                 .setObject(new Concept()
@@ -830,12 +828,10 @@ public class ConceptServiceTest {
                 .thenReturn(Collections.singleton(tpl1));
         when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(tpl2));
-        ValueSetMember valueSetMember = new ValueSetMember()
-                .setConceptIri("http://endhealth.info/im#25451000652115")
-                .setConceptName("Adverse reaction to Amlodipine Besilate")
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setConcept(iri("http://endhealth.info/im#25451000652115","Adverse reaction to Amlodipine Besilate"))
                 .setCode("25451000252115")
-                .setSchemeIri("http://endhealth.info/im#891071000252105")
-                .setSchemeName("Discovery code");
+                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
         when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
         Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
@@ -845,7 +841,7 @@ public class ConceptServiceTest {
     }
 
     @Test
-    public void valueSetMembersCSV_NotNullIriExpandFalse(){
+    public void valueSetMembersCSV_NotNullIriExpandFalse() throws SQLException {
         Tpl tpl1 = new Tpl()
                 .setPredicate(new Concept().setIri(IM.HAS_MEMBER.getIri()))
                 .setObject(new Concept()

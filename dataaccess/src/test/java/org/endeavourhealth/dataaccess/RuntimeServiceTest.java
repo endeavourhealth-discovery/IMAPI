@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -303,28 +304,28 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void isInVSet_NullCode() throws JsonProcessingException {
+    public void isInVSet_NullCode() throws JsonProcessingException, SQLException {
 
         Boolean actual = runtimeService.isInVSet(null, "http://endhealth.info/im#DiscoveryCodeScheme","http://endhealth.info/im#24951000252112");
         assertFalse(actual);
     }
 
     @Test
-    public void isInVSet_NullV1Scheme() throws JsonProcessingException {
+    public void isInVSet_NullV1Scheme() throws JsonProcessingException, SQLException {
 
         Boolean actual = runtimeService.isInVSet("25451000252115", null,"http://endhealth.info/im#24951000252112");
         assertFalse(actual);
     }
 
     @Test
-    public void isInVSet_NullVSet() throws JsonProcessingException {
+    public void isInVSet_NullVSet() throws JsonProcessingException, SQLException {
 
         Boolean actual = runtimeService.isInVSet("25451000252115", "http://endhealth.info/im#DiscoveryCodeScheme", null);
         assertFalse(actual);
     }
 
     @Test
-    public void isInVSet_NotNullCoreIncluded() throws JsonProcessingException {
+    public void isInVSet_NotNullCoreIncluded() throws JsonProcessingException, SQLException {
 
         runtimeService.configService = configService;
         Concept concept = new Concept();
@@ -337,7 +338,7 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void isInVSet_NotNullLegacyIncluded() throws JsonProcessingException {
+    public void isInVSet_NotNullLegacyIncluded() throws JsonProcessingException, SQLException {
         Concept concept = new Concept();
         when(conceptRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
         when(conceptRepository.isLegacyCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(concept);
@@ -350,7 +351,7 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void isInVSet_NullCoreLegacyEIncluded() throws JsonProcessingException {
+    public void isInVSet_NullCoreLegacyEIncluded() throws JsonProcessingException, SQLException {
         when(conceptRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
         when(conceptRepository.isLegacyCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
         runtimeService.configService = configService;

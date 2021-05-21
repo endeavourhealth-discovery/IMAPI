@@ -73,8 +73,8 @@ public class ReportService {
             }
         }
 
-        result.add(new SimpleCount("Value Sets",vsCount));
-        result.add(new SimpleCount("Data Models",dmCount));
+        result.add(new SimpleCount("Value sets",vsCount));
+        result.add(new SimpleCount("Data models",dmCount));
         result.add(new SimpleCount("Ontology",ontCount));
         result.add(new SimpleCount("Total",vsCount+dmCount+ontCount));
         return result;

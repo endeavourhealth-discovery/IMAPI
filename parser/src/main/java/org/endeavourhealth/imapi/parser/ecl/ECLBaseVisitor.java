@@ -1,5 +1,5 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammar\ECL.g4 by ANTLR 4.9.1
-package org.endeavourhealth.imapi.parser;
+// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammars\ECL.g4 by ANTLR 4.9.1
+package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

@@ -9,6 +9,9 @@ import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.download.DownloadDto;
 import org.endeavourhealth.imapi.model.graph.GraphDto;
+import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto;
+import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
+import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.Cardinality;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -627,5 +630,28 @@ public class ConceptService {
 			}
 			graphRoles.getChildren().add(graphRole);
 		}
+	}
+
+	public List<RecordStructureDto> getRecordStructure(String iri) {
+		List<RecordStructureDto> recordStructure = new ArrayList<RecordStructureDto>();
+		TTConcept concept = getConcept(iri);
+		List<PropertyValue> properties = getAllProperties(concept);
+		List<PropertyValue> roles = getRoles(iri);
+		for (PropertyValue prop : properties) {
+			recordStructure.add(new RecordStructureDto()
+					.setProperty(new ConceptReference(prop.getProperty().getIri(), prop.getProperty().getName()))
+					.setType(new ConceptReference(prop.getValueType().getIri(), prop.getValueType().getName()))
+					.setInherited(prop.getInheritedFrom() == null ? null
+							: new ConceptReference(prop.getInheritedFrom().getIri(), prop.getInheritedFrom().getName()))
+					.setCardinality(new Cardinality(prop.getMaxExclusive(), prop.getMaxInclusive(),
+							prop.getMinExclusive(), prop.getMinInclusive())));
+		}
+		for (PropertyValue role : roles) {
+			recordStructure.add(new RecordStructureDto()
+					.setProperty(new ConceptReference(role.getProperty().getIri(), role.getProperty().getName()))
+					.setType(role.getValueType() == null ? null
+							: new ConceptReference(role.getValueType().getIri(), role.getValueType().getName())));
+		}
+		return recordStructure;
 	}
 }

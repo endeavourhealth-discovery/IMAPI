@@ -25,6 +25,7 @@
     <module>api</module>
     <module>dataaccess</module>
 	  <module>models</module>
+    <module>parser</module>
   </modules>
 
   <build>

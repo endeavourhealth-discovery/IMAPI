@@ -13,6 +13,7 @@ public class IM {
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
     public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
+    public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
 
     //Concept tope level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
@@ -30,6 +31,7 @@ public class IM {
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TERM_CODE = iri(NAMESPACE + "TermCode");
     public static final TTIriRef TERM = iri(NAMESPACE + "Term");
+    public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
@@ -93,6 +95,8 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
     public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
+    public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
+
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
@@ -109,6 +113,7 @@ public class IM {
     public static final TTIriRef GRAPH_SNOMED = TTIriRef.iri(NAMESPACE +"SNOMED");
     public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");
+    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"PRSB");
 
 
     //Crud operations

@@ -654,4 +654,11 @@ public class ConceptService {
 		}
 		return recordStructure;
 	}
+
+	public List<ConceptReference> getDefinitionSubTypes(String iri) {
+		return conceptTripleRepository.findImmediateChildrenByIri(iri, null).stream()
+				.filter(t -> IM.ACTIVE.getIri().equals(t.getSubject().getStatus().getIri()))
+				.map(t -> new ConceptReference(t.getSubject().getIri(), t.getSubject().getName()))
+				.collect(Collectors.toList());
+	}
 }

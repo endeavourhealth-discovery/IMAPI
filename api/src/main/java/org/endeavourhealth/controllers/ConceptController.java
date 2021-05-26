@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.graph.GraphDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto;
+import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
@@ -178,6 +179,11 @@ public class ConceptController {
 	@GetMapping("/recordStructure")
 	public List<RecordStructureDto> getRecordStructure(@RequestParam(name = "iri") String iri) {
 		return conceptService.getRecordStructure(iri);
+	}
+	
+	@GetMapping("/definitionSubTypes")
+	public List<ConceptReference> getDefinitionSubTypes(@RequestParam(name = "iri") String iri) {
+		return conceptService.getDefinitionSubTypes(iri);
 	}
 	
 }

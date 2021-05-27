@@ -5,10 +5,10 @@ import java.util.*;
 
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptService;
-import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.definition.ConceptDefinitionDto;
 import org.endeavourhealth.imapi.model.graph.GraphDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
@@ -135,10 +135,10 @@ public class ConceptController {
 
 	@PostMapping
 	@PreAuthorize("isAuthenticated()")
-	public TTConcept createConcept(@RequestBody ConceptDto conceptDto) {
+	public TTConcept createConcept(@RequestBody ConceptDefinitionDto conceptDto) {
 //    	TODO convert conceptDto to concept
 //    	TODO save concept
-		return new TTConcept().setCode(conceptDto.getCode());
+		return new TTConcept();
 	}
 
 	@GetMapping(value = "/roles")
@@ -184,6 +184,11 @@ public class ConceptController {
 	@GetMapping("/definitionSubTypes")
 	public List<ConceptReference> getDefinitionSubTypes(@RequestParam(name = "iri") String iri) {
 		return conceptService.getDefinitionSubTypes(iri);
+	}
+	
+	@GetMapping("/definition")
+	public ConceptDefinitionDto getConceptDefinitionDto(@RequestParam(name = "iri") String iri) {
+		return conceptService.getConceptDefinitionDto(iri);
 	}
 	
 }

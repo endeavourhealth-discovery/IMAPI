@@ -18,17 +18,17 @@ public class RuntimeController {
 
     @GetMapping(value = "/Concept/Id")
     public String getConceptIdForSchemeCode(@RequestParam("scheme") String scheme,
-                                            @RequestParam("code") String code){
+                                            @RequestParam("code") String code) throws SQLException {
 
         return runtimeService.getConceptIdForSchemeCode(scheme, code);
     }
 
-    @GetMapping("/Concept/Core/Code")
-    public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
-                                                 @RequestParam("code") String code,
-                                                 @RequestParam("snomedOnly") Boolean snomedOnly){
-       return runtimeService.getMappedCoreCodeForSchemeCode(scheme, code, snomedOnly);
-    }
+//    @GetMapping("/Concept/Core/Code")
+//    public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
+//                                                 @RequestParam("code") String code,
+//                                                 @RequestParam("snomedOnly") Boolean snomedOnly) throws SQLException {
+//       return runtimeService.getMappedCoreCodeForSchemeCode(scheme, code, snomedOnly);
+//    }
 
     @GetMapping("/Term/Code")
     public String getCodeForTypeTerm(@RequestParam("scheme") String scheme,
@@ -40,7 +40,7 @@ public class RuntimeController {
 
     @GetMapping(value = "/Concept")
     public String getConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
-                                                @RequestParam("code") String code){
+                                                @RequestParam("code") String code) throws SQLException {
         Integer result = runtimeService.getConceptDbidForSchemeCode(scheme,code);
         if(result == null){
             return null;
@@ -49,11 +49,11 @@ public class RuntimeController {
         }
     }
 
-    @GetMapping("/Concept/Core")
-    public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
-                                                          @RequestParam("code") String code){
-        return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
-    }
+//    @GetMapping("/Concept/Core")
+//    public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
+//                                                          @RequestParam("code") String code) throws SQLException {
+//        return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
+//    }
 
     @GetMapping(value = "/Concept/Code")
     public String getCodeForConceptDbid(@RequestParam("dbid") Integer dbid) throws Exception {

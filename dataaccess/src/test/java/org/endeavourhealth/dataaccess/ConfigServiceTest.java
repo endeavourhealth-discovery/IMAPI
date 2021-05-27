@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -51,7 +52,7 @@ public class ConfigServiceTest {
         Config config = new Config()
                 .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
         when(configRepository.findByName(any())).thenReturn(config);
-        when(conceptRepository.findByIri(any())).thenReturn(null);
+        when(conceptRepository.getConceptSummaryByIri(any())).thenReturn(null);
         List<ConceptSummary> actual = configService.getQuickAccess();
         assertNotNull(actual);
 
@@ -63,14 +64,12 @@ public class ConfigServiceTest {
                 .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
         when(configRepository.findByName(any())).thenReturn(config);
 
-        Concept concept = new Concept()
+        ConceptSummary conceptSummary = new ConceptSummary()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate")
                 .setCode("25451000252115")
-                .setScheme(new Concept()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setName("Adverse reaction to Amlodipine Besilate"));
-        when(conceptRepository.findByIri(any())).thenReturn(concept);
+                .setScheme(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
+        when(conceptRepository.getConceptSummaryByIri(any())).thenReturn(conceptSummary);
 
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
@@ -89,11 +88,12 @@ public class ConfigServiceTest {
                 .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
         when(configRepository.findByName(any())).thenReturn(config);
 
-        Concept concept = new Concept()
+        ConceptSummary conceptSummary = new ConceptSummary()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate")
-                .setCode("25451000252115");
-        when(conceptRepository.findByIri(any())).thenReturn(concept);
+                .setCode("25451000252115")
+                .setScheme(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
+        when(conceptRepository.getConceptSummaryByIri(any())).thenReturn(conceptSummary);
 
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")

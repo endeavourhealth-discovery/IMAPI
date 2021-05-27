@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
 public class ConceptTctRepository extends BaseRepository{
+    private static final Logger LOG = LoggerFactory.getLogger(ConceptRepository.class);
+
     private ObjectMapper om = new ObjectMapper();
 
 	public List<TTIriRef> findByDescendant_Iri_AndAncestor_IriIn(String iri, List<String> candidates) throws SQLException {
@@ -42,7 +46,8 @@ public class ConceptTctRepository extends BaseRepository{
             }
         }
         return ancestors;
-    };
+    }
+
     public List<TTConcept> findByDescendant_Iri_AndType_Iri_OrderByLevel(String iri, String type) throws SQLException, JsonProcessingException {
         List<TTConcept> ancestors = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
@@ -61,6 +66,10 @@ public class ConceptTctRepository extends BaseRepository{
                 statement.setString(2,type);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
+                        if (rs.getString("anc_json") == null || rs.getString("anc_json").isEmpty()) {
+                            LOG.error("Concept is missing definition {}", iri);
+                            return null;
+                        }
                         TTConcept concept = om.readValue(rs.getString("anc_json"), TTConcept.class);
                         ancestors.add(concept);
                     }

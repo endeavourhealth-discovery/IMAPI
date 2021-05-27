@@ -3,6 +3,7 @@ package org.endeavourhealth.controllers;
 import java.sql.SQLException;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.dataaccess.ConceptService;
 import org.endeavourhealth.dto.ConceptDto;
@@ -49,12 +50,12 @@ public class ConceptController {
 	}
 
 	@GetMapping(value = "", produces = "application/json")
-	public TTConcept getConcept(@RequestParam(name = "iri") String iri) {
+	public TTConcept getConcept(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptService.getConcept(iri);
 	}
 
 	@GetMapping(value = "", produces = "application/imlang")
-	public String getConceptImLang(@RequestParam(name = "iri") String iri) {
+	public String getConceptImLang(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptToImLang.translateConceptToImLang(conceptService.getConcept(iri));
 	}
 
@@ -62,14 +63,14 @@ public class ConceptController {
 	public List<ConceptReferenceNode> getConceptChildren(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
-			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
+			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) throws SQLException {
 		return conceptService.getImmediateChildren(iri, page, size, includeLegacy, false);
 	}
 
 	@GetMapping(value = "/download")
 	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
 			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
-			@RequestParam boolean roles, @RequestParam boolean inactive) throws SQLException {
+			@RequestParam boolean roles, @RequestParam boolean inactive) throws SQLException, JsonProcessingException {
 		return conceptService.download(iri, format, children, parents, properties, members, roles, inactive);
 	}
 
@@ -77,7 +78,7 @@ public class ConceptController {
 	public List<ConceptReferenceNode> getConceptParents(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size,
-			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) {
+			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) throws SQLException {
 		return conceptService.getImmediateParents(iri, page, size, includeLegacy, false);
 	}
 
@@ -87,17 +88,17 @@ public class ConceptController {
 	}
 
 	@GetMapping(value = "/usages")
-	public List<TTIriRef> conceptUsages(@RequestParam(name = "iri") String iri) {
+	public List<TTIriRef> conceptUsages(@RequestParam(name = "iri") String iri) throws SQLException {
 		return conceptService.usages(iri);
 	}
 
 	@GetMapping(value = "/mappedFrom")
-	public List<TTIriRef> getCoreMappedFromLegacy(@RequestParam(name = "iri") String legacyIri) {
+	public List<TTIriRef> getCoreMappedFromLegacy(@RequestParam(name = "iri") String legacyIri) throws SQLException {
 		return conceptService.getCoreMappedFromLegacy(legacyIri);
 	}
 
 	@GetMapping(value = "/mappedTo")
-	public List<TTIriRef> getLegacyMappedToCore(@RequestParam(name = "iri") String coreIri) {
+	public List<TTIriRef> getLegacyMappedToCore(@RequestParam(name = "iri") String coreIri) throws SQLException {
 		return conceptService.getLegacyMappedToCore(coreIri);
 	}
 
@@ -142,21 +143,21 @@ public class ConceptController {
 	}
 
 	@GetMapping(value = "/roles")
-	public List<PropertyValue> getRoles(@RequestParam(name = "iri") String iri) {
+	public List<PropertyValue> getRoles(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptService.getRoles(iri);
 	}
 
 	@GetMapping(value = "/properties")
-	public List<PropertyValue> getAllProperties(@RequestParam(name = "iri") String iri) {
+	public List<PropertyValue> getAllProperties(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptService.getAllProperties(iri);
 	}
 
 	@GetMapping(value = "/graph")
-	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) {
+	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptService.getGraphData(iri);
 	}
 
-	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) {
+	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) throws SQLException {
 		List<ConceptReferenceNode> parents = conceptService.getImmediateParents(iri, null, null, false, false);
 
 		if (parents == null) {
@@ -177,12 +178,12 @@ public class ConceptController {
 	}
 	
 	@GetMapping("/recordStructure")
-	public List<RecordStructureDto> getRecordStructure(@RequestParam(name = "iri") String iri) {
+	public List<RecordStructureDto> getRecordStructure(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptService.getRecordStructure(iri);
 	}
 	
 	@GetMapping("/definitionSubTypes")
-	public List<ConceptReference> getDefinitionSubTypes(@RequestParam(name = "iri") String iri) {
+	public List<ConceptReference> getDefinitionSubTypes(@RequestParam(name = "iri") String iri) throws SQLException {
 		return conceptService.getDefinitionSubTypes(iri);
 	}
 	

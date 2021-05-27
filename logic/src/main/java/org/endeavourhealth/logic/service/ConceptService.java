@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.graph.GraphDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.Cardinality;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
+import org.endeavourhealth.imapi.model.definition.ConceptDefinitionDto;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -630,5 +631,19 @@ public class ConceptService {
 		return conceptTripleRepository.findImmediateChildrenByIri(iri, null,null,false).stream()
 				.map(t -> new ConceptReference(t.getIri(), t.getName()))
 				.collect(Collectors.toList());
+	}
+
+	public ConceptDefinitionDto getConceptDefinitionDto(String iri) throws JsonProcessingException, SQLException {
+		TTConcept concept = getConcept(iri);
+		List<ConceptReference> types = concept.getType().asArrayElements().stream()
+				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
+				.collect(Collectors.toList());
+
+		return new ConceptDefinitionDto()
+				.setIri(concept.getIri())
+				.setName(concept.getName())
+				.setDescription(concept.getDescription())
+				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName())
+				.setTypes(types);
 	}
 }

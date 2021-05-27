@@ -6,10 +6,10 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.logic.service.ConceptService;
-import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.definition.ConceptDefinitionDto;
 import org.endeavourhealth.imapi.model.graph.GraphDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto;
 import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
@@ -136,10 +136,10 @@ public class ConceptController {
 
 	@PostMapping
 	@PreAuthorize("isAuthenticated()")
-	public TTConcept createConcept(@RequestBody ConceptDto conceptDto) {
+	public TTConcept createConcept(@RequestBody ConceptDefinitionDto conceptDto) {
 //    	TODO convert conceptDto to concept
 //    	TODO save concept
-		return new TTConcept().setCode(conceptDto.getCode());
+		return new TTConcept();
 	}
 
 	@GetMapping(value = "/roles")
@@ -187,4 +187,9 @@ public class ConceptController {
 		return conceptService.getDefinitionSubTypes(iri);
 	}
 	
+	@GetMapping("/definition")
+	public ConceptDefinitionDto getConceptDefinitionDto(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
+		return conceptService.getConceptDefinitionDto(iri);
+	}
+
 }

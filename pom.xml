@@ -26,6 +26,7 @@
     <module>dataaccess</module>
 	  <module>models</module>
     <module>parser</module>
+      <module>logic</module>
   </modules>
 
   <build>

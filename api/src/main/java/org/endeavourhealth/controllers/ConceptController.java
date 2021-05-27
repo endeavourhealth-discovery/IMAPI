@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
-import org.endeavourhealth.dataaccess.ConceptService;
+import org.endeavourhealth.logic.service.ConceptService;
 import org.endeavourhealth.dto.ConceptDto;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;

@@ -1,4 +1,4 @@
-package org.endeavourhealth.dataaccess;
+package org.endeavourhealth.logic.service;
 
 import org.endeavourhealth.dataaccess.repository.SimpleCountRepository;
 import org.endeavourhealth.imapi.model.report.SimpleCount;
@@ -36,13 +36,13 @@ public class ReportServiceTest {
     public void getConceptTypeReport_GetDataFromRepo() throws Exception {
         SimpleCount simpleCount = new SimpleCount().setCount(20);
         when(simpleCountRepository.getConceptTypeReport()).thenReturn(Collections.singletonList(simpleCount));
-        List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptTypeReport();
+        List<SimpleCount> actual = reportService.getConceptTypeReport();
         assertNotNull(actual);
     }
 
     @Test
     public void getConceptTypeReport_GetDataFromCaChe() throws Exception {
-        List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptTypeReport();
+        List<SimpleCount> actual = reportService.getConceptTypeReport();
         assertNotNull(actual);
     }
 
@@ -50,7 +50,7 @@ public class ReportServiceTest {
     public void getConceptSchemeReport_GetDataFromRepo() throws Exception {
         SimpleCount simpleCount = new SimpleCount().setCount(20);
         when(simpleCountRepository.getConceptSchemeReport()).thenReturn(Collections.singletonList(simpleCount));
-        List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptSchemeReport();
+        List<SimpleCount> actual = reportService.getConceptSchemeReport();
         assertNotNull(actual);
     }
 
@@ -58,7 +58,7 @@ public class ReportServiceTest {
     public void getConceptStatusReport_GetDataFromRepo() throws Exception {
         SimpleCount simpleCount = new SimpleCount().setCount(20);
         when(simpleCountRepository.getConceptStatusReport()).thenReturn(Collections.singletonList(simpleCount));
-        List<org.endeavourhealth.imapi.model.report.SimpleCount> actual = reportService.getConceptStatusReport();
+        List<SimpleCount> actual = reportService.getConceptStatusReport();
         assertNotNull(actual);
     }
 

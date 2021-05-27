@@ -1,9 +1,8 @@
-package org.endeavourhealth.dataaccess;
+package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.dataaccess.entity.Concept;
 import org.endeavourhealth.dataaccess.entity.Config;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
 import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
@@ -12,7 +11,6 @@ import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 

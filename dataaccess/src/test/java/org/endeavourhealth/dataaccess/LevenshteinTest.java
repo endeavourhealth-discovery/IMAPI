@@ -1,5 +1,6 @@
 package org.endeavourhealth.dataaccess;
 
+import org.endeavourhealth.dataaccess.Levenshtein;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

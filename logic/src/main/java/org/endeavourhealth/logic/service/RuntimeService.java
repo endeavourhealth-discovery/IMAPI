@@ -1,21 +1,21 @@
-package org.endeavourhealth.dataaccess;
+package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.dataaccess.entity.Concept;
-import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.repository.ConceptRepository;
 import org.endeavourhealth.dataaccess.repository.ConceptTripleRepository;
 import org.endeavourhealth.dataaccess.repository.TermCodeRepository;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class RuntimeService {
@@ -37,39 +37,36 @@ public class RuntimeService {
 
     }
 
-//    public String getMappedCoreCodeForSchemeCode(String scheme, String code, boolean snomedOnly) throws SQLException {
-//        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
-//            return "";
-//        Concept coreConcept = snomedOnly
-//                ? getMappedCoreSnomedConcept(scheme, code)
-//                : getMappedCoreConcept(scheme, code);
-//        if (coreConcept == null)
-//            return null;
-//        return coreConcept.getCode();
-//    }
-//
-//    private Concept getMappedCoreSnomedConcept(String scheme, String code) throws SQLException {
-//        Concept concept = getMappedCoreConcept(scheme, code);
-//        if(concept == null)
-//            return null;
-//        if(IM.CODE_SCHEME_SNOMED.getIri().equals(concept.getIri())){
-//            return concept;
-//        }else
-//            return null;
-//    }
+    public String getMappedCoreCodeForSchemeCode(String scheme, String code, boolean snomedOnly) throws SQLException {
+        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
+            return "";
+        ValueSetMember coreConcept = snomedOnly
+                ? getMappedCoreSnomedConcept(scheme, code)
+                : getMappedCoreConcept(scheme, code);
+        if (coreConcept == null)
+            return null;
+        return coreConcept.getCode();
+    }
 
-//    private Concept getMappedCoreConcept(String scheme, String code) throws SQLException {
-//        Concept legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
-//        List<Concept> maps = conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(legacy.getIri(), IM.MATCHED_TO.getIri())
-//                .stream()
-//                .map(Tpl::getObject)
-//                .collect(Collectors.toList());
-//        if(maps.isEmpty())
-//            return  null;
-//        if(maps.size()>1)
-//            LOG.warn("Multiple maps found for scheme "+ scheme + " and code "+ code);
-//        return maps.get(0);
-//    }
+    private ValueSetMember getMappedCoreSnomedConcept(String scheme, String code) throws SQLException {
+        ValueSetMember concept = getMappedCoreConcept(scheme, code);
+        if(concept == null)
+            return null;
+        if(IM.CODE_SCHEME_SNOMED.getIri().equals(concept.getConcept().getIri())){
+            return concept;
+        }else
+            return null;
+    }
+
+    private ValueSetMember getMappedCoreConcept(String scheme, String code) throws SQLException {
+        Concept legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
+        Set<ValueSetMember> maps = conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(legacy.getIri(), IM.MATCHED_TO.getIri());
+        if(maps.isEmpty())
+            return  null;
+        if(maps.size()>1)
+            LOG.warn("Multiple maps found for scheme "+ scheme + " and code "+ code);
+        return maps.iterator().next();
+    }
 
     public String getCodeForTypeTerm(String scheme, String context, String term, boolean autoCreate) {
         return null;
@@ -81,14 +78,14 @@ public class RuntimeService {
         return termCodeRepository.findByCodeAndScheme_Iri(code, scheme).getDbid();
     }
 
-//    public Integer getMappedCoreConceptDbidForSchemeCode(String scheme, String code ) throws SQLException {
-//        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
-//            return null;
-//        Concept coreConcept = getMappedCoreConcept(scheme,code);
-//        if(coreConcept==null)
-//            return null;
-//        return  coreConcept.getDbid();
-//    }
+    public Integer getMappedCoreConceptDbidForSchemeCode(String scheme, String code ) throws SQLException {
+        if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
+            return null;
+        ValueSetMember coreConcept = getMappedCoreConcept(scheme,code);
+        if(coreConcept==null)
+            return null;
+        return  null;
+    }
 
     public String getCodeForConceptDbid(Integer dbid) throws SQLException {
         if(dbid==null)

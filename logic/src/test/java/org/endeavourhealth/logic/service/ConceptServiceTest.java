@@ -1,4 +1,4 @@
-package org.endeavourhealth.dataaccess;
+package org.endeavourhealth.logic.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;

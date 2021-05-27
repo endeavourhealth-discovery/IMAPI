@@ -1,7 +1,7 @@
 package org.endeavourhealth.controllers;
 
-import org.endeavourhealth.dataaccess.ReportService;
 import org.endeavourhealth.imapi.model.report.SimpleCount;
+import org.endeavourhealth.logic.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

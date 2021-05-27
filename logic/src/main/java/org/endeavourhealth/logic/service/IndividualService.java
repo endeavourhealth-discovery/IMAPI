@@ -1,4 +1,4 @@
-package org.endeavourhealth.dataaccess;
+package org.endeavourhealth.logic.service;
 
 import org.endeavourhealth.dataaccess.repository.IndividualRepository;
 import org.endeavourhealth.dataaccess.repository.IndividualTplDataRepository;

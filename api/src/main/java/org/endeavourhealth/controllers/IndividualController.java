@@ -1,7 +1,7 @@
 package org.endeavourhealth.controllers;
 
-import org.endeavourhealth.dataaccess.IndividualService;
 import org.endeavourhealth.imapi.model.tripletree.TTInstance;
+import org.endeavourhealth.logic.service.IndividualService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

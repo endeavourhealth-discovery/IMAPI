@@ -2,7 +2,7 @@ package org.endeavourhealth.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.RuntimeService;
+import org.endeavourhealth.logic.service.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +23,12 @@ public class RuntimeController {
         return runtimeService.getConceptIdForSchemeCode(scheme, code);
     }
 
-//    @GetMapping("/Concept/Core/Code")
-//    public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
-//                                                 @RequestParam("code") String code,
-//                                                 @RequestParam("snomedOnly") Boolean snomedOnly) throws SQLException {
-//       return runtimeService.getMappedCoreCodeForSchemeCode(scheme, code, snomedOnly);
-//    }
+    @GetMapping("/Concept/Core/Code")
+    public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
+                                                 @RequestParam("code") String code,
+                                                 @RequestParam("snomedOnly") Boolean snomedOnly) throws SQLException {
+       return runtimeService.getMappedCoreCodeForSchemeCode(scheme, code, snomedOnly);
+    }
 
     @GetMapping("/Term/Code")
     public String getCodeForTypeTerm(@RequestParam("scheme") String scheme,
@@ -49,11 +49,11 @@ public class RuntimeController {
         }
     }
 
-//    @GetMapping("/Concept/Core")
-//    public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
-//                                                          @RequestParam("code") String code) throws SQLException {
-//        return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
-//    }
+    @GetMapping("/Concept/Core")
+    public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
+                                                          @RequestParam("code") String code) throws SQLException {
+        return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
+    }
 
     @GetMapping(value = "/Concept/Code")
     public String getCodeForConceptDbid(@RequestParam("dbid") Integer dbid) throws Exception {

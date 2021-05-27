@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.ConfigService;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.logic.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -633,7 +633,7 @@ public class ConceptService {
 				.collect(Collectors.toList());
 	}
 
-	public ConceptDefinitionDto getConceptDefinitionDto(String iri) {
+	public ConceptDefinitionDto getConceptDefinitionDto(String iri) throws JsonProcessingException, SQLException {
 		TTConcept concept = getConcept(iri);
 		List<ConceptReference> types = concept.getType().asArrayElements().stream()
 				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))

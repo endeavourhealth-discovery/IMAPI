@@ -188,7 +188,7 @@ public class ConceptController {
 	}
 	
 	@GetMapping("/definition")
-	public ConceptDefinitionDto getConceptDefinitionDto(@RequestParam(name = "iri") String iri) {
+	public ConceptDefinitionDto getConceptDefinitionDto(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return conceptService.getConceptDefinitionDto(iri);
 	}
 	

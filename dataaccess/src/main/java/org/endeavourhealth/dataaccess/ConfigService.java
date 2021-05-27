@@ -49,28 +49,11 @@ public class ConfigService {
 
         for(String iri: quickAccessIris) {
             ConceptSummary src = conceptRepository.getConceptSummaryByIri(iri);
-
-            src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
-                        .stream().sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList()));
-            result.add(src);
-//            Concept c = conceptRepository.findByIri(iri);
-//
-//            if(c != null) {
-//	            ConceptSummary src = new ConceptSummary()
-//	                .setIri(c.getIri())
-//	                .setName(c.getName())
-//	                .setCode(c.getCode());
-//
-//	            if (c.getScheme() != null)
-//	                src.setScheme(new TTIriRef(c.getScheme().getIri(), c.getScheme().getName()));
-//
-//	            src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
-//                        .stream().sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList()));
-//	            result.add(src);
-//            }
-//            else {
-//            	LOG.debug(String.format("Warning - unable to find concept with the IRI %s", iri));
-//            }
+            if(src!=null) {
+                src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
+                        .stream().sorted(Comparator.nullsLast(Comparator.comparing(TTIriRef::getName))).collect(Collectors.toList()));
+                result.add(src);
+            }
         }
 
         return result;

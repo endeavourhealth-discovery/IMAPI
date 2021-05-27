@@ -1,19 +1,18 @@
-package org.endeavourhealth.imapi.model.tripletree;
+package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTConceptDeserializer extends StdDeserializer<TTConcept> {
     private TTContext context = new TTContext();

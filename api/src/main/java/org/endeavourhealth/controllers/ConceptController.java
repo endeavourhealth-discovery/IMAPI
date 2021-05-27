@@ -3,6 +3,8 @@ package org.endeavourhealth.controllers;
 import java.sql.SQLException;
 import java.util.*;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
 import org.endeavourhealth.logic.service.ConceptService;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/concept")
 @CrossOrigin(origins = "*")
+@Api(value="ConceptController", description = "Main Concept endpoint")
 public class ConceptController {
     private static final Logger LOG = LoggerFactory.getLogger(ConceptController.class);
 
@@ -45,6 +48,11 @@ public class ConceptController {
 	ConceptToImLang conceptToImLang;
 
 	@PostMapping(value = "/search")
+    @ApiOperation(
+        value = "Advanced concept search",
+        notes = "Performs an advanced concept search with multiple filter options",
+        response = SearchResponse.class
+    )
 	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws Exception {
         return new SearchResponse().setConcepts(conceptService.advancedSearch(request));
 	}

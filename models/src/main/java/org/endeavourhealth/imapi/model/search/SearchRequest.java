@@ -1,10 +1,15 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ApiModel(
+    value="Search request",
+    description = "Structure containing search request parameters and filters"
+)
 public class SearchRequest {
     private String termFilter;
     private List<String> statusFilter = new ArrayList<>();
@@ -15,6 +20,9 @@ public class SearchRequest {
     private int page = 1;
     private int size = 20;
 
+    @ApiModelProperty(value = "Term filter",
+        notes = "Plain text, space separated list of terms",
+        example = "Encounter record")
     public String getTermFilter() {
         return termFilter;
     }
@@ -24,6 +32,11 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Status filter",
+        notes = "List of concept status IRI's",
+        allowableValues = "http://endhealth.info/im#Draft, http://endhealth.info/im#Active, http://endhealth.info/im#Inactive",
+        example = "['http://endhealth.info/im#Draft', 'http://endhealth.info/im#Active']"
+    )
     public List<String> getStatusFilter() {
         return statusFilter;
     }
@@ -33,6 +46,9 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Type filter",
+        notes = "List of concept type IRI's",
+        example = "['http://www.w3.org/2002/07/owl#Class', 'http://endhealth.info/im#RecordType']")
     public List<String> getTypeFilter() {
         return typeFilter;
     }
@@ -42,6 +58,9 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Code scheme filter",
+        notes = "List of code scheme IRI's",
+        example = "['http://endhealth.info/im#SnomedCodeScheme', 'http://endhealth.info/im#DiscoveryCodeScheme']")
     public List<String> getSchemeFilter() {
         return schemeFilter;
     }
@@ -51,6 +70,9 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Concept subtype filter",
+        notes = "List of IRI's of which the concept must be a descendant",
+        example = "['http://endhealth.info/im#DiscoveryOntology']")
     public List<String> getDescendentFilter() {
         return descendentFilter;
     }
@@ -60,6 +82,9 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Concept inheritance filter",
+        notes = "Marks the results if they are descendants of any of these concepts, but does not filter by them",
+        example = "['http://endhealth.info/im#Encounter']")
     public List<String> getMarkIfDescendentOf() {
         return markIfDescendentOf;
     }
@@ -69,6 +94,9 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Search result page number",
+        notes = "The search result page number to retrieve",
+        example = "1")
     public int getPage() {
         return page;
     }
@@ -78,6 +106,9 @@ public class SearchRequest {
         return this;
     }
 
+    @ApiModelProperty(value = "Search result page size",
+        notes = "The number of results to retrieve per page",
+        example = "15")
     public int getSize() {
         return size;
     }

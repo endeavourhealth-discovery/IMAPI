@@ -1,8 +1,9 @@
-package org.endeavourhealth.imapi.model.tripletree;
+package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;

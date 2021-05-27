@@ -1,11 +1,11 @@
-package org.endeavourhealth.imapi.model.tripletree;
+package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +74,7 @@ public class TTNodeDeserializer {
       return result;
    }
 
-   public  TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
+   public TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
       if (node.isTextual())
          return literal(node.asText());
       else if (node.isObject()) {

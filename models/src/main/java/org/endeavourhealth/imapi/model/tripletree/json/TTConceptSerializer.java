@@ -1,20 +1,16 @@
-package org.endeavourhealth.imapi.model.tripletree;
+package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTConceptSerializer extends StdSerializer<TTConcept> {
-    private TTNodeSerializer helper;
+    private TTContextHelper helper;
+    private TTNodeSerializer nodeSerializer;
 
     public TTConceptSerializer() {
         this(null);
@@ -29,11 +25,13 @@ public class TTConceptSerializer extends StdSerializer<TTConcept> {
         Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
         usePrefixes = (usePrefixes != null && usePrefixes);
 
-        helper= new TTNodeSerializer(concept.getContext(), usePrefixes);
+        helper = new TTContextHelper(concept.getContext(), usePrefixes);
+
         gen.writeStartObject();
         helper.serializeContexts(concept.getPrefixes(), gen);
-        gen.writeStringField("@id",helper.prefix(concept.getIri()));
-        helper.serializeNode(concept, gen);
+        gen.writeStringField("@id", helper.prefix(concept.getIri()));
+        nodeSerializer = new TTNodeSerializer(concept.getContext(), usePrefixes);
+        nodeSerializer.serializeNode(concept, gen);
         gen.writeEndObject();
     }
 

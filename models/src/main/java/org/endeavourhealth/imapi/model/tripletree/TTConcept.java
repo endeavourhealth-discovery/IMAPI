@@ -2,11 +2,12 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.endeavourhealth.imapi.model.tripletree.json.TTConceptDeserializer;
+import org.endeavourhealth.imapi.model.tripletree.json.TTConceptSerializer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;

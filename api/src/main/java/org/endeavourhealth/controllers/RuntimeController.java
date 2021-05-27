@@ -2,6 +2,7 @@ package org.endeavourhealth.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
 import org.endeavourhealth.logic.service.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping(value = "api/runtime", produces = "text/plain")
 @CrossOrigin(origins = "*")
+@Api(value="RuntimeController", description = "Runtime API endpoint (v1 backwards compatibility")
 public class RuntimeController {
 
     @Autowired

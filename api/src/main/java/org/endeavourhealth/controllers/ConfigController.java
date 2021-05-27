@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.logic.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/config")
 @CrossOrigin(origins = "*")
+@Api(value="ConfigController", description = "IM application configuration endpoint")
 public class ConfigController {
 
 
     @Autowired
     ConfigService configService;
-
-    // IConceptService conceptService = new ConceptServiceRDF4J();
 
     @GetMapping(value = "/quickAccess")
     public List<ConceptSummary> getQuickAccess() throws JsonProcessingException, SQLException {

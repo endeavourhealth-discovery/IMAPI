@@ -1,12 +1,20 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralDeserializer;
+import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonSerialize(using = TTLiteralSerializer.class)
+@JsonDeserialize(using = TTLiteralDeserializer.class)
 public class TTLiteral extends TTValue {
     // Static helpers
     public static TTLiteral literal(String value, TTIriRef type) {
@@ -46,7 +54,6 @@ public class TTLiteral extends TTValue {
     // Type specific constructors
     public TTLiteral(String value) {
         this.value = value;
-        //overly typed? this.type = XSD.STRING;
     }
     public TTLiteral(Boolean value) {
         this.value = value.toString();

@@ -1,6 +1,7 @@
-package org.endeavourhealth.imapi.model.tripletree;
+package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -36,7 +37,6 @@ public class TTNodeSerializer {
         this.predicateTemplate= predicateTemplate;
         this.usePrefixes = usePrefixes;
     }
-
 
     public void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
       if (predicateTemplate!=null)
@@ -101,7 +101,7 @@ public class TTNodeSerializer {
          serializeNode((TTNode)value, gen);
          gen.writeEndObject();
       } else if (value.isList()) {
-         for (TTValue v : ((TTArray)value).elements) {
+         for (TTValue v : ((TTArray)value).getElements()) {
             serializeValue(v, gen);
          }
       }

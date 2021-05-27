@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.tripletree;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -7,81 +9,63 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
-public class TTNodeTreeTest {
-
+public class TTConceptJsonTest {
     @Test
-    public void testTTIriRefEquality() {
-        // Same iri  - EQUAL
-        TTIriRef test1 = iri("http://endhealth.info/im#11111");
-        TTIriRef test2 = iri("http://endhealth.info/im#11111");
-        Assert.assertEquals(test1, test2);
-        Assert.assertEquals(test1.hashCode(), test2.hashCode());
+    public void serializationTest() throws JsonProcessingException {
+        TTConcept adverseReaction = getTestConcept();
 
-        // Same iri, different name - EQUAL
-        test1 = iri("http://endhealth.info/im#11111", "test1");
-        test2 = iri("http://endhealth.info/im#11111", "test2");
-        Assert.assertEquals(test1, test2);
-        Assert.assertEquals(test1.hashCode(), test2.hashCode());
+        ObjectMapper om = new ObjectMapper();
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        // Different iri, same name - NOT EQUAL
-        test1 = iri("http://endhealth.info/im#11111", "test1");
-        test2 = iri("http://endhealth.info/im#22222", "test1");
-        Assert.assertNotEquals(test1, test2);
-        Assert.assertNotEquals(test1.hashCode(), test2.hashCode());
-
-        // Different iri, different name - NOT EQUAL
-        test1 = iri("http://endhealth.info/im#11111", "test1");
-        test2 = iri("http://endhealth.info/im#22222", "test2");
-        Assert.assertNotEquals(test1, test2);
-        Assert.assertNotEquals(test1.hashCode(), test2.hashCode());
+        System.out.println(json);
     }
 
     @Test
-    public void tripleTreeTest() {
+    public void deserializationTest() throws JsonProcessingException {
         TTConcept adverseReaction = getTestConcept();
+
+        // Serialize
+        ObjectMapper om = new ObjectMapper();
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+
+        // Deserialize
+        adverseReaction = om.readValue(json, TTConcept.class);
+
         checkConcept(adverseReaction);
     }
 
     @Test
-    public void testVisitor() {
-        TTConcept concept = getTestConcept();
-        TTConceptVisitor visitor = new TTConceptVisitor();
+    public void flipFlopTest() throws JsonProcessingException {
+        TTConcept adverseReaction = getTestConcept();
 
-        AtomicInteger i = new AtomicInteger();
-        AtomicReference<String> indent = new AtomicReference<>("");
+        // Serialize
+        ObjectMapper om = new ObjectMapper();
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
-        visitor.LiteralVisitor = (predicate, literal) -> System.out.println("L " + indent + predicate.getIri() + " : " + literal.getValue());
-        visitor.IriRefVisitor = (predicate, iriRef) -> System.out.println("I " + indent + predicate.getIri() + " : " + iriRef.getIri());
-        visitor.NodeVisitor = (predicate, node) -> {
-            System.out.println("N " + indent +(predicate == null ? "" : predicate.getIri()) + "{");
-            i.getAndIncrement();
-            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
-        };
-        visitor.NodeExitVisitor = (predicate, node) -> {
-            i.getAndDecrement();
-            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
-            System.out.println("N " + indent +"}");
-        };
-        visitor.ListVisitor = (predicate, list) -> {
-            System.out.println("A " + indent +"[");
-            i.getAndIncrement();
-            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
-        };
-        visitor.ListExitVisitor = (predicate, list) -> {
-            i.getAndDecrement();
-            indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
-            System.out.println("A " + indent +"]");
-        };
+        // Deserialize
+        adverseReaction = om.readValue(json, TTConcept.class);
 
-        visitor.visit(concept);
+        // Reserialize
+        String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+
+        System.out.println("================= IN ==================");
+        System.out.println(json);
+        System.out.println("----------------- OUT -----------------");
+        System.out.println(out);
+        System.out.println("=======================================");
+
+        // Compare
+        String expected = Arrays.stream(json.split("\n")).sorted().collect(Collectors.joining("\n"));
+        String actual = Arrays.stream(out.split("\n")).sorted().collect(Collectors.joining("\n"));
+
+        Assert.assertEquals(expected, actual);
     }
 
     public TTConcept getTestConcept() {

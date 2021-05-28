@@ -605,9 +605,7 @@ public class ConceptService {
 	public List<RecordStructureDto> getRecordStructure(String iri) throws SQLException, JsonProcessingException {
 		List<RecordStructureDto> recordStructure = new ArrayList<RecordStructureDto>();
 		TTConcept concept = getConcept(iri);
-		List<PropertyValue> properties = getAllProperties(concept);
-		List<PropertyValue> roles = getRoles(iri);
-		for (PropertyValue prop : properties) {
+		for (PropertyValue prop : getAllProperties(iri)) {
 			recordStructure.add(new RecordStructureDto()
 					.setProperty(new ConceptReference(prop.getProperty().getIri(), prop.getProperty().getName()))
 					.setType(new ConceptReference(prop.getValueType().getIri(), prop.getValueType().getName()))
@@ -616,11 +614,24 @@ public class ConceptService {
 					.setCardinality(new Cardinality(prop.getMaxExclusive(), prop.getMaxInclusive(),
 							prop.getMinExclusive(), prop.getMinInclusive())));
 		}
-		for (PropertyValue role : roles) {
-			recordStructure.add(new RecordStructureDto()
-					.setProperty(new ConceptReference(role.getProperty().getIri(), role.getProperty().getName()))
-					.setType(role.getValueType() == null ? null
-							: new ConceptReference(role.getValueType().getIri(), role.getValueType().getName())));
+		if (concept.has(IM.ROLE_GROUP)) {
+			for (TTValue roleGroup : concept.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
+				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
+					recordStructure.add(new RecordStructureDto()
+							.setProperty(new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+							.setType(new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+				} else {
+					roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
+						recordStructure.add(new RecordStructureDto()
+								.setProperty(new ConceptReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+										role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+								.setType(new ConceptReference(role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+												role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+					});
+				}
+			}
 		}
 		return recordStructure;
 	}
@@ -657,11 +668,21 @@ public class ConceptService {
 		}
 		if (concept.has(IM.ROLE_GROUP)) {
 			for (TTValue roleGroup : concept.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
-				properties.add(new DataModelPropertyDto()
-						.setProperty(new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-								roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-						.setRange(new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-								roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
+					properties.add(new DataModelPropertyDto()
+							.setProperty(new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+							.setRange(new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+				} else {
+					roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
+						properties.add(new DataModelPropertyDto()
+								.setProperty(new ConceptReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+										role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+								.setRange(new ConceptReference(role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+												role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+					});
+				}
 			}
 		}
 		return properties;

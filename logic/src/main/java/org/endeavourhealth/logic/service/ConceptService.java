@@ -655,6 +655,15 @@ public class ConceptService {
 
 			}
 		}
+		if (concept.has(IM.ROLE_GROUP)) {
+			for (TTValue roleGroup : concept.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
+				properties.add(new DataModelPropertyDto()
+						.setProperty(new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+								roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+						.setRange(new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+								roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+			}
+		}
 		return properties;
 	}
 }

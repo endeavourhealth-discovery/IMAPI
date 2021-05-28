@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.recordstructure;
+package org.endeavourhealth.imapi.model.dto;
 
 public class RecordStructureDto {
 

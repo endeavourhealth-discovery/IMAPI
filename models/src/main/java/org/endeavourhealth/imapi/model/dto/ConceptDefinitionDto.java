@@ -1,8 +1,8 @@
-package org.endeavourhealth.imapi.model.definition;
+package org.endeavourhealth.imapi.model.dto;
 
 import java.util.List;
 
-import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
+import org.endeavourhealth.imapi.model.dto.RecordStructureDto.ConceptReference;
 
 public class ConceptDefinitionDto {
 

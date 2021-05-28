@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.download;
+package org.endeavourhealth.imapi.model.dto;
 
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;

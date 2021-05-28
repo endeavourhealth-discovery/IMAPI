@@ -11,10 +11,11 @@ import org.endeavourhealth.logic.service.ConceptService;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.TermCode;
-import org.endeavourhealth.imapi.model.definition.ConceptDefinitionDto;
-import org.endeavourhealth.imapi.model.graph.GraphDto;
-import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto;
-import org.endeavourhealth.imapi.model.recordstructure.RecordStructureDto.ConceptReference;
+import org.endeavourhealth.imapi.model.dto.ConceptDefinitionDto;
+import org.endeavourhealth.imapi.model.dto.DataModelPropertyDto;
+import org.endeavourhealth.imapi.model.dto.GraphDto;
+import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
+import org.endeavourhealth.imapi.model.dto.RecordStructureDto.ConceptReference;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
@@ -198,6 +199,11 @@ public class ConceptController {
 	@GetMapping("/definition")
 	public ConceptDefinitionDto getConceptDefinitionDto(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return conceptService.getConceptDefinitionDto(iri);
+	}
+	
+	@GetMapping("/dataModelProperties")
+	public List<DataModelPropertyDto> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
+		return conceptService.getDataModelProperties(iri);
 	}
 
 }

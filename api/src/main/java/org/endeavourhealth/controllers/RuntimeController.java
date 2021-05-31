@@ -2,13 +2,17 @@ package org.endeavourhealth.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.RuntimeService;
+import io.swagger.annotations.Api;
+import org.endeavourhealth.logic.service.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping(value = "api/runtime", produces = "text/plain")
 @CrossOrigin(origins = "*")
+@Api(value="RuntimeController", description = "Runtime API endpoint (v1 backwards compatibility")
 public class RuntimeController {
 
     @Autowired
@@ -16,7 +20,7 @@ public class RuntimeController {
 
     @GetMapping(value = "/Concept/Id")
     public String getConceptIdForSchemeCode(@RequestParam("scheme") String scheme,
-                                            @RequestParam("code") String code){
+                                            @RequestParam("code") String code) throws SQLException {
 
         return runtimeService.getConceptIdForSchemeCode(scheme, code);
     }
@@ -24,7 +28,7 @@ public class RuntimeController {
     @GetMapping("/Concept/Core/Code")
     public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
                                                  @RequestParam("code") String code,
-                                                 @RequestParam("snomedOnly") Boolean snomedOnly){
+                                                 @RequestParam("snomedOnly") Boolean snomedOnly) throws SQLException {
        return runtimeService.getMappedCoreCodeForSchemeCode(scheme, code, snomedOnly);
     }
 
@@ -38,7 +42,7 @@ public class RuntimeController {
 
     @GetMapping(value = "/Concept")
     public String getConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
-                                                @RequestParam("code") String code){
+                                                @RequestParam("code") String code) throws SQLException {
         Integer result = runtimeService.getConceptDbidForSchemeCode(scheme,code);
         if(result == null){
             return null;
@@ -49,7 +53,7 @@ public class RuntimeController {
 
     @GetMapping("/Concept/Core")
     public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
-                                                          @RequestParam("code") String code){
+                                                          @RequestParam("code") String code) throws SQLException {
         return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
     }
 
@@ -72,7 +76,7 @@ public class RuntimeController {
     }
 
     @GetMapping("/Concept/isValueSetMember")
-    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException {
+    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException, SQLException {
         return runtimeService.isInVSet(code, scheme,vSet).toString();
     }
 

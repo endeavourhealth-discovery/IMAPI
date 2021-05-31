@@ -1,10 +1,16 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.endeavourhealth.imapi.model.tripletree.json.TTArrayDeserializer;
+import org.endeavourhealth.imapi.model.tripletree.json.TTArraySerializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonSerialize(using = TTArraySerializer.class)
+@JsonDeserialize(using = TTArrayDeserializer.class)
 public class TTArray extends TTValue {
     List<TTValue> elements = new ArrayList<>();
 

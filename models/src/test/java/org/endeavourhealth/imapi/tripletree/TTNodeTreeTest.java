@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.tripletree;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -9,12 +7,10 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -49,60 +45,9 @@ public class TTNodeTreeTest {
     }
 
     @Test
-    public void tripleTreeTest() throws JsonProcessingException {
+    public void tripleTreeTest() {
         TTConcept adverseReaction = getTestConcept();
         checkConcept(adverseReaction);
-    }
-
-    @Test
-    public void serializationTest() throws JsonProcessingException {
-        TTConcept adverseReaction = getTestConcept();
-
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
-
-        System.out.println(json);
-    }
-
-    @Test
-    public void deserializationTest() throws JsonProcessingException {
-        TTConcept adverseReaction = getTestConcept();
-
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
-
-        // Deserialize
-        adverseReaction = om.readValue(json, TTConcept.class);
-
-        checkConcept(adverseReaction);
-    }
-
-    @Test
-    public void flipFlopTest() throws JsonProcessingException {
-        TTConcept adverseReaction = getTestConcept();
-
-        // Serialize
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
-
-        // Deserialize
-        adverseReaction = om.readValue(json, TTConcept.class);
-
-        // Reserialize
-        String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
-
-        System.out.println("================= IN ==================");
-        System.out.println(json);
-        System.out.println("----------------- OUT -----------------");
-        System.out.println(out);
-        System.out.println("=======================================");
-
-        // Compare
-        String expected = Arrays.stream(json.split("\n")).sorted().collect(Collectors.joining("\n"));
-        String actual = Arrays.stream(out.split("\n")).sorted().collect(Collectors.joining("\n"));
-
-        Assert.assertEquals(expected, actual);
     }
 
     @Test

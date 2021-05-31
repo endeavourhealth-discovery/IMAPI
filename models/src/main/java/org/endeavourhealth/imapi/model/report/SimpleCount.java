@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.report;
 
 public class SimpleCount {
-
+    String iri;
     String label;
     Integer count;
 
@@ -11,6 +11,21 @@ public class SimpleCount {
     public SimpleCount(String label, Integer count) {
         this.label = label;
         this.count = count;
+    }
+
+    public SimpleCount(String iri, String label, Integer count) {
+        this.iri = iri;
+        this.label = label;
+        this.count = count;
+    }
+
+    public String getIri() {
+        return iri;
+    }
+
+    public SimpleCount setIri(String iri) {
+        this.iri = iri;
+        return this;
     }
 
     public String getLabel() {

@@ -1,0 +1,29 @@
+package org.endeavourhealth.imapi.model.tripletree.json;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.endeavourhealth.imapi.model.tripletree.*;
+
+import java.io.IOException;
+
+/**
+ * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument serializer
+ */
+public class TTArraySerializer extends StdSerializer<TTArray> {
+    public TTArraySerializer() {
+        this(null);
+    }
+    public TTArraySerializer(Class<TTArray> t) {
+        super(t);
+    }
+
+    public void serialize(TTArray array, JsonGenerator gen, SerializerProvider prov) throws IOException {
+        gen.writeStartArray();
+
+        for(TTValue v: array.getElements()) {
+            prov.defaultSerializeValue(v, gen);
+        }
+        gen.writeEndArray();
+    }
+}

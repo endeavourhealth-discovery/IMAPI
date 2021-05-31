@@ -38,8 +38,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.endavourhealth.imapi</groupId>
-			<artifactId>dataaccess</artifactId>
+			<groupId>org.endeavourhealth.imapi</groupId>
+			<artifactId>logic</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 

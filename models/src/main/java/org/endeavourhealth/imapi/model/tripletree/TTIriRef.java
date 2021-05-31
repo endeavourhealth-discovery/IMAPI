@@ -1,10 +1,12 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TTIriRef extends TTValue {
     public static TTIriRef iri(String iri) {
         return new TTIriRef(iri);

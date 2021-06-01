@@ -640,10 +640,10 @@ public class ConceptServiceTest {
                 .setChildren(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         when(conceptTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         TTConcept ttConcept = new TTConcept()
                 .setIri("http://endhealth.info/im#25451000252115")
@@ -677,10 +677,10 @@ public class ConceptServiceTest {
                 .setChildren(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         when(conceptTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         TTConcept ttConcept = new TTConcept()
                 .setIri("http://endhealth.info/im#25451000252115")
@@ -899,14 +899,16 @@ public class ConceptServiceTest {
                                                 .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
                                         ))));
         when(conceptRepository.getConceptByIri(any())).thenReturn(ttConcept);
-        TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
+        TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#Class","Class"));
         when(conceptTypeRepository.getConceptTypes(any())).thenReturn(ttArray);
+
         ConceptReferenceNode conceptReferenceNode = new ConceptReferenceNode()
                 .setChildren(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,20,false))
+                0,null,false))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
+
         GraphDto actual = conceptService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }

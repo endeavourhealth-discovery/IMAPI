@@ -87,11 +87,9 @@ public class ConceptService {
 			return Collections.emptyList();
 
 		List<ConceptReferenceNode> result = new ArrayList<>();
-		if (pageIndex == null || pageSize == null) {
-			pageIndex = 1;
-			pageSize = 20;
-		}
-		int rowNumber = (pageIndex - 1) * pageSize;
+		int rowNumber= 0;
+		if(pageIndex!=null && pageSize!=null)
+		    rowNumber = (pageIndex - 1) * pageSize;
 		List<ConceptReferenceNode> immediateChildren = getChildren(iri, rowNumber, pageSize, inactive).stream()
 				.map(c -> new ConceptReferenceNode(c.getIri(), c.getName())).collect(Collectors.toList());
 		for (ConceptReferenceNode child : immediateChildren)
@@ -116,11 +114,9 @@ public class ConceptService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		if (pageIndex == null || pageSize == null) {
-			pageIndex = 1;
-			pageSize = 20;
-		}
-		int rowNumber = (pageIndex - 1) * pageSize;
+		int rowNumber= 0;
+		if(pageIndex!=null && pageSize!=null)
+			rowNumber = (pageIndex - 1) * pageSize;
 
 		List<ConceptReferenceNode> parents = getParents(iri, rowNumber, pageSize, inactive).stream()
 				.map(p -> new ConceptReferenceNode(p.getIri(), p.getName())).collect(Collectors.toList());

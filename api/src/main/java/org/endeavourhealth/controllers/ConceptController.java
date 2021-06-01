@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.logic.service.ConceptService;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
@@ -204,6 +205,11 @@ public class ConceptController {
 	@GetMapping("/dataModelProperties")
 	public List<DataModelPropertyDto> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return conceptService.getDataModelProperties(iri);
+	}
+
+	@GetMapping("/complexMappings")
+	public TTArray getComplexMappings(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+		return conceptService.getComplexMappings(iri);
 	}
 
 }

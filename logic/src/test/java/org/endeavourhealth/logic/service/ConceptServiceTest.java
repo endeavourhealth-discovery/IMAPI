@@ -600,7 +600,7 @@ public class ConceptServiceTest {
 
     @Test
     public void download_NullIri() throws SQLException, JsonProcessingException {
-        HttpEntity actual = conceptService.download(null, "excel", true, true, true ,true,
+        HttpEntity actual = conceptService.download(null, "excel", true, true, true ,true, false,
                 true, true);
 
         assertNull(actual);
@@ -609,7 +609,7 @@ public class ConceptServiceTest {
 
     @Test
     public void download_EmptyIri() throws SQLException, JsonProcessingException {
-        HttpEntity actual = conceptService.download("", "excel", true, true, true ,true,
+        HttpEntity actual = conceptService.download("", "excel", true, true, true ,true, false,
                 true, true);
 
         assertNull(actual);
@@ -619,7 +619,7 @@ public class ConceptServiceTest {
     @Test
     public void download_NullFormat() throws SQLException, JsonProcessingException {
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", null, true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNull(actual);
 
@@ -628,7 +628,7 @@ public class ConceptServiceTest {
     @Test
     public void download_EmptyFormat() throws SQLException, JsonProcessingException {
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "", true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNull(actual);
 
@@ -664,7 +664,7 @@ public class ConceptServiceTest {
         when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "excel", true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNotNull(actual);
 
@@ -701,7 +701,7 @@ public class ConceptServiceTest {
         when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "json", true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNotNull(actual);
 

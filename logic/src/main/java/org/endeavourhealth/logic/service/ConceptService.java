@@ -214,11 +214,11 @@ public class ConceptService {
 			throws SQLException {
 		Map<String, ValueSetMember> memberHashMap = new HashMap<>();
 		for (ValueSetMember member : valueSetMembers) {
-			memberHashMap.put(member.getConcept().getIri(), member);
+			memberHashMap.put(member.getConcept().getIri() + "/" + member.getCode(), member);
 
 			if (expand) {
 				valueSetRepository.expandMember(member.getConcept().getIri())
-						.forEach(m -> memberHashMap.put(m.getConcept().getIri(), m));
+						.forEach(m -> memberHashMap.put(m.getConcept().getIri() + "/" + m.getCode(), m));
 			}
 		}
 		return memberHashMap;
@@ -289,13 +289,15 @@ public class ConceptService {
 				.collect(Collectors.toSet());
 
 		// Lookup and generate map
-		Map<String, String> iriNameMap = new HashMap<>();
-		for (TTIriRef concept1 : conceptRepository.findAllByIriIn(nameless))
-			iriNameMap.put(concept1.getIri(), concept1.getName());
+        if (!nameless.isEmpty()) {
+            Map<String, String> iriNameMap = new HashMap<>();
+            for (TTIriRef concept1 : conceptRepository.findAllByIriIn(nameless))
+                iriNameMap.put(concept1.getIri(), concept1.getName());
 
-		// Populate names
-		iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-		predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
+            // Populate names
+            iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
+            predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
+        }
 
 		// Return named predicate list
 		return predicates;
@@ -308,7 +310,7 @@ public class ConceptService {
 	}
 
 	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties,
-			boolean members, boolean roles, boolean inactive) throws SQLException, JsonProcessingException {
+			boolean members, boolean expandMembers, boolean roles, boolean inactive) throws SQLException, JsonProcessingException {
 		if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
 			return null;
 		TTConcept concept = getConcept(iri);
@@ -322,7 +324,7 @@ public class ConceptService {
 		if (properties)
 			addPropertiesToDownload(iri, format, xls, downloadDto);
 		if (members)
-			addMembersToDownload(iri, format, xls, downloadDto);
+			addMembersToDownload(iri, expandMembers, format, xls, downloadDto);
 		if (roles)
 			addRolesToDownload(iri, format, xls, downloadDto);
 
@@ -383,9 +385,9 @@ public class ConceptService {
 		}
 	}
 
-	private void addMembersToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto)
+	private void addMembersToDownload(String iri, boolean expandMembers, String format, XlsHelper xls, DownloadDto downloadDto)
 			throws SQLException {
-		ExportValueSet exportValueSet = getValueSetMembers(iri, false);
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMembers);
 		switch (format) {
 		case "excel":
 			xls.addMembers(exportValueSet);
@@ -644,7 +646,9 @@ public class ConceptService {
 
 	public ConceptDefinitionDto getConceptDefinitionDto(String iri) throws JsonProcessingException, SQLException {
 		TTConcept concept = getConcept(iri);
-		List<ConceptReference> types = concept.getType().asArrayElements().stream()
+		List<ConceptReference> types = concept.getType() == null
+           ? new ArrayList<>()
+           : concept.getType().asArrayElements().stream()
 				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
 				.collect(Collectors.toList());
 

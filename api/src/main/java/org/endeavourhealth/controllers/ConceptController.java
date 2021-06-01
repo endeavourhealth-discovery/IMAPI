@@ -78,9 +78,9 @@ public class ConceptController {
 
 	@GetMapping(value = "/download")
 	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
-			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
+			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members, @RequestParam boolean expandMembers,
 			@RequestParam boolean roles, @RequestParam boolean inactive) throws SQLException, JsonProcessingException {
-		return conceptService.download(iri, format, children, parents, properties, members, roles, inactive);
+		return conceptService.download(iri, format, children, parents, properties, members, expandMembers, roles, inactive);
 	}
 
 	@GetMapping(value = "/parents")

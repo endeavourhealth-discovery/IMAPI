@@ -74,7 +74,7 @@ public class IM {
     public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
     public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
-
+    public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
 
 
 

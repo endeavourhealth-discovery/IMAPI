@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TTConceptVisitor {
+public class TTVisitor {
     public interface ITTLiteralVisitor { void visit(TTIriRef predicate, TTLiteral literal); }
     public interface ITTIriRefVisitor { void visit(TTIriRef predicate, TTIriRef iriRef); }
     public interface ITTNodeVisitor { void visit(TTIriRef predicate, TTNode node); }
@@ -18,8 +18,8 @@ public class TTConceptVisitor {
     public ITTListVisitor ListExitVisitor = (predicate, list) -> {};
     public ITTPredicateVisitor PredicateVisitor = (predicate) -> {};
 
-    public void visit(TTConcept concept) {
-        visit(null, concept);
+    public void visit(TTNode node) {
+        visit(null, node);
     }
 
     public void visit(TTIriRef predicate, TTNode node) {
@@ -40,10 +40,12 @@ public class TTConceptVisitor {
 
     public void visit(TTIriRef predicate, TTValue value) {
         if (value.isLiteral()) {
-            PredicateVisitor.visit(predicate);
+            if (predicate != null)
+                PredicateVisitor.visit(predicate);
             LiteralVisitor.visit(predicate, value.asLiteral());
         } else if (value.isIriRef()) {
-            PredicateVisitor.visit(predicate);
+            if (predicate != null)
+                PredicateVisitor.visit(predicate);
             IriRefVisitor.visit(predicate, value.asIriRef());
         }
         else if (value.isNode()) {
@@ -54,7 +56,8 @@ public class TTConceptVisitor {
     }
 
     public void visit(TTIriRef predicate, TTArray array) {
-        PredicateVisitor.visit(predicate);
+        if (predicate != null)
+            PredicateVisitor.visit(predicate);
         ListVisitor.visit(predicate, array);
         for (TTValue value : array.elements) {
             visit(predicate, value);

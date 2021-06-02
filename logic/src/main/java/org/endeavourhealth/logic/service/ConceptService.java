@@ -265,39 +265,49 @@ public class ConceptService {
 
 	}
 
-	private Set<TTIriRef> populateMissingNames(TTConcept concept) throws SQLException {
+	private void populateMissingNames(TTConcept concept) throws SQLException {
 		if (concept == null)
-			return null;
+			return;
+
 		// Get both predicate and object TTIriRefs
 		List<TTIriRef> iriRefs = new ArrayList<>();
-		Set<TTIriRef> predicates = new HashSet<>();
+		List<TTIriRef> predicates = new ArrayList<>();
 
-		TTConceptVisitor visitor = new TTConceptVisitor();
-		visitor.IriRefVisitor = ((predicate, iriRef) -> {
-			if (iriRef.getName() == null || iriRef.getName().isEmpty())
-				iriRefs.add(iriRef);
-		});
+		TTVisitor visitor = new TTVisitor();
+		visitor.IriRefVisitor = ((predicate, iriRef) -> iriRefs.add(iriRef));
 		visitor.PredicateVisitor = (predicates::add);
 		visitor.visit(concept);
 
-		// Get the list of iris to lookup
-		Set<String> nameless = Stream.of(iriRefs, predicates).flatMap(Collection::stream).map(TTIriRef::getIri)
-				.collect(Collectors.toSet());
-
-		// Lookup and generate map
-        if (!nameless.isEmpty()) {
-            Map<String, String> iriNameMap = new HashMap<>();
-            for (TTIriRef concept1 : conceptRepository.findAllByIriIn(nameless))
-                iriNameMap.put(concept1.getIri(), concept1.getName());
-
-            // Populate names
-            iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-            predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-        }
-
-		// Return named predicate list
-		return predicates;
+		populateMissingNames(iriRefs);
+		populateMissingNames(predicates);
 	}
+
+	private void populateMissingNames(List<TTIriRef> iriRefs) throws SQLException {
+        List<TTIriRef> unNamed = new ArrayList<>();
+        Set<String> iris = new HashSet<>();
+
+        iriRefs.forEach(r -> {
+            if (r.getName() == null || r.getName().isEmpty()) {
+                unNamed.add(r);
+                iris.add(r.getIri());
+            }
+            }
+        );
+
+        Map<String, String> iriNameMap = getIriNameMap(iris);
+
+        for (TTIriRef iriRef : unNamed) {
+            iriRef.setName(iriNameMap.get(iriRef.getIri()));
+        }
+    }
+
+    private Map<String, String> getIriNameMap(Set<String> iris) throws SQLException {
+        Map<String, String> iriNameMap = new HashMap<>();
+        for (TTIriRef concept1 : conceptRepository.findAllByIriIn(iris))
+            iriNameMap.put(concept1.getIri(), concept1.getName());
+
+        return iriNameMap;
+    }
 
 	public List<TermCode> getConceptTermCodes(String iri) throws SQLException {
 		if (iri == null || iri.isEmpty())

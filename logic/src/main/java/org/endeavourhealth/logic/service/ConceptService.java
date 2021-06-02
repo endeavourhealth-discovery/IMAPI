@@ -146,7 +146,7 @@ public class ConceptService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		return conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot(iri, IM.IS_A.getIri()).stream()
+		return conceptTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, IM.IS_A.getIri()).stream()
 				.sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.distinct().collect(Collectors.toList());
 	}
@@ -203,7 +203,7 @@ public class ConceptService {
 	}
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
-		return conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(iri, predicate.getIri());
+		return conceptTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
 	}
 
 	private Map<String, ValueSetMember> expandMember(Set<ValueSetMember> valueSetMembers, boolean expand)

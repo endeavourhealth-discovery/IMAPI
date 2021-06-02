@@ -71,7 +71,9 @@ public class IM {
     public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
     public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
     public static final TTIriRef IS_TERM_FOR = iri(NAMESPACE + "isTermFor");
-
+    public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
+    public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
+    public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
 
 
 

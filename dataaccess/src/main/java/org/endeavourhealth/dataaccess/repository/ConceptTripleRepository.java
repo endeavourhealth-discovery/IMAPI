@@ -16,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class ConceptTripleRepository extends BaseRepository{
 
-    public List<TTIriRef> findDistinctByObject_IriAndPredicate_IriNot(String objectIri, String predicateIri) throws SQLException {
+    public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, String predicateIri) throws SQLException {
         List<TTIriRef> usages = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT DISTINCT s.iri, s.name")
@@ -25,12 +25,14 @@ public class ConceptTripleRepository extends BaseRepository{
                 .add("JOIN concept p ON p.dbid = tpl.predicate ")
                 .add("JOIN concept s ON s.dbid = tpl.subject ")
                 .add("WHERE o.iri = ?")
-                .add("AND p.iri <> ?");
+                .add("AND p.iri <> ?")
+                .add("AND s.status <> ?");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 statement.setString(1, objectIri);
                 statement.setString(2, predicateIri);
+                statement.setString(3, IM.INACTIVE.getIri());
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         usages.add(iri(rs.getString("iri"),rs.getString("name")));
@@ -41,7 +43,7 @@ public class ConceptTripleRepository extends BaseRepository{
         return usages;
     }
 
-    public Set<ValueSetMember> getMemberBySubject_Iri_AndPredicate_Iri(String iri, String predicate) throws SQLException {
+    public Set<ValueSetMember> getObjectBySubjectAndPredicate(String iri, String predicate) throws SQLException {
         Set<ValueSetMember> members = new HashSet<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT o.iri, o.name, o.code, sc.iri AS schemeIri, sc.name AS schemeName")

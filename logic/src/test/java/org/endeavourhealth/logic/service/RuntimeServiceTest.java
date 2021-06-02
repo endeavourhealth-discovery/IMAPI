@@ -94,7 +94,7 @@ public class RuntimeServiceTest {
         Concept concept = new Concept();
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
                 "25451000252115",true);
         assertNull(actual);
@@ -106,7 +106,7 @@ public class RuntimeServiceTest {
         Concept concept = new Concept();
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
                 "25451000252115",false);
         assertNull(actual);
@@ -215,7 +215,7 @@ public class RuntimeServiceTest {
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
         valueSetMembers.add(new ValueSetMember().setConcept(iri("http://endhealth.info/im#25451000252115")));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
                 "25451000252115",true);
         assertNull(actual);
@@ -271,7 +271,7 @@ public class RuntimeServiceTest {
         Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         Integer actual = runtimeService.getMappedCoreConceptDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
         assertNull(actual);
     }

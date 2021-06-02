@@ -53,7 +53,7 @@ public class TTNodeTreeTest {
     @Test
     public void testVisitor() {
         TTConcept concept = getTestConcept();
-        TTConceptVisitor visitor = new TTConceptVisitor();
+        TTVisitor visitor = new TTVisitor();
 
         AtomicInteger i = new AtomicInteger();
         AtomicReference<String> indent = new AtomicReference<>("");

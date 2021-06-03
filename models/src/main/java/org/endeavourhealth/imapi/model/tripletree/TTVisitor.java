@@ -21,6 +21,7 @@ public class TTVisitor {
     public void visit(TTNode node) {
         visit(null, node);
     }
+    public void visit(TTArray array) { visit(null, array); }
 
     public void visit(TTIriRef predicate, TTNode node) {
         if (predicate != null)

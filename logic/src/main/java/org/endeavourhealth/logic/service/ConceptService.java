@@ -700,7 +700,15 @@ public class ConceptService {
 
 	public TTArray getComplexMappings(String iri) throws JsonProcessingException, SQLException {
 		TTConcept ttConcept = conceptRepository.getConceptByIri(iri);
+		if (!ttConcept.has(IM.HAS_MAP)) {
+			return new TTArray();
+		}
 		TTArray ttArray = ttConcept.getAsArray(IM.HAS_MAP);
+		TTVisitor visitor = new TTVisitor();
+		List<TTIriRef> iris = new ArrayList<>();
+		visitor.IriRefVisitor = ((predicate, iriRef) -> {iris.add(iriRef);});
+		visitor.visit(ttArray);
+		populateMissingNames(iris);
 		return ttArray;
 	}
 }

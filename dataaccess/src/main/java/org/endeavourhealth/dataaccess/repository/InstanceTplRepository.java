@@ -21,7 +21,7 @@ public class InstanceTplRepository {
         List<TplInsObject> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner("\n")
-            .add("SELECT o.dbid, o.group, o.blank_node, p.iri AS p_iri, p.name AS p_name, c.iri AS c_iri, c.name AS c_name")
+            .add("SELECT o.dbid, o.group_number, o.blank_node, p.iri AS p_iri, p.name AS p_name, c.iri AS c_iri, c.name AS c_name")
             .add("FROM instance i")
             .add("JOIN tpl_ins_object o ON o.subject = i.dbid")
             .add("JOIN concept p ON p.dbid = o.predicate")
@@ -36,7 +36,7 @@ public class InstanceTplRepository {
                         TTIriRef object = (getNullableString(rs, "c_iri") == null) ? null : iri(rs.getString("c_iri"), rs.getString("c_name"));
                         result.add(new TplInsObject()
                             .setDbid(rs.getInt("dbid"))
-                            .setGroup(rs.getInt("group"))
+                            .setGroup(rs.getInt("group_number"))
                             .setBnode(getNullableInt(rs, "blank_node"))
                             .setPredicate(iri(rs.getString("p_iri"), rs.getString("p_name")))
                             .setObject(object)

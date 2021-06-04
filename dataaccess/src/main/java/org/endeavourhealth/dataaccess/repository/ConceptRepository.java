@@ -27,27 +27,26 @@ public class ConceptRepository extends BaseRepository {
     private ObjectMapper om = new ObjectMapper();
 
     public TTConcept getConceptByIri(String iri) throws SQLException, JsonProcessingException {
-        TTConcept concept = new TTConcept();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT c.json")
-                .add("FROM concept c")
-                .add("WHERE c.iri = ?");
+            .add("SELECT c.json")
+            .add("FROM concept c")
+            .add("WHERE c.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 statement.setString(1, iri);
                 try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        if (rs.getString("json") == null || rs.getString("json").isEmpty()) {
-		                    LOG.error("Concept is missing definition {}", iri);
-		                    return null;
-                        }
-                        concept = om.readValue(rs.getString("json"), TTConcept.class);
+                    if (rs.next()) {
+                        if (rs.getString("json") == null || rs.getString("json").isEmpty())
+                            LOG.error("Concept is missing definition {}", iri);
+                        else
+                            return om.readValue(rs.getString("json"), TTConcept.class);
                     }
                 }
             }
         }
-        return concept;
+
+        return new TTConcept();
     }
 
     public TTIriRef getConceptReferenceByIri(String iri) throws SQLException {

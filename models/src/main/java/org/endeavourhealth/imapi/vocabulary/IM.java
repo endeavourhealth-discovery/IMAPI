@@ -22,7 +22,7 @@ public class IM {
 
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
-    public static final TTIriRef SET = iri(NAMESPACE + "Set");
+    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
     public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyConcept");
@@ -35,6 +35,7 @@ public class IM {
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
+    public static final TTIriRef HAS_SUBSETS = iri(NAMESPACE + "hasSubsets");
     public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
@@ -43,7 +44,6 @@ public class IM {
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
 
     //Document collection predicates
-    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE +"concepts");
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
 
     //Transitive  isa predicates
@@ -71,8 +71,10 @@ public class IM {
     public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
     public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
     public static final TTIriRef IS_TERM_FOR = iri(NAMESPACE + "isTermFor");
-
-
+    public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
+    public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
+    public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
+    public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
 
 
 
@@ -96,6 +98,7 @@ public class IM {
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
     public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
+    public static final TTIriRef CODE_SCHEME_KING_PATH = iri(NAMESPACE +"KingsPathologyCodeScheme");
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
@@ -114,6 +117,8 @@ public class IM {
     public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");
     public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"PRSB");
+    public static final TTIriRef GRAPH_KINGS_PATH = TTIriRef.iri(NAMESPACE +"KingsPathology");
+
 
 
     //Crud operations

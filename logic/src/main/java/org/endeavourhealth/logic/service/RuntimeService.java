@@ -60,7 +60,7 @@ public class RuntimeService {
 
     private ValueSetMember getMappedCoreConcept(String scheme, String code) throws SQLException {
         Concept legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
-        Set<ValueSetMember> maps = conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(legacy.getIri(), IM.MATCHED_TO.getIri());
+        Set<ValueSetMember> maps = conceptTripleRepository.getObjectBySubjectAndPredicate(legacy.getIri(), IM.MATCHED_TO.getIri());
         if(maps.isEmpty())
             return  null;
         if(maps.size()>1)

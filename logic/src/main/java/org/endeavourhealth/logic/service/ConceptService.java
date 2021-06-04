@@ -87,11 +87,9 @@ public class ConceptService {
 			return Collections.emptyList();
 
 		List<ConceptReferenceNode> result = new ArrayList<>();
-		if (pageIndex == null || pageSize == null) {
-			pageIndex = 1;
-			pageSize = 20;
-		}
-		int rowNumber = (pageIndex - 1) * pageSize;
+		int rowNumber= 0;
+		if(pageIndex!=null && pageSize!=null)
+		    rowNumber = (pageIndex - 1) * pageSize;
 		List<ConceptReferenceNode> immediateChildren = getChildren(iri, rowNumber, pageSize, inactive).stream()
 				.map(c -> new ConceptReferenceNode(c.getIri(), c.getName())).collect(Collectors.toList());
 		for (ConceptReferenceNode child : immediateChildren)
@@ -116,11 +114,9 @@ public class ConceptService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		if (pageIndex == null || pageSize == null) {
-			pageIndex = 1;
-			pageSize = 20;
-		}
-		int rowNumber = (pageIndex - 1) * pageSize;
+		int rowNumber= 0;
+		if(pageIndex!=null && pageSize!=null)
+			rowNumber = (pageIndex - 1) * pageSize;
 
 		List<ConceptReferenceNode> parents = getParents(iri, rowNumber, pageSize, inactive).stream()
 				.map(p -> new ConceptReferenceNode(p.getIri(), p.getName())).collect(Collectors.toList());
@@ -150,7 +146,7 @@ public class ConceptService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		return conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot(iri, IM.IS_A.getIri()).stream()
+		return conceptTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, IM.IS_A.getIri()).stream()
 				.sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.distinct().collect(Collectors.toList());
 	}
@@ -207,18 +203,18 @@ public class ConceptService {
 	}
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
-		return conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(iri, predicate.getIri());
+		return conceptTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
 	}
 
 	private Map<String, ValueSetMember> expandMember(Set<ValueSetMember> valueSetMembers, boolean expand)
 			throws SQLException {
 		Map<String, ValueSetMember> memberHashMap = new HashMap<>();
 		for (ValueSetMember member : valueSetMembers) {
-			memberHashMap.put(member.getConcept().getIri(), member);
+			memberHashMap.put(member.getConcept().getIri() + "/" + member.getCode(), member);
 
 			if (expand) {
 				valueSetRepository.expandMember(member.getConcept().getIri())
-						.forEach(m -> memberHashMap.put(m.getConcept().getIri(), m));
+						.forEach(m -> memberHashMap.put(m.getConcept().getIri() + "/" + m.getCode(), m));
 			}
 		}
 		return memberHashMap;
@@ -269,37 +265,49 @@ public class ConceptService {
 
 	}
 
-	private Set<TTIriRef> populateMissingNames(TTConcept concept) throws SQLException {
+	private void populateMissingNames(TTConcept concept) throws SQLException {
 		if (concept == null)
-			return null;
+			return;
+
 		// Get both predicate and object TTIriRefs
 		List<TTIriRef> iriRefs = new ArrayList<>();
-		Set<TTIriRef> predicates = new HashSet<>();
+		List<TTIriRef> predicates = new ArrayList<>();
 
-		TTConceptVisitor visitor = new TTConceptVisitor();
-		visitor.IriRefVisitor = ((predicate, iriRef) -> {
-			if (iriRef.getName() == null || iriRef.getName().isEmpty())
-				iriRefs.add(iriRef);
-		});
+		TTVisitor visitor = new TTVisitor();
+		visitor.IriRefVisitor = ((predicate, iriRef) -> iriRefs.add(iriRef));
 		visitor.PredicateVisitor = (predicates::add);
 		visitor.visit(concept);
 
-		// Get the list of iris to lookup
-		Set<String> nameless = Stream.of(iriRefs, predicates).flatMap(Collection::stream).map(TTIriRef::getIri)
-				.collect(Collectors.toSet());
-
-		// Lookup and generate map
-		Map<String, String> iriNameMap = new HashMap<>();
-		for (TTIriRef concept1 : conceptRepository.findAllByIriIn(nameless))
-			iriNameMap.put(concept1.getIri(), concept1.getName());
-
-		// Populate names
-		iriRefs.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-		predicates.forEach(i -> i.setName(iriNameMap.get(i.getIri())));
-
-		// Return named predicate list
-		return predicates;
+		populateMissingNames(iriRefs);
+		populateMissingNames(predicates);
 	}
+
+	private void populateMissingNames(List<TTIriRef> iriRefs) throws SQLException {
+        List<TTIriRef> unNamed = new ArrayList<>();
+        Set<String> iris = new HashSet<>();
+
+        iriRefs.forEach(r -> {
+            if (r.getName() == null || r.getName().isEmpty()) {
+                unNamed.add(r);
+                iris.add(r.getIri());
+            }
+            }
+        );
+
+        Map<String, String> iriNameMap = getIriNameMap(iris);
+
+        for (TTIriRef iriRef : unNamed) {
+            iriRef.setName(iriNameMap.get(iriRef.getIri()));
+        }
+    }
+
+    private Map<String, String> getIriNameMap(Set<String> iris) throws SQLException {
+        Map<String, String> iriNameMap = new HashMap<>();
+        for (TTIriRef concept1 : conceptRepository.findAllByIriIn(iris))
+            iriNameMap.put(concept1.getIri(), concept1.getName());
+
+        return iriNameMap;
+    }
 
 	public List<TermCode> getConceptTermCodes(String iri) throws SQLException {
 		if (iri == null || iri.isEmpty())
@@ -308,7 +316,7 @@ public class ConceptService {
 	}
 
 	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties,
-			boolean members, boolean roles, boolean inactive) throws SQLException, JsonProcessingException {
+			boolean members, boolean expandMembers, boolean roles, boolean inactive) throws SQLException, JsonProcessingException {
 		if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
 			return null;
 		TTConcept concept = getConcept(iri);
@@ -322,7 +330,7 @@ public class ConceptService {
 		if (properties)
 			addPropertiesToDownload(iri, format, xls, downloadDto);
 		if (members)
-			addMembersToDownload(iri, format, xls, downloadDto);
+			addMembersToDownload(iri, expandMembers, format, xls, downloadDto);
 		if (roles)
 			addRolesToDownload(iri, format, xls, downloadDto);
 
@@ -383,9 +391,9 @@ public class ConceptService {
 		}
 	}
 
-	private void addMembersToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto)
+	private void addMembersToDownload(String iri, boolean expandMembers, String format, XlsHelper xls, DownloadDto downloadDto)
 			throws SQLException {
-		ExportValueSet exportValueSet = getValueSetMembers(iri, false);
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMembers);
 		switch (format) {
 		case "excel":
 			xls.addMembers(exportValueSet);
@@ -644,7 +652,9 @@ public class ConceptService {
 
 	public ConceptDefinitionDto getConceptDefinitionDto(String iri) throws JsonProcessingException, SQLException {
 		TTConcept concept = getConcept(iri);
-		List<ConceptReference> types = concept.getType().asArrayElements().stream()
+		List<ConceptReference> types = concept.getType() == null
+           ? new ArrayList<>()
+           : concept.getType().asArrayElements().stream()
 				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
 				.collect(Collectors.toList());
 
@@ -686,5 +696,19 @@ public class ConceptService {
 			}
 		}
 		return properties;
+	}
+
+	public TTArray getComplexMappings(String iri) throws JsonProcessingException, SQLException {
+		TTConcept ttConcept = conceptRepository.getConceptByIri(iri);
+		if (!ttConcept.has(IM.HAS_MAP)) {
+			return new TTArray();
+		}
+		TTArray ttArray = ttConcept.getAsArray(IM.HAS_MAP);
+		TTVisitor visitor = new TTVisitor();
+		List<TTIriRef> iris = new ArrayList<>();
+		visitor.IriRefVisitor = ((predicate, iriRef) -> {iris.add(iriRef);});
+		visitor.visit(ttArray);
+		populateMissingNames(iris);
+		return ttArray;
 	}
 }

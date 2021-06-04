@@ -286,7 +286,7 @@ public class ConceptServiceTest {
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
 
-        when(conceptTripleRepository.findDistinctByObject_IriAndPredicate_IriNot( any(), any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(conceptTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any())).thenReturn(Collections.singletonList(ttIriRef));
 
         List<TTIriRef> actual = conceptService.usages("http://endhealth.info/im#25451000252115");
 
@@ -437,9 +437,9 @@ public class ConceptServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember1));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setConcept(iri("http://endhealth.info/im#25451000652115","Adverse reaction to Amlodipine Besilate"))
@@ -466,9 +466,9 @@ public class ConceptServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember1));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         ExportValueSet actual = conceptService.getValueSetMembers("http://endhealth.info/im#25451000252115", false);
 
@@ -600,7 +600,7 @@ public class ConceptServiceTest {
 
     @Test
     public void download_NullIri() throws SQLException, JsonProcessingException {
-        HttpEntity actual = conceptService.download(null, "excel", true, true, true ,true,
+        HttpEntity actual = conceptService.download(null, "excel", true, true, true ,true, false,
                 true, true);
 
         assertNull(actual);
@@ -609,7 +609,7 @@ public class ConceptServiceTest {
 
     @Test
     public void download_EmptyIri() throws SQLException, JsonProcessingException {
-        HttpEntity actual = conceptService.download("", "excel", true, true, true ,true,
+        HttpEntity actual = conceptService.download("", "excel", true, true, true ,true, false,
                 true, true);
 
         assertNull(actual);
@@ -619,7 +619,7 @@ public class ConceptServiceTest {
     @Test
     public void download_NullFormat() throws SQLException, JsonProcessingException {
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", null, true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNull(actual);
 
@@ -628,7 +628,7 @@ public class ConceptServiceTest {
     @Test
     public void download_EmptyFormat() throws SQLException, JsonProcessingException {
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "", true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNull(actual);
 
@@ -640,10 +640,10 @@ public class ConceptServiceTest {
                 .setChildren(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         when(conceptTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         TTConcept ttConcept = new TTConcept()
                 .setIri("http://endhealth.info/im#25451000252115")
@@ -659,12 +659,12 @@ public class ConceptServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember1));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "excel", true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNotNull(actual);
 
@@ -677,10 +677,10 @@ public class ConceptServiceTest {
                 .setChildren(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         when(conceptTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,20,true))
+                0,null,true))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
         TTConcept ttConcept = new TTConcept()
                 .setIri("http://endhealth.info/im#25451000252115")
@@ -696,12 +696,12 @@ public class ConceptServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember1));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         HttpEntity actual = conceptService.download("http://endhealth.info/im#25451000252115", "json", true,
-                true, true ,true, true, true);
+                true, true ,true, false, true, true);
 
         assertNotNull(actual);
 
@@ -788,9 +788,9 @@ public class ConceptServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember1));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setConcept(iri("http://endhealth.info/im#25451000652115","Adverse reaction to Amlodipine Besilate"))
@@ -816,9 +816,9 @@ public class ConceptServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.HAS_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember1));
-        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),eq(IM.NOT_MEMBER.getIri())))
+        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(conceptRepository.getConceptReferenceByIri(any())).thenReturn(ttIriRef);
@@ -899,14 +899,16 @@ public class ConceptServiceTest {
                                                 .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
                                         ))));
         when(conceptRepository.getConceptByIri(any())).thenReturn(ttConcept);
-        TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
+        TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#Class","Class"));
         when(conceptTypeRepository.getConceptTypes(any())).thenReturn(ttArray);
+
         ConceptReferenceNode conceptReferenceNode = new ConceptReferenceNode()
                 .setChildren(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new ConceptReferenceNode("http://endhealth.info/im#25451000252115")));
         when(conceptTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,20,false))
+                0,null,false))
                 .thenReturn(Collections.singletonList(conceptReferenceNode));
+
         GraphDto actual = conceptService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }

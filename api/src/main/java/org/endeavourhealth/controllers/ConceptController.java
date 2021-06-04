@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.logic.service.ConceptService;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
@@ -78,9 +79,9 @@ public class ConceptController {
 
 	@GetMapping(value = "/download")
 	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
-			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members,
+			@RequestParam boolean parents, @RequestParam boolean properties, @RequestParam boolean members, @RequestParam boolean expandMembers,
 			@RequestParam boolean roles, @RequestParam boolean inactive) throws SQLException, JsonProcessingException {
-		return conceptService.download(iri, format, children, parents, properties, members, roles, inactive);
+		return conceptService.download(iri, format, children, parents, properties, members, expandMembers, roles, inactive);
 	}
 
 	@GetMapping(value = "/parents")
@@ -204,6 +205,11 @@ public class ConceptController {
 	@GetMapping("/dataModelProperties")
 	public List<DataModelPropertyDto> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return conceptService.getDataModelProperties(iri);
+	}
+
+	@GetMapping("/complexMappings")
+	public TTArray getComplexMappings(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+		return conceptService.getComplexMappings(iri);
 	}
 
 }

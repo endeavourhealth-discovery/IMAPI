@@ -29,8 +29,7 @@ public class IM {
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
-    public static final TTIriRef TERM_CODE = iri(NAMESPACE + "TermCode");
-    public static final TTIriRef TERM = iri(NAMESPACE + "Term");
+    public static final TTIriRef CODED_TERM = iri(NAMESPACE + "CodedTerm");
     public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
 
     //Collection predicates
@@ -66,6 +65,8 @@ public class IM {
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
+    public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
+
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");

@@ -668,12 +668,21 @@ public class ConceptService {
 		TTConcept concept = getConcept(iri);
 		if (concept.has(SHACL.PROPERTY)) {
 			for (TTValue property : concept.asNode().get(SHACL.PROPERTY).asArrayElements()) {
+			    String rangeIri = "";
+			    String rangeName = "";
+			    if(property.asNode().has(SHACL.CLASS)) {
+			    	rangeIri = property.asNode().get(SHACL.CLASS).asIriRef().getIri();
+			    	rangeName = property.asNode().get(SHACL.CLASS).asIriRef().getName();
+			    }
+			    
+			    if(property.asNode().has(SHACL.DATATYPE)) {
+			    	rangeIri = property.asNode().get(SHACL.DATATYPE).asIriRef().getIri();
+			    	rangeName = property.asNode().get(SHACL.DATATYPE).asIriRef().getName();
+			    }
 				properties.add(new DataModelPropertyDto()
 						.setProperty(new ConceptReference(property.asNode().get(SHACL.PATH).asIriRef().getIri(),
 								property.asNode().get(SHACL.PATH).asIriRef().getName()))
-						.setRange(new ConceptReference(property.asNode().get(SHACL.CLASS).asIriRef().getIri(),
-								property.asNode().get(SHACL.CLASS).asIriRef().getName())));
-
+						.setRange(new ConceptReference(rangeIri, rangeName)));
 			}
 		}
 		if (concept.has(IM.ROLE_GROUP)) {

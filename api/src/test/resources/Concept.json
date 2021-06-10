@@ -1,0 +1,56 @@
+{
+  "@id": "http://endhealth.info/im#24951000252112",
+  "http://endhealth.info/im#isA": [
+    { "@id": "http://snomed.info/sct#281647001" }
+  ],
+  "http://endhealth.info/im#code": "24951000252112",
+  "http://endhealth.info/im#scheme": {
+    "@id": "http://endhealth.info/im#DiscoveryCodeScheme"
+  },
+  "http://endhealth.info/im#status": {
+    "@id": "http://endhealth.info/im#Active"
+  },
+  "http://endhealth.info/im#roleGroup": [
+    {
+      "http://endhealth.info/im#role": [
+        {
+          "http://www.w3.org/2002/07/owl#onProperty": {
+            "@id": "http://snomed.info/sct#246075003"
+          },
+          "http://www.w3.org/2002/07/owl#someValuesFrom": {
+            "@id": "http://snomed.info/sct#9364701000001104"
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+            "@id": "http://www.w3.org/2002/07/owl#Restriction"
+          }
+        }
+      ],
+      "http://endhealth.info/im#groupNumber": {
+        "@type": "http://www.w3.org/2001/XMLSchema#integer",
+        "@value": 0
+      }
+    }
+  ],
+  "http://www.w3.org/2000/01/rdf-schema#label": "Adverse reaction to Testogel",
+  "http://www.w3.org/2002/07/owl#equivalentClass": [
+    {
+      "http://www.w3.org/2002/07/owl#intersectionOf": [
+        { "@id": "http://snomed.info/sct#281647001" },
+        {
+          "http://www.w3.org/2002/07/owl#onProperty": {
+            "@id": "http://snomed.info/sct#246075003"
+          },
+          "http://www.w3.org/2002/07/owl#someValuesFrom": {
+            "@id": "http://snomed.info/sct#9364701000001104"
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": {
+            "@id": "http://www.w3.org/2002/07/owl#Restriction"
+          }
+        }
+      ]
+    }
+  ],
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
+    { "@id": "http://www.w3.org/2002/07/owl#Class" }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "2.16.840.1.113883.3.1937.777.28.2.10872",
+  "effectiveDate": "2019-03-27T19:08:52",
+  "statusCode": "draft",
+  "versionLabel": "1",
+  "type": "item",
+  "minimumMultiplicity": "0",
+  "maximumMultiplicity": "1",
+  "conformance": "R",
+  "isMandatory": "false",
+  "iddisplay": "prsb03-dataelement-10872",
+  "shortName": "gender",
+  "implementation": [{ "shortName": "gender" }],
+  "name": [{ "language": "en-GB", "#text": "Gender" }],
+  "desc": [{ "language": "en-GB", "#text": "The person's stated gender." }],
+  "source": [
+    {
+      "language": "en-GB",
+      "#text": "NHS Wales : - &lt;a class=\"\" href=\"https://fhir.standards.wales/CodeSystem/GenderIdentity\" target=\"\" title=\"\"&gt;https://fhir.standards.wales/CodeSystem/GenderIdentity&lt;/a&gt;"
+    }
+  ],
+  "rationale": [{ "language": "en-GB", "#text": "Patient.gender" }],
+  "property": [{ "name": "FHIR", "#text": "Patient.gender" }],
+  "relationship": [
+    {
+      "type": "SPEC",
+      "ref": "2.16.840.1.113883.3.1937.777.28.2.10019",
+      "flexibility": "2018-10-31T00:00:00",
+      "prefix": "prsb03-",
+      "datasetId": "2.16.840.1.113883.3.1937.777.28.1.1",
+      "datasetEffectiveDate": "2018-10-31T00:00:00",
+      "datasetStatusCode": "draft",
+      "datasetVersionLabel": "1",
+      "iType": "item",
+      "iStatusCode": "draft",
+      "iEffectiveDate": "2018-10-31T00:00:00",
+      "refdisplay": "prsb03-dataelement-10019",
+      "name": [{ "language": "en-GB", "#text": "Gender" }]
+    }
+  ],
+  "operationalization": [
+    {
+      "language": "en-GB",
+      "#text": "NHS data dictionary :- &lt;a href=\"https://datadictionary.nhs.uk/data_elements/person_stated_gender_code.html?hl=person%2Cstated%2Cgender%2Ccode\" target=\"\" title=\"\"&gt;Person stated gender code&lt;/a&gt;\n&lt;br clear=\"none\"/&gt;"
+    }
+  ],
+  "valueDomain": [{ "type": "string", "property": [{ "maxLength": "1" }] }]
+}

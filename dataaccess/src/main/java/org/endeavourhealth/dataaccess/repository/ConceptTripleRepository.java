@@ -192,7 +192,7 @@ public class ConceptTripleRepository extends BaseRepository{
                 .add("SELECT s.iri, s.name")
                 .add("FROM concept c ")
                 .add("JOIN tpl t ON t.object = c.dbid ")
-                .add("JOIN concept p ON p.dbid = t.predicate AND p.iri IN(?, ?) ")
+                .add("JOIN concept p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
                 .add("JOIN concept s ON s.dbid = t.subject ")
                 .add("WHERE c.iri = ?");
         if(!includeInactive)
@@ -206,6 +206,7 @@ public class ConceptTripleRepository extends BaseRepository{
                 int i = 0;
                 statement.setString(++i, IM.IS_A.getIri());
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
+                statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
                 if(!includeInactive)
                     statement.setString(++i, IM.INACTIVE.getIri());

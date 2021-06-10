@@ -14,8 +14,10 @@ import org.endeavourhealth.imapi.model.mapping.PRSBMapping.Dataset.DatasetConcep
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,12 +80,23 @@ public class MappingController {
 		ttconcept.setStatus(concept.getStatusCodeTTIriRef());
 		ttconcept.setType(null);
 		ttconcept.setCode(concept.getIddisplay());
-
+		
+//		TTArray property = new TTArray();
+//		property.add(new TTLiteral(concept.getMaximumMultiplicity(), SHACL.MAXCOUNT));
+		
+//		ttconcept.set(SHACL.PROPERTY, property);
+//		ttconcept.set(SHACL.PROPERTY, new TTLiteral(concept.getMinimumMultiplicity(), SHACL.MINCOUNT));
+		
 		if (parent != null) {
 			TTArray isas = new TTArray();
 			isas.add(new TTIriRef(IM.NAMESPACE + parent.getShortName(), parent.getName().get(0).getText()));
 			ttconcept.set(IM.IS_A, isas);
 		}
+		
+		
+		
+		
+		
 		return ttconcept;
 	}
 	

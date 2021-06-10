@@ -75,6 +75,19 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          }
          gen.writeEndArray();
       }
+      if (document.getTransactions()!=null&&!document.getTransactions().isEmpty()) {
+         gen.writeArrayFieldStart("transactions");
+         for (TTTransaction instance: document.getTransactions()){
+            gen.writeStartObject();
+            if (instance.getCrud()!=null)
+               gen.writeStringField("crud",helper.prefix(instance.getCrud().getIri()));
+            if (instance.getIri()!=null)
+               gen.writeStringField("@id",helper.prefix(instance.getIri()));
+            helper.serializeNode(instance, gen);
+            gen.writeEndObject();
+         }
+         gen.writeEndArray();
+      }
 
       gen.writeEndObject();
    }

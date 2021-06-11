@@ -657,10 +657,19 @@ public class ConceptService {
            : concept.getType().asArrayElements().stream()
 				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
 				.collect(Collectors.toList());
+		
+		List<ConceptReference> isa = !concept.has(IM.IS_A)
+		           ? new ArrayList<>()
+		           : concept.get(IM.IS_A).asArrayElements().stream()
+						.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
+						.collect(Collectors.toList());
 
 		return new ConceptDefinitionDto().setIri(concept.getIri()).setName(concept.getName())
 				.setDescription(concept.getDescription())
-				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName()).setTypes(types);
+				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName())
+				.setTypes(types)
+				.setSubtypes(getDefinitionSubTypes(iri))
+				.setIsa(isa);
 	}
 
 	public List<DataModelPropertyDto> getDataModelProperties(String iri) throws JsonProcessingException, SQLException {

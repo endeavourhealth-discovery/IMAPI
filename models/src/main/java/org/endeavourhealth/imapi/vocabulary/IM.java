@@ -66,7 +66,6 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
-
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
@@ -100,7 +99,7 @@ public class IM {
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
     public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
-    public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsPathologyCodeScheme");
+    public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
@@ -125,6 +124,6 @@ public class IM {
 
     //Crud operations
     public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE +"UpdatePredicates");
-    public static final TTIriRef ADD_OBJECTS = TTIriRef.iri(NAMESPACE +"AddPredicateObjects");
+    public static final TTIriRef ADD_PREDICATE_OBJECTS = TTIriRef.iri(NAMESPACE +"AddPredicateObjects");
 
 }

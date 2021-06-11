@@ -6,7 +6,9 @@ import java.util.stream.Collectors;
 
 public class BaseRepository {
     protected String toFreeTextTerms(String termFilter) {
-        return Arrays.stream(termFilter.split(" "))
+        return Arrays.stream(termFilter
+            .replace("-", " ")
+            .split(" "))
             .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w + "*")
             .collect(Collectors.joining(" "));

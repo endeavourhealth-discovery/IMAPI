@@ -1,32 +1,20 @@
 package org.endeavourhealth.dataaccess.entity;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Entity
 public class Concept implements Serializable {
-    @Id()
     private Integer dbid;
 
-    @Column(unique = true)
     private String iri;
 
     private String name;
     private String description;
     private String code;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="scheme", referencedColumnName = "iri", nullable = true)
     private Concept scheme;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="status", referencedColumnName = "iri", nullable = true)
     private Concept status;
     private String json;
     private LocalDateTime updated;
-
-//    @OneToMany()
-//    //@JoinTable(name = "concept_type", joinColumns = @JoinColumn(name = "dbid", referencedColumnName = "concept"))
-//    private List<ConceptType> type;
 
     public Integer getDbid() {
         return dbid;

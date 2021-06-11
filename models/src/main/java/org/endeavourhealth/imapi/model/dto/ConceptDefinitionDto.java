@@ -11,6 +11,8 @@ public class ConceptDefinitionDto {
 	private String description;
 	private String status;
 	private List<ConceptReference> types;
+	private List<ConceptReference> isa;
+	private List<ConceptReference> subtypes;
 
 	public String getIri() {
 		return iri;
@@ -54,6 +56,24 @@ public class ConceptDefinitionDto {
 
 	public ConceptDefinitionDto setTypes(List<ConceptReference> types) {
 		this.types = types;
+		return this;
+	}
+
+	public List<ConceptReference> getIsa() {
+		return isa;
+	}
+
+	public ConceptDefinitionDto setIsa(List<ConceptReference> isa) {
+		this.isa = isa;
+		return this;
+	}
+
+	public List<ConceptReference> getSubtypes() {
+		return subtypes;
+	}
+
+	public ConceptDefinitionDto setSubtypes(List<ConceptReference> subtypes) {
+		this.subtypes = subtypes;
 		return this;
 	}
 }

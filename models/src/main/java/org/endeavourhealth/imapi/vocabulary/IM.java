@@ -123,7 +123,9 @@ public class IM {
 
 
     //Crud operations
-    public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE +"UpdatePredicates");
-    public static final TTIriRef ADD_PREDICATE_OBJECTS = TTIriRef.iri(NAMESPACE +"AddPredicateObjects");
 
+    public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
+    public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
+    public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
 }
+

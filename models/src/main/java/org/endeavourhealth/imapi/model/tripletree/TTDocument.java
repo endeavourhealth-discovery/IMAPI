@@ -18,7 +18,7 @@ public class TTDocument extends TTNode {
     private List<TTConcept> concepts;
     private List<TTTransaction> transactions;
     private List<TTInstance> individuals;
-    private TTIriRef crudOperation;
+    private TTIriRef crud;
     private Map<Class, List<String>> predicateTemplate;
 
     public TTIriRef getGraph() {
@@ -113,12 +113,12 @@ public class TTDocument extends TTNode {
         return this.context;
     }
 
-    public TTIriRef getCrudOperation() {
-        return crudOperation;
+    public TTIriRef getCrud() {
+        return crud;
     }
 
-    public TTDocument setCrudOperation(TTIriRef crudOperation) {
-        this.crudOperation = crudOperation;
+    public TTDocument setCrud(TTIriRef crud) {
+        this.crud = crud;
         return this;
     }
 

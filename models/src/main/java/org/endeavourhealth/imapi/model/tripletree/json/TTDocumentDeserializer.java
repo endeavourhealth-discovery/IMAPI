@@ -40,13 +40,16 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          result.setContext(context);
       if (node.get("@graph")!=null)
          result.setGraph(iri(helper.expand(node.get("@graph").get("@id").asText())));
-      if (node.get("crudOperation")!=null)
-         result.setCrudOperation(iri(helper.expand(node.get("crudOperation").get("@id").asText())));
+      if (node.get("crud")!=null)
+         result.setCrud(iri(helper.expand(node.get("crud").get("@id").asText())));
       if (node.get("concepts")!=null) {
          result.setConcepts(getConcepts(node.withArray("concepts")));
       }
       if (node.get("individuals")!=null){
          result.setIndividuals(getInstances(node.withArray("individuals")));
+      }
+      if (node.get("transactions")!=null){
+         result.setTransactions(getTransactions(node.withArray("transactions")));
       }
 
       return result;
@@ -89,6 +92,29 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
             Map.Entry<String, JsonNode> field = fields.next();
             if (field.getKey().equals("@id")) {
                instance.setIri(helper.expand(field.getValue().textValue()));
+            }
+            else
+               instance.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
+         }
+      }
+
+      return result;
+   }
+
+   private List<TTTransaction> getTransactions(ArrayNode arrayNode) throws IOException {
+      List result = new ArrayList();
+      Iterator<JsonNode> iterator = arrayNode.elements();
+      while(iterator.hasNext()) {
+         JsonNode instanceNode = iterator.next();
+         TTTransaction instance= new TTTransaction();
+         result.add(instance);
+         Iterator<Map.Entry<String, JsonNode>> fields = instanceNode.fields();
+         while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            if (field.getKey().equals("@id")) {
+               instance.setIri(helper.expand(field.getValue().textValue()));
+            } else if (field.getKey().equals("crud")){
+               instance.setCrud(iri(helper.expand(field.getValue().textValue())));
             }
             else
                instance.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));

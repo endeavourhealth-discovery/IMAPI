@@ -1,12 +1,7 @@
 package org.endeavourhealth.dataaccess.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
 public class Config {
 
-    @Id
     private Integer dbid;
     private String name;
     private String config;

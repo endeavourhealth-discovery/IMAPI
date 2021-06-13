@@ -45,9 +45,9 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          gen.writeStringField("@id", helper.prefix(document.getGraph().getIri()));
          gen.writeEndObject();
       }
-      if (document.getCrudOperation()!=null){
-         gen.writeFieldName("crudOperation");
-         TTIriRef ref = document.getCrudOperation().asIriRef();
+      if (document.getCrud()!=null){
+         gen.writeFieldName("crud");
+         TTIriRef ref = document.getCrud().asIriRef();
          gen.writeStartObject();
          gen.writeStringField("@id", helper.prefix(ref.getIri()));
          if (ref.getName() != null && !ref.getName().isEmpty())
@@ -68,6 +68,19 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          gen.writeArrayFieldStart("individuals");
          for (TTInstance instance: document.getIndividuals()){
             gen.writeStartObject();
+            if (instance.getIri()!=null)
+               gen.writeStringField("@id",helper.prefix(instance.getIri()));
+            helper.serializeNode(instance, gen);
+            gen.writeEndObject();
+         }
+         gen.writeEndArray();
+      }
+      if (document.getTransactions()!=null&&!document.getTransactions().isEmpty()) {
+         gen.writeArrayFieldStart("transactions");
+         for (TTTransaction instance: document.getTransactions()){
+            gen.writeStartObject();
+            if (instance.getCrud()!=null)
+               gen.writeStringField("crud",helper.prefix(instance.getCrud().getIri()));
             if (instance.getIri()!=null)
                gen.writeStringField("@id",helper.prefix(instance.getIri()));
             helper.serializeNode(instance, gen);

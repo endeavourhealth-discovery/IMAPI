@@ -1,26 +1,13 @@
 package org.endeavourhealth.dataaccess.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-
-@Entity
 public class Tct {
 
-    @Id()
     private Integer dbid;
 
-    @OneToOne()
-    @JoinColumn(name="ancestor", referencedColumnName="dbid")
     private Concept ancestor;
 
-    @OneToOne()
-    @JoinColumn(name="descendant", referencedColumnName="dbid")
     private Concept descendant;
 
-    @OneToOne()
-    @JoinColumn(name="type", referencedColumnName="dbid")
     private Concept type;
 
     private Integer level;

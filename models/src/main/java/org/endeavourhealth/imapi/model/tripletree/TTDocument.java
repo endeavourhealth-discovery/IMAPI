@@ -16,8 +16,9 @@ public class TTDocument extends TTNode {
     private TTIriRef graph;
     private TTContext context = new TTContext();
     private List<TTConcept> concepts;
+    private List<TTTransaction> transactions;
     private List<TTInstance> individuals;
-    private TTIriRef crudOperation;
+    private TTIriRef crud;
     private Map<Class, List<String>> predicateTemplate;
 
     public TTIriRef getGraph() {
@@ -112,12 +113,27 @@ public class TTDocument extends TTNode {
         return this.context;
     }
 
-    public TTIriRef getCrudOperation() {
-        return crudOperation;
+    public TTIriRef getCrud() {
+        return crud;
     }
 
-    public TTDocument setCrudOperation(TTIriRef crudOperation) {
-        this.crudOperation = crudOperation;
+    public TTDocument setCrud(TTIriRef crud) {
+        this.crud = crud;
+        return this;
+    }
+
+    public List<TTTransaction> getTransactions() {
+        return transactions;
+    }
+
+    public TTDocument setTransactions(List<TTTransaction> transactions) {
+        this.transactions = transactions;
+        return this;
+    }
+    public TTDocument addTransaction(TTTransaction transaction) {
+        if (this.transactions==null)
+            this.transactions= new ArrayList<>();
+        transactions.add(transaction);
         return this;
     }
 }

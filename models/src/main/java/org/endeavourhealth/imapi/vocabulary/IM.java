@@ -29,8 +29,7 @@ public class IM {
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
-    public static final TTIriRef TERM_CODE = iri(NAMESPACE + "TermCode");
-    public static final TTIriRef TERM = iri(NAMESPACE + "Term");
+    public static final TTIriRef CODED_TERM = iri(NAMESPACE + "CodedTerm");
     public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
 
     //Collection predicates
@@ -42,6 +41,7 @@ public class IM {
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE +"oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
+    public static final TTIriRef ANY_OF = iri(NAMESPACE +"anyOf");
 
     //Document collection predicates
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
@@ -65,6 +65,7 @@ public class IM {
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
+    public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
@@ -98,7 +99,7 @@ public class IM {
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
     public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
-    public static final TTIriRef CODE_SCHEME_KING_PATH = iri(NAMESPACE +"KingsPathologyCodeScheme");
+    public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
@@ -117,11 +118,14 @@ public class IM {
     public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");
     public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"PRSB");
-    public static final TTIriRef GRAPH_KINGS_PATH = TTIriRef.iri(NAMESPACE +"KingsPathology");
+    public static final TTIriRef GRAPH_APEX_KINGS = TTIriRef.iri(NAMESPACE +"ApexKings");
 
 
 
     //Crud operations
-    public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE +"UpdatePredicates");
 
+    public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
+    public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
+    public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
 }
+

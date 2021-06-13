@@ -657,10 +657,19 @@ public class ConceptService {
            : concept.getType().asArrayElements().stream()
 				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
 				.collect(Collectors.toList());
+		
+		List<ConceptReference> isa = !concept.has(IM.IS_A)
+		           ? new ArrayList<>()
+		           : concept.get(IM.IS_A).asArrayElements().stream()
+						.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
+						.collect(Collectors.toList());
 
 		return new ConceptDefinitionDto().setIri(concept.getIri()).setName(concept.getName())
 				.setDescription(concept.getDescription())
-				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName()).setTypes(types);
+				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName())
+				.setTypes(types)
+				.setSubtypes(getDefinitionSubTypes(iri))
+				.setIsa(isa);
 	}
 
 	public List<DataModelPropertyDto> getDataModelProperties(String iri) throws JsonProcessingException, SQLException {
@@ -668,12 +677,21 @@ public class ConceptService {
 		TTConcept concept = getConcept(iri);
 		if (concept.has(SHACL.PROPERTY)) {
 			for (TTValue property : concept.asNode().get(SHACL.PROPERTY).asArrayElements()) {
+			    String rangeIri = "";
+			    String rangeName = "";
+			    if(property.asNode().has(SHACL.CLASS)) {
+			    	rangeIri = property.asNode().get(SHACL.CLASS).asIriRef().getIri();
+			    	rangeName = property.asNode().get(SHACL.CLASS).asIriRef().getName();
+			    }
+			    
+			    if(property.asNode().has(SHACL.DATATYPE)) {
+			    	rangeIri = property.asNode().get(SHACL.DATATYPE).asIriRef().getIri();
+			    	rangeName = property.asNode().get(SHACL.DATATYPE).asIriRef().getName();
+			    }
 				properties.add(new DataModelPropertyDto()
 						.setProperty(new ConceptReference(property.asNode().get(SHACL.PATH).asIriRef().getIri(),
 								property.asNode().get(SHACL.PATH).asIriRef().getName()))
-						.setRange(new ConceptReference(property.asNode().get(SHACL.CLASS).asIriRef().getIri(),
-								property.asNode().get(SHACL.CLASS).asIriRef().getName())));
-
+						.setRange(new ConceptReference(rangeIri, rangeName)));
 			}
 		}
 		if (concept.has(IM.ROLE_GROUP)) {

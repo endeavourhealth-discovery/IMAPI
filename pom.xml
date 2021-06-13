@@ -27,6 +27,7 @@
 	  <module>models</module>
     <module>parser</module>
       <module>logic</module>
+    <module>workflow</module>
   </modules>
 
   <build>

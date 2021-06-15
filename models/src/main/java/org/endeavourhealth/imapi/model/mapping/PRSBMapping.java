@@ -5,6 +5,7 @@ import java.util.List;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
@@ -549,6 +550,9 @@ public class PRSBMapping {
 			}
 			
 			public TTArray getTypeRefs() {
+				if(valueDomain != null) {
+					return new TTArray().add(OWL.OBJECTPROPERTY);
+				}
 				switch (type) {
 				case "group":
 					return new TTArray().add(IM.FOLDER);

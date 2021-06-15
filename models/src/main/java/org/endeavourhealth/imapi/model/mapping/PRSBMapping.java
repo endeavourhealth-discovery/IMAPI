@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.mapping;
 
 import java.util.List;
 
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -514,6 +515,48 @@ public class PRSBMapping {
 			private List<DatasetObject> operationalization;
 			private List<ValueDomain> valueDomain;
 			private List<ValueSet> valueSet;
+
+			public boolean relNameIsSameWithConceptName() {
+				return this.getConceptName().equalsIgnoreCase(getRelName());
+			}
+
+			public String getRelName() {
+				return this.getRelationship().get(0).getName().get(0).getText();
+			}
+
+			public String getConceptName() {
+				return this.getName().get(0).getText();
+			}
+			
+			public String getRelStatus() {
+				return this.getRelationship().get(0).getiStatusCode();
+			}
+			
+			public TTIriRef getRelStatusCodeTTIriRef() {
+				switch (getRelStatus()) {
+				case "draft":
+					return IM.DRAFT;
+				case "active":
+					return IM.ACTIVE;
+				case "cancelled":
+					return IM.INACTIVE;
+				}
+				return null;
+			}
+			
+			public boolean isFolder() {
+				return type.equals("group");
+			}
+			
+			public TTArray getTypeRefs() {
+				switch (type) {
+				case "group":
+					return new TTArray().add(IM.FOLDER);
+				case "item":
+					return new TTArray().add(IM.RECORD);
+				}
+				return null;
+			}
 
 			public String getType() {
 				return type;

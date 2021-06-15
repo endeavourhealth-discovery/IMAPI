@@ -9,8 +9,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.mapping.PRSBMapping;
 import org.endeavourhealth.imapi.model.mapping.PRSBMapping.Dataset.DatasetConcept;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -25,8 +23,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 
@@ -65,7 +61,7 @@ public class MappingController {
 	}
 
 	public void addConvertedConcept(DatasetConcept concept, List<TTConcept> conceptList, DatasetConcept parent) {
-		conceptList.add(getTTConcept(concept, parent));
+		conceptList.addAll(getTTConcept(concept, parent));
 
 		if (concept.getConcept() != null) {
 			concept.getConcept().forEach(child -> {
@@ -74,15 +70,16 @@ public class MappingController {
 		}
 	}
 
-	public TTConcept getTTConcept(DatasetConcept concept, DatasetConcept parent) {
+	public List<TTConcept> getTTConcept(DatasetConcept concept, DatasetConcept parent) {
+		List<TTConcept> ttconcepts = new ArrayList<TTConcept>();
 		TTConcept ttconcept = new TTConcept();
 		ttconcept.setIri(IM.NAMESPACE + concept.getShortName());
 		ttconcept.setName(concept.getName().get(0).getText());
 		ttconcept.setDescription(concept.getDesc().get(0).getText());
-		ttconcept.setScheme(null);
 		ttconcept.setStatus(concept.getStatusCodeTTIriRef());
-		ttconcept.setType(null);
+		ttconcept.setType(concept.getTypeRefs());
 		ttconcept.setCode(concept.getIddisplay());
+		ttconcept.setScheme(IM.CODE_SCHEME_PRSB);
 
 		if (concept.getMaximumMultiplicity() != null || concept.getMaximumMultiplicity() != null) {
 			TTArray property = new TTArray();
@@ -90,21 +87,35 @@ public class MappingController {
 			HashMap<TTIriRef, TTValue> map = new HashMap<TTIriRef, TTValue>();
 			map.put(SHACL.MAXCOUNT, new TTLiteral(concept.getMaximumMultiplicity()));
 			map.put(SHACL.MINCOUNT, new TTLiteral(concept.getMinimumMultiplicity()));
-//			if (concept.getValueDomain() != null) {
-//				map.put(SHACL.DATATYPE, new TTIriRef(concept.getValueDomain().get(0).getType()));
-//			}
+			if (concept.getValueDomain() != null) {		
+				map.put(SHACL.DATATYPE, new TTIriRef(IM.NAMESPACE + concept.getValueDomain().get(0).getType(), concept.getValueDomain().get(0).getType()));
+			}
 			node.setPredicateMap(map);
 			property.add(node);
 			ttconcept.set(SHACL.PROPERTY, property);
 		}
 
 		if (parent != null) {
-			TTArray isas = new TTArray();
-			isas.add(new TTIriRef(IM.NAMESPACE + parent.getShortName(), parent.getName().get(0).getText()));
-			ttconcept.set(IM.IS_A, isas);
+			TTArray array = new TTArray();
+			array.add(new TTIriRef(IM.NAMESPACE + parent.getShortName(), parent.getName().get(0).getText()));
+			ttconcept.set(parent.isFolder() ? IM.IS_CONTAINED_IN : IM.IS_A, array);
 		}
 
-		return ttconcept;
+		if (concept.getRelationship() != null && !concept.relNameIsSameWithConceptName()) {
+			TTConcept synonym = ttconcept;
+			synonym.setIri(IM.NAMESPACE + concept.getRelName());
+			synonym.setName(concept.getConceptName());
+			synonym.setStatus(concept.getRelStatusCodeTTIriRef());
+			synonym.setCode(concept.getIddisplay() + 1);
+			
+			ttconcept.set(IM.SYNONYM, new TTIriRef(synonym.getIri(), synonym.getName()));
+			synonym.set(IM.SYNONYM, new TTIriRef(ttconcept.getIri(), ttconcept.getName()));
+			
+			ttconcepts.add(synonym);
+		}
+		
+		ttconcepts.add(ttconcept);
+		return ttconcepts;
 	}
 
 	private void writeJsonToFile(List<TTConcept> ttconceptList) throws IOException {

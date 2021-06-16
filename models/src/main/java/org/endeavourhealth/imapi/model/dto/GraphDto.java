@@ -5,6 +5,13 @@ import java.util.List;
 
 public class GraphDto {
 
+	public static enum GraphType {
+		WRAPPER,
+		ISA, PROPERTY
+	}
+
+	String key;
+	GraphType type;
 	String name;
 	String iri;
 	String propertyType;
@@ -15,11 +22,46 @@ public class GraphDto {
 	String min;
 	String max;
 	List<GraphDto> children;
-	
+
 	public GraphDto() {
 		this.children = new ArrayList<GraphDto>();
 	}
-	
+
+	public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName, String inheritedFromIri,
+			String inheritedFromName) {
+		this.name = name;
+		this.iri = iri;
+		this.valueTypeIri = valueTypeIri;
+		this.valueTypeName = valueTypeName;
+		this.inheritedFromIri = inheritedFromIri;
+		this.inheritedFromName = inheritedFromName;
+	}
+
+	public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName) {
+		this.name = name;
+		this.iri = iri;
+		this.valueTypeIri = valueTypeIri;
+		this.valueTypeName = valueTypeName;
+	}
+
+	public GraphType getType() {
+		return type;
+	}
+
+	public GraphDto setType(GraphType type) {
+		this.type = type;
+		return this;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public GraphDto setKey(String key) {
+		this.key = key;
+		return this;
+	}
+
 	public String getMin() {
 		return min;
 	}
@@ -28,7 +70,7 @@ public class GraphDto {
 		this.min = min;
 		return this;
 	}
-	
+
 	public String getMax() {
 		return min;
 	}

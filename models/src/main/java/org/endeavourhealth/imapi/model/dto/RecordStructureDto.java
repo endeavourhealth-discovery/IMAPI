@@ -30,6 +30,7 @@ public class RecordStructureDto {
 	}
 
 	public ConceptReference getInherited() {
+		if(null == inherited) return new ConceptReference();
 		return inherited;
 	}
 
@@ -104,6 +105,10 @@ public class RecordStructureDto {
 			super();
 			this.iri = iri;
 			this.name = name;
+		}
+
+		public ConceptReference() {
+			// TODO Auto-generated constructor stub
 		}
 
 		public String getName() {

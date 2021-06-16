@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.dto.DataModelPropertyDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
+import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.RecordStructureDto.Cardinality;
 import org.endeavourhealth.imapi.model.dto.RecordStructureDto.ConceptReference;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
@@ -87,9 +88,9 @@ public class ConceptService {
 			return Collections.emptyList();
 
 		List<ConceptReferenceNode> result = new ArrayList<>();
-		int rowNumber= 0;
-		if(pageIndex!=null && pageSize!=null)
-		    rowNumber = (pageIndex - 1) * pageSize;
+		int rowNumber = 0;
+		if (pageIndex != null && pageSize != null)
+			rowNumber = (pageIndex - 1) * pageSize;
 		List<ConceptReferenceNode> immediateChildren = getChildren(iri, rowNumber, pageSize, inactive).stream()
 				.map(c -> new ConceptReferenceNode(c.getIri(), c.getName())).collect(Collectors.toList());
 		for (ConceptReferenceNode child : immediateChildren)
@@ -114,8 +115,8 @@ public class ConceptService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		int rowNumber= 0;
-		if(pageIndex!=null && pageSize!=null)
+		int rowNumber = 0;
+		if (pageIndex != null && pageSize != null)
 			rowNumber = (pageIndex - 1) * pageSize;
 
 		List<ConceptReferenceNode> parents = getParents(iri, rowNumber, pageSize, inactive).stream()
@@ -283,31 +284,30 @@ public class ConceptService {
 	}
 
 	private void populateMissingNames(List<TTIriRef> iriRefs) throws SQLException {
-        List<TTIriRef> unNamed = new ArrayList<>();
-        Set<String> iris = new HashSet<>();
+		List<TTIriRef> unNamed = new ArrayList<>();
+		Set<String> iris = new HashSet<>();
 
-        iriRefs.forEach(r -> {
-            if (r.getName() == null || r.getName().isEmpty()) {
-                unNamed.add(r);
-                iris.add(r.getIri());
-            }
-            }
-        );
+		iriRefs.forEach(r -> {
+			if (r.getName() == null || r.getName().isEmpty()) {
+				unNamed.add(r);
+				iris.add(r.getIri());
+			}
+		});
 
-        Map<String, String> iriNameMap = getIriNameMap(iris);
+		Map<String, String> iriNameMap = getIriNameMap(iris);
 
-        for (TTIriRef iriRef : unNamed) {
-            iriRef.setName(iriNameMap.get(iriRef.getIri()));
-        }
-    }
+		for (TTIriRef iriRef : unNamed) {
+			iriRef.setName(iriNameMap.get(iriRef.getIri()));
+		}
+	}
 
-    private Map<String, String> getIriNameMap(Set<String> iris) throws SQLException {
-        Map<String, String> iriNameMap = new HashMap<>();
-        for (TTIriRef concept1 : conceptRepository.findAllByIriIn(iris))
-            iriNameMap.put(concept1.getIri(), concept1.getName());
+	private Map<String, String> getIriNameMap(Set<String> iris) throws SQLException {
+		Map<String, String> iriNameMap = new HashMap<>();
+		for (TTIriRef concept1 : conceptRepository.findAllByIriIn(iris))
+			iriNameMap.put(concept1.getIri(), concept1.getName());
 
-        return iriNameMap;
-    }
+		return iriNameMap;
+	}
 
 	public List<TermCode> getConceptTermCodes(String iri) throws SQLException {
 		if (iri == null || iri.isEmpty())
@@ -316,7 +316,8 @@ public class ConceptService {
 	}
 
 	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties,
-			boolean members, boolean expandMembers, boolean roles, boolean inactive) throws SQLException, JsonProcessingException {
+			boolean members, boolean expandMembers, boolean roles, boolean inactive)
+			throws SQLException, JsonProcessingException {
 		if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
 			return null;
 		TTConcept concept = getConcept(iri);
@@ -391,8 +392,8 @@ public class ConceptService {
 		}
 	}
 
-	private void addMembersToDownload(String iri, boolean expandMembers, String format, XlsHelper xls, DownloadDto downloadDto)
-			throws SQLException {
+	private void addMembersToDownload(String iri, boolean expandMembers, String format, XlsHelper xls,
+			DownloadDto downloadDto) throws SQLException {
 		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMembers);
 		switch (format) {
 		case "excel":
@@ -520,34 +521,24 @@ public class ConceptService {
 			return null;
 		}
 
-		GraphDto graphData = new GraphDto().setIri(concept.getIri()).setName(concept.getName());
+		GraphDto graphData = new GraphDto().setKey("0").setIri(concept.getIri()).setName(concept.getName()).setType(GraphType.WRAPPER);
 
-		GraphDto graphParents = new GraphDto().setName("Parents");
-		GraphDto graphChildren = new GraphDto().setName("Children");
-		GraphDto graphProps = new GraphDto().setName("Properties");
-		GraphDto graphInheritedProps = new GraphDto().setName("Inherited");
-		GraphDto graphDirectProps = new GraphDto().setName("Direct");
-		GraphDto graphRoles = new GraphDto().setName("Roles");
+		GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a").setType(GraphType.WRAPPER);
+		GraphDto graphProps = new GraphDto().setKey("0_1").setName("Properties").setType(GraphType.WRAPPER);
+
+		GraphDto propWrapper = new GraphDto().setType(GraphType.PROPERTY);
+		propWrapper.getChildren()
+				.addAll(getRecordStructure(iri).stream()
+						.map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
+								prop.getType().getIri(), prop.getType().getName(), prop.getInherited().getIri(),
+								prop.getInherited().getName()))
+						.collect(Collectors.toList()));
 
 		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_A));
-		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_CONTAINED_IN));
+		graphProps.getChildren().add(propWrapper);
 
-		List<ConceptReferenceNode> children = getImmediateChildren(iri, null, null, false, false);
-		List<PropertyValue> properties = getAllProperties(concept);
-		List<PropertyValue> roles = getRoles(iri);
-
-		addChildrenToGraph(graphChildren, children);
-		addPropertiesToGraph(graphInheritedProps, graphDirectProps, properties);
-		addRolesToGraph(graphRoles, roles);
-
-		if (graphDirectProps.getChildren().size() > 0 || graphInheritedProps.getChildren().size() > 0) {
-			graphProps.getChildren().add(graphDirectProps);
-			graphProps.getChildren().add(graphInheritedProps);
-		}
 		graphData.getChildren().add(graphParents);
-		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);
-		graphData.getChildren().add(graphRoles);
 
 		return graphData;
 	}
@@ -561,53 +552,14 @@ public class ConceptService {
 			parent.asArrayElements().forEach(item -> {
 				if (!OWL.THING.equals(item.asIriRef()))
 					result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName())
-							.setPropertyType(predicate.getName()));
+							.setPropertyType(predicate.getName()).setType(GraphType.ISA));
 			});
 		} else {
 			if (!OWL.THING.equals(parent.asIriRef()))
 				result.add(new GraphDto().setIri(parent.asIriRef().getIri()).setName(parent.asIriRef().getName())
-						.setPropertyType(predicate.getName()));
+						.setPropertyType(predicate.getName()).setType(GraphType.ISA));
 		}
 		return result;
-	}
-
-	private void addChildrenToGraph(GraphDto graphChildren, List<ConceptReferenceNode> children) {
-		children.forEach(child -> {
-			GraphDto graphChild = new GraphDto().setIri(child.getIri()).setName(child.getName());
-			graphChildren.getChildren().add(graphChild);
-		});
-	}
-
-	private void addPropertiesToGraph(GraphDto graphInheritedProps, GraphDto graphDirectProps,
-			List<PropertyValue> properties) {
-		properties.forEach(prop -> {
-			if (null != prop.getInheritedFrom()) {
-				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName()).setInheritedFromName(prop.getInheritedFrom().getName())
-						.setInheritedFromIri(prop.getInheritedFrom().getIri())
-						.setPropertyType(prop.getProperty().getName()).setValueTypeIri(prop.getValueType().getIri())
-						.setValueTypeName(prop.getValueType().getName()).setMax(prop.getMaxExclusive())
-						.setMin(prop.getMinExclusive());
-				graphInheritedProps.getChildren().add(graphProp);
-			} else {
-				GraphDto graphProp = new GraphDto().setIri(prop.getProperty().getIri())
-						.setName(prop.getProperty().getName()).setPropertyType(prop.getProperty().getName())
-						.setValueTypeIri(prop.getValueType().getIri()).setValueTypeName(prop.getValueType().getName())
-						.setMax(prop.getMaxExclusive()).setMin(prop.getMinExclusive());
-				graphDirectProps.getChildren().add(graphProp);
-			}
-		});
-	}
-
-	private void addRolesToGraph(GraphDto graphRoles, List<PropertyValue> roles) {
-		for (PropertyValue role : roles) {
-			GraphDto graphRole = new GraphDto().setIri(role.getProperty().getIri())
-					.setName(role.getProperty().getName()).setPropertyType(role.getProperty().getName());
-			if (role.getValueType() != null) {
-				graphRole.setValueTypeIri(role.getValueType().getIri()).setValueTypeName(role.getValueType().getName());
-			}
-			graphRoles.getChildren().add(graphRole);
-		}
 	}
 
 	public List<RecordStructureDto> getRecordStructure(String iri) throws SQLException, JsonProcessingException {
@@ -626,9 +578,11 @@ public class ConceptService {
 			for (TTValue roleGroup : concept.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
 				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
 					recordStructure.add(new RecordStructureDto()
-							.setProperty(new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+							.setProperty(
+									new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-							.setType(new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+							.setType(
+									new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 				} else {
 					roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
@@ -636,7 +590,7 @@ public class ConceptService {
 								.setProperty(new ConceptReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 										role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
 								.setType(new ConceptReference(role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-												role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+										role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 					});
 				}
 			}
@@ -652,24 +606,20 @@ public class ConceptService {
 
 	public ConceptDefinitionDto getConceptDefinitionDto(String iri) throws JsonProcessingException, SQLException {
 		TTConcept concept = getConcept(iri);
-		List<ConceptReference> types = concept.getType() == null
-           ? new ArrayList<>()
-           : concept.getType().asArrayElements().stream()
-				.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
-				.collect(Collectors.toList());
-		
-		List<ConceptReference> isa = !concept.has(IM.IS_A)
-		           ? new ArrayList<>()
-		           : concept.get(IM.IS_A).asArrayElements().stream()
+		List<ConceptReference> types = concept.getType() == null ? new ArrayList<>()
+				: concept.getType().asArrayElements().stream()
+						.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
+						.collect(Collectors.toList());
+
+		List<ConceptReference> isa = !concept.has(IM.IS_A) ? new ArrayList<>()
+				: concept.get(IM.IS_A).asArrayElements().stream()
 						.map(t -> new ConceptReference(t.asIriRef().getIri(), t.asIriRef().getName()))
 						.collect(Collectors.toList());
 
 		return new ConceptDefinitionDto().setIri(concept.getIri()).setName(concept.getName())
 				.setDescription(concept.getDescription())
-				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName())
-				.setTypes(types)
-				.setSubtypes(getDefinitionSubTypes(iri))
-				.setIsa(isa);
+				.setStatus(concept.getStatus() == null ? null : concept.getStatus().getName()).setTypes(types)
+				.setSubtypes(getDefinitionSubTypes(iri)).setIsa(isa);
 	}
 
 	public List<DataModelPropertyDto> getDataModelProperties(String iri) throws JsonProcessingException, SQLException {
@@ -677,17 +627,17 @@ public class ConceptService {
 		TTConcept concept = getConcept(iri);
 		if (concept.has(SHACL.PROPERTY)) {
 			for (TTValue property : concept.asNode().get(SHACL.PROPERTY).asArrayElements()) {
-			    String rangeIri = "";
-			    String rangeName = "";
-			    if(property.asNode().has(SHACL.CLASS)) {
-			    	rangeIri = property.asNode().get(SHACL.CLASS).asIriRef().getIri();
-			    	rangeName = property.asNode().get(SHACL.CLASS).asIriRef().getName();
-			    }
-			    
-			    if(property.asNode().has(SHACL.DATATYPE)) {
-			    	rangeIri = property.asNode().get(SHACL.DATATYPE).asIriRef().getIri();
-			    	rangeName = property.asNode().get(SHACL.DATATYPE).asIriRef().getName();
-			    }
+				String rangeIri = "";
+				String rangeName = "";
+				if (property.asNode().has(SHACL.CLASS)) {
+					rangeIri = property.asNode().get(SHACL.CLASS).asIriRef().getIri();
+					rangeName = property.asNode().get(SHACL.CLASS).asIriRef().getName();
+				}
+
+				if (property.asNode().has(SHACL.DATATYPE)) {
+					rangeIri = property.asNode().get(SHACL.DATATYPE).asIriRef().getIri();
+					rangeName = property.asNode().get(SHACL.DATATYPE).asIriRef().getName();
+				}
 				properties.add(new DataModelPropertyDto()
 						.setProperty(new ConceptReference(property.asNode().get(SHACL.PATH).asIriRef().getIri(),
 								property.asNode().get(SHACL.PATH).asIriRef().getName()))
@@ -698,16 +648,19 @@ public class ConceptService {
 			for (TTValue roleGroup : concept.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
 				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
 					properties.add(new DataModelPropertyDto()
-							.setProperty(new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+							.setProperty(
+									new ConceptReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-							.setRange(new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+							.setRange(
+									new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 				} else {
 					roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
 						properties.add(new DataModelPropertyDto()
 								.setProperty(new ConceptReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 										role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-								.setRange(new ConceptReference(role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+								.setRange(
+										new ConceptReference(role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
 												role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 					});
 				}
@@ -724,7 +677,9 @@ public class ConceptService {
 		TTArray ttArray = ttConcept.getAsArray(IM.HAS_MAP);
 		TTVisitor visitor = new TTVisitor();
 		List<TTIriRef> iris = new ArrayList<>();
-		visitor.IriRefVisitor = ((predicate, iriRef) -> {iris.add(iriRef);});
+		visitor.IriRefVisitor = ((predicate, iriRef) -> {
+			iris.add(iriRef);
+		});
 		visitor.visit(ttArray);
 		populateMissingNames(iris);
 		return ttArray;

@@ -8,7 +8,9 @@ public class GraphDto {
 	public static enum GraphType {
 		NONE,
 		WRAPPER,
-		ISA, PROPERTY
+		PROPERTIES,
+		SUBTYPE,
+		ISA
 	}
 
 	String key;

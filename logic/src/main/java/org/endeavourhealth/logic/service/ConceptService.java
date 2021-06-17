@@ -524,7 +524,8 @@ public class ConceptService {
 		GraphDto graphData = new GraphDto().setKey("0").setIri(concept.getIri()).setName(concept.getName());
 
 		GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
-		GraphDto graphProps = new GraphDto().setKey("0_1").setName("Properties");
+		GraphDto graphChildren = new GraphDto().setKey("0_1").setName("Subtypes");
+		GraphDto graphProps = new GraphDto().setKey("0_2").setName("Properties");
 
 		List<GraphDto> props = getRecordStructure(iri).stream()
 				.map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
@@ -532,27 +533,44 @@ public class ConceptService {
 						prop.getInherited().getName()))
 				.collect(Collectors.toList());
 
-		GraphDto direct = new GraphDto().setKey("0_1_0").setName("Direct");
-		GraphDto directWrapper = new GraphDto().setKey("0_1_0_0").setType(GraphType.PROPERTY);
+		List<GraphDto> isas = getConceptDefinedParents(concept, IM.IS_A);
+
+		List<GraphDto> subtypes = getDefinitionSubTypes(iri).stream()
+				.map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri()))
+				.collect(Collectors.toList());
+
+		GraphDto direct = new GraphDto().setKey("0_2_0").setName("Direct");
+		GraphDto directWrapper = new GraphDto().setKey("0_2_0_0").setType(GraphType.PROPERTIES);
 		directWrapper.getLeafNodes()
 				.addAll(props.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
 		direct.getChildren()
-				.add(directWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_1_0_0").setType(GraphType.NONE)
+				.add(directWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0_0").setType(GraphType.NONE)
 						: directWrapper);
 
-		GraphDto inherited = new GraphDto().setKey("0_1_1").setName("Inherited");
-		GraphDto inheritedWrapper = new GraphDto().setKey("0_1_1_0").setType(GraphType.PROPERTY);
+		GraphDto inherited = new GraphDto().setKey("0_2_1").setName("Inherited");
+		GraphDto inheritedWrapper = new GraphDto().setKey("0_2_1_0").setType(GraphType.PROPERTIES);
 		inheritedWrapper.getLeafNodes()
 				.addAll(props.stream().filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
 		inherited.getChildren()
-				.add(inheritedWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_1_1_0").setType(GraphType.NONE)
+				.add(inheritedWrapper.getLeafNodes().isEmpty()
+						? new GraphDto().setKey("0_2_1_0").setType(GraphType.NONE)
 						: inheritedWrapper);
 
-		graphParents.getChildren().addAll(getConceptDefinedParents(concept, IM.IS_A));
+		GraphDto childrenWrapper = new GraphDto().setKey("0_1_0")
+				.setType(!subtypes.isEmpty() ? GraphType.SUBTYPE : GraphType.NONE);
+		childrenWrapper.getLeafNodes().addAll(subtypes);
+
+		GraphDto parentsWrapper = new GraphDto().setKey("0_0_0")
+				.setType(!isas.isEmpty() ? GraphType.ISA : GraphType.NONE);
+		parentsWrapper.getLeafNodes().addAll(isas);
+
+		graphParents.getChildren().add(parentsWrapper);
+		graphChildren.getChildren().add(childrenWrapper);
 		graphProps.getChildren().add(direct);
 		graphProps.getChildren().add(inherited);
 
 		graphData.getChildren().add(graphParents);
+		graphData.getChildren().add(graphChildren);
 		graphData.getChildren().add(graphProps);
 
 		return graphData;
@@ -567,12 +585,12 @@ public class ConceptService {
 			parent.asArrayElements().forEach(item -> {
 				if (!OWL.THING.equals(item.asIriRef()))
 					result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName())
-							.setPropertyType(predicate.getName()).setType(GraphType.ISA));
+							.setPropertyType(predicate.getName()));
 			});
 		} else {
 			if (!OWL.THING.equals(parent.asIriRef()))
 				result.add(new GraphDto().setIri(parent.asIriRef().getIri()).setName(parent.asIriRef().getName())
-						.setPropertyType(predicate.getName()).setType(GraphType.ISA));
+						.setPropertyType(predicate.getName()));
 		}
 		return result;
 	}

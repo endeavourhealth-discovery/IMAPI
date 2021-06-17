@@ -6,6 +6,7 @@ import java.util.List;
 public class GraphDto {
 
 	public static enum GraphType {
+		NONE,
 		WRAPPER,
 		ISA, PROPERTY
 	}
@@ -22,9 +23,11 @@ public class GraphDto {
 	String min;
 	String max;
 	List<GraphDto> children;
+	List<GraphDto> leafNodes;
 
 	public GraphDto() {
 		this.children = new ArrayList<GraphDto>();
+		this.leafNodes = new ArrayList<GraphDto>();
 	}
 
 	public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName, String inheritedFromIri,
@@ -42,6 +45,14 @@ public class GraphDto {
 		this.iri = iri;
 		this.valueTypeIri = valueTypeIri;
 		this.valueTypeName = valueTypeName;
+	}
+
+	public List<GraphDto> getLeafNodes() {
+		return leafNodes;
+	}
+
+	public void setLeafNodes(List<GraphDto> leafNodes) {
+		this.leafNodes = leafNodes;
 	}
 
 	public GraphType getType() {

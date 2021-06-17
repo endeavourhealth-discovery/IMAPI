@@ -618,13 +618,18 @@ public class ConceptService {
 									new ConceptReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 				} else {
-					roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
-						recordStructure.add(new RecordStructureDto()
-								.setProperty(new ConceptReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-										role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-								.setType(new ConceptReference(role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-										role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
-					});
+					if (roleGroup.asNode().has(IM.ROLE)) {
+						roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
+							recordStructure.add(new RecordStructureDto()
+									.setProperty(
+											new ConceptReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+													role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+									.setType(new ConceptReference(
+											role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+											role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
+						});
+					}
+
 				}
 			}
 		}

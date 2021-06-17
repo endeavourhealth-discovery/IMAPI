@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.ConceptToImLang;
+import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.logic.service.ConceptService;
 import org.endeavourhealth.imapi.model.ConceptReferenceNode;
@@ -210,6 +211,11 @@ public class ConceptController {
 	@GetMapping("/complexMappings")
 	public TTArray getComplexMappings(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return conceptService.getComplexMappings(iri);
+	}
+
+	@GetMapping("/summary")
+	public ConceptSummary getSummary(String iri) throws SQLException {
+		return conceptService.getSummary(iri);
 	}
 
 }

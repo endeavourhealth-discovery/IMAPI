@@ -4,6 +4,7 @@ import org.endeavourhealth.dataaccess.ConnectionPool;
 import org.endeavourhealth.dataaccess.Levenshtein;
 import org.endeavourhealth.imapi.model.search.ConceptSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTConcept;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -96,4 +97,30 @@ public class ConceptSearchRepository extends BaseRepository {
             .setWeighting(Levenshtein.calculate(termFilter, rs.getString("term")))
             .setStatus(iri(rs.getString("status"), rs.getString("status_name")));
     }
+
+    public ConceptSummary getSummary(String iri) throws SQLException {
+        ConceptSummary summary = new ConceptSummary();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, s.name AS scheme_name, t.name AS status_name")
+                .add("FROM concept_search cs")
+                .add("JOIN concept c ON cs.concept_dbid = c.dbid")
+                .add("JOIN concept_type ct ON cs.concept_dbid = ct.concept")
+                .add("JOIN concept t ON t.iri = c.status")
+                .add("LEFT JOIN concept s ON s.iri = c.scheme")
+                .add("WHERE c.iri=? ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                statement.setString(1, iri);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        summary = getConceptSummary(null, rs);
+                        summary.setConceptType(typeRepo.getConceptTypes(summary.getIri()));
+                    }
+                }
+            }
+        }
+        return summary;
+    }
+
 }

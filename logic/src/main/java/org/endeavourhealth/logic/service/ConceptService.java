@@ -722,4 +722,8 @@ public class ConceptService {
 		populateMissingNames(iris);
 		return ttArray;
 	}
+
+	public ConceptSummary getSummary(String iri) throws SQLException {
+		return conceptSearchRepository.getSummary(iri);
+	}
 }

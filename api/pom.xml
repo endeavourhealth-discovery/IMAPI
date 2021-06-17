@@ -133,6 +133,19 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.0.0</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/be.ugent.rml/rmlmapper -->
+		<dependency>
+		    <groupId>be.ugent.rml</groupId>
+		    <artifactId>rmlmapper</artifactId>
+		    <exclusions>
+			    <exclusion>
+			        <groupId>org.slf4j</groupId>
+			        <artifactId>slf4j-log4j12</artifactId>
+			    </exclusion>
+			</exclusions> 
+		    <version>4.10.0</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

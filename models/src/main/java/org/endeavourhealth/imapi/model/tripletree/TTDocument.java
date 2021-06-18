@@ -15,9 +15,9 @@ import java.util.Map;
 public class TTDocument extends TTNode {
     private TTIriRef graph;
     private TTContext context = new TTContext();
-    private List<TTConcept> concepts;
-    private List<TTTransaction> transactions;
-    private List<TTInstance> individuals;
+    private List<TTEntity> entities;
+
+
     private TTIriRef crud;
     private Map<Class, List<String>> predicateTemplate;
 
@@ -75,39 +75,23 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-    public List<TTConcept> getConcepts() {
-        return concepts;
+    public List<TTEntity> getEntities() {
+        return entities;
     }
 
-    public TTDocument setConcepts(List<TTConcept> concepts) {
-        this.concepts = concepts;
+    public TTDocument setEntities(List<TTEntity> entities) {
+        this.entities = entities;
         return this;
     }
 
-    public TTDocument addConcept(TTConcept concept) {
-        if (this.concepts == null)
-            this.concepts = new ArrayList<>();
-        concept.setContext(this.context);
-        this.concepts.add(concept);
+    public TTDocument addEntity(TTEntity entity) {
+        if (this.entities == null)
+            this.entities = new ArrayList<>();
+        entity.setContext(this.context);
+        this.entities.add(entity);
         return this;
     }
 
-    public List<TTInstance> getIndividuals() {
-        return individuals;
-    }
-
-    public TTDocument setIndividuals(List<TTInstance> individuals) {
-        this.individuals = individuals;
-        return this;
-    }
-
-    public TTDocument addIndividual(TTInstance instance) {
-        if (this.individuals == null)
-            this.individuals = new ArrayList<>();
-        instance.setContext(this.context);
-        this.individuals.add(instance);
-        return this;
-    }
 
     public TTContext getContext() {
         return this.context;
@@ -122,18 +106,6 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-    public List<TTTransaction> getTransactions() {
-        return transactions;
-    }
 
-    public TTDocument setTransactions(List<TTTransaction> transactions) {
-        this.transactions = transactions;
-        return this;
-    }
-    public TTDocument addTransaction(TTTransaction transaction) {
-        if (this.transactions==null)
-            this.transactions= new ArrayList<>();
-        transactions.add(transaction);
-        return this;
-    }
+
 }

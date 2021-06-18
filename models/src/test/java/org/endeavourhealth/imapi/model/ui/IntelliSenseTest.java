@@ -20,7 +20,7 @@ public class IntelliSenseTest {
         restriction = new TTNode()
             .set(RDF.TYPE, OWL.RESTRICTION);
 
-        TTConcept concept = new TTConcept("http://endhealth.info/im#25451000252115")
+        TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
             .addPrefix("http://endhealth.info/im#", "im")
             .addPrefix("http://snomed.info/sct#", "sn")
             .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
@@ -43,7 +43,7 @@ public class IntelliSenseTest {
             );
 
         request = new IntelliSenseRequest()
-            .setConcept(concept);
+            .setEntity(entity);
     }
 
     @Test

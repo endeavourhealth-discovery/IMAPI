@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -12,8 +11,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class PrefixTest {
     @Test
-    public void prefixSerializationConceptTest() throws JsonProcessingException {
-        TTConcept c = new TTConcept()
+    public void prefixSerializationEntityTest() throws JsonProcessingException {
+        TTEntity c = new TTEntity()
             .addPrefix(IM.NAMESPACE,"im")
             .addPrefix(SNOMED.NAMESPACE,"sn")
             .addPrefix(OWL.NAMESPACE,"owl")
@@ -57,7 +56,7 @@ public class PrefixTest {
         document.addPrefix(XSD.NAMESPACE,"xsd");
         document.addPrefix("http://endhealth.info/READ2#","r2");
 
-        TTConcept c = new TTConcept()
+        TTEntity c = new TTEntity()
             .setIri("emis:H33")
             .setName("Asthma")
             .setDescription("Asthma")
@@ -73,7 +72,7 @@ public class PrefixTest {
               new TTNode().set(IM.MATCHED_TO, new TTArray().add(iri("sn:195967001")))
         ));
 
-        document.addConcept(c);
+        document.addEntity(c);
 
         ObjectMapper om = new ObjectMapper();
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(document);
@@ -85,7 +84,7 @@ public class PrefixTest {
     }
 
     @Test
-    public void prefixSerializationConceptInDocumentTest() throws JsonProcessingException {
+    public void prefixSerializationEntityInDocumentTest() throws JsonProcessingException {
         TTDocument document = new TTDocument();
 
         document.addPrefix(IM.NAMESPACE,"im");
@@ -96,7 +95,7 @@ public class PrefixTest {
         document.addPrefix(XSD.NAMESPACE,"xsd");
         document.addPrefix("http://endhealth.info/READ2#","r2");
 
-        TTConcept c = new TTConcept()
+        TTEntity c = new TTEntity()
             .setIri("emis:H33")
             .setName("Asthma")
             .setDescription("Asthma")
@@ -112,7 +111,7 @@ public class PrefixTest {
                 new TTNode().set(IM.MATCHED_TO, new TTArray().add(iri("sn:195967001")))
             ));
 
-        document.addConcept(c);
+        document.addEntity(c);
 
         ObjectMapper om = new ObjectMapper();
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(c);

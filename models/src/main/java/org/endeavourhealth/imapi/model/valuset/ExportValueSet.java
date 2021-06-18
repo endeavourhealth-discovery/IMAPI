@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ExportValueSet {
     private TTIriRef valueSet;
-    // private ConceptReference relationship;
+    // private EntityReference relationship;
     private List<ValueSetMember> included = new ArrayList<>();
     private List<ValueSetMember> excluded = new ArrayList<>();
 
@@ -21,11 +21,11 @@ public class ExportValueSet {
         return this;
     }
 
-//    public ConceptReference getRelationship() {
+//    public EntityReference getRelationship() {
 //        return relationship;
 //    }
 //
-//    public ExportValueSet setRelationship(ConceptReference relationship) {
+//    public ExportValueSet setRelationship(EntityReference relationship) {
 //        this.relationship = relationship;
 //        return this;
 //    }

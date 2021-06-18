@@ -1,30 +1,30 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto.ConceptReference;
+import org.endeavourhealth.imapi.model.dto.RecordStructureDto.EntityReference;
 
 public class DataModelPropertyDto {
 
-	private ConceptReference property;
-	private ConceptReference range;
+	private EntityReference property;
+	private EntityReference range;
 
 	public DataModelPropertyDto() {
 
 	}
 
-	public ConceptReference getProperty() {
+	public EntityReference getProperty() {
 		return property;
 	}
 
-	public DataModelPropertyDto setProperty(ConceptReference property) {
+	public DataModelPropertyDto setProperty(EntityReference property) {
 		this.property = property;
 		return this;
 	}
 
-	public ConceptReference getRange() {
+	public EntityReference getRange() {
 		return range;
 	}
 
-	public DataModelPropertyDto setRange(ConceptReference range) {
+	public DataModelPropertyDto setRange(EntityReference range) {
 		this.range = range;
 		return this;
 	}

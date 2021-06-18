@@ -33,7 +33,7 @@ public class SearchRequest {
     }
 
     @ApiModelProperty(value = "Status filter",
-        notes = "List of concept status IRI's",
+        notes = "List of entity status IRI's",
         allowableValues = "http://endhealth.info/im#Draft, http://endhealth.info/im#Active, http://endhealth.info/im#Inactive",
         example = "['http://endhealth.info/im#Draft', 'http://endhealth.info/im#Active']"
     )
@@ -47,7 +47,7 @@ public class SearchRequest {
     }
 
     @ApiModelProperty(value = "Type filter",
-        notes = "List of concept type IRI's",
+        notes = "List of entity type IRI's",
         example = "['http://www.w3.org/2002/07/owl#Class', 'http://endhealth.info/im#RecordType']")
     public List<String> getTypeFilter() {
         return typeFilter;
@@ -70,8 +70,8 @@ public class SearchRequest {
         return this;
     }
 
-    @ApiModelProperty(value = "Concept subtype filter",
-        notes = "List of IRI's of which the concept must be a descendant",
+    @ApiModelProperty(value = "Entity subtype filter",
+        notes = "List of IRI's of which the entity must be a descendant",
         example = "['http://endhealth.info/im#DiscoveryOntology']")
     public List<String> getDescendentFilter() {
         return descendentFilter;
@@ -82,8 +82,8 @@ public class SearchRequest {
         return this;
     }
 
-    @ApiModelProperty(value = "Concept inheritance filter",
-        notes = "Marks the results if they are descendants of any of these concepts, but does not filter by them",
+    @ApiModelProperty(value = "Entity inheritance filter",
+        notes = "Marks the results if they are descendants of any of these entities, but does not filter by them",
         example = "['http://endhealth.info/im#Encounter']")
     public List<String> getMarkIfDescendentOf() {
         return markIfDescendentOf;

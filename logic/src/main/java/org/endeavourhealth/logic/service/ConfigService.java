@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.Config;
-import org.endeavourhealth.dataaccess.repository.ConceptRepository;
-import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
+import org.endeavourhealth.dataaccess.repository.EntityRepository;
+import org.endeavourhealth.dataaccess.repository.EntityTctRepository;
 import org.endeavourhealth.dataaccess.repository.ConfigRepository;
-import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +28,16 @@ public class ConfigService {
 
     private ObjectMapper om = new ObjectMapper();
 
-    ConceptRepository conceptRepository = new ConceptRepository();
+    EntityRepository entityRepository = new EntityRepository();
 
-    ConceptTctRepository conceptTctRepository= new ConceptTctRepository();
+    EntityTctRepository entityTctRepository= new EntityTctRepository();
 
     ConfigRepository configRepository = new ConfigRepository();
 
-    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException, SQLException {
+    public List<EntitySummary> getQuickAccess() throws JsonProcessingException, SQLException {
         LOG.info("getQuickAccess");
 
-        List<ConceptSummary> result = new ArrayList<>();
+        List<EntitySummary> result = new ArrayList<>();
 
         String[] quickAccessIris = getConfig("quickAccessIri", String[].class);
         String[] candidates =  getConfig("quickAccessCandidatesIri", String[].class);
@@ -46,9 +46,9 @@ public class ConfigService {
             return result;
 
         for(String iri: quickAccessIris) {
-            ConceptSummary src = conceptRepository.getConceptSummaryByIri(iri);
+            EntitySummary src = entityRepository.getEntitySummaryByIri(iri);
             if(src!=null) {
-                src.setIsDescendentOf(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
+                src.setIsDescendentOf(entityTctRepository.findByDescendant_Iri_AndAncestor_IriIn(iri, Arrays.asList(candidates))
                         .stream().sorted(Comparator.nullsLast(Comparator.comparing(TTIriRef::getName))).collect(Collectors.toList()));
                 result.add(src);
             }

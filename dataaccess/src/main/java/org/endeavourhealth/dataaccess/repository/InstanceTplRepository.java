@@ -24,8 +24,8 @@ public class InstanceTplRepository {
             .add("SELECT o.dbid, o.group_number, o.blank_node, p.iri AS p_iri, p.name AS p_name, c.iri AS c_iri, c.name AS c_name")
             .add("FROM instance i")
             .add("JOIN tpl_ins_object o ON o.subject = i.dbid")
-            .add("JOIN concept p ON p.dbid = o.predicate")
-            .add("LEFT JOIN concept c ON c.dbid = o.object")    // LEFT join for BNodes
+            .add("JOIN entity p ON p.dbid = o.predicate")
+            .add("LEFT JOIN entity c ON c.dbid = o.object")    // LEFT join for BNodes
             .add("WHERE i.iri = ?");
 
         try (Connection conn = ConnectionPool.get()) {

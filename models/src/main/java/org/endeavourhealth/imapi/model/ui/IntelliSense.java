@@ -14,7 +14,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class IntelliSense {
     public List<TTValue> evaluate(IntelliSenseRequest request) {
-        TTValue v = request.getConcept();
+        TTValue v = request.getEntity();
         TTIriRef p = null;
         Stack<TTTuple> stack = new Stack<>();
         stack.push(new TTTuple(null, v));

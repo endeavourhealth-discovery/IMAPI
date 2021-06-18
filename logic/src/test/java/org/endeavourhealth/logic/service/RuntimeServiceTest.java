@@ -1,10 +1,10 @@
 package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.entity.Concept;
+import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.dataaccess.entity.Config;
-import org.endeavourhealth.dataaccess.repository.ConceptRepository;
-import org.endeavourhealth.dataaccess.repository.ConceptTripleRepository;
+import org.endeavourhealth.dataaccess.repository.EntityRepository;
+import org.endeavourhealth.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.dataaccess.repository.ConfigRepository;
 import org.endeavourhealth.dataaccess.repository.TermCodeRepository;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
@@ -30,10 +30,10 @@ public class RuntimeServiceTest {
     RuntimeService runtimeService;
 
     @Mock
-    ConceptRepository conceptRepository;
+    EntityRepository entityRepository;
 
     @Mock
-    ConceptTripleRepository conceptTripleRepository;
+    EntityTripleRepository entityTripleRepository;
 
     @Mock
     ConfigRepository configRepository;
@@ -45,26 +45,26 @@ public class RuntimeServiceTest {
     ConfigService configService;
 
     @Test
-    public void getConceptIdForSchemeCode_NullScheme() throws SQLException {
-         String actual = runtimeService.getConceptIdForSchemeCode(null, "25451000252115");
+    public void getEntityIdForSchemeCode_NullScheme() throws SQLException {
+         String actual = runtimeService.getEntityIdForSchemeCode(null, "25451000252115");
          assertEquals("",actual);
     }
     @Test
-    public void getConceptIdForSchemeCode_NullCode() throws SQLException {
-        String actual = runtimeService.getConceptIdForSchemeCode("http://endhealth.info/im#891071000252105", null);
+    public void getEntityIdForSchemeCode_NullCode() throws SQLException {
+        String actual = runtimeService.getEntityIdForSchemeCode("http://endhealth.info/im#891071000252105", null);
         assertEquals("",actual);
     }
     @Test
-    public void getConceptIdForSchemeCode_NullSchemeCode() throws SQLException {
-        String actual = runtimeService.getConceptIdForSchemeCode(null, null);
+    public void getEntityIdForSchemeCode_NullSchemeCode() throws SQLException {
+        String actual = runtimeService.getEntityIdForSchemeCode(null, null);
         assertEquals("",actual);
     }
 
     @Test
-    public void getConceptIdForSchemeCode_NotNullSchemeCode() throws SQLException {
-        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
-        String actual = runtimeService.getConceptIdForSchemeCode("http://endhealth.info/im#891071000252105", "25451000252115");
+    public void getEntityIdForSchemeCode_NotNullSchemeCode() throws SQLException {
+        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
+        String actual = runtimeService.getEntityIdForSchemeCode("http://endhealth.info/im#891071000252105", "25451000252115");
         assertNotNull(actual);
     }
 
@@ -91,10 +91,10 @@ public class RuntimeServiceTest {
 
     @Test
     public void getMappedCoreCodeForSchemeCode_SnomedOnlyTrueMapsSizeZero() throws SQLException {
-        Concept concept = new Concept();
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+        Entity entity = new Entity();
+        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
                 "25451000252115",true);
         assertNull(actual);
@@ -103,10 +103,10 @@ public class RuntimeServiceTest {
 
     @Test
     public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeZero() throws SQLException {
-        Concept concept = new Concept();
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+        Entity entity = new Entity();
+        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
                 "25451000252115",false);
         assertNull(actual);
@@ -115,16 +115,16 @@ public class RuntimeServiceTest {
 
 //    @Test
 //    public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeOne() throws SQLException {
-//        Concept concept = new Concept();
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+//        Entity entity = new Entity();
+//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
 //        Set<Tpl> tpl = new HashSet<>();
 //        tpl.add(new Tpl()
 //                .setDbid(1)
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
+//                .setObject(new Entity()
 //                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
 //        Set<ValueSetMember> valueSetMembers = new HashSet<>();
-//        when(conceptTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
+//        when(entityTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
 //        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
 //                "25451000252115",false);
 //        assertNotNull(actual);
@@ -133,20 +133,20 @@ public class RuntimeServiceTest {
 
 //    @Test
 //    public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeBiggerThanOne() throws SQLException {
-//        Concept concept = new Concept();
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+//        Entity entity = new Entity();
+//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
 //        Set<Tpl> tpl = new HashSet<>();
 //        tpl.add(new Tpl()
 //                .setDbid(1)
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
+//                .setObject(new Entity()
 //                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
 //        tpl.add(new Tpl()
 //                .setDbid(2)
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000552115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000552115"))
+//                .setObject(new Entity()
 //                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
+//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
 //        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
 //                "25451000252115",false);
 //        assertNotNull(actual);
@@ -155,20 +155,20 @@ public class RuntimeServiceTest {
 
 //    @Test
 //    public void getMappedCoreCodeForSchemeCode_MapsSizeBiggerThanOneObjectNotNullImCodeSchemeSmomed() throws SQLException {
-//        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
 //        Set<Tpl> tpl = new HashSet<>();
 //        tpl.add(new Tpl()
 //                .setDbid(1)
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
+//                .setObject(new Entity()
 //                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
 //        tpl.add(new Tpl()
 //                .setDbid(2)
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000552115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000552115"))
+//                .setObject(new Entity()
 //                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
+//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
 //        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
 //                "25451000252115",true);
 //        assertNotNull(actual);
@@ -177,15 +177,15 @@ public class RuntimeServiceTest {
 
 //    @Test
 //    public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNotNullNotImCodeSchemeSmomed() throws SQLException {
-//        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
 //        Set<Tpl> tpl = new HashSet<>();
 //        tpl.add(new Tpl()
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
+//                .setObject(new Entity()
 //                        .setIri("http://endhealth.info/im#25451000252115").setCode("25451000252115")));
 //
-//        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
+//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
 //        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
 //                "25451000252115",true);
 //        assertNull(actual);
@@ -194,15 +194,15 @@ public class RuntimeServiceTest {
 
 //    @Test
 //    public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNotNull() throws SQLException {
-//        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
 //        Set<Tpl> tpl = new HashSet<>();
 //        tpl.add(new Tpl()
-//                .setSubject(new Concept().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Concept()
+//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
+//                .setObject(new Entity()
 //                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
 //
-//        when(conceptTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
+//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
 //        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
 //                "25451000252115",true);
 //        assertNotNull(actual);
@@ -211,11 +211,11 @@ public class RuntimeServiceTest {
 
     @Test
     public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNull() throws SQLException {
-        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        valueSetMembers.add(new ValueSetMember().setConcept(iri("http://endhealth.info/im#25451000252115")));
-        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
+        valueSetMembers.add(new ValueSetMember().setEntity(iri("http://endhealth.info/im#25451000252115")));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
                 "25451000252115",true);
         assertNull(actual);
@@ -223,86 +223,86 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getConceptDbidForSchemeCode_NullScheme() throws SQLException {
-        Integer actual = runtimeService.getConceptDbidForSchemeCode(null, "25451000252115");
+    public void getEntityDbidForSchemeCode_NullScheme() throws SQLException {
+        Integer actual = runtimeService.getEntityDbidForSchemeCode(null, "25451000252115");
         assertNull(actual);
     }
 
     @Test
-    public void getConceptDbidForSchemeCode_NullCode() throws SQLException {
-        Integer actual = runtimeService.getConceptDbidForSchemeCode("http://endhealth.info/im#25451000252115", null);
+    public void getEntityDbidForSchemeCode_NullCode() throws SQLException {
+        Integer actual = runtimeService.getEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", null);
         assertNull(actual);
     }
 
     @Test
-    public void getConceptDbidForSchemeCode_NullSchemeCode() throws SQLException {
-        Integer actual = runtimeService.getConceptDbidForSchemeCode(null, null);
+    public void getEntityDbidForSchemeCode_NullSchemeCode() throws SQLException {
+        Integer actual = runtimeService.getEntityDbidForSchemeCode(null, null);
         assertNull(actual);
     }
 
     @Test
-    public void getConceptDbidForSchemeCode_NotNullSchemeCode() throws SQLException {
-        Concept concept = new Concept().setDbid(1);
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
-        Integer actual = runtimeService.getConceptDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
+    public void getEntityDbidForSchemeCode_NotNullSchemeCode() throws SQLException {
+        Entity entity = new Entity().setDbid(1);
+        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
+        Integer actual = runtimeService.getEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
         assertNotNull(actual);
     }
 
     @Test
-    public void getMappedCoreConceptDbidForSchemeCode_NullScheme() throws SQLException {
-        Integer actual = runtimeService.getMappedCoreConceptDbidForSchemeCode(null, "25451000252115");
+    public void getMappedCoreEntityDbidForSchemeCode_NullScheme() throws SQLException {
+        Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode(null, "25451000252115");
         assertNull(actual);
     }
 
     @Test
-    public void getMappedCoreConceptDbidForSchemeCode_NullCode() throws SQLException {
-        Integer actual = runtimeService.getMappedCoreConceptDbidForSchemeCode("http://endhealth.info/im#25451000252115", null);
+    public void getMappedCoreEntityDbidForSchemeCode_NullCode() throws SQLException {
+        Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", null);
         assertNull(actual);
     }
 
     @Test
-    public void getMappedCoreConceptDbidForSchemeCode_NullSchemeCode() throws SQLException {
-        Integer actual = runtimeService.getMappedCoreConceptDbidForSchemeCode(null, null);
+    public void getMappedCoreEntityDbidForSchemeCode_NullSchemeCode() throws SQLException {
+        Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode(null, null);
         assertNull(actual);
     }
 
      @Test
-    public void getMappedCoreConceptDbidForSchemeCode_NullConcept() throws SQLException {
-        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+    public void getMappedCoreEntityDbidForSchemeCode_NullEntity() throws SQLException {
+        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
-        when(conceptTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
-        Integer actual = runtimeService.getMappedCoreConceptDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
+        Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
         assertNull(actual);
     }
 
 //    @Test
-//    public void getMappedCoreConceptDbidForSchemeCode_NotNullConcept() throws SQLException {
-//        Concept concept = new Concept().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(concept);
+//    public void getMappedCoreEntityDbidForSchemeCode_NotNullEntity() throws SQLException {
+//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
 //        Set<ValueSetMember> valueSetMembers = new HashSet<>();
 //        valueSetMembers.add(new Tpl()
 //                .setDbid(1)
-//                .setObject(new Concept().setDbid(1)));
+//                .setObject(new Entity().setDbid(1)));
 //        valueSetMembers.add(new Tpl()
 //                .setDbid(2)
-//                .setObject(new Concept().setDbid(2)));
-//        when(conceptTripleRepository.getMemberIriRefsBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
-//        Integer actual = runtimeService.getMappedCoreConceptDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
+//                .setObject(new Entity().setDbid(2)));
+//        when(entityTripleRepository.getMemberIriRefsBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
+//        Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
 //        assertNotNull(actual);
 //    }
 
     @Test
-    public void getCodeForConceptDbid_NullDbid() throws SQLException {
-        String actual = runtimeService.getCodeForConceptDbid(null);
+    public void getCodeForEntityDbid_NullDbid() throws SQLException {
+        String actual = runtimeService.getCodeForEntityDbid(null);
         assertEquals("",actual);
     }
 
     @Test
-    public void getCodeForConceptDbid_NotNullDbid() throws SQLException {
+    public void getCodeForEntityDbid_NotNullDbid() throws SQLException {
         String code = "25451000252115";
-        when(conceptRepository.findByDbid(any())).thenReturn(code);
-        String actual = runtimeService.getCodeForConceptDbid(1);
+        when(entityRepository.findByDbid(any())).thenReturn(code);
+        String actual = runtimeService.getCodeForEntityDbid(1);
         assertNotNull(actual);
     }
 
@@ -332,9 +332,9 @@ public class RuntimeServiceTest {
 
         runtimeService.configService = configService;
         String iri = "http://endhealth.info/im#DiscoveryCodeScheme";
-        when(conceptRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(iri);
-        when(conceptRepository.isCoreCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
-        when(conceptRepository.isLegacyCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(iri);
+        when(entityRepository.isCoreCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isLegacyCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
 
         Boolean actual = runtimeService.isInVSet("25451000252115", "http://endhealth.info/im#DiscoveryCodeScheme", "http://endhealth.info/im#24951000252112");
         assertTrue(actual);
@@ -343,10 +343,10 @@ public class RuntimeServiceTest {
     @Test
     public void isInVSet_NotNullLegacyIncluded() throws JsonProcessingException, SQLException {
         String iri = "http://endhealth.info/im#DiscoveryCodeScheme";
-        when(conceptRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
-        when(conceptRepository.isLegacyCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(iri);
-        when(conceptRepository.isCoreCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
-        when(conceptRepository.isLegacyCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isLegacyCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(iri);
+        when(entityRepository.isCoreCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isLegacyCodeSchemeExcludedInVSet(any(),any(),any())).thenReturn(null);
 
         runtimeService.configService = configService;
         Boolean actual = runtimeService.isInVSet("25451000252115", "http://endhealth.info/im#DiscoveryCodeScheme", "http://endhealth.info/im#24951000252112");
@@ -355,8 +355,8 @@ public class RuntimeServiceTest {
 
     @Test
     public void isInVSet_NullCoreLegacyEIncluded() throws JsonProcessingException, SQLException {
-        when(conceptRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
-        when(conceptRepository.isLegacyCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isCoreCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
+        when(entityRepository.isLegacyCodeSchemeIncludedInVSet(any(),any(),any())).thenReturn(null);
         runtimeService.configService = configService;
         Config config = new Config().setConfig("{\n" +
                 "              \"SNOMED\" : \"http://endhealth.info/im#891101000252101\",\n" +

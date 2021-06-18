@@ -1,7 +1,7 @@
 package org.endeavourhealth.dataaccess.repository;
 
 import org.endeavourhealth.dataaccess.ConnectionPool;
-import org.endeavourhealth.dataaccess.entity.Concept;
+import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.imapi.model.TermCode;
 
 import java.sql.Connection;
@@ -16,13 +16,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TermCodeRepository extends BaseRepository {
 
-    public List<TermCode> findAllByConcept_Iri(String iri) throws SQLException {
+    public List<TermCode> findAllByEntity_Iri(String iri) throws SQLException {
         List<TermCode> terms = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT tc.term, tc.code, s.iri AS scheme_iri, tc.concept_term_code, s.name AS scheme_name")
-                .add("FROM concept c")
-                .add("JOIN term_code tc ON tc.concept = c.dbid")
-                .add("LEFT JOIN concept s ON s.dbid = tc.scheme")
+                .add("SELECT tc.term, tc.code, s.iri AS scheme_iri, tc.entity_term_code, s.name AS scheme_name")
+                .add("FROM entity c")
+                .add("JOIN term_code tc ON tc.entity = c.dbid")
+                .add("LEFT JOIN entity s ON s.dbid = tc.scheme")
                 .add("WHERE c.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -34,7 +34,7 @@ public class TermCodeRepository extends BaseRepository {
                                 .setTerm(rs.getString("term"))
                                 .setCode(rs.getString("code"))
                                 .setScheme(iri(rs.getString("scheme_iri"), rs.getString("scheme_name")))
-                                .setConcept_term_code(rs.getString("concept_term_code")));
+                                .setEntity_term_code(rs.getString("entity_term_code")));
                     }
                 }
             }
@@ -42,13 +42,13 @@ public class TermCodeRepository extends BaseRepository {
         return terms;
     }
 
-    public Concept findByCodeAndScheme_Iri(String code, String scheme) throws SQLException {
-        Concept concept = new Concept();
+    public Entity findByCodeAndScheme_Iri(String code, String scheme) throws SQLException {
+        Entity entity = new Entity();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT c.iri, c.dbid")
                 .add("FROM term_code tc")
-                .add("JOIN concept s ON s.dbid = tc.scheme")
-                .add("JOIN concept c ON c.dbid = tc.concept")
+                .add("JOIN entity s ON s.dbid = tc.scheme")
+                .add("JOIN entity c ON c.dbid = tc.entity")
                 .add("WHERE tc.code = ?")
                 .add(" AND s.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
@@ -58,14 +58,14 @@ public class TermCodeRepository extends BaseRepository {
                 statement.setString(2, scheme);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                       concept
+                       entity
                                .setIri(rs.getString("iri"))
                                .setDbid(rs.getInt("dbid"));
                     }
                 }
             }
         }
-        return concept;
+        return entity;
     }
 
 }

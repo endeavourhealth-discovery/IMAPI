@@ -2,9 +2,9 @@ package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.endeavourhealth.dataaccess.entity.Concept;
-import org.endeavourhealth.dataaccess.repository.ConceptRepository;
-import org.endeavourhealth.dataaccess.repository.ConceptTripleRepository;
+import org.endeavourhealth.dataaccess.entity.Entity;
+import org.endeavourhealth.dataaccess.repository.EntityRepository;
+import org.endeavourhealth.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.dataaccess.repository.TermCodeRepository;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -24,13 +24,13 @@ public class RuntimeService {
 
     ConfigService configService = new ConfigService();
 
-    ConceptRepository conceptRepository = new ConceptRepository();
+    EntityRepository entityRepository = new EntityRepository();
 
-    ConceptTripleRepository conceptTripleRepository = new ConceptTripleRepository();
+    EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
     TermCodeRepository termCodeRepository = new TermCodeRepository();
 
-    public String getConceptIdForSchemeCode(String scheme, String code) throws SQLException {
+    public String getEntityIdForSchemeCode(String scheme, String code) throws SQLException {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return "";
         return termCodeRepository.findByCodeAndScheme_Iri(code, scheme).getIri();
@@ -40,27 +40,27 @@ public class RuntimeService {
     public String getMappedCoreCodeForSchemeCode(String scheme, String code, boolean snomedOnly) throws SQLException {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return "";
-        ValueSetMember coreConcept = snomedOnly
-                ? getMappedCoreSnomedConcept(scheme, code)
-                : getMappedCoreConcept(scheme, code);
-        if (coreConcept == null)
+        ValueSetMember coreEntity = snomedOnly
+                ? getMappedCoreSnomedEntity(scheme, code)
+                : getMappedCoreEntity(scheme, code);
+        if (coreEntity == null)
             return null;
-        return coreConcept.getCode();
+        return coreEntity.getCode();
     }
 
-    private ValueSetMember getMappedCoreSnomedConcept(String scheme, String code) throws SQLException {
-        ValueSetMember concept = getMappedCoreConcept(scheme, code);
-        if(concept == null)
+    private ValueSetMember getMappedCoreSnomedEntity(String scheme, String code) throws SQLException {
+        ValueSetMember entity = getMappedCoreEntity(scheme, code);
+        if(entity == null)
             return null;
-        if(IM.CODE_SCHEME_SNOMED.getIri().equals(concept.getConcept().getIri())){
-            return concept;
+        if(IM.CODE_SCHEME_SNOMED.getIri().equals(entity.getEntity().getIri())){
+            return entity;
         }else
             return null;
     }
 
-    private ValueSetMember getMappedCoreConcept(String scheme, String code) throws SQLException {
-        Concept legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
-        Set<ValueSetMember> maps = conceptTripleRepository.getObjectBySubjectAndPredicate(legacy.getIri(), IM.MATCHED_TO.getIri());
+    private ValueSetMember getMappedCoreEntity(String scheme, String code) throws SQLException {
+        Entity legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
+        Set<ValueSetMember> maps = entityTripleRepository.getObjectBySubjectAndPredicate(legacy.getIri(), IM.MATCHED_TO.getIri());
         if(maps.isEmpty())
             return  null;
         if(maps.size()>1)
@@ -72,32 +72,32 @@ public class RuntimeService {
         return null;
     }
 
-    public Integer getConceptDbidForSchemeCode(String scheme, String code) throws SQLException {
+    public Integer getEntityDbidForSchemeCode(String scheme, String code) throws SQLException {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return null;
         return termCodeRepository.findByCodeAndScheme_Iri(code, scheme).getDbid();
     }
 
-    public Integer getMappedCoreConceptDbidForSchemeCode(String scheme, String code ) throws SQLException {
+    public Integer getMappedCoreEntityDbidForSchemeCode(String scheme, String code ) throws SQLException {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return null;
-        ValueSetMember coreConcept = getMappedCoreConcept(scheme,code);
-        if(coreConcept==null)
+        ValueSetMember coreEntity = getMappedCoreEntity(scheme,code);
+        if(coreEntity==null)
             return null;
         return  null;
     }
 
-    public String getCodeForConceptDbid(Integer dbid) throws SQLException {
+    public String getCodeForEntityDbid(Integer dbid) throws SQLException {
         if(dbid==null)
             return "";
-        return conceptRepository.findByDbid(dbid);
+        return entityRepository.findByDbid(dbid);
     }
 
-    public Integer getConceptDbidForTypeTerm(String type, String term, Boolean autoCreate) {
+    public Integer getEntityDbidForTypeTerm(String type, String term, Boolean autoCreate) {
         return null;
     }
 
-    public Integer getMappedCoreConceptDbidForTypeTerm(String type, String term) {
+    public Integer getMappedCoreEntityDbidForTypeTerm(String type, String term) {
         return null;
     }
 
@@ -111,13 +111,13 @@ public class RuntimeService {
     }
 
     private Boolean included(String code, String scheme, String vSet) throws SQLException {
-        return conceptRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) != null
-                || conceptRepository.isLegacyCodeSchemeIncludedInVSet(code, scheme, vSet) != null;
+        return entityRepository.isCoreCodeSchemeIncludedInVSet(code, scheme, vSet) != null
+                || entityRepository.isLegacyCodeSchemeIncludedInVSet(code, scheme, vSet) != null;
     }
 
     private Boolean excluded(String code, String scheme, String vSet) throws SQLException {
-        return conceptRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet) != null
-                || conceptRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) != null;
+        return entityRepository.isCoreCodeSchemeExcludedInVSet(code, scheme, vSet) != null
+                || entityRepository.isLegacyCodeSchemeExcludedInVSet(code, scheme, vSet) != null;
     }
 
     private Map<String, String> getSchemeMap() throws JsonProcessingException, SQLException {

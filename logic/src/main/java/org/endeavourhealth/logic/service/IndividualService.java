@@ -24,10 +24,10 @@ public class IndividualService {
     InstanceTplRepository instanceTplRepository = new InstanceTplRepository();
     InstanceTplDataRepository instanceTplDataRepository = new InstanceTplDataRepository();
 
-    public TTConcept getIndividual(String iri) throws Exception {
+    public TTEntity getIndividual(String iri) throws Exception {
         LOG.debug("getIndividual");
 
-        TTConcept result = new TTConcept().setIri(iri);
+        TTEntity result = new TTEntity().setIri(iri);
 
         List<TplInsObject> objects = instanceTplRepository.findAllBySubjectIri(iri);
 

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument serializer
+ * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeSerializer {
    private TTContext contextMap;
@@ -144,9 +144,9 @@ public class TTNodeSerializer {
             contextMap.add(prefix.getIri(), prefix.getPrefix());
             gen.writeStringField(prefix.getPrefix(),prefix.getIri());
          }
-         gen.writeFieldName("concepts");
+         gen.writeFieldName("entities");
          gen.writeStartObject();
-         gen.writeStringField("@id","http://envhealth.info/im#concepts");
+         gen.writeStringField("@id","http://envhealth.info/im#entities");
          gen.writeStringField("@container","@set");
          gen.writeEndObject();
          gen.writeFieldName("individuals");

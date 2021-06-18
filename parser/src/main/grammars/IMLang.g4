@@ -1,6 +1,6 @@
 grammar IMLang;
 
-concept : iriLabel types annotationList predicateObjectList
+entity : iriLabel types annotationList predicateObjectList
     '.'
       EOF
        ;

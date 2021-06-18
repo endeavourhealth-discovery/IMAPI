@@ -42,37 +42,33 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
          result.setGraph(iri(helper.expand(node.get("@graph").get("@id").asText())));
       if (node.get("crud")!=null)
          result.setCrud(iri(helper.expand(node.get("crud").get("@id").asText())));
-      if (node.get("concepts")!=null) {
-         result.setConcepts(getConcepts(node.withArray("concepts")));
+      if (node.get("entities")!=null) {
+         result.setEntities(getEntities(node.withArray("entities")));
       }
-      if (node.get("individuals")!=null){
-         result.setIndividuals(getInstances(node.withArray("individuals")));
-      }
-      if (node.get("transactions")!=null){
-         result.setTransactions(getTransactions(node.withArray("transactions")));
-      }
+
+
 
       return result;
    }
 
 
 
-   private List<TTConcept> getConcepts(ArrayNode arrayNode) throws IOException {
+   private List<TTEntity> getEntities(ArrayNode arrayNode) throws IOException {
       List result = new ArrayList();
       Iterator<JsonNode> iterator = arrayNode.elements();
       while(iterator.hasNext()) {
-         JsonNode conceptNode = iterator.next();
-         TTConcept concept= new TTConcept();
-         result.add(concept);
-         Iterator<Map.Entry<String, JsonNode>> fields = conceptNode.fields();
+         JsonNode entityNode = iterator.next();
+         TTEntity entity= new TTEntity();
+         result.add(entity);
+         Iterator<Map.Entry<String, JsonNode>> fields = entityNode.fields();
          while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
             if (field.getKey().equals("@id")) {
-               concept.setIri(helper.expand(field.getValue().textValue()));
-              // System.out.println(concept.getIri());
+               entity.setIri(helper.expand(field.getValue().textValue()));
+              // System.out.println(entity.getIri());
             }
             else
-               concept.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
+               entity.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
          }
       }
 
@@ -80,12 +76,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
    }
 
 
-   private List<TTInstance> getInstances(ArrayNode arrayNode) throws IOException {
+   private List<TTEntity> getInstances(ArrayNode arrayNode) throws IOException {
       List result = new ArrayList();
       Iterator<JsonNode> iterator = arrayNode.elements();
       while(iterator.hasNext()) {
          JsonNode instanceNode = iterator.next();
-         TTInstance instance= new TTInstance();
+         TTEntity instance= new TTEntity();
          result.add(instance);
          Iterator<Map.Entry<String, JsonNode>> fields = instanceNode.fields();
          while (fields.hasNext()) {
@@ -101,27 +97,6 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
       return result;
    }
 
-   private List<TTTransaction> getTransactions(ArrayNode arrayNode) throws IOException {
-      List result = new ArrayList();
-      Iterator<JsonNode> iterator = arrayNode.elements();
-      while(iterator.hasNext()) {
-         JsonNode instanceNode = iterator.next();
-         TTTransaction instance= new TTTransaction();
-         result.add(instance);
-         Iterator<Map.Entry<String, JsonNode>> fields = instanceNode.fields();
-         while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getKey().equals("@id")) {
-               instance.setIri(helper.expand(field.getValue().textValue()));
-            } else if (field.getKey().equals("crud")){
-               instance.setCrud(iri(helper.expand(field.getValue().textValue())));
-            }
-            else
-               instance.set(iri(helper.expand(field.getKey())),helper.getJsonNodeAsValue(field.getValue()));
-         }
-      }
 
-      return result;
-   }
 
 }

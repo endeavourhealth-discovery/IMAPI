@@ -14,7 +14,7 @@ import java.util.*;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
- * JSON LD- Serializer for TTDocument (triple tree node with collection of concepts)
+ * JSON LD- Serializer for TTDocument (triple tree node with collection of entities)
  * <p>Uses @context for prefixes and common annotation elements</p>
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
@@ -54,40 +54,18 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
             gen.writeStringField("name", ref.getName());
          gen.writeEndObject();
       }
-      if (document.getConcepts()!=null&&!document.getConcepts().isEmpty()) {
-         gen.writeArrayFieldStart("concepts");
-         for (TTConcept concept: document.getConcepts()){
+      if (document.getEntities()!=null&&!document.getEntities().isEmpty()) {
+         gen.writeArrayFieldStart("entities");
+         for (TTEntity entity: document.getEntities()){
             gen.writeStartObject();
-            gen.writeStringField("@id",helper.prefix(concept.getIri()));
-            helper.serializeNode(concept, gen);
+            gen.writeStringField("@id",helper.prefix(entity.getIri()));
+            helper.serializeNode(entity, gen);
             gen.writeEndObject();
          }
          gen.writeEndArray();
       }
-      if (document.getIndividuals()!=null&&!document.getIndividuals().isEmpty()) {
-         gen.writeArrayFieldStart("individuals");
-         for (TTInstance instance: document.getIndividuals()){
-            gen.writeStartObject();
-            if (instance.getIri()!=null)
-               gen.writeStringField("@id",helper.prefix(instance.getIri()));
-            helper.serializeNode(instance, gen);
-            gen.writeEndObject();
-         }
-         gen.writeEndArray();
-      }
-      if (document.getTransactions()!=null&&!document.getTransactions().isEmpty()) {
-         gen.writeArrayFieldStart("transactions");
-         for (TTTransaction instance: document.getTransactions()){
-            gen.writeStartObject();
-            if (instance.getCrud()!=null)
-               gen.writeStringField("crud",helper.prefix(instance.getCrud().getIri()));
-            if (instance.getIri()!=null)
-               gen.writeStringField("@id",helper.prefix(instance.getIri()));
-            helper.serializeNode(instance, gen);
-            gen.writeEndObject();
-         }
-         gen.writeEndArray();
-      }
+
+
 
       gen.writeEndObject();
    }

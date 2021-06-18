@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 
@@ -9,25 +9,25 @@ import java.util.List;
 
 public class DownloadDto implements Serializable {
 
-	private List<ConceptReferenceNode> children;
-	private List<ConceptReferenceNode> parents;
+	private List<EntityReferenceNode> children;
+	private List<EntityReferenceNode> parents;
 	private List<PropertyValue> properties;
 	private ExportValueSet members;
 	private List<PropertyValue> roles;
 
-	public List<ConceptReferenceNode> getChildren() {
+	public List<EntityReferenceNode> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<ConceptReferenceNode> children) {
+	public void setChildren(List<EntityReferenceNode> children) {
 		this.children = children;
 	}
 
-	public List<ConceptReferenceNode> getParents() {
+	public List<EntityReferenceNode> getParents() {
 		return parents;
 	}
 
-	public void setParents(List<ConceptReferenceNode> parents) {
+	public void setParents(List<EntityReferenceNode> parents) {
 		this.parents = parents;
 	}
 

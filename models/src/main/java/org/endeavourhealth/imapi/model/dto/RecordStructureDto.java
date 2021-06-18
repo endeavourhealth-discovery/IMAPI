@@ -2,39 +2,39 @@ package org.endeavourhealth.imapi.model.dto;
 
 public class RecordStructureDto {
 
-	private ConceptReference property;
-	private ConceptReference type;
-	private ConceptReference inherited;
+	private EntityReference property;
+	private EntityReference type;
+	private EntityReference inherited;
 	private Cardinality cardinality;
 
 	public RecordStructureDto() {
 
 	}
 
-	public ConceptReference getProperty() {
+	public EntityReference getProperty() {
 		return property;
 	}
 
-	public RecordStructureDto setProperty(ConceptReference property) {
+	public RecordStructureDto setProperty(EntityReference property) {
 		this.property = property;
 		return this;
 	}
 
-	public ConceptReference getType() {
+	public EntityReference getType() {
 		return type;
 	}
 
-	public RecordStructureDto setType(ConceptReference type) {
+	public RecordStructureDto setType(EntityReference type) {
 		this.type = type;
 		return this;
 	}
 
-	public ConceptReference getInherited() {
-		if(null == inherited) return new ConceptReference();
+	public EntityReference getInherited() {
+		if(null == inherited) return new EntityReference();
 		return inherited;
 	}
 
-	public RecordStructureDto setInherited(ConceptReference inherited) {
+	public RecordStructureDto setInherited(EntityReference inherited) {
 		this.inherited = inherited;
 		return this;
 	}
@@ -96,18 +96,18 @@ public class RecordStructureDto {
 
 	}
 
-	public static class ConceptReference {
+	public static class EntityReference {
 		private String iri;
 		private String name;
 		
 
-		public ConceptReference(String iri, String name) {
+		public EntityReference(String iri, String name) {
 			super();
 			this.iri = iri;
 			this.name = name;
 		}
 
-		public ConceptReference() {
+		public EntityReference() {
 			// TODO Auto-generated constructor stub
 		}
 

@@ -18,14 +18,14 @@ public class RuntimeController {
     @Autowired
     RuntimeService runtimeService;
 
-    @GetMapping(value = "/Concept/Id")
-    public String getConceptIdForSchemeCode(@RequestParam("scheme") String scheme,
+    @GetMapping(value = "/Entity/Id")
+    public String getEntityIdForSchemeCode(@RequestParam("scheme") String scheme,
                                             @RequestParam("code") String code) throws SQLException {
 
-        return runtimeService.getConceptIdForSchemeCode(scheme, code);
+        return runtimeService.getEntityIdForSchemeCode(scheme, code);
     }
 
-    @GetMapping("/Concept/Core/Code")
+    @GetMapping("/Entity/Core/Code")
     public String getMappedCoreCodeForSchemeCode(@RequestParam("scheme") String scheme,
                                                  @RequestParam("code") String code,
                                                  @RequestParam("snomedOnly") Boolean snomedOnly) throws SQLException {
@@ -40,10 +40,10 @@ public class RuntimeController {
         return runtimeService.getCodeForTypeTerm(scheme, context, term, autoCreate);
     }
 
-    @GetMapping(value = "/Concept")
-    public String getConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
+    @GetMapping(value = "/Entity")
+    public String getEntityDbidForSchemeCode(@RequestParam("scheme") String scheme,
                                                 @RequestParam("code") String code) throws SQLException {
-        Integer result = runtimeService.getConceptDbidForSchemeCode(scheme,code);
+        Integer result = runtimeService.getEntityDbidForSchemeCode(scheme,code);
         if(result == null){
             return null;
         }else{
@@ -51,32 +51,32 @@ public class RuntimeController {
         }
     }
 
-    @GetMapping("/Concept/Core")
-    public Integer getMappedCoreConceptDbidForSchemeCode(@RequestParam("scheme") String scheme,
+    @GetMapping("/Entity/Core")
+    public Integer getMappedCoreEntityDbidForSchemeCode(@RequestParam("scheme") String scheme,
                                                           @RequestParam("code") String code) throws SQLException {
-        return runtimeService.getMappedCoreConceptDbidForSchemeCode(scheme, code);
+        return runtimeService.getMappedCoreEntityDbidForSchemeCode(scheme, code);
     }
 
-    @GetMapping(value = "/Concept/Code")
-    public String getCodeForConceptDbid(@RequestParam("dbid") Integer dbid) throws Exception {
-       return runtimeService.getCodeForConceptDbid(dbid);
+    @GetMapping(value = "/Entity/Code")
+    public String getCodeForEntityDbid(@RequestParam("dbid") Integer dbid) throws Exception {
+       return runtimeService.getCodeForEntityDbid(dbid);
     }
 
     @GetMapping("/Term")
-    public Integer getConceptDbidForTypeTerm(@RequestParam("type") String type,
+    public Integer getEntityDbidForTypeTerm(@RequestParam("type") String type,
                                               @RequestParam("term") String term,
                                               @RequestParam("autoCreate") boolean autoCreate){
-       return runtimeService.getConceptDbidForTypeTerm(type,term,autoCreate);
+       return runtimeService.getEntityDbidForTypeTerm(type,term,autoCreate);
     }
 
     @GetMapping("/Term/Core")
-    public Integer getMappedCoreConceptDbidForTypeTerm(@RequestParam("type") String type,
+    public Integer getMappedCoreEntityDbidForTypeTerm(@RequestParam("type") String type,
                                                         @RequestParam("term") String term){
-       return runtimeService.getMappedCoreConceptDbidForTypeTerm(type, term);
+       return runtimeService.getMappedCoreEntityDbidForTypeTerm(type, term);
     }
 
-    @GetMapping("/Concept/isValueSetMember")
-    public String checkConceptByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException, SQLException {
+    @GetMapping("/Entity/isValueSetMember")
+    public String checkEntityByCodeSchemeInVSet(@RequestParam("code") String code, @RequestParam("scheme") String scheme, @RequestParam("vSet") String vSet) throws JsonProcessingException, SQLException {
         return runtimeService.isInVSet(code, scheme,vSet).toString();
     }
 

@@ -4,11 +4,11 @@ public class Tct {
 
     private Integer dbid;
 
-    private Concept ancestor;
+    private Entity ancestor;
 
-    private Concept descendant;
+    private Entity descendant;
 
-    private Concept type;
+    private Entity type;
 
     private Integer level;
 
@@ -21,29 +21,29 @@ public class Tct {
         return this;
     }
 
-    public Concept getAncestor() {
+    public Entity getAncestor() {
         return ancestor;
     }
 
-    public Tct setAncestor(Concept ancestor) {
+    public Tct setAncestor(Entity ancestor) {
         this.ancestor = ancestor;
         return this;
     }
 
-    public Concept getDescendant() {
+    public Entity getDescendant() {
         return descendant;
     }
 
-    public Tct setDescendant(Concept descendent) {
+    public Tct setDescendant(Entity descendent) {
         this.descendant = descendent;
         return this;
     }
 
-    public Concept getType() {
+    public Entity getType() {
         return type;
     }
 
-    public Tct setType(Concept type) {
+    public Tct setType(Entity type) {
         this.type = type;
         return this;
     }

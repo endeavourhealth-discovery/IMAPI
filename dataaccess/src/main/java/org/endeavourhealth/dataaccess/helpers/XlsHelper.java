@@ -3,7 +3,7 @@ package org.endeavourhealth.dataaccess.helpers;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.model.ConceptReferenceNode;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -32,7 +32,7 @@ public class XlsHelper {
 		return headerStyle;
 	}
 
-	public void addChildren(List<ConceptReferenceNode> childrenList) {
+	public void addChildren(List<EntityReferenceNode> childrenList) {
 		Sheet sheet = workbook.createSheet("Children");
 		sheet.setColumnWidth(0, 20000);
 		sheet.setColumnWidth(1, 20000);
@@ -47,7 +47,7 @@ public class XlsHelper {
 		headerCell.setCellValue("Iri");
 		headerCell.setCellStyle(headerStyle);
 
-		for (ConceptReferenceNode child : childrenList) {
+		for (EntityReferenceNode child : childrenList) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
 			cell.setCellValue(child.getName());
@@ -57,7 +57,7 @@ public class XlsHelper {
 
 	}
 
-	public void addParents(List<ConceptReferenceNode> parentList) {
+	public void addParents(List<EntityReferenceNode> parentList) {
 		Sheet sheet = workbook.createSheet("Parents");
 		sheet.setColumnWidth(0, 20000);
 		sheet.setColumnWidth(1, 20000);
@@ -166,9 +166,9 @@ public class XlsHelper {
 			Cell cell = row.createCell(0);
 			cell.setCellValue("Yes");
 			cell = row.createCell(1);
-			cell.setCellValue(c.getConcept().getName());
+			cell.setCellValue(c.getEntity().getName());
 			cell = row.createCell(2);
-			cell.setCellValue(c.getConcept().getIri());
+			cell.setCellValue(c.getEntity().getIri());
 			cell = row.createCell(3);
 			cell.setCellValue(c.getCode());
 
@@ -185,9 +185,9 @@ public class XlsHelper {
 			Cell cell = row.createCell(0);
 			cell.setCellValue("No");
 			cell = row.createCell(1);
-			cell.setCellValue(c.getConcept().getName());
+			cell.setCellValue(c.getEntity().getName());
 			cell = row.createCell(2);
-			cell.setCellValue(c.getConcept().getIri());
+			cell.setCellValue(c.getEntity().getIri());
 			cell = row.createCell(3);
 			cell.setCellValue(c.getCode());
 

@@ -38,8 +38,8 @@ public class TTDocumentTest {
 
    private void checkDocument(TTDocument first,TTDocument second) {
       Assert.assertEquals(first.getGraph(),second.getGraph());
-      Assert.assertEquals(first.getConcepts().get(0).getIri(),
-          second.getConcepts().get(0).getIri());
+      Assert.assertEquals(first.getEntities().get(0).getIri(),
+          second.getEntities().get(0).getIri());
    }
 
 
@@ -47,7 +47,7 @@ public class TTDocumentTest {
       TTDocument result= new TTDocument();
       result.setGraph(iri("http://testgraph"));
       result.addPrefix(new TTPrefix("http://endhealth.info/im#","im"));
-      result.addConcept( new TTConcept("http://endhealth.info/im#TestConcept")
+      result.addEntity( new TTEntity("http://endhealth.info/im#TestEntity")
           .set(RDF.TYPE,TTIriRef.iri("im:ValueSet"))
           .set(RDFS.LABEL, literal("Adverse reaction to Amlodipine Besilate"))
           .set(IM.CODE,literal("25451000252115").setType(XSD.STRING))

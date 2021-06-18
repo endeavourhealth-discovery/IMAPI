@@ -27,7 +27,7 @@ public class IMLangParser extends Parser {
 		PLX=52, PERCENT=53, ECHAR=54, QUOTED_STRING=55, STRING_LITERAL_QUOTE=56, 
 		STRING_LITERAL_SINGLE_QUOTE=57, PIPED_STRING=58, PN_LOCAL_ESC=59, HEX=60;
 	public static final int
-		RULE_concept = 0, RULE_iriLabel = 1, RULE_annotationList = 2, RULE_predicateObjectList = 3, 
+		RULE_entity = 0, RULE_iriLabel = 1, RULE_annotationList = 2, RULE_predicateObjectList = 3, 
 		RULE_annotation = 4, RULE_scheme = 5, RULE_types = 6, RULE_version = 7, 
 		RULE_axiom = 8, RULE_properties = 9, RULE_membership = 10, RULE_members = 11, 
 		RULE_notmembers = 12, RULE_target = 13, RULE_minInclusive = 14, RULE_maxInclusive = 15, 
@@ -41,7 +41,7 @@ public class IMLangParser extends Parser {
 		RULE_classOrDataType = 42, RULE_name = 43, RULE_description = 44, RULE_code = 45;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"concept", "iriLabel", "annotationList", "predicateObjectList", "annotation", 
+			"entity", "iriLabel", "annotationList", "predicateObjectList", "annotation", 
 			"scheme", "types", "version", "axiom", "properties", "membership", "members", 
 			"notmembers", "target", "minInclusive", "maxInclusive", "minExclusive", 
 			"maxExclusive", "status", "subclassOf", "equivalentTo", "subpropertyOf", 
@@ -128,7 +128,7 @@ public class IMLangParser extends Parser {
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
-	public static class ConceptContext extends ParserRuleContext {
+	public static class EntityContext extends ParserRuleContext {
 		public IriLabelContext iriLabel() {
 			return getRuleContext(IriLabelContext.class,0);
 		}
@@ -142,28 +142,28 @@ public class IMLangParser extends Parser {
 			return getRuleContext(PredicateObjectListContext.class,0);
 		}
 		public TerminalNode EOF() { return getToken(IMLangParser.EOF, 0); }
-		public ConceptContext(ParserRuleContext parent, int invokingState) {
+		public EntityContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_concept; }
+		@Override public int getRuleIndex() { return RULE_entity; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof IMLangListener ) ((IMLangListener)listener).enterConcept(this);
+			if ( listener instanceof IMLangListener ) ((IMLangListener)listener).enterEntity(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof IMLangListener ) ((IMLangListener)listener).exitConcept(this);
+			if ( listener instanceof IMLangListener ) ((IMLangListener)listener).exitEntity(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof IMLangVisitor ) return ((IMLangVisitor<? extends T>)visitor).visitConcept(this);
+			if ( visitor instanceof IMLangVisitor ) return ((IMLangVisitor<? extends T>)visitor).visitEntity(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final ConceptContext concept() throws RecognitionException {
-		ConceptContext _localctx = new ConceptContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_concept);
+	public final EntityContext entity() throws RecognitionException {
+		EntityContext _localctx = new EntityContext(_ctx, getState());
+		enterRule(_localctx, 0, RULE_entity);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{

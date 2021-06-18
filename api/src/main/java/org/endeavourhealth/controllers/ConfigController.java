@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
-import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.logic.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,7 +24,7 @@ public class ConfigController {
     ConfigService configService;
 
     @GetMapping(value = "/quickAccess")
-    public List<ConceptSummary> getQuickAccess() throws JsonProcessingException, SQLException {
+    public List<EntitySummary> getQuickAccess() throws JsonProcessingException, SQLException {
         return configService.getQuickAccess();
     }
 }

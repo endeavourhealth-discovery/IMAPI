@@ -46,13 +46,13 @@ public class TTNodeTreeTest {
 
     @Test
     public void tripleTreeTest() {
-        TTConcept adverseReaction = getTestConcept();
-        checkConcept(adverseReaction);
+        TTEntity adverseReaction = getTestEntity();
+        checkEntity(adverseReaction);
     }
 
     @Test
     public void testVisitor() {
-        TTConcept concept = getTestConcept();
+        TTEntity entity = getTestEntity();
         TTVisitor visitor = new TTVisitor();
 
         AtomicInteger i = new AtomicInteger();
@@ -81,11 +81,11 @@ public class TTNodeTreeTest {
             System.out.println("A " + indent +"]");
         };
 
-        visitor.visit(concept);
+        visitor.visit(entity);
     }
 
-    public TTConcept getTestConcept() {
-        return new TTConcept("http://endhealth.info/im#25451000252115")
+    public TTEntity getTestEntity() {
+        return new TTEntity("http://endhealth.info/im#25451000252115")
             .addPrefix("http://endhealth.info/im#", "im")
             .addPrefix("http://snomed.info/sct#", "sn")
             .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
@@ -119,18 +119,18 @@ public class TTNodeTreeTest {
             );
     }
 
-    private void checkConcept(TTConcept concept) {
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", concept
+    private void checkEntity(TTEntity entity) {
+        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", entity
             .getAsLiteral(RDFS.LABEL)
             .getValue()
         );
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", concept.getName());
-        Assert.assertEquals(3, concept
+        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", entity.getName());
+        Assert.assertEquals(3, entity
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
-        Assert.assertEquals("http://snomed.info/sct#384976003", concept
+        Assert.assertEquals("http://snomed.info/sct#384976003", entity
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0).getAsArray(OWL.INTERSECTIONOF)
             .getAsNode(1).getAsIriRef(OWL.SOMEVALUESFROM).getIri()

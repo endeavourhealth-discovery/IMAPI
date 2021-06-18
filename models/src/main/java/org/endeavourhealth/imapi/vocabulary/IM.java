@@ -8,28 +8,27 @@ public class IM {
     public static final String NAMESPACE = "http://endhealth.info/im#";
     public static final String PREFIX = "im";
 
-    //Concept top level predicates
+    //Entity top level predicates
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
     public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
 
-    //Concept tope level triples
+    //Entity tope level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
 
 
 
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
-    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
+    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "EntitySet");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
-    public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyConcept");
+    public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyEntity");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
-    public static final TTIriRef CODED_TERM = iri(NAMESPACE + "CodedTerm");
     public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
 
     //Collection predicates
@@ -57,7 +56,7 @@ public class IM {
     public static final TTIriRef ROLE_GROUP = iri(NAMESPACE +"roleGroup");
     public static final TTIriRef ROLE = iri(NAMESPACE +"role");
 
-    //Concept status values
+    //Entity status values
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE +"Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE +"Inactive");
@@ -71,12 +70,11 @@ public class IM {
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
     public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
     public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
-    public static final TTIriRef IS_TERM_FOR = iri(NAMESPACE + "isTermFor");
     public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
     public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
     public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
-
+    public static final TTIriRef SUPPLIER_ASSURED = iri(NAMESPACE + "SupplierAssured");
 
 
     //SPARQL parameters
@@ -94,7 +92,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"BartsCernerCodeScheme");
     public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"VisionCodeScheme");
     public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"CTV3TPPCodeScheme");
-    public static final TTIriRef CODE_SCHEME_TERMS = iri(NAMESPACE+"TermOnlyCodeScheme");
+    public static final TTIriRef CODE_SCHEME_ENCOUNTER_TERMS = iri(NAMESPACE+"EncounterTermsCodeScheme");
     public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
     public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");

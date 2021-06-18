@@ -22,8 +22,8 @@ public class InstanceTplDataRepository {
             .add("SELECT d.dbid, d.group_number, d.blank_node, p.iri AS p_iri, p.name AS p_name, c.iri AS c_iri, c.name AS c_name, d.literal")
             .add("FROM instance i")
             .add("JOIN tpl_ins_data d ON d.subject = i.dbid")
-            .add("JOIN concept p ON p.dbid = d.predicate")
-            .add("JOIN concept c ON c.dbid = d.data_type")
+            .add("JOIN entity p ON p.dbid = d.predicate")
+            .add("JOIN entity c ON c.dbid = d.data_type")
             .add("WHERE i.iri = ?")
             .add("ORDER BY group_number, blank_node, p.iri");
 

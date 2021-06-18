@@ -1,13 +1,13 @@
 package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.entity.Concept;
+import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.dataaccess.entity.Config;
 import org.endeavourhealth.dataaccess.entity.Tct;
-import org.endeavourhealth.dataaccess.repository.ConceptRepository;
-import org.endeavourhealth.dataaccess.repository.ConceptTctRepository;
+import org.endeavourhealth.dataaccess.repository.EntityRepository;
+import org.endeavourhealth.dataaccess.repository.EntityTctRepository;
 import org.endeavourhealth.dataaccess.repository.ConfigRepository;
-import org.endeavourhealth.imapi.model.search.ConceptSummary;
+import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,49 +34,49 @@ public class ConfigServiceTest {
     ConfigRepository configRepository;
 
     @Mock
-    ConceptRepository conceptRepository;
+    EntityRepository entityRepository;
 
     @Mock
-    ConceptTctRepository conceptTctRepository;
+    EntityTctRepository entityTctRepository;
 
     @Test
     public void getQuickAccess_NullConfig() throws JsonProcessingException, SQLException {
         when(configRepository.findByName(any())).thenReturn(null);
-        List<ConceptSummary> actual = configService.getQuickAccess();
+        List<EntitySummary> actual = configService.getQuickAccess();
         assertNotNull(actual);
 
     }
 
     @Test
-    public void getQuickAccess_NotNullConfigAndNullConcept() throws JsonProcessingException, SQLException {
+    public void getQuickAccess_NotNullConfigAndNullEntity() throws JsonProcessingException, SQLException {
         Config config = new Config()
-                .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
+                .setConfig("[\":SemanticEntity\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
         when(configRepository.findByName(any())).thenReturn(config);
-        when(conceptRepository.getConceptSummaryByIri(any())).thenReturn(null);
-        List<ConceptSummary> actual = configService.getQuickAccess();
+        when(entityRepository.getEntitySummaryByIri(any())).thenReturn(null);
+        List<EntitySummary> actual = configService.getQuickAccess();
         assertNotNull(actual);
 
     }
 
     @Test
-    public void getQuickAccess_NotNullConfigAndConcept() throws JsonProcessingException, SQLException {
+    public void getQuickAccess_NotNullConfigAndEntity() throws JsonProcessingException, SQLException {
         Config config = new Config()
-                .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
+                .setConfig("[\":SemanticEntity\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
         when(configRepository.findByName(any())).thenReturn(config);
 
-        ConceptSummary conceptSummary = new ConceptSummary()
+        EntitySummary entitySummary = new EntitySummary()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate")
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
-        when(conceptRepository.getConceptSummaryByIri(any())).thenReturn(conceptSummary);
+        when(entityRepository.getEntitySummaryByIri(any())).thenReturn(entitySummary);
 
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
-        when(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(), any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(entityTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(), any())).thenReturn(Collections.singletonList(ttIriRef));
 
-        List<ConceptSummary> actual = configService.getQuickAccess();
+        List<EntitySummary> actual = configService.getQuickAccess();
         assertNotNull(actual);
 
     }
@@ -85,22 +85,22 @@ public class ConfigServiceTest {
     @Test
     public void getQuickAccess_NullScheme() throws JsonProcessingException, SQLException {
         Config config = new Config()
-                .setConfig("[\":SemanticConcept\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
+                .setConfig("[\":SemanticEntity\", \":HealthRecord\", \":VSET_DataModel\", \":VSET_QueryValueSets\"]");
         when(configRepository.findByName(any())).thenReturn(config);
 
-        ConceptSummary conceptSummary = new ConceptSummary()
+        EntitySummary entitySummary = new EntitySummary()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate")
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
-        when(conceptRepository.getConceptSummaryByIri(any())).thenReturn(conceptSummary);
+        when(entityRepository.getEntitySummaryByIri(any())).thenReturn(entitySummary);
 
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
-        when(conceptTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(), any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(entityTctRepository.findByDescendant_Iri_AndAncestor_IriIn(any(), any())).thenReturn(Collections.singletonList(ttIriRef));
 
-        List<ConceptSummary> actual = configService.getQuickAccess();
+        List<EntitySummary> actual = configService.getQuickAccess();
         assertNotNull(actual);
 
     }

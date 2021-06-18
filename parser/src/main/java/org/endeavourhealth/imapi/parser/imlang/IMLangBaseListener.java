@@ -16,13 +16,13 @@ public class IMLangBaseListener implements IMLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConcept(IMLangParser.ConceptContext ctx) { }
+	@Override public void enterEntity(IMLangParser.EntityContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConcept(IMLangParser.ConceptContext ctx) { }
+	@Override public void exitEntity(IMLangParser.EntityContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

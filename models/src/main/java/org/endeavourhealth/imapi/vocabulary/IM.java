@@ -98,6 +98,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
     public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
+    public static final TTIriRef CODE_SCHEME_WINPATH_KINGS = iri(NAMESPACE +"KingsWinPathCodeScheme");
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
@@ -117,6 +118,8 @@ public class IM {
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");
     public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"PRSB");
     public static final TTIriRef GRAPH_APEX_KINGS = TTIriRef.iri(NAMESPACE +"ApexKings");
+    public static final TTIriRef GRAPH_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"WinPathKings");
+
 
 
 

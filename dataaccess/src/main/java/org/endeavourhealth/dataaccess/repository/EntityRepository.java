@@ -27,6 +27,7 @@ public class EntityRepository extends BaseRepository {
     private ObjectMapper om = new ObjectMapper();
 
     public TTEntity getEntityByIri(String iri) throws SQLException, JsonProcessingException {
+/*
         StringJoiner sql = new StringJoiner("\n")
             .add("SELECT c.json")
             .add("FROM entity c")
@@ -45,8 +46,9 @@ public class EntityRepository extends BaseRepository {
                 }
             }
         }
+*/
 
-        return new TTEntity();
+        return new TTEntity(iri);
     }
 
     public TTIriRef getEntityReferenceByIri(String iri) throws SQLException {

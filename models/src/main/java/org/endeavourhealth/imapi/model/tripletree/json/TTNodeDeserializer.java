@@ -75,8 +75,8 @@ public class TTNodeDeserializer {
    }
 
    public TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
-      if (node.isTextual())
-         return literal(node.asText());
+      if (node.isValueNode())
+         return literal(node);
       else if (node.isObject()) {
          if (node.has("@id")) {
             if (node.has("name"))
@@ -95,6 +95,7 @@ public class TTNodeDeserializer {
       } else if (node.isArray()) {
          return  getArrayNodeAsTripleTreeArray((ArrayNode) node);
       } else {
+          System.err.println("TTNode deserializer - Unhandled node type, reverting to String");
          return literal(node.asText());
       }
    }

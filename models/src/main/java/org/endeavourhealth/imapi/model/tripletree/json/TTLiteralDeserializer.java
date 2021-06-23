@@ -36,7 +36,7 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
 
         if (!node.has("@type")) {
             if (node.isTextual())
-                return literal(node.textValue());
+                return literal(node);
             else
                 return literal(node.get("@value").textValue());
         }

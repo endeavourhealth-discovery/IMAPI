@@ -60,6 +60,11 @@ public class EntityController {
         return new SearchResponse().setEntities(entityService.advancedSearch(request));
 	}
 
+    @GetMapping(value = "/partial", produces = "application/json")
+    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") Set<String> predicates) throws SQLException, JsonProcessingException {
+        return entityService.getEntityPredicates(iri, predicates);
+    }
+
 	@GetMapping(value = "", produces = "application/json")
 	public TTEntity getEntity(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return entityService.getEntity(iri);

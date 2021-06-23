@@ -2,37 +2,28 @@ package org.endeavourhealth.dataaccess.entity;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class TplInsObject {
+public class Tpl {
     private int dbid;
-    private int group;
-    private Integer bnode;
+    private Integer parent;
     private TTIriRef predicate;
     private TTIriRef object;
+    private String literal;
 
     public int getDbid() {
         return dbid;
     }
 
-    public TplInsObject setDbid(int dbid) {
+    public Tpl setDbid(int dbid) {
         this.dbid = dbid;
         return this;
     }
 
-    public int getGroup() {
-        return group;
+    public Integer getParent() {
+        return parent;
     }
 
-    public TplInsObject setGroup(int group) {
-        this.group = group;
-        return this;
-    }
-
-    public Integer getBnode() {
-        return bnode;
-    }
-
-    public TplInsObject setBnode(Integer bnode) {
-        this.bnode = bnode;
+    public Tpl setParent(Integer parent) {
+        this.parent = parent;
         return this;
     }
 
@@ -40,7 +31,7 @@ public class TplInsObject {
         return predicate;
     }
 
-    public TplInsObject setPredicate(TTIriRef predicate) {
+    public Tpl setPredicate(TTIriRef predicate) {
         this.predicate = predicate;
         return this;
     }
@@ -49,8 +40,18 @@ public class TplInsObject {
         return object;
     }
 
-    public TplInsObject setObject(TTIriRef object) {
+    public Tpl setObject(TTIriRef object) {
         this.object = object;
         return this;
     }
+
+    public String getLiteral() {
+        return literal;
+    }
+
+    public Tpl setLiteral(String literal) {
+        this.literal = literal;
+        return this;
+    }
 }
+

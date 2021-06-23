@@ -2,6 +2,7 @@ package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -38,6 +39,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+
 @Component
 public class EntityService {
 	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
@@ -57,6 +60,47 @@ public class EntityService {
 	EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
 
 	private ObjectMapper om = new ObjectMapper();
+
+	public TTEntity getEntityPredicates(String iri, Set<String> predicates) throws SQLException {
+        TTEntity result = new TTEntity(iri);
+
+        List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates);
+
+        // Reconstruct
+        HashMap<Integer, TTNode> nodeMap = new HashMap<>();
+
+        for (Tpl triple : triples) {
+            TTValue v;
+
+            if (triple.getLiteral() != null)
+                v = literal(triple.getLiteral(), triple.getObject());
+            else if (triple.getObject() != null)
+                v = triple.getObject();
+            else {
+                v = new TTNode();
+                nodeMap.put(triple.getDbid(), (TTNode) v);
+            }
+
+
+            if (triple.getParent() == null)
+                if (result.has(triple.getPredicate()))
+                    result.addObject(triple.getPredicate(), v);
+                else
+                    result.set(triple.getPredicate(), v);
+            else {
+                TTNode n = nodeMap.get(triple.getParent());
+                if (n == null)
+                    throw new IllegalStateException("Unknown parent node!");
+
+                if (n.has(triple.getPredicate()))
+                    n.addObject(triple.getPredicate(), v);
+                else
+                    n.set(triple.getPredicate(), v);
+            }
+        }
+
+        return result;
+    }
 
 	public TTEntity getEntity(String iri) throws SQLException, JsonProcessingException {
 
@@ -283,6 +327,9 @@ public class EntityService {
 	}
 
 	private void populateMissingNames(List<TTIriRef> iriRefs) throws SQLException {
+	    if (iriRefs.isEmpty())
+	        return;
+
 		List<TTIriRef> unNamed = new ArrayList<>();
 		Set<String> iris = new HashSet<>();
 
@@ -301,12 +348,14 @@ public class EntityService {
 	}
 
 	private Map<String, String> getIriNameMap(Set<String> iris) throws SQLException {
-		Map<String, String> iriNameMap = new HashMap<>();
-		for (TTIriRef entity1 : entityRepository.findAllByIriIn(iris))
-			iriNameMap.put(entity1.getIri(), entity1.getName());
+        if (iris.isEmpty())
+            return new HashMap<>();
 
-		return iriNameMap;
-	}
+        Map<String, String> iriNameMap = new HashMap<>();
+        for (TTIriRef entity1 : entityRepository.findAllByIriIn(iris))
+            iriNameMap.put(entity1.getIri(), entity1.getName());
+        return iriNameMap;
+    }
 
 	public List<TermCode> getEntityTermCodes(String iri) throws SQLException {
 		if (iri == null || iri.isEmpty())

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralDeserializer;
@@ -35,6 +36,18 @@ public class TTLiteral extends TTValue {
 
     public static TTLiteral literal(Pattern value) {
         return new TTLiteral(value);
+    }
+
+    public static TTLiteral literal(JsonNode node) {
+        if (!node.isValueNode())
+            throw new IllegalStateException("Only value Json nodes currently handled");
+
+        if (node.isBoolean())
+            return literal(node.booleanValue());
+        else if (node.isInt())
+            return literal(node.intValue());
+        else
+            return literal(node.textValue());
     }
 
     private String value;

@@ -24,6 +24,7 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,9 @@ public class EntityService {
 
 	public TTEntity getEntityPredicates(String iri, Set<String> predicates) throws SQLException {
         TTEntity result = new TTEntity(iri);
+
+        // Temp fix for type array
+        result.set(RDF.TYPE, new TTArray());
 
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates);
 

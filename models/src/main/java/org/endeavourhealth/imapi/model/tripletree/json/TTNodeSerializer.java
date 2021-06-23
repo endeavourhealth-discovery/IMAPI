@@ -108,11 +108,11 @@ public class TTNodeSerializer {
    }
 
    public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
-      if (literal.getType()!=null){
+      if (literal.getType()==null || XSD.STRING.equals(literal.getType())) {
+          gen.writeString(literal.getValue());
+      } else {
          gen.writeStartObject();
-         if (XSD.STRING.equals(literal.getType()))
-            gen.writeStringField("@value", literal.getValue());
-         else if (XSD.BOOLEAN.equals(literal.getType()))
+         if (XSD.BOOLEAN.equals(literal.getType()))
             gen.writeBooleanField("@value", literal.booleanValue());
          else if (XSD.INTEGER.equals(literal.getType()))
             gen.writeNumberField("@value", literal.intValue());
@@ -123,9 +123,7 @@ public class TTNodeSerializer {
 
          gen.writeStringField("@type",prefix(literal.getType().getIri()));
          gen.writeEndObject();
-      } else
-         // No type, assume string
-         gen.writeString(literal.getValue());
+      }
    }
 
    public String prefix(String iri) {

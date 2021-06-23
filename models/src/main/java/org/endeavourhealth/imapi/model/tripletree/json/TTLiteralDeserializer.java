@@ -35,7 +35,7 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         if (!node.has("@type")) {
-            if (node.isTextual())
+            if (node.isValueNode())
                 return literal(node);
             else
                 return literal(node.get("@value").textValue());

@@ -108,22 +108,24 @@ public class TTNodeSerializer {
    }
 
    public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
-      if (literal.getType()==null || XSD.STRING.equals(literal.getType())) {
-          gen.writeString(literal.getValue());
-      } else {
-         gen.writeStartObject();
-         if (XSD.BOOLEAN.equals(literal.getType()))
-            gen.writeBooleanField("@value", literal.booleanValue());
+      if (literal.getType()!=null){
+         if (XSD.STRING.equals(literal.getType()))
+            gen.writeString(literal.getValue());
+         else if (XSD.BOOLEAN.equals(literal.getType()))
+            gen.writeBoolean(literal.booleanValue());
          else if (XSD.INTEGER.equals(literal.getType()))
-            gen.writeNumberField("@value", literal.intValue());
-         else if (XSD.PATTERN.equals(literal.getType()))
-            gen.writeStringField("@value", literal.getValue());
-         else
+            gen.writeNumber(literal.intValue());
+         else if (XSD.PATTERN.equals(literal.getType())) {
+             gen.writeStartObject();
+             gen.writeStringField("@value", literal.getValue());
+             gen.writeStringField("@type",prefix(literal.getType().getIri()));
+             gen.writeEndObject();
+         } else
             throw new IOException("Unhandled literal type ["+literal.getType().getIri()+"]");
 
-         gen.writeStringField("@type",prefix(literal.getType().getIri()));
-         gen.writeEndObject();
-      }
+      } else
+         // No type, assume string
+         gen.writeString(literal.getValue());
    }
 
    public String prefix(String iri) {

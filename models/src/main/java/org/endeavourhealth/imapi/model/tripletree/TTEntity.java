@@ -101,7 +101,10 @@ public class TTEntity extends TTNode {
     }
 
     public TTArray getType() {
-        return getAsArray(RDF.TYPE);
+        if (get(RDF.TYPE)==null)
+            return null;
+        else
+         return getAsArray(RDF.TYPE);
     }
 
     public TTIriRef getStatus(){

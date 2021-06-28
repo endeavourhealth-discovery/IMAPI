@@ -48,37 +48,6 @@ public class EntityTctRepository extends BaseRepository{
         return ancestors;
     }
 
-    public List<TTEntity> findByDescendant_Iri_AndType_Iri_OrderByLevel(String iri, String type) throws SQLException, JsonProcessingException {
-        List<TTEntity> ancestors = new ArrayList<>();
-        StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT a.json AS anc_json")
-                .add("FROM entity c")
-                .add("JOIN tct tct ON tct.descendant = c.dbid")
-                .add("LEFT JOIN entity a ON a.dbid = tct.ancestor")
-                .add("LEFT JOIN entity t ON t.dbid = tct.type")
-                .add("WHERE c.iri = ?")
-                .add("AND t.iri = ?")
-                .add("ORDER BY tct.level");
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                statement.setString(1, iri);
-                statement.setString(2,type);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        if (rs.getString("anc_json") == null || rs.getString("anc_json").isEmpty()) {
-                            LOG.error("Entity is missing definition {}", iri);
-                            return null;
-                        }
-                        TTEntity entity = om.readValue(rs.getString("anc_json"), TTEntity.class);
-                        ancestors.add(entity);
-                    }
-                }
-            }
-        }
-        return ancestors;
-    }
-
     public List<TTIriRef> findByDescendant_Iri_AndType_Iri_AndAncestor_IriIn(String iri, String type, List<String> candidates) throws SQLException {
         List<TTIriRef> ancestors = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")

@@ -65,14 +65,14 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates);
     }
 
-	@GetMapping(value = "", produces = "application/json")
-	public TTEntity getEntity(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		return entityService.getEntity(iri);
-	}
+//	@GetMapping(value = "", produces = "application/json")
+//	public TTEntity getEntity(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+//		return entityService.getEntity(iri);
+//	}
 
 	@GetMapping(value = "", produces = "application/imlang")
-	public String getEntityImLang(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		return entityToImLang.translateEntityToImLang(entityService.getEntity(iri));
+	public String getEntityImLang(@RequestParam(name = "iri") String iri) throws SQLException {
+		return entityToImLang.translateEntityToImLang(entityService.getEntityPredicates(iri,null));
 	}
 
 	@GetMapping(value = "/children")
@@ -98,24 +98,9 @@ public class EntityController {
 		return entityService.getImmediateParents(iri, page, size, includeLegacy, false);
 	}
 
-	@GetMapping(value = "/parents/definitions")
-	public List<TTEntity> getEntityAncestorDefinitions(@RequestParam(name = "iri") String iri) throws SQLException {
-		return entityService.getAncestorDefinitions(iri);
-	}
-
 	@GetMapping(value = "/usages")
 	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri) throws SQLException {
 		return entityService.usages(iri);
-	}
-
-	@GetMapping(value = "/mappedFrom")
-	public List<TTIriRef> getCoreMappedFromLegacy(@RequestParam(name = "iri") String legacyIri) throws SQLException {
-		return entityService.getCoreMappedFromLegacy(legacyIri);
-	}
-
-	@GetMapping(value = "/mappedTo")
-	public List<TTIriRef> getLegacyMappedToCore(@RequestParam(name = "iri") String coreIri) throws SQLException {
-		return entityService.getLegacyMappedToCore(coreIri);
 	}
 
 	@PostMapping(value = "/isWhichType")
@@ -211,11 +196,6 @@ public class EntityController {
 	@GetMapping("/dataModelProperties")
 	public List<DataModelPropertyDto> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return entityService.getDataModelProperties(iri);
-	}
-
-	@GetMapping("/complexMappings")
-	public TTArray getComplexMappings(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		return entityService.getComplexMappings(iri);
 	}
 
 	@GetMapping("/summary")

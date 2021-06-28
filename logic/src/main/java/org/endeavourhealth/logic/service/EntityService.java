@@ -22,10 +22,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -67,6 +64,7 @@ public class EntityService {
 
         // Temp fix for type array
         result.set(RDF.TYPE, new TTArray());
+        result.set(IM.IS_A, new TTArray());
 
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates);
 
@@ -106,21 +104,21 @@ public class EntityService {
         return result;
     }
 
-	public TTEntity getEntity(String iri) throws SQLException, JsonProcessingException {
-
-		if (iri == null || iri.isEmpty())
-			return null;
-
-		try {
-			TTEntity result = entityRepository.getEntityByIri(iri);
-			populateMissingNames(result);
-			return result;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-
-	}
+//	public TTEntity getEntity(String iri) throws SQLException, JsonProcessingException {
+//
+//		if (iri == null || iri.isEmpty())
+//			return null;
+//
+//		try {
+//			TTEntity result = entityRepository.getEntityByIri(iri);
+//			populateMissingNames(result);
+//			return result;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+//
+//	}
 
 	public TTIriRef getEntityReference(String iri) throws SQLException {
 		if (iri == null || iri.isEmpty())
@@ -209,27 +207,6 @@ public class EntityService {
 				.collect(Collectors.toList());
 	}
 
-	public List<TTEntity> getAncestorDefinitions(String iri) throws SQLException {
-		if (iri == null || iri.isEmpty()) {
-			return Collections.emptyList();
-		}
-		try {
-			List<TTEntity> entities = entityTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(iri,
-					IM.IS_A.getIri());
-			if (entities == null || entities.isEmpty())
-				return Collections.emptyList();
-			List<TTEntity> result = new ArrayList<>();
-			for (TTEntity entity : entities) {
-				if (!iri.equals(entity.getIri()))
-					result.add(entity);
-			}
-			return result;
-		} catch (JsonProcessingException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return Collections.emptyList();
-		}
-	}
-
 	public ExportValueSet getValueSetMembers(String iri, boolean expand) throws SQLException {
 		if (iri == null || iri.isEmpty()) {
 			return null;
@@ -298,21 +275,6 @@ public class EntityService {
 
 	}
 
-	public List<TTIriRef> getCoreMappedFromLegacy(String legacyIri) throws SQLException {
-		if (legacyIri == null || legacyIri.isEmpty())
-			return Collections.emptyList();
-		return entityTripleRepository.getCoreMappedFromLegacyBySubject_Iri_AndPredicate_Iri(legacyIri,
-				IM.HAS_MAP.getIri());
-
-	}
-
-	public List<TTIriRef> getLegacyMappedToCore(String coreIri) throws SQLException {
-		if (coreIri == null || coreIri.isEmpty())
-			return Collections.emptyList();
-		return entityTripleRepository.findAllByObject_Iri_AndPredicate_Iri(coreIri, IM.MATCHED_TO.getIri());
-
-	}
-
 	private void populateMissingNames(TTEntity entity) throws SQLException {
 		if (entity == null)
 			return;
@@ -331,9 +293,8 @@ public class EntityService {
 	}
 
 	private void populateMissingNames(List<TTIriRef> iriRefs) throws SQLException {
-	    if (iriRefs.isEmpty())
-	        return;
-
+		if(iriRefs==null || iriRefs.isEmpty())
+			return;
 		List<TTIriRef> unNamed = new ArrayList<>();
 		Set<String> iris = new HashSet<>();
 
@@ -372,7 +333,7 @@ public class EntityService {
 			throws SQLException, JsonProcessingException {
 		if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
 			return null;
-		TTEntity entity = getEntity(iri);
+		TTIriRef entity = getEntityReference(iri);
 		XlsHelper xls = new XlsHelper();
 		DownloadDto downloadDto = new DownloadDto();
 
@@ -471,7 +432,7 @@ public class EntityService {
 	}
 
 	public List<PropertyValue> getAllProperties(String iri) throws SQLException, JsonProcessingException {
-		TTEntity entity = getEntity(iri);
+		TTEntity entity = getEntityPredicates(iri, Set.of(IM.PROPERTY_GROUP.getIri()));
 		return getAllProperties(entity);
 	}
 
@@ -515,7 +476,7 @@ public class EntityService {
 	}
 
 	public List<PropertyValue> getRoles(String iri) throws SQLException, JsonProcessingException {
-		TTEntity entity = getEntity(iri);
+		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
 		List<PropertyValue> roles = new ArrayList<PropertyValue>();
 		if (entity == null)
 			return Collections.emptyList();
@@ -566,7 +527,7 @@ public class EntityService {
 	}
 
 	public GraphDto getGraphData(String iri) throws SQLException, JsonProcessingException {
-		TTEntity entity = getEntity(iri);
+		TTEntity entity = getEntityPredicates(iri, Set.of(IM.IS_A.getIri()));
 
 		if (entity == null) {
 			LOG.error("Unable to find entity {}", iri);
@@ -649,7 +610,7 @@ public class EntityService {
 
 	public List<RecordStructureDto> getRecordStructure(String iri) throws SQLException, JsonProcessingException {
 		List<RecordStructureDto> recordStructure = new ArrayList<RecordStructureDto>();
-		TTEntity entity = getEntity(iri);
+		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
 		for (PropertyValue prop : getAllProperties(iri)) {
 			recordStructure.add(new RecordStructureDto()
 					.setProperty(new EntityReference(prop.getProperty().getIri(), prop.getProperty().getName()))
@@ -695,7 +656,7 @@ public class EntityService {
 	}
 
 	public EntityDefinitionDto getEntityDefinitionDto(String iri) throws JsonProcessingException, SQLException {
-		TTEntity entity = getEntity(iri);
+		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.STATUS.getIri()));
 		List<EntityReference> types = entity.getType() == null ? new ArrayList<>()
 				: entity.getType().asArrayElements().stream()
 						.map(t -> new EntityReference(t.asIriRef().getIri(), t.asIriRef().getName()))
@@ -714,7 +675,7 @@ public class EntityService {
 
 	public List<DataModelPropertyDto> getDataModelProperties(String iri) throws JsonProcessingException, SQLException {
 		List<DataModelPropertyDto> properties = new ArrayList<DataModelPropertyDto>();
-		TTEntity entity = getEntity(iri);
+		TTEntity entity = getEntityPredicates(iri,Set.of(SHACL.PROPERTY.getIri(),IM.ROLE_GROUP.getIri()));
 		if (entity.has(SHACL.PROPERTY)) {
 			for (TTValue property : entity.asNode().get(SHACL.PROPERTY).asArrayElements()) {
 				String rangeIri = "";
@@ -757,22 +718,6 @@ public class EntityService {
 			}
 		}
 		return properties;
-	}
-
-	public TTArray getComplexMappings(String iri) throws JsonProcessingException, SQLException {
-		TTEntity ttEntity = entityRepository.getEntityByIri(iri);
-		if (!ttEntity.has(IM.HAS_MAP)) {
-			return new TTArray();
-		}
-		TTArray ttArray = ttEntity.getAsArray(IM.HAS_MAP);
-		TTVisitor visitor = new TTVisitor();
-		List<TTIriRef> iris = new ArrayList<>();
-		visitor.IriRefVisitor = ((predicate, iriRef) -> {
-			iris.add(iriRef);
-		});
-		visitor.visit(ttArray);
-		populateMissingNames(iris);
-		return ttArray;
 	}
 
 	public EntitySummary getSummary(String iri) throws SQLException {

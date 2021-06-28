@@ -26,31 +26,6 @@ public class EntityRepository extends BaseRepository {
 
     private ObjectMapper om = new ObjectMapper();
 
-    public TTEntity getEntityByIri(String iri) throws SQLException, JsonProcessingException {
-/*
-        StringJoiner sql = new StringJoiner("\n")
-            .add("SELECT c.json")
-            .add("FROM entity c")
-            .add("WHERE c.iri = ?");
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                statement.setString(1, iri);
-                try (ResultSet rs = statement.executeQuery()) {
-                    if (rs.next()) {
-                        if (rs.getString("json") == null || rs.getString("json").isEmpty())
-                            LOG.error("Entity is missing definition {}", iri);
-                        else
-                            return om.readValue(rs.getString("json"), TTEntity.class);
-                    }
-                }
-            }
-        }
-*/
-
-        return new TTEntity(iri);
-    }
-
     public TTIriRef getEntityReferenceByIri(String iri) throws SQLException {
         TTIriRef ttIriRef = new TTIriRef();
         StringJoiner sql = new StringJoiner("\n")
@@ -100,7 +75,7 @@ public class EntityRepository extends BaseRepository {
         List<TTIriRef> entities = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT c.iri, c.name")
-                .add("FROM entity c")
+                .add("FROM `entity` c")
                 .add("WHERE c.iri IN " + inList(iris.size()));
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;

@@ -8,8 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
@@ -66,6 +65,16 @@ public class TTNode extends TTValue {
 
     public TTArray getAsArray(TTIriRef predicate) {
         return predicateValues.get(predicate).asArray();
+    }
+
+    @Override
+    public TTArray asArray(){
+        return new TTArray().add(this);
+    }
+
+    @Override
+    public List<TTValue> asArrayElements(){
+        return new ArrayList<>(Collections.singletonList(this));
     }
 
     public List<TTValue> getAsArrayElements(TTIriRef predicate) {

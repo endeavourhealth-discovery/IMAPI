@@ -30,9 +30,10 @@ public class EntityTripleRepository extends BaseRepository{
             .add("	FROM tpl")
             .add("	JOIN entity e ON tpl.subject=e.dbid")
             .add("	JOIN entity p ON p.dbid = tpl.predicate")
-            .add("	WHERE e.iri = ? ")
-            .add("	AND p.iri IN " + inList(predicates.size()))
-            .add("	AND tpl.blank_node IS NULL")
+            .add("	WHERE e.iri = ? ");
+        if (predicates != null && !predicates.isEmpty())
+            sql.add("	AND p.iri IN " + inList(predicates.size())) ;
+        sql.add("	AND tpl.blank_node IS NULL")
             .add("UNION ALL")
             .add("	SELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal")
             .add("	FROM triples t")
@@ -49,9 +50,10 @@ public class EntityTripleRepository extends BaseRepository{
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 int i = 0;
                 statement.setString(++i, iri);
-                for (String predicate: predicates)
-                    statement.setString(++i, predicate);
-
+                if (predicates != null && !predicates.isEmpty()) {
+                    for (String predicate : predicates)
+                        statement.setString(++i, predicate);
+                }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         TTIriRef pred = iri(rs.getString("predicateIri"), rs.getString("predicate"));
@@ -152,56 +154,6 @@ public class EntityTripleRepository extends BaseRepository{
             }
         }
         return memberIriRefs;
-    }
-
-    public List<TTIriRef> getCoreMappedFromLegacyBySubject_Iri_AndPredicate_Iri(String iri, String predicate) throws SQLException {
-        List<TTIriRef> coreMappedFromLegacy = new ArrayList<>();
-        StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT o.iri, o.name")
-                .add("FROM tpl tpl")
-                .add("JOIN entity s ON s.dbid = tpl.subject ")
-                .add("JOIN entity p ON p.dbid = tpl.predicate ")
-                .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("WHERE s.iri = ?")
-                .add("AND p.iri = ?");
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                statement.setString(1, iri);
-                statement.setString(2, predicate);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        coreMappedFromLegacy.add(iri(rs.getString("iri"),rs.getString("name")));
-                    }
-                }
-            }
-        }
-        return coreMappedFromLegacy;
-    }
-
-    public List<TTIriRef> findAllByObject_Iri_AndPredicate_Iri(String iri, String predicate) throws SQLException {
-        List<TTIriRef> legacyMappedToCore = new ArrayList<>();
-        StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT s.iri, s.name")
-                .add("FROM tpl tpl")
-                .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("JOIN entity p ON p.dbid = tpl.predicate ")
-                .add("JOIN entity s ON s.dbid = tpl.subject ")
-                .add("WHERE o.iri = ?")
-                .add("AND p.iri = ?");
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                statement.setString(1, iri);
-                statement.setString(2, predicate);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        legacyMappedToCore.add(iri(rs.getString("iri"),rs.getString("name")));
-                    }
-                }
-            }
-        }
-        return legacyMappedToCore;
     }
 
     public List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean includeInactive) throws SQLException {

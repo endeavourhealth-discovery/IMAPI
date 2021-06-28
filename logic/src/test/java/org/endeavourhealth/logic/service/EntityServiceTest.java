@@ -2,6 +2,7 @@ package org.endeavourhealth.logic.service;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -55,48 +56,48 @@ public class EntityServiceTest {
     @Mock
     EntityTypeRepository entityTypeRepository;
 
-    @Test
-    public void getEntity_NullIri() throws SQLException, JsonProcessingException {
-        TTEntity actual = entityService.getEntity(null) ;
-        assertNull(actual);
-
-    }
-    @Test
-    public void getEntity_NotNullIri() throws SQLException, JsonProcessingException {
-        TTEntity entity = new TTEntity();
-        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(entity);
-        TTEntity actual = entityService.getEntity("http://endhealth.info/im#25451000252115") ;
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    public void getEntity_NullNameNullEntity() throws SQLException, JsonProcessingException {
-        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(null);
-        TTEntity actual = entityService.getEntity("http://endhealth.info/im#25451000252115") ;
-        assertNull(actual);
-
-    }
-
-    @Test
-    public void getEntity_NullName() throws SQLException, JsonProcessingException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate")
-                .setType(new TTArray())
-                .set(IM.IS_A, new TTIriRef().setIri("http://snomed.info/sct#62014003").setName("Adverse reaction caused by drug (disorder)"));
-
-        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
-        TTIriRef unnamedParent = new TTIriRef().setIri("http://snomed.info/sct#62014003").setName("Adverse reaction caused by drug (disorder)");
-        when(entityRepository.findAllByIriIn( anySet()))
-                .thenReturn(Collections.singletonList(unnamedParent));
-        String name = "Adverse reaction caused by drug (disorder)";
-        TTEntity actual = entityService.getEntity("http://endhealth.info/im#25451000252115") ;
-
-        assertEquals(name,actual.get(IM.IS_A).asIriRef().getName());
-
-    }
+//    @Test
+//    public void getEntity_NullIri() throws SQLException, JsonProcessingException {
+//        TTEntity actual = entityService.getEntity(null) ;
+//        assertNull(actual);
+//
+//    }
+//    @Test
+//    public void getEntity_NotNullIri() throws SQLException, JsonProcessingException {
+//        TTEntity entity = new TTEntity();
+//        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(entity);
+//        TTEntity actual = entityService.getEntity("http://endhealth.info/im#25451000252115") ;
+//
+//        assertNotNull(actual);
+//
+//    }
+//
+//    @Test
+//    public void getEntity_NullNameNullEntity() throws SQLException, JsonProcessingException {
+//        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(null);
+//        TTEntity actual = entityService.getEntity("http://endhealth.info/im#25451000252115") ;
+//        assertNull(actual);
+//
+//    }
+//
+//    @Test
+//    public void getEntity_NullName() throws SQLException, JsonProcessingException {
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .setName("Adverse reaction to Amlodipine Besilate")
+//                .setType(new TTArray())
+//                .set(IM.IS_A, new TTIriRef().setIri("http://snomed.info/sct#62014003").setName("Adverse reaction caused by drug (disorder)"));
+//
+//        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
+//        TTIriRef unnamedParent = new TTIriRef().setIri("http://snomed.info/sct#62014003").setName("Adverse reaction caused by drug (disorder)");
+//        when(entityRepository.findAllByIriIn( anySet()))
+//                .thenReturn(Collections.singletonList(unnamedParent));
+//        String name = "Adverse reaction caused by drug (disorder)";
+//        TTEntity actual = entityService.getEntity("http://endhealth.info/im#25451000252115") ;
+//
+//        assertEquals(name,actual.get(IM.IS_A).asIriRef().getName());
+//
+//    }
 
     @Test
     public void getEntityReference_NullIri() throws SQLException {
@@ -376,48 +377,6 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getAncestorDefinitions_NullIri() throws SQLException {
-        List<TTEntity> actual = entityService.getAncestorDefinitions(null);
-
-        assertNotNull(actual);
-
-    }
-
-       @Test
-    public void getAncestorDefinitions_NullEntity() throws SQLException, JsonProcessingException {
-        when(entityTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(any(),any())).thenReturn(null);
-        List<TTEntity> actual = entityService.getAncestorDefinitions("http://endhealth.info/im#25451000252115");
-        assertNotNull(actual);
-
-    }
-
-
-    @Test
-    public void getAncestorDefinitions_NotEqualIri() throws SQLException, JsonProcessingException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115");
-
-        when(entityTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(any(),any())).thenReturn(Collections.singletonList(ttEntity));
-        List<TTEntity> actual = entityService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    public void getAncestorDefinitions_EqualIri() throws SQLException, JsonProcessingException {
-        TTEntity ttEntity = new TTEntity()
-                                .setIri("http://endhealth.info/im#25451000552115");
-
-        when(entityTctRepository.findByDescendant_Iri_AndType_Iri_OrderByLevel(any(),any())).thenReturn(Collections.singletonList(ttEntity));
-
-        List<TTEntity> actual = entityService.getAncestorDefinitions("http://endhealth.info/im#25451000552115");
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
     public void getValueSetMembers_NullIri() throws SQLException {
         ExportValueSet actual = entityService.getValueSetMembers(null, true);
 
@@ -538,47 +497,6 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getCoreMappedFromLegacy_NullIri() throws SQLException {
-        List<TTIriRef> actual = entityService.getCoreMappedFromLegacy(null);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void getCoreMappedFromLegacy_NotNullIri() throws SQLException {
-        TTIriRef ttIriRef = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-
-        when(entityTripleRepository.getCoreMappedFromLegacyBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(Collections.singletonList(ttIriRef));
-
-        List<TTIriRef> actual = entityService.getCoreMappedFromLegacy("http://endhealth.info/im#25451000252115");
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void getLegacyMappedToCore_NullIri() throws SQLException {
-        List<TTIriRef> actual = entityService.getLegacyMappedToCore(null);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void getLegacyMappedToCore_NotNullIri() throws SQLException {
-        TTIriRef ttIriRef = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-
-
-        when(entityTripleRepository.findAllByObject_Iri_AndPredicate_Iri(any(),any())).thenReturn(Collections.singletonList(ttIriRef));
-
-        List<TTIriRef> actual = entityService.getLegacyMappedToCore("http://endhealth.info/im#25451000252115");
-
-        assertNotNull(actual);
-    }
-
-    @Test
     public void getEntityTermCodes_NullIri() throws SQLException {
         List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes(null);
         assertNotNull(actual);
@@ -645,10 +563,10 @@ public class EntityServiceTest {
         when(entityTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
                 0,null,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
-        TTEntity ttEntity = new TTEntity()
+        TTIriRef ttEntity = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
-        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
+        when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
                 .setCode("25451000252115")
@@ -682,10 +600,10 @@ public class EntityServiceTest {
         when(entityTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
                 0,null,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
-        TTEntity ttEntity = new TTEntity()
+        TTIriRef ttEntity = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
-        when(entityRepository.getEntityByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
+        when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
                 .setCode("25451000252115")
@@ -715,39 +633,54 @@ public class EntityServiceTest {
 
     @Test
     public void getAllProperties_NotNullIri() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .set(IM.PROPERTY_GROUP, new TTArray()
-                        .add(new TTNode()
-                                .set(IM.INHERITED_FROM, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                                .set(SHACL.PROPERTY, new TTArray()
-                                        .add(new TTNode()
-                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#administrativeGender","Gender"))
-                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
-                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
-                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
-                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
-                                        ))));
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+
+//        TTEntity ttEntity= new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .set(IM.PROPERTY_GROUP, new TTArray()
+//                        .add(new TTNode()
+//                                .set(IM.INHERITED_FROM, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
+//                                .set(SHACL.PROPERTY, new TTArray()
+//                                        .add(new TTNode()
+//                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#administrativeGender","Gender"))
+//                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+//                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+//                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+//                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+//                                        ))));
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef()
+                        .setIriType(IM.PROPERTY_GROUP.getIri()))
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         List<PropertyValue> actual = entityService.getAllProperties("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void getAllProperties_NullInheritedFrom() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .set(IM.PROPERTY_GROUP, new TTArray()
-                        .add(new TTNode()
-                                .set(SHACL.PROPERTY, new TTArray()
-                                        .add(new TTNode()
-                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#administrativeGender","Gender"))
-                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
-                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
-                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
-                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
-                                        ))));
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .set(IM.PROPERTY_GROUP, new TTArray()
+//                        .add(new TTNode()
+//                                .set(SHACL.PROPERTY, new TTArray()
+//                                        .add(new TTNode()
+//                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#administrativeGender","Gender"))
+//                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+//                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+//                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+//                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+//                                        ))));
+//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef())
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         List<PropertyValue> actual = entityService.getAllProperties("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -760,12 +693,19 @@ public class EntityServiceTest {
 
     @Test
     public void getRoles_NotNullIri() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .set(IM.ROLE_GROUP, new TTArray()
-                        .add(new TTNode()
-                                .setPredicateMap(new HashMap<>())));
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .set(IM.ROLE_GROUP, new TTArray()
+//                        .add(new TTNode()
+//                                .setPredicateMap(new HashMap<>())));
+//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef())
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         List<PropertyValue> actual = entityService.getRoles("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -830,51 +770,72 @@ public class EntityServiceTest {
     @Test
     public void getGraphData_NullIri() throws SQLException, JsonProcessingException {
         GraphDto actual = entityService.getGraphData(null);
-        assertNull(actual);
+        assertNotNull(actual);
     }
 
     @Test
     public void getGraphData_NotNullIri() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .set(IM.IS_A, new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115")))
-                .set(IM.IS_CONTAINED_IN, new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115")))
-                .set(IM.ROLE_GROUP, new TTArray().add(new TTNode()
-                        .set(RDFS.LABEL, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                        .set(RDFS.COMMENT, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                ))
-                .set(IM.PROPERTY_GROUP, new TTArray()
-                        .add(new TTNode()
-                                .set(IM.INHERITED_FROM,new TTIriRef("http://endhealth.info/im#25451000252115"))
-                                .set(SHACL.PROPERTY, new TTArray()
-                                        .add(new TTNode()
-                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#25451000252115"))
-                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
-                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
-                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
-                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
-                                        ))));
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .set(IM.IS_A, new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115")))
+//                .set(IM.IS_CONTAINED_IN, new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115")))
+//                .set(IM.ROLE_GROUP, new TTArray().add(new TTNode()
+//                        .set(RDFS.LABEL, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
+//                        .set(RDFS.COMMENT, new TTIriRef("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
+//                ))
+//                .set(IM.PROPERTY_GROUP, new TTArray()
+//                        .add(new TTNode()
+//                                .set(IM.INHERITED_FROM,new TTIriRef("http://endhealth.info/im#25451000252115"))
+//                                .set(SHACL.PROPERTY, new TTArray()
+//                                        .add(new TTNode()
+//                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#25451000252115"))
+//                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+//                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+//                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+//                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+//                                        ))));
+//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef())
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void getGraphData_NullParent() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115");
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115");
+//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef())
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
     public void getGraphData_NotNullParent() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .set(IM.IS_A, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
-                .set(IM.IS_CONTAINED_IN, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"));
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .set(IM.IS_A, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
+//                .set(IM.IS_CONTAINED_IN, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"));
+//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef())
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -882,24 +843,30 @@ public class EntityServiceTest {
 
     @Test
     public void getGraphData_NullInheritedFrom() throws JsonProcessingException, SQLException {
-        TTEntity ttEntity = new TTEntity()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate")
-                .setType(new TTArray())
-                .set(IM.IS_A, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
-                .set(IM.IS_CONTAINED_IN, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
-                .set(IM.PROPERTY_GROUP, new TTArray()
-                        .add(new TTNode()
-                                .set(SHACL.PROPERTY, new TTArray()
-                                        .add(new TTNode()
-                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#25451000252115"))
-                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
-                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
-                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
-                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
-                                        ))));
-        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
-
+//        TTEntity ttEntity = new TTEntity()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .setName("Adverse reaction to Amlodipine Besilate")
+//                .setType(new TTArray())
+//                .set(IM.IS_A, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
+//                .set(IM.IS_CONTAINED_IN, new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))
+//                .set(IM.PROPERTY_GROUP, new TTArray()
+//                        .add(new TTNode()
+//                                .set(SHACL.PROPERTY, new TTArray()
+//                                        .add(new TTNode()
+//                                                .set(SHACL.PATH, new TTIriRef("http://endhealth.info/im#25451000252115"))
+//                                                .set(SHACL.MINCOUNT, new TTLiteral(1))
+//                                                .set(SHACL.MAXCOUNT, new TTLiteral(10))
+//                                                .set(SHACL.CLASS, new TTIriRef("http://endhealth.info/im#Class","Class"))
+//                                                .set(SHACL.DATATYPE, new TTIriRef("http://endhealth.info/im#DataType","DataType"))
+//                                        ))));
+//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
+        Tpl tpl = new Tpl()
+                .setDbid(123)
+                .setLiteral("10")
+                .setObject(new TTIriRef())
+                .setParent(null)
+                .setPredicate(new TTIriRef());
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }

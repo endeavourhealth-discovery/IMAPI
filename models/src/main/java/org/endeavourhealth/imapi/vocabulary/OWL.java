@@ -30,8 +30,8 @@ public class OWL {
     public static final TTIriRef REFLEXIVE = iri(NAMESPACE + "ReflexiveProperty");
     public static final TTIriRef ONDATATYPE = iri(NAMESPACE + "onDatatype");
     public static final TTIriRef WITHRESTRICTIONS = iri(NAMESPACE + "withRestrictions");
-    public static final TTIriRef MAXCARDINALITY = iri(NAMESPACE + "maxQualifiedCardinality");
-    public static final TTIriRef MINCARDINALITY = iri(NAMESPACE + "minQualifiedCardinality");
+    public static final TTIriRef MAXCARDINALITY = iri(NAMESPACE + "maxCardinality");
+    public static final TTIriRef MINCARDINALITY = iri(NAMESPACE + "minCardinality");
     public static final TTIriRef ONDATARANGE = iri(NAMESPACE + "onDataRange");
     public static final TTIriRef HASVALUE = iri(NAMESPACE + "hasValue");
     public static final TTIriRef COMPLEMENTOF = iri(NAMESPACE + "complementOf");

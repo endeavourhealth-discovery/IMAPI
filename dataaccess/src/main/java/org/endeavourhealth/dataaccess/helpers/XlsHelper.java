@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
@@ -81,8 +82,8 @@ public class XlsHelper {
 		}
 	}
 
-	public void addProperties(List<PropertyValue> propertyList) {
-		Sheet sheet = workbook.createSheet("Properties");
+	public void addSemanticProperties(List<RecordStructureDto> propertyList) {
+		Sheet sheet = workbook.createSheet("Semantic properties");
 		sheet.setColumnWidth(0, 10000);
 		sheet.setColumnWidth(1, 10000);
 		sheet.setColumnWidth(2, 10000);
@@ -92,41 +93,29 @@ public class XlsHelper {
 
 		Row header = sheet.createRow(0);
 		Cell headerCell = header.createCell(0);
-		headerCell.setCellValue("Property Name");
+		headerCell.setCellValue("Name");
 		headerCell.setCellStyle(headerStyle);
 		headerCell = header.createCell(1);
-		headerCell.setCellValue("Property Iri");
+		headerCell.setCellValue("Iri");
 		headerCell.setCellStyle(headerStyle);
 		headerCell = header.createCell(2);
-		headerCell.setCellValue("ValueType Name");
+		headerCell.setCellValue("Type Name");
 		headerCell.setCellStyle(headerStyle);
 		headerCell = header.createCell(3);
-		headerCell.setCellValue("ValueType Iri");
-		headerCell.setCellStyle(headerStyle);
-		headerCell = header.createCell(4);
-		headerCell.setCellValue("InheritedFrom Name");
-		headerCell.setCellStyle(headerStyle);
-		headerCell = header.createCell(5);
-		headerCell.setCellValue("InheritedFrom Iri");
+		headerCell.setCellValue("Type Iri");
 		headerCell.setCellStyle(headerStyle);
 
-		for (PropertyValue property : propertyList) {
+
+		for (RecordStructureDto property : propertyList) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
 			cell.setCellValue(property.getProperty().getName());
 			cell = row.createCell(1);
 			cell.setCellValue(property.getProperty().getIri());
 			cell = row.createCell(2);
-			cell.setCellValue(property.getValueType().getName());
+			cell.setCellValue(property.getType().getName());
 			cell = row.createCell(3);
-			cell.setCellValue(property.getValueType().getIri());
-
-			if (null != property.getInheritedFrom()) {
-				cell = row.createCell(4);
-				cell.setCellValue(property.getInheritedFrom().getName());
-				cell = row.createCell(5);
-				cell.setCellValue(property.getInheritedFrom().getIri());
-			}
+			cell.setCellValue(property.getType().getIri());
 		}
 	}
 
@@ -201,8 +190,8 @@ public class XlsHelper {
 
 	}
 
-	public void addRoles(List<PropertyValue> roleList) {
-		Sheet sheet = workbook.createSheet("Roles");
+	public void addDataModelProperties(List<PropertyValue> properties) {
+		Sheet sheet = workbook.createSheet("Data model properties");
 		sheet.setColumnWidth(0, 10000);
 		sheet.setColumnWidth(1, 10000);
 		sheet.setColumnWidth(2, 10000);
@@ -212,19 +201,25 @@ public class XlsHelper {
 
 		Row header = sheet.createRow(0);
 		Cell headerCell = header.createCell(0);
-		headerCell.setCellValue("Role Name");
+		headerCell.setCellValue("Name");
 		headerCell.setCellStyle(headerStyle);
 		headerCell = header.createCell(1);
-		headerCell.setCellValue("Role Iri");
+		headerCell.setCellValue("Iri");
 		headerCell.setCellStyle(headerStyle);
 		headerCell = header.createCell(2);
-		headerCell.setCellValue("ValueType Name");
+		headerCell.setCellValue("Type Name");
 		headerCell.setCellStyle(headerStyle);
 		headerCell = header.createCell(3);
-		headerCell.setCellValue("ValueType Iri");
+		headerCell.setCellValue("Type Iri");
+		headerCell.setCellStyle(headerStyle);
+		headerCell = header.createCell(4);
+		headerCell.setCellValue("InheritedFrom Name");
+		headerCell.setCellStyle(headerStyle);
+		headerCell = header.createCell(5);
+		headerCell.setCellValue("InheritedFrom Iri");
 		headerCell.setCellStyle(headerStyle);
 
-		for (PropertyValue property : roleList) {
+		for (PropertyValue property : properties) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
 			cell.setCellValue(property.getProperty().getName());
@@ -235,6 +230,13 @@ public class XlsHelper {
 				cell.setCellValue(property.getValueType().getName());
 				cell = row.createCell(3);
 				cell.setCellValue(property.getValueType().getIri());
+			}
+
+			if (null != property.getInheritedFrom()) {
+				cell = row.createCell(4);
+				cell.setCellValue(property.getInheritedFrom().getName());
+				cell = row.createCell(5);
+				cell.setCellValue(property.getInheritedFrom().getIri());
 			}
 		}
 	}

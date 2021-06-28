@@ -11,9 +11,9 @@ public class DownloadDto implements Serializable {
 
 	private List<EntityReferenceNode> children;
 	private List<EntityReferenceNode> parents;
-	private List<PropertyValue> properties;
+	private List<RecordStructureDto> semanticProperties;
 	private ExportValueSet members;
-	private List<PropertyValue> roles;
+	private List<PropertyValue> dataModelProperties;
 
 	public List<EntityReferenceNode> getChildren() {
 		return children;
@@ -31,12 +31,12 @@ public class DownloadDto implements Serializable {
 		this.parents = parents;
 	}
 
-	public List<PropertyValue> getProperties() {
-		return properties;
+	public List<RecordStructureDto> getSemanticProperties() {
+		return semanticProperties;
 	}
 
-	public void setProperties(List<PropertyValue> properties) {
-		this.properties = properties;
+	public void setSemanticProperties(List<RecordStructureDto> semanticProperties) {
+		this.semanticProperties = semanticProperties;
 	}
 
 	public ExportValueSet getMembers() {
@@ -47,12 +47,12 @@ public class DownloadDto implements Serializable {
 		this.members = members;
 	}
 
-	public List<PropertyValue> getRoles() {
-		return roles;
+	public List<PropertyValue> getDataModelProperties() {
+		return dataModelProperties;
 	}
 
-	public void setRoles(List<PropertyValue> roles) {
-		this.roles = roles;
+	public void setDataModelProperties(List<PropertyValue> dataModelProperties) {
+		this.dataModelProperties = dataModelProperties;
 	}
 
 }

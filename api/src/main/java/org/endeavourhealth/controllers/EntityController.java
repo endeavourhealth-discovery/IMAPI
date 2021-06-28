@@ -143,34 +143,9 @@ public class EntityController {
 		return new TTEntity();
 	}
 
-	@GetMapping(value = "/roles")
-	public List<PropertyValue> getRoles(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		return entityService.getRoles(iri);
-	}
-
-	@GetMapping(value = "/properties")
-	public List<PropertyValue> getAllProperties(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		return entityService.getAllProperties(iri);
-	}
-
 	@GetMapping(value = "/graph")
 	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return entityService.getGraphData(iri);
-	}
-
-	public List<String> getFlatParentHierarchy(String iri, List<String> flatParentIris) throws SQLException {
-		List<EntityReferenceNode> parents = entityService.getImmediateParents(iri, null, null, false, false);
-
-		if (parents == null) {
-			return flatParentIris;
-		}
-
-		for (EntityReferenceNode parent : parents) {
-			flatParentIris.add(parent.getIri());
-			getFlatParentHierarchy(parent.getIri(), flatParentIris);
-		}
-
-		return flatParentIris;
 	}
 
 	@GetMapping("/termCode")
@@ -178,9 +153,14 @@ public class EntityController {
 		return entityService.getEntityTermCodes(iri);
 	}
 	
-	@GetMapping("/recordStructure")
-	public List<RecordStructureDto> getRecordStructure(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		return entityService.getRecordStructure(iri);
+	@GetMapping("/semanticProperties")
+	public List<RecordStructureDto> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+		return entityService.getSemanticProperties(iri);
+	}
+
+	@GetMapping("/dataModelProperties")
+	public List<PropertyValue> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
+		return entityService.getDataModelProperties(iri);
 	}
 	
 	@GetMapping("/definitionSubTypes")
@@ -191,11 +171,6 @@ public class EntityController {
 	@GetMapping("/definition")
 	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return entityService.getEntityDefinitionDto(iri);
-	}
-	
-	@GetMapping("/dataModelProperties")
-	public List<DataModelPropertyDto> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
-		return entityService.getDataModelProperties(iri);
 	}
 
 	@GetMapping("/summary")

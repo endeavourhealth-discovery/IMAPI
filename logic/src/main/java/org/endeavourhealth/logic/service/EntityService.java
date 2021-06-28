@@ -528,7 +528,7 @@ public class EntityService {
 	}
 
 	public GraphDto getGraphData(String iri) throws SQLException, JsonProcessingException {
-		TTEntity entity = getEntityPredicates(iri, Set.of(IM.IS_A.getIri()));
+		TTEntity entity = getEntityPredicates(iri, Set.of(IM.IS_A.getIri(), RDFS.LABEL.getIri()));
 
 		if (entity == null) {
 			LOG.error("Unable to find entity {}", iri);

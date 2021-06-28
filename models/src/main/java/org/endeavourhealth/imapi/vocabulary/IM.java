@@ -40,8 +40,8 @@ public class IM {
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE +"oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
-    public static final TTIriRef ANY_OF = iri(NAMESPACE +"anyOf");
     public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePreficates");
+    public static final TTIriRef SOME_OF= iri(NAMESPACE+"someOf");
 
     //Document collection predicates
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
@@ -120,6 +120,7 @@ public class IM {
     public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"PRSB");
     public static final TTIriRef GRAPH_APEX_KINGS = TTIriRef.iri(NAMESPACE +"ApexKings");
     public static final TTIriRef GRAPH_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"WinPathKings");
+    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(NAMESPACE +"Vision");
 
 
 

@@ -65,6 +65,7 @@ public class EntityService {
         // Temp fix for type array
         result.set(RDF.TYPE, new TTArray());
         result.set(IM.IS_A, new TTArray());
+        result.set(IM.HAS_MAP, new TTArray());
 
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates);
 

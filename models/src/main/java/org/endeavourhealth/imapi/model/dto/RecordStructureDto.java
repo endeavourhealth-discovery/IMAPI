@@ -1,40 +1,42 @@
 package org.endeavourhealth.imapi.model.dto;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class RecordStructureDto {
 
-	private EntityReference property;
-	private EntityReference type;
-	private EntityReference inherited;
+	private TTIriRef property;
+	private TTIriRef type;
+	private TTIriRef inherited;
 	private Cardinality cardinality;
 
 	public RecordStructureDto() {
 
 	}
 
-	public EntityReference getProperty() {
+	public TTIriRef getProperty() {
 		return property;
 	}
 
-	public RecordStructureDto setProperty(EntityReference property) {
+	public RecordStructureDto setProperty(TTIriRef property) {
 		this.property = property;
 		return this;
 	}
 
-	public EntityReference getType() {
+	public TTIriRef getType() {
 		return type;
 	}
 
-	public RecordStructureDto setType(EntityReference type) {
+	public RecordStructureDto setType(TTIriRef type) {
 		this.type = type;
 		return this;
 	}
 
-	public EntityReference getInherited() {
-		if(null == inherited) return new EntityReference();
+	public TTIriRef getInherited() {
+		if(null == inherited) return new TTIriRef();
 		return inherited;
 	}
 
-	public RecordStructureDto setInherited(EntityReference inherited) {
+	public RecordStructureDto setInherited(TTIriRef inherited) {
 		this.inherited = inherited;
 		return this;
 	}
@@ -95,38 +97,4 @@ public class RecordStructureDto {
 		}
 
 	}
-
-	public static class EntityReference {
-		private String iri;
-		private String name;
-		
-
-		public EntityReference(String iri, String name) {
-			super();
-			this.iri = iri;
-			this.name = name;
-		}
-
-		public EntityReference() {
-			// TODO Auto-generated constructor stub
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getIri() {
-			return iri;
-		}
-
-		public void setIri(String iri) {
-			this.iri = iri;
-		}
-
-	}
-
 }

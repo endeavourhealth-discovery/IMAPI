@@ -148,6 +148,7 @@ public class PropertyValue {
 	}
 
 	public TTIriRef getInheritedFrom() {
+		if(null == inheritedFrom) return new TTIriRef();
 		return inheritedFrom;
 	}
 

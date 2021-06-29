@@ -18,7 +18,6 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DataModelPropertyDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto.EntityReference;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -161,11 +160,6 @@ public class EntityController {
 	@GetMapping("/dataModelProperties")
 	public List<PropertyValue> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return entityService.getDataModelProperties(iri);
-	}
-	
-	@GetMapping("/definitionSubTypes")
-	public List<EntityReference> getDefinitionSubTypes(@RequestParam(name = "iri") String iri) throws SQLException {
-		return entityService.getDefinitionSubTypes(iri);
 	}
 	
 	@GetMapping("/definition")

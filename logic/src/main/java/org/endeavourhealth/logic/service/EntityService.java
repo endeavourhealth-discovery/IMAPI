@@ -13,7 +13,6 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto.EntityReference;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -615,19 +614,19 @@ public class EntityService {
 				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
 					recordStructure.add(new RecordStructureDto()
 							.setProperty(
-									new EntityReference(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+									new TTIriRef(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
 							.setType(
-									new EntityReference(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+									new TTIriRef(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 				} else {
 					if (roleGroup.asNode().has(IM.ROLE)) {
 						roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
 							recordStructure.add(new RecordStructureDto()
 									.setProperty(
-											new EntityReference(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+											new TTIriRef(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 													role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-									.setType(new EntityReference(
+									.setType(new TTIriRef(
 											role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
 											role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 						});
@@ -639,22 +638,22 @@ public class EntityService {
 		return recordStructure;
 	}
 
-	public List<EntityReference> getDefinitionSubTypes(String iri) throws SQLException {
+	public List<TTIriRef> getDefinitionSubTypes(String iri) throws SQLException {
 
 		return entityTripleRepository.findImmediateChildrenByIri(iri, null, null, false).stream()
-				.map(t -> new EntityReference(t.getIri(), t.getName())).collect(Collectors.toList());
+				.map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
 	}
 
 	public EntityDefinitionDto getEntityDefinitionDto(String iri) throws JsonProcessingException, SQLException {
 		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.STATUS.getIri()));
-		List<EntityReference> types = entity.getType() == null ? new ArrayList<>()
+		List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
 				: entity.getType().asArrayElements().stream()
-						.map(t -> new EntityReference(t.asIriRef().getIri(), t.asIriRef().getName()))
+						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
 						.collect(Collectors.toList());
 
-		List<EntityReference> isa = !entity.has(IM.IS_A) ? new ArrayList<>()
+		List<TTIriRef> isa = !entity.has(IM.IS_A) ? new ArrayList<>()
 				: entity.get(IM.IS_A).asArrayElements().stream()
-						.map(t -> new EntityReference(t.asIriRef().getIri(), t.asIriRef().getName()))
+						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
 						.collect(Collectors.toList());
 
 		return new EntityDefinitionDto().setIri(entity.getIri()).setName(entity.getName())

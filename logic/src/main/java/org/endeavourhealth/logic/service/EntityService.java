@@ -618,7 +618,7 @@ public class EntityService {
 
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
-		if (!semanticDirectWrapper.getLeafNodes().isEmpty() && !semanticInheritedWrapper.getLeafNodes().isEmpty() && !dataModelDirectWrapper.getLeafNodes().isEmpty() && !dataModelInheritedWrapper.getLeafNodes().isEmpty()) {
+		if (!(semanticDirectWrapper.getLeafNodes().isEmpty() && semanticInheritedWrapper.getLeafNodes().isEmpty() && dataModelDirectWrapper.getLeafNodes().isEmpty() && dataModelInheritedWrapper.getLeafNodes().isEmpty())) {
 			graphData.getChildren().add(graphProps);
 		}
 

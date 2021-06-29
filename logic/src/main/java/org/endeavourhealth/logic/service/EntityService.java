@@ -473,27 +473,6 @@ public class EntityService {
 		return pv;
 	}
 
-	public List<PropertyValue> getRoles(String iri) throws SQLException, JsonProcessingException {
-		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
-		List<PropertyValue> roles = new ArrayList<PropertyValue>();
-		if (entity == null)
-			return Collections.emptyList();
-		if (entity.has(IM.ROLE_GROUP)) {
-			for (TTValue roleGroup : entity.getAsArray(IM.ROLE_GROUP).getElements()) {
-				if (roleGroup.isNode()) {
-					HashMap<TTIriRef, TTValue> role = roleGroup.asNode().getPredicateMap();
-					role.forEach((key, value) -> {
-						if (!IM.COUNTER.equals(key)) {
-							PropertyValue pv = new PropertyValue().setProperty(key).setValueType(value.asIriRef());
-							roles.add(pv);
-						}
-					});
-				}
-			}
-		}
-		return roles;
-	}
-
 	public String valueSetMembersCSV(String iri, boolean expanded) throws SQLException {
 		ExportValueSet exportValueSet = getValueSetMembers(iri, expanded);
 		StringBuilder valueSetMembers = new StringBuilder();

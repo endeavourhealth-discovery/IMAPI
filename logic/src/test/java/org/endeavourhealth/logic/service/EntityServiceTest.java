@@ -626,31 +626,6 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getRoles_NullIri() throws SQLException, JsonProcessingException {
-        List<PropertyValue> actual = entityService.getRoles(null);
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void getRoles_NotNullIri() throws JsonProcessingException, SQLException {
-//        TTEntity ttEntity = new TTEntity()
-//                .setIri("http://endhealth.info/im#25451000252115")
-//                .set(IM.ROLE_GROUP, new TTArray()
-//                        .add(new TTNode()
-//                                .setPredicateMap(new HashMap<>())));
-//        when(entityRepository.getEntityByIri(any())).thenReturn(ttEntity);
-        Tpl tpl = new Tpl()
-                .setDbid(123)
-                .setLiteral("10")
-                .setObject(new TTIriRef())
-                .setParent(null)
-                .setPredicate(new TTIriRef());
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(Collections.singletonList(tpl));
-        List<PropertyValue> actual = entityService.getRoles("http://endhealth.info/im#25451000252115");
-        assertNotNull(actual);
-    }
-
-    @Test
     public void valueSetMembersCSV_NullIri() throws SQLException {
         String actual = entityService.valueSetMembersCSV(null, true);
         assertNotNull(actual);

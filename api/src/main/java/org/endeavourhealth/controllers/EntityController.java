@@ -8,16 +8,14 @@ import io.swagger.annotations.ApiOperation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.converters.EntityToImLang;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
-import org.endeavourhealth.imapi.model.dto.DataModelPropertyDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
+import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -63,11 +61,6 @@ public class EntityController {
     public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") Set<String> predicates) throws SQLException, JsonProcessingException {
         return entityService.getEntityPredicates(iri, predicates);
     }
-
-//	@GetMapping(value = "", produces = "application/json")
-//	public TTEntity getEntity(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-//		return entityService.getEntity(iri);
-//	}
 
 	@GetMapping(value = "", produces = "application/imlang")
 	public String getEntityImLang(@RequestParam(name = "iri") String iri) throws SQLException {
@@ -129,9 +122,9 @@ public class EntityController {
 	@GetMapping(value = "/referenceSuggestions")
 	public List<TTIriRef> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
 //    	TODO generate and return suggestions
-		return new ArrayList<TTIriRef>(Arrays.asList(new TTIriRef(":961000252104", "method (attribute)"),
-				new TTIriRef(":1271000252102", "Hospital inpatient admission"),
-				new TTIriRef(":1911000252103", "Transfer event")));
+		return new ArrayList<>(Arrays.asList(new TTIriRef(":961000252104", "method (attribute)"),
+            new TTIriRef(":1271000252102", "Hospital inpatient admission"),
+            new TTIriRef(":1911000252103", "Transfer event")));
 	}
 
 	@PostMapping
@@ -153,12 +146,12 @@ public class EntityController {
 	}
 	
 	@GetMapping("/semanticProperties")
-	public List<RecordStructureDto> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+	public List<SemanticProperty> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		return entityService.getSemanticProperties(iri);
 	}
 
 	@GetMapping("/dataModelProperties")
-	public List<PropertyValue> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
+	public List<DataModelProperty> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
 		return entityService.getDataModelProperties(iri);
 	}
 	

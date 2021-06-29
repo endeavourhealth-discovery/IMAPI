@@ -21,15 +21,6 @@ public class ExportValueSet {
         return this;
     }
 
-//    public EntityReference getRelationship() {
-//        return relationship;
-//    }
-//
-//    public ExportValueSet setRelationship(EntityReference relationship) {
-//        this.relationship = relationship;
-//        return this;
-//    }
-
     public List<ValueSetMember> getIncluded() {
         return included;
     }

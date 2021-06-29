@@ -5,7 +5,7 @@ import java.util.List;
 
 public class GraphDto {
 
-	public static enum GraphType {
+	public enum GraphType {
 		NONE,
 		WRAPPER,
 		PROPERTIES,
@@ -28,8 +28,8 @@ public class GraphDto {
 	List<GraphDto> leafNodes;
 
 	public GraphDto() {
-		this.children = new ArrayList<GraphDto>();
-		this.leafNodes = new ArrayList<GraphDto>();
+		this.children = new ArrayList<>();
+		this.leafNodes = new ArrayList<>();
 	}
 
 	public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName, String inheritedFromIri,

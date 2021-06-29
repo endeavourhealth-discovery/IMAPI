@@ -1,17 +1,16 @@
 package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
+import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -53,8 +52,6 @@ public class EntityService {
 	EntitySearchRepository entitySearchRepository = new EntitySearchRepository();
 
 	EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
-
-	private ObjectMapper om = new ObjectMapper();
 
 	public TTEntity getEntityPredicates(String iri, Set<String> predicates) throws SQLException {
         TTEntity result = new TTEntity(iri);
@@ -101,22 +98,6 @@ public class EntityService {
 
         return result;
     }
-
-//	public TTEntity getEntity(String iri) throws SQLException, JsonProcessingException {
-//
-//		if (iri == null || iri.isEmpty())
-//			return null;
-//
-//		try {
-//			TTEntity result = entityRepository.getEntityByIri(iri);
-//			populateMissingNames(result);
-//			return result;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//
-//	}
 
 	public TTIriRef getEntityReference(String iri) throws SQLException {
 		if (iri == null || iri.isEmpty())
@@ -392,7 +373,7 @@ public class EntityService {
 
 	private void addSemanticPropertiesToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto)
 			throws SQLException, JsonProcessingException {
-		List<RecordStructureDto> semanticProperties = getSemanticProperties(iri);
+		List<SemanticProperty> semanticProperties = getSemanticProperties(iri);
 		switch (format) {
 		case "excel":
 			xls.addSemanticProperties(semanticProperties);
@@ -418,7 +399,7 @@ public class EntityService {
 
 	private void addDataModelPropertiesToDownload(String iri, String format, XlsHelper xls, DownloadDto downloadDto)
 			throws SQLException, JsonProcessingException {
-		List<PropertyValue> dataModelProperties = getDataModelProperties(iri);
+		List<DataModelProperty> dataModelProperties = getDataModelProperties(iri);
 		switch (format) {
 		case "excel":
 			xls.addDataModelProperties(dataModelProperties);
@@ -429,13 +410,13 @@ public class EntityService {
 		}
 	}
 
-	public List<PropertyValue> getDataModelProperties(String iri) throws SQLException, JsonProcessingException {
+	public List<DataModelProperty> getDataModelProperties(String iri) throws SQLException, JsonProcessingException {
 		TTEntity entity = getEntityPredicates(iri, Set.of(IM.PROPERTY_GROUP.getIri()));
 		return getDataModelProperties(entity);
 	}
 
-	public List<PropertyValue> getDataModelProperties(TTEntity entity) {
-		List<PropertyValue> properties = new ArrayList<PropertyValue>();
+	public List<DataModelProperty> getDataModelProperties(TTEntity entity) {
+		List<DataModelProperty> properties = new ArrayList<>();
 		if (entity == null)
 			return Collections.emptyList();
 		if (entity.has(IM.PROPERTY_GROUP)) {
@@ -459,13 +440,13 @@ public class EntityService {
 		return properties;
 	}
 
-	private PropertyValue getPropertyValue(TTIriRef inheritedFrom, TTValue property, TTIriRef propertyPath) {
-		PropertyValue pv = new PropertyValue().setInheritedFrom(inheritedFrom).setProperty(propertyPath);
+	private DataModelProperty getPropertyValue(TTIriRef inheritedFrom, TTValue property, TTIriRef propertyPath) {
+		DataModelProperty pv = new DataModelProperty().setInheritedFrom(inheritedFrom).setProperty(propertyPath);
 
 		if (property.asNode().has(SHACL.CLASS))
-			pv.setValueType(property.asNode().get(SHACL.CLASS).asIriRef());
+			pv.setType(property.asNode().get(SHACL.CLASS).asIriRef());
 		if (property.asNode().has(SHACL.DATATYPE))
-			pv.setValueType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+			pv.setType(property.asNode().get(SHACL.DATATYPE).asIriRef());
 		if (property.asNode().has(SHACL.MAXCOUNT))
 			pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
 		if (property.asNode().has(SHACL.MINCOUNT))
@@ -518,13 +499,12 @@ public class EntityService {
 
 		List<GraphDto> semanticProps = getSemanticProperties(iri).stream()
 				.map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
-						prop.getType().getIri(), prop.getType().getName(), prop.getInherited().getIri(),
-						prop.getInherited().getName()))
+						prop.getType().getIri(), prop.getType().getName()))
 				.collect(Collectors.toList());
 
 		List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
 				.map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
-						prop.getValueType().getIri(), prop.getValueType().getName(), prop.getInheritedFrom().getIri(), prop.getInheritedFrom().getName()))
+						prop.getType().getIri(), prop.getType().getName(), prop.getInheritedFrom().getIri(), prop.getInheritedFrom().getName()))
 				.collect(Collectors.toList());
 
 		List<GraphDto> isas = getEntityDefinedParents(entity, IM.IS_A);
@@ -606,13 +586,13 @@ public class EntityService {
 		return result;
 	}
 
-	public List<RecordStructureDto> getSemanticProperties(String iri) throws SQLException, JsonProcessingException {
-		List<RecordStructureDto> recordStructure = new ArrayList<RecordStructureDto>();
+	public List<SemanticProperty> getSemanticProperties(String iri) throws SQLException, JsonProcessingException {
+		List<SemanticProperty> recordStructure = new ArrayList<>();
 		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
 		if (entity.has(IM.ROLE_GROUP)) {
 			for (TTValue roleGroup : entity.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
 				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
-					recordStructure.add(new RecordStructureDto()
+					recordStructure.add(new SemanticProperty()
 							.setProperty(
 									new TTIriRef(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
 											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
@@ -621,15 +601,13 @@ public class EntityService {
 											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 				} else {
 					if (roleGroup.asNode().has(IM.ROLE)) {
-						roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> {
-							recordStructure.add(new RecordStructureDto()
-									.setProperty(
-											new TTIriRef(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-													role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-									.setType(new TTIriRef(
-											role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-											role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
-						});
+						roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> recordStructure.add(new SemanticProperty()
+                                .setProperty(
+                                        new TTIriRef(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
+                                                role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
+                                .setType(new TTIriRef(
+                                        role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
+                                        role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName()))));
 					}
 
 				}

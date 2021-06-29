@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.vocabulary;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

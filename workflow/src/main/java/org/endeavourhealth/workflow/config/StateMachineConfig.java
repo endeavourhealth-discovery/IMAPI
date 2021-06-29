@@ -3,20 +3,13 @@ package org.endeavourhealth.workflow.config;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.workflow.domain.Events;
 import org.endeavourhealth.workflow.domain.States;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
-import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
@@ -59,10 +52,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<States,Eve
     }
 
     public Action<States,Events> processAction(){
-        return context -> {
-            System.out.println("Process was called ");
-
-        };
+        return context -> System.out.println("Process was called ");
     }
 
 

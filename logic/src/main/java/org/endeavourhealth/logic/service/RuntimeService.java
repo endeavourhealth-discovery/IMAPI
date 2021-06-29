@@ -2,10 +2,10 @@ package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.dataaccess.repository.EntityRepository;
 import org.endeavourhealth.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.dataaccess.repository.TermCodeRepository;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class RuntimeService {
     }
 
     private ValueSetMember getMappedCoreEntity(String scheme, String code) throws SQLException {
-        Entity legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
+        TTIriRef legacy = termCodeRepository.findByCodeAndScheme_Iri(code, scheme);
         Set<ValueSetMember> maps = entityTripleRepository.getObjectBySubjectAndPredicate(legacy.getIri(), IM.MATCHED_TO.getIri());
         if(maps.isEmpty())
             return  null;
@@ -75,16 +75,18 @@ public class RuntimeService {
     public Integer getEntityDbidForSchemeCode(String scheme, String code) throws SQLException {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return null;
-        return termCodeRepository.findByCodeAndScheme_Iri(code, scheme).getDbid();
+        return termCodeRepository.findDbidByCodeAndScheme_Iri(code, scheme);
     }
 
     public Integer getMappedCoreEntityDbidForSchemeCode(String scheme, String code ) throws SQLException {
         if(scheme==null || scheme.isEmpty() || code == null || code.isEmpty())
             return null;
         ValueSetMember coreEntity = getMappedCoreEntity(scheme,code);
+
         if(coreEntity==null)
             return null;
-        return  null;
+
+        return null;
     }
 
     public String getCodeForEntityDbid(Integer dbid) throws SQLException {
@@ -123,7 +125,8 @@ public class RuntimeService {
     private Map<String, String> getSchemeMap() throws JsonProcessingException, SQLException {
         if(schemeMap==null)
         {
-            TypeReference<HashMap<String,String>> ref = new TypeReference<HashMap<String,String>>() {};
+            TypeReference<HashMap<String,String>> ref = new TypeReference<>() {
+            };
             schemeMap = configService.getConfig("schemeMap", ref);
         }
         return schemeMap;

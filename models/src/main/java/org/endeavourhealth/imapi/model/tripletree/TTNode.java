@@ -3,9 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
 
 import java.util.*;
@@ -30,9 +28,7 @@ public class TTNode extends TTValue {
     }
 
     public boolean has(TTIriRef predicate) {
-        if (predicateValues.containsKey(predicate))
-            return true;
-        return false;
+        return predicateValues.containsKey(predicate);
     }
 
     public HashMap<TTIriRef, TTValue> getPredicateMap() {

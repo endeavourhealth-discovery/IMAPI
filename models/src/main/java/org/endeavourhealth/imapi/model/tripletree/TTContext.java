@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 public class TTContext {
     public static String OUTPUT_CONTEXT = "OUTPUT_CONTEXT";
 
-    private Map<String, String> byIri = new HashMap<>();
-    private Map<String, String> byPrefix = new HashMap<>();
+    private final Map<String, String> byIri = new HashMap<>();
+    private final Map<String, String> byPrefix = new HashMap<>();
 
 
     public List<TTPrefix> getPrefixes() {

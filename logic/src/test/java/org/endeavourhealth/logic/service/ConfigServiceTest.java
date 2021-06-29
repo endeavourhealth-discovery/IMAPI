@@ -1,9 +1,7 @@
 package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.dataaccess.entity.Config;
-import org.endeavourhealth.dataaccess.entity.Tct;
 import org.endeavourhealth.dataaccess.repository.EntityRepository;
 import org.endeavourhealth.dataaccess.repository.EntityTctRepository;
 import org.endeavourhealth.dataaccess.repository.ConfigRepository;
@@ -16,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

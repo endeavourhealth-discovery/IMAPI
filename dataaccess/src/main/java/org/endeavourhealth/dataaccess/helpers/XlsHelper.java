@@ -4,8 +4,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.PropertyValue;
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto;
+import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
@@ -14,8 +14,8 @@ import java.util.List;
 
 public class XlsHelper {
 
-	private Workbook workbook;
-	private CellStyle headerStyle;
+	private final Workbook workbook;
+	private final CellStyle headerStyle;
 
 	public XlsHelper() {
 		this.workbook = new XSSFWorkbook();
@@ -82,7 +82,7 @@ public class XlsHelper {
 		}
 	}
 
-	public void addSemanticProperties(List<RecordStructureDto> propertyList) {
+	public void addSemanticProperties(List<SemanticProperty> propertyList) {
 		Sheet sheet = workbook.createSheet("Semantic properties");
 		sheet.setColumnWidth(0, 10000);
 		sheet.setColumnWidth(1, 10000);
@@ -106,7 +106,7 @@ public class XlsHelper {
 		headerCell.setCellStyle(headerStyle);
 
 
-		for (RecordStructureDto property : propertyList) {
+		for (SemanticProperty property : propertyList) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
 			cell.setCellValue(property.getProperty().getName());
@@ -190,7 +190,7 @@ public class XlsHelper {
 
 	}
 
-	public void addDataModelProperties(List<PropertyValue> properties) {
+	public void addDataModelProperties(List<DataModelProperty> properties) {
 		Sheet sheet = workbook.createSheet("Data model properties");
 		sheet.setColumnWidth(0, 10000);
 		sheet.setColumnWidth(1, 10000);
@@ -219,17 +219,17 @@ public class XlsHelper {
 		headerCell.setCellValue("InheritedFrom Iri");
 		headerCell.setCellStyle(headerStyle);
 
-		for (PropertyValue property : properties) {
+		for (DataModelProperty property : properties) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
 			cell.setCellValue(property.getProperty().getName());
 			cell = row.createCell(1);
 			cell.setCellValue(property.getProperty().getIri());
-			if(property.getValueType()!=null){
+			if(property.getType()!=null){
 				cell = row.createCell(2);
-				cell.setCellValue(property.getValueType().getName());
+				cell.setCellValue(property.getType().getName());
 				cell = row.createCell(3);
-				cell.setCellValue(property.getValueType().getIri());
+				cell.setCellValue(property.getType().getIri());
 			}
 
 			if (null != property.getInheritedFrom()) {

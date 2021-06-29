@@ -111,9 +111,7 @@ public class TTIriRef extends TTValue {
 
     @Override
     public boolean isTypedIri(){
-        if (iriType==null)
-            return false;
-        return true;
+        return iriType != null;
     }
     @Override
     public TTIriRef asTypedIri() {

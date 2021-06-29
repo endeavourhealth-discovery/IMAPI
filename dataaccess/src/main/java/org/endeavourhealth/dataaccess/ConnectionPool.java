@@ -21,7 +21,7 @@ public class ConnectionPool {
         }
     }
 
-    private HikariDataSource dataSource = null;
+    private final HikariDataSource dataSource;
 
     public ConnectionPool() {
         LOG.debug("Initializing connection pool");

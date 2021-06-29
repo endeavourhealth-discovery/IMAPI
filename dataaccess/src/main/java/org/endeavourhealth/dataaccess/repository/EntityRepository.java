@@ -1,10 +1,7 @@
 package org.endeavourhealth.dataaccess.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -23,8 +20,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository extends BaseRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
-
-    private ObjectMapper om = new ObjectMapper();
 
     public TTIriRef getEntityReferenceByIri(String iri) throws SQLException {
         TTIriRef ttIriRef = new TTIriRef();

@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -31,7 +30,7 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
     }
 
     @Override
-    public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException, JsonProcessingException {
+    public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         if (!node.has("@type")) {

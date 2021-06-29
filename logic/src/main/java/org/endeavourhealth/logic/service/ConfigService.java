@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ConfigService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigService.class);
 
-    private ObjectMapper om = new ObjectMapper();
+    private final ObjectMapper om = new ObjectMapper();
 
     EntityRepository entityRepository = new EntityRepository();
 

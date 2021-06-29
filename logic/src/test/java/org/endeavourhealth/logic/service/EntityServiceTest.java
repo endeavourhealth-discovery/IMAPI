@@ -3,11 +3,8 @@ package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.dataaccess.entity.Tpl;
-import org.endeavourhealth.imapi.model.PropertyValue;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.http.HttpEntity;
 import org.endeavourhealth.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;

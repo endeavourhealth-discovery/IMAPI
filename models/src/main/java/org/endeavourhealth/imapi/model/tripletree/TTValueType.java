@@ -9,10 +9,10 @@ public enum TTValueType {
    LITERAL((byte)3, "Literal");
 
 
-   private byte _value;
-   private String _name;
+   private final byte _value;
+   private final String _name;
 
-   private TTValueType(byte value, String name) {
+   TTValueType(byte value, String name) {
       this._value = value;
       this._name = name;
    }

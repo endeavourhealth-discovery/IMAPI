@@ -18,7 +18,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
  * DeSerializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument Deserializer
  */
 public class TTNodeDeserializer {
-   private TTContext context;
+   private final TTContext context;
 
    /**
     *

@@ -92,10 +92,7 @@ public class TTEntity extends TTNode {
     }
     public boolean isType(TTIriRef type){
         if (this.getType()!=null){
-            if (this.getType().getElements().contains(type))
-                return true;
-            else
-                return false;
+            return this.getType().getElements().contains(type);
         }
         return false;
     }

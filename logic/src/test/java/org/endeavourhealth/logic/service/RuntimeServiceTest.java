@@ -1,12 +1,12 @@
 package org.endeavourhealth.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.dataaccess.entity.Config;
 import org.endeavourhealth.dataaccess.repository.EntityRepository;
 import org.endeavourhealth.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.dataaccess.repository.ConfigRepository;
 import org.endeavourhealth.dataaccess.repository.TermCodeRepository;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +62,7 @@ public class RuntimeServiceTest {
 
     @Test
     public void getEntityIdForSchemeCode_NotNullSchemeCode() throws SQLException {
-        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+        TTIriRef entity = new TTIriRef().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         String actual = runtimeService.getEntityIdForSchemeCode("http://endhealth.info/im#891071000252105", "25451000252115");
         assertNotNull(actual);
@@ -91,7 +91,7 @@ public class RuntimeServiceTest {
 
     @Test
     public void getMappedCoreCodeForSchemeCode_SnomedOnlyTrueMapsSizeZero() throws SQLException {
-        Entity entity = new Entity();
+        TTIriRef entity = new TTIriRef();
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
@@ -103,7 +103,7 @@ public class RuntimeServiceTest {
 
     @Test
     public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeZero() throws SQLException {
-        Entity entity = new Entity();
+        TTIriRef entity = new TTIriRef();
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
@@ -113,105 +113,9 @@ public class RuntimeServiceTest {
 
     }
 
-//    @Test
-//    public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeOne() throws SQLException {
-//        Entity entity = new Entity();
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
-//        Set<Tpl> tpl = new HashSet<>();
-//        tpl.add(new Tpl()
-//                .setDbid(1)
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Entity()
-//                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        Set<ValueSetMember> valueSetMembers = new HashSet<>();
-//        when(entityTripleRepository.getMemberBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
-//        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
-//                "25451000252115",false);
-//        assertNotNull(actual);
-//
-//    }
-
-//    @Test
-//    public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeBiggerThanOne() throws SQLException {
-//        Entity entity = new Entity();
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
-//        Set<Tpl> tpl = new HashSet<>();
-//        tpl.add(new Tpl()
-//                .setDbid(1)
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Entity()
-//                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        tpl.add(new Tpl()
-//                .setDbid(2)
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000552115"))
-//                .setObject(new Entity()
-//                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
-//        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
-//                "25451000252115",false);
-//        assertNotNull(actual);
-//
-//    }
-
-//    @Test
-//    public void getMappedCoreCodeForSchemeCode_MapsSizeBiggerThanOneObjectNotNullImCodeSchemeSmomed() throws SQLException {
-//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
-//        Set<Tpl> tpl = new HashSet<>();
-//        tpl.add(new Tpl()
-//                .setDbid(1)
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Entity()
-//                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        tpl.add(new Tpl()
-//                .setDbid(2)
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000552115"))
-//                .setObject(new Entity()
-//                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
-//        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
-//                "25451000252115",true);
-//        assertNotNull(actual);
-//
-//    }
-
-//    @Test
-//    public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNotNullNotImCodeSchemeSmomed() throws SQLException {
-//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
-//        Set<Tpl> tpl = new HashSet<>();
-//        tpl.add(new Tpl()
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Entity()
-//                        .setIri("http://endhealth.info/im#25451000252115").setCode("25451000252115")));
-//
-//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
-//        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
-//                "25451000252115",true);
-//        assertNull(actual);
-//
-//    }
-
-//    @Test
-//    public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNotNull() throws SQLException {
-//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
-//        Set<Tpl> tpl = new HashSet<>();
-//        tpl.add(new Tpl()
-//                .setSubject(new Entity().setIri("http://endhealth.info/im#25451000252115"))
-//                .setObject(new Entity()
-//                        .setIri(IM.CODE_SCHEME_SNOMED.getIri()).setCode("25451000252115")));
-//
-//        when(entityTripleRepository.findAllBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(tpl);
-//        String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115",
-//                "25451000252115",true);
-//        assertNotNull(actual);
-//
-//    }
-
     @Test
     public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNull() throws SQLException {
-        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+        TTIriRef entity = new TTIriRef().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
         valueSetMembers.add(new ValueSetMember().setEntity(iri("http://endhealth.info/im#25451000252115")));
@@ -242,8 +146,7 @@ public class RuntimeServiceTest {
 
     @Test
     public void getEntityDbidForSchemeCode_NotNullSchemeCode() throws SQLException {
-        Entity entity = new Entity().setDbid(1);
-        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
+        when(termCodeRepository.findDbidByCodeAndScheme_Iri(any(),any())).thenReturn(1);
         Integer actual = runtimeService.getEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
         assertNotNull(actual);
     }
@@ -268,29 +171,13 @@ public class RuntimeServiceTest {
 
      @Test
     public void getMappedCoreEntityDbidForSchemeCode_NullEntity() throws SQLException {
-        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
+         TTIriRef entity = new TTIriRef().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),any())).thenReturn(valueSetMembers);
         Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
         assertNull(actual);
     }
-
-//    @Test
-//    public void getMappedCoreEntityDbidForSchemeCode_NotNullEntity() throws SQLException {
-//        Entity entity = new Entity().setIri("http://endhealth.info/im#25451000252115");
-//        when(termCodeRepository.findByCodeAndScheme_Iri(any(),any())).thenReturn(entity);
-//        Set<ValueSetMember> valueSetMembers = new HashSet<>();
-//        valueSetMembers.add(new Tpl()
-//                .setDbid(1)
-//                .setObject(new Entity().setDbid(1)));
-//        valueSetMembers.add(new Tpl()
-//                .setDbid(2)
-//                .setObject(new Entity().setDbid(2)));
-//        when(entityTripleRepository.getMemberIriRefsBySubject_Iri_AndPredicate_Iri(any(),any())).thenReturn(valueSetMembers);
-//        Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
-//        assertNotNull(actual);
-//    }
 
     @Test
     public void getCodeForEntityDbid_NullDbid() throws SQLException {

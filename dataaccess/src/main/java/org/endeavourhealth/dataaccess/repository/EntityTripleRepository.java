@@ -3,9 +3,7 @@ package org.endeavourhealth.dataaccess.repository;
 import org.endeavourhealth.dataaccess.ConnectionPool;
 import org.endeavourhealth.dataaccess.entity.Tpl;
 import org.endeavourhealth.dataaccess.helpers.DALHelper;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -17,7 +15,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class EntityTripleRepository extends BaseRepository{
 

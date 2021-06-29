@@ -36,7 +36,7 @@ public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
     }
 
     public TTNode deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-        JsonNode node = (JsonNode) jsonParser.getCodec().readTree(jsonParser);
+        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         TTNode result = new TTNode();
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();

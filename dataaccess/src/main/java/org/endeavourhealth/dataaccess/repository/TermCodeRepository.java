@@ -1,8 +1,8 @@
 package org.endeavourhealth.dataaccess.repository;
 
 import org.endeavourhealth.dataaccess.ConnectionPool;
-import org.endeavourhealth.dataaccess.entity.Entity;
 import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,10 +42,10 @@ public class TermCodeRepository extends BaseRepository {
         return terms;
     }
 
-    public Entity findByCodeAndScheme_Iri(String code, String scheme) throws SQLException {
-        Entity entity = new Entity();
+    public TTIriRef findByCodeAndScheme_Iri(String code, String scheme) throws SQLException {
+        TTIriRef entity = new TTIriRef();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT c.iri, c.dbid")
+                .add("SELECT c.iri, c.name")
                 .add("FROM term_code tc")
                 .add("JOIN entity s ON s.dbid = tc.scheme")
                 .add("JOIN entity c ON c.dbid = tc.entity")
@@ -60,7 +60,7 @@ public class TermCodeRepository extends BaseRepository {
                     while (rs.next()) {
                        entity
                                .setIri(rs.getString("iri"))
-                               .setDbid(rs.getInt("dbid"));
+                               .setName(rs.getString("name"));
                     }
                 }
             }
@@ -68,4 +68,26 @@ public class TermCodeRepository extends BaseRepository {
         return entity;
     }
 
+    public Integer findDbidByCodeAndScheme_Iri(String code, String scheme) throws SQLException {
+        StringJoiner sql = new StringJoiner("\n")
+            .add("SELECT c.dbid")
+            .add("FROM term_code tc")
+            .add("JOIN entity s ON s.dbid = tc.scheme")
+            .add("JOIN entity c ON c.dbid = tc.entity")
+            .add("WHERE tc.code = ?")
+            .add(" AND s.iri = ?");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                statement.setString(1, code);
+                statement.setString(2, scheme);
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next())
+                        return rs.getInt("dbid");
+                    else
+                        return null;
+                }
+            }
+        }
+    }
 }

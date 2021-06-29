@@ -1,19 +1,16 @@
 package org.endeavourhealth.workflow.service;
 
-import lombok.RequiredArgsConstructor;
 import org.endeavourhealth.workflow.domain.Events;
 import org.endeavourhealth.workflow.domain.FileUpload;
 import org.endeavourhealth.workflow.domain.States;
 import org.endeavourhealth.workflow.repository.FileUploadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

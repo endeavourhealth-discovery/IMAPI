@@ -9,7 +9,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration  
 @EnableGlobalMethodSecurity(prePostEnabled = true)  
@@ -18,7 +17,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
     }
 
-    public void configure(final WebSecurity web) throws Exception {
+    public void configure(final WebSecurity web) {
         web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
     }
 

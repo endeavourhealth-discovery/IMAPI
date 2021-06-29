@@ -11,8 +11,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import java.io.IOException;
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * JSON LD- Serializer for TTDocument (triple tree node with collection of entities)
  * <p>Uses @context for prefixes and common annotation elements</p>

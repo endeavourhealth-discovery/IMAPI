@@ -8,6 +8,8 @@ public class BaseRepository {
     protected String toFreeTextTerms(String termFilter) {
         return Arrays.stream(termFilter
             .replace("-", " ")
+            .replace("(", "")
+            .replace(")", "")
             .split(" "))
             .filter(t -> t.trim().length() >= 3)
             .map(w -> "+" + w + "*")

@@ -555,17 +555,12 @@ public class EntityService {
 				.collect(Collectors.toList());
 
 		GraphDto semantic = new GraphDto().setKey("0_2").setName("Semantic properties");
-		GraphDto semanticDirect = new GraphDto().setKey("0_2_0").setName("Direct");
-		GraphDto semanticDirectWrapper = new GraphDto().setKey("0_2_0_0").setType(GraphType.PROPERTIES);
-		semanticDirectWrapper.getLeafNodes()
+		GraphDto semanticWrapper = new GraphDto().setKey("0_2_0").setType(GraphType.PROPERTIES);
+		semanticWrapper.getLeafNodes()
 				.addAll(semanticProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
-		semanticDirect.getChildren()
-				.add(semanticDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0_0").setType(GraphType.NONE)
-						: semanticDirectWrapper);
-
-		if (!semanticDirectWrapper.getLeafNodes().isEmpty()) {
-			semantic.getChildren().add(semanticDirect);
-		}
+		semantic.getChildren()
+				.add(semanticWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0").setType(GraphType.NONE)
+						: semanticWrapper);
 
 		GraphDto dataModel = new GraphDto().setKey("0_3").setName("Data model properties");
 		GraphDto dataModelDirect = new GraphDto().setKey("0_3_0").setName("Direct");
@@ -604,7 +599,7 @@ public class EntityService {
 
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
-		if (!(semanticDirectWrapper.getLeafNodes().isEmpty())) {
+		if (!(semanticWrapper.getLeafNodes().isEmpty())) {
 			graphData.getChildren().add(semantic);
 		}
 		if (!(dataModelDirectWrapper.getLeafNodes().isEmpty() && dataModelInheritedWrapper.getLeafNodes().isEmpty())) {

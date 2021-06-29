@@ -544,28 +544,56 @@ public class EntityService {
 						prop.getInherited().getName()))
 				.collect(Collectors.toList());
 
+		List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
+				.map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
+						prop.getValueType().getIri(), prop.getValueType().getName()))
+				.collect(Collectors.toList());
+
 		List<GraphDto> isas = getEntityDefinedParents(entity, IM.IS_A);
 
 		List<GraphDto> subtypes = getDefinitionSubTypes(iri).stream()
 				.map(subtype -> new GraphDto().setName(subtype.getName()).setIri(subtype.getIri()))
 				.collect(Collectors.toList());
 
-		GraphDto direct = new GraphDto().setKey("0_2_0").setName("Direct");
-		GraphDto directWrapper = new GraphDto().setKey("0_2_0_0").setType(GraphType.PROPERTIES);
-		directWrapper.getLeafNodes()
+		GraphDto semantic = new GraphDto().setKey("0_2_0").setName("Semantic");
+		GraphDto semanticDirect = new GraphDto().setKey("0_2_0_0").setName("Direct");
+		GraphDto semanticDirectWrapper = new GraphDto().setKey("0_2_0_0_0").setType(GraphType.PROPERTIES);
+		semanticDirectWrapper.getLeafNodes()
 				.addAll(semanticProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
-		direct.getChildren()
-				.add(directWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0_0").setType(GraphType.NONE)
-						: directWrapper);
+		semanticDirect.getChildren()
+				.add(semanticDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0_0_0").setType(GraphType.NONE)
+						: semanticDirectWrapper);
 
-		GraphDto inherited = new GraphDto().setKey("0_2_1").setName("Inherited");
-		GraphDto inheritedWrapper = new GraphDto().setKey("0_2_1_0").setType(GraphType.PROPERTIES);
-		inheritedWrapper.getLeafNodes()
+		GraphDto semanticInherited = new GraphDto().setKey("0_2_0_1").setName("Inherited");
+		GraphDto semanticInheritedWrapper = new GraphDto().setKey("0_2_0_1_0").setType(GraphType.PROPERTIES);
+		semanticInheritedWrapper.getLeafNodes()
 				.addAll(semanticProps.stream().filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
-		inherited.getChildren()
-				.add(inheritedWrapper.getLeafNodes().isEmpty()
-						? new GraphDto().setKey("0_2_1_0").setType(GraphType.NONE)
-						: inheritedWrapper);
+		semanticInherited.getChildren()
+				.add(semanticInheritedWrapper.getLeafNodes().isEmpty()
+						? new GraphDto().setKey("0_2_0_1_0").setType(GraphType.NONE)
+						: semanticInheritedWrapper);
+		semantic.getChildren().add(semanticDirect);
+		semantic.getChildren().add(semanticInherited);
+
+		GraphDto dataModel = new GraphDto().setKey("0_2_1").setName("Data model");
+		GraphDto dataModelDirect = new GraphDto().setKey("0_2_1_0").setName("Direct");
+		GraphDto dataModelDirectWrapper = new GraphDto().setKey("0_2_1_0_0").setType(GraphType.PROPERTIES);
+		dataModelDirectWrapper.getLeafNodes()
+				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
+		dataModelDirect.getChildren()
+				.add(dataModelDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_1_0_0").setType(GraphType.NONE)
+						: semanticDirectWrapper);
+
+		GraphDto dataModelInherited = new GraphDto().setKey("0_2_1_1").setName("Inherited");
+		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_2_1_1_0").setType(GraphType.PROPERTIES);
+		dataModelInheritedWrapper.getLeafNodes()
+				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
+		dataModelInherited.getChildren()
+				.add(dataModelInheritedWrapper.getLeafNodes().isEmpty()
+						? new GraphDto().setKey("0_2_1_1_0").setType(GraphType.NONE)
+						: dataModelInheritedWrapper);
+		dataModel.getChildren().add(dataModelDirect);
+		dataModel.getChildren().add(dataModelInherited);
 
 		GraphDto childrenWrapper = new GraphDto().setKey("0_1_0")
 				.setType(!subtypes.isEmpty() ? GraphType.SUBTYPE : GraphType.NONE);
@@ -577,8 +605,8 @@ public class EntityService {
 
 		graphParents.getChildren().add(parentsWrapper);
 		graphChildren.getChildren().add(childrenWrapper);
-		graphProps.getChildren().add(direct);
-		graphProps.getChildren().add(inherited);
+		graphProps.getChildren().add(semantic);
+		graphProps.getChildren().add(dataModel);
 
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);

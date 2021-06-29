@@ -545,7 +545,7 @@ public class EntityService {
 
 		List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
 				.map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
-						prop.getValueType().getIri(), prop.getValueType().getName()))
+						prop.getValueType().getIri(), prop.getValueType().getName(), prop.getInheritedFrom().getIri(), prop.getInheritedFrom().getName()))
 				.collect(Collectors.toList());
 
 		List<GraphDto> isas = getEntityDefinedParents(entity, IM.IS_A);
@@ -563,17 +563,6 @@ public class EntityService {
 				.add(semanticDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0_0").setType(GraphType.NONE)
 						: semanticDirectWrapper);
 
-		GraphDto semanticInherited = new GraphDto().setKey("0_2_1").setName("Inherited");
-		GraphDto semanticInheritedWrapper = new GraphDto().setKey("0_2_1_0").setType(GraphType.PROPERTIES);
-		semanticInheritedWrapper.getLeafNodes()
-				.addAll(semanticProps.stream().filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
-		semanticInherited.getChildren()
-				.add(semanticInheritedWrapper.getLeafNodes().isEmpty()
-						? new GraphDto().setKey("0_2_1_0").setType(GraphType.NONE)
-						: semanticInheritedWrapper);
-		if (!semanticInheritedWrapper.getLeafNodes().isEmpty()) {
-			semantic.getChildren().add(semanticInherited);
-		}
 		if (!semanticDirectWrapper.getLeafNodes().isEmpty()) {
 			semantic.getChildren().add(semanticDirect);
 		}
@@ -615,7 +604,7 @@ public class EntityService {
 
 		graphData.getChildren().add(graphParents);
 		graphData.getChildren().add(graphChildren);
-		if (!(semanticDirectWrapper.getLeafNodes().isEmpty() && semanticInheritedWrapper.getLeafNodes().isEmpty())) {
+		if (!(semanticDirectWrapper.getLeafNodes().isEmpty())) {
 			graphData.getChildren().add(semantic);
 		}
 		if (!(dataModelDirectWrapper.getLeafNodes().isEmpty() && dataModelInheritedWrapper.getLeafNodes().isEmpty())) {

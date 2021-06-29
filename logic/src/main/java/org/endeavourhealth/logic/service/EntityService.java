@@ -586,7 +586,7 @@ public class EntityService {
 				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
 		dataModelDirect.getChildren()
 				.add(dataModelDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_1_0_0").setType(GraphType.NONE)
-						: semanticDirectWrapper);
+						: dataModelDirectWrapper);
 
 		GraphDto dataModelInherited = new GraphDto().setKey("0_2_1_1").setName("Inherited");
 		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_2_1_1_0").setType(GraphType.PROPERTIES);

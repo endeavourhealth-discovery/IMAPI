@@ -1,30 +1,30 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.dto.RecordStructureDto.EntityReference;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class DataModelPropertyDto {
 
-	private EntityReference property;
-	private EntityReference range;
+	private TTIriRef property;
+	private TTIriRef range;
 
 	public DataModelPropertyDto() {
 
 	}
 
-	public EntityReference getProperty() {
+	public TTIriRef getProperty() {
 		return property;
 	}
 
-	public DataModelPropertyDto setProperty(EntityReference property) {
+	public DataModelPropertyDto setProperty(TTIriRef property) {
 		this.property = property;
 		return this;
 	}
 
-	public EntityReference getRange() {
+	public TTIriRef getRange() {
 		return range;
 	}
 
-	public DataModelPropertyDto setRange(EntityReference range) {
+	public DataModelPropertyDto setRange(TTIriRef range) {
 		this.range = range;
 		return this;
 	}

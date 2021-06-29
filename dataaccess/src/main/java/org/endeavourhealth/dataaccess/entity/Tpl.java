@@ -8,6 +8,7 @@ public class Tpl {
     private TTIriRef predicate;
     private TTIriRef object;
     private String literal;
+    private boolean functional = true;
 
     public int getDbid() {
         return dbid;
@@ -51,6 +52,15 @@ public class Tpl {
 
     public Tpl setLiteral(String literal) {
         this.literal = literal;
+        return this;
+    }
+
+    public boolean isFunctional() {
+        return functional;
+    }
+
+    public Tpl setFunctional(boolean functional) {
+        this.functional = functional;
         return this;
     }
 }

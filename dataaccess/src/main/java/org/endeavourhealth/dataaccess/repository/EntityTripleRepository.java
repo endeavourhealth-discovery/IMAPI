@@ -23,7 +23,7 @@ public class EntityTripleRepository extends BaseRepository{
 
         StringJoiner sql = new StringJoiner("\n")
             .add("WITH RECURSIVE triples AS (")
-            .add("	SELECT tpl.dbid, tpl.subject, tpl.blank_node AS parent, tpl.predicate, tpl.object, tpl.literal")
+            .add("	SELECT tpl.dbid, tpl.subject, tpl.blank_node AS parent, tpl.predicate, tpl.object, tpl.literal, tpl.functional")
             .add("	FROM tpl")
             .add("	JOIN entity e ON tpl.subject=e.dbid")
             .add("	JOIN entity p ON p.dbid = tpl.predicate")
@@ -32,12 +32,12 @@ public class EntityTripleRepository extends BaseRepository{
             sql.add("	AND p.iri IN " + inList(predicates.size())) ;
         sql.add("	AND tpl.blank_node IS NULL")
             .add("UNION ALL")
-            .add("	SELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal")
+            .add("	SELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
             .add("	FROM triples t")
             .add("	JOIN tpl t2 ON t2.blank_node= t.dbid")
             .add("	WHERE t2.dbid <> t.dbid")
             .add(")")
-            .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal")
+            .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
             .add("FROM triples t")
             .add("JOIN entity p ON t.predicate = p.dbid")
             .add("LEFT JOIN entity o ON t.object = o.dbid;");
@@ -63,6 +63,7 @@ public class EntityTripleRepository extends BaseRepository{
                             .setPredicate(pred)
                             .setObject(object)
                             .setLiteral(literal)
+                            .setFunctional(rs.getBoolean("functional"))
                         );
                     }
                 }

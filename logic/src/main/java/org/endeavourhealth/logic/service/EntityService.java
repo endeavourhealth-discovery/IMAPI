@@ -56,11 +56,6 @@ public class EntityService {
 	public TTEntity getEntityPredicates(String iri, Set<String> predicates) throws SQLException {
         TTEntity result = new TTEntity(iri);
 
-        // Temp fix for type array
-        result.set(RDF.TYPE, new TTArray());
-        result.set(IM.IS_A, new TTArray());
-        result.set(IM.HAS_MAP, new TTArray());
-
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates);
 
         // Reconstruct
@@ -80,19 +75,19 @@ public class EntityService {
 
 
             if (triple.getParent() == null)
-                if (result.has(triple.getPredicate()))
-                    result.addObject(triple.getPredicate(), v);
-                else
+                if (triple.isFunctional())
                     result.set(triple.getPredicate(), v);
+                else
+                    result.addObject(triple.getPredicate(), v);
             else {
                 TTNode n = nodeMap.get(triple.getParent());
                 if (n == null)
                     throw new IllegalStateException("Unknown parent node!");
 
-                if (n.has(triple.getPredicate()))
-                    n.addObject(triple.getPredicate(), v);
-                else
+                if (triple.isFunctional())
                     n.set(triple.getPredicate(), v);
+                else
+                    n.addObject(triple.getPredicate(), v);
             }
         }
 

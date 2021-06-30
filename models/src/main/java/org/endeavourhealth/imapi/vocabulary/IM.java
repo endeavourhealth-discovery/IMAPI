@@ -22,12 +22,11 @@ public class IM {
 
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
-    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "EntitySet");
+    public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
     public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyEntity");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
-    public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
 
@@ -103,8 +102,9 @@ public class IM {
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
+    public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
-    public static final TTIriRef GRAPH_DISCOVERY= iri("http://endhealth.info/im");
+    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.NAMESPACE+"DiscoveryGraph");
     public static final TTIriRef GRAPH_REPORTS= iri(NAMESPACE + "Reports");
     public static final TTIriRef GRAPH_ICD10 = iri(NAMESPACE +"ICD10");
     public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(NAMESPACE +"EMIS");

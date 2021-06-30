@@ -302,8 +302,8 @@ public class EntityService {
 		return termCodeRepository.findAllByEntity_Iri(iri);
 	}
 
-	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean properties,
-			boolean members, boolean expandMembers, boolean roles, boolean inactive)
+	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean dataModelProperties,
+			boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive)
 			throws SQLException, JsonProcessingException {
 		if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
 			return null;
@@ -315,11 +315,11 @@ public class EntityService {
 			addChildrenToDownload(iri, format, inactive, xls, downloadDto);
 		if (parents)
 			addParentsToDownload(iri, format, inactive, xls, downloadDto);
-		if (properties)
+		if (semanticProperties)
 			addSemanticPropertiesToDownload(iri, format, xls, downloadDto);
 		if (members)
 			addMembersToDownload(iri, expandMembers, format, xls, downloadDto);
-		if (roles)
+		if (dataModelProperties)
 			addDataModelPropertiesToDownload(iri, format, xls, downloadDto);
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

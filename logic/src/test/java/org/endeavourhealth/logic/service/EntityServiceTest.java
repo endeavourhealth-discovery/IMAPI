@@ -402,7 +402,7 @@ public class EntityServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
+        when(valueSetRepository.expandMember(any(), any())).thenReturn(Collections.singletonList(valueSetMember));
         ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", true);
 
         assertNotNull(actual);
@@ -649,7 +649,7 @@ public class EntityServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(valueSetRepository.expandMember(any())).thenReturn(Collections.singletonList(valueSetMember));
+        when(valueSetRepository.expandMember(any(), any())).thenReturn(Collections.singletonList(valueSetMember));
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
         String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true);

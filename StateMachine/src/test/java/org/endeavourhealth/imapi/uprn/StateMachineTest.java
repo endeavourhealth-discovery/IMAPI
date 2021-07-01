@@ -16,12 +16,13 @@ class StateMachineTest {
     void testFactory() {
         StateMachine<String, TestEvents, UUID> sm = StateMachineFactory.<String,TestEvents,UUID>configure(
                 Set.of("uploading", "processing", "complete", "downloaded", "failed"),
-                Set.of(TestEvents.process, TestEvents.fail, TestEvents.complete)
+                Set.of(TestEvents.process, TestEvents.fail, TestEvents.complete, TestEvents.download)
         )
                 .setInitialState("uploading")
                 .addTransition("uploading", TestEvents.process, "processing")
                 .addTransition("uploading", TestEvents.fail, "failed")
                 .addTransition("processing", TestEvents.complete, "complete")
+                .addTransition("complete",TestEvents.download, "downloaded")
                 .setPersister(new TestPersister())
                 .build();
         assertNotNull(sm);
@@ -52,6 +53,11 @@ class StateMachineTest {
             fail();
         }
         catch (Exception e) {}
+        sm.load(task2);
+        Set<TestEvents> nextEvents = sm.possibleEvents();
+        assertEquals(2,nextEvents.size());
+        assertTrue(nextEvents.contains(TestEvents.process));
+        assertTrue(nextEvents.contains(TestEvents.fail));
 
     }
 }

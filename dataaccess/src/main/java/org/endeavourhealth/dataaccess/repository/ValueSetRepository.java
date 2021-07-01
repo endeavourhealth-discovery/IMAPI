@@ -18,6 +18,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class ValueSetRepository extends BaseRepository {
 
     public List<ValueSetMember> expandMember(String iri) throws SQLException {
+        return expandMember(iri, null);
+    }
+    public List<ValueSetMember> expandMember(String iri, Integer limit) throws SQLException {
         List<ValueSetMember> members = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
             .add("SELECT m.iri AS entity_iri, m.name AS entity_name, m.code, m.scheme AS scheme_iri, s.name AS scheme_name")
@@ -36,6 +39,8 @@ public class ValueSetRepository extends BaseRepository {
             .add("JOIN term_code tc ON tc.entity = m.dbid")
             .add("LEFT JOIN entity s ON s.dbid = tc.scheme")
             .add("WHERE c.iri = ?");
+        if (limit != null)
+            sql.add("LIMIT " + (limit + 1));
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
@@ -44,11 +49,13 @@ public class ValueSetRepository extends BaseRepository {
                 statement.setString(3, IM.IS_A.getIri());
                 statement.setString(4, iri);
                 try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
+                    int rows = 0;
+                    while (rs.next() && (limit == null || rows <= limit)) {
                         members.add(new ValueSetMember()
                             .setEntity(iri(rs.getString("entity_iri"), rs.getString("entity_name")))
                             .setCode(rs.getString("code"))
                             .setScheme(iri(rs.getString("scheme_iri"), rs.getString("scheme_name"))));
+                        rows++;
                     }
                 }
             }

@@ -8,9 +8,9 @@ import java.util.List;
 
 public class ExportValueSet {
     private TTIriRef valueSet;
-    // private EntityReference relationship;
     private List<ValueSetMember> included = new ArrayList<>();
     private List<ValueSetMember> excluded = new ArrayList<>();
+    private boolean limited = false;
 
     public TTIriRef getValueSet() {
         return valueSet;
@@ -64,6 +64,15 @@ public class ExportValueSet {
         if (this.excluded == null)
             this.excluded = new ArrayList<>();
         this.excluded.addAll(vsm);
+        return this;
+    }
+
+    public boolean isLimited() {
+        return limited;
+    }
+
+    public ExportValueSet setLimited(boolean limited) {
+        this.limited = limited;
         return this;
     }
 }

@@ -182,22 +182,36 @@ public class EntityService {
 	}
 
 	public ExportValueSet getValueSetMembers(String iri, boolean expand) throws SQLException {
+        return getValueSetMembers(iri, expand, null);
+    }
+
+	public ExportValueSet getValueSetMembers(String iri, boolean expand, Integer limit) throws SQLException {
 		if (iri == null || iri.isEmpty()) {
 			return null;
 		}
+		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
 
-		Set<ValueSetMember> included = getMember(iri, IM.HAS_MEMBER);
-		Set<ValueSetMember> excluded = getMember(iri, IM.NOT_MEMBER);
-		Map<String, ValueSetMember> inclusions = expandMember(included, expand);
-		Map<String, ValueSetMember> exclusions = expandMember(excluded, expand);
+		Set<ValueSetMember> definedInclusions = getMember(iri, IM.HAS_MEMBER);
+		Set<ValueSetMember> definedExclusions = getMember(iri, IM.NOT_MEMBER);
+
+		int memberCount = 0;
+		Map<String, ValueSetMember> evaluatedInclusions = processMembers(definedInclusions, expand, memberCount, limit);
+		memberCount += evaluatedInclusions.size();
+		Map<String, ValueSetMember> evaluatedExclusions = processMembers(definedExclusions, expand, memberCount, limit);
+        memberCount += evaluatedExclusions.size();
+
+		if (limit != null && memberCount > limit)
+		    return result.setLimited(true);
+
 		if (expand) {
 			// Remove exclusions by key
-			exclusions.forEach((k, v) -> inclusions.remove(k));
+			evaluatedExclusions.forEach((k, v) -> evaluatedInclusions.remove(k));
 		}
-		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri))
-				.addAllIncluded(inclusions.values());
+
+		result.addAllIncluded(evaluatedInclusions.values());
 		if (!expand)
-			result.addAllExcluded(exclusions.values());
+			result.addAllExcluded(evaluatedExclusions.values());
+
 		return result;
 	}
 
@@ -205,15 +219,20 @@ public class EntityService {
 		return entityTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
 	}
 
-	private Map<String, ValueSetMember> expandMember(Set<ValueSetMember> valueSetMembers, boolean expand)
+	private Map<String, ValueSetMember> processMembers(Set<ValueSetMember> valueSetMembers, boolean expand, Integer memberCount, Integer limit)
 			throws SQLException {
 		Map<String, ValueSetMember> memberHashMap = new HashMap<>();
 		for (ValueSetMember member : valueSetMembers) {
+
+            if (limit != null && (memberCount + memberHashMap.size()) > limit)
+                return memberHashMap;
+
 			memberHashMap.put(member.getEntity().getIri() + "/" + member.getCode(), member);
 
 			if (expand) {
-				valueSetRepository.expandMember(member.getEntity().getIri())
-						.forEach(m -> memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m));
+                valueSetRepository
+                    .expandMember(member.getEntity().getIri(), limit)
+                    .forEach(m -> memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m));
 			}
 		}
 		return memberHashMap;

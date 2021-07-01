@@ -76,11 +76,19 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/download")
-	public HttpEntity download(@RequestParam String iri, @RequestParam String format, @RequestParam boolean children,
-			@RequestParam boolean parents, @RequestParam boolean dataModelProperties, @RequestParam boolean members, @RequestParam boolean expandMembers,
-			@RequestParam boolean semanticProperties, @RequestParam boolean inactive) throws SQLException, JsonProcessingException {
-		return entityService.download(iri, format, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
-	}
+	public HttpEntity download(
+	    @RequestParam String iri,
+        @RequestParam String format,
+        @RequestParam(required = false, defaultValue = "false") Boolean children,
+        @RequestParam(required = false, defaultValue = "false") boolean parents,
+        @RequestParam(required = false, defaultValue = "false") boolean dataModelProperties,
+        @RequestParam(required = false, defaultValue = "false") boolean members,
+        @RequestParam(required = false, defaultValue = "false") boolean expandMembers,
+        @RequestParam(required = false, defaultValue = "false") boolean semanticProperties,
+        @RequestParam(required = false, defaultValue = "false") boolean inactive
+    ) throws SQLException, JsonProcessingException {
+        return entityService.download(iri, format, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
+    }
 
 	@GetMapping(value = "/parents")
 	public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri,
@@ -102,9 +110,12 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/members")
-	public ExportValueSet valueSetMembersJson(@RequestParam(name = "iri") String iri,
-			@RequestParam(name = "expanded", required = false) boolean expanded) throws SQLException {
-		return entityService.getValueSetMembers(iri, expanded);
+	public ExportValueSet valueSetMembersJson(
+	    @RequestParam(name = "iri") String iri,
+		@RequestParam(name = "expanded", required = false) boolean expanded,
+        @RequestParam(name = "limit", required = false) Integer limit
+    ) throws SQLException {
+		return entityService.getValueSetMembers(iri, expanded, limit);
 	}
 
 	@GetMapping(value = "/members", produces = { "text/csv" })

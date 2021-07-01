@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class StateMachine<S, E> {
+public class StateMachine<S, E, I> {
+
     public interface BeforeTransition<S, E>{
         boolean execute(S currentState, E event, S newState);
     };
@@ -17,14 +18,24 @@ public class StateMachine<S, E> {
     public AfterTransitions<S, E> afterTransitions = (S newState, E event, S previousState) -> {};
     protected S initialState;
     private S currentState;
+    private I id;
+    protected StateMachinePersister<I,S> persister;
     protected Map<S, Map<E, S>> config = new HashMap<>();
 
     public S getCurrentState() {
         return currentState;
     }
 
-    public void start() {
+    public I getId() {
+        return id;
+    }
+
+    public void start(I id) {
+        this.id = id;
         currentState = initialState;
+        if(persister!=null){
+            this.persister.save(id,initialState);
+        }
     }
 
     public S sendEvent(E event) {
@@ -47,10 +58,21 @@ public class StateMachine<S, E> {
             S previousState = currentState;
             currentState = nextState;
             afterTransitions.execute(currentState, event, previousState);
+            if(this.persister!=null){
+                this.persister.save(id,currentState);
+            }
         }
-
         return currentState;
     }
+
+    public void load(I id){
+        if(this.persister!=null){
+            this.id = id;
+            this.currentState = this.persister.load(id);
+        }
+
+    }
+
 
     public Set<E> possibleEvents() {
         Map<E, S> transitions = config.get(currentState);

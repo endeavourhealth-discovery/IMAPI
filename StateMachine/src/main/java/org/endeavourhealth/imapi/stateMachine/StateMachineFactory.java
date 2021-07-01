@@ -5,15 +5,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class StateMachineFactory<S, E> {
-    public static <S, E> StateMachineFactory<S, E> configure (Set<S> states, Set<E> events) {
+public class StateMachineFactory<S, E, I> {
+    public static <S, E, I> StateMachineFactory<S, E, I> configure (Set<S> states, Set<E> events) {
         return new StateMachineFactory<>(states, events);
     };
-    private StateMachine<S, E> stateMachine = new StateMachine<>();
+    private StateMachine<S, E, I> stateMachine = new StateMachine<>();
     private Set<S> validStates = new HashSet<>();
     private Set<E> validEvents = new HashSet<>();
 
-    public StateMachineFactory<S, E> setInitialState(S state) {
+    public StateMachineFactory<S, E, I> setPersister(StateMachinePersister persister){
+        stateMachine.persister = persister;
+        return this;
+    }
+
+    public StateMachineFactory<S, E, I> setInitialState(S state) {
         if (!validStates.contains(state)) {
             throw new IllegalStateException("Invalid initial state");
         }
@@ -21,7 +26,7 @@ public class StateMachineFactory<S, E> {
         return this;
     }
 
-    public StateMachineFactory<S, E> addTransition(S sourceState, E event, S targetState) {
+    public StateMachineFactory<S, E, I> addTransition(S sourceState, E event, S targetState) {
         if (!validStates.contains(sourceState)) {
             throw new IllegalStateException("Invalid source state");
         }
@@ -39,7 +44,7 @@ public class StateMachineFactory<S, E> {
         return this;
     }
 
-    public StateMachine<S, E> build() {
+    public StateMachine<S, E, I> build() {
         return stateMachine;
     }
 

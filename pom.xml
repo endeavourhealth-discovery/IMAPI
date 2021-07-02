@@ -28,7 +28,7 @@
     <module>parser</module>
       <module>logic</module>
     <module>workflow</module>
-    <module>StateMachine</module>
+    <module>statemachine</module>
   </modules>
 
   <build>

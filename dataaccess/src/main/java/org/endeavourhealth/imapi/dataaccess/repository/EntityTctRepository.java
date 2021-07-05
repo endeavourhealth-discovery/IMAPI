@@ -10,7 +10,7 @@ import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-
+@SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTctRepository extends BaseRepository{
     public List<TTIriRef> findAncestorsByType(String iri, String type, List<String> candidates) throws SQLException {
         List<TTIriRef> ancestors = new ArrayList<>();

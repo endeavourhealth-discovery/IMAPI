@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTDocumentDeserializer;
@@ -8,7 +7,6 @@ import org.endeavourhealth.imapi.model.tripletree.json.TTDocumentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
@@ -16,10 +14,8 @@ public class TTDocument extends TTNode {
     private TTIriRef graph;
     private TTContext context = new TTContext();
     private List<TTEntity> entities;
-
-
     private TTIriRef crud;
-    private Map<Class, List<String>> predicateTemplate;
+
 
     public TTIriRef getGraph() {
         return graph;
@@ -35,10 +31,6 @@ public class TTDocument extends TTNode {
     public TTDocument setContext(TTContext context) {
         this.context = context;
         return this;
-    }
-
-    public TTDocument(Map<Class, List<String>> predicateTemplate) {
-        this.predicateTemplate = predicateTemplate;
     }
 
     public TTDocument setGraph(TTIriRef graph) {
@@ -57,15 +49,6 @@ public class TTDocument extends TTNode {
 
     public TTDocument addPrefix(String iri, String prefix) {
         context.add(iri, prefix);
-        return this;
-    }
-
-    public Map<Class, List<String>> getPredicateTemplate() {
-        return predicateTemplate;
-    }
-
-    public TTDocument setPredicateTemplate(Map<Class, List<String>> predicateTemplate) {
-        this.predicateTemplate = predicateTemplate;
         return this;
     }
 

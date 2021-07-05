@@ -1,10 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
+import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -116,7 +117,7 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getEntityReference_NotNullEntity() throws SQLException, JsonProcessingException {
+    public void getEntityReference_NotNullEntity() throws SQLException {
         TTIriRef ttIriRef = new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("http://endhealth.info/im#25451000252115");
         when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttIriRef);
         TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
@@ -180,7 +181,7 @@ public class EntityServiceTest {
     @Test
     public void getImmediateParents_NullIri() throws SQLException {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateParents(null, 1, 10, true,true);
+                .getImmediateParents(null, 1, 10, true);
 
         assertNotNull(actual);
     }
@@ -202,7 +203,7 @@ public class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
         when(entityTypeRepository.getEntityTypes(any())).thenReturn(ttArray);
         List<EntityReferenceNode> actual = entityService.getImmediateParents
-                ("http://endhealth.info/im#25451000252115", 1, 20, true,true);
+                ("http://endhealth.info/im#25451000252115", 1, 20, true);
 
         assertNotNull(actual);
 
@@ -219,7 +220,7 @@ public class EntityServiceTest {
         TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
         when(entityTypeRepository.getEntityTypes(any())).thenReturn(ttArray);
         List<EntityReferenceNode> actual = entityService.getImmediateParents
-                ("http://endhealth.info/im#25451000252115", 1, 10, true,false);
+                ("http://endhealth.info/im#25451000252115", 1, 10, false);
 
         assertNotNull(actual);
 
@@ -509,46 +510,38 @@ public class EntityServiceTest {
                 .setScheme(new TTIriRef()
                         .setIri("http://endhealth.info/im#25451000252115")
                         .setName("Adverse reaction to Amlodipine Besilate"))
-                .setEntity_term_code("32231000252116");
+                .setEntityTermCode("32231000252116");
         when(termCodeRepository.findAllByIri(any())).thenReturn(Collections.singletonList(termCode));
         List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
     @Test
-    public void download_NullIri() throws SQLException, IOException {
-        HttpEntity actual = entityService.download(null, "excel", true, true, true ,true, false,
-                true, true);
+    public void download_ExcelNullIri() throws SQLException, IOException {
+        XlsHelper actual = entityService.getExcelDownload(null, true, true, true ,true, false, true, true);
 
         assertNull(actual);
-
     }
 
     @Test
-    public void download_EmptyIri() throws SQLException, IOException {
-        HttpEntity actual = entityService.download("", "excel", true, true, true ,true, false,
-                true, true);
+    public void download_ExcelEmptyIri() throws SQLException, IOException {
+        XlsHelper actual = entityService.getExcelDownload("", true, true, true ,true, false, true, true);
 
         assertNull(actual);
-
     }
 
     @Test
-    public void download_NullFormat() throws SQLException, IOException {
-        HttpEntity actual = entityService.download("http://endhealth.info/im#25451000252115", null, true,
-                true, true ,true, false, true, true);
+    public void download_JSONNullIri() throws SQLException {
+        DownloadDto actual = entityService.getJsonDownload(null, true, true, true ,true, false, true, true);
 
         assertNull(actual);
-
     }
 
     @Test
-    public void download_EmptyFormat() throws SQLException, IOException {
-        HttpEntity actual = entityService.download("http://endhealth.info/im#25451000252115", "", true,
-                true, true ,true, false, true, true);
+    public void download_JSONEmptyIri() throws SQLException {
+        DownloadDto actual = entityService.getJsonDownload("", true, true, true ,true, false, true, true);
 
         assertNull(actual);
-
     }
 
     @Test
@@ -580,7 +573,7 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember1));
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
-        HttpEntity actual = entityService.download("http://endhealth.info/im#25451000252115", "excel", true,
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", true,
                 true, true ,true, false, true, true);
 
         assertNotNull(actual);
@@ -588,7 +581,7 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void download_AllSelectionsTrueJsonFormat() throws SQLException, IOException {
+    public void download_AllSelectionsTrueJsonFormat() throws SQLException {
 
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
@@ -617,7 +610,7 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember1));
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
-        HttpEntity actual = entityService.download("http://endhealth.info/im#25451000252115", "json", true,
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", true,
                 true, true ,true, false, true, true);
 
         assertNotNull(actual);

@@ -9,8 +9,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import java.io.IOException;
 
 public class TTEntitySerializer extends StdSerializer<TTEntity> {
-    private TTContextHelper helper;
-    private TTNodeSerializer nodeSerializer;
+    private transient TTContextHelper helper;
+    private transient TTNodeSerializer nodeSerializer;
 
     public TTEntitySerializer() {
         this(null);

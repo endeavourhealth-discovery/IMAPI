@@ -2,7 +2,9 @@ package org.endeavourhealth.imapi.model.valuset;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class ValueSetMember {
+import java.io.Serializable;
+
+public class ValueSetMember implements Serializable {
     private TTIriRef entity;
     private String code;
     private TTIriRef scheme;

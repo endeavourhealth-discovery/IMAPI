@@ -6,7 +6,7 @@ public class TermCode {
     private String term;
     private String code;
     private TTIriRef scheme;
-    private String entity_term_code;
+    private String entityTermCode;
 
     public String getTerm() {
         return term;
@@ -35,12 +35,12 @@ public class TermCode {
         return this;
     }
 
-    public String getEntity_term_code() {
-        return entity_term_code;
+    public String getEntityTermCode() {
+        return entityTermCode;
     }
 
-    public TermCode setEntity_term_code(String entity_term_code) {
-        this.entity_term_code = entity_term_code;
+    public TermCode setEntityTermCode(String entityTermCode) {
+        this.entityTermCode = entityTermCode;
         return this;
     }
 }

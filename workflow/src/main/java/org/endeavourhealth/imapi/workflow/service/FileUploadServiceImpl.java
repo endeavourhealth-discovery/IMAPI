@@ -60,7 +60,7 @@ public class FileUploadServiceImpl{
     }
 
     private void sendEvent(Long id, StateMachine<States, Events> sm, Events event){
-        Message msg = MessageBuilder.withPayload(event)
+        Message<Events> msg = MessageBuilder.withPayload(event)
                 .setHeader(FILE_ID_HEADER, id)
                 .build();
         sm.sendEvent(msg);

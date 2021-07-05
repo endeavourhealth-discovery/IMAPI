@@ -3,10 +3,12 @@ package org.endeavourhealth.imapi.model;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class EntityReferenceNode extends TTIriRef {
+public class EntityReferenceNode extends TTIriRef implements Serializable {
     private List<EntityReferenceNode> parents;
     private List<EntityReferenceNode> children;
     private String moduleId;
@@ -86,6 +88,22 @@ public class EntityReferenceNode extends TTIriRef {
 		this.type = type;
 		return this;
 	}
-    
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        EntityReferenceNode that = (EntityReferenceNode) o;
+        return hasChildren == that.hasChildren
+            && Objects.equals(parents, that.parents)
+            && Objects.equals(children, that.children)
+            && Objects.equals(moduleId, that.moduleId)
+            && Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), parents, children, moduleId, hasChildren, type);
+    }
 }

@@ -7,19 +7,55 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.StringJoiner;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.junit.Assert.assertEquals;
 
 public class TTDocumentTest {
 
    @Test
    public void serializeTest() throws JsonProcessingException {
-      TTDocument document= getTestDocument();
+       TTDocument document = getTestDocument();
 
-      ObjectMapper om = new ObjectMapper();
-      String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(document);
+       ObjectMapper om = new ObjectMapper();
+       String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(document);
+       String expected = new StringJoiner(System.lineSeparator())
+           .add("{")
+           .add("  \"@graph\" : {")
+           .add("    \"@id\" : \"http://testgraph\"")
+           .add("  },")
+           .add("  \"entities\" : [ {")
+           .add("    \"@id\" : \"http://endhealth.info/im#TestEntity\",")
+           .add("    \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : {")
+           .add("      \"@id\" : \"http://endhealth.info/im#ValueSet\"")
+           .add("    },")
+           .add("    \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Adverse reaction to Amlodipine Besilate\",")
+           .add("    \"http://endhealth.info/im#code\" : \"25451000252115\",")
+           .add("    \"http://endhealth.info/im#scheme\" : {")
+           .add("      \"@id\" : \"http://snomed.info/sct#891071000252105\"")
+           .add("    },")
+           .add("    \"http://www.w3.org/2002/07/owl#equivalentClass\" : [ {")
+           .add("      \"http://www.w3.org/2002/07/owl#intersectionOf\" : [ {")
+           .add("        \"@id\" : \"http://snomed.info/sct#62014003\"")
+           .add("      }, {")
+           .add("        \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : {")
+           .add("          \"@id\" : \"http://www.w3.org/2002/07/owl#Restriction\"")
+           .add("        },")
+           .add("        \"http://www.w3.org/2002/07/owl#someValuesFrom\" : {")
+           .add("          \"@id\" : \"http://snomed.info/sct#384976003\"")
+           .add("        },")
+           .add("        \"http://www.w3.org/2002/07/owl#onProperty\" : {")
+           .add("          \"@id\" : \"http://snomed.info/sct#246075003\"")
+           .add("        }")
+           .add("      } ]")
+           .add("    } ]")
+           .add("  } ]")
+           .add("}")
+           .toString();
 
-      System.out.println(json);
+       assertEquals(expected, actual);
    }
 
    @Test
@@ -37,8 +73,8 @@ public class TTDocumentTest {
    }
 
    private void checkDocument(TTDocument first,TTDocument second) {
-      Assert.assertEquals(first.getGraph(),second.getGraph());
-      Assert.assertEquals(first.getEntities().get(0).getIri(),
+      assertEquals(first.getGraph(),second.getGraph());
+      assertEquals(first.getEntities().get(0).getIri(),
           second.getEntities().get(0).getIri());
    }
 

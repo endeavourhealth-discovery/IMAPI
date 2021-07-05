@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
@@ -21,15 +20,9 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,12 +57,13 @@ public class EntityService {
         for (Tpl triple : triples) {
             TTValue v = getValue(nodeMap, triple);
 
-            if (triple.getParent() == null)
-                if (triple.isFunctional())
+            if (triple.getParent() == null) {
+                if (triple.isFunctional()) {
                     result.set(triple.getPredicate(), v);
-                else
+                } else {
                     result.addObject(triple.getPredicate(), v);
-            else {
+                }
+            } else {
                 TTNode n = nodeMap.get(triple.getParent());
                 if (n == null)
                     throw new IllegalStateException("Unknown parent node!");
@@ -134,7 +128,7 @@ public class EntityService {
 	}
 
 	public List<EntityReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
-			boolean includeLegacy, boolean inactive) throws SQLException {
+			boolean inactive) throws SQLException {
 
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
@@ -176,7 +170,7 @@ public class EntityService {
 				.distinct().collect(Collectors.toList());
 	}
 
-	public List<EntitySummary> advancedSearch(SearchRequest request) throws Exception {
+	public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
 
@@ -279,52 +273,37 @@ public class EntityService {
 		return termCodeRepository.findAllByIri(iri);
 	}
 
-	public HttpEntity download(String iri, String format, boolean children, boolean parents, boolean dataModelProperties,
-			boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive)
-        throws SQLException, IOException {
-		if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
-			return null;
-		TTIriRef entity = getEntityReference(iri);
+    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties, boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+        if (iri == null || iri.isEmpty())
+            return null;
 
-        String filename = entity.getName() + " " + LocalDate.now() + ("excel".equals(format) ? ".xlsx" : ".json");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(
-            "excel".equals(format) ? new MediaType("application", "force-download") : MediaType.APPLICATION_JSON);
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + "\"");
+        DownloadDto downloadDto = new DownloadDto();
 
-		if ("excel".equals(format)) {
-            XlsHelper xls = new XlsHelper();
+        if (children) downloadDto.setChildren(getImmediateChildren(iri, null, null, inactive));
+        if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, inactive));
+        if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
+        if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
+        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers));
 
-            if (children) xls.addChildren(getImmediateChildren(iri, null, null, inactive));
-            if (parents) xls.addParents(getImmediateParents(iri, null, null, false, inactive));
-            if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
-            if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
-            if (members) xls.addMembers(getValueSetMembers(iri, expandMembers));
+        return downloadDto;
+    }
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            try {
-                xls.getWorkbook().write(outputStream);
-                xls.getWorkbook().close();
-            } catch (IOException e) {
-                LOG.error("Error writing file: " + e.getMessage());
-                throw e;
-            }
+    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties, boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+        if (iri == null || iri.isEmpty())
+            return null;
 
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
-        } else {
-            DownloadDto downloadDto = new DownloadDto();
+        XlsHelper xls = new XlsHelper();
 
-            if (children) downloadDto.setChildren(getImmediateChildren(iri, null, null, inactive));
-            if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, false, inactive));
-            if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
-            if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-            if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers));
+        if (children) xls.addChildren(getImmediateChildren(iri, null, null, inactive));
+        if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
+        if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
+        if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
+        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers));
 
-            return new HttpEntity<>(downloadDto, headers);
-        }
-	}
+        return xls;
+    }
 
-	public List<DataModelProperty> getDataModelProperties(String iri) throws SQLException {
+    public List<DataModelProperty> getDataModelProperties(String iri) throws SQLException {
 		TTEntity entity = getEntityPredicates(iri, Set.of(IM.PROPERTY_GROUP.getIri()));
 		return getDataModelProperties(entity);
 	}
@@ -489,7 +468,7 @@ public class EntityService {
 			return Collections.emptyList();
 		List<GraphDto> result = new ArrayList<>();
 		if (parent.isList()) {
-			parent.asArrayElements().forEach(item -> {
+			parent.getElements().forEach(item -> {
 				if (!OWL.THING.equals(item.asIriRef()))
 					result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName())
 							.setPropertyType(predicate.getName()));
@@ -506,7 +485,7 @@ public class EntityService {
 		List<SemanticProperty> recordStructure = new ArrayList<>();
 		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
 		if (entity.has(IM.ROLE_GROUP)) {
-			for (TTValue roleGroup : entity.asNode().get(IM.ROLE_GROUP).asArrayElements()) {
+			for (TTValue roleGroup : entity.asNode().get(IM.ROLE_GROUP).getElements()) {
 				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
 					recordStructure.add(new SemanticProperty()
 							.setProperty(
@@ -517,7 +496,7 @@ public class EntityService {
 											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
 				} else {
 					if (roleGroup.asNode().has(IM.ROLE)) {
-						roleGroup.asNode().get(IM.ROLE).asArrayElements().forEach(role -> recordStructure.add(new SemanticProperty()
+						roleGroup.asNode().get(IM.ROLE).getElements().forEach(role -> recordStructure.add(new SemanticProperty()
                                 .setProperty(
                                         new TTIriRef(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
                                                 role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
@@ -540,12 +519,12 @@ public class EntityService {
 	public EntityDefinitionDto getEntityDefinitionDto(String iri) throws SQLException {
 		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.STATUS.getIri()));
 		List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
-				: entity.getType().asArrayElements().stream()
+				: entity.getType().getElements().stream()
 						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
 						.collect(Collectors.toList());
 
 		List<TTIriRef> isa = !entity.has(IM.IS_A) ? new ArrayList<>()
-				: entity.get(IM.IS_A).asArrayElements().stream()
+				: entity.get(IM.IS_A).getElements().stream()
 						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
 						.collect(Collectors.toList());
 

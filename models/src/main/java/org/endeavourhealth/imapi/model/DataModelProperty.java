@@ -2,7 +2,9 @@ package org.endeavourhealth.imapi.model;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class DataModelProperty {
+import java.io.Serializable;
+
+public class DataModelProperty implements Serializable {
 
 	private TTIriRef property;
 	private TTIriRef type;

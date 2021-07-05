@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
-    private TTNodeDeserializer helper;
+    private transient TTNodeDeserializer helper;
 
     public TTLiteralDeserializer() {
         this(null);
@@ -33,24 +34,24 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
     public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-        if (!node.has("@type")) {
+        if (!node.has(IM.TYPE)) {
             if (node.isValueNode())
                 return literal(node);
             else
-                return literal(node.get("@value").textValue());
+                return literal(node.get(IM.VALUE).textValue());
         }
 
-        TTIriRef type = iri(helper == null ? node.get("@type").asText() : helper.expand(node.get("@type").asText()));
+        TTIriRef type = iri(helper == null ? node.get(IM.TYPE).asText() : helper.expand(node.get(IM.TYPE).asText()));
         if (XSD.STRING.equals(type))
-            return literal(node.get("@value").textValue());
+            return literal(node.get(IM.VALUE).textValue());
         else if (XSD.BOOLEAN.equals(type)) {
-            return literal(Boolean.valueOf(node.get("@value").asText()));
+            return literal(Boolean.valueOf(node.get(IM.VALUE).asText()));
         }
         else if (XSD.INTEGER.equals(type)) {
-            return literal(Integer.valueOf(node.get("@value").asText()));
+            return literal(Integer.valueOf(node.get(IM.VALUE).asText()));
         }
         else if (XSD.PATTERN.equals(type))
-            return literal(Pattern.compile(node.get("@value").textValue()));
+            return literal(Pattern.compile(node.get(IM.VALUE).textValue()));
         else
             throw new IOException("Unhandled literal type ["+type.getIri()+"]");
     }

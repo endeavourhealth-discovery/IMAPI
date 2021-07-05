@@ -53,7 +53,7 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     }
 
     private void serializeRemainingPredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-        HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
+        Map<TTIriRef, TTValue> predicates = node.getPredicateMap();
         if (predicates != null && !predicates.isEmpty()) {
             Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
             for (Map.Entry<TTIriRef, TTValue> entry : entries) {

@@ -11,6 +11,7 @@ import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTypeRepository extends BaseRepository {
     public TTArray getEntityTypes(String iri) throws SQLException {
         TTArray types = new TTArray();

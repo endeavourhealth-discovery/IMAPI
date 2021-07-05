@@ -13,13 +13,13 @@ class StateMachineTest {
     void testFactory() {
         StateMachine<String, TestEvents, UUID> sm = StateMachineFactory.<String,TestEvents,UUID>configure(
                 Set.of("uploading", "processing", "complete", "downloaded", "failed"),
-                Set.of(TestEvents.process, TestEvents.fail, TestEvents.complete, TestEvents.download)
+                Set.of(TestEvents.PROCESS, TestEvents.FAIL, TestEvents.COMPLETE, TestEvents.DOWNLOAD)
         )
                 .setInitialState("uploading")
-                .addTransition("uploading", TestEvents.process, "processing")
-                .addTransition("uploading", TestEvents.fail, "failed")
-                .addTransition("processing", TestEvents.complete, "complete")
-                .addTransition("complete",TestEvents.download, "downloaded")
+                .addTransition("uploading", TestEvents.PROCESS, "processing")
+                .addTransition("uploading", TestEvents.FAIL, "failed")
+                .addTransition("processing", TestEvents.COMPLETE, "complete")
+                .addTransition("complete",TestEvents.DOWNLOAD, "downloaded")
                 .setPersister(new TestPersister())
                 .build();
         assertNotNull(sm);
@@ -34,7 +34,7 @@ class StateMachineTest {
         UUID task1 = UUID.randomUUID();
         sm.start(task1);
         assertEquals("uploading", sm.getCurrentState());
-        sm.sendEvent(TestEvents.process);
+        sm.sendEvent(TestEvents.PROCESS);
         assertEquals("processing", sm.getCurrentState());
         UUID task2 = UUID.randomUUID();
         sm.start(task2);
@@ -43,18 +43,18 @@ class StateMachineTest {
         sm.load(task1);
         assertEquals(task1, sm.getId());
         assertEquals("processing",sm.getCurrentState());
-        sm.sendEvent(TestEvents.complete);
+        sm.sendEvent(TestEvents.COMPLETE);
         assertEquals("complete",sm.getCurrentState());
         try {
-            sm.sendEvent(TestEvents.process);
+            sm.sendEvent(TestEvents.PROCESS);
             fail();
         }
         catch (Exception e) {}
         sm.load(task2);
         Set<TestEvents> nextEvents = sm.possibleEvents();
         assertEquals(2,nextEvents.size());
-        assertTrue(nextEvents.contains(TestEvents.process));
-        assertTrue(nextEvents.contains(TestEvents.fail));
+        assertTrue(nextEvents.contains(TestEvents.PROCESS));
+        assertTrue(nextEvents.contains(TestEvents.FAIL));
 
     }
 }

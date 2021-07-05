@@ -80,9 +80,6 @@ public class EntityToImLang {
         // add status
         imLangEntity = imLangEntity.concat("status " + convertEntityReferenceToString(entity.getStatus()) + ";\n");
 
-        // add version
-        // imLangEntity = imLangEntity.concat("version \"" + entity.getVersion() + "\";\n");
-
         return imLangEntity;
     }
 

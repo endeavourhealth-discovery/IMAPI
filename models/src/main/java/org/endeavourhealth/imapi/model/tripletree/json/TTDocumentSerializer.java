@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    private List<TTIriRef> predicateTemplate;
-   private TTNodeSerializer helper;
+   private transient TTNodeSerializer helper;
 
    public TTDocumentSerializer() {
       this(null);

@@ -14,6 +14,7 @@ import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class TermCodeRepository extends BaseRepository {
 
     public List<TermCode> findAllByIri(String iri) throws SQLException {
@@ -34,7 +35,7 @@ public class TermCodeRepository extends BaseRepository {
                                 .setTerm(rs.getString("term"))
                                 .setCode(rs.getString("code"))
                                 .setScheme(iri(rs.getString("scheme_iri"), rs.getString("scheme_name")))
-                                .setEntity_term_code(rs.getString("entity_term_code")));
+                                .setEntityTermCode(rs.getString("entity_term_code")));
                     }
                 }
             }

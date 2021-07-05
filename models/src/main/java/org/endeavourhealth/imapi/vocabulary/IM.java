@@ -121,6 +121,7 @@ public class IM {
     public static final TTIriRef GRAPH_APEX_KINGS = TTIriRef.iri(NAMESPACE +"ApexKings");
     public static final TTIriRef GRAPH_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"WinPathKings");
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(NAMESPACE +"Vision");
+    public static final TTIriRef GRAPH_CEG= TTIriRef.iri(NAMESPACE +"CEGGraph");
 
 
 

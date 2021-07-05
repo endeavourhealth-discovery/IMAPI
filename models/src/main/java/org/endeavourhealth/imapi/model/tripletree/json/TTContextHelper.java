@@ -49,9 +49,9 @@ public class TTContextHelper {
                 context.add(prefix.getIri(), prefix.getPrefix());
                 gen.writeStringField(prefix.getPrefix(),prefix.getIri());
             }
-            gen.writeFieldName("concepts");
+            gen.writeFieldName("entities");
             gen.writeStartObject();
-            gen.writeStringField("@id","http://envhealth.info/im#concepts");
+            gen.writeStringField("@id","http://envhealth.info/im#entities");
             gen.writeStringField("@container","@set");
             gen.writeEndObject();
             gen.writeFieldName("individuals");
@@ -66,17 +66,16 @@ public class TTContextHelper {
 
     public void deserializeContexts(JsonNode document, List<TTPrefix> prefixes) {
         JsonNode contextNode = document.get("@context");
-        if (contextNode !=null){
+        if (contextNode !=null) {
             Iterator<Map.Entry<String, JsonNode>> fields = contextNode.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> field = fields.next();
-                String key= field.getKey();
-                JsonNode value= field.getValue();
-                if (value.isTextual())
-                    if (value.textValue().startsWith("http")) {
-                        prefixes.add(new TTPrefix(value.textValue(), key));
-                        context.add(value.asText(), key);
-                    }
+                String key = field.getKey();
+                JsonNode value = field.getValue();
+                if (value.isTextual() && value.textValue().startsWith("http")) {
+                    prefixes.add(new TTPrefix(value.textValue(), key));
+                    context.add(value.asText(), key);
+                }
             }
         }
     }

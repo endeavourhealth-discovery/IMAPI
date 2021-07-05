@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.ui;
 
-import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 public class IntelliSenseRequest {
     private List<TTValue> index = new ArrayList<>();
     private String action;
-    private TTConcept concept;
+    private TTEntity entity;
 
     public List<TTValue> getIndex() {
         return index;
@@ -43,12 +43,12 @@ public class IntelliSenseRequest {
         return this;
     }
 
-    public TTConcept getConcept() {
-        return concept;
+    public TTEntity getEntity() {
+        return entity;
     }
 
-    public IntelliSenseRequest setConcept(TTConcept concept) {
-        this.concept = concept;
+    public IntelliSenseRequest setEntity(TTEntity entity) {
+        this.entity = entity;
         return this;
     }
 }

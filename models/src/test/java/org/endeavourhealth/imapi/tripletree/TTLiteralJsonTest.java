@@ -16,8 +16,8 @@ import static org.junit.Assert.assertNull;
 
 public class TTLiteralJsonTest {
     private static final String LIT_STR_JSON = "\"Test name\"";
-    private static final String LIT_INT_JSON = "{\"@value\":10,\"@type\":\"http://www.w3.org/2001/XMLSchema#integer\"}";
-    private static final String LIT_BOOL_JSON = "{\"@value\":true,\"@type\":\"http://www.w3.org/2001/XMLSchema#boolean\"}";
+    private static final String LIT_INT_JSON = "10";
+    private static final String LIT_BOOL_JSON = "true";
     private static final String LIT_PAT_JSON = "{\"@value\":\".*\",\"@type\":\"http://www.w3.org/2001/XMLSchema#pattern\"}";
 
     private static final String NAME = "Test name";

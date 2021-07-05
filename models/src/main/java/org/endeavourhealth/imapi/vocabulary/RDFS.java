@@ -14,4 +14,7 @@ public class RDFS {
     public static final TTIriRef DOMAIN= iri(NAMESPACE +"domain");
     public static final TTIriRef RANGE= iri(NAMESPACE +"range");
     public static final TTIriRef RESOURCE= iri(NAMESPACE +"Resource");
+    public static final TTIriRef CLASS= iri(NAMESPACE +"Class");
+
+    private RDFS() {}
 }

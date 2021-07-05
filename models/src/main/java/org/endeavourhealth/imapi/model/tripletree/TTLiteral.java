@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralDeserializer;
@@ -15,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonSerialize(using = TTLiteralSerializer.class)
 @JsonDeserialize(using = TTLiteralDeserializer.class)
-public class TTLiteral extends TTValue {
+public class TTLiteral implements TTValue {
     // Static helpers
     public static TTLiteral literal(String value, TTIriRef type) {
         return new TTLiteral(value, type);
@@ -32,9 +33,25 @@ public class TTLiteral extends TTValue {
     public static TTLiteral literal(Integer value) {
         return new TTLiteral(value);
     }
-
+    public static TTLiteral literal(Long value) {
+        return new TTLiteral(value);
+    }
     public static TTLiteral literal(Pattern value) {
         return new TTLiteral(value);
+    }
+
+    public static TTLiteral literal(JsonNode node) {
+        if (!node.isValueNode())
+            throw new IllegalStateException("Only value Json nodes currently handled");
+
+        if (node.isBoolean())
+            return literal(node.booleanValue());
+        else if (node.isLong())
+            return literal(node.longValue());
+        else if (node.isInt())
+            return literal(node.intValue());
+        else
+            return literal(node.textValue());
     }
 
     private String value;
@@ -54,6 +71,7 @@ public class TTLiteral extends TTValue {
     // Type specific constructors
     public TTLiteral(String value) {
         this.value = value;
+        this.type = null;
     }
     public TTLiteral(Boolean value) {
         this.value = value.toString();
@@ -63,7 +81,10 @@ public class TTLiteral extends TTValue {
         this.value = value.toString();
         this.type = XSD.INTEGER;
     }
-
+    public TTLiteral(Long value) {
+        this.value = value.toString();
+        this.type = XSD.LONG;
+    }
     public TTLiteral(Pattern value) {
         this.value = value.toString();
         this.type = XSD.PATTERN;

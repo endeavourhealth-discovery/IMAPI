@@ -125,7 +125,7 @@ PN_LOCAL_ESC
 HEX
 
 rule names:
-concept
+entity
 iriLabel
 annotationList
 predicateObjectList

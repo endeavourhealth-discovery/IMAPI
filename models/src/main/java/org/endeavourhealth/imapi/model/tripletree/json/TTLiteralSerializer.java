@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.XSD;
 import java.io.IOException;
 
 public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
-    private TTNodeSerializer helper;
+    private transient TTNodeSerializer helper;
 
     public TTLiteralSerializer() {
         this(null);
@@ -30,23 +30,25 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
         usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
         if (literal.getType()!=null){
-            gen.writeStartObject();
             if (XSD.STRING.equals(literal.getType()))
-                gen.writeStringField("@value", literal.getValue());
+                gen.writeString(literal.getValue());
             else if (XSD.BOOLEAN.equals(literal.getType()))
-                gen.writeBooleanField("@value", literal.booleanValue());
+                gen.writeBoolean(literal.booleanValue());
             else if (XSD.INTEGER.equals(literal.getType()))
-                gen.writeNumberField("@value", literal.intValue());
-            else if (XSD.PATTERN.equals(literal.getType()))
+                gen.writeNumber(literal.intValue());
+            else if (XSD.LONG.equals(literal.getType()))
+                gen.writeNumber(literal.longValue());
+            else if (XSD.PATTERN.equals(literal.getType())) {
+                gen.writeStartObject();
                 gen.writeStringField("@value", literal.getValue());
-            else
+                gen.writeStringField("@type", usePrefixes
+                    ? helper.prefix(literal.getType().getIri())
+                    : literal.getType().getIri()
+                );
+                gen.writeEndObject();
+            } else
                 throw new IOException("Unhandled literal type ["+literal.getType().getIri()+"]");
 
-            gen.writeStringField("@type", usePrefixes
-                ? helper.prefix(literal.getType().getIri())
-                : literal.getType().getIri()
-            );
-            gen.writeEndObject();
         } else
             // No type, assume string
             gen.writeString(literal.getValue());

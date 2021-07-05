@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface IMLangVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link IMLangParser#concept}.
+	 * Visit a parse tree produced by {@link IMLangParser#entity}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitConcept(IMLangParser.ConceptContext ctx);
+	T visitEntity(IMLangParser.EntityContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMLangParser#iriLabel}.
 	 * @param ctx the parse tree

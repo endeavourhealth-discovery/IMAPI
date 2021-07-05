@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TTIriRef extends TTValue {
+public class TTIriRef implements TTValue, Serializable {
     public static TTIriRef iri(String iri) {
         return new TTIriRef(iri);
     }
@@ -111,9 +112,7 @@ public class TTIriRef extends TTValue {
 
     @Override
     public boolean isTypedIri(){
-        if (iriType==null)
-            return false;
-        return true;
+        return iriType != null;
     }
     @Override
     public TTIriRef asTypedIri() {

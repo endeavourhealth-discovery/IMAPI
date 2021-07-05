@@ -8,15 +8,15 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface IMLangListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link IMLangParser#concept}.
+	 * Enter a parse tree produced by {@link IMLangParser#entity}.
 	 * @param ctx the parse tree
 	 */
-	void enterConcept(IMLangParser.ConceptContext ctx);
+	void enterEntity(IMLangParser.EntityContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLangParser#concept}.
+	 * Exit a parse tree produced by {@link IMLangParser#entity}.
 	 * @param ctx the parse tree
 	 */
-	void exitConcept(IMLangParser.ConceptContext ctx);
+	void exitEntity(IMLangParser.EntityContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMLangParser#iriLabel}.
 	 * @param ctx the parse tree

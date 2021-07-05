@@ -5,16 +5,15 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument serializer
+ * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeSerializer {
-   private TTContext contextMap;
+   private final TTContext contextMap;
    private List<TTIriRef> predicateTemplate;
    private boolean usePrefixes = false;
    /**
@@ -42,7 +41,7 @@ public class TTNodeSerializer {
       if (predicateTemplate!=null)
          serializeOrdered(node,gen);
       else {
-         HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
+         Map<TTIriRef, TTValue> predicates = node.getPredicateMap();
          if (predicates != null && !predicates.isEmpty()) {
             Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
             for (Map.Entry<TTIriRef, TTValue> entry : entries) {
@@ -57,7 +56,7 @@ public class TTNodeSerializer {
          if (node.get(predicate)!=null)
             serializeFieldValue(predicate.getIri(),node.get(predicate),gen);
       }
-      HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
+      Map<TTIriRef, TTValue> predicates = node.getPredicateMap();
       if (predicates != null && !predicates.isEmpty()) {
          Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
          for (Map.Entry<TTIriRef, TTValue> entry : entries) {
@@ -101,7 +100,7 @@ public class TTNodeSerializer {
          serializeNode((TTNode)value, gen);
          gen.writeEndObject();
       } else if (value.isList()) {
-         for (TTValue v : ((TTArray)value).getElements()) {
+         for (TTValue v : value.getElements()) {
             serializeValue(v, gen);
          }
       }
@@ -109,20 +108,22 @@ public class TTNodeSerializer {
 
    public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
       if (literal.getType()!=null){
-         gen.writeStartObject();
          if (XSD.STRING.equals(literal.getType()))
-            gen.writeStringField("@value", literal.getValue());
+            gen.writeString(literal.getValue());
          else if (XSD.BOOLEAN.equals(literal.getType()))
-            gen.writeBooleanField("@value", literal.booleanValue());
+            gen.writeBoolean(literal.booleanValue());
          else if (XSD.INTEGER.equals(literal.getType()))
-            gen.writeNumberField("@value", literal.intValue());
-         else if (XSD.PATTERN.equals(literal.getType()))
-            gen.writeStringField("@value", literal.getValue());
-         else
+            gen.writeNumber(literal.intValue());
+         else if (XSD.LONG.equals(literal.getType()))
+             gen.writeNumber(literal.longValue());
+         else if (XSD.PATTERN.equals(literal.getType())) {
+             gen.writeStartObject();
+             gen.writeStringField("@value", literal.getValue());
+             gen.writeStringField("@type",prefix(literal.getType().getIri()));
+             gen.writeEndObject();
+         } else
             throw new IOException("Unhandled literal type ["+literal.getType().getIri()+"]");
 
-         gen.writeStringField("@type",prefix(literal.getType().getIri()));
-         gen.writeEndObject();
       } else
          // No type, assume string
          gen.writeString(literal.getValue());
@@ -144,9 +145,9 @@ public class TTNodeSerializer {
             contextMap.add(prefix.getIri(), prefix.getPrefix());
             gen.writeStringField(prefix.getPrefix(),prefix.getIri());
          }
-         gen.writeFieldName("concepts");
+         gen.writeFieldName("entities");
          gen.writeStartObject();
-         gen.writeStringField("@id","http://envhealth.info/im#concepts");
+         gen.writeStringField("@id","http://envhealth.info/im#entities");
          gen.writeStringField("@container","@set");
          gen.writeEndObject();
          gen.writeFieldName("individuals");

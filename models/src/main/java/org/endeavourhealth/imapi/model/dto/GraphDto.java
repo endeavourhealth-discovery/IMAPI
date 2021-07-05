@@ -5,6 +5,16 @@ import java.util.List;
 
 public class GraphDto {
 
+	public enum GraphType {
+		NONE,
+		WRAPPER,
+		PROPERTIES,
+		SUBTYPE,
+		ISA
+	}
+
+	String key;
+	GraphType type;
 	String name;
 	String iri;
 	String propertyType;
@@ -15,11 +25,56 @@ public class GraphDto {
 	String min;
 	String max;
 	List<GraphDto> children;
-	
+	List<GraphDto> leafNodes;
+
 	public GraphDto() {
-		this.children = new ArrayList<GraphDto>();
+		this.children = new ArrayList<>();
+		this.leafNodes = new ArrayList<>();
 	}
-	
+
+	public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName, String inheritedFromIri,
+			String inheritedFromName) {
+		this.name = name;
+		this.iri = iri;
+		this.valueTypeIri = valueTypeIri;
+		this.valueTypeName = valueTypeName;
+		this.inheritedFromIri = inheritedFromIri;
+		this.inheritedFromName = inheritedFromName;
+	}
+
+	public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName) {
+		this.name = name;
+		this.iri = iri;
+		this.valueTypeIri = valueTypeIri;
+		this.valueTypeName = valueTypeName;
+	}
+
+	public List<GraphDto> getLeafNodes() {
+		return leafNodes;
+	}
+
+	public void setLeafNodes(List<GraphDto> leafNodes) {
+		this.leafNodes = leafNodes;
+	}
+
+	public GraphType getType() {
+		return type;
+	}
+
+	public GraphDto setType(GraphType type) {
+		this.type = type;
+		return this;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public GraphDto setKey(String key) {
+		this.key = key;
+		return this;
+	}
+
 	public String getMin() {
 		return min;
 	}
@@ -28,7 +83,7 @@ public class GraphDto {
 		this.min = min;
 		return this;
 	}
-	
+
 	public String getMax() {
 		return min;
 	}

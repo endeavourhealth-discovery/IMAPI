@@ -2,15 +2,16 @@ package org.endeavourhealth.imapi.model.valuset;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ExportValueSet {
+public class ExportValueSet implements Serializable {
     private TTIriRef valueSet;
-    // private ConceptReference relationship;
     private List<ValueSetMember> included = new ArrayList<>();
     private List<ValueSetMember> excluded = new ArrayList<>();
+    private boolean limited = false;
 
     public TTIriRef getValueSet() {
         return valueSet;
@@ -20,15 +21,6 @@ public class ExportValueSet {
         this.valueSet = valueSet;
         return this;
     }
-
-//    public ConceptReference getRelationship() {
-//        return relationship;
-//    }
-//
-//    public ExportValueSet setRelationship(ConceptReference relationship) {
-//        this.relationship = relationship;
-//        return this;
-//    }
 
     public List<ValueSetMember> getIncluded() {
         return included;
@@ -73,6 +65,15 @@ public class ExportValueSet {
         if (this.excluded == null)
             this.excluded = new ArrayList<>();
         this.excluded.addAll(vsm);
+        return this;
+    }
+
+    public boolean isLimited() {
+        return limited;
+    }
+
+    public ExportValueSet setLimited(boolean limited) {
+        this.limited = limited;
         return this;
     }
 }

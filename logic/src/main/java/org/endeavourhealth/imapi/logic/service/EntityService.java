@@ -409,13 +409,7 @@ public class EntityService {
 	public GraphDto getGraphData(String iri) throws SQLException {
 		TTEntity entity = getEntityPredicates(iri, Set.of(IM.IS_A.getIri(), RDFS.LABEL.getIri()));
 
-		if (entity == null) {
-			LOG.error("Unable to find entity {}", iri);
-			return null;
-		}
-
 		GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
-
 		GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
 		GraphDto graphChildren = new GraphDto().setKey("0_1").setName("Subtypes");
 
@@ -531,7 +525,6 @@ public class EntityService {
                                         role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
                                         role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName()))));
 					}
-
 				}
 			}
 		}

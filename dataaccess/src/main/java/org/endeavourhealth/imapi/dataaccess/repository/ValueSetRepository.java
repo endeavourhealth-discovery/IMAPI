@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-
+@SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class ValueSetRepository extends BaseRepository {
 
     public List<ValueSetMember> expandMember(String iri) throws SQLException {

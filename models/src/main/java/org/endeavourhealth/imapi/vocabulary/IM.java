@@ -7,6 +7,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class IM {
     public static final String NAMESPACE = "http://endhealth.info/im#";
     public static final String PREFIX = "im";
+    public static final String IRI = "@id";
+    public static final String VALUE = "@value";
+    public static final String TYPE = "@type";
 
     //Entity top level predicates
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
@@ -132,5 +135,7 @@ public class IM {
     public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
     public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
+
+    private IM() {}
 }
 

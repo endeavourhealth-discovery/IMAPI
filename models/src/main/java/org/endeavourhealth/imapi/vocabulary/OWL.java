@@ -37,4 +37,5 @@ public class OWL {
     public static final TTIriRef ONEOF = iri(NAMESPACE + "oneOf");
     public static final TTIriRef NAMEDINDIVIDUAL = iri(NAMESPACE + "NamedIndividual");
 
+    private OWL() {}
 }

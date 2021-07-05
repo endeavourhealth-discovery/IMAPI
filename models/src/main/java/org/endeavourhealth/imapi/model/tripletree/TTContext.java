@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TTContext {
-    public static String OUTPUT_CONTEXT = "OUTPUT_CONTEXT";
+public class TTContext implements Serializable {
+    public static final String OUTPUT_CONTEXT = "OUTPUT_CONTEXT";
 
     private final Map<String, String> byIri = new HashMap<>();
     private final Map<String, String> byPrefix = new HashMap<>();
@@ -14,7 +15,7 @@ public class TTContext {
 
     public List<TTPrefix> getPrefixes() {
         return byIri.entrySet().stream()
-            .map((e) -> new TTPrefix(e.getKey(), e.getValue()))
+            .map(e -> new TTPrefix(e.getKey(), e.getValue()))
             .collect(Collectors.toList());
     }
 

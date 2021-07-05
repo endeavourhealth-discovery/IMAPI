@@ -9,26 +9,26 @@ public enum TTValueType {
    LITERAL((byte)3, "Literal");
 
 
-   private final byte _value;
-   private final String _name;
+   private final byte value;
+   private final String name;
 
    TTValueType(byte value, String name) {
-      this._value = value;
-      this._name = name;
+      this.value = value;
+      this.name = name;
    }
 
    public byte getValue() {
-      return this._value;
+      return this.value;
    }
 
    @JsonValue
    public String getName() {
-      return this._name;
+      return this.name;
    }
 
    public static TTValueType byValue(byte value) {
       for (TTValueType t: TTValueType.values()) {
-         if (t._value == value)
+         if (t.value == value)
             return t;
       }
 
@@ -37,7 +37,7 @@ public enum TTValueType {
 
    public static TTValueType byName(String name) {
       for (TTValueType t: TTValueType.values()) {
-         if (t._name.equals(name))
+         if (t.name.equals(name))
             return t;
       }
 

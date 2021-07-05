@@ -10,6 +10,8 @@ import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class IntelliSenseTest {
     private TTNode restriction;
@@ -58,13 +60,11 @@ public class IntelliSenseTest {
             );
 
         // First test
-        System.out.println("=============== SUGGEST 1 ===============");
-
-        List<TTValue> result = intelliSense.evaluate(request);
-        printResult(result);
+        List<TTValue> actual = intelliSense.evaluate(request);
+        assertEquals(1, actual.size());
+        assertEquals("SQL SELECT WHERE LIKE 'Drug%';", actual.get(0).asLiteral().getValue());
 
         // Second test
-        System.out.println("=============== SUGGEST 2 ===============");
         restriction.set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003", "Caus"));
 
         request.setIndex(OWL.EQUIVALENTCLASS,
@@ -74,8 +74,10 @@ public class IntelliSenseTest {
             OWL.ONPROPERTY
         );
 
-        result = intelliSense.evaluate(request);
-        printResult(result);
+        actual = intelliSense.evaluate(request);
+        assertEquals(2, actual.size());
+        assertEquals("SQL SELECT WHERE LIKE 'Caus%';", actual.get(0).asLiteral().getValue());
+        assertEquals("AND SUBTYPE OF RANGE OF http://www.w3.org/2002/07/owl#onProperty", actual.get(1).asLiteral().getValue());
     }
 
     @Test
@@ -90,27 +92,15 @@ public class IntelliSenseTest {
                 literal("1"));
 
         // First test
-        System.out.println("=============== ADD 1 ===============");
-        List<TTValue> result = intelliSense.evaluate(request);
-        printResult(result);
+        List<TTValue> actual = intelliSense.evaluate(request);
+        assertEquals(2, actual.size());
+        assertEquals("http://www.w3.org/2002/07/owl#onProperty", actual.get(0).asIriRef().getIri());
+        assertEquals("http://www.w3.org/2002/07/owl#someValuesFrom", actual.get(1).asIriRef().getIri());
 
         // Second test
-        System.out.println("=============== ADD 2 ===============");
         restriction.set(OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003", "Causative agent"));
 
-        result = intelliSense.evaluate(request);
-        printResult(result);
-    }
-
-    private void printResult(List<TTValue> result) {
-        for(TTValue v : result) {
-            if (v.isIriRef()) {
-                System.out.println("I: " + v.asIriRef().getIri() + "|" + v.asIriRef().getName());
-            } else if (v.isLiteral()) {
-                System.out.println("V: " + v.asLiteral().getValue());
-            } else {
-                System.err.println("Unhandled result value type!");
-            }
-        }
+        actual = intelliSense.evaluate(request);
+        assertEquals("http://www.w3.org/2002/07/owl#someValuesFrom", actual.get(0).asIriRef().getIri());
     }
 }

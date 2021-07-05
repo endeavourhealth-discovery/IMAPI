@@ -16,6 +16,7 @@ import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+@SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTripleRepository extends BaseRepository{
 
     public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates) throws SQLException {

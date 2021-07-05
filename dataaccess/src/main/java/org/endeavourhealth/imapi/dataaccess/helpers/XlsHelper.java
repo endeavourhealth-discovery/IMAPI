@@ -77,51 +77,38 @@ public class XlsHelper {
 		}
 	}
 
-	public void addMembers(ExportValueSet exportValueSet) {
+	public void addMembersSheet(ExportValueSet exportValueSet) {
 		Sheet sheet = workbook.createSheet("Members");
 		addHeaders(sheet, 10000, "Included", "Member Name", "Member Iri", "Member Code", "Scheme Name", "Scheme Iri");
 
-		for (ValueSetMember c : exportValueSet.getIncluded()) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue("Yes");
-			cell = row.createCell(1);
-			cell.setCellValue(c.getEntity().getName());
-			cell = row.createCell(2);
-			cell.setCellValue(c.getEntity().getIri());
-			cell = row.createCell(3);
-			cell.setCellValue(c.getCode());
+        addMembers(sheet, exportValueSet.getIncluded(), "Yes");
 
-			if (c.getScheme() != null) {
-				cell = row.createCell(4);
-				cell.setCellValue(c.getScheme().getIri());
-				cell = row.createCell(5);
-				cell.setCellValue(c.getScheme().getName());
-			}
-		}
+        addMembers(sheet, exportValueSet.getExcluded(), "No");
 
-		for (ValueSetMember c : exportValueSet.getExcluded()) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue("No");
-			cell = row.createCell(1);
-			cell.setCellValue(c.getEntity().getName());
-			cell = row.createCell(2);
-			cell.setCellValue(c.getEntity().getIri());
-			cell = row.createCell(3);
-			cell.setCellValue(c.getCode());
+    }
 
-			if (c.getScheme() != null) {
-				cell = row.createCell(4);
-				cell.setCellValue(c.getScheme().getIri());
-				cell = row.createCell(5);
-				cell.setCellValue(c.getScheme().getName());
-			}
-		}
+    private void addMembers(Sheet sheet, List<ValueSetMember> included, String yes) {
+        for (ValueSetMember c : included) {
+            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+            Cell cell = row.createCell(0);
+            cell.setCellValue(yes);
+            cell = row.createCell(1);
+            cell.setCellValue(c.getEntity().getName());
+            cell = row.createCell(2);
+            cell.setCellValue(c.getEntity().getIri());
+            cell = row.createCell(3);
+            cell.setCellValue(c.getCode());
 
-	}
+            if (c.getScheme() != null) {
+                cell = row.createCell(4);
+                cell.setCellValue(c.getScheme().getIri());
+                cell = row.createCell(5);
+                cell.setCellValue(c.getScheme().getName());
+            }
+        }
+    }
 
-	public void addDataModelProperties(List<DataModelProperty> properties) {
+    public void addDataModelProperties(List<DataModelProperty> properties) {
 		Sheet sheet = workbook.createSheet("Data model properties");
         addHeaders(sheet, 10000, "Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri");
 

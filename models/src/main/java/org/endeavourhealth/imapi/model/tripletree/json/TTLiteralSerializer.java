@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.XSD;
 import java.io.IOException;
 
 public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
-    private TTNodeSerializer helper;
+    private transient TTNodeSerializer helper;
 
     public TTLiteralSerializer() {
         this(null);

@@ -10,10 +10,8 @@ import java.util.*;
 
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
-public class TTNode extends TTValue {
-    private HashMap<TTIriRef, TTValue> predicateValues = new HashMap<>();
-
-    public TTNode() {}
+public class TTNode implements TTValue {
+    private Map<TTIriRef, TTValue> predicateValues = new HashMap<>();
 
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)
@@ -31,11 +29,11 @@ public class TTNode extends TTValue {
         return predicateValues.containsKey(predicate);
     }
 
-    public HashMap<TTIriRef, TTValue> getPredicateMap() {
+    public Map<TTIriRef, TTValue> getPredicateMap() {
         return this.predicateValues;
     }
 
-    public TTNode setPredicateMap(HashMap<TTIriRef,TTValue> predicateMap) {
+    public TTNode setPredicateMap(Map<TTIriRef,TTValue> predicateMap) {
         this.predicateValues= predicateMap;
         return this;
     }
@@ -69,12 +67,12 @@ public class TTNode extends TTValue {
     }
 
     @Override
-    public List<TTValue> asArrayElements(){
+    public List<TTValue> getElements(){
         return new ArrayList<>(Collections.singletonList(this));
     }
 
     public List<TTValue> getAsArrayElements(TTIriRef predicate) {
-        return predicateValues.get(predicate).asArrayElements();
+        return predicateValues.get(predicate).getElements();
     }
 
 

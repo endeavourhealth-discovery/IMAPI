@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +41,7 @@ public class TTNodeSerializer {
       if (predicateTemplate!=null)
          serializeOrdered(node,gen);
       else {
-         HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
+         Map<TTIriRef, TTValue> predicates = node.getPredicateMap();
          if (predicates != null && !predicates.isEmpty()) {
             Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
             for (Map.Entry<TTIriRef, TTValue> entry : entries) {
@@ -57,7 +56,7 @@ public class TTNodeSerializer {
          if (node.get(predicate)!=null)
             serializeFieldValue(predicate.getIri(),node.get(predicate),gen);
       }
-      HashMap<TTIriRef, TTValue> predicates = node.getPredicateMap();
+      Map<TTIriRef, TTValue> predicates = node.getPredicateMap();
       if (predicates != null && !predicates.isEmpty()) {
          Set<Map.Entry<TTIriRef, TTValue>> entries = predicates.entrySet();
          for (Map.Entry<TTIriRef, TTValue> entry : entries) {
@@ -101,7 +100,7 @@ public class TTNodeSerializer {
          serializeNode((TTNode)value, gen);
          gen.writeEndObject();
       } else if (value.isList()) {
-         for (TTValue v : ((TTArray)value).getElements()) {
+         for (TTValue v : value.getElements()) {
             serializeValue(v, gen);
          }
       }

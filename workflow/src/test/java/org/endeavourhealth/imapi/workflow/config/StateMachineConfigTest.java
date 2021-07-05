@@ -11,6 +11,8 @@ import org.springframework.statemachine.config.StateMachineFactory;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @SpringBootTest(classes = {StateMachineConfig.class})
 class StateMachineConfigTest {
 
@@ -18,21 +20,20 @@ class StateMachineConfigTest {
     StateMachineFactory<States, Events> machineFactory;
 
     @Test
-    public void test(){
+    void test(){
         StateMachine<States, Events> sm = machineFactory.getStateMachine(UUID.randomUUID());
 
         sm.start();
-        System.out.println(sm.getState().toString());
+        assertEquals("UPLOADED", sm.getState().getId().toString());
 
         sm.sendEvent(Events.PROCESS);
-        System.out.println(sm.getState().toString());
+        assertEquals("PROCESSING", sm.getState().getId().toString());
 
         sm.sendEvent(Events.COMPLETE);
-        System.out.println(sm.getState().toString());
+        assertEquals("COMPLETED", sm.getState().getId().toString());
 
         sm.sendEvent(Events.DOWNLOAD);
-        System.out.println(sm.getState().toString());
-
+        assertEquals("DOWNLOADED", sm.getState().getId().toString());
 
     }
 

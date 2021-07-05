@@ -16,7 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonSerialize(using = TTLiteralSerializer.class)
 @JsonDeserialize(using = TTLiteralDeserializer.class)
-public class TTLiteral extends TTValue {
+public class TTLiteral implements TTValue {
     // Static helpers
     public static TTLiteral literal(String value, TTIriRef type) {
         return new TTLiteral(value, type);

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.junit.Assert.assertEquals;
 
 public class TTNodeTreeTest {
 
@@ -22,14 +23,14 @@ public class TTNodeTreeTest {
         // Same iri  - EQUAL
         TTIriRef test1 = iri("http://endhealth.info/im#11111");
         TTIriRef test2 = iri("http://endhealth.info/im#11111");
-        Assert.assertEquals(test1, test2);
-        Assert.assertEquals(test1.hashCode(), test2.hashCode());
+        assertEquals(test1, test2);
+        assertEquals(test1.hashCode(), test2.hashCode());
 
         // Same iri, different name - EQUAL
         test1 = iri("http://endhealth.info/im#11111", "test1");
         test2 = iri("http://endhealth.info/im#11111", "test2");
-        Assert.assertEquals(test1, test2);
-        Assert.assertEquals(test1.hashCode(), test2.hashCode());
+        assertEquals(test1, test2);
+        assertEquals(test1.hashCode(), test2.hashCode());
 
         // Different iri, same name - NOT EQUAL
         test1 = iri("http://endhealth.info/im#11111", "test1");
@@ -58,30 +59,32 @@ public class TTNodeTreeTest {
         AtomicInteger i = new AtomicInteger();
         AtomicReference<String> indent = new AtomicReference<>("");
 
-        visitor.LiteralVisitor = (predicate, literal) -> System.out.println("L " + indent + predicate.getIri() + " : " + literal.getValue());
-        visitor.IriRefVisitor = (predicate, iriRef) -> System.out.println("I " + indent + predicate.getIri() + " : " + iriRef.getIri());
-        visitor.NodeVisitor = (predicate, node) -> {
+        visitor.onLiteral((predicate, literal) -> System.out.println("L " + indent + predicate.getIri() + " : " + literal.getValue()));
+        visitor.onIriRef((predicate, iriRef) -> System.out.println("I " + indent + predicate.getIri() + " : " + iriRef.getIri()));
+        visitor.onNode((predicate, node) -> {
             System.out.println("N " + indent +(predicate == null ? "" : predicate.getIri()) + "{");
             i.getAndIncrement();
             indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
-        };
-        visitor.NodeExitVisitor = (predicate, node) -> {
+        });
+        visitor.onNodeExit((predicate, node) -> {
             i.getAndDecrement();
             indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
             System.out.println("N " + indent +"}");
-        };
-        visitor.ListVisitor = (predicate, list) -> {
+        });
+        visitor.onList((predicate, list) -> {
             System.out.println("A " + indent +"[");
             i.getAndIncrement();
             indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
-        };
-        visitor.ListExitVisitor = (predicate, list) -> {
+        });
+        visitor.onListExit((predicate, list) -> {
             i.getAndDecrement();
             indent.set(String.join("", Collections.nCopies(i.get(), "\t")));
             System.out.println("A " + indent +"]");
-        };
+        });
 
         visitor.visit(entity);
+
+        assertEquals(0, i.get());
     }
 
     public TTEntity getTestEntity() {
@@ -120,17 +123,17 @@ public class TTNodeTreeTest {
     }
 
     private void checkEntity(TTEntity entity) {
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", entity
+        assertEquals("Adverse reaction to Amlodipine Besilate", entity
             .getAsLiteral(RDFS.LABEL)
             .getValue()
         );
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", entity.getName());
-        Assert.assertEquals(3, entity
+        assertEquals("Adverse reaction to Amlodipine Besilate", entity.getName());
+        assertEquals(3, entity
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
-        Assert.assertEquals("http://snomed.info/sct#384976003", entity
+        assertEquals("http://snomed.info/sct#384976003", entity
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0).getAsArray(OWL.INTERSECTIONOF)
             .getAsNode(1).getAsIriRef(OWL.SOMEVALUESFROM).getIri()

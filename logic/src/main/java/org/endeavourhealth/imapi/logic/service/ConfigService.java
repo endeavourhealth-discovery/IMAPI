@@ -7,19 +7,12 @@ import org.endeavourhealth.imapi.dataaccess.entity.Config;
 import org.endeavourhealth.imapi.dataaccess.repository.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.EntityTctRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.ConfigRepository;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Qualifier("ConfigService")
@@ -35,6 +28,7 @@ public class ConfigService {
     ConfigRepository configRepository = new ConfigRepository();
 
     public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException, SQLException {
+        LOG.debug("getConfig<Class>");
 
         Config config = configRepository.findByName(name);
         if(config==null)
@@ -43,6 +37,7 @@ public class ConfigService {
     }
 
     public <T> T getConfig(String name, TypeReference<T> resultType) throws JsonProcessingException, SQLException {
+        LOG.debug("getConfig<TypeReference>");
 
         Config config = configRepository.findByName(name);
         if(config==null)

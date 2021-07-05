@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class ConfigRepository extends BaseRepository {
 
     public Config findByName(String name) throws SQLException {

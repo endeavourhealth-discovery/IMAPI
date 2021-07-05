@@ -2,14 +2,12 @@ package org.endeavourhealth.imapi.model.dto;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class SemanticProperty {
+import java.io.Serializable;
+
+public class SemanticProperty implements Serializable {
 
 	private TTIriRef property;
 	private TTIriRef type;
-
-	public SemanticProperty() {
-
-	}
 
 	public TTIriRef getProperty() {
 		return property;

@@ -14,7 +14,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     private final TTContext context = new TTContext();
-    private TTNodeDeserializer helper;
+    private transient TTNodeDeserializer helper;
 
     public TTDocumentDeserializer() {
         this(null);
@@ -61,7 +61,6 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                 Map.Entry<String, JsonNode> field = fields.next();
                 if (field.getKey().equals("@id")) {
                     entity.setIri(helper.expand(field.getValue().textValue()));
-                    // System.out.println(entity.getIri());
                 } else
                     entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
             }

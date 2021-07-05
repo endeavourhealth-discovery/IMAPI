@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class TTVisitor {
@@ -10,13 +9,48 @@ public class TTVisitor {
     public interface ITTListVisitor { void visit(TTIriRef predicate, TTArray node); }
     public interface ITTPredicateVisitor { void visit(TTIriRef predicate); }
 
-    public ITTLiteralVisitor LiteralVisitor = (predicate, literal) -> {};
-    public ITTIriRefVisitor IriRefVisitor = (predicate, iriRef) -> {};
-    public ITTNodeVisitor NodeVisitor = (predicate, node) -> {};
-    public ITTNodeVisitor NodeExitVisitor = (predicate, node) -> {};
-    public ITTListVisitor ListVisitor = (predicate, list) -> {};
-    public ITTListVisitor ListExitVisitor = (predicate, list) -> {};
-    public ITTPredicateVisitor PredicateVisitor = (predicate) -> {};
+    private ITTLiteralVisitor literalVisitor = (predicate, literal) -> {};
+    private ITTIriRefVisitor iriRefVisitor = (predicate, iriRef) -> {};
+    private ITTNodeVisitor nodeVisitor = (predicate, node) -> {};
+    private ITTNodeVisitor nodeExitVisitor = (predicate, node) -> {};
+    private ITTListVisitor listVisitor = (predicate, list) -> {};
+    private ITTListVisitor listExitVisitor = (predicate, list) -> {};
+    private ITTPredicateVisitor predicateVisitor = predicate -> {};
+
+    public TTVisitor onLiteral(ITTLiteralVisitor literalVisitor) {
+        this.literalVisitor = literalVisitor;
+        return this;
+    }
+
+    public TTVisitor onIriRef(ITTIriRefVisitor iriRefVisitor) {
+        this.iriRefVisitor = iriRefVisitor;
+        return this;
+    }
+
+    public TTVisitor onNode(ITTNodeVisitor nodeVisitor) {
+        this.nodeVisitor = nodeVisitor;
+        return this;
+    }
+
+    public TTVisitor onNodeExit(ITTNodeVisitor nodeExitVisitor) {
+        this.nodeExitVisitor = nodeExitVisitor;
+        return this;
+    }
+
+    public TTVisitor onList(ITTListVisitor listVisitor) {
+        this.listVisitor = listVisitor;
+        return this;
+    }
+
+    public TTVisitor onListExit(ITTListVisitor listExitVisitor) {
+        this.listExitVisitor = listExitVisitor;
+        return this;
+    }
+
+    public TTVisitor onPredicate(ITTPredicateVisitor predicateVisitor) {
+        this.predicateVisitor = predicateVisitor;
+        return this;
+    }
 
     public void visit(TTNode node) {
         visit(null, node);
@@ -25,29 +59,29 @@ public class TTVisitor {
 
     public void visit(TTIriRef predicate, TTNode node) {
         if (predicate != null)
-            PredicateVisitor.visit(predicate);
+            predicateVisitor.visit(predicate);
 
-        NodeVisitor.visit(predicate, node);
-        HashMap<TTIriRef, TTValue> predicateMap = node.getPredicateMap();
+        nodeVisitor.visit(predicate, node);
+        Map<TTIriRef, TTValue> predicateMap = node.getPredicateMap();
         for (Map.Entry<TTIriRef, TTValue> entry : predicateMap.entrySet()) {
             TTIriRef p = entry.getKey();
             TTValue v = entry.getValue();
 
             visit(p, v);
         }
-        NodeExitVisitor.visit(predicate, node);
+        nodeExitVisitor.visit(predicate, node);
     }
 
 
     public void visit(TTIriRef predicate, TTValue value) {
         if (value.isLiteral()) {
             if (predicate != null)
-                PredicateVisitor.visit(predicate);
-            LiteralVisitor.visit(predicate, value.asLiteral());
+                predicateVisitor.visit(predicate);
+            literalVisitor.visit(predicate, value.asLiteral());
         } else if (value.isIriRef()) {
             if (predicate != null)
-                PredicateVisitor.visit(predicate);
-            IriRefVisitor.visit(predicate, value.asIriRef());
+                predicateVisitor.visit(predicate);
+            iriRefVisitor.visit(predicate, value.asIriRef());
         }
         else if (value.isNode()) {
             visit(predicate, value.asNode());
@@ -58,11 +92,13 @@ public class TTVisitor {
 
     public void visit(TTIriRef predicate, TTArray array) {
         if (predicate != null)
-            PredicateVisitor.visit(predicate);
-        ListVisitor.visit(predicate, array);
-        for (TTValue value : array.elements) {
+            predicateVisitor.visit(predicate);
+        listVisitor.visit(predicate, array);
+        for (TTValue value : array.getElements()) {
             visit(predicate, value);
         }
-        ListExitVisitor.visit(predicate, array);
+        listExitVisitor.visit(predicate, array);
     }
+
+
 }

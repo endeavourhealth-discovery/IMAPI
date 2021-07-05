@@ -10,11 +10,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.junit.Assert.assertEquals;
 
 public class TTEntityJsonTest {
     @Test
@@ -22,9 +24,51 @@ public class TTEntityJsonTest {
         TTEntity adverseReaction = getTestEntity();
 
         ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+        String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+        String expected = new StringJoiner(System.lineSeparator())
+            .add("{")
+            .add("  \"@id\" : \"http://endhealth.info/im#25451000252115\",")
+            .add("  \"http://endhealth.info/im#code\" : \"25451000252115\",")
+            .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"Adverse reaction to Amlodipine Besilate or its derivatives\",")
+            .add("  \"http://endhealth.info/im#scheme\" : {")
+            .add("    \"@id\" : \"http://snomed.info/sct#891071000252105\",")
+            .add("    \"name\" : \"SNOMED\"")
+            .add("  },")
+            .add("  \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : [ {")
+            .add("    \"@id\" : \"http://www.w3.org/2002/07/owl#Class\"")
+            .add("  } ],")
+            .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Adverse reaction to Amlodipine Besilate\",")
+            .add("  \"http://www.w3.org/2002/07/owl#equivalentClass\" : [ {")
+            .add("    \"http://www.w3.org/2002/07/owl#intersectionOf\" : [ {")
+            .add("      \"@id\" : \"http://snomed.info/sct#62014003\"")
+            .add("    }, {")
+            .add("      \"http://www.w3.org/2002/07/owl#someValuesFrom\" : {")
+            .add("        \"@id\" : \"http://snomed.info/sct#384976003\"")
+            .add("      },")
+            .add("      \"http://www.w3.org/2002/07/owl#onProperty\" : {")
+            .add("        \"@id\" : \"http://snomed.info/sct#246075003\",")
+            .add("        \"name\" : \"\\\"quoted with \\\\'s\\\"\"")
+            .add("      },")
+            .add("      \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : {")
+            .add("        \"@id\" : \"http://www.w3.org/2002/07/owl#Restriction\"")
+            .add("      }")
+            .add("    }, {")
+            .add("      \"http://www.w3.org/2002/07/owl#someValuesFrom\" : 12345,")
+            .add("      \"http://www.w3.org/2002/07/owl#onProperty\" : \"\\\"quoted with \\\\'s\\\"\",")
+            .add("      \"http://www.w3.org/2002/07/owl#Class\" : true,")
+            .add("      \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : {")
+            .add("        \"@id\" : \"http://www.w3.org/2002/07/owl#Restriction\"")
+            .add("      },")
+            .add("      \"http://www.w3.org/2002/07/owl#oneOf\" : {")
+            .add("        \"@value\" : \"test.*\",")
+            .add("        \"@type\" : \"http://www.w3.org/2001/XMLSchema#pattern\"")
+            .add("      }")
+            .add("    } ]")
+            .add("  } ]")
+            .add("}")
+            .toString();
 
-        System.out.println(json);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -65,7 +109,7 @@ public class TTEntityJsonTest {
         String expected = Arrays.stream(json.split("\n")).sorted().collect(Collectors.joining("\n"));
         String actual = Arrays.stream(out.split("\n")).sorted().collect(Collectors.joining("\n"));
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     public TTEntity getTestEntity() {
@@ -104,17 +148,17 @@ public class TTEntityJsonTest {
     }
 
     private void checkEntity(TTEntity entity) {
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", entity
+        assertEquals("Adverse reaction to Amlodipine Besilate", entity
             .getAsLiteral(RDFS.LABEL)
             .getValue()
         );
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", entity.getName());
-        Assert.assertEquals(3, entity
+        assertEquals("Adverse reaction to Amlodipine Besilate", entity.getName());
+        assertEquals(3, entity
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
-        Assert.assertEquals("http://snomed.info/sct#384976003", entity
+        assertEquals("http://snomed.info/sct#384976003", entity
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0).getAsArray(OWL.INTERSECTIONOF)
             .getAsNode(1).getAsIriRef(OWL.SOMEVALUESFROM).getIri()

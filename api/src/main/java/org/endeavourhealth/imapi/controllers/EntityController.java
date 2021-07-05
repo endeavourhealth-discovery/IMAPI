@@ -1,15 +1,18 @@
 package org.endeavourhealth.imapi.controllers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.converters.EntityToImLang;
+import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.logic.service.EntityService;
@@ -28,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,13 +64,13 @@ public class EntityController {
         notes = "Performs an advanced entity search with multiple filter options",
         response = SearchResponse.class
     )
-	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws Exception {
+	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws SQLException {
 	    LOG.debug("advancedSearch");
         return new SearchResponse().setEntities(entityService.advancedSearch(request));
 	}
 
     @GetMapping(value = "/partial", produces = "application/json")
-    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") Set<String> predicates) throws SQLException, JsonProcessingException {
+    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") Set<String> predicates) throws SQLException {
         LOG.debug("getPartialEntity");
         return entityService.getEntityPredicates(iri, predicates);
     }
@@ -85,7 +90,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/download")
-	public HttpEntity download(
+	public HttpEntity<Object> download(
 	    @RequestParam String iri,
         @RequestParam String format,
         @RequestParam(required = false, defaultValue = "false") Boolean children,
@@ -97,16 +102,41 @@ public class EntityController {
         @RequestParam(required = false, defaultValue = "false") boolean inactive
     ) throws SQLException, IOException {
         LOG.debug("download");
-        return entityService.download(iri, format, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
+        if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
+            return null;
+
+        TTIriRef entity = entityService.getEntityReference(iri);
+
+        String filename = entity.getName() + " " + LocalDate.now();
+        HttpHeaders headers = new HttpHeaders();
+
+        if ("excel".equals(format)) {
+            XlsHelper xls = entityService.getExcelDownload(iri, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                xls.getWorkbook().write(outputStream);
+                xls.getWorkbook().close();
+                headers.setContentType(new MediaType("application", "force-download"));
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".xlsx\"");
+
+                return new HttpEntity<>(outputStream.toByteArray(), headers);
+            }
+        } else {
+            DownloadDto json = entityService.getJsonDownload(iri, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
+
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
+
+            return new HttpEntity<>(json, headers);
+        }
     }
 
 	@GetMapping(value = "/parents")
 	public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
-			@RequestParam(name = "size", required = false) Integer size,
-			@RequestParam(name = "includeLegacy", required = false) boolean includeLegacy) throws SQLException {
+			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
         LOG.debug("getEntityParents");
-        return entityService.getImmediateParents(iri, page, size, includeLegacy, false);
+        return entityService.getImmediateParents(iri, page, size, false);
 	}
 
 	@GetMapping(value = "/usages")
@@ -159,13 +189,12 @@ public class EntityController {
 	@PreAuthorize("isAuthenticated()")
 	public TTEntity createEntity(@RequestBody EntityDefinitionDto entityDto) {
 	    LOG.debug("createEntity");
-//    	TODO convert entityDto to entity
-//    	TODO save entity
+//    	TODO convert entityDto to entity and save
 		return new TTEntity();
 	}
 
 	@GetMapping(value = "/graph")
-	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getGraphData");
 		return entityService.getGraphData(iri);
 	}
@@ -177,19 +206,19 @@ public class EntityController {
 	}
 	
 	@GetMapping("/semanticProperties")
-	public List<SemanticProperty> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+	public List<SemanticProperty> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getSemanticProperties");
 		return entityService.getSemanticProperties(iri);
 	}
 
 	@GetMapping("/dataModelProperties")
-	public List<DataModelProperty> getDataModelProperties(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
+	public List<DataModelProperty> getDataModelProperties(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getDataModelProperties");
 		return entityService.getDataModelProperties(iri);
 	}
 	
 	@GetMapping("/definition")
-	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) throws JsonProcessingException, SQLException {
+	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getEntityDefinitionDto");
 		return entityService.getEntityDefinitionDto(iri);
 	}

@@ -8,11 +8,10 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>parser</name>
 
-
-
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+      <sonar.skip>true</sonar.skip>
     </properties>
     <dependencies>
         <dependency>

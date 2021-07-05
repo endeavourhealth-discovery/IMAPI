@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @EnableAutoConfiguration
 @SpringBootTest(classes = {FileUploadServiceImpl.class})
 class FileUploadServiceImplTest {
@@ -31,12 +33,10 @@ class FileUploadServiceImplTest {
 
     @Transactional
     @Test
-    public void testProcess() {
+    void testProcess() {
         FileUpload savedFile = fileUploadService.newUpload(fileUpload);
-        System.out.println(savedFile.getState());
+        assertEquals("UPLOADED", savedFile.getState().toString());
         StateMachine<States, Events> processSM = fileUploadService.process(savedFile.getId());
-        System.out.println(processSM.getState().getId());
-
-
+        assertEquals("PROCESSING", processSM.getState().getId().toString());
     }
 }

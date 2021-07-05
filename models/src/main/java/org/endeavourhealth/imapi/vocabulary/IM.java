@@ -99,6 +99,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
     public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
     public static final TTIriRef CODE_SCHEME_WINPATH_KINGS = iri(NAMESPACE +"KingsWinPathCodeScheme");
+    public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001 = iri(NAMESPACE +"NHSDataDictionaryEthnicCategory2001");
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");

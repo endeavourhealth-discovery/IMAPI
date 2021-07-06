@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.dataaccess;
+package org.endeavourhealth.imapi.logic.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

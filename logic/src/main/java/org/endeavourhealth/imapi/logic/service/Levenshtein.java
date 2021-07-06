@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.dataaccess;
+package org.endeavourhealth.imapi.logic.service;
 
 import java.util.Arrays;
 

@@ -1,5 +1,6 @@
-package org.endeavourhealth.imapi.converters;
+package org.endeavourhealth.imapi.logic.converters;
 
+import org.endeavourhealth.imapi.logic.converters.EntityToImLang;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;

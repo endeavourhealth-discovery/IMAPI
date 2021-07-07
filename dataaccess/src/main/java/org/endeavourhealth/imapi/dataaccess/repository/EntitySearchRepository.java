@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess.repository;
 
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
-import org.endeavourhealth.imapi.dataaccess.Levenshtein;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 
@@ -94,7 +93,6 @@ public class EntitySearchRepository extends BaseRepository {
             .setCode(rs.getString("code"))
             .setScheme(iri(rs.getString("scheme"), rs.getString("scheme_name")))
             .setMatch(rs.getString("term"))
-            .setWeighting(Levenshtein.calculate(termFilter, rs.getString("term")))
             .setStatus(iri(rs.getString("status"), rs.getString("status_name")));
     }
 

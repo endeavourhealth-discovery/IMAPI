@@ -176,8 +176,10 @@ public class EntityService {
 
 		List<EntitySummary> matchingEntity = entitySearchRepository.advancedSearch(request);
 
-		return matchingEntity.stream().sorted(Comparator.comparingInt(EntitySummary::getWeighting))
-				.collect(Collectors.toList());
+		return matchingEntity.stream()
+            .map(e -> e.setWeighting(Levenshtein.calculate(request.getTermFilter(), e.getMatch())))
+            .sorted(Comparator.comparingInt(EntitySummary::getWeighting))
+			.collect(Collectors.toList());
 	}
 
 	public ExportValueSet getValueSetMembers(String iri, boolean expand) throws SQLException {

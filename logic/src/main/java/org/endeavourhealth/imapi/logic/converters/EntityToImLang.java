@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.converters;
+package org.endeavourhealth.imapi.logic.converters;
 
 import java.text.MessageFormat;
 import java.util.Set;
@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.testcontainers.shaded.org.apache.commons.lang.StringUtils;
 
@@ -110,7 +109,6 @@ public class EntityToImLang {
         return imLangEntity;
     }
 
-    @NotNull
     private String getIntersectionNodeEntity(String imLangEntity, TTValue intersection) {
         TTIriRef property = intersection.asNode().getAsIriRef(OWL.ONPROPERTY);
         try {

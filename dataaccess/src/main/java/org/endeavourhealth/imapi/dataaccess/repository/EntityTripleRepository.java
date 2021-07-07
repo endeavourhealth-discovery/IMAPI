@@ -161,7 +161,7 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("SELECT o.iri, o.name, o.status")
                 .add("FROM entity c ")
                 .add("JOIN tpl t ON t.subject = c.dbid ")
-                .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?) ")
+                .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?,?) ")
                 .add("JOIN entity o ON o.dbid = t.object ")
                 .add("WHERE c.iri = ?");
         if(!includeInactive)
@@ -175,6 +175,7 @@ public class EntityTripleRepository extends BaseRepository{
                 int i = 0;
                 statement.setString(++i, IM.IS_A.getIri());
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
+                statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
                 if(!includeInactive) {
                     statement.setString(++i, IM.INACTIVE.getIri());

@@ -18,8 +18,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -30,7 +29,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
 public class EntityService {
-	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
 	EntityRepository entityRepository = new EntityRepository();
 
@@ -67,7 +65,6 @@ public class EntityService {
                 TTNode n = nodeMap.get(triple.getParent());
                 if (n == null)
                     throw new IllegalStateException("Unknown parent node!");
-
                 if (triple.isFunctional()) {
                     n.set(triple.getPredicate(), v);
                 } else {
@@ -275,7 +272,8 @@ public class EntityService {
 		return termCodeRepository.findAllByIri(iri);
 	}
 
-    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties, boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
+									   boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -290,7 +288,8 @@ public class EntityService {
         return downloadDto;
     }
 
-    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties, boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
+									  boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -411,30 +410,19 @@ public class EntityService {
 				.collect(Collectors.toList());
 
 		GraphDto semantic = new GraphDto().setKey("0_2").setName("Semantic properties");
-		GraphDto semanticWrapper = new GraphDto().setKey("0_2_0").setType(GraphType.PROPERTIES);
-		semanticWrapper.getLeafNodes()
-				.addAll(semanticProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
-		semantic.getChildren()
-				.add(semanticWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0").setType(GraphType.NONE)
-						: semanticWrapper);
+		GraphDto semanticWrapper = getWrapper(semanticProps,"0_2_0");
+		addWrapper(semantic, semanticWrapper,"0_2_0");
 
 		GraphDto dataModel = new GraphDto().setKey("0_3").setName("Data model properties");
+
 		GraphDto dataModelDirect = new GraphDto().setKey("0_3_0").setName("Direct");
-		GraphDto dataModelDirectWrapper = new GraphDto().setKey("0_3_0_0").setType(GraphType.PROPERTIES);
-		dataModelDirectWrapper.getLeafNodes()
-				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
-		dataModelDirect.getChildren()
-				.add(dataModelDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_3_0_0").setType(GraphType.NONE)
-						: dataModelDirectWrapper);
+		GraphDto dataModelDirectWrapper = getWrapper(dataModelProps,"0_3_0_0");
+		addWrapper(dataModelDirect,dataModelDirectWrapper,"0_3_0_0");
 
 		GraphDto dataModelInherited = new GraphDto().setKey("0_3_1").setName("Inherited");
-		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
-		dataModelInheritedWrapper.getLeafNodes()
-				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
-		dataModelInherited.getChildren()
-				.add(dataModelInheritedWrapper.getLeafNodes().isEmpty()
-						? new GraphDto().setKey("0_3_1_0").setType(GraphType.NONE)
-						: dataModelInheritedWrapper);
+		GraphDto dataModelInheritedWrapper = getDataModelInheritedWrapper(dataModelProps);
+		addWrapper(dataModelInherited,dataModelDirectWrapper,"0_3_1_0");
+
 		if (!dataModelDirectWrapper.getLeafNodes().isEmpty()) {
 			dataModel.getChildren().add(dataModelDirect);
 		}
@@ -462,6 +450,31 @@ public class EntityService {
 			graphData.getChildren().add(dataModel);
 		}
 		return graphData;
+	}
+
+	@NotNull
+	private GraphDto getWrapper(List<GraphDto> props,String key) {
+		GraphDto wrapper = new GraphDto().setKey(key).setType(GraphType.PROPERTIES);
+		wrapper.getLeafNodes()
+				.addAll(props.stream()
+						.filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
+		return wrapper;
+	}
+
+	@NotNull
+	private GraphDto getDataModelInheritedWrapper(List<GraphDto> dataModelProps) {
+		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
+		dataModelInheritedWrapper.getLeafNodes()
+				.addAll(dataModelProps.stream()
+						.filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
+		return dataModelInheritedWrapper;
+	}
+
+	private void addWrapper(GraphDto dto, GraphDto wrapper, String key) {
+		dto.getChildren()
+				.add(wrapper.getLeafNodes().isEmpty()
+						? new GraphDto().setKey(key).setType(GraphType.NONE)
+						: wrapper);
 	}
 
 	private List<GraphDto> getEntityDefinedParents(TTEntity entity, TTIriRef predicate) {

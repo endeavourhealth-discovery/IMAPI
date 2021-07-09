@@ -66,6 +66,13 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void getEntityPredicates_EmptyIri() throws SQLException {
+
+        TTEntity actual = entityService.getEntityPredicates("",null);
+        assertNotNull(actual);
+    }
+
+    @Test
     public void getEntityPredicates_notNullIriPredicates() throws SQLException {
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
@@ -136,6 +143,24 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void getImmediateChildren_EmptyIri() throws SQLException {
+        List<EntityReferenceNode> actual = entityService
+                .getImmediateChildren("", 1, 10, true);
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
+    public void getImmediateChildren_NullIndexSize() throws SQLException {
+        List<EntityReferenceNode> actual = entityService
+                .getImmediateChildren("http://endhealth.info/im#25451000252115", null, null, true);
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
     public void getImmediateChildren_NotNullIriAndInactiveTrue() throws SQLException {
 
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
@@ -182,6 +207,22 @@ public class EntityServiceTest {
     public void getImmediateParents_NullIri() throws SQLException {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateParents(null, 1, 10, true);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getImmediateParents_EmptyIri() throws SQLException {
+        List<EntityReferenceNode> actual = entityService
+                .getImmediateParents("", 1, 10, true);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void getImmediateParents_NullIndexSize() throws SQLException {
+        List<EntityReferenceNode> actual = entityService
+                .getImmediateParents("http://endhealth.info/im#25451000252115", null, null, true);
 
         assertNotNull(actual);
     }
@@ -235,6 +276,14 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void isWhichType_EmptyIri() throws SQLException {
+        List<TTIriRef> actual = entityService
+                .isWhichType("", Arrays.asList("A","B"));
+
+        assertNotNull(actual);
+    }
+
+    @Test
     public void isWhichType_EmptyCandidates() throws SQLException {
         List<TTIriRef> actual = entityService
                 .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList());
@@ -282,6 +331,13 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void usages_EmptyIri() throws SQLException {
+        List<TTIriRef> actual = entityService.usages("");
+
+        assertNotNull(actual);
+    }
+
+    @Test
     public void usages_NotNullIri() throws SQLException {
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
@@ -304,6 +360,15 @@ public class EntityServiceTest {
     @Test
     public void advancedSearch_NullTermFilter() throws Exception {
         SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
+
+        List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void advancedSearch_EmptyTermFilter() throws Exception {
+        SearchRequest searchRequest = new SearchRequest().setTermFilter("");
 
         List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
 
@@ -385,6 +450,14 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void getValueSetMembers_EmptyIri() throws SQLException {
+        ExportValueSet actual = entityService.getValueSetMembers("", true);
+
+        assertNull(actual);
+
+    }
+
+    @Test
     public void getValueSetMembers_ExpandTrue() throws SQLException {
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
@@ -438,6 +511,13 @@ public class EntityServiceTest {
     @Test
     public void isValuesetMember_NullIriAndMember() throws SQLException {
         ValueSetMembership actual = entityService.isValuesetMember(null, null);
+
+        assertNull(actual);
+    }
+
+    @Test
+    public void isValuesetMember_EmptyIriAndMember() throws SQLException {
+        ValueSetMembership actual = entityService.isValuesetMember("", "");
 
         assertNull(actual);
     }
@@ -503,6 +583,12 @@ public class EntityServiceTest {
     }
 
     @Test
+    public void getEntityTermCodes_EmptyIri() throws SQLException {
+        List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes("");
+        assertNotNull(actual);
+    }
+
+    @Test
     public void getEntityTermCodes_NotNullIri() throws SQLException {
         org.endeavourhealth.imapi.model.TermCode termCode = new org.endeavourhealth.imapi.model.TermCode()
                 .setCode("24951000252112")
@@ -517,14 +603,14 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void download_ExcelNullIri() throws SQLException, IOException {
+    public void download_ExcelNullIri() throws SQLException{
         XlsHelper actual = entityService.getExcelDownload(null, true, true, true ,true, false, true, true);
 
         assertNull(actual);
     }
 
     @Test
-    public void download_ExcelEmptyIri() throws SQLException, IOException {
+    public void download_ExcelEmptyIri() throws SQLException{
         XlsHelper actual = entityService.getExcelDownload("", true, true, true ,true, false, true, true);
 
         assertNull(actual);
@@ -545,7 +631,7 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void download_AllSelectionsTrueExcelFormat() throws SQLException, IOException {
+    public void download_AllSelectionsTrueExcelFormat() throws SQLException{
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
@@ -575,6 +661,16 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember2));
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", true,
                 true, true ,true, false, true, true);
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
+    public void download_AllSelectionsFalseExcelFormat() throws SQLException{
+
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", false,
+                false, false ,false, false, false, false);
 
         assertNotNull(actual);
 
@@ -612,6 +708,16 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember2));
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", true,
                 true, true ,true, false, true, true);
+
+        assertNotNull(actual);
+
+    }
+
+    @Test
+    public void download_AllSelectionsFalseJsonFormat() throws SQLException {
+
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", false,
+                false, false ,false, false, false, true);
 
         assertNotNull(actual);
 

@@ -11,6 +11,7 @@ public class ExportValueSet implements Serializable {
     private TTIriRef valueSet;
     private List<ValueSetMember> included = new ArrayList<>();
     private List<ValueSetMember> excluded = new ArrayList<>();
+    private List<ValueSetMember> includedSubsets = new ArrayList<>();
     private boolean limited = false;
 
     public TTIriRef getValueSet() {
@@ -65,6 +66,29 @@ public class ExportValueSet implements Serializable {
         if (this.excluded == null)
             this.excluded = new ArrayList<>();
         this.excluded.addAll(vsm);
+        return this;
+    }
+
+    public List<ValueSetMember> getIncludedSubsets() {
+        return includedSubsets;
+    }
+
+    public ExportValueSet setIncludedSubsets(List<ValueSetMember> includedSets) {
+        this.includedSubsets = includedSets;
+        return this;
+    }
+
+    public ExportValueSet addIncludedSubsets(ValueSetMember vsm) {
+        if (this.includedSubsets == null)
+            this.includedSubsets = new ArrayList<>();
+        this.includedSubsets.add(vsm);
+        return this;
+    }
+
+    public ExportValueSet addAllIncludedSubsets(Collection<ValueSetMember> vsm) {
+        if (this.includedSubsets == null)
+            this.includedSubsets = new ArrayList<>();
+        this.includedSubsets.addAll(vsm);
         return this;
     }
 

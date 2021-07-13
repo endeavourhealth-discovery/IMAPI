@@ -443,7 +443,7 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_NullIri() throws SQLException {
-        ExportValueSet actual = entityService.getValueSetMembers(null, true);
+        ExportValueSet actual = entityService.getValueSetMembers(null, true,false);
 
         assertNull(actual);
 
@@ -451,7 +451,7 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_EmptyIri() throws SQLException {
-        ExportValueSet actual = entityService.getValueSetMembers("", true);
+        ExportValueSet actual = entityService.getValueSetMembers("", true,false);
 
         assertNull(actual);
 
@@ -479,7 +479,7 @@ public class EntityServiceTest {
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
         when(valueSetRepository.expandMember(any(), any())).thenReturn(Collections.singletonList(valueSetMember));
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", true,0);
+        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", true,false,0);
 
         assertNotNull(actual);
 
@@ -502,7 +502,7 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember1));
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false);
+        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false);
 
         assertNotNull(actual);
 
@@ -604,28 +604,28 @@ public class EntityServiceTest {
 
     @Test
     public void download_ExcelNullIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload(null, true, true, true ,true, false, true, true);
+        XlsHelper actual = entityService.getExcelDownload(null, true, true, true ,true, false,false, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_ExcelEmptyIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload("", true, true, true ,true, false, true, true);
+        XlsHelper actual = entityService.getExcelDownload("", true, true, true ,true, false,false, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONNullIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload(null, true, true, true ,true, false, true, true);
+        DownloadDto actual = entityService.getJsonDownload(null, true, true, true ,true, false,false, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONEmptyIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload("", true, true, true ,true, false, true, true);
+        DownloadDto actual = entityService.getJsonDownload("", true, true, true ,true, false,false, true, true);
 
         assertNull(actual);
     }
@@ -660,7 +660,7 @@ public class EntityServiceTest {
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", true,
-                true, true ,true, false, true, true);
+                true, true ,true, false,false, true, true);
 
         assertNotNull(actual);
 
@@ -670,7 +670,7 @@ public class EntityServiceTest {
     public void download_AllSelectionsFalseExcelFormat() throws SQLException{
 
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", false,
-                false, false ,false, false, false, false);
+                false, false ,false, false,false, false, false);
 
         assertNotNull(actual);
 
@@ -707,7 +707,7 @@ public class EntityServiceTest {
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", true,
-                true, true ,true, false, true, true);
+                true, true ,true, false,false, true, true);
 
         assertNotNull(actual);
 
@@ -717,7 +717,7 @@ public class EntityServiceTest {
     public void download_AllSelectionsFalseJsonFormat() throws SQLException {
 
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", false,
-                false, false ,false, false, false, true);
+                false, false ,false, false,false, false, true);
 
         assertNotNull(actual);
 
@@ -747,7 +747,7 @@ public class EntityServiceTest {
 
     @Test
     public void valueSetMembersCSV_NullIri() throws SQLException {
-        String actual = entityService.valueSetMembersCSV(null, true);
+        String actual = entityService.valueSetMembersCSV(null, true,true);
         assertNotNull(actual);
     }
 
@@ -775,7 +775,7 @@ public class EntityServiceTest {
         when(valueSetRepository.expandMember(any(), any())).thenReturn(Collections.singletonList(valueSetMember));
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
-        String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true);
+        String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true,true);
         assertNotNull(actual);
     }
 
@@ -797,7 +797,7 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember2));
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
-        String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false);
+        String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false, false);
         assertNotNull(actual);
     }
 

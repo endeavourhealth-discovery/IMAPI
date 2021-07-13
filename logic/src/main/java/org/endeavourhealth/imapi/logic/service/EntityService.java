@@ -179,35 +179,39 @@ public class EntityService {
 			.collect(Collectors.toList());
 	}
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expand) throws SQLException {
-        return getValueSetMembers(iri, expand, null);
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets) throws SQLException {
+        return getValueSetMembers(iri, expandMembers, expandSets,  null);
     }
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expand, Integer limit) throws SQLException {
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit) throws SQLException {
 		if (iri == null || iri.isEmpty()) {
 			return null;
 		}
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
 
+		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 		Set<ValueSetMember> definedInclusions = getMember(iri, IM.HAS_MEMBER);
 		Set<ValueSetMember> definedExclusions = getMember(iri, IM.NOT_MEMBER);
 
 		int memberCount = 0;
-		Map<String, ValueSetMember> evaluatedInclusions = processMembers(definedInclusions, expand, memberCount, limit);
+		Map<String, ValueSetMember> evaluatedSetInclusions = processMembers(definedSetInclusions, expandSets, memberCount, limit);
+		memberCount += evaluatedSetInclusions.size();
+		Map<String, ValueSetMember> evaluatedInclusions = processMembers(definedInclusions, expandMembers, memberCount, limit);
 		memberCount += evaluatedInclusions.size();
-		Map<String, ValueSetMember> evaluatedExclusions = processMembers(definedExclusions, expand, memberCount, limit);
+		Map<String, ValueSetMember> evaluatedExclusions = processMembers(definedExclusions, expandMembers, memberCount, limit);
         memberCount += evaluatedExclusions.size();
 
 		if (limit != null && memberCount > limit)
 		    return result.setLimited(true);
 
-		if (expand) {
+		if (expandMembers) {
 			// Remove exclusions by key
 			evaluatedExclusions.forEach((k, v) -> evaluatedInclusions.remove(k));
 		}
 
+		result.addAllIncludedSubsets(evaluatedSetInclusions.values());
 		result.addAllIncluded(evaluatedInclusions.values());
-		if (!expand)
+		if (!expandMembers)
 			result.addAllExcluded(evaluatedExclusions.values());
 
 		return result;
@@ -273,7 +277,7 @@ public class EntityService {
 	}
 
     public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
-									   boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -283,13 +287,13 @@ public class EntityService {
         if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers));
+        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets));
 
         return downloadDto;
     }
 
     public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
-									  boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+									  boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -299,7 +303,7 @@ public class EntityService {
         if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
-        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers));
+        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets));
 
         return xls;
     }
@@ -356,15 +360,20 @@ public class EntityService {
 		return pv;
 	}
 
-	public String valueSetMembersCSV(String iri, boolean expanded) throws SQLException {
-		ExportValueSet exportValueSet = getValueSetMembers(iri, expanded);
+	public String valueSetMembersCSV(String iri, boolean expandMember, boolean expandSubset) throws SQLException {
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset);
 		StringBuilder valueSetMembers = new StringBuilder();
 		valueSetMembers.append(
-				"Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
+				"Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
 		if (exportValueSet == null)
 			return valueSetMembers.toString();
 		for (ValueSetMember inc : exportValueSet.getIncluded()) {
 			appendValueSet(exportValueSet, valueSetMembers, inc, "Inc");
+		}
+		if(exportValueSet.getIncludedSubsets() != null){
+			for(ValueSetMember incSubset : exportValueSet.getIncludedSubsets()){
+				appendValueSet(exportValueSet, valueSetMembers, incSubset, "IncSubset");
+			}
 		}
 		if (exportValueSet.getExcluded() != null) {
 			for (ValueSetMember exc : exportValueSet.getExcluded()) {

@@ -98,6 +98,7 @@ public class EntityController {
         @RequestParam(required = false, defaultValue = "false") boolean dataModelProperties,
         @RequestParam(required = false, defaultValue = "false") boolean members,
         @RequestParam(required = false, defaultValue = "false") boolean expandMembers,
+        @RequestParam(required = false, defaultValue = "false") boolean expandSubsets,
         @RequestParam(required = false, defaultValue = "false") boolean semanticProperties,
         @RequestParam(required = false, defaultValue = "false") boolean inactive
     ) throws SQLException, IOException {
@@ -111,7 +112,7 @@ public class EntityController {
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -122,7 +123,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, children, parents, dataModelProperties, members, expandMembers, semanticProperties, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
@@ -155,18 +156,20 @@ public class EntityController {
 	@GetMapping(value = "/members")
 	public ExportValueSet valueSetMembersJson(
 	    @RequestParam(name = "iri") String iri,
-		@RequestParam(name = "expanded", required = false) boolean expanded,
+		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
+		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
         @RequestParam(name = "limit", required = false) Integer limit
     ) throws SQLException {
         LOG.debug("valueSetMembersJson");
-        return entityService.getValueSetMembers(iri, expanded, limit);
+        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
 	}
 
 	@GetMapping(value = "/members", produces = { "text/csv" })
 	public String valueSetMembersCSV(@RequestParam(name = "iri") String iri,
-			@RequestParam(name = "expanded", required = false) boolean expanded) throws SQLException {
+			@RequestParam(name = "expandedMember", required = false) boolean expandedMember,
+			@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset) throws SQLException {
         LOG.debug("valueSetMembersCSV");
-        return entityService.valueSetMembersCSV(iri, expanded);
+        return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
 	}
 
 	@GetMapping(value = "/isMemberOf")

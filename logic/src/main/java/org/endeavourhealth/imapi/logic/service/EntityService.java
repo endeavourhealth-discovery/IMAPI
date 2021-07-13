@@ -190,29 +190,29 @@ public class EntityService {
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
 
 		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
-		Set<ValueSetMember> definedInclusions = getMember(iri, IM.HAS_MEMBER);
-		Set<ValueSetMember> definedExclusions = getMember(iri, IM.NOT_MEMBER);
+		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
+		Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
 
 		int memberCount = 0;
 		Map<String, ValueSetMember> evaluatedSetInclusions = processMembers(definedSetInclusions, expandSets, memberCount, limit);
 		memberCount += evaluatedSetInclusions.size();
-		Map<String, ValueSetMember> evaluatedInclusions = processMembers(definedInclusions, expandMembers, memberCount, limit);
-		memberCount += evaluatedInclusions.size();
-		Map<String, ValueSetMember> evaluatedExclusions = processMembers(definedExclusions, expandMembers, memberCount, limit);
-        memberCount += evaluatedExclusions.size();
+		Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
+		memberCount += evaluatedMemberInclusions.size();
+		Map<String, ValueSetMember> evaluatedMemberExclusions = processMembers(definedMemberExclusions, expandMembers, memberCount, limit);
+        memberCount += evaluatedMemberExclusions.size();
 
 		if (limit != null && memberCount > limit)
 		    return result.setLimited(true);
 
 		if (expandMembers) {
 			// Remove exclusions by key
-			evaluatedExclusions.forEach((k, v) -> evaluatedInclusions.remove(k));
+			evaluatedMemberExclusions.forEach((k, v) -> evaluatedMemberInclusions.remove(k));
 		}
 
 		result.addAllIncludedSubsets(evaluatedSetInclusions.values());
-		result.addAllIncluded(evaluatedInclusions.values());
+		result.addAllIncludedMembers(evaluatedMemberInclusions.values());
 		if (!expandMembers)
-			result.addAllExcluded(evaluatedExclusions.values());
+			result.addAllExcludedMembers(evaluatedMemberExclusions.values());
 
 		return result;
 	}
@@ -367,7 +367,7 @@ public class EntityService {
 				"Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
 		if (exportValueSet == null)
 			return valueSetMembers.toString();
-		for (ValueSetMember inc : exportValueSet.getIncluded()) {
+		for (ValueSetMember inc : exportValueSet.getIncludedMembers()) {
 			appendValueSet(exportValueSet, valueSetMembers, inc, "Inc");
 		}
 		if(exportValueSet.getIncludedSubsets() != null){
@@ -375,8 +375,8 @@ public class EntityService {
 				appendValueSet(exportValueSet, valueSetMembers, incSubset, "IncSubset");
 			}
 		}
-		if (exportValueSet.getExcluded() != null) {
-			for (ValueSetMember exc : exportValueSet.getExcluded()) {
+		if (exportValueSet.getExcludedMembers() != null) {
+			for (ValueSetMember exc : exportValueSet.getExcludedMembers()) {
 				appendValueSet(exportValueSet, valueSetMembers, exc, "Exc");
 			}
 		}

@@ -194,7 +194,7 @@ public class EntityService {
 		Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
 		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 
-		if (expandSets) {
+		if (expandSets || expandMembers) {
 			for (ValueSetMember set : definedSetInclusions) {
 				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit);
 				definedMemberInclusions.addAll(individualResults.getIncludedMembers());

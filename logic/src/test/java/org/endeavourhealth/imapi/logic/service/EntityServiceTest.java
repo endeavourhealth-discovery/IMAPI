@@ -459,26 +459,31 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_ExpandMemberTrue() throws SQLException {
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
+        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember3 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+            .setEntity(iri("http://endhealth.info/im#IncludedMember","Included member"))
+            .setCode("1")
+            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_SUBSET.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember3));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember excludedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+            .setEntity(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
+            .setCode("2")
+            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", true,false,0);
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+            .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
+
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
+            .thenReturn(Collections.singleton(includedSet));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
+            .thenReturn(Collections.singleton(includedMember));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
+            .thenReturn(Collections.singleton(excludedMember));
+
+
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0);
 
         assertNotNull(actual);
 
@@ -486,31 +491,31 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_ExpandSubsetTrue() throws SQLException {
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
+        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember3 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+            .setEntity(iri("http://endhealth.info/im#IncludedMember","Included member"))
+            .setCode("1")
+            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_SUBSET.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember3));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000652115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember excludedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+            .setEntity(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
+            .setCode("2")
+            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        when(valueSetRepository.expandMember(any(), any())).thenReturn(Collections.singletonList(valueSetMember));
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false,true,0);
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+            .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
+
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
+            .thenReturn(Collections.singleton(includedSet));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
+            .thenReturn(Collections.singleton(includedMember));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
+            .thenReturn(Collections.singleton(excludedMember));
+
+
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0);
 
         assertNotNull(actual);
 
@@ -789,35 +794,37 @@ public class EntityServiceTest {
 
     @Test
     public void valueSetMembersCSV_NotNullIriExpandTrue() throws SQLException {
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
+        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000552115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setEntity(iri("http://endhealth.info/im#IncludedMember","Included member"))
+                .setCode("1")
+                .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember3 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember excludedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setEntity(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
+                .setCode("2")
+                .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_SUBSET.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember3));
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000652115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
+                .thenReturn(Collections.singleton(includedSet));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(includedMember));
+        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
+                .thenReturn(Collections.singleton(excludedMember));
 
-        when(valueSetRepository.expandMember(any(), any())).thenReturn(Collections.singletonList(valueSetMember));
-        TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
-        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
-        String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", true,true);
+        org.endeavourhealth.imapi.model.valuset.ValueSetMember childMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
+                .setEntity(iri("http://endhealth.info/im#Child","Child"))
+                .setCode("3")
+                .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+
+        when(valueSetRepository.expandMember(eq("http://endhealth.info/im#IncludedMember"), any())).thenReturn(Collections.singletonList(childMember));
+
+        String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
         assertNotNull(actual);
     }
 

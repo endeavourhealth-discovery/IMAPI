@@ -188,12 +188,23 @@ public class EntityService {
 			return null;
 		}
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
+		int memberCount = 0;
 
-		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
 		Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
+		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 
-		int memberCount = 0;
+		if (expandSets) {
+			for (ValueSetMember set : definedSetInclusions) {
+				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit);
+				definedMemberInclusions.addAll(individualResults.getIncludedMembers());
+				definedMemberExclusions.addAll(individualResults.getExcludedMembers());
+			};
+		} else {
+			memberCount += definedSetInclusions.size();
+			result.addAllIncludedSubsets(definedSetInclusions);
+		}
+
 		Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
 		memberCount += evaluatedMemberInclusions.size();
 		Map<String, ValueSetMember> evaluatedMemberExclusions = processMembers(definedMemberExclusions, expandMembers, memberCount, limit);
@@ -202,21 +213,6 @@ public class EntityService {
 		if (expandMembers) {
 			// Remove exclusions by key
 			evaluatedMemberExclusions.forEach((k, v) -> evaluatedMemberInclusions.remove(k));
-		}
-
-		if(expandSets) {
-			for (ValueSetMember subSetMember: definedSetInclusions) {
-				System.out.println(iri);
-				System.out.println(subSetMember.getEntity().getIri());
-				Set<ValueSetMember> definedExpandedSetInclusions = getMember(subSetMember.getEntity().getIri(), IM.HAS_MEMBER);
-				Map<String, ValueSetMember> evaluatedExpandedSetInclusions = processMembers(definedExpandedSetInclusions, false, memberCount, limit);
-				memberCount += evaluatedExpandedSetInclusions.size();
-				result.addAllExcludedMembers(evaluatedExpandedSetInclusions.values());
-			}
-		} else {
-			Map<String, ValueSetMember> evaluatedSetInclusions = processMembers(definedSetInclusions, expandSets, memberCount, limit);
-			memberCount += evaluatedSetInclusions.size();
-			result.addAllIncludedSubsets(evaluatedSetInclusions.values());
 		}
 
 		if (limit != null && memberCount > limit)

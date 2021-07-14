@@ -194,22 +194,34 @@ public class EntityService {
 		Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
 
 		int memberCount = 0;
-		Map<String, ValueSetMember> evaluatedSetInclusions = processMembers(definedSetInclusions, expandSets, memberCount, limit);
-		memberCount += evaluatedSetInclusions.size();
 		Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
 		memberCount += evaluatedMemberInclusions.size();
 		Map<String, ValueSetMember> evaluatedMemberExclusions = processMembers(definedMemberExclusions, expandMembers, memberCount, limit);
         memberCount += evaluatedMemberExclusions.size();
-
-		if (limit != null && memberCount > limit)
-		    return result.setLimited(true);
 
 		if (expandMembers) {
 			// Remove exclusions by key
 			evaluatedMemberExclusions.forEach((k, v) -> evaluatedMemberInclusions.remove(k));
 		}
 
-		result.addAllIncludedSubsets(evaluatedSetInclusions.values());
+		if(expandSets) {
+			for (ValueSetMember subSetMember: definedSetInclusions) {
+				System.out.println(iri);
+				System.out.println(subSetMember.getEntity().getIri());
+				Set<ValueSetMember> definedExpandedSetInclusions = getMember(subSetMember.getEntity().getIri(), IM.HAS_MEMBER);
+				Map<String, ValueSetMember> evaluatedExpandedSetInclusions = processMembers(definedExpandedSetInclusions, false, memberCount, limit);
+				memberCount += evaluatedExpandedSetInclusions.size();
+				result.addAllExcludedMembers(evaluatedExpandedSetInclusions.values());
+			}
+		} else {
+			Map<String, ValueSetMember> evaluatedSetInclusions = processMembers(definedSetInclusions, expandSets, memberCount, limit);
+			memberCount += evaluatedSetInclusions.size();
+			result.addAllIncludedSubsets(evaluatedSetInclusions.values());
+		}
+
+		if (limit != null && memberCount > limit)
+			return result.setLimited(true);
+
 		result.addAllIncludedMembers(evaluatedMemberInclusions.values());
 		if (!expandMembers)
 			result.addAllExcludedMembers(evaluatedMemberExclusions.values());

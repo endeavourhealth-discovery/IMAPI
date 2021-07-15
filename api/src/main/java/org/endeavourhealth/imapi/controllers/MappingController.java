@@ -1,32 +1,21 @@
-package org.endeavourhealth.controllers;
+package org.endeavourhealth.imapi.controllers;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTConcept;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import be.ugent.rml.Executor;
@@ -50,14 +39,14 @@ public class MappingController {
 	ObjectMapper mapper = new ObjectMapper();
 
 	@PostMapping
-	public List<TTConcept> main(@RequestParam("file") MultipartFile file, @RequestParam("map") MultipartFile map)
+	public List<TTEntity> main(@RequestParam("file") MultipartFile file, @RequestParam("map") MultipartFile map)
 			throws Exception {
-		List<TTConcept> ttconcepts = new ArrayList<>();
+		List<TTEntity> ttconcepts = new ArrayList<>();
 		ttconcepts.addAll(map(file, map));
 		return ttconcepts;
 	}
 
-	private List<TTConcept> map(MultipartFile file, MultipartFile map) throws Exception {
+	private List<TTEntity> map(MultipartFile file, MultipartFile map) throws Exception {
 		// path to the content file
 		File savedFile = new File("src/test/resources/" + file.getResource().getFilename());
 		if (!savedFile.exists()) {
@@ -101,7 +90,7 @@ public class MappingController {
 			System.out.println(subject + " : " + predicate + " : " + object);
 		});
 
-		List<TTConcept> ttconcepts = getTTConceptsFromQuads(result.getQuads(null, null, null));
+		List<TTEntity> ttconcepts = getTTEntitiesFromQuads(result.getQuads(null, null, null));
 
 		savedFile.delete();
 		savedMap.delete();
@@ -109,11 +98,11 @@ public class MappingController {
 		return ttconcepts;
 	}
 
-	private List<TTConcept> getTTConceptsFromQuads(List<Quad> quads) throws JsonProcessingException {
-		List<TTConcept> concepts = new ArrayList<>();
+	private List<TTEntity> getTTEntitiesFromQuads(List<Quad> quads) throws JsonProcessingException {
+		List<TTEntity> concepts = new ArrayList<>();
 
 		quads.forEach(quad -> {
-			List<TTConcept> existingConcepts = concepts.stream()
+			List<TTEntity> existingConcepts = concepts.stream()
 					.filter(concept -> quad.getSubject().getValue().equals(concept.getIri()))
 					.collect(Collectors.toList());
 
@@ -121,7 +110,7 @@ public class MappingController {
 				existingConcepts.get(0).addObject(new TTIriRef(quad.getPredicate().getValue()),
 						new TTIriRef(quad.getObject().getValue()));
 			} else {
-				TTConcept concept = new TTConcept().setIri(quad.getSubject().getValue());
+				TTEntity concept = new TTEntity().setIri(quad.getSubject().getValue());
 				concept.addObject(new TTIriRef(quad.getPredicate().getValue()),
 						new TTIriRef(quad.getObject().getValue()));
 				concepts.add(concept);

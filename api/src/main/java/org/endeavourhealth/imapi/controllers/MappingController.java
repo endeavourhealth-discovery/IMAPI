@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -105,19 +106,20 @@ public class MappingController {
 					.collect(Collectors.toList());
 			entities.add(convertQuadListToTTEntity(iri, subQuads));
 		});
+		
 		return entities;
 	}
 
 	private TTEntity convertQuadListToTTEntity(String iri, List<Quad> subQuads) {
 		TTEntity entity = new TTEntity().setIri(iri);
 		subQuads.forEach(quad -> {
-			System.out.println(quad.getPredicate().getValue() + " : " + quad.getObject().getValue() + " : "
-					+ predicateIsArray(quad.getPredicate().getValue(), subQuads));
+			quad.getGraph();
+			
 			if (predicateIsArray(quad.getPredicate().getValue(), subQuads)) {
 				entity.addObject(new TTIriRef(quad.getPredicate().getValue()),
-						new TTIriRef(quad.getObject().getValue()));
+						new TTLiteral(quad.getObject().getValue()));
 			} else {
-				entity.set(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef(quad.getObject().getValue()));
+				entity.set(new TTIriRef(quad.getPredicate().getValue()), new TTLiteral(quad.getObject().getValue()));
 			}
 		});
 		return entity;

@@ -3,20 +3,15 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
-public class TTNode extends TTValue {
-    private HashMap<TTIriRef, TTValue> predicateValues = new HashMap<>();
-
-    public TTNode() {}
+public class TTNode implements TTValue {
+    private Map<TTIriRef, TTValue> predicateValues = new HashMap<>();
 
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)
@@ -31,16 +26,14 @@ public class TTNode extends TTValue {
     }
 
     public boolean has(TTIriRef predicate) {
-        if (predicateValues.containsKey(predicate))
-            return true;
-        return false;
+        return predicateValues.containsKey(predicate);
     }
 
-    public HashMap<TTIriRef, TTValue> getPredicateMap() {
+    public Map<TTIriRef, TTValue> getPredicateMap() {
         return this.predicateValues;
     }
 
-    public TTNode setPredicateMap(HashMap<TTIriRef,TTValue> predicateMap) {
+    public TTNode setPredicateMap(Map<TTIriRef,TTValue> predicateMap) {
         this.predicateValues= predicateMap;
         return this;
     }
@@ -68,8 +61,18 @@ public class TTNode extends TTValue {
         return predicateValues.get(predicate).asArray();
     }
 
+    @Override
+    public TTArray asArray(){
+        return new TTArray().add(this);
+    }
+
+    @Override
+    public List<TTValue> getElements(){
+        return new ArrayList<>(Collections.singletonList(this));
+    }
+
     public List<TTValue> getAsArrayElements(TTIriRef predicate) {
-        return predicateValues.get(predicate).asArrayElements();
+        return predicateValues.get(predicate).getElements();
     }
 
 

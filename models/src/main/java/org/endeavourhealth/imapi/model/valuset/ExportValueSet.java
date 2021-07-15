@@ -2,15 +2,17 @@ package org.endeavourhealth.imapi.model.valuset;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ExportValueSet {
+public class ExportValueSet implements Serializable {
     private TTIriRef valueSet;
-    // private ConceptReference relationship;
-    private List<ValueSetMember> included = new ArrayList<>();
-    private List<ValueSetMember> excluded = new ArrayList<>();
+    private List<ValueSetMember> includedMembers = new ArrayList<>();
+    private List<ValueSetMember> excludedMembers = new ArrayList<>();
+    private List<ValueSetMember> includedSubsets = new ArrayList<>();
+    private boolean limited = false;
 
     public TTIriRef getValueSet() {
         return valueSet;
@@ -21,58 +23,81 @@ public class ExportValueSet {
         return this;
     }
 
-//    public ConceptReference getRelationship() {
-//        return relationship;
-//    }
-//
-//    public ExportValueSet setRelationship(ConceptReference relationship) {
-//        this.relationship = relationship;
-//        return this;
-//    }
-
-    public List<ValueSetMember> getIncluded() {
-        return included;
+    public List<ValueSetMember> getIncludedMembers() {
+        return includedMembers;
     }
 
-    public ExportValueSet setIncluded(List<ValueSetMember> included) {
-        this.included = included;
+    public ExportValueSet setIncludedMembers(List<ValueSetMember> includedMembers) {
+        this.includedMembers = includedMembers;
         return this;
     }
 
-    public ExportValueSet addIncluded(ValueSetMember vsm) {
-        if (this.included == null)
-            this.included = new ArrayList<>();
-        this.included.add(vsm);
+    public ExportValueSet addIncludedMembers(ValueSetMember vsm) {
+        if (this.includedMembers == null)
+            this.includedMembers = new ArrayList<>();
+        this.includedMembers.add(vsm);
         return this;
     }
 
-    public ExportValueSet addAllIncluded(Collection<ValueSetMember> vsm) {
-        if (this.included == null)
-            this.included = new ArrayList<>();
-        this.included.addAll(vsm);
+    public ExportValueSet addAllIncludedMembers(Collection<ValueSetMember> vsm) {
+        if (this.includedMembers == null)
+            this.includedMembers = new ArrayList<>();
+        this.includedMembers.addAll(vsm);
         return this;
     }
 
-    public List<ValueSetMember> getExcluded() {
-        return excluded;
+    public List<ValueSetMember> getExcludedMembers() {
+        return excludedMembers;
     }
 
-    public ExportValueSet setExcluded(List<ValueSetMember> excluded) {
-        this.excluded = excluded;
+    public ExportValueSet setExcludedMembers(List<ValueSetMember> excludedMembers) {
+        this.excludedMembers = excludedMembers;
         return this;
     }
 
-    public ExportValueSet addExcluded(ValueSetMember vsm) {
-        if (this.excluded == null)
-            this.excluded = new ArrayList<>();
-        this.excluded.add(vsm);
+    public ExportValueSet addExcludedMembers(ValueSetMember vsm) {
+        if (this.excludedMembers == null)
+            this.excludedMembers = new ArrayList<>();
+        this.excludedMembers.add(vsm);
         return this;
     }
 
-    public ExportValueSet addAllExcluded(Collection<ValueSetMember> vsm) {
-        if (this.excluded == null)
-            this.excluded = new ArrayList<>();
-        this.excluded.addAll(vsm);
+    public ExportValueSet addAllExcludedMembers(Collection<ValueSetMember> vsm) {
+        if (this.excludedMembers == null)
+            this.excludedMembers = new ArrayList<>();
+        this.excludedMembers.addAll(vsm);
+        return this;
+    }
+
+    public List<ValueSetMember> getIncludedSubsets() {
+        return includedSubsets;
+    }
+
+    public ExportValueSet setIncludedSubsets(List<ValueSetMember> includedSets) {
+        this.includedSubsets = includedSets;
+        return this;
+    }
+
+    public ExportValueSet addIncludedSubsets(ValueSetMember vsm) {
+        if (this.includedSubsets == null)
+            this.includedSubsets = new ArrayList<>();
+        this.includedSubsets.add(vsm);
+        return this;
+    }
+
+    public ExportValueSet addAllIncludedSubsets(Collection<ValueSetMember> vsm) {
+        if (this.includedSubsets == null)
+            this.includedSubsets = new ArrayList<>();
+        this.includedSubsets.addAll(vsm);
+        return this;
+    }
+
+    public boolean isLimited() {
+        return limited;
+    }
+
+    public ExportValueSet setLimited(boolean limited) {
+        this.limited = limited;
         return this;
     }
 }

@@ -17,7 +17,7 @@ public class IMLangBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConcept(IMLangParser.ConceptContext ctx) { return visitChildren(ctx); }
+	@Override public T visitEntity(IMLangParser.EntityContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

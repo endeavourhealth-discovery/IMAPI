@@ -6,13 +6,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTArrayDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTArraySerializer;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @JsonSerialize(using = TTArraySerializer.class)
 @JsonDeserialize(using = TTArrayDeserializer.class)
-public class TTArray extends TTValue {
-    List<TTValue> elements = new ArrayList<>();
+public class TTArray implements TTValue, Serializable {
+    private List<TTValue> elements = new ArrayList<>();
 
     public TTArray add(TTValue value) {
         if (elements == null)
@@ -21,10 +22,6 @@ public class TTArray extends TTValue {
         elements.add(value);
 
         return this;
-    }
-
-    public List<TTValue> getElements() {
-        return elements;
     }
 
     public TTValue get(int index) {
@@ -55,8 +52,8 @@ public class TTArray extends TTValue {
     }
 
     @Override
-    public List<TTValue> asArrayElements() {
-        return this.getElements();
+    public List<TTValue> getElements() {
+        return elements;
     }
 
     @Override

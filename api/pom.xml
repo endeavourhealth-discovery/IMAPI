@@ -20,8 +20,7 @@
 	<properties>
 		<test-containers.version>1.14.3</test-containers.version>
 		<springfox.version>2.9.2</springfox.version>
-
-    <sonar.projectKey>endeavourhealth-discovery_IMAPI::api</sonar.projectKey>
+    <sonar.skip>true</sonar.skip>
 	</properties>
 
 	<dependencies>

@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import java.io.IOException;
 
 /**
- * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument serializer
+ * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTArraySerializer extends StdSerializer<TTArray> {
     public TTArraySerializer() {

@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTDocumentDeserializer;
@@ -8,18 +7,15 @@ import org.endeavourhealth.imapi.model.tripletree.json.TTDocumentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
 public class TTDocument extends TTNode {
     private TTIriRef graph;
     private TTContext context = new TTContext();
-    private List<TTConcept> concepts;
-    private List<TTTransaction> transactions;
-    private List<TTInstance> individuals;
+    private List<TTEntity> entities;
     private TTIriRef crud;
-    private Map<Class, List<String>> predicateTemplate;
+
 
     public TTIriRef getGraph() {
         return graph;
@@ -35,10 +31,6 @@ public class TTDocument extends TTNode {
     public TTDocument setContext(TTContext context) {
         this.context = context;
         return this;
-    }
-
-    public TTDocument(Map<Class, List<String>> predicateTemplate) {
-        this.predicateTemplate = predicateTemplate;
     }
 
     public TTDocument setGraph(TTIriRef graph) {
@@ -60,54 +52,29 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-    public Map<Class, List<String>> getPredicateTemplate() {
-        return predicateTemplate;
-    }
-
-    public TTDocument setPredicateTemplate(Map<Class, List<String>> predicateTemplate) {
-        this.predicateTemplate = predicateTemplate;
-        return this;
-    }
-
     @Override
     public TTDocument set(TTIriRef predicate, TTValue value) {
         super.set(predicate, value);
         return this;
     }
 
-    public List<TTConcept> getConcepts() {
-        return concepts;
+    public List<TTEntity> getEntities() {
+        return entities;
     }
 
-    public TTDocument setConcepts(List<TTConcept> concepts) {
-        this.concepts = concepts;
+    public TTDocument setEntities(List<TTEntity> entities) {
+        this.entities = entities;
         return this;
     }
 
-    public TTDocument addConcept(TTConcept concept) {
-        if (this.concepts == null)
-            this.concepts = new ArrayList<>();
-        concept.setContext(this.context);
-        this.concepts.add(concept);
+    public TTDocument addEntity(TTEntity entity) {
+        if (this.entities == null)
+            this.entities = new ArrayList<>();
+        entity.setContext(this.context);
+        this.entities.add(entity);
         return this;
     }
 
-    public List<TTInstance> getIndividuals() {
-        return individuals;
-    }
-
-    public TTDocument setIndividuals(List<TTInstance> individuals) {
-        this.individuals = individuals;
-        return this;
-    }
-
-    public TTDocument addIndividual(TTInstance instance) {
-        if (this.individuals == null)
-            this.individuals = new ArrayList<>();
-        instance.setContext(this.context);
-        this.individuals.add(instance);
-        return this;
-    }
 
     public TTContext getContext() {
         return this.context;
@@ -122,18 +89,6 @@ public class TTDocument extends TTNode {
         return this;
     }
 
-    public List<TTTransaction> getTransactions() {
-        return transactions;
-    }
 
-    public TTDocument setTransactions(List<TTTransaction> transactions) {
-        this.transactions = transactions;
-        return this;
-    }
-    public TTDocument addTransaction(TTTransaction transaction) {
-        if (this.transactions==null)
-            this.transactions= new ArrayList<>();
-        transactions.add(transaction);
-        return this;
-    }
+
 }

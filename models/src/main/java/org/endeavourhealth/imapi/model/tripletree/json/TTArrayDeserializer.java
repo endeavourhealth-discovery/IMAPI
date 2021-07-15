@@ -24,7 +24,7 @@ public class TTArrayDeserializer extends StdDeserializer<TTArray> {
 
     @Override
     public TTArray deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-        ArrayNode array = (ArrayNode) jsonParser.getCodec().readTree(jsonParser);
+        ArrayNode array = jsonParser.getCodec().readTree(jsonParser);
 
         return getNodeAsArray(jsonParser, ctx, array);
     }

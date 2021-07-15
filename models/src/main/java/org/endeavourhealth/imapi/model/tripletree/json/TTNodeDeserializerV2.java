@@ -14,7 +14,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
- * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTConcept or TTDocument serializer
+ * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
     private TTContext context;
@@ -36,7 +36,7 @@ public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
     }
 
     public TTNode deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-        JsonNode node = (JsonNode) jsonParser.getCodec().readTree(jsonParser);
+        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         TTNode result = new TTNode();
         Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();

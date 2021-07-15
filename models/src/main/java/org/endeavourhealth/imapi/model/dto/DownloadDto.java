@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.ConceptReferenceNode;
-import org.endeavourhealth.imapi.model.PropertyValue;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 
 import java.io.Serializable;
@@ -9,34 +9,34 @@ import java.util.List;
 
 public class DownloadDto implements Serializable {
 
-	private List<ConceptReferenceNode> children;
-	private List<ConceptReferenceNode> parents;
-	private List<PropertyValue> properties;
+	private List<EntityReferenceNode> children;
+	private List<EntityReferenceNode> parents;
+	private List<SemanticProperty> semanticProperties;
 	private ExportValueSet members;
-	private List<PropertyValue> roles;
+	private List<DataModelProperty> dataModelProperties;
 
-	public List<ConceptReferenceNode> getChildren() {
+	public List<EntityReferenceNode> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<ConceptReferenceNode> children) {
+	public void setChildren(List<EntityReferenceNode> children) {
 		this.children = children;
 	}
 
-	public List<ConceptReferenceNode> getParents() {
+	public List<EntityReferenceNode> getParents() {
 		return parents;
 	}
 
-	public void setParents(List<ConceptReferenceNode> parents) {
+	public void setParents(List<EntityReferenceNode> parents) {
 		this.parents = parents;
 	}
 
-	public List<PropertyValue> getProperties() {
-		return properties;
+	public List<SemanticProperty> getSemanticProperties() {
+		return semanticProperties;
 	}
 
-	public void setProperties(List<PropertyValue> properties) {
-		this.properties = properties;
+	public void setSemanticProperties(List<SemanticProperty> semanticProperties) {
+		this.semanticProperties = semanticProperties;
 	}
 
 	public ExportValueSet getMembers() {
@@ -47,12 +47,12 @@ public class DownloadDto implements Serializable {
 		this.members = members;
 	}
 
-	public List<PropertyValue> getRoles() {
-		return roles;
+	public List<DataModelProperty> getDataModelProperties() {
+		return dataModelProperties;
 	}
 
-	public void setRoles(List<PropertyValue> roles) {
-		this.roles = roles;
+	public void setDataModelProperties(List<DataModelProperty> dataModelProperties) {
+		this.dataModelProperties = dataModelProperties;
 	}
 
 }

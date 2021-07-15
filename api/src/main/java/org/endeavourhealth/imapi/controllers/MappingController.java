@@ -5,8 +5,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -41,9 +43,9 @@ public class MappingController {
 	@PostMapping
 	public List<TTEntity> main(@RequestParam("file") MultipartFile file, @RequestParam("map") MultipartFile map)
 			throws Exception {
-		List<TTEntity> ttconcepts = new ArrayList<>();
-		ttconcepts.addAll(map(file, map));
-		return ttconcepts;
+		List<TTEntity> ttentities = new ArrayList<>();
+		ttentities.addAll(map(file, map));
+		return ttentities;
 	}
 
 	private List<TTEntity> map(MultipartFile file, MultipartFile map) throws Exception {
@@ -52,7 +54,7 @@ public class MappingController {
 		if (!savedFile.exists()) {
 			file.transferTo(new File(savedFile.getAbsolutePath()));
 		}
-		
+
 		// path to the mapping file that needs to be executed
 		File savedMap = new File("src/test/resources/" + map.getResource().getFilename());
 		map.transferTo(new File(savedMap.getAbsolutePath()));
@@ -83,40 +85,47 @@ public class MappingController {
 
 		// Execute the mapping
 		QuadStore result = executor.executeV5(null).get(new NamedNode("rmlmapper://default.store"));
-		result.getQuads(null, null, null).forEach(quad -> {
-			String subject = quad.getSubject().getValue();
-			String predicate = quad.getPredicate().getValue();
-			String object = quad.getObject().getValue();
-			System.out.println(subject + " : " + predicate + " : " + object);
-		});
-
-		List<TTEntity> ttconcepts = getTTEntitiesFromQuads(result.getQuads(null, null, null));
+		List<TTEntity> ttentities = getTTEntitiesFromQuads(result.getQuads(null, null, null));
 
 		savedFile.delete();
 		savedMap.delete();
-		
-		return ttconcepts;
+
+		return ttentities;
 	}
 
 	private List<TTEntity> getTTEntitiesFromQuads(List<Quad> quads) throws JsonProcessingException {
-		List<TTEntity> concepts = new ArrayList<>();
+		List<TTEntity> entities = new ArrayList<>();
+		Set<String> uniqIris = new HashSet<String>();
+		for (Quad quad : quads) {
+			uniqIris.add(quad.getSubject().getValue());
+		}
 
-		quads.forEach(quad -> {
-			List<TTEntity> existingConcepts = concepts.stream()
-					.filter(concept -> quad.getSubject().getValue().equals(concept.getIri()))
+		uniqIris.forEach(iri -> {
+			List<Quad> subQuads = quads.stream().filter(quad -> iri.equals(quad.getSubject().getValue()))
 					.collect(Collectors.toList());
+			entities.add(convertQuadListToTTEntity(iri, subQuads));
+		});
+		return entities;
+	}
 
-			if (!existingConcepts.isEmpty()) {
-				existingConcepts.get(0).addObject(new TTIriRef(quad.getPredicate().getValue()),
+	private TTEntity convertQuadListToTTEntity(String iri, List<Quad> subQuads) {
+		TTEntity entity = new TTEntity().setIri(iri);
+		subQuads.forEach(quad -> {
+			System.out.println(quad.getPredicate().getValue() + " : " + quad.getObject().getValue() + " : "
+					+ predicateIsArray(quad.getPredicate().getValue(), subQuads));
+			if (predicateIsArray(quad.getPredicate().getValue(), subQuads)) {
+				entity.addObject(new TTIriRef(quad.getPredicate().getValue()),
 						new TTIriRef(quad.getObject().getValue()));
 			} else {
-				TTEntity concept = new TTEntity().setIri(quad.getSubject().getValue());
-				concept.addObject(new TTIriRef(quad.getPredicate().getValue()),
-						new TTIriRef(quad.getObject().getValue()));
-				concepts.add(concept);
+				entity.set(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef(quad.getObject().getValue()));
 			}
 		});
+		return entity;
+	}
 
-		return concepts;
+	private boolean predicateIsArray(String predicate, List<Quad> subQuads) {
+		int predicateNum = subQuads.stream().filter(quad -> quad.getPredicate().getValue().equals(predicate))
+				.collect(Collectors.toList()).size();
+		return predicateNum > 1;
 	}
 }

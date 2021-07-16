@@ -325,14 +325,14 @@ public class EntityServiceTest {
 
     @Test
     public void usages_NullIri() throws SQLException {
-        List<TTIriRef> actual = entityService.usages(null);
+        List<TTIriRef> actual = entityService.usages(null,null,null);
 
         assertNotNull(actual);
     }
 
     @Test
     public void usages_EmptyIri() throws SQLException {
-        List<TTIriRef> actual = entityService.usages("");
+        List<TTIriRef> actual = entityService.usages("",null,null);
 
         assertNotNull(actual);
     }
@@ -343,9 +343,9 @@ public class EntityServiceTest {
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
 
-        when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
 
-        List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115");
+        List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",null,null);
 
         assertNotNull(actual);
     }

@@ -74,7 +74,7 @@ public class EntityTripleRepository extends BaseRepository{
         return result;
     }
 
-    public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, String predicateIri) throws SQLException {
+    public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String predicateIri) throws SQLException {
         List<TTIriRef> usages = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT DISTINCT s.iri, s.name")
@@ -85,12 +85,18 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("WHERE o.iri = ?")
                 .add("AND p.iri <> ?")
                 .add("AND s.status <> ?");
+        if(rowNumber!=null && pageSize!=null)
+            sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 statement.setString(1, objectIri);
                 statement.setString(2, predicateIri);
                 statement.setString(3, IM.INACTIVE.getIri());
+                if(rowNumber!=null && pageSize!=null) {
+                    statement.setInt(4, rowNumber);
+                    statement.setInt(5, pageSize);
+                }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         usages.add(iri(rs.getString("iri"),rs.getString("name")));

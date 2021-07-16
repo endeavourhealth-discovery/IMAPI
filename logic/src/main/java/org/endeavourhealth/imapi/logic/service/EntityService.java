@@ -157,14 +157,24 @@ public class EntityService {
 				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
 	}
 
-	public List<TTIriRef> usages(String iri) throws SQLException {
+	public List<TTIriRef> usages(String iri, Integer pageIndex, Integer pageSize) throws SQLException {
 
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, IM.IS_A.getIri()).stream()
+		int rowNumber = 0;
+		if (pageIndex != null && pageSize != null)
+			rowNumber = pageIndex * pageSize;
+
+		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, IM.IS_A.getIri()).stream()
 				.sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.distinct().collect(Collectors.toList());
+	}
+
+	public Integer totalRecords(String iri) throws SQLException {
+		if (iri == null || iri.isEmpty())
+			return 0;
+		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri,null,null,IM.IS_A.getIri()).size();
 	}
 
 	public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {

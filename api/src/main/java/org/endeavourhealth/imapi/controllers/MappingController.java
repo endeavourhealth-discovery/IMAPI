@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +48,7 @@ public class MappingController {
 			throws Exception {
 		List<TTEntity> ttentities = new ArrayList<>();
 		ttentities.addAll(map(file, map));
+		System.out.println(ttentities.size());
 		return ttentities;
 	}
 
@@ -116,6 +118,9 @@ public class MappingController {
 		subQuads.forEach(quad -> {
 			if(quad.getPredicate().getValue().equals(RDF.TYPE.getIri())) {
 				entity.set(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef((quad.getObject().getValue())));
+			}
+			else if (quad.getPredicate().getValue().equals(IM.IS_A.getIri())) {
+				entity.addObject(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef((quad.getObject().getValue())));
 			}
 			else if (predicateIsArray(quad.getPredicate().getValue(), subQuads)) {
 				entity.addObject(new TTIriRef(quad.getPredicate().getValue()),

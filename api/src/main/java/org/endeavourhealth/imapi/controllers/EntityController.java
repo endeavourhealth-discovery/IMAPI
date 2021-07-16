@@ -141,9 +141,17 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/usages")
-	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri) throws SQLException {
+	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri,
+			@RequestParam(name = "page", required = false) Integer page,
+			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
         LOG.debug("entityUsages");
-        return entityService.usages(iri);
+        return entityService.usages(iri,page,size);
+	}
+
+	@GetMapping("/usagesTotalRecords")
+	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException {
+		LOG.debug("usagesTotalRecords");
+		return entityService.totalRecords(iri);
 	}
 
 	@PostMapping(value = "/isWhichType")

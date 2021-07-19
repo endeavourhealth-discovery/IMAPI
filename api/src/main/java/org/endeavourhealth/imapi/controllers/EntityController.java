@@ -150,7 +150,7 @@ public class EntityController {
 
 	@GetMapping("/usagesTotalRecords")
 	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException {
-		LOG.debug("usagesTotalRecords");
+		LOG.debug("totalRecords");
 		return entityService.totalRecords(iri);
 	}
 
@@ -238,6 +238,12 @@ public class EntityController {
 	public EntitySummary getSummary(String iri) throws SQLException {
 	    LOG.debug("getSummary");
 		return entityService.getSummary(iri);
+	}
+
+	@GetMapping("/shape")
+	public TTEntity getConceptShape(String iri) throws SQLException {
+		LOG.debug("getConceptShape");
+		return entityService.getConceptShape(iri);
 	}
 
 }

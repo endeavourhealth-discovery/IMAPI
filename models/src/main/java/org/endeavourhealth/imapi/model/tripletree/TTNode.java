@@ -20,6 +20,11 @@ public class TTNode implements TTValue {
             predicateValues.put(predicate, value);
         return this;
     }
+    
+    public TTNode remove(TTIriRef predicate) {
+    	predicateValues.remove(predicate);
+    	return this;
+    }
 
     public TTValue get(TTIriRef predicate) {
         return predicateValues.get(predicate);

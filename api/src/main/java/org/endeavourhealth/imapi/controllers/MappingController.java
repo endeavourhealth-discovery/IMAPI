@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -44,15 +45,23 @@ public class MappingController {
 	ObjectMapper mapper = new ObjectMapper();
 
 	@PostMapping
-	public List<TTEntity> main(@RequestParam("file") MultipartFile file, @RequestParam("map") MultipartFile map)
-			throws Exception {
-		List<TTEntity> ttentities = new ArrayList<>();
-		ttentities.addAll(map(file, map));
-		System.out.println(ttentities.size());
-		return ttentities;
+	public TTDocument main(@RequestParam("file") MultipartFile file, @RequestParam MultipartFile[] maps,
+			@RequestParam String graph) throws Exception {
+		List<Quad> quads = new ArrayList<Quad>();
+
+		for (MultipartFile map : maps) {
+			quads.addAll(getQuads(file, map));
+		}
+
+		List<TTEntity> entities = getTTEntitiesFromQuads(quads);
+
+		System.out.println("Quads: " + quads.size());
+		System.out.println("Entities: " + entities.size());
+
+		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE);
 	}
 
-	private List<TTEntity> map(MultipartFile file, MultipartFile map) throws Exception {
+	private List<Quad> getQuads(MultipartFile file, MultipartFile map) throws Exception {
 		// path to the content file
 		File savedFile = new File("src/test/resources/" + file.getResource().getFilename());
 		if (!savedFile.exists()) {
@@ -89,12 +98,11 @@ public class MappingController {
 
 		// Execute the mapping
 		QuadStore result = executor.executeV5(null).get(new NamedNode("rmlmapper://default.store"));
-		List<TTEntity> ttentities = getTTEntitiesFromQuads(result.getQuads(null, null, null));
 
 		savedFile.delete();
 		savedMap.delete();
 
-		return ttentities;
+		return result.getQuads(null, null, null);
 	}
 
 	private List<TTEntity> getTTEntitiesFromQuads(List<Quad> quads) throws JsonProcessingException {
@@ -109,20 +117,22 @@ public class MappingController {
 					.collect(Collectors.toList());
 			entities.add(convertQuadListToTTEntity(iri, subQuads));
 		});
-		
+
+		if (hasSubtypes(entities)) {
+			invertSubtypesToIsas(entities);
+		}
 		return entities;
 	}
 
 	private TTEntity convertQuadListToTTEntity(String iri, List<Quad> subQuads) {
-		TTEntity entity = new TTEntity().setIri(iri).setCrud(IM.REPLACE);
+		TTEntity entity = new TTEntity().setIri(iri);
 		subQuads.forEach(quad -> {
-			if(quad.getPredicate().getValue().equals(RDF.TYPE.getIri())) {
+			if (quad.getPredicate().getValue().equals(RDF.TYPE.getIri())) {
 				entity.set(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef((quad.getObject().getValue())));
-			}
-			else if (quad.getPredicate().getValue().equals("http://endhealth.info/im#subtype")) {
-				entity.addObject(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef((quad.getObject().getValue())));
-			}
-			else if (predicateIsArray(quad.getPredicate().getValue(), subQuads)) {
+			} else if (quad.getPredicate().getValue().equals("http://endhealth.info/im#subtype")) {
+				entity.addObject(new TTIriRef(quad.getPredicate().getValue()),
+						new TTIriRef((quad.getObject().getValue())));
+			} else if (predicateIsArray(quad.getPredicate().getValue(), subQuads)) {
 				entity.addObject(new TTIriRef(quad.getPredicate().getValue()),
 						new TTLiteral(quad.getObject().getValue()));
 			} else {
@@ -132,9 +142,29 @@ public class MappingController {
 		return entity;
 	}
 
+	private List<TTEntity> invertSubtypesToIsas(List<TTEntity> entities) {
+		entities.forEach(parent -> {
+			if (parent.has(TTIriRef.iri("http://endhealth.info/im#subtype"))) {
+				parent.get(TTIriRef.iri("http://endhealth.info/im#subtype")).asArray().getElements()
+						.forEach(subtype -> {
+							entities.stream().filter(entity -> entity.getIri().equals(subtype.asIriRef().getIri()))
+									.forEach(child -> {
+										child.addObject(IM.IS_A, TTIriRef.iri(parent.getIri()));
+									});
+						});
+				parent.remove(TTIriRef.iri("http://endhealth.info/im#subtype"));
+			}
+		});
+		return entities;
+	}
+
 	private boolean predicateIsArray(String predicate, List<Quad> subQuads) {
 		int predicateNum = subQuads.stream().filter(quad -> quad.getPredicate().getValue().equals(predicate))
 				.collect(Collectors.toList()).size();
 		return predicateNum > 1;
+	}
+
+	private boolean hasSubtypes(List<TTEntity> entities) {
+		return entities.stream().anyMatch(entity -> entity.has(TTIriRef.iri("http://endhealth.info/im#subtype")));
 	}
 }

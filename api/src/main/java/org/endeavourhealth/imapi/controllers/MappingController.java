@@ -114,12 +114,12 @@ public class MappingController {
 	}
 
 	private TTEntity convertQuadListToTTEntity(String iri, List<Quad> subQuads) {
-		TTEntity entity = new TTEntity().setIri(iri);
+		TTEntity entity = new TTEntity().setIri(iri).setCrud(IM.REPLACE);
 		subQuads.forEach(quad -> {
 			if(quad.getPredicate().getValue().equals(RDF.TYPE.getIri())) {
 				entity.set(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef((quad.getObject().getValue())));
 			}
-			else if (quad.getPredicate().getValue().equals(IM.IS_A.getIri())) {
+			else if (quad.getPredicate().getValue().equals("http://endhealth.info/im#subtype")) {
 				entity.addObject(new TTIriRef(quad.getPredicate().getValue()), new TTIriRef((quad.getObject().getValue())));
 			}
 			else if (predicateIsArray(quad.getPredicate().getValue(), subQuads)) {

@@ -240,4 +240,10 @@ public class EntityController {
 		return entityService.getSummary(iri);
 	}
 
+	@GetMapping("/shape")
+	public TTEntity getConceptShape(String iri) throws SQLException {
+		LOG.debug("getConceptShape");
+		return entityService.getConceptShape(iri);
+	}
+
 }

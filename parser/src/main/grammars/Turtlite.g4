@@ -1,4 +1,4 @@
-grammar turtle;
+grammar Turtlite;
 
 turtleDoc
    : statement*

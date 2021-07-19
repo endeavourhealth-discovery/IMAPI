@@ -98,7 +98,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_ENCOUNTER_TERMS = iri(NAMESPACE+"EncounterTermsCodeScheme");
     public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
-    public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
+    public static final TTIriRef CODE_SCHEME_EMIS_DESCRIPTION = iri(NAMESPACE +"EMISDescriptionScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
     public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
     public static final TTIriRef CODE_SCHEME_WINPATH_KINGS = iri(NAMESPACE +"KingsWinPathCodeScheme");

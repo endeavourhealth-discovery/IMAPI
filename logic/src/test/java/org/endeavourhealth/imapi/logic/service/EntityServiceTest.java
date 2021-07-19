@@ -345,8 +345,25 @@ public class EntityServiceTest {
 
         when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
 
-        List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",null,null);
+        List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
 
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void totalRecords_NullIri() throws SQLException {
+        Integer actual = entityService.totalRecords(null);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void totalRecords_NotNullIri() throws SQLException {
+        TTIriRef ttIriRef = new TTIriRef()
+                .setIri("http://endhealth.info/im#25451000252115")
+                .setName("Adverse reaction to Amlodipine Besilate");
+        when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
+
+        Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 
@@ -1064,9 +1081,17 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getSummary() throws SQLException {
+    public void getSummary_NullIri() throws SQLException {
         EntitySummary actual = entityService.getSummary(null);
         assertNull(actual);
+    }
+
+    @Test
+    public void getSummary_NotNullIri() throws SQLException {
+        EntitySummary summary = new EntitySummary();
+        when(entitySearchRepository.getSummary(any())).thenReturn(summary);
+        EntitySummary actual = entityService.getSummary(null);
+        assertNotNull(actual);
     }
 
     @Test

@@ -150,7 +150,7 @@ public class EntityController {
 
 	@GetMapping("/usagesTotalRecords")
 	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException {
-		LOG.debug("usagesTotalRecords");
+		LOG.debug("totalRecords");
 		return entityService.totalRecords(iri);
 	}
 

@@ -9,7 +9,7 @@
   rml:logicalSource [
     rml:source "RetrieveTransaction.json" ;
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.dataset[*].concept[*]"
+    rml:iterator "$.dataset[*].concept[*].concept[*]"
   ];
 
   rr:subjectMap [

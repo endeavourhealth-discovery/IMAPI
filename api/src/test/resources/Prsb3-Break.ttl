@@ -9,19 +9,12 @@
   rml:logicalSource [
     rml:source "RetrieveTransaction.json" ;
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.dataset[*].concept[*]"
+    rml:iterator "$.dataset[*].concept[*].concept[*].concept[*].concept[*]"
   ];
 
   rr:subjectMap [
     rr:template "http://endhealth.info/ref#{id}";
     rr:class im:Prsb
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate im:subtype;
-    rr:objectMap [
-      rr:template "http://endhealth.info/ref#{concept[*].id}";
-    ]
   ];
 
   rr:predicateObjectMap [

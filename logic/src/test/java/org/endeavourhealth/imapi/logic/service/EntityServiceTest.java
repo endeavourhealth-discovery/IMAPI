@@ -1069,5 +1069,47 @@ public class EntityServiceTest {
         assertNull(actual);
     }
 
+    @Test
+    public void getConceptShape_NullIri() throws SQLException {
+        TTEntity actual = entityService.getConceptShape(null);
+        assertNull(actual);
+    }
 
+    @Test
+    public void getConceptShape_NotContainNodeShape() throws SQLException {
+        List<Tpl> tplList = new ArrayList<>();
+        tplList.add(new Tpl()
+                .setDbid(1)
+                .setPredicate(RDF.TYPE));
+        tplList.add(new Tpl()
+                .setDbid(2)
+                .setPredicate(SHACL.PROPERTY));
+        tplList.add(new Tpl()
+                .setDbid(3)
+                .setPredicate(SHACL.OR));
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet())).thenReturn(tplList);
+        TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
+        assertNull(actual);
+    }
+
+    @Test
+    public void getConceptShape_ContainsNodeShape() throws SQLException {
+        List<Tpl> tplList = new ArrayList<>();
+        tplList.add(new Tpl()
+                .setDbid(1)
+                .setFunctional(false)
+                .setPredicate(RDF.TYPE)
+                .setObject(iri("http://www.w3.org/ns/shacl#NodeShape","Node shape")));
+        tplList.add(new Tpl()
+                .setDbid(2)
+                .setFunctional(false)
+                .setPredicate(SHACL.PROPERTY));
+        tplList.add(new Tpl()
+                .setDbid(3)
+                .setFunctional(false)
+                .setPredicate(SHACL.OR));
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet())).thenReturn(tplList);
+        TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
 }

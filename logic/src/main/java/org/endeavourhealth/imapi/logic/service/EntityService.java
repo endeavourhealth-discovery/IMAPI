@@ -581,6 +581,8 @@ public class EntityService {
 	}
 
 	public TTEntity getConceptShape(String iri) throws SQLException {
+		if(iri==null || iri.isEmpty())
+			return null;
 		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()));
 		TTValue value = entity.get(RDF.TYPE);
 		if(!value.getElements().contains(SHACL.NODESHAPE)){

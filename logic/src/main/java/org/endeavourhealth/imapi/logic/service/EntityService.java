@@ -18,8 +18,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -30,7 +29,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
 public class EntityService {
-	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
 	EntityRepository entityRepository = new EntityRepository();
 
@@ -67,7 +65,6 @@ public class EntityService {
                 TTNode n = nodeMap.get(triple.getParent());
                 if (n == null)
                     throw new IllegalStateException("Unknown parent node!");
-
                 if (triple.isFunctional()) {
                     n.set(triple.getPredicate(), v);
                 } else {
@@ -160,14 +157,24 @@ public class EntityService {
 				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
 	}
 
-	public List<TTIriRef> usages(String iri) throws SQLException {
+	public List<TTIriRef> usages(String iri, Integer pageIndex, Integer pageSize) throws SQLException {
 
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, IM.IS_A.getIri()).stream()
+		int rowNumber = 0;
+		if (pageIndex != null && pageSize != null)
+			rowNumber = pageIndex * pageSize;
+
+		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, IM.IS_A.getIri()).stream()
 				.sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.distinct().collect(Collectors.toList());
+	}
+
+	public Integer totalRecords(String iri) throws SQLException {
+		if (iri == null || iri.isEmpty())
+			return 0;
+		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri,null,null,IM.IS_A.getIri()).size();
 	}
 
 	public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {
@@ -182,36 +189,48 @@ public class EntityService {
 			.collect(Collectors.toList());
 	}
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expand) throws SQLException {
-        return getValueSetMembers(iri, expand, null);
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets) throws SQLException {
+        return getValueSetMembers(iri, expandMembers, expandSets,  null);
     }
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expand, Integer limit) throws SQLException {
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit) throws SQLException {
 		if (iri == null || iri.isEmpty()) {
 			return null;
 		}
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
-
-		Set<ValueSetMember> definedInclusions = getMember(iri, IM.HAS_MEMBER);
-		Set<ValueSetMember> definedExclusions = getMember(iri, IM.NOT_MEMBER);
-
 		int memberCount = 0;
-		Map<String, ValueSetMember> evaluatedInclusions = processMembers(definedInclusions, expand, memberCount, limit);
-		memberCount += evaluatedInclusions.size();
-		Map<String, ValueSetMember> evaluatedExclusions = processMembers(definedExclusions, expand, memberCount, limit);
-        memberCount += evaluatedExclusions.size();
 
-		if (limit != null && memberCount > limit)
-		    return result.setLimited(true);
+		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
+		Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
+		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 
-		if (expand) {
-			// Remove exclusions by key
-			evaluatedExclusions.forEach((k, v) -> evaluatedInclusions.remove(k));
+		if (expandSets || expandMembers) {
+			for (ValueSetMember set : definedSetInclusions) {
+				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit);
+				definedMemberInclusions.addAll(individualResults.getIncludedMembers());
+				definedMemberExclusions.addAll(individualResults.getExcludedMembers());
+			};
+		} else {
+			memberCount += definedSetInclusions.size();
+			result.addAllIncludedSubsets(definedSetInclusions);
 		}
 
-		result.addAllIncluded(evaluatedInclusions.values());
-		if (!expand)
-			result.addAllExcluded(evaluatedExclusions.values());
+		Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
+		memberCount += evaluatedMemberInclusions.size();
+		Map<String, ValueSetMember> evaluatedMemberExclusions = processMembers(definedMemberExclusions, expandMembers, memberCount, limit);
+        memberCount += evaluatedMemberExclusions.size();
+
+		if (expandMembers) {
+			// Remove exclusions by key
+			evaluatedMemberExclusions.forEach((k, v) -> evaluatedMemberInclusions.remove(k));
+		}
+
+		if (limit != null && memberCount > limit)
+			return result.setLimited(true);
+
+		result.addAllIncludedMembers(evaluatedMemberInclusions.values());
+		if (!expandMembers)
+			result.addAllExcludedMembers(evaluatedMemberExclusions.values());
 
 		return result;
 	}
@@ -275,7 +294,8 @@ public class EntityService {
 		return termCodeRepository.findAllByIri(iri);
 	}
 
-    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties, boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
+									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -285,12 +305,13 @@ public class EntityService {
         if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers));
+        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets));
 
         return downloadDto;
     }
 
-    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties, boolean members, boolean expandMembers, boolean semanticProperties, boolean inactive) throws SQLException {
+    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
+									  boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -300,7 +321,7 @@ public class EntityService {
         if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
-        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers));
+        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets));
 
         return xls;
     }
@@ -357,18 +378,23 @@ public class EntityService {
 		return pv;
 	}
 
-	public String valueSetMembersCSV(String iri, boolean expanded) throws SQLException {
-		ExportValueSet exportValueSet = getValueSetMembers(iri, expanded);
+	public String valueSetMembersCSV(String iri, boolean expandMember, boolean expandSubset) throws SQLException {
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset);
 		StringBuilder valueSetMembers = new StringBuilder();
 		valueSetMembers.append(
-				"Inc\\Exc\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
+				"Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
 		if (exportValueSet == null)
 			return valueSetMembers.toString();
-		for (ValueSetMember inc : exportValueSet.getIncluded()) {
+		for (ValueSetMember inc : exportValueSet.getIncludedMembers()) {
 			appendValueSet(exportValueSet, valueSetMembers, inc, "Inc");
 		}
-		if (exportValueSet.getExcluded() != null) {
-			for (ValueSetMember exc : exportValueSet.getExcluded()) {
+		if(exportValueSet.getIncludedSubsets() != null){
+			for(ValueSetMember incSubset : exportValueSet.getIncludedSubsets()){
+				appendValueSet(exportValueSet, valueSetMembers, incSubset, "IncSubset");
+			}
+		}
+		if (exportValueSet.getExcludedMembers() != null) {
+			for (ValueSetMember exc : exportValueSet.getExcludedMembers()) {
 				appendValueSet(exportValueSet, valueSetMembers, exc, "Exc");
 			}
 		}
@@ -411,30 +437,19 @@ public class EntityService {
 				.collect(Collectors.toList());
 
 		GraphDto semantic = new GraphDto().setKey("0_2").setName("Semantic properties");
-		GraphDto semanticWrapper = new GraphDto().setKey("0_2_0").setType(GraphType.PROPERTIES);
-		semanticWrapper.getLeafNodes()
-				.addAll(semanticProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
-		semantic.getChildren()
-				.add(semanticWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_2_0").setType(GraphType.NONE)
-						: semanticWrapper);
+		GraphDto semanticWrapper = getWrapper(semanticProps,"0_2_0");
+		addWrapper(semantic, semanticWrapper,"0_2_0");
 
 		GraphDto dataModel = new GraphDto().setKey("0_3").setName("Data model properties");
+
 		GraphDto dataModelDirect = new GraphDto().setKey("0_3_0").setName("Direct");
-		GraphDto dataModelDirectWrapper = new GraphDto().setKey("0_3_0_0").setType(GraphType.PROPERTIES);
-		dataModelDirectWrapper.getLeafNodes()
-				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
-		dataModelDirect.getChildren()
-				.add(dataModelDirectWrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey("0_3_0_0").setType(GraphType.NONE)
-						: dataModelDirectWrapper);
+		GraphDto dataModelDirectWrapper = getWrapper(dataModelProps,"0_3_0_0");
+		addWrapper(dataModelDirect,dataModelDirectWrapper,"0_3_0_0");
 
 		GraphDto dataModelInherited = new GraphDto().setKey("0_3_1").setName("Inherited");
-		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
-		dataModelInheritedWrapper.getLeafNodes()
-				.addAll(dataModelProps.stream().filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
-		dataModelInherited.getChildren()
-				.add(dataModelInheritedWrapper.getLeafNodes().isEmpty()
-						? new GraphDto().setKey("0_3_1_0").setType(GraphType.NONE)
-						: dataModelInheritedWrapper);
+		GraphDto dataModelInheritedWrapper = getDataModelInheritedWrapper(dataModelProps);
+		addWrapper(dataModelInherited,dataModelDirectWrapper,"0_3_1_0");
+
 		if (!dataModelDirectWrapper.getLeafNodes().isEmpty()) {
 			dataModel.getChildren().add(dataModelDirect);
 		}
@@ -462,6 +477,31 @@ public class EntityService {
 			graphData.getChildren().add(dataModel);
 		}
 		return graphData;
+	}
+
+	@NotNull
+	private GraphDto getWrapper(List<GraphDto> props,String key) {
+		GraphDto wrapper = new GraphDto().setKey(key).setType(GraphType.PROPERTIES);
+		wrapper.getLeafNodes()
+				.addAll(props.stream()
+						.filter(prop -> prop.getInheritedFromIri() == null).collect(Collectors.toList()));
+		return wrapper;
+	}
+
+	@NotNull
+	private GraphDto getDataModelInheritedWrapper(List<GraphDto> dataModelProps) {
+		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
+		dataModelInheritedWrapper.getLeafNodes()
+				.addAll(dataModelProps.stream()
+						.filter(prop -> prop.getInheritedFromIri() != null).collect(Collectors.toList()));
+		return dataModelInheritedWrapper;
+	}
+
+	private void addWrapper(GraphDto dto, GraphDto wrapper, String key) {
+		dto.getChildren()
+				.add(wrapper.getLeafNodes().isEmpty()
+						? new GraphDto().setKey(key).setType(GraphType.NONE)
+						: wrapper);
 	}
 
 	private List<GraphDto> getEntityDefinedParents(TTEntity entity, TTIriRef predicate) {
@@ -538,5 +578,16 @@ public class EntityService {
 
 	public EntitySummary getSummary(String iri) throws SQLException {
 		return entitySearchRepository.getSummary(iri);
+	}
+
+	public TTEntity getConceptShape(String iri) throws SQLException {
+		if(iri==null || iri.isEmpty())
+			return null;
+		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()));
+		TTValue value = entity.get(RDF.TYPE);
+		if(!value.getElements().contains(SHACL.NODESHAPE)){
+			return null;
+		}
+		return entity;
 	}
 }

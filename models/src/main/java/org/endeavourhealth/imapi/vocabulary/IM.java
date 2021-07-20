@@ -35,7 +35,7 @@ public class IM {
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
-    public static final TTIriRef HAS_SUBSETS = iri(NAMESPACE + "hasSubsets");
+    public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubsets");
     public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
@@ -98,11 +98,13 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_ENCOUNTER_TERMS = iri(NAMESPACE+"EncounterTermsCodeScheme");
     public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
-    public static final TTIriRef CODE_SCHEME_EMIS_CODEID = iri(NAMESPACE +"EMISCodeIdScheme");
+    public static final TTIriRef CODE_SCHEME_EMIS_DESCRIPTION = iri(NAMESPACE +"EMISDescriptionScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
     public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
     public static final TTIriRef CODE_SCHEME_WINPATH_KINGS = iri(NAMESPACE +"KingsWinPathCodeScheme");
     public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001 = iri(NAMESPACE +"NHSDataDictionaryEthnicCategory2001");
+    public static final TTIriRef CODE_SCHEME_CEG_ETHNIC_16 = iri(NAMESPACE +"CEGEthnicCategory16");
+
 
 
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");

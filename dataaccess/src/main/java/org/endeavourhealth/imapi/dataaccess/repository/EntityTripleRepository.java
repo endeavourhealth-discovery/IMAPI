@@ -74,7 +74,7 @@ public class EntityTripleRepository extends BaseRepository{
         return result;
     }
 
-    public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, String predicateIri) throws SQLException {
+    public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String predicateIri) throws SQLException {
         List<TTIriRef> usages = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT DISTINCT s.iri, s.name")
@@ -85,12 +85,18 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("WHERE o.iri = ?")
                 .add("AND p.iri <> ?")
                 .add("AND s.status <> ?");
+        if(rowNumber!=null && pageSize!=null)
+            sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 statement.setString(1, objectIri);
                 statement.setString(2, predicateIri);
                 statement.setString(3, IM.INACTIVE.getIri());
+                if(rowNumber!=null && pageSize!=null) {
+                    statement.setInt(4, rowNumber);
+                    statement.setInt(5, pageSize);
+                }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         usages.add(iri(rs.getString("iri"),rs.getString("name")));
@@ -109,7 +115,7 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("JOIN entity s ON s.dbid = tpl.subject ")
                 .add("JOIN entity p ON p.dbid = tpl.predicate ")
                 .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("JOIN entity sc ON sc.iri = o.scheme ")
+                .add("LEFT JOIN entity sc ON sc.iri = o.scheme ")
                 .add("WHERE s.iri = ?")
                 .add("AND p.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
@@ -119,10 +125,12 @@ public class EntityTripleRepository extends BaseRepository{
                 statement.setString(2, predicate);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        members.add( new ValueSetMember()
+                        ValueSetMember valueSetMember = new ValueSetMember()
                                 .setEntity(iri(rs.getString("iri"),rs.getString("name")))
-                                .setCode(rs.getString("code"))
-                                .setScheme(iri(rs.getString("schemeIri"),rs.getString("schemeName"))));
+                                .setCode(rs.getString("code"));
+                        if(rs.getString("schemeIri")!=null && rs.getString("schemeName")!=null)
+                            valueSetMember.setScheme(iri(rs.getString("schemeIri"),rs.getString("schemeName")));
+                        members.add(valueSetMember);
                     }
                 }
             }

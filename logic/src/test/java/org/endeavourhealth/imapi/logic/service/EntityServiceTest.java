@@ -500,7 +500,7 @@ public class EntityServiceTest {
             .thenReturn(Collections.singleton(excludedMember));
 
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null);
 
         assertNotNull(actual);
 
@@ -532,7 +532,7 @@ public class EntityServiceTest {
             .thenReturn(Collections.singleton(excludedMember));
 
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null);
 
         assertNotNull(actual);
 

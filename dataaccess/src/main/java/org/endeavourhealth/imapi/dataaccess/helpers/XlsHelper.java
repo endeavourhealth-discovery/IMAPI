@@ -81,9 +81,9 @@ public class XlsHelper {
 		Sheet sheet = workbook.createSheet("Members");
 		addHeaders(sheet, 10000, "Included", "Member Name", "Member Iri", "Member Code", "Scheme Name", "Scheme Iri");
 
-        addMembers(sheet, exportValueSet.getIncludedMembers(), "Yes");
+        addMembers(sheet, exportValueSet.getMembers(), "Yes");
 
-        addMembers(sheet, exportValueSet.getExcludedMembers(), "No");
+//        addMembers(sheet, exportValueSet.getMembers(), "No");
 
     }
 

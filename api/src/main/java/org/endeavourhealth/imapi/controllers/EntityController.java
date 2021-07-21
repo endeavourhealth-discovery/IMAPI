@@ -93,7 +93,7 @@ public class EntityController {
 	public HttpEntity<Object> download(
 	    @RequestParam String iri,
         @RequestParam String format,
-        @RequestParam(required = false, defaultValue = "false") Boolean children,
+        @RequestParam(required = false, defaultValue = "false") boolean children,
         @RequestParam(required = false, defaultValue = "false") boolean parents,
         @RequestParam(required = false, defaultValue = "false") boolean dataModelProperties,
         @RequestParam(required = false, defaultValue = "false") boolean members,
@@ -166,10 +166,11 @@ public class EntityController {
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
+        @RequestParam(name = "parentSetName", required = false) String parentSetName,
         @RequestParam(name = "limit", required = false) Integer limit
     ) throws SQLException {
         LOG.debug("valueSetMembersJson");
-        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
+        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit, parentSetName);
 	}
 
 	@GetMapping(value = "/members", produces = { "text/csv" })

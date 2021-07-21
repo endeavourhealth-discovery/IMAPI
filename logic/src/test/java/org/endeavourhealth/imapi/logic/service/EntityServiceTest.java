@@ -500,7 +500,7 @@ public class EntityServiceTest {
             .thenReturn(Collections.singleton(excludedMember));
 
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null);
 
         assertNotNull(actual);
 
@@ -532,7 +532,7 @@ public class EntityServiceTest {
             .thenReturn(Collections.singleton(excludedMember));
 
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null);
 
         assertNotNull(actual);
 
@@ -541,26 +541,7 @@ public class EntityServiceTest {
     @Test
     public void getValueSetMembers_ExpandFalse() throws SQLException {
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
-
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember3 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"));
-
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_SUBSET.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember3));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
-
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false);
+        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false,0,null);
 
         assertNotNull(actual);
 

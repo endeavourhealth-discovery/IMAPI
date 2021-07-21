@@ -1,89 +1,115 @@
 package org.endeavourhealth.imapi.statemachine;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class StateMachine<S, E, I> {
+public class StateMachine {
 
-    public interface BeforeTransition<S, E>{
-        boolean execute(S currentState, E event, S newState);
+    public interface BeforeTransition{
+        boolean execute(String currentState, String event, String newState);
     }
-    public interface AfterTransitions<S, E>{
-        void execute(S newState, E event, S previousState);
+    public interface AfterTransitions{
+        void execute(String newState, String event, String previousState);
     }
 
-    protected S initialState;
-    protected StateMachinePersister<I,S> persister;
-    protected Map<S, Map<E, S>> config = new HashMap<>();
+    private BeforeTransition onBeforeTransition = (String currentState, String event, String newState) -> true;
+    private AfterTransitions onAfterTransition = (String newState, String event, String previousState) -> {};
+    private String currentState;
+    private String id;
+    private StateMachineConfig config = new StateMachineConfig();
+    private StateMachineConfigDAL configDAL;
+    private StateMachineTaskDAL taskDAL;
 
-    private BeforeTransition<S, E> onBeforeTransition = (S currentState, E event, S newState) -> true;
-    private AfterTransitions<S, E> onAfterTransition = (S newState, E event, S previousState) -> {};
-    private S currentState;
-    private I id;
+    public StateMachine() {
+        configDAL = new StateMachineConfigDALJDBC();
+        taskDAL = new StateMachineTaskDALJDBC();
+    }
 
-    public S getCurrentState() {
+    protected StateMachine(StateMachineConfigDAL configDAL, StateMachineTaskDAL taskDAL) {
+        this.configDAL = configDAL;
+        this.taskDAL = taskDAL;
+    }
+
+    public StateMachine loadConfig(String name) throws Exception {
+        this.config = configDAL.loadConfig(name);
+        return this;
+    }
+
+    public StateMachine config(String name, Set<String> states, Set<String> events, String initialState, Set<StateMachineTransition> transitions) throws Exception {
+        config.setType(name);
+        config.getValidStates().addAll(states);
+        config.getValidEvents().addAll(events);
+        config.setInitialState(initialState);
+        transitions.forEach(t -> config.addTransition(t.getSource(), t.getEvent(), t.getTarget()));
+        if (configDAL != null)
+            configDAL.saveConfig(name, config);
+        return this;
+    }
+
+    public String getCurrentState() {
         return currentState;
     }
 
-    public I getId() {
+    public String getId() {
         return id;
     }
 
-    public void start(I id) {
+    public void newTask(String id) throws Exception {
+        if (!this.config.getValidStates().contains(config.getInitialState()))
+            throw new IllegalStateException("Invalid initial state");
+
         this.id = id;
-        currentState = initialState;
-        if(persister!=null){
-            this.persister.save(id,initialState);
+        currentState = config.getInitialState();
+        if(taskDAL!=null){
+            this.taskDAL.save(config.getType(), id, config.getInitialState());
         }
     }
 
-    public S sendEvent(E event) {
+    public String sendEvent(String event) throws Exception {
         if (currentState == null) {
             throw new IllegalStateException("Current state invalid");
         }
 
-        Map<E, S> transitions = config.get(currentState);
+        Map<String, String> transitions = config.getEventTransitions(currentState);
 
         if (transitions == null) {
             throw  new IllegalStateException("No transitions configured for current state");
         }
 
-        S nextState = transitions.get(event);
+        String nextState = transitions.get(event);
 
         if (nextState == null) {
             throw new IllegalStateException("No valid next state for event");
         }
         if (onBeforeTransition.execute(currentState, event, nextState)) {
-            S previousState = currentState;
+            String previousState = currentState;
             currentState = nextState;
             onAfterTransition.execute(currentState, event, previousState);
-            if(this.persister!=null){
-                this.persister.save(id,currentState);
+            if(this.taskDAL!=null){
+                this.taskDAL.save(config.getType(), id, currentState);
             }
         }
         return currentState;
     }
 
-    public void load(I id){
-        if(this.persister!=null){
+    public void loadTask(String id) throws Exception {
+        if(this.taskDAL!=null){
             this.id = id;
-            this.currentState = this.persister.load(id);
+            this.currentState = this.taskDAL.load(config.getType(), id);
         }
-
     }
 
-    public Set<E> possibleEvents() {
-        Map<E, S> transitions = config.get(currentState);
+    public Set<String> possibleEvents() {
+        Map<String, String> transitions = config.getEventTransitions(currentState);
         return transitions.keySet();
     }
 
-    public StateMachine<S, E, I> beforeTransitions(BeforeTransition<S, E> onBeforeTransition) {
+    public StateMachine beforeTransition(BeforeTransition onBeforeTransition) {
         this.onBeforeTransition = onBeforeTransition;
         return this;
     }
 
-    public StateMachine<S, E, I> afterTransitions(AfterTransitions<S, E> onAfterTransitions) {
+    public StateMachine afterTransition(AfterTransitions onAfterTransitions) {
         this.onAfterTransition = onAfterTransitions;
         return this;
     }

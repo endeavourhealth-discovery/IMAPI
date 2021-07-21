@@ -220,23 +220,23 @@ public class EntityService {
 			}
 		}
 
-		for (ValueSetMember set : definedSetInclusions) {
-			if (parentSetName == null) {
-				set.setType("Subset - " + set.getEntity().getName());
-			} else {
-				set.setType("Subset - " + parentSetName);
-			}
-			ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName());
-			memberCount += setMembers.getMembers().size();
-			result.addAllMembers(setMembers.getMembers());
-		}
-
 		if (expandSets || expandMembers) {
 			for (ValueSetMember set : definedSetInclusions) {
-				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, parentSetName != null ? parentSetName : set.getEntity().getIri());
+				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null);
 				memberCount += individualResults.getMembers().size();
 				result.addAllMembers(individualResults.getMembers());
 			};
+		} else {
+			for (ValueSetMember set : definedSetInclusions) {
+				if (parentSetName == null) {
+					set.setType("Subset - " + set.getEntity().getName());
+				} else {
+					set.setType("Subset - " + parentSetName);
+				}
+				ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName());
+				memberCount += setMembers.getMembers().size();
+				result.addAllMembers(setMembers.getMembers());
+			}
 		}
 
 		Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);

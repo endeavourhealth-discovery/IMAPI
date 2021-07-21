@@ -8,6 +8,7 @@ public class ValueSetMember implements Serializable {
     private TTIriRef entity;
     private String code;
     private TTIriRef scheme;
+    private String type;
 
     public TTIriRef getEntity() {
         return entity;
@@ -33,6 +34,15 @@ public class ValueSetMember implements Serializable {
 
     public ValueSetMember setScheme(TTIriRef scheme) {
         this.scheme = scheme;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public ValueSetMember setType(String type) {
+        this.type = type;
         return this;
     }
 }

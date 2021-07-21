@@ -93,7 +93,7 @@ public class EntityController {
 	public HttpEntity<Object> download(
 	    @RequestParam String iri,
         @RequestParam String format,
-        @RequestParam(required = false, defaultValue = "false") Boolean children,
+        @RequestParam(required = false, defaultValue = "false") boolean children,
         @RequestParam(required = false, defaultValue = "false") boolean parents,
         @RequestParam(required = false, defaultValue = "false") boolean dataModelProperties,
         @RequestParam(required = false, defaultValue = "false") boolean members,

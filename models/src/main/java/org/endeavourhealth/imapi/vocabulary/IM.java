@@ -120,6 +120,8 @@ public class IM {
     public static final TTIriRef GRAPH_TPP = TTIriRef.iri(NAMESPACE +"TPP");
     public static final TTIriRef GRAPH_MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_EMIS = TTIriRef.iri(NAMESPACE +"SnomedEMISMaps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_TPP = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
     public static final TTIriRef GRAPH_SNOMED = TTIriRef.iri(NAMESPACE +"SNOMED");
     public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");

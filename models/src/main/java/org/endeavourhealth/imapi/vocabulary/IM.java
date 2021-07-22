@@ -99,6 +99,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
     public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
     public static final TTIriRef CODE_SCHEME_EMIS_DESCRIPTION = iri(NAMESPACE +"EMISDescriptionScheme");
+    public static final TTIriRef CODE_SCHEME_EMIS_CODEID= iri(NAMESPACE +"EMISCodeIdScheme");
     public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
     public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
     public static final TTIriRef CODE_SCHEME_WINPATH_KINGS = iri(NAMESPACE +"KingsWinPathCodeScheme");
@@ -122,6 +123,7 @@ public class IM {
     public static final TTIriRef GRAPH_MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
     public static final TTIriRef GRAPH_MAP_SNOMED_EMIS = TTIriRef.iri(NAMESPACE +"SnomedEMISMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_TPP = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_VISION = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
     public static final TTIriRef GRAPH_SNOMED = TTIriRef.iri(NAMESPACE +"SNOMED");
     public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");
@@ -130,7 +132,6 @@ public class IM {
     public static final TTIriRef GRAPH_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"WinPathKings");
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(NAMESPACE +"Vision");
     public static final TTIriRef GRAPH_CEG= TTIriRef.iri(NAMESPACE +"CEGGraph");
-
 
 
 

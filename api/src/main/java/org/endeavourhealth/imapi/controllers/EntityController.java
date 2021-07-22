@@ -236,13 +236,13 @@ public class EntityController {
 	}
 
 	@GetMapping("/summary")
-	public EntitySummary getSummary(String iri) throws SQLException {
+	public EntitySummary getSummary(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getSummary");
 		return entityService.getSummary(iri);
 	}
 
 	@GetMapping("/shape")
-	public TTEntity getConceptShape(String iri) throws SQLException {
+	public TTEntity getConceptShape(@RequestParam(name = "iri") String iri) throws SQLException {
 		LOG.debug("getConceptShape");
 		return entityService.getConceptShape(iri);
 	}

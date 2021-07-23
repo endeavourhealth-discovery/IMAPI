@@ -86,7 +86,8 @@ public class MappingController {
 		Map<String, Class> libraryMap = new HashMap<>();
 		libraryMap.put("IDLabFunctions", IDLabFunctions.class);
 
-		FunctionLoader functionLoader = new FunctionLoader(null, libraryMap);
+		File funcFile = new File("src/test/resources/functions.ttl");
+		FunctionLoader functionLoader = new FunctionLoader(QuadStoreFactory.read(funcFile), libraryMap);
 
 		// Set up the outputstore (needed when you want to output something else than
 		// nquads
@@ -100,7 +101,7 @@ public class MappingController {
 		QuadStore result = executor.executeV5(null).get(new NamedNode("rmlmapper://default.store"));
 
 		savedFile.delete();
-		savedMap.delete();
+        savedMap.delete();
 
 		return result.getQuads(null, null, null);
 	}

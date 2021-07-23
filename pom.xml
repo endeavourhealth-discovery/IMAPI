@@ -29,6 +29,7 @@
       <module>logic</module>
     <module>workflow</module>
     <module>statemachine</module>
+    <module>MappingFunctions</module>
   </modules>
 
   <build>

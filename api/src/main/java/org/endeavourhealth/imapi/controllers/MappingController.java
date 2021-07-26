@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -86,10 +88,12 @@ public class MappingController {
 		// Set up the functions used during the mapping
 		Map<String, Class> libraryMap = new HashMap<>();
 		libraryMap.put("IDLabFunctions", IDLabFunctions.class);
-
-        URL resource = getClass().getClassLoader().getResource("functions.ttl");
-        File funcFile = new File(resource.toURI());
-		FunctionLoader functionLoader = new FunctionLoader(QuadStoreFactory.read(funcFile), libraryMap);
+        RDF4JStore functionDescriptionTriples = new RDF4JStore();
+        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions.ttl")), null, RDFFormat.TURTLE);
+        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions_idlab.ttl")), null, RDFFormat.TURTLE);
+        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions_grel.ttl")), null, RDFFormat.TURTLE);
+//        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("grel_java_mapping.ttl")), null, RDFFormat.TURTLE);
+		FunctionLoader functionLoader = new FunctionLoader(functionDescriptionTriples, libraryMap);
 
 		// Set up the outputstore (needed when you want to output something else than
 		// nquads

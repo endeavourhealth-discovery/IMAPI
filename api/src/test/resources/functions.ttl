@@ -5,7 +5,6 @@
 @prefix im: <http://endhealth.info/im#>.
 @prefix fno:     <https://w3id.org/function/ontology#> .
 @prefix foaf:    <http://xmlns.com/foaf/0.1/> .
-@prefix grel:    <http://users.ugent.be/~bjdmeest/function/grel.ttl#> .
 @prefix fnml:     <http://semweb.mmlab.be/ns/fnml#> .
 @prefix lib: <http://example.com/library#> .
 
@@ -14,6 +13,12 @@ im:valueParam a fno:Parameter ;
   rdfs:label "input value" ;
   fno:type xsd:string ;
   fno:predicate im:valueParameter .
+
+im:valueParam2 a fno:Parameter ;
+  fno:name "input value" ;
+  rdfs:label "input value" ;
+  fno:type xsd:string ;
+  fno:predicate im:valueParameter2 .
 
 im:stringOut a fno:Output ;
   fno:name "output string" ;
@@ -33,3 +38,26 @@ im:toUpperCaseEndeavour a fno:Function ;
     lib:method "toUpperEndeavour"
   ].
 
+im:generateIri a fno:Function ;
+  fno:name "generate iri" ;
+  rdfs:label "generate iri" ;
+  dcterms:description "Returns an iri from the name property." ;
+  fno:expects ( im:valueParam ) ;
+  fno:returns ( im:stringOut ) ;
+  lib:providedBy [
+    lib:localLibrary "src/test/resources/MappingFunctions.jar";
+    lib:class "TestFunc";
+    lib:method "generateIri"
+  ].
+
+im:equal a fno:Function ;
+  fno:name "equal" ;
+  rdfs:label "equal" ;
+  dcterms:description "Returns true if strings are equal." ;
+  fno:expects         ( im:valueParam im:valueParam2 ) ;
+  fno:returns         ( im:stringOut ) ;
+  lib:providedBy      [
+    lib:localLibrary "src/test/resources/MappingFunctions.jar" ;
+    lib:class        "TestFunc" ;
+    lib:method       "equal" 
+  ] .

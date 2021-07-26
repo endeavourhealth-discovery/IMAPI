@@ -13,10 +13,11 @@
   rml:logicalSource [
     rml:source "RetrieveTransaction.json" ;
     rml:referenceFormulation ql:JSONPath;
-    rml:iterator "$.dataset[*].concept[*].concept[*]"
+    rml:iterator "$.dataset[*].concept[*]"
   ];
 
   rr:subjectMap [
+    # rr:template "http://endhealth.info/ref#{id}";
     fnml:functionValue [
         rr:predicateObjectMap [
           rr:predicate fno:executes ;
@@ -30,67 +31,37 @@
     rr:class im:Prsb
   ];
 
- rr:predicateObjectMap [
-   rr:predicate im:parent;
-   rr:objectMap [
-     rr:parentTriplesMap <#Parent>;
-     rr:joinCondition [
-       rr:child "id";
-       rr:parent "concept[*].id";
-     ];
-   ];
- ].
+  rr:predicateObjectMap [
+    rr:predicate im:subtype;
+    rr:objectMap [
+      rr:template "http://endhealth.info/ref#{concept[*].id}";
+    ]
+  ];
 
- <#Parent> a rr:TriplesMap;
-   rml:logicalSource [
-     rml:source "RetrieveTransaction.json" ;
-     rml:referenceFormulation ql:JSONPath;
-     rml:iterator "$.dataset[*].concept[*]";
-   ];
-   rr:subjectMap [
-    fnml:functionValue [
-        rr:predicateObjectMap [
-          rr:predicate fno:executes ;
-          rr:objectMap [ rr:constant im:generateIri ] 
-        ] ;
-        rr:predicateObjectMap [
-          rr:predicate im:valueParameter ;
-          rr:objectMap [ rr:template "{name[0]['#text']}" ] 
-        ]
-      ];
+  rr:predicateObjectMap [
+    rr:predicate im:label;
+    rr:objectMap [
+      rml:reference "name[0]['#text']"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:comment;
+    rr:objectMap [
+      rml:reference "desc[0]['#text']"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:shortName;
+    rr:objectMap [
+      rml:reference "shortName"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:code;
+    rr:objectMap [
+      rml:reference "iddisplay"
+    ]
   ].
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:subtype;
-  #   rr:objectMap [
-  #     rr:template "http://endhealth.info/ref#{concept[*].id}";
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:label;
-  #   rr:objectMap [
-  #     rml:reference "name[0]['#text']"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:comment;
-  #   rr:objectMap [
-  #     rml:reference "desc[0]['#text']"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:shortName;
-  #   rr:objectMap [
-  #     rml:reference "shortName"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:code;
-  #   rr:objectMap [
-  #     rml:reference "iddisplay"
-  #   ]
-  # ].

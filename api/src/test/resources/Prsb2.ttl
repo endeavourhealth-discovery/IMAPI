@@ -3,7 +3,11 @@
 @prefix ql: <http://semweb.mmlab.be/ns/ql#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix im: <http://endhealth.info/im#>.
-@base <http://example.com/ns#>.
+@prefix fno:     <https://w3id.org/function/ontology#> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix grel:    <http://users.ugent.be/~bjdmeest/function/grel.ttl#> .
+@prefix fnml:     <http://semweb.mmlab.be/ns/fnml#> .
+@base <http://localhost:8080/api/mapping/prsb.ttl#>.
 
 <#Prsb> a rr:TriplesMap;
   rml:logicalSource [
@@ -13,7 +17,17 @@
   ];
 
   rr:subjectMap [
-    rr:template "http://endhealth.info/ref#{id}";
+    # rr:template "http://endhealth.info/ref#{id}";
+    fnml:functionValue [
+        rr:predicateObjectMap [
+          rr:predicate fno:executes ;
+          rr:objectMap [ rr:constant im:generateIri ] 
+        ] ;
+        rr:predicateObjectMap [
+          rr:predicate im:valueParameter ;
+          rr:objectMap [ rr:template "{name[0]['#text']}" ] 
+        ]
+      ];
     rr:class im:Prsb
   ];
 
@@ -50,4 +64,35 @@
     rr:objectMap [
       rml:reference "iddisplay"
     ]
+  ];
+
+ rr:predicateObjectMap [
+   rr:predicate im:parent;
+   rr:objectMap [
+     rr:parentTriplesMap <#Parent>;
+     rr:joinCondition [
+       rr:child "id";
+       rr:parent "concept[*].id";
+     ];
+   ];
+ ].
+
+ <#Parent> a rr:TriplesMap;
+   rml:logicalSource [
+     rml:source "RetrieveTransaction.json" ;
+     rml:referenceFormulation ql:JSONPath;
+     rml:iterator "$.dataset[*].concept[*]";
+   ];
+   rr:subjectMap [
+    # rr:template "http://endhealth.info/ref#{id}";
+    fnml:functionValue [
+        rr:predicateObjectMap [
+          rr:predicate fno:executes ;
+          rr:objectMap [ rr:constant im:generateIri ] 
+        ] ;
+        rr:predicateObjectMap [
+          rr:predicate im:valueParameter ;
+          rr:objectMap [ rr:template "{name[0]['#text']}" ] 
+        ]
+    ];
   ].

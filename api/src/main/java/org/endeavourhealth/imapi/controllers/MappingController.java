@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,10 +49,14 @@ public class MappingController {
 	@PostMapping
 	public TTDocument main(@RequestParam("file") MultipartFile file, @RequestParam MultipartFile[] maps,
 			@RequestParam String graph) throws Exception {
+		File savedFile = new File("src/test/resources/" + file.getResource().getFilename());
+		if (!savedFile.exists()) {
+			file.transferTo(savedFile.getAbsoluteFile());
+		}
 		List<Quad> quads = new ArrayList<Quad>();
 
 		for (MultipartFile map : maps) {
-			quads.addAll(getQuads(file, map));
+			quads.addAll(getQuads(savedFile, map));
 		}
 
 		List<TTEntity> entities = getTTEntitiesFromQuads(quads);
@@ -61,16 +64,12 @@ public class MappingController {
 		System.out.println("Quads: " + quads.size());
 		System.out.println("Entities: " + entities.size());
 
+		savedFile.delete();
+
 		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE);
 	}
 
-	private List<Quad> getQuads(MultipartFile file, MultipartFile map) throws Exception {
-		// path to the content file
-		File savedFile = new File("src/test/resources/" + file.getResource().getFilename());
-		if (!savedFile.exists()) {
-			file.transferTo(new File(savedFile.getAbsolutePath()));
-		}
-
+	private List<Quad> getQuads(File file, MultipartFile map) throws Exception {
 		// path to the mapping file that needs to be executed
 		File savedMap = new File("src/test/resources/" + map.getResource().getFilename());
 		map.transferTo(new File(savedMap.getAbsolutePath()));
@@ -88,10 +87,13 @@ public class MappingController {
 		// Set up the functions used during the mapping
 		Map<String, Class> libraryMap = new HashMap<>();
 		libraryMap.put("IDLabFunctions", IDLabFunctions.class);
-        RDF4JStore functionDescriptionTriples = new RDF4JStore();
-        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions.ttl")), null, RDFFormat.TURTLE);
-        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions_idlab.ttl")), null, RDFFormat.TURTLE);
-        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions_grel.ttl")), null, RDFFormat.TURTLE);
+		RDF4JStore functionDescriptionTriples = new RDF4JStore();
+		functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions.ttl")), null,
+				RDFFormat.TURTLE);
+		functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions_idlab.ttl")), null,
+				RDFFormat.TURTLE);
+		functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("functions_grel.ttl")), null,
+				RDFFormat.TURTLE);
 //        functionDescriptionTriples.read(Utils.getInputStreamFromFile(Utils.getFile("grel_java_mapping.ttl")), null, RDFFormat.TURTLE);
 		FunctionLoader functionLoader = new FunctionLoader(functionDescriptionTriples, libraryMap);
 
@@ -106,8 +108,7 @@ public class MappingController {
 		// Execute the mapping
 		QuadStore result = executor.executeV5(null).get(new NamedNode("rmlmapper://default.store"));
 
-		// savedFile.delete();
-        savedMap.delete();
+		savedMap.delete();
 
 		return result.getQuads(null, null, null);
 	}

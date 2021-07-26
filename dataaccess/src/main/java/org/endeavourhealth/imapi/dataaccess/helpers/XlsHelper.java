@@ -79,19 +79,23 @@ public class XlsHelper {
 
 	public void addMembersSheet(ExportValueSet exportValueSet) {
 		Sheet sheet = workbook.createSheet("Members");
-		addHeaders(sheet, 10000, "Included", "Member Name", "Member Iri", "Member Code", "Scheme Name", "Scheme Iri");
+		addHeaders(sheet, 10000, "Type", "Member Name", "Member Iri", "Member Code", "Scheme Name", "Scheme Iri");
 
-        addMembers(sheet, exportValueSet.getIncludedMembers(), "Yes");
-
-        addMembers(sheet, exportValueSet.getExcludedMembers(), "No");
+        addMembers(sheet, exportValueSet.getMembers());
 
     }
 
-    private void addMembers(Sheet sheet, List<ValueSetMember> included, String yes) {
+    private void addMembers(Sheet sheet, List<ValueSetMember> included) {
         for (ValueSetMember c : included) {
             Row row = sheet.createRow(sheet.getLastRowNum() + 1);
             Cell cell = row.createCell(0);
-            cell.setCellValue(yes);
+            if (c.getType() == "MemberIncluded") {
+            	cell.setCellValue("Included");
+			} else if (c.getType() == "MemberXcluded") {
+            	cell.setCellValue("Excluded");
+			} else {
+            	cell.setCellValue(c.getType());
+			}
             cell = row.createCell(1);
             cell.setCellValue(c.getEntity().getName());
             cell = row.createCell(2);

@@ -15,7 +15,6 @@ public class IM {
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef STATUS = iri(NAMESPACE + "status");
-    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
 
     //Entity tope level triples
@@ -69,10 +68,8 @@ public class IM {
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
-    public static final TTIriRef MATCHED_TERM_CODE = iri(NAMESPACE +"matchedTermCode");
+    public static final TTIriRef MAPPED_TO = iri(NAMESPACE +"mappedTo");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
-    public static final TTIriRef MATCHED_AS_SUBCLASS = iri(NAMESPACE +"matchedAsSubclassOf");
-    public static final TTIriRef SYNONYM = iri(NAMESPACE + "synonym");
     public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
     public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
@@ -124,6 +121,8 @@ public class IM {
     public static final TTIriRef GRAPH_MAP_SNOMED_EMIS = TTIriRef.iri(NAMESPACE +"SnomedEMISMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_TPP = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
     public static final TTIriRef GRAPH_MAP_SNOMED_VISION = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_APEX_KINGS = TTIriRef.iri(NAMESPACE +"SnomedApexKingsMaps");
+    public static final TTIriRef GRAPH_MAP_SNOMED_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"SnomedWinpathKingsMaps");
     public static final TTIriRef GRAPH_SNOMED = TTIriRef.iri(NAMESPACE +"SNOMED");
     public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
     public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");

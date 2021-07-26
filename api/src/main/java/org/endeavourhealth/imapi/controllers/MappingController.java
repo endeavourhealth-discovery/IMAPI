@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,7 +87,8 @@ public class MappingController {
 		Map<String, Class> libraryMap = new HashMap<>();
 		libraryMap.put("IDLabFunctions", IDLabFunctions.class);
 
-		File funcFile = new File("src/test/resources/functions.ttl");
+        URL resource = getClass().getClassLoader().getResource("functions.ttl");
+        File funcFile = new File(resource.toURI());
 		FunctionLoader functionLoader = new FunctionLoader(QuadStoreFactory.read(funcFile), libraryMap);
 
 		// Set up the outputstore (needed when you want to output something else than
@@ -100,7 +102,7 @@ public class MappingController {
 		// Execute the mapping
 		QuadStore result = executor.executeV5(null).get(new NamedNode("rmlmapper://default.store"));
 
-		savedFile.delete();
+		// savedFile.delete();
         savedMap.delete();
 
 		return result.getQuads(null, null, null);

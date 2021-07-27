@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.entity.Config;
+import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.dataaccess.repository.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.ConfigRepository;

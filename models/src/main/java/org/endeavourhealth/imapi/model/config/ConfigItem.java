@@ -4,10 +4,12 @@ public class ConfigItem {
     private String label;
     private String predicate;
     private String type;
-    private int size;
+    private String size;
     private int order;
 
-    public ConfigItem(String label, String predicate, String type, int size, int order) {
+    public ConfigItem(){};
+
+    public ConfigItem(String label, String predicate, String type, String size, int order) {
         this.label = label;
         this.predicate = predicate;
         this.type = type;
@@ -42,11 +44,11 @@ public class ConfigItem {
         return this;
     }
 
-    public int getSize() {
+    public String getSize() {
         return size;
     }
 
-    public ConfigItem setSize(int size) {
+    public ConfigItem setSize(String size) {
         this.size = size;
         return this;
     }

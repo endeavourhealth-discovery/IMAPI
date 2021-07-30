@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess.repository;
 
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
-import org.endeavourhealth.imapi.dataaccess.entity.Config;
+import org.endeavourhealth.imapi.model.config.Config;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

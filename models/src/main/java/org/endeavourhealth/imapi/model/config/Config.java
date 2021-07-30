@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.dataaccess.entity;
+package org.endeavourhealth.imapi.model.config;
 
 public class Config {
 

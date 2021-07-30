@@ -13,11 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.mapping.model.Node;
 
 public class FileParser {
 	
-	public static Object parseFile(MultipartFile file) throws IOException {
+	public static JsonNode parseFile(MultipartFile file) throws IOException {
 		String fname = file.getOriginalFilename();
 		if (fname.endsWith(".json")) {
 			return parseJson(file);
@@ -28,28 +27,23 @@ public class FileParser {
 		return null;
 	}
 
-	public static Model parseTtl(MultipartFile file)
+	public static JsonNode parseTtl(MultipartFile file)
 			throws RDFParseException, UnsupportedRDFormatException, IOException {
 		InputStream inputStream = file.getInputStream();
 		Model results = Rio.parse(inputStream, RDFFormat.TURTLE);
 		inputStream.close();
-		return results;
+		
+		JsonFactory factory = new JsonFactory();
+		ObjectMapper mapper = new ObjectMapper(factory);
+	    String json = mapper.writeValueAsString(results);
+	    return mapper.readTree(json);
 	}
 
 	public static JsonNode parseJson(MultipartFile file) throws IOException {
 		JsonFactory factory = new JsonFactory();
 
 		ObjectMapper mapper = new ObjectMapper(factory);
-		JsonNode rootNode = mapper.readTree(file.getBytes());
-
-		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
-		
-		Node node = new Node();
-//		while (fieldsIterator.hasNext()) {
-//			Map.Entry<String, JsonNode> field = fieldsIterator.next();
-//			System.out.println("Key: " + field.getKey() + "\tValue:" + field.getValue());
-//		}
-		return rootNode;
+		return mapper.readTree(file.getBytes());
 	}
 
 }

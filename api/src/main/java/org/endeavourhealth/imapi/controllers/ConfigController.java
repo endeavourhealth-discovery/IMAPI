@@ -28,7 +28,7 @@ public class ConfigController {
     @Autowired
     ConfigService configService;
 
-    @GetMapping(value = "/getConfig")
+    @GetMapping(value = "/componentLayout")
     public List<ConfigItem> getConfig(
             @RequestParam(name="name") String name
     ) throws SQLException, JsonProcessingException {

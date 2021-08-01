@@ -53,7 +53,7 @@ public class RuntimeService {
         ValueSetMember entity = getMappedCoreEntity(scheme, code);
         if(entity == null)
             return null;
-        if(IM.CODE_SCHEME_SNOMED.getIri().equals(entity.getEntity().getIri())){
+        if(IM.GRAPH_SNOMED.getIri().equals(entity.getEntity().getIri())){
             return entity;
         }else
             return null;

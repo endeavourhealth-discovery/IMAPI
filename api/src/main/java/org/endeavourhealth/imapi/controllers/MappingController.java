@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,8 +31,9 @@ public class MappingController {
 	@PostMapping
 	public Object main(@RequestParam MultipartFile file, @RequestParam MultipartFile maps, @RequestParam String graph)
 			throws IOException {
-//		return FileParser.parseFile(file);
-		return FileParser.parseFile(maps);
+		JsonNode content = FileParser.parseFile(file);
+		JsonNode jsonMap = FileParser.parseFile(maps);
+		return getMappingInstructions(jsonMap);
 	}
 
 	public TTDocument map(JsonNode content, JsonNode map) {
@@ -43,14 +45,27 @@ public class MappingController {
 		}
 		return new TTDocument();
 	}
-	
+
 	public ArrayList<MappingInstruction> getMappingInstructions(JsonNode map) {
 		ArrayList<MappingInstruction> instructions = new ArrayList();
-		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = map.fields();
-		while (fieldsIterator.hasNext()) {
-			Map.Entry<String, JsonNode> field = fieldsIterator.next();
-			System.out.println("Key: " + field.getKey() + "\tValue:" + field.getValue());
+		Iterator<JsonNode> elementsIterator = map.elements();
+		while (elementsIterator.hasNext()) {
+			JsonNode element = elementsIterator.next();
+			Iterator<Entry<String, JsonNode>> fieldsIterator = element.fields();
+			while (fieldsIterator.hasNext()) {
+				Map.Entry<String, JsonNode> field = fieldsIterator.next();
+				System.out.println();
+				System.out.println(field.getKey());
+				JsonNode value = field.getValue();
+				Iterator<Entry<String, JsonNode>> valueFieldsIterator = value.fields();
+				while (valueFieldsIterator.hasNext()) {
+					Map.Entry<String, JsonNode> valueField = valueFieldsIterator.next();
+					if(valueField.getKey().equals("label"))
+					System.out.println(valueField.getKey() + ": " + valueField.getValue());
+				}
+			}
 		}
+
 		return instructions;
 	}
 }

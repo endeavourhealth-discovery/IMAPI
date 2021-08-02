@@ -30,6 +30,7 @@
     <module>workflow</module>
     <module>statemachine</module>
     <module>MappingFunctions</module>
+	<module>mapping</module>
   </modules>
 
   <build>

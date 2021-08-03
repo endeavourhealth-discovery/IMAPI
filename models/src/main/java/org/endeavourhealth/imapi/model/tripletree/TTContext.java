@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ public class TTContext implements Serializable {
 
     private final Map<String, String> byIri = new HashMap<>();
     private final Map<String, String> byPrefix = new HashMap<>();
+    private final Map<String,String> toName= new HashMap<>();
 
 
     public List<TTPrefix> getPrefixes() {
@@ -18,10 +20,26 @@ public class TTContext implements Serializable {
             .map(e -> new TTPrefix(e.getKey(), e.getValue()))
             .collect(Collectors.toList());
     }
+    public List<TTPrefix> getNameSpaces() {
+        List<TTPrefix> prefixes= new ArrayList<>();
+        for (Map.Entry<String,String> entry:byIri.entrySet()) {
+            TTPrefix prefix = new TTPrefix()
+              .setIri(entry.getKey())
+              .setPrefix(entry.getValue())
+              .setName(toName.get(entry.getKey()));
+            prefixes.add(prefix);
+        }
+        return prefixes;
+    }
 
     public void add(String iri, String prefix) {
         byIri.put(iri, prefix);
         byPrefix.put(prefix, iri);
+    }
+    public void add(String iri, String prefix,String name) {
+        byIri.put(iri, prefix);
+        byPrefix.put(prefix, iri);
+        toName.put(iri,name);
     }
 
     public String prefix(String iri) {
@@ -31,7 +49,9 @@ public class TTContext implements Serializable {
         if (prefix == null)
             return iri;
         else
-            return prefix + ":" + iri.substring(end + 1);
+            if (end<iri.length()-1)
+                return prefix + ":" + iri.substring(end + 1);
+            else return iri;
     }
 
     public String expand(String iri) {

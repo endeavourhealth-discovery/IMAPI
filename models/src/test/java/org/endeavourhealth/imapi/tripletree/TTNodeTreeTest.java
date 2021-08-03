@@ -98,7 +98,6 @@ public class TTNodeTreeTest {
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription("Adverse reaction to Amlodipine Besilate or its derivatives")
             .setCode("25451000252115")
-            .setScheme(iri("http://snomed.info/sct#891071000252105", "SNOMED"))
             .setType(new TTArray().add(OWL.CLASS))
 
             .set(OWL.EQUIVALENTCLASS, new TTArray()

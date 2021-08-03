@@ -10,7 +10,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import org.endeavourhealth.imapi.logic.converters.EntityToImLang;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
@@ -55,9 +54,6 @@ public class EntityController {
 	@Autowired
     EntityService entityService;
 
-	@Autowired
-	EntityToImLang entityToImLang;
-
 	@PostMapping(value = "/search")
     @ApiOperation(
         value = "Advanced entity search",
@@ -75,11 +71,7 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates);
     }
 
-	@GetMapping(value = "", produces = "application/imlang")
-	public String getEntityImLang(@RequestParam(name = "iri") String iri) throws SQLException {
-        LOG.debug("getEntityImLang");
-		return entityToImLang.translateEntityToImLang(entityService.getEntityPredicates(iri,null));
-	}
+
 
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,

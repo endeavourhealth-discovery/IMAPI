@@ -6,6 +6,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class IM {
     public static final String NAMESPACE = "http://endhealth.info/im#";
+    public static final String DOMAIN= "http://endhealth.info/";
     public static final String PREFIX = "im";
     public static final String IRI = "@id";
     public static final String VALUE = "@value";
@@ -21,13 +22,11 @@ public class IM {
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
 
 
-
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
-    public static final TTIriRef LEGACY = iri(NAMESPACE +"LegacyEntity");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
@@ -67,6 +66,8 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
+    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE +"alternativeCode");
+    public static final TTIriRef DESCRIPTION_ID= iri(NAMESPACE+"descriptionId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MAPPED_TO = iri(NAMESPACE +"mappedTo");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
@@ -83,54 +84,51 @@ public class IM {
 
 
 
-    //Code schemes
-    public static final TTIriRef CODE_SCHEME_SNOMED = iri(NAMESPACE +"SnomedCodeScheme");
-    public static final TTIriRef CODE_SCHEME_READ = iri(NAMESPACE +"Read2CodeScheme");
-    public static final TTIriRef CODE_SCHEME_ICD10 = iri(NAMESPACE +"ICD10CodeScheme");
-    public static final TTIriRef CODE_SCHEME_OPCS4 = iri(NAMESPACE +"OPSC49CodeScheme");
-    public static final TTIriRef CODE_SCHEME_EMIS = iri(NAMESPACE +"EMISCodeScheme");
-    public static final TTIriRef CODE_SCHEME_BARTS = iri(NAMESPACE +"BartsCernerCodeScheme");
-    public static final TTIriRef CODE_SCHEME_VISION = iri(NAMESPACE +"VisionCodeScheme");
-    public static final TTIriRef CODE_SCHEME_CTV3 = iri(NAMESPACE +"CTV3TPPCodeScheme");
-    public static final TTIriRef CODE_SCHEME_ENCOUNTER_TERMS = iri(NAMESPACE+"EncounterTermsCodeScheme");
-    public static final TTIriRef CODE_SCHEME_ODS= iri(NAMESPACE+"ODSCodeScheme");
-    public static final TTIriRef DISCOVERY_CODE = iri(NAMESPACE +"DiscoveryCodeScheme");
-    public static final TTIriRef CODE_SCHEME_EMIS_DESCRIPTION = iri(NAMESPACE +"EMISDescriptionScheme");
-    public static final TTIriRef CODE_SCHEME_EMIS_CODEID= iri(NAMESPACE +"EMISCodeIdScheme");
-    public static final TTIriRef CODE_SCHEME_PRSB = iri(NAMESPACE +"PRSBCodeScheme");
-    public static final TTIriRef CODE_SCHEME_APEX_KINGS = iri(NAMESPACE +"KingsApexPathologyCodeScheme");
-    public static final TTIriRef CODE_SCHEME_WINPATH_KINGS = iri(NAMESPACE +"KingsWinPathCodeScheme");
-    public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001 = iri(NAMESPACE +"NHSDataDictionaryEthnicCategory2001");
-    public static final TTIriRef CODE_SCHEME_CEG_ETHNIC_16 = iri(NAMESPACE +"CEGEthnicCategory16");
+
+    //Namespaces (code schemes and graphs)
+
+    public static final TTIriRef CODE_SCHEME_DISCOVERY= iri(DOMAIN+"im#");
+    public static final TTIriRef CODE_SCHEME_SNOMED= iri(DOMAIN+"sct#");
+    public static final TTIriRef CODE_SCHEME_REPORTS= iri(DOMAIN + "reports#");
+    public static final TTIriRef CODE_SCHEME_ICD10 = iri(DOMAIN +"icd10#");
+    public static final TTIriRef CODE_SCHEME_EMIS = TTIriRef.iri(DOMAIN +"emis#");
+    public static final TTIriRef CODE_SCHEME_OPCS4 = TTIriRef.iri(DOMAIN +"opcs4#");
+    public static final TTIriRef CODE_SCHEME_TPP = TTIriRef.iri(DOMAIN +"tpp#");
+    public static final TTIriRef CODE_SCHEME_ODS = TTIriRef.iri(DOMAIN +"ods#");
+    public static final TTIriRef CODE_SCHEME_CEG16= TTIriRef.iri(DOMAIN +"ceg16#");
+    public static final TTIriRef CODE_SCHEME_VISION= TTIriRef.iri(DOMAIN +"vis#");
+    public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
+    public static final TTIriRef CODE_SCHEME_KINGS_APEX = TTIriRef.iri(DOMAIN +"kingsapex#");
+    public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kingswinpath#");
 
 
 
-    public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
-    public static final TTIriRef GRAPH= iri(NAMESPACE+"Graph");
-    public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
-    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.NAMESPACE+"DiscoveryGraph");
-    public static final TTIriRef GRAPH_REPORTS= iri(NAMESPACE + "Reports");
-    public static final TTIriRef GRAPH_ICD10 = iri(NAMESPACE +"ICD10");
-    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(NAMESPACE +"EMIS");
-    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(NAMESPACE +"OPCS4");
-    public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(NAMESPACE +"READ2");
-    public static final TTIriRef GRAPH_CTV3 = TTIriRef.iri(NAMESPACE +"CTV3");
-    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(NAMESPACE +"TPP");
-    public static final TTIriRef GRAPH_MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
-    public static final TTIriRef GRAPH_MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
-    public static final TTIriRef GRAPH_MAP_SNOMED_EMIS = TTIriRef.iri(NAMESPACE +"SnomedEMISMaps");
-    public static final TTIriRef GRAPH_MAP_SNOMED_TPP = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
-    public static final TTIriRef GRAPH_MAP_SNOMED_VISION = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
-    public static final TTIriRef GRAPH_MAP_SNOMED_APEX_KINGS = TTIriRef.iri(NAMESPACE +"SnomedApexKingsMaps");
-    public static final TTIriRef GRAPH_MAP_SNOMED_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"SnomedWinpathKingsMaps");
-    public static final TTIriRef GRAPH_SNOMED = TTIriRef.iri(NAMESPACE +"SNOMED");
-    public static final TTIriRef GRAPH_MAPS_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryMaps");
-    public static final TTIriRef GRAPH_VALUESETS = TTIriRef.iri(NAMESPACE +"VALUESETS");
-    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"PRSB");
-    public static final TTIriRef GRAPH_APEX_KINGS = TTIriRef.iri(NAMESPACE +"ApexKings");
-    public static final TTIriRef GRAPH_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"WinPathKings");
-    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(NAMESPACE +"Vision");
-    public static final TTIriRef GRAPH_CEG= TTIriRef.iri(NAMESPACE +"CEGGraph");
+    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.NAMESPACE+"Discovery");
+    public static final TTIriRef GRAPH_SNOMED= iri("http://snomed.info/sct#sct");
+    public static final TTIriRef GRAPH_REPORTS= iri(NAMESPACE + "reports");
+    public static final TTIriRef GRAPH_ICD10 = iri(NAMESPACE +"icd10");
+    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(NAMESPACE +"emis");
+    public static final TTIriRef GRAPH_EMIS_DESCRIPTION = iri(NAMESPACE +"emisdesc");
+    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(NAMESPACE +"opcs4");
+    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(NAMESPACE +"tpp");
+    public static final TTIriRef GRAPH_ODS = TTIriRef.iri(NAMESPACE +"ods");
+    public static final TTIriRef MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
+    public static final TTIriRef MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
+    public static final TTIriRef MAP_SNOMED_EMIS = TTIriRef.iri(NAMESPACE +"SnomedEMISMaps");
+    public static final TTIriRef MAP_SNOMED_TPP = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
+    public static final TTIriRef MAP_SNOMED_VISION = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
+    public static final TTIriRef MAP_SNOMED_APEX_KINGS = TTIriRef.iri(NAMESPACE +"SnomedApexKingsMaps");
+    public static final TTIriRef MAP_SNOMED_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"SnomedWinpathKingsMaps");
+    public static final TTIriRef MAP_DISCOVERY = TTIriRef.iri(NAMESPACE +"DiscoveryToAllMaps");
+    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(NAMESPACE +"prsb");
+    public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(NAMESPACE +"kingsapex");
+    public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(NAMESPACE +"kingswinpath");
+    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(NAMESPACE +"vision");
+    public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(NAMESPACE +"bc");
+    public static final TTIriRef MAP_SNOMED_BC = TTIriRef.iri(NAMESPACE +"SnomedBartsCernerMap");
+    public static final TTIriRef GRAPH_CEG16= TTIriRef.iri(NAMESPACE +"ceg16");
+    public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(NAMESPACE +"nhsethnic2001#");
+
 
 
 
@@ -140,6 +138,9 @@ public class IM {
     public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
 
+    //Miscalleneous
+    public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
+    public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
     private IM() {}
 }
 

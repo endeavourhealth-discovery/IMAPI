@@ -3,25 +3,22 @@ package org.endeavourhealth.imapi.controllers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.hibernate.internal.build.AllowSysOut;
 
 @RestController
 @RequestMapping("api/mapping")
@@ -51,47 +48,91 @@ public class MappingController {
 
 	public ArrayList<MappingInstruction> getMappingInstructions(JsonNode map) {
 		ArrayList<MappingInstruction> instructions = new ArrayList<MappingInstruction>();
-		getSubjectMappingInstruction(map);
-		Iterator<JsonNode> elementsIterator = map.elements();
-		while (elementsIterator.hasNext()) {
-			JsonNode element = elementsIterator.next();
-			Iterator<Entry<String, JsonNode>> fieldsIterator = element.fields();
-			while (fieldsIterator.hasNext()) {
-				Map.Entry<String, JsonNode> field = fieldsIterator.next();
-				JsonNode value = field.getValue();
-				Iterator<Entry<String, JsonNode>> valueFieldsIterator = value.fields();
-				while (valueFieldsIterator.hasNext()) {
-					Map.Entry<String, JsonNode> valueField = valueFieldsIterator.next();
-					if (valueField.getKey().equals("label")) {
-						JsonNode subjectId = element.get("subject").get("id");
-						if (subjectId != null) {
-							JsonNode objectWithSubjectId = findNodeByObjectFieldValue(map, "object", "id",
-									subjectId.asText());
-							subjectId = objectWithSubjectId.get("subject").get("id");
-							JsonNode subjectWithSubjectId = findNodeByObjectFieldValue(map, "subject", "id",
-									subjectId.asText());
-							instructions.add(new MappingInstruction(getPredicateValue(subjectWithSubjectId),
-									valueField.getValue().asText(), null));
-						}
-					}
-				}
-			}
-		}
+		instructions.add(getSubjectMappingInstruction(map));
+		instructions.addAll(getObjectMappingInstructions(map));
 		return instructions;
 	}
 
-	private MappingInstruction getSubjectMappingInstruction(JsonNode map) {
-		JsonNode subjectMapObjectId = findNodeByObjectFieldValue(map, "predicate", "localName", "subjectMap")
-				.get("object").get("id");
-		JsonNode object = findNodeByObjectFieldValue(map, "subject", "id", subjectMapObjectId.asText());
-		if (object.get("predicate").get("localName").asText().equals("functionValue")) {
-			System.out.println("function");
-		}
-		System.out.println(object);
-		return null;
+	private List<MappingInstruction> getObjectMappingInstructions(JsonNode map) {
+		List<MappingInstruction> instructions = new ArrayList<>();
+		List<JsonNode> predicateObjectMaps = findNodesByObjectFieldValue(map, "predicate", "localName",
+				"predicateObjectMap");
+		predicateObjectMaps.forEach(objectMap -> {
+			String objectId = objectMap.get("object").get("id").asText();
+			List<JsonNode> nodes = findNodesByObjectFieldValue(map, "subject", "id", objectId);
+			String property = nodes.stream()
+					.filter(node -> node.get("predicate").get("localName").asText().equals("predicate"))
+					.collect(Collectors.toList()).get(0).get("predicate").get("localName").asText();
+			objectId = nodes.stream().filter(node -> node.get("object").has("id")).collect(Collectors.toList()).get(0)
+					.get("object").get("id").asText();
+			JsonNode node = findFirstNodeByObjectFieldValue(map, "subject", "id", objectId);
+			String mappingType = node.get("predicate").get("localName").asText();
+
+			if (node.get("object").has("label")) {
+				String value = node.get("object").get("label").asText();
+				switch (mappingType) {
+				case "constant":
+					instructions.add(new MappingInstruction().setProperty(property).setConstant(value));
+					break;
+				case "reference":
+					instructions.add(new MappingInstruction().setProperty(property).setReference(value));
+					break;
+				case "template":
+					instructions.add(new MappingInstruction().setProperty(property).setTemplate(value));
+					break;
+
+//					case "functionValue":
+//						instructions.add(new MappingInstruction().setProperty(property).setTemplate(value));
+//						break;
+
+				}
+			}
+
+		});
+		return instructions;
+
 	}
 
-	private JsonNode findNodeByObjectFieldValue(JsonNode node, String object, String field, String value) {
+	private MappingInstruction getSubjectMappingInstruction(JsonNode map) {
+		MappingInstruction instruction = new MappingInstruction();
+		JsonNode subjectMapObjectId = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "subjectMap")
+				.get("object").get("id");
+		JsonNode object = findFirstNodeByObjectFieldValue(map, "subject", "id", subjectMapObjectId.asText());
+		if (object.get("predicate").get("localName").asText().equals("functionValue")) {
+			String functionName = getFunctionName(map, object);
+			instruction = new MappingInstruction().setProperty("@id").setFunction(functionName);
+		}
+		return instruction;
+	}
+
+	private String getFunctionName(JsonNode map, JsonNode object) {
+		String objectId = object.get("object").get("id").asText();
+		objectId = findFirstNodeByObjectFieldValue(map, "subject", "id", objectId).get("object").get("id").asText();
+		List<JsonNode> nodes = findNodesByObjectFieldValue(map, "subject", "id", objectId).stream()
+				.filter(node -> node.get("object").has("id")).collect(Collectors.toList());
+		objectId = nodes.get(0).get("object").get("id").asText();
+		return findFirstNodeByObjectFieldValue(map, "subject", "id", objectId).get("object").get("localName").asText();
+	}
+
+	private List<JsonNode> findNodesByObjectFieldValue(JsonNode node, String object, String field, String value) {
+		List<JsonNode> nodes = new ArrayList<>();
+		Iterator<JsonNode> nodeIterator = node.elements();
+		while (nodeIterator.hasNext()) {
+			JsonNode element = nodeIterator.next();
+			Iterator<Entry<String, JsonNode>> fieldsIterator = element.fields();
+			while (fieldsIterator.hasNext()) {
+				Map.Entry<String, JsonNode> fieldValueMap = fieldsIterator.next();
+				if (fieldValueMap.getKey().equals(object) && fieldValueMap.getValue().has(field)
+						&& fieldValueMap.getValue().get(field).asText().equals(value)) {
+					nodes.add(element);
+				}
+			}
+		}
+
+		return nodes;
+	}
+
+	private JsonNode findFirstNodeByObjectFieldValue(JsonNode node, String object, String field, String value) {
 		JsonNode returnValue = null;
 		boolean found = false;
 		Iterator<JsonNode> nodeIterator = node.elements();
@@ -109,10 +150,5 @@ public class MappingController {
 		}
 
 		return returnValue;
-	}
-
-	private String getPredicateValue(JsonNode node) {
-		JsonNode object = node.get("object");
-		return object.get("namespace").asText() + object.get("localName").asText();
 	}
 }

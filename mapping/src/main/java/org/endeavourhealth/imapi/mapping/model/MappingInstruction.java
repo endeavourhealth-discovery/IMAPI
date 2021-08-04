@@ -4,40 +4,56 @@ public class MappingInstruction {
 
 	private String property;
 	private String reference;
+	private String constant;
+	private String template;
 	private String function;
 
 	public MappingInstruction() {
-	}
-
-	public MappingInstruction(String property, String reference, String function) {
-		super();
-		this.property = property;
-		this.reference = reference;
-		this.function = function;
 	}
 
 	public String getProperty() {
 		return property;
 	}
 
-	public void setProperty(String property) {
+	public MappingInstruction setProperty(String property) {
 		this.property = property;
+		return this;
 	}
 
 	public String getReference() {
 		return reference;
 	}
 
-	public void setReference(String reference) {
+	public MappingInstruction setReference(String reference) {
 		this.reference = reference;
+		return this;
 	}
 
 	public String getFunction() {
 		return function;
 	}
 
-	public void setFunction(String function) {
+	public MappingInstruction setFunction(String function) {
 		this.function = function;
+		return this;
+	}
+
+	public String getConstant() {
+		return constant;
+	}
+
+	public MappingInstruction setConstant(String constant) {
+		this.constant = constant;
+		return this;
+	}
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public MappingInstruction setTemplate(String template) {
+		this.template = template;
+		return this;
 	}
 
 }

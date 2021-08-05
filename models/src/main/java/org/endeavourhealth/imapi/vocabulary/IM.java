@@ -40,7 +40,7 @@ public class IM {
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE +"oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
-    public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePreficates");
+    public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePredicates");
     public static final TTIriRef SOME_OF= iri(NAMESPACE+"someOf");
 
     //Document collection predicates
@@ -100,6 +100,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
     public static final TTIriRef CODE_SCHEME_KINGS_APEX = TTIriRef.iri(DOMAIN +"kingsapex#");
     public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kingswinpath#");
+    public static final TTIriRef CODE_SCHEME_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
 
 
 

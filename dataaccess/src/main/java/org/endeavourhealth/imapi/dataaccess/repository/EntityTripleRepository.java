@@ -246,14 +246,17 @@ public class EntityTripleRepository extends BaseRepository{
         List<Namespace> namespaces = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT n.iri, n.prefix, n.name")
-                .add("FROM namespace n ");
+                .add("FROM namespace n ")
+                .add("ORDER BY n.name ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        Namespace namespace = new Namespace(rs.getString("iri"), rs.getString("prefix"), rs.getString("name"));
-                        namespaces.add(namespace);
+                        if (rs.getString("name") != null) {
+                            Namespace namespace = new Namespace(rs.getString("iri"), rs.getString("prefix"), rs.getString("name"));
+                            namespaces.add(namespace);
+                        }
                     }
                 }
             }

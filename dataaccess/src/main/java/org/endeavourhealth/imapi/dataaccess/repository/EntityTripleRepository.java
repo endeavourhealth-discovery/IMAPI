@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.dataaccess.repository;
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALHelper;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -239,6 +240,25 @@ public class EntityTripleRepository extends BaseRepository{
             }
         }
         return children;
+    }
+
+    public List<Namespace> findNamespaces() throws SQLException {
+        List<Namespace> namespaces = new ArrayList<>();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT n.iri, n.prefix, n.name")
+                .add("FROM namespace n ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        Namespace namespace = new Namespace(rs.getString("iri"), rs.getString("prefix"), rs.getString("name"));
+                        namespaces.add(namespace);
+                    }
+                }
+            }
+        }
+        return namespaces;
     }
 
 }

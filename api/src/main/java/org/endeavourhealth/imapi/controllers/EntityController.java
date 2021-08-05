@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -237,6 +238,12 @@ public class EntityController {
 	public TTEntity getConceptShape(@RequestParam(name = "iri") String iri) throws SQLException {
 		LOG.debug("getConceptShape");
 		return entityService.getConceptShape(iri);
+	}
+
+	@GetMapping("/namespaces")
+	public List<Namespace> getNamespaces() throws SQLException {
+		LOG.debug("getNamespaces");
+		return entityService.getNamespaces();
 	}
 
 }

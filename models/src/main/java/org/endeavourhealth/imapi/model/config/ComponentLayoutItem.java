@@ -1,15 +1,15 @@
 package org.endeavourhealth.imapi.model.config;
 
-public class ConfigItem {
+public class ComponentLayoutItem {
     private String label;
     private String predicate;
     private String type;
     private String size;
     private int order;
 
-    public ConfigItem(){};
+    public ComponentLayoutItem(){};
 
-    public ConfigItem(String label, String predicate, String type, String size, int order) {
+    public ComponentLayoutItem(String label, String predicate, String type, String size, int order) {
         this.label = label;
         this.predicate = predicate;
         this.type = type;
@@ -21,7 +21,7 @@ public class ConfigItem {
         return label;
     }
 
-    public ConfigItem setLabel(String label) {
+    public ComponentLayoutItem setLabel(String label) {
         this.label = label;
         return this;
     }
@@ -30,7 +30,7 @@ public class ConfigItem {
         return predicate;
     }
 
-    public ConfigItem setPredicate(String predicate) {
+    public ComponentLayoutItem setPredicate(String predicate) {
         this.predicate = predicate;
         return this;
     }
@@ -39,7 +39,7 @@ public class ConfigItem {
         return type;
     }
 
-    public ConfigItem setType(String type) {
+    public ComponentLayoutItem setType(String type) {
         this.type = type;
         return this;
     }
@@ -48,7 +48,7 @@ public class ConfigItem {
         return size;
     }
 
-    public ConfigItem setSize(String size) {
+    public ComponentLayoutItem setSize(String size) {
         this.size = size;
         return this;
     }
@@ -57,7 +57,7 @@ public class ConfigItem {
         return order;
     }
 
-    public ConfigItem setOrder(int order) {
+    public ComponentLayoutItem setOrder(int order) {
         this.order = order;
         return this;
     }

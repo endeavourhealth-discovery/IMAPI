@@ -3,17 +3,17 @@ package org.endeavourhealth.imapi.model;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class TermCode {
-    private String term;
+    private String name;
     private String code;
-    private TTIriRef scheme;
+    private String scheme;
     private String entityTermCode;
 
-    public String getTerm() {
-        return term;
+    public String getName() {
+        return name;
     }
 
-    public TermCode setTerm(String term) {
-        this.term = term;
+    public TermCode setName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -26,11 +26,11 @@ public class TermCode {
         return this;
     }
 
-    public TTIriRef getScheme() {
+    public String getScheme() {
         return scheme;
     }
 
-    public TermCode setScheme(TTIriRef scheme) {
+    public TermCode setScheme(String scheme) {
         this.scheme = scheme;
         return this;
     }

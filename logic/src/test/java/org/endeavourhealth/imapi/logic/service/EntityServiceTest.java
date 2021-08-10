@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.springframework.http.HttpEntity;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -22,7 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -631,10 +629,8 @@ public class EntityServiceTest {
     public void getEntityTermCodes_NotNullIri() throws SQLException {
         org.endeavourhealth.imapi.model.TermCode termCode = new org.endeavourhealth.imapi.model.TermCode()
                 .setCode("24951000252112")
-                .setTerm("Adverse reaction to Testogel")
-                .setScheme(new TTIriRef()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setName("Adverse reaction to Amlodipine Besilate"))
+                .setName("Adverse reaction to Testogel")
+                .setScheme("http://endhealth.info/im#25451000252115")
                 .setEntityTermCode("32231000252116");
         when(termCodeRepository.findAllByIri(any())).thenReturn(Collections.singletonList(termCode));
         List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115");

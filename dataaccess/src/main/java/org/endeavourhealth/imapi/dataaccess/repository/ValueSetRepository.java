@@ -23,21 +23,21 @@ public class ValueSetRepository extends BaseRepository {
     public List<ValueSetMember> expandMember(String iri, Integer limit) throws SQLException {
         List<ValueSetMember> members = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
-            .add("SELECT m.iri AS entity_iri, m.name AS entity_name, m.code, m.scheme AS scheme_iri, s.name AS scheme_name")
+            .add("SELECT m.iri AS entity_iri, m.name AS entity_name, m.code, m.scheme AS scheme_iri, n.name AS scheme_name")
             .add("FROM entity c")
             .add("JOIN tct tct ON tct.ancestor = c.dbid")
             .add("JOIN entity t ON t.dbid = tct.type AND t.iri = ?")
             .add("JOIN entity m ON m.dbid = tct.descendant")
-            .add("LEFT JOIN entity s ON s.iri = m.scheme")
+            .add("LEFT JOIN namespace n ON n.iri = m.scheme")
             .add("WHERE c.iri = ?")
             .add("UNION")
-            .add("SELECT m.iri AS entity_iri, tc.term AS entity_name, tc.code, m.scheme AS scheme_iri, s.name AS scheme_name")
+            .add("SELECT m.iri AS entity_iri, tc.term AS entity_name, tc.code, m.scheme AS scheme_iri, n.name AS scheme_name")
             .add("FROM entity c")
             .add("JOIN tct tct ON tct.ancestor = c.dbid")
             .add("JOIN entity t ON t.dbid = tct.type AND t.iri = ?")
             .add("JOIN entity m ON m.dbid = tct.descendant")
             .add("JOIN term_code tc ON tc.entity = m.dbid")
-            .add("LEFT JOIN entity s ON s.dbid = tc.scheme")
+            .add("LEFT JOIN namespace n ON n.iri = t.scheme")
             .add("WHERE c.iri = ?");
         if (limit != null)
             sql.add("LIMIT " + (limit + 1));

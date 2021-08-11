@@ -277,7 +277,10 @@ public class EntityService {
 			if (expand) {
                 valueSetRepository
                     .expandMember(member.getEntity().getIri(), limit)
-                    .forEach(m -> memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m));
+                    .forEach(m -> {
+                    	m.setType("MemberIncluded");
+                    	memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
+                    });
 			}
 		}
 		return memberHashMap;

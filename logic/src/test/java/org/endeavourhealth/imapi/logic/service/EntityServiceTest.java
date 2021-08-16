@@ -458,7 +458,7 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_NullIri() throws SQLException {
-        ExportValueSet actual = entityService.getValueSetMembers(null, true,false);
+        ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null);
 
         assertNull(actual);
 
@@ -466,7 +466,7 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_EmptyIri() throws SQLException {
-        ExportValueSet actual = entityService.getValueSetMembers("", true,false);
+        ExportValueSet actual = entityService.getValueSetMembers("", true,false, null);
 
         assertNull(actual);
 
@@ -498,7 +498,7 @@ public class EntityServiceTest {
             .thenReturn(Collections.singleton(excludedMember));
 
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -530,7 +530,7 @@ public class EntityServiceTest {
             .thenReturn(Collections.singleton(excludedMember));
 
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -539,7 +539,7 @@ public class EntityServiceTest {
     @Test
     public void getValueSetMembers_ExpandFalse() throws SQLException {
 
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false,0,null);
+        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false,0,null, "http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
 

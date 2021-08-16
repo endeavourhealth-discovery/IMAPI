@@ -11,6 +11,19 @@ public class MappingInstruction {
 	public MappingInstruction() {
 	}
 
+	public String getValueTypeString() {
+		if (getReference() != null) {
+			return "reference";
+		} else if (getConstant() != null) {
+			return "constant";
+		} else if (getFunction() != null) {
+			return "function";
+		} else if (getTemplate() != null) {
+			return "template";
+		}
+		return null;
+	}
+
 	public String getProperty() {
 		return property;
 	}

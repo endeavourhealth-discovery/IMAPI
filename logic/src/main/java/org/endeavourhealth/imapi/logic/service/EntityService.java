@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -276,7 +277,10 @@ public class EntityService {
 			if (expand) {
                 valueSetRepository
                     .expandMember(member.getEntity().getIri(), limit)
-                    .forEach(m -> memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m));
+                    .forEach(m -> {
+                    	m.setType("MemberExpanded");
+                    	memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
+                    });
 			}
 		}
 		return memberHashMap;
@@ -613,5 +617,10 @@ public class EntityService {
 			return null;
 		}
 		return entity;
+	}
+
+	public List<Namespace> getNamespaces() throws SQLException {
+		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+		return namespaces;
 	}
 }

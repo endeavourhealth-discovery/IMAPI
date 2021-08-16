@@ -20,10 +20,10 @@ public class TermCodeRepository extends BaseRepository {
     public List<TermCode> findAllByIri(String iri) throws SQLException {
         List<TermCode> terms = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT tc.term, tc.code, s.iri AS scheme_iri, tc.entity_term_code, s.name AS scheme_name")
+                .add("SELECT tc.term, tc.code, n.name AS scheme")
                 .add("FROM entity c")
                 .add("JOIN term_code tc ON tc.entity = c.dbid")
-                .add("LEFT JOIN entity s ON s.dbid = tc.scheme")
+                .add("JOIN namespace n ON n.iri = c.scheme")
                 .add("WHERE c.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -32,10 +32,9 @@ public class TermCodeRepository extends BaseRepository {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         terms.add(new TermCode()
-                                .setTerm(rs.getString("term"))
+                                .setName(rs.getString("term"))
                                 .setCode(rs.getString("code"))
-                                .setScheme(iri(rs.getString("scheme_iri"), rs.getString("scheme_name")))
-                                .setEntityTermCode(rs.getString("entity_term_code")));
+                                .setScheme(rs.getString("scheme")));
                     }
                 }
             }

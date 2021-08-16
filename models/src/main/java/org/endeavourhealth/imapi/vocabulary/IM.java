@@ -29,7 +29,6 @@ public class IM {
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
-    public static final TTIriRef DATA_MODEL = iri(NAMESPACE + "DataModel");
 
     //Collection predicates
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMembers");
@@ -40,7 +39,7 @@ public class IM {
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE +"oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
-    public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePreficates");
+    public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePredicates");
     public static final TTIriRef SOME_OF= iri(NAMESPACE+"someOf");
 
     //Document collection predicates
@@ -49,6 +48,8 @@ public class IM {
     //Transitive  isa predicates
     public static final TTIriRef IS_A= iri(NAMESPACE +"isA");
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
+
+    //
 
     //Inferred grouping predicates
     public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
@@ -100,6 +101,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
     public static final TTIriRef CODE_SCHEME_KINGS_APEX = TTIriRef.iri(DOMAIN +"kingsapex#");
     public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kingswinpath#");
+    public static final TTIriRef CODE_SCHEME_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
 
 
 
@@ -141,6 +143,7 @@ public class IM {
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
+    public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
     private IM() {}
 }
 

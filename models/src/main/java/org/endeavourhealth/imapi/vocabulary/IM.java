@@ -49,6 +49,8 @@ public class IM {
     public static final TTIriRef IS_A= iri(NAMESPACE +"isA");
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
 
+    //
+
     //Inferred grouping predicates
     public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
     public static final TTIriRef INHERITED_FROM = iri(NAMESPACE+"inheritedFrom");
@@ -141,6 +143,7 @@ public class IM {
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
+    public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
     private IM() {}
 }
 

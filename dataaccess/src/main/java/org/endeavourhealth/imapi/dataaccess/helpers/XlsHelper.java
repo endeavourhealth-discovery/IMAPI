@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 
 import java.util.List;
@@ -79,7 +80,7 @@ public class XlsHelper {
 
 	public void addMembersSheet(ExportValueSet exportValueSet) {
 		Sheet sheet = workbook.createSheet("Members");
-		addHeaders(sheet, 10000, "Type", "Member Name", "Member Iri", "Member Code", "Scheme Name", "Scheme Iri");
+		addHeaders(sheet, 10000, "Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri");
 
         addMembers(sheet, exportValueSet.getMembers());
 
@@ -89,13 +90,7 @@ public class XlsHelper {
         for (ValueSetMember c : included) {
             Row row = sheet.createRow(sheet.getLastRowNum() + 1);
             Cell cell = row.createCell(0);
-            if (c.getType() == "MemberIncluded") {
-            	cell.setCellValue("Included");
-			} else if (c.getType() == "MemberXcluded") {
-            	cell.setCellValue("Excluded");
-			} else {
-            	cell.setCellValue(c.getType());
-			}
+			cell.setCellValue(c.getType().name());
             cell = row.createCell(1);
             cell.setCellValue(c.getEntity().getName());
             cell = row.createCell(2);
@@ -109,6 +104,17 @@ public class XlsHelper {
                 cell = row.createCell(5);
                 cell.setCellValue(c.getScheme().getName());
             }
+            if (c.getType() == MemberType.SUBSET) {
+				cell = row.createCell(6);
+				cell.setCellValue(c.getDirectParent().getName());
+				cell = row.createCell(7);
+				cell.setCellValue(c.getDirectParent().getIri());
+			} else {
+				cell = row.createCell(6);
+				cell.setCellValue("N/A");
+				cell = row.createCell(7);
+				cell.setCellValue("N/A");
+			}
         }
     }
 

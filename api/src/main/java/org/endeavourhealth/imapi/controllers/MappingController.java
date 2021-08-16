@@ -57,47 +57,81 @@ public class MappingController {
 	private List<TTEntity> mapContentToEntities(JsonNode content, List<MappingInstruction> instructions) {
 		ArrayList<TTEntity> entities = new ArrayList<TTEntity>();
 
-		Iterator<JsonNode> elements = content.get("dataset").elements();
+		Iterator<JsonNode> elements = content.get("dataset").get(0).get("concept").elements();
 
 		elements.forEachRemaining(element -> {
-
-			entities.add(buildEntity(instructions));
-
-//			Iterator<Map.Entry<String, JsonNode>> fieldsIterator = element.fields();
-//			while (fieldsIterator.hasNext()) {
-//				Map.Entry<String, JsonNode> field = fieldsIterator.next();
-//				System.out.println("Key: " + field.getKey() + "\tValue:" + field.getValue());
-//			}
+			try {
+				addEntity(entities, element, instructions);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 
 		return entities;
 	}
 
-	private TTEntity buildEntity(List<MappingInstruction> instructions) {
+	private void addEntity(List<TTEntity> entities, JsonNode element, List<MappingInstruction> instructions) throws Exception {
+
+		if (!element.isArray()) {
+			entities.add(buildEntity(element, instructions));
+			if (element.has("concept")) {
+				addEntity(entities, element.get("concept"), instructions);
+			}
+		} 
+
+		element.elements().forEachRemaining(remaining -> {
+			try {
+				entities.add(buildEntity(remaining, instructions));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (remaining.has("concept")) {
+				try {
+					addEntity(entities, remaining.get("concept"), instructions);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+	}
+
+	private TTEntity buildEntity(JsonNode element, List<MappingInstruction> instructions) throws Exception {
 		TTEntity entity = new TTEntity();
 
 		for (MappingInstruction instruction : instructions) {
 			switch (instruction.getValueTypeString()) {
-			case "function": {
-				executeFunction(entity, instruction);
-			}
-
+			case "function":
+				executeFunction(element, entity, instruction);
+			case "reference":
+				// TODO
+			case "template":
+				// TODO
+			case "constant":
+				// TODO
 			}
 		}
 
 		return entity;
 	}
 
-	private void executeFunction(TTEntity entity, MappingInstruction instruction) {
+	private void executeFunction(JsonNode element, TTEntity entity, MappingInstruction instruction) throws Exception {
 		switch (instruction.getFunction()) {
 		case "generateIri":
-			entity.setIri(MappingFunction.generateIri());
+			entity.setIri(MappingFunction.generateIri(element));
 			break;
 
 		case "getType":
-			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(MappingFunction.getType()));
+			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(MappingFunction.getType(element)));
 			break;
 		}
 	}
+
+//	private String getValueFromReference() {
+//		
+//	}
 
 }

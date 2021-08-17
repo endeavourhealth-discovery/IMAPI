@@ -64,14 +64,29 @@ public class MappingInstructionBuilder {
 	}
 
 	private static MappingInstruction getSubjectMappingInstruction(JsonNode map) {
-		MappingInstruction instruction = new MappingInstruction();
+		MappingInstruction instruction = new MappingInstruction().setProperty("@id");
 		JsonNode subjectMapObjectId = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "subjectMap")
 				.get("object").get("id");
 		JsonNode object = findFirstNodeByObjectFieldValue(map, "subject", "id", subjectMapObjectId.asText());
-		if (object.get("predicate").get("localName").asText().equals("functionValue")) {
-			String functionName = getFunctionName(map, object);
-			instruction = new MappingInstruction().setProperty("@id").setFunction(functionName);
+//		System.out.println(object);
+		String mappingType = object.get("predicate").get("localName").asText();
+		
+		switch (mappingType) {
+		case "functionValue":
+			instruction.setFunction(getFunctionName(map, object));
+			break;
+		case "reference":
+			instruction.setReference(object.get("object").get("label").asText());
+			break;
+		case "template":
+			instruction.setTemplate(object.get("object").get("label").asText());
+			break;
+		case "constant":
+			instruction.setConstant(object.get("object").get("label").asText());
+			break;
+
 		}
+
 		return instruction;
 	}
 

@@ -9,19 +9,33 @@ import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class EntityBuilder {
 
-	public static List<TTEntity> buildEntityListFromJson(JsonNode content, List<MappingInstruction> instructions) {
+	public static List<TTEntity> buildEntityListFromJson(JsonNode content, List<MappingInstruction> instructions,
+			String iterator, String nestedProp) {
 		ArrayList<TTEntity> entities = new ArrayList<TTEntity>();
 
-		Iterator<JsonNode> elements = content.get("dataset").get(0).get("concept").elements();
+//		// $.dataset[*].concept[*]
+//		// /dataset/0/concept
+		Iterator<JsonNode> elements = null;
+		if (iterator != null) {
+			elements = content.at(iterator).elements();
+		} else {
+			elements = content.elements();
+		}
 
 		elements.forEachRemaining(element -> {
 			try {
-				addEntity(entities, element, instructions);
+				if (nestedProp != null) {
+					addEntity(entities, element, instructions, nestedProp);
+				} else {
+					addEntity(entities, element, instructions);
+				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -32,11 +46,22 @@ public class EntityBuilder {
 
 	private static void addEntity(List<TTEntity> entities, JsonNode element, List<MappingInstruction> instructions)
 			throws Exception {
+		try {
+			entities.add(buildEntity(element, instructions));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	private static void addEntity(List<TTEntity> entities, JsonNode element, List<MappingInstruction> instructions,
+			String nestedProp) throws Exception {
 
 		if (!element.isArray()) {
 			entities.add(buildEntity(element, instructions));
-			if (element.has("concept")) {
-				addEntity(entities, element.get("concept"), instructions);
+			if (element.has(nestedProp)) {
+				addEntity(entities, element.get(nestedProp), instructions, nestedProp);
 			}
 		}
 
@@ -45,14 +70,14 @@ public class EntityBuilder {
 				entities.add(buildEntity(remaining, instructions));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-//				e.printStackTrace();
+				e.printStackTrace();
 			}
-			if (remaining.has("concept")) {
+			if (remaining.has(nestedProp)) {
 				try {
-					addEntity(entities, remaining.get("concept"), instructions);
+					addEntity(entities, remaining.get(nestedProp), instructions, nestedProp);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-//					e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 		});
@@ -77,6 +102,8 @@ public class EntityBuilder {
 				setConstant(element, entity, instruction);
 				break;
 			}
+			System.out.println(element);
+			System.out.println(instruction);
 		}
 
 		return entity;

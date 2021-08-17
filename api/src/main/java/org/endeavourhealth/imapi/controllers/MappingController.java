@@ -37,7 +37,7 @@ public class MappingController {
 	ObjectMapper mapper = new ObjectMapper();
 
 	@PostMapping
-	public Object main(@RequestParam MultipartFile file, @RequestParam MultipartFile maps, @RequestParam String graph)
+	public Object main(@RequestParam MultipartFile file, @RequestParam MultipartFile maps, @RequestParam String graph, @RequestParam String iterator, @RequestParam String nestedProp)
 			throws IOException {
 		// Step 1: file loading
 		JsonNode content = FileParser.parseFile(file);
@@ -50,7 +50,7 @@ public class MappingController {
 		System.out.println("instructions: " + mapper.writeValueAsString(instructions));
 
 		// Step 3: map content to entities
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructions);
+		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructions, iterator, nestedProp);
 		System.out.println("entities: " + mapper.writeValueAsString(entities));
 
 		// Step 4: populate ttdocument

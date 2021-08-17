@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.mapping.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class MappingInstruction {
 
 	private String property;
@@ -11,6 +13,7 @@ public class MappingInstruction {
 	public MappingInstruction() {
 	}
 
+	@JsonIgnore
 	public String getValueTypeString() {
 		if (getReference() != null) {
 			return "reference";
@@ -22,6 +25,27 @@ public class MappingInstruction {
 			return "template";
 		}
 		return null;
+	}
+
+	@JsonIgnore
+	public String getPathFromReference(String reference) {
+		reference = reference == null ? this.reference : reference;
+		if (reference.contains(".")) {
+			reference = reference.replaceAll(".", "/");
+		}
+		if (reference.contains("[")) {
+			reference = reference.replaceAll("[\\[\\]]", "/");
+		}
+		if (reference.contains("//")) {
+			reference = reference.replaceAll("//", "/");
+		}
+		if (reference.contains("'")) {
+			reference = reference.replaceAll("'", "");
+		}
+		if (reference.endsWith("/")) {
+			reference = reference.substring(0, reference.length() - 1);
+		}
+		return "/" + reference;
 	}
 
 	public String getProperty() {

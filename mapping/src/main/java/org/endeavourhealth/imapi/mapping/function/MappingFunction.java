@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.mapping.function;
 
-import java.util.Iterator;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
@@ -28,8 +26,20 @@ public class MappingFunction {
 		case "group":
 			return "http://endhealth.info/im#Folder";
 		case "item":
-			return "http://www.w3.org/2002/07/owl#ObjectProperty";
+			if (contentObject.has("valueDomain")) {
+				return "http://www.w3.org/2002/07/owl#ObjectProperty";
+			}
+			return "http://endhealth.info/im#RecordType";
 		}
 		return "http://www.w3.org/2002/07/owl#Class";
+	}
+
+	public static String getParentPredicate(JsonNode parent) {
+		if (getType(parent).equals("http://endhealth.info/im#Folder")) {
+			return "http://endhealth.info/im#isContainedIn";
+		} else if (getType(parent).equals("http://endhealth.info/im#RecordType")) {
+			return "http://endhealth.info/im#isA";
+		}
+		return "http://endhealth.info/im#isChildOf";
 	}
 }

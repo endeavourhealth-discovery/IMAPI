@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
@@ -42,8 +45,8 @@ public class MappingController {
 		// Step 1: file loading
 		JsonNode content = FileParser.parseFile(file);
 		JsonNode jsonMap = FileParser.parseFile(maps);
-		System.out.println("content: " + content);
-		System.out.println("jsonMap: " + jsonMap);
+//		System.out.println("content: " + content);
+//		System.out.println("jsonMap: " + jsonMap);		
 
 		// Step 2: simple mapping instructions generating
 		List<MappingInstruction> instructions = MappingInstructionBuilder.buildMappingInstructionList(jsonMap);

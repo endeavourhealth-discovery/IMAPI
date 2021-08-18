@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.mapping.parser;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -42,12 +45,15 @@ public class FileParser {
 		return null;
 	}
 
-	public static JsonNode parseCsv(MultipartFile file) throws IOException {		
+	public static JsonNode parseCsv(MultipartFile file) throws IOException {
 		CsvSchema schema = CsvSchema.emptySchema().withHeader();
-		CsvMapper mapper = new CsvMapper();
-		ObjectReader with = mapper.readerFor(ArrayNode.class).with(schema);
-		mapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-		return with.readTree(file.getInputStream());
+		CsvMapper csvMapper = new CsvMapper();
+		MappingIterator<JsonNode> it = csvMapper.readerFor(JsonNode.class).with(schema)
+				.readValues(file.getInputStream());
+		ObjectMapper mapper = new ObjectMapper();
+		ArrayNode arrayNode = mapper.createArrayNode();
+		arrayNode.addAll(it.readAll());
+		return arrayNode;
 	}
 
 	public static JsonNode parseTtl(MultipartFile file)

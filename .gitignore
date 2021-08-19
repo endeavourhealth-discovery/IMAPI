@@ -5,3 +5,4 @@ target
 .project
 logic/.settings
 mapping/.settings
+api/src/main/resources/mapping/logs

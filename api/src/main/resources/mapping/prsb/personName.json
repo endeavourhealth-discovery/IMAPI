@@ -1,0 +1,52 @@
+{
+    "id": "2.16.840.1.113883.3.1937.777.28.2.10869",
+    "effectiveDate": "2019-03-27T19:05:18",
+    "statusCode": "draft",
+    "versionLabel": "1",
+    "type": "group",
+    "minimumMultiplicity": "1",
+    "maximumMultiplicity": "1",
+    "conformance": "M",
+    "isMandatory": "true",
+    "iddisplay": "prsb03-dataelement-10869",
+    "shortName": "person_name",
+    "implementation": [
+        {
+            "shortName": "person_name"
+        }
+    ],
+    "name": [
+        {
+            "language": "en-GB",
+            "#text": "Person name"
+        }
+    ],
+    "desc": [
+        {
+            "language": "en-GB",
+            "#text": "Details of the person's name"
+        }
+    ],
+    "relationship": [
+        {
+            "type": "SPEC",
+            "ref": "2.16.840.1.113883.3.1937.777.28.2.10016",
+            "flexibility": "2018-10-31T00:00:00",
+            "prefix": "prsb03-",
+            "datasetId": "2.16.840.1.113883.3.1937.777.28.1.1",
+            "datasetEffectiveDate": "2018-10-31T00:00:00",
+            "datasetStatusCode": "draft",
+            "datasetVersionLabel": "1",
+            "iType": "item",
+            "iStatusCode": "draft",
+            "iEffectiveDate": "2018-10-31T00:00:00",
+            "refdisplay": "prsb03-dataelement-10016",
+            "name": [
+                {
+                    "language": "en-GB",
+                    "#text": "Patient name"
+                }
+            ]
+        }
+    ]
+}

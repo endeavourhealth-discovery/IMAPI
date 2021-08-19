@@ -17,7 +17,7 @@ public class MappingFunction {
 		if ("http://www.w3.org/2002/07/owl#ObjectProperty".equals(getType(contentObject))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
-		return iri + name;
+		return (iri + name).replace("'", "");
 	}
 
 	public static String getType(JsonNode contentObject) {

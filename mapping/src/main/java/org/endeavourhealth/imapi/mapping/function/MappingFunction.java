@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.mapping.function;
 
+import org.endeavourhealth.imapi.vocabulary.PRSB;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
@@ -7,7 +9,6 @@ public class MappingFunction {
 	public static String generateIri(JsonNode contentObject) throws Exception {
 		String contentName = contentObject.get("name").get(0).get("#text").asText();
 
-		String iri = "http://endhealth.info/ref#";
 		String name = "";
 		String[] parts = contentName.split(" ");
 		for (String part : parts) {
@@ -17,7 +18,7 @@ public class MappingFunction {
 		if ("http://www.w3.org/2002/07/owl#ObjectProperty".equals(getType(contentObject))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
-		return (iri + name).replace("'", "");
+		return (PRSB.NAMESPACE + name).replace("'s", "");
 	}
 
 	public static String getType(JsonNode contentObject) {
@@ -32,6 +33,11 @@ public class MappingFunction {
 			return "http://endhealth.info/im#RecordType";
 		}
 		return "http://www.w3.org/2002/07/owl#Class";
+	}
+	
+	public static String getOptional(JsonNode contentObject) {
+		boolean isMandatory = contentObject.get("isMandatory").asBoolean();
+		return String.valueOf(!isMandatory);
 	}
 
 	public static String getParentPredicate(JsonNode parent) {

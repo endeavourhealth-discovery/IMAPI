@@ -143,13 +143,17 @@ public class EntityBuilder {
 				entity.set(TTIriRef.iri(predicate), TTIriRef.iri(MappingFunction.generateIri(parent)));
 			}
 			break;
-			
+
 //		case "getIsas":
 //			if (parent != null) {
 //				entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(MappingFunction.generateIri(parent)));
 //			}
 //			break;
-			
+
+		case "getOptional":
+			entity.set(TTIriRef.iri(instruction.getProperty()), new TTLiteral(MappingFunction.getOptional(element)));
+			break;
+
 		case "getType":
 			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(MappingFunction.getType(element)));
 			break;

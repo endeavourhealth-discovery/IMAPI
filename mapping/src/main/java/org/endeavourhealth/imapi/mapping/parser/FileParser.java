@@ -40,13 +40,16 @@ public class FileParser {
 			return parseTtl(file);
 		}
 		if (fname.endsWith(".csv")) {
-			return parseCsv(file);
+			return parseCsv(file, ",".charAt(0));
+		}
+		if (fname.endsWith(".tsv") || fname.endsWith(".txt")) {
+			return parseCsv(file, "\t".charAt(0));
 		}
 		return null;
 	}
 
-	public static JsonNode parseCsv(MultipartFile file) throws IOException {
-		CsvSchema schema = CsvSchema.emptySchema().withHeader();
+	public static JsonNode parseCsv(MultipartFile file, char separator) throws IOException {
+		CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(separator);
 		CsvMapper csvMapper = new CsvMapper();
 		MappingIterator<JsonNode> it = csvMapper.readerFor(JsonNode.class).with(schema)
 				.readValues(file.getInputStream());

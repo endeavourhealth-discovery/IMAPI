@@ -15,8 +15,7 @@ public class TTNode implements TTValue {
 
 	public TTNode set(TTIriRef predicate, TTValue value) {
 		if (value == null || value.isLiteral() && value.asLiteral().getValue().isBlank()
-				|| value.isIriRef() && value.asIriRef().getIri().isBlank()
-				|| value.isList() && value.asArray().getElements().isEmpty())
+				|| value.isIriRef() && value.asIriRef().getIri().isBlank())
 			predicateValues.remove(predicate);
 		else
 			predicateValues.put(predicate, value);

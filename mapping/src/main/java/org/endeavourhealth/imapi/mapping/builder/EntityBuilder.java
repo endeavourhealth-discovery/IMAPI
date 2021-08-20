@@ -1,15 +1,23 @@
 package org.endeavourhealth.imapi.mapping.builder;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,6 +51,73 @@ public class EntityBuilder {
 		});
 
 		return entities;
+	}
+
+	public static List<TTEntity> groupEntities(List<TTEntity> entities) {
+		List<TTEntity> groupedList = new ArrayList<TTEntity>();
+		Set<String> uniqueIris = new HashSet<String>();
+		entities.forEach(entity -> {
+			uniqueIris.add(entity.getIri());
+		});
+
+		System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : "
+				+ "uniqueIris.size=" + uniqueIris.size());
+		int i = 1;
+
+		for (String iri : uniqueIris) {
+			if (i % 1000 == 0) {
+				System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : "
+						+ i + "/" + uniqueIris.size());
+			}
+
+			List<TTEntity> filtered = entities.stream().filter(entity -> entity.getIri().equals(iri))
+					.collect(Collectors.toList());
+			TTEntity entity = filtered.get(0);
+
+			for (TTEntity ungrouped : filtered) {
+				Map<TTIriRef, TTValue> map = ungrouped.getPredicateMap();
+				for (Entry<TTIriRef, TTValue> entry : map.entrySet()) {
+					if (entity.has(entry.getKey())) {
+						if (isToBeAdded(entity, entry)) {
+							entity.addObject(entry.getKey(), entry.getValue());
+						}
+					} else {
+						entity.set(entry.getKey(), entry.getValue());
+					}
+
+				}
+			}
+			groupedList.add(entity);
+			i = i + 1;
+		}
+
+		return groupedList;
+	}
+
+	private static boolean isToBeAdded(TTEntity entity, Entry<TTIriRef, TTValue> entry) {
+
+		if (entity.get(entry.getKey()).isIriRef()) {
+			String key = entity.get(entry.getKey()).asIriRef().getIri();
+			String value = entry.getValue().asIriRef().getIri();
+			boolean isAlreadyThere = key.equals(value);
+			return !isAlreadyThere;
+		}
+		if (entity.get(entry.getKey()).isLiteral()) {
+			String key = entity.get(entry.getKey()).asLiteral().getValue();
+			String value = entry.getValue().asLiteral().getValue();
+			boolean isAlreadyThere = key.equals(value);
+			return !isAlreadyThere;
+		}
+		if (entity.get(entry.getKey()).isList()) {
+			boolean isAlreadyThere = entity.get(entry.getKey()).asArray().getElements().stream()
+					.anyMatch(element -> (element.isLiteral()
+							&& element.asLiteral().getValue().equals(entry.getValue().asLiteral().getValue()))
+							|| (element.isIriRef()
+									&& element.asIriRef().getIri().equals(entry.getValue().asIriRef().getIri())));
+			return !isAlreadyThere;
+		}
+
+		return true;
 	}
 
 	private static void addEntity(List<TTEntity> entities, JsonNode element, List<MappingInstruction> instructions)
@@ -134,13 +209,12 @@ public class EntityBuilder {
 			JsonNode parent) throws Exception {
 		switch (instruction.getFunction()) {
 		case "generateIri":
-			entity.setIri(MappingFunction.generateIri(element));
+			entity.setIri(MappingFunction.generateIri(element).getIri());
 			break;
 
 		case "handleParentRels":
 			if (parent != null) {
-				String predicate = MappingFunction.getParentPredicate(parent);
-				entity.set(TTIriRef.iri(predicate), TTIriRef.iri(MappingFunction.generateIri(parent)));
+				entity.set(MappingFunction.getParentPredicate(parent), MappingFunction.generateIri(parent));
 			}
 			break;
 
@@ -155,7 +229,7 @@ public class EntityBuilder {
 			break;
 
 		case "getType":
-			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(MappingFunction.getType(element)));
+			entity.set(TTIriRef.iri(instruction.getProperty()), MappingFunction.getType(element));
 			break;
 		}
 	}

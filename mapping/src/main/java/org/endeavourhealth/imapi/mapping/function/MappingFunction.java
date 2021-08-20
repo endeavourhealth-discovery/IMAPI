@@ -1,12 +1,21 @@
 package org.endeavourhealth.imapi.mapping.function;
 
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.PRSB;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
 
-	public static String generateIri(JsonNode contentObject) throws Exception {
+	public static TTIriRef generateIri(JsonNode contentObject) throws Exception {
 		String contentName = contentObject.get("name").get(0).get("#text").asText();
 
 		String name = "";
@@ -18,34 +27,50 @@ public class MappingFunction {
 		if ("http://www.w3.org/2002/07/owl#ObjectProperty".equals(getType(contentObject))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
-		return (PRSB.NAMESPACE + name).replace("'s", "");
+		return TTIriRef.iri((PRSB.NAMESPACE + name).replace("'s", ""));
 	}
 
-	public static String getType(JsonNode contentObject) {
+	public static TTIriRef getType(JsonNode contentObject) {
 		String contentType = contentObject.get("type").asText();
 		switch (contentType) {
 		case "group":
-			return "http://endhealth.info/im#Folder";
-		case "item":
-			if (contentObject.has("valueDomain")) {
-				return "http://www.w3.org/2002/07/owl#ObjectProperty";
+			if (contentObject.has("concept")) {
+				Iterator<JsonNode> it = contentObject.get("concept").elements();
+				Stream<JsonNode> stream = StreamSupport
+						.stream(Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED), false);
+				boolean hasObjectPropertiesAsChildren = stream
+						.filter(child -> child.get("type").asText().equals("item") && child.has("valueDomain"))
+						.findFirst().isPresent();
+				if (hasObjectPropertiesAsChildren) {
+					return IM.RECORD;
+				}
 			}
-			return "http://endhealth.info/im#RecordType";
+			return IM.FOLDER;
+		case "item":
+			if (contentObject.has("valueSet")) {
+				return IM.VALUESET;
+			}
+			if (contentObject.has("valueDomain")) {
+				return OWL.OBJECTPROPERTY;
+			}
+			return IM.RECORD;
 		}
-		return "http://www.w3.org/2002/07/owl#Class";
+		return OWL.CLASS;
 	}
-	
+
 	public static String getOptional(JsonNode contentObject) {
 		boolean isMandatory = contentObject.get("isMandatory").asBoolean();
 		return String.valueOf(!isMandatory);
 	}
 
-	public static String getParentPredicate(JsonNode parent) {
-		if (getType(parent).equals("http://endhealth.info/im#Folder")) {
-			return "http://endhealth.info/im#isContainedIn";
-		} else if (getType(parent).equals("http://endhealth.info/im#RecordType")) {
-			return "http://endhealth.info/im#isA";
+	public static TTIriRef getParentPredicate(JsonNode parent) {
+		if (getType(parent).equals(IM.FOLDER)) {
+			return IM.IS_CONTAINED_IN;
+		} else if (getType(parent).equals(IM.RECORD)) {
+			return IM.IS_A;
 		}
-		return "http://endhealth.info/im#isChildOf";
+		
+		
+		return IM.IS_CHILD_OF;
 	}
 }

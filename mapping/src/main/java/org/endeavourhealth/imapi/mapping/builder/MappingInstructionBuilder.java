@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.mapping.builder;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,37 +26,6 @@ public class MappingInstructionBuilder {
 		instructions.add(getSubjectMappingInstruction(map));
 		instructions.addAll(getObjectMappingInstructions(map));
 		return instructions;
-	}
-
-	public static List<TTEntity> groupEntities(List<TTEntity> entities) {
-		List<TTEntity> groupedList = new ArrayList<TTEntity>();
-		Set<String> uniqueIris = new HashSet<String>();
-		entities.forEach(entity -> {
-			uniqueIris.add(entity.getIri());
-		});
-
-		uniqueIris.forEach(iri -> {
-			List<TTEntity> filtered = entities.stream().filter(entity -> entity.getIri().equals(iri))
-					.collect(Collectors.toList());
-			TTEntity entity = filtered.get(0);
-
-			filtered.forEach(ungrouped -> {
-				Map<TTIriRef, TTValue> map = ungrouped.getPredicateMap();
-				for (Entry<TTIriRef, TTValue> entry : map.entrySet()) {
-					if (entity.has(entry.getKey())) {
-						if (isToBeAdded(entity, entry)) {
-							entity.addObject(entry.getKey(), entry.getValue());
-						}
-					} else {
-						entity.set(entry.getKey(), entry.getValue());
-					}
-
-				}
-			});
-			groupedList.add(entity);
-		});
-
-		return groupedList;
 	}
 
 	private static List<MappingInstruction> getObjectMappingInstructions(JsonNode map) {
@@ -172,31 +144,4 @@ public class MappingInstructionBuilder {
 
 		return returnValue;
 	}
-
-	private static boolean isToBeAdded(TTEntity entity, Entry<TTIriRef, TTValue> entry) {
-
-		if (entity.get(entry.getKey()).isIriRef()) {
-			String key = entity.get(entry.getKey()).asIriRef().getIri();
-			String value = entry.getValue().asIriRef().getIri();
-			boolean isAlreadyThere = key.equals(value);
-			return !isAlreadyThere;
-		}
-		if (entity.get(entry.getKey()).isLiteral()) {
-			String key = entity.get(entry.getKey()).asLiteral().getValue();
-			String value = entry.getValue().asLiteral().getValue();
-			boolean isAlreadyThere = key.equals(value);
-			return !isAlreadyThere;
-		}
-		if (entity.get(entry.getKey()).isList()) {
-			boolean isAlreadyThere = entity.get(entry.getKey()).asArray().getElements().stream()
-					.anyMatch(element -> (element.isLiteral()
-							&& element.asLiteral().getValue().equals(entry.getValue().asLiteral().getValue()))
-							|| (element.isIriRef()
-									&& element.asIriRef().getIri().equals(entry.getValue().asIriRef().getIri())));
-			return !isAlreadyThere;
-		}
-
-		return true;
-	}
-
 }

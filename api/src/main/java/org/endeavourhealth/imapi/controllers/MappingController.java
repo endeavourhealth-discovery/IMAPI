@@ -73,7 +73,7 @@ public class MappingController {
 		writeToFile("entities", entities, "Content mapping to entities completed.");
 
 		// Step 4: group entities with same IRI
-		entities = MappingInstructionBuilder.groupEntities(entities);
+		entities = EntityBuilder.groupEntities(entities);
 		writeToFile("grouped", entities, "Entities grouped.");
 
 		// Step 5: populate ttdocument
@@ -84,8 +84,8 @@ public class MappingController {
 			throws JsonGenerationException, JsonMappingException, IOException {
 		System.out.println(
 				LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
-		mapper.enable(SerializationFeature.INDENT_OUTPUT)
-				.writeValue(new File("src/main/resources/mapping/logs/" + filename + ".json"), object);
+//		mapper.enable(SerializationFeature.INDENT_OUTPUT)
+//				.writeValue(new File("src/main/resources/mapping/logs/" + filename + ".json"), object);
 	}
 
 }

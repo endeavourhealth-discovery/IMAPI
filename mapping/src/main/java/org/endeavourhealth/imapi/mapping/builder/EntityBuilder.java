@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -23,7 +24,7 @@ public class EntityBuilder {
 		ArrayList<TTEntity> entities = new ArrayList<TTEntity>();
 
 //		// $.dataset[*].concept[*]
-//		// /dataset/0/concept
+//		// /dataset/*/concept
 		Iterator<JsonNode> elements = null;
 		if (iterator != null) {
 			elements = content.at(iterator).elements();
@@ -55,10 +56,11 @@ public class EntityBuilder {
 				TTEntity entity = groupedMap.get(ungrouped.getIri());
 				Map<TTIriRef, TTValue> map = ungrouped.getPredicateMap();
 				for (Entry<TTIriRef, TTValue> entry : map.entrySet()) {
-					if (entity.has(entry.getKey())) {
-						if (isToBeAdded(entity, entry)) {
-							entity.addObject(entry.getKey(), entry.getValue());
-						}
+					if (RDFS.COMMENT.equals(entry.getKey())) {
+						entity.setDescription(entity.has(RDFS.COMMENT) ? getHtmlComment(entity, entry.getValue())
+								: "<p>" + entry.getValue() + "</p>");
+					} else if (entity.has(entry.getKey()) && isToBeAdded(entity, entry)) {
+						entity.addObject(entry.getKey(), entry.getValue());
 					} else {
 						entity.set(entry.getKey(), entry.getValue());
 					}
@@ -70,6 +72,16 @@ public class EntityBuilder {
 		}
 
 		return new ArrayList<TTEntity>(groupedMap.values());
+	}
+
+	private static String getHtmlComment(TTEntity entity, TTValue value) {
+		String startingTag = "<p>";
+		String endingTag = "</p>";
+		if (!entity.getDescription().startsWith(startingTag)) {
+			return startingTag + entity.getDescription() + endingTag + startingTag + value.asLiteral().getValue()
+					+ endingTag;
+		}
+		return entity.getDescription() + startingTag + value.asLiteral().getValue() + endingTag;
 	}
 
 	private static boolean isToBeAdded(TTEntity entity, Entry<TTIriRef, TTValue> entry) {

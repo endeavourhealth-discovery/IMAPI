@@ -30,16 +30,30 @@
 	];
 
   rr:predicateObjectMap [
-    rr:predicate im:isA;
+    rr:predicate rdfs:comment;
     rr:objectMap [
-      fnml:functionValue [
-        rr:predicateObjectMap [
-          rr:predicate fno:executes ;
-          rr:objectMap [ rr:constant im:handleParentRels ] 
-        ];
-      ]
-	  ]
-	];
+      rml:reference "desc[0]['#text']"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:label;
+    rr:objectMap [
+      rml:reference "name[0]['#text']"
+    ]
+  ].
+
+  # rr:predicateObjectMap [
+  #   rr:predicate im:isA;
+  #   rr:objectMap [
+  #     fnml:functionValue [
+  #       rr:predicateObjectMap [
+  #         rr:predicate fno:executes ;
+  #         rr:objectMap [ rr:constant im:handleParentRels ] 
+  #       ];
+  #     ]
+	#   ]
+	# ];
 
   # rr:predicateObjectMap [
   #   rr:predicate im:isA;
@@ -67,75 +81,59 @@
   #     rr:template "http://endhealth.info/ref#{iddisplay}";
   #   ]
   # ];
-
-  # shacl
   
-  rr:predicateObjectMap [
-    rr:predicate shacl:minCount;
-    rr:objectMap [
-      rml:reference "minimumMultiplicity"
-    ]
-  ];
+  # rr:predicateObjectMap [
+  #   rr:predicate shacl:minCount;
+  #   rr:objectMap [
+  #     rml:reference "minimumMultiplicity"
+  #   ]
+  # ];
 
-  rr:predicateObjectMap [
-    rr:predicate shacl:maxCount;
-    rr:objectMap [
-      rml:reference "maximumMultiplicity"
-    ]
-  ];
+  # rr:predicateObjectMap [
+  #   rr:predicate shacl:maxCount;
+  #   rr:objectMap [
+  #     rml:reference "maximumMultiplicity"
+  #   ]
+  # ];
 
-  rr:predicateObjectMap [
-    rr:predicate shacl:optional;
-    rr:objectMap [
-      fnml:functionValue [
-        rr:predicateObjectMap [
-          rr:predicate fno:executes ;
-          rr:objectMap [ rr:constant im:getOptional ] 
-        ];
-      ]
-	  ]
-  ];
+  # rr:predicateObjectMap [
+  #   rr:predicate shacl:optional;
+  #   rr:objectMap [
+  #     fnml:functionValue [
+  #       rr:predicateObjectMap [
+  #         rr:predicate fno:executes ;
+  #         rr:objectMap [ rr:constant im:getOptional ] 
+  #       ];
+  #     ]
+	#   ]
+  # ];
 
   # im & rdf(s) & prsb
 
-  rr:predicateObjectMap [
-    rr:predicate rs:operationalisation;
-    rr:objectMap [
-      rml:reference "operationalization[0]['#text']"
-    ]
-  ];
+  # rr:predicateObjectMap [
+  #   rr:predicate rs:operationalisation;
+  #   rr:objectMap [
+  #     rml:reference "operationalization[0]['#text']"
+  #   ]
+  # ];
 
-  rr:predicateObjectMap [
-    rr:predicate im:code;
-    rr:objectMap [
-      rml:reference "iddisplay"
-    ]
-  ];
+  # rr:predicateObjectMap [
+  #   rr:predicate im:code;
+  #   rr:objectMap [
+  #     rml:reference "iddisplay"
+  #   ]
+  # ];
 
-  rr:predicateObjectMap [
-    rr:predicate rdfs:comment;
-    rr:objectMap [
-      rml:reference "desc[0]['#text']"
-    ]
-  ];
+  # rr:predicateObjectMap [
+  #   rr:predicate im:hasContext;
+  #   rr:objectMap [
+  #     rml:reference "context[0]['#text']"
+  #   ]
+  # ];
 
-  rr:predicateObjectMap [
-    rr:predicate im:hasContext;
-    rr:objectMap [
-      rml:reference "context[0]['#text']"
-    ]
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate im:shortName;
-    rr:objectMap [
-      rml:reference "shortName"
-    ]
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate im:label;
-    rr:objectMap [
-      rml:reference "name[0]['#text']"
-    ]
-  ].
+  # rr:predicateObjectMap [
+  #   rr:predicate im:shortName;
+  #   rr:objectMap [
+  #     rml:reference "shortName"
+  #   ]
+  # ];

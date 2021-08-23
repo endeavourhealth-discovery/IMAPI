@@ -6,6 +6,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -24,7 +25,7 @@ public class MappingFunction {
 			String camelCasePart = part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase();
 			name += camelCasePart;
 		}
-		if (OWL.OBJECTPROPERTY.equals(getType(contentObject))) {
+		if (RDF.PROPERTY.equals(getType(contentObject))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
 		return TTIriRef.iri((PRSB.NAMESPACE + name).replace("'s", ""));

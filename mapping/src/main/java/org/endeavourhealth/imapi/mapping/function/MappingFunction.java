@@ -24,7 +24,7 @@ public class MappingFunction {
 			String camelCasePart = part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase();
 			name += camelCasePart;
 		}
-		if ("http://www.w3.org/2002/07/owl#ObjectProperty".equals(getType(contentObject))) {
+		if (OWL.OBJECTPROPERTY.equals(getType(contentObject))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
 		return TTIriRef.iri((PRSB.NAMESPACE + name).replace("'s", ""));
@@ -66,11 +66,9 @@ public class MappingFunction {
 	public static TTIriRef getParentPredicate(JsonNode parent) {
 		if (getType(parent).equals(IM.FOLDER)) {
 			return IM.IS_CONTAINED_IN;
-		} else if (getType(parent).equals(IM.RECORD)) {
-			return IM.IS_A;
 		}
-		
-		
-		return IM.IS_CHILD_OF;
+		return IM.IS_A;
+
+//		return IM.IS_CHILD_OF;
 	}
 }

@@ -5,15 +5,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,20 +19,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.tools.doclint.Entity;
 
 import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
 import org.endeavourhealth.imapi.mapping.builder.MappingInstructionBuilder;
-import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 @RestController
@@ -70,11 +57,11 @@ public class MappingController {
 
 		// Step 3: map content to entities
 		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructions, iterator, nestedProp);
-		writeToFile("entities", entities, "Content mapping to entities completed.");
+		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 
 		// Step 4: group entities with same IRI
 		entities = EntityBuilder.groupEntities(entities);
-		writeToFile("grouped", entities, "Entities grouped.");
+		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
 
 		// Step 5: populate ttdocument
 		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE);
@@ -84,8 +71,8 @@ public class MappingController {
 			throws JsonGenerationException, JsonMappingException, IOException {
 		System.out.println(
 				LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
-//		mapper.enable(SerializationFeature.INDENT_OUTPUT)
-//				.writeValue(new File("src/main/resources/mapping/logs/" + filename + ".json"), object);
+		mapper.enable(SerializationFeature.INDENT_OUTPUT)
+				.writeValue(new File("src/main/resources/mapping/logs/" + filename + ".json"), object);
 	}
 
 }

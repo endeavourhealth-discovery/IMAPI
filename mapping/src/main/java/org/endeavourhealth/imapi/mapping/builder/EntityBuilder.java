@@ -1,16 +1,11 @@
 package org.endeavourhealth.imapi.mapping.builder;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
@@ -18,7 +13,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -54,27 +48,11 @@ public class EntityBuilder {
 	}
 
 	public static List<TTEntity> groupEntities(List<TTEntity> entities) {
-		List<TTEntity> groupedList = new ArrayList<TTEntity>();
-		Set<String> uniqueIris = new HashSet<String>();
-		entities.forEach(entity -> {
-			uniqueIris.add(entity.getIri());
-		});
+		HashMap<String, TTEntity> groupedMap = new HashMap<String, TTEntity>();
 
-		System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : "
-				+ "uniqueIris.size=" + uniqueIris.size());
-		int i = 1;
-
-		for (String iri : uniqueIris) {
-			if (i % 1000 == 0) {
-				System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : "
-						+ i + "/" + uniqueIris.size());
-			}
-
-			List<TTEntity> filtered = entities.stream().filter(entity -> entity.getIri().equals(iri))
-					.collect(Collectors.toList());
-			TTEntity entity = filtered.get(0);
-
-			for (TTEntity ungrouped : filtered) {
+		for (TTEntity ungrouped : entities) {
+			if (groupedMap.containsKey(ungrouped.getIri())) {
+				TTEntity entity = groupedMap.get(ungrouped.getIri());
 				Map<TTIriRef, TTValue> map = ungrouped.getPredicateMap();
 				for (Entry<TTIriRef, TTValue> entry : map.entrySet()) {
 					if (entity.has(entry.getKey())) {
@@ -86,12 +64,12 @@ public class EntityBuilder {
 					}
 
 				}
+			} else {
+				groupedMap.put(ungrouped.getIri(), ungrouped);
 			}
-			groupedList.add(entity);
-			i = i + 1;
 		}
 
-		return groupedList;
+		return new ArrayList<TTEntity>(groupedMap.values());
 	}
 
 	private static boolean isToBeAdded(TTEntity entity, Entry<TTIriRef, TTValue> entry) {

@@ -38,38 +38,32 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 public class MappingController {
 
 	ObjectMapper mapper = new ObjectMapper();
-
+	
 	@PostMapping
-	public Object main(@RequestParam MultipartFile file, @RequestParam MultipartFile maps, @RequestParam String graph,
-			@RequestParam boolean nested) throws IOException {
-		System.out.println();
-		System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : "
-				+ "Mapping process started.");
-
-		// Step 1: file loading
-		JsonNode content = FileParser.parseFile(file);
-		JsonNode jsonMap = FileParser.parseFile(maps);
+	public TTDocument map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
+			@RequestParam String graph, @RequestParam boolean nested) throws IOException {
+		JsonNode content = FileParser.parseFile(contentFile);
+		JsonNode map = FileParser.parseFile(mappingFile);
 		writeToFile("content", content, "Content files loaded.");
-		writeToFile("maps", jsonMap, "Map files loaded.");
-
-		// Step 2: simple mapping instructions generating
-		MappingInstructionWrapper instructionWrapper = MappingInstructionBuilder.buildMappingInstructionList(jsonMap);
-		writeToFile("instructions", instructionWrapper, "Mapping instructions converted.");
-
-		// Step 3: map content to entities
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructionWrapper, nested);
-		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
-
-		// Step 4: group entities with same IRI
-		entities = EntityBuilder.groupEntities(entities, graph);
-		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
-
-		// Step 5: populate ttdocument
-		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE);
+		writeToFile("map", map, "Map files loaded.");
+		return mapFromJsonNodes(content, map, graph, nested);
 	}
 
-	private void writeToFile(String filename, Object object, String message)
-			throws JsonGenerationException, JsonMappingException, IOException {
+	public TTDocument mapFromJsonNodes(JsonNode content, JsonNode map, String graph, boolean nested)
+			throws IOException {
+		MappingInstructionWrapper instructionWrapper = MappingInstructionBuilder.buildMappingInstructionList(map); // Step 1: simple mapping instructions generating
+		writeToFile("instructions", instructionWrapper, "Mapping instructions converted.");
+		
+		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructionWrapper, nested); // Step 2: map content to entities
+		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
+		
+		entities = EntityBuilder.groupEntities(entities, graph); // Step 3: group entities with same IRI
+		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
+
+		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 4: populate ttdocument
+	}
+
+	private void writeToFile(String filename, Object object, String message) throws IOException {
 		System.out.println(
 				LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT)

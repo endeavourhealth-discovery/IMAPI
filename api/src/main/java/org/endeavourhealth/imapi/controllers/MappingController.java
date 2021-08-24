@@ -25,6 +25,7 @@ import org.endeavourhealth.imapi.mapping.parser.FileParser;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
 import org.endeavourhealth.imapi.mapping.builder.MappingInstructionBuilder;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
+import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -40,7 +41,7 @@ public class MappingController {
 
 	@PostMapping
 	public Object main(@RequestParam MultipartFile file, @RequestParam MultipartFile maps, @RequestParam String graph,
-			@RequestParam String iterator, @RequestParam String nestedProp) throws IOException {
+			@RequestParam boolean nested) throws IOException {
 		System.out.println();
 		System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : "
 				+ "Mapping process started.");
@@ -52,15 +53,15 @@ public class MappingController {
 		writeToFile("maps", jsonMap, "Map files loaded.");
 
 		// Step 2: simple mapping instructions generating
-		List<MappingInstruction> instructions = MappingInstructionBuilder.buildMappingInstructionList(jsonMap);
-		writeToFile("instructions", instructions, "Mapping instructions converted.");
+		MappingInstructionWrapper instructionWrapper = MappingInstructionBuilder.buildMappingInstructionList(jsonMap);
+		writeToFile("instructions", instructionWrapper, "Mapping instructions converted.");
 
 		// Step 3: map content to entities
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructions, iterator, nestedProp);
+		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructionWrapper, nested);
 		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 
 		// Step 4: group entities with same IRI
-		entities = EntityBuilder.groupEntities(entities);
+		entities = EntityBuilder.groupEntities(entities, graph);
 		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
 
 		// Step 5: populate ttdocument

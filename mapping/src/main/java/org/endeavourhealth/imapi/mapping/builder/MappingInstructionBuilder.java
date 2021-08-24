@@ -8,16 +8,25 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
+import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingInstructionBuilder {
 
-	public static List<MappingInstruction> buildMappingInstructionList(JsonNode map) {
+	public static MappingInstructionWrapper buildMappingInstructionList(JsonNode map) {
 		ArrayList<MappingInstruction> instructions = new ArrayList<MappingInstruction>();
 		instructions.add(getSubjectMappingInstruction(map));
 		instructions.addAll(getObjectMappingInstructions(map));
-		return instructions;
+		return new MappingInstructionWrapper().setInstructions(instructions).setIterator(getIterator(map));
+	}
+
+	private static String getIterator(JsonNode map) {
+		JsonNode iterator = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "iterator");
+		if (iterator == null) {
+			return null;
+		}
+		return iterator.get("object").get("label").asText();
 	}
 
 	private static List<MappingInstruction> getObjectMappingInstructions(JsonNode map) {

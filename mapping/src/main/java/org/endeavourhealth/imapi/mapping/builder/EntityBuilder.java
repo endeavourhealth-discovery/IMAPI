@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
+import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -16,28 +17,31 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 
 public class EntityBuilder {
 
-	public static List<TTEntity> buildEntityListFromJson(JsonNode content, List<MappingInstruction> instructions,
-			String iterator, String nestedProp) {
+	public static List<TTEntity> buildEntityListFromJson(JsonNode content, MappingInstructionWrapper instructionWrapper,
+			boolean nested) {
 		ArrayList<TTEntity> entities = new ArrayList<TTEntity>();
 
 //		// $.dataset[*].concept[*]
 //		// /dataset/*/concept
-		Iterator<JsonNode> elements = null;
-		if (iterator != null) {
-			elements = content.at(iterator).elements();
-		} else {
-			elements = content.elements();
-		}
+
+		Iterator<JsonNode> elements = instructionWrapper.getIterator() != null
+				? elements = getElementsFromIteratorJsonPath(content, instructionWrapper.getIterator())
+				: content.elements();
 
 		elements.forEachRemaining(element -> {
 			try {
-				if (!nestedProp.isBlank()) {
-					addEntity(entities, element, instructions, nestedProp, null);
+				if (nested) {
+					addEntity(entities, element, instructionWrapper.getInstructions(),
+							instructionWrapper.getNestedPropName(), null);
 				} else {
-					addEntity(entities, element, instructions);
+					addEntity(entities, element, instructionWrapper.getInstructions());
 				}
 
 			} catch (Exception e) {
@@ -48,7 +52,7 @@ public class EntityBuilder {
 		return entities;
 	}
 
-	public static List<TTEntity> groupEntities(List<TTEntity> entities) {
+	public static List<TTEntity> groupEntities(List<TTEntity> entities, String graph) {
 		HashMap<String, TTEntity> groupedMap = new HashMap<String, TTEntity>();
 
 		for (TTEntity ungrouped : entities) {
@@ -67,12 +71,18 @@ public class EntityBuilder {
 
 				}
 			} else {
-				groupedMap.put(ungrouped.getIri(),
-						ungrouped.set(RDFS.SUBCLASSOF, TTIriRef.iri("http://endhealth.info/im#PRSB")));
+				groupedMap.put(ungrouped.getIri(), ungrouped.set(RDFS.SUBCLASSOF, TTIriRef.iri(graph)));
 			}
 		}
 
 		return new ArrayList<TTEntity>(groupedMap.values());
+	}
+
+	private static Iterator<JsonNode> getElementsFromIteratorJsonPath(JsonNode content, String iterator) {
+		Configuration JACKSON_CONFIGURATION = Configuration.builder().mappingProvider(new JacksonMappingProvider())
+				.jsonProvider(new JacksonJsonNodeJsonProvider()).build();
+		JsonNode nodeFromJsonPathJsonNode = JsonPath.using(JACKSON_CONFIGURATION).parse(content).read(iterator);
+		return nodeFromJsonPathJsonNode.elements();
 	}
 
 	private static String getHtmlComment(TTEntity entity, TTValue value) {

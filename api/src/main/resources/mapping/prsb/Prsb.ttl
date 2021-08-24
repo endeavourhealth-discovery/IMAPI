@@ -1,13 +1,20 @@
-@prefix rr: <http://www.w3.org/ns/r2rml#>.
-@prefix rml: <http://semweb.mmlab.be/ns/rml#>.
-@prefix im: <http://endhealth.info/im#>.
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix im: <http://endhealth.info/im#> .
 @prefix fno: <https://w3id.org/function/ontology#> .
 @prefix fnml: <http://semweb.mmlab.be/ns/fnml#> .
 @prefix shacl: <http://www.w3.org/ns/shacl#> .
 @prefix rs: <http://prsb.info/rs#> .
-@base <http://endhealth.info/mapping/prsb.ttl#>.
+@base <http://endhealth.info/mapping/prsb.ttl#> .
 
 <#Prsb> a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source "RetrieveTransaction.json";
+    rml:referenceFormulation ql:JSONPath;
+    rml:iterator "$.dataset[*].concept[*]"
+  ];
+
   rr:subjectMap [
     fnml:functionValue [
         rr:predicateObjectMap [

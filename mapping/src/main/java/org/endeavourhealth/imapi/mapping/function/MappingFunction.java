@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -16,7 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
 
-	public static TTIriRef generateIri(JsonNode contentObject) throws Exception {
+	public static TTIriRef generateIri(TTEntity entity, JsonNode contentObject, JsonNode parent) throws Exception {
 		String contentName = contentObject.get("name").get(0).get("#text").asText();
 
 		String name = "";
@@ -25,51 +27,38 @@ public class MappingFunction {
 			String camelCasePart = part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase();
 			name += camelCasePart;
 		}
-		if (RDF.PROPERTY.equals(getType(contentObject))) {
+		if (RDF.PROPERTY.equals(getType(entity, contentObject, parent))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
 		return TTIriRef.iri((PRSB.NAMESPACE + name).replace("'s", ""));
 	}
 
-	public static TTIriRef getType(JsonNode contentObject) {
+	public static TTIriRef getType(TTEntity entity, JsonNode contentObject, JsonNode parent) {
 		String contentType = contentObject.get("type").asText();
 		switch (contentType) {
 		case "group":
-			if (contentObject.has("concept")) {
+			if (!contentObject.has("concept")) {
+				return IM.FOLDER;
+			} else {
 				Iterator<JsonNode> it = contentObject.get("concept").elements();
 				Stream<JsonNode> stream = StreamSupport
 						.stream(Spliterators.spliteratorUnknownSize(it, Spliterator.ORDERED), false);
 				boolean hasObjectPropertiesAsChildren = stream
 						.filter(child -> child.get("type").asText().equals("item") && child.has("valueDomain"))
 						.findFirst().isPresent();
-				if (hasObjectPropertiesAsChildren) {
-					return IM.RECORD;
-				}
+				return hasObjectPropertiesAsChildren ? IM.RECORD : IM.FOLDER;
 			}
-			return IM.FOLDER;
+
 		case "item":
 			if (contentObject.has("valueSet")) {
 				return IM.VALUESET;
-			}
-			if (contentObject.has("valueDomain")) {
+			} else if (contentObject.has("valueDomain")) {
 				return OWL.OBJECTPROPERTY;
 			}
 			return IM.RECORD;
+
 		}
 		return OWL.CLASS;
 	}
 
-	public static String getOptional(JsonNode contentObject) {
-		boolean isMandatory = contentObject.get("isMandatory").asBoolean();
-		return String.valueOf(!isMandatory);
-	}
-
-	public static TTIriRef getParentPredicate(JsonNode parent) {
-		if (getType(parent).equals(IM.FOLDER)) {
-			return IM.IS_CONTAINED_IN;
-		}
-		return IM.IS_A;
-
-//		return IM.IS_CHILD_OF;
-	}
 }

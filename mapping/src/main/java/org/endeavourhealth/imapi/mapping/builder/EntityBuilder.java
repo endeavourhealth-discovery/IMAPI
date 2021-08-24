@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.mapping.builder;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -208,30 +209,15 @@ public class EntityBuilder {
 
 	private static void executeFunction(JsonNode element, TTEntity entity, MappingInstruction instruction,
 			JsonNode parent) throws Exception {
-		switch (instruction.getFunction()) {
-		case "generateIri":
-			entity.setIri(MappingFunction.generateIri(element).getIri());
-			break;
+		Class<?> classObj = MappingFunction.class;
+		Method function = classObj.getDeclaredMethod(instruction.getFunction(), TTEntity.class, JsonNode.class,
+				JsonNode.class);
+		TTIriRef iriRef = (TTIriRef) function.invoke(classObj, entity, element, parent);
 
-		case "handleParentRels":
-			if (parent != null) {
-				entity.set(MappingFunction.getParentPredicate(parent), MappingFunction.generateIri(parent));
-			}
-			break;
-
-//		case "getIsas":
-//			if (parent != null) {
-//				entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(MappingFunction.generateIri(parent)));
-//			}
-//			break;
-
-		case "getOptional":
-			entity.set(TTIriRef.iri(instruction.getProperty()), new TTLiteral(MappingFunction.getOptional(element)));
-			break;
-
-		case "getType":
-			entity.set(TTIriRef.iri(instruction.getProperty()), MappingFunction.getType(element));
-			break;
+		if (instruction.getProperty().equals("@id")) {
+			entity.setIri(iriRef.getIri());
+		} else {
+			entity.set(TTIriRef.iri(instruction.getProperty()), iriRef);
 		}
 	}
 

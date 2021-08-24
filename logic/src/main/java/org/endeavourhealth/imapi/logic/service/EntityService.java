@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -190,11 +191,11 @@ public class EntityService {
 			.collect(Collectors.toList());
 	}
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets) throws SQLException {
-        return getValueSetMembers(iri, expandMembers, expandSets,  null, null);
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit) throws SQLException {
+        return getValueSetMembers(iri, expandMembers, expandSets,  limit, null, iri);
     }
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, String parentSetName) throws SQLException {
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, String parentSetName, String originalParentIri) throws SQLException {
 		if (iri == null || iri.isEmpty()) {
 			return null;
 		}
@@ -206,35 +207,41 @@ public class EntityService {
 		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 
 		for (ValueSetMember included : definedMemberInclusions) {
-			if (parentSetName == null) {
-				included.setType("MemberIncluded");
+			if (originalParentIri == iri) {
+				included.setLabel("MemberIncluded");
+				included.setType(MemberType.INCLUDED);
 			} else {
-				included.setType("Subset - " + parentSetName);
+				included.setLabel("Subset - " + parentSetName);
+				included.setType(MemberType.SUBSET);
 			}
+			included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
 		for (ValueSetMember excluded : definedMemberExclusions) {
-			if (parentSetName == null) {
-				excluded.setType("MemberXcluded");
+			if (originalParentIri == iri) {
+				excluded.setLabel("MemberXcluded");
+				excluded.setType(MemberType.EXCLUDED);
 			} else {
-				excluded.setType("Subset - " + parentSetName);
+				excluded.setLabel("Subset - " + parentSetName);
+				excluded.setType(MemberType.SUBSET);
 			}
+			excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
 		if (expandSets || expandMembers) {
 			for (ValueSetMember set : definedSetInclusions) {
-				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null);
+				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null, originalParentIri);
 				memberCount += individualResults.getMembers().size();
 				result.addAllMembers(individualResults.getMembers());
 			};
 		} else {
 			for (ValueSetMember set : definedSetInclusions) {
 				if (parentSetName == null) {
-					set.setType("Subset - " + set.getEntity().getName());
+					set.setLabel("Subset - " + set.getEntity().getName());
 				} else {
-					set.setType("Subset - " + parentSetName);
+					set.setLabel("Subset - " + parentSetName);
 				}
-				ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName());
+				ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName(), originalParentIri);
 				memberCount += setMembers.getMembers().size();
 				result.addAllMembers(setMembers.getMembers());
 			}
@@ -278,7 +285,8 @@ public class EntityService {
                 valueSetRepository
                     .expandMember(member.getEntity().getIri(), limit)
                     .forEach(m -> {
-                    	m.setType("MemberExpanded");
+                    	m.setLabel("MemberExpanded");
+                    	m.setType(MemberType.EXPANDED);
                     	memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
                     });
 			}
@@ -333,7 +341,7 @@ public class EntityService {
         if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets));
+        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
 
         return downloadDto;
     }
@@ -349,7 +357,7 @@ public class EntityService {
         if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
-        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets));
+        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
 
         return xls;
     }
@@ -407,7 +415,7 @@ public class EntityService {
 	}
 
 	public String valueSetMembersCSV(String iri, boolean expandMember, boolean expandSubset) throws SQLException {
-		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset);
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset, null);
 		StringBuilder valueSetMembers = new StringBuilder();
 		valueSetMembers.append(
 				"Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");

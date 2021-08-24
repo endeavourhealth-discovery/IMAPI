@@ -159,11 +159,10 @@ public class EntityController {
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
-        @RequestParam(name = "parentSetName", required = false) String parentSetName,
         @RequestParam(name = "limit", required = false) Integer limit
     ) throws SQLException {
         LOG.debug("valueSetMembersJson");
-        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit, parentSetName);
+        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
 	}
 
 	@GetMapping(value = "/members", produces = { "text/csv" })

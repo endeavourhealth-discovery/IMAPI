@@ -59,6 +59,13 @@ public class FileUploadServiceImpl{
         return sm;
     }
 
+    @Transactional
+    public StateMachine<States,Events> changeEvent(Long id, Events event){
+        StateMachine<States,Events> sm = build(id);
+        sendEvent(id, sm, event);
+        return sm;
+    }
+
     private void sendEvent(Long id, StateMachine<States, Events> sm, Events event){
         Message<Events> msg = MessageBuilder.withPayload(event)
                 .setHeader(FILE_ID_HEADER, id)

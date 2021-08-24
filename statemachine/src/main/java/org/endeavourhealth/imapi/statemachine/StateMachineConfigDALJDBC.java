@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.statemachine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

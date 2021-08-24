@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,7 +22,6 @@ import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
 import org.endeavourhealth.imapi.mapping.builder.MappingInstructionBuilder;
-import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;

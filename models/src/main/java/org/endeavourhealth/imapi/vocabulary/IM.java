@@ -77,6 +77,8 @@ public class IM {
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
     public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
     public static final TTIriRef SUPPLIER_ASSURED = iri(NAMESPACE + "SupplierAssured");
+    public static final TTIriRef IM1_DBID = iri(NAMESPACE + "im1Dbid");
+
 
 
     //SPARQL parameters
@@ -105,7 +107,7 @@ public class IM {
 
 
 
-    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.NAMESPACE+"Discovery");
+    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.NAMESPACE+"DiscoveryGraph");
     public static final TTIriRef GRAPH_SNOMED= iri("http://snomed.info/sct#sct");
     public static final TTIriRef GRAPH_REPORTS= iri(NAMESPACE + "reports");
     public static final TTIriRef GRAPH_ICD10 = iri(NAMESPACE +"icd10");

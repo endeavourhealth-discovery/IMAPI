@@ -67,7 +67,8 @@ public class EntityBuilder {
 
 				}
 			} else {
-				groupedMap.put(ungrouped.getIri(), ungrouped);
+				groupedMap.put(ungrouped.getIri(),
+						ungrouped.set(RDFS.SUBCLASSOF, TTIriRef.iri("http://endhealth.info/im#PRSB")));
 			}
 		}
 

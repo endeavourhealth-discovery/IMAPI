@@ -6,3 +6,6 @@ target
 logic/.settings
 mapping/.settings
 api/src/main/resources/mapping/logs
+parser/.settings
+statemachine/.settings
+workflow/.settings

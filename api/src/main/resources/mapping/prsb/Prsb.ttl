@@ -37,6 +37,13 @@
 	];
 
   rr:predicateObjectMap [
+    rr:predicate rdfs:subClassOf;
+    rr:objectMap [
+      rml:constant "http://endhealth.info/im#PRSB"
+    ]
+  ];
+
+  rr:predicateObjectMap [
     rr:predicate rdfs:comment;
     rr:objectMap [
       rml:reference "desc[0]['#text']"

@@ -54,9 +54,9 @@ public class MappingController {
 		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructionWrapper, nested); // Step 2: map content to entities
 		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 		
-		entities = EntityBuilder.groupEntities(entities, graph); // Step 3: group entities with same IRI
+		entities = EntityBuilder.groupEntities(entities); // Step 3: group entities with same IRI
 		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
-
+		
 		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 4: populate ttdocument
 	}
 

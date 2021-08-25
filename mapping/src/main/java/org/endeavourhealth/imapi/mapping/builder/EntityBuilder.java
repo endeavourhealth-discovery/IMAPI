@@ -53,7 +53,7 @@ public class EntityBuilder {
 		return entities;
 	}
 
-	public static List<TTEntity> groupEntities(List<TTEntity> entities, String graph) {
+	public static List<TTEntity> groupEntities(List<TTEntity> entities) {
 		HashMap<String, TTEntity> groupedMap = new HashMap<String, TTEntity>();
 
 		for (TTEntity ungrouped : entities) {
@@ -72,7 +72,7 @@ public class EntityBuilder {
 
 				}
 			} else {
-				groupedMap.put(ungrouped.getIri(), ungrouped.set(RDFS.SUBCLASSOF, TTIriRef.iri(graph)));
+				groupedMap.put(ungrouped.getIri(), ungrouped);
 			}
 		}
 

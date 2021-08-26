@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -16,7 +17,7 @@ public class MappingInstructionBuilder {
 
 	public static MappingInstructionWrapper buildMappingInstructionList(JsonNode map) {
 		ArrayList<MappingInstruction> instructions = new ArrayList<MappingInstruction>();
-		instructions.add(getSubjectMappingInstruction(map));
+		instructions.addAll(getSubjectMappingInstruction(map));
 		instructions.addAll(getObjectMappingInstructions(map));
 		return new MappingInstructionWrapper().setInstructions(instructions).setIterator(getIterator(map));
 	}
@@ -72,8 +73,9 @@ public class MappingInstructionBuilder {
 
 	}
 
-	private static MappingInstruction getSubjectMappingInstruction(JsonNode map) {
-		MappingInstruction instruction = new MappingInstruction().setProperty("@id");
+	private static List<MappingInstruction> getSubjectMappingInstruction(JsonNode map) {
+		List<MappingInstruction> subjectList = new ArrayList<MappingInstruction>();
+		MappingInstruction iriInstruction = new MappingInstruction().setProperty("@id");
 		JsonNode subjectMapObjectId = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "subjectMap")
 				.get("object").get("id");
 		JsonNode object = findFirstNodeByObjectFieldValue(map, "subject", "id", subjectMapObjectId.asText());
@@ -81,21 +83,32 @@ public class MappingInstructionBuilder {
 
 		switch (mappingType) {
 		case "functionValue":
-			instruction.setFunction(getFunctionName(map, object));
+			iriInstruction.setFunction(getFunctionName(map, object));
 			break;
 		case "reference":
-			instruction.setReference(object.get("object").get("label").asText());
+			iriInstruction.setReference(object.get("object").get("label").asText());
 			break;
 		case "template":
-			instruction.setTemplate(object.get("object").get("label").asText());
+			iriInstruction.setTemplate(object.get("object").get("label").asText());
 			break;
 		case "constant":
-			instruction.setConstant(object.get("object").get("label").asText());
+			iriInstruction.setConstant(object.get("object").get("label").asText());
 			break;
 
 		}
 
-		return instruction;
+		subjectList.add(iriInstruction);
+
+		
+		JsonNode classObject = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "class");
+		if (classObject != null) {
+			MappingInstruction typeInstruction = new MappingInstruction().setProperty(RDF.TYPE.getIri());
+			String constantValue = classObject.get("object").get("namespace").asText() + classObject.get("object").get("localName").asText();
+			typeInstruction.setConstant(constantValue);
+			subjectList.add(typeInstruction);
+		}
+		
+		return subjectList;
 	}
 
 	private static String getFunctionName(JsonNode map, JsonNode object) {

@@ -13,14 +13,7 @@
 
   rr:subjectMap [
     rr:template "http://org.endhealth.info/im#{OrganisationId}";
-  ];
-
-  rr:predicateObjectMap [
-    rr:predicate rdf:type;
-    rr:objectMap [
-      rml:constant "http://endhealth.info/im#Organisation";
-      rr:datatype xsd:String
-    ]
+    rr:class im:Organisation
   ];
 
   rr:predicateObjectMap [

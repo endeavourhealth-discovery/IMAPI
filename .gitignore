@@ -9,3 +9,7 @@ api/src/main/resources/mapping/logs
 parser/.settings
 statemachine/.settings
 workflow/.settings
+api/src/main/resources/mapping/locationAreas/location_areas.tsv.csv
+api/src/main/resources/mapping/ods/Organisation_Details.csv
+api/src/main/resources/mapping/prsb/RetrieveTransaction.json
+api/src/main/resources/mapping/ods/Organisation_Details - Copy.csv

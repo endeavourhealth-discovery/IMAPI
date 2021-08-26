@@ -49,22 +49,10 @@ public class MappingInstructionBuilder {
 				String mappingType = node.get("predicate").get("localName").asText();
 				if (node.get("object").has("label")) {
 					String value = node.get("object").get("label").asText();
-					switch (mappingType) {
-					case "constant":
-						instructions.add(new MappingInstruction().setProperty(property).setConstant(value));
-						break;
-					case "reference":
-						instructions.add(new MappingInstruction().setProperty(property).setReference(value));
-						break;
-					case "template":
-						instructions.add(new MappingInstruction().setProperty(property).setTemplate(value));
-						break;
-					}
-				}
+					instructions.add(new MappingInstruction(property, mappingType, value));
 
-				if (node.get("predicate").get("localName").asText().equals("functionValue")) {
-					instructions.add(
-							new MappingInstruction().setProperty(property).setFunction(getFunctionName(map, node)));
+				} else if (node.get("predicate").get("localName").asText().equals("functionValue")) {
+					instructions.add(new MappingInstruction(property, mappingType, getFunctionName(map, node)));
 				}
 			}
 
@@ -75,39 +63,24 @@ public class MappingInstructionBuilder {
 
 	private static List<MappingInstruction> getSubjectMappingInstruction(JsonNode map) {
 		List<MappingInstruction> subjectList = new ArrayList<MappingInstruction>();
-		MappingInstruction iriInstruction = new MappingInstruction().setProperty("@id");
 		JsonNode subjectMapObjectId = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "subjectMap")
 				.get("object").get("id");
 		JsonNode object = findFirstNodeByObjectFieldValue(map, "subject", "id", subjectMapObjectId.asText());
 		String mappingType = object.get("predicate").get("localName").asText();
+		String value = mappingType.equals("functionValue") ? getFunctionName(map, object)
+				: object.get("object").get("label").asText();
+		subjectList.add(new MappingInstruction("@id", mappingType, value));
 
-		switch (mappingType) {
-		case "functionValue":
-			iriInstruction.setFunction(getFunctionName(map, object));
-			break;
-		case "reference":
-			iriInstruction.setReference(object.get("object").get("label").asText());
-			break;
-		case "template":
-			iriInstruction.setTemplate(object.get("object").get("label").asText());
-			break;
-		case "constant":
-			iriInstruction.setConstant(object.get("object").get("label").asText());
-			break;
+//		TODO rr:class vs rr:termType
+//		JsonNode classObject = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "class");
+//		if (classObject != null) {
+//			MappingInstruction typeInstruction = new MappingInstruction().setProperty(RDF.TYPE.getIri());
+//			String constantValue = classObject.get("object").get("namespace").asText()
+//					+ classObject.get("object").get("localName").asText();
+//			typeInstruction.setConstant(constantValue);
+//			subjectList.add(typeInstruction);
+//		}
 
-		}
-
-		subjectList.add(iriInstruction);
-
-		
-		JsonNode classObject = findFirstNodeByObjectFieldValue(map, "predicate", "localName", "class");
-		if (classObject != null) {
-			MappingInstruction typeInstruction = new MappingInstruction().setProperty(RDF.TYPE.getIri());
-			String constantValue = classObject.get("object").get("namespace").asText() + classObject.get("object").get("localName").asText();
-			typeInstruction.setConstant(constantValue);
-			subjectList.add(typeInstruction);
-		}
-		
 		return subjectList;
 	}
 

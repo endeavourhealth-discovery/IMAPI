@@ -155,8 +155,8 @@ public class EntityBuilder {
 		TTEntity entity = new TTEntity();
 
 		for (MappingInstruction instruction : instructions) {
-			switch (instruction.getValueTypeString()) {
-			case "function":
+			switch (instruction.getValueType()) {
+			case "functionValue":
 				executeFunction(element, entity, instruction, parent);
 				break;
 			case "reference":
@@ -175,7 +175,7 @@ public class EntityBuilder {
 	}
 
 	private static void setFromTemplate(JsonNode element, TTEntity entity, MappingInstruction instruction) {
-		String[] parts = instruction.getTemplate().split("\\{");
+		String[] parts = instruction.getValue().split("\\{");
 		if (parts.length == 2) {
 			String second = element.at(instruction.getPathFromReference(parts[1].substring(0, parts[1].length() - 1)))
 					.asText();
@@ -200,9 +200,9 @@ public class EntityBuilder {
 
 	private static void setConstant(JsonNode element, TTEntity entity, MappingInstruction instruction) {
 		if (instruction.getProperty().equals("@id")) {
-			entity.setIri(instruction.getConstant());
+			entity.setIri(instruction.getValue());
 		} else {
-			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(instruction.getConstant()));
+			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(instruction.getValue()));
 		}
 
 	}
@@ -210,7 +210,7 @@ public class EntityBuilder {
 	private static void executeFunction(JsonNode element, TTEntity entity, MappingInstruction instruction,
 			JsonNode parent) throws Exception {
 		Class<?> classObj = MappingFunction.class;
-		Method function = classObj.getDeclaredMethod(instruction.getFunction(), TTEntity.class, JsonNode.class,
+		Method function = classObj.getDeclaredMethod(instruction.getValue(), TTEntity.class, JsonNode.class,
 				JsonNode.class);
 		TTIriRef iriRef = (TTIriRef) function.invoke(classObj, entity, element, parent);
 

@@ -48,33 +48,35 @@ public class FileParser {
 			result.add(mapNode);
 			mapNode.set("@id", JsonNodeFactory.instance.textNode(map.getSubject().stringValue()));
 			// Recursively add the triples
-			addData(mapModel, mapNode, map.getSubject(), wrapper);
+			addData(map.getSubject().toString(), mapModel, mapNode, map.getSubject(), wrapper);
 		}
 		return wrapper;
 	}
 
-	private static void recurse(Model mapModel, Resource subject, String property, MappingInstructionWrapper wrapper) {
+	private static void recurse(String mapName, Model mapModel, Resource subject, String property,
+			MappingInstructionWrapper wrapper) {
 		Iterable<Statement> triples = mapModel.getStatements(subject, null, null);
 		for (Statement tpl : triples) {
 			if (tpl.getObject().isBNode()) {
-				recurse(mapModel, (Resource) tpl.getObject(), property, wrapper);
+				recurse(mapName, mapModel, (Resource) tpl.getObject(), property, wrapper);
 			} else if (!tpl.getPredicate().stringValue().equals("http://www.w3.org/ns/r2rml#predicate")) {
 				System.out.println(
 						property + " : " + tpl.getPredicate().stringValue() + " : " + tpl.getObject().stringValue());
 
-				if ("http://www.w3.org/ns/r2rml#class".equals(tpl.getPredicate().stringValue())) {
-					wrapper.addInstruction(new MappingInstruction(RDFS.SUBCLASSOF.getIri(),
+				if ("http://www.w3.org/ns/r2rml#class".equals(tpl.getPredicate().stringValue())
+						|| "http://www.w3.org/ns/r2rml#termType".equals(tpl.getPredicate().stringValue())) {
+					wrapper.addInstruction(mapName, new MappingInstruction(mapName, RDFS.SUBCLASSOF.getIri(),
 							tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
 				} else {
-					wrapper.addInstruction(new MappingInstruction(property, tpl.getPredicate().stringValue(),
-							tpl.getObject().stringValue()));
+					wrapper.addInstruction(mapName, new MappingInstruction(mapName, property,
+							tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
 				}
 
 			}
 		}
 	}
 
-	private static void addData(Model mapModel, ObjectNode mapNode, Resource subject,
+	private static void addData(String mapName, Model mapModel, ObjectNode mapNode, Resource subject,
 			MappingInstructionWrapper wrapper) {
 		Iterable<Statement> triples = mapModel.getStatements(subject, null, null);
 		for (Statement tpl : triples) {
@@ -83,7 +85,7 @@ public class FileParser {
 
 			if (predicate.equals("http://www.w3.org/ns/r2rml#predicate")
 					&& !object.stringValue().equals("https://w3id.org/function/ontology#executes")) {
-				recurse(mapModel, subject, object.stringValue(), wrapper);
+				recurse(mapName, mapModel, subject, object.stringValue(), wrapper);
 			}
 
 			if (predicate.equals("http://semweb.mmlab.be/ns/rml#iterator")) {
@@ -91,7 +93,7 @@ public class FileParser {
 			}
 
 			if (predicate.equals("http://www.w3.org/ns/r2rml#subjectMap")) {
-				recurse(mapModel, (Resource) object, "@id", wrapper);
+				recurse(mapName, mapModel, (Resource) object, "@id", wrapper);
 			}
 
 			JsonNode childNode = null;
@@ -103,7 +105,7 @@ public class FileParser {
 			} else if (tpl.getObject().isBNode()) {
 				childNode = JsonNodeFactory.instance.objectNode();
 				// Recurse nested triple via bnode
-				addData(mapModel, (ObjectNode) childNode, (Resource) object, wrapper);
+				addData(mapName, mapModel, (ObjectNode) childNode, (Resource) object, wrapper);
 			} else {
 				System.err.println("Unknown triple type!");
 			}

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.mapping.builder;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,14 +9,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,26 +32,22 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 public class EntityBuilder {
 
 	public static List<TTEntity> buildEntityListFromJson(JsonNode content, MappingInstructionWrapper instructionWrapper,
-			boolean nested) {
+			boolean nested) throws Exception {
 		ArrayList<TTEntity> entities = new ArrayList<TTEntity>();
 
 		Iterator<JsonNode> elements = instructionWrapper.getIterator() != null
 				? elements = getElementsFromIteratorJsonPath(content, instructionWrapper.getIterator())
 				: content.elements();
 
-		elements.forEachRemaining(element -> {
-			try {
-				if (nested) {
-					addEntity(entities, element, instructionWrapper.getInstructions(),
-							instructionWrapper.getNestedPropName(), null);
-				} else {
-					addEntity(entities, element, instructionWrapper.getInstructions());
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
+		while (elements.hasNext()) {
+			JsonNode element = elements.next();
+			if (nested) {
+				addEntity(entities, element, instructionWrapper.getInstructions(),
+						instructionWrapper.getNestedPropName(), null);
+			} else {
+				entities.add(buildEntity(element, instructionWrapper.getInstructions(), null));
 			}
-		});
+		}
 
 		return entities;
 	}
@@ -120,60 +121,98 @@ public class EntityBuilder {
 		return true;
 	}
 
-	private static void addEntity(List<TTEntity> entities, JsonNode element, List<MappingInstruction> instructions)
-			throws Exception {
-		try {
-			entities.add(buildEntity(element, instructions, null));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	private static void addEntity(List<TTEntity> entities, JsonNode element, List<MappingInstruction> instructions,
+	private static void addEntity(List<TTEntity> entities, JsonNode element, Map<String, List<MappingInstruction>> map,
 			String nestedProp, JsonNode parent) throws Exception {
 
-		entities.add(buildEntity(element, instructions, parent));
+		entities.add(buildEntity(element, map, parent));
 
 		if (element.has(nestedProp)) {
-			element.get(nestedProp).forEach(nested -> {
-				try {
-					addEntity(entities, nested, instructions, nestedProp, element);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			});
+			Iterator<JsonNode> subElements = element.get(nestedProp).elements();
+
+			while (subElements.hasNext()) {
+				JsonNode nested = subElements.next();
+				addEntity(entities, nested, map, nestedProp, element);
+			}
 		}
 	}
 
-	private static TTEntity buildEntity(JsonNode element, List<MappingInstruction> instructions, JsonNode parent)
+	private static TTEntity buildEntity(JsonNode element, Map<String, List<MappingInstruction>> map, JsonNode parent)
 			throws Exception {
 		TTEntity entity = new TTEntity();
+		String firstKey = map.keySet().stream().findFirst().get();
 
-		for (MappingInstruction instruction : instructions) {
-			switch (instruction.getValueType()) {
-			case "http://www.w3.org/ns/r2rml#class":
-				setConstant(element, entity, instruction);
-				break;
-			case "http://semweb.mmlab.be/ns/rml#reference":
-				setFromReference(element, entity, instruction);
-				break;
-			case "http://www.w3.org/ns/r2rml#template":
-				setFromTemplate(element, entity, instruction);
-				break;
-			case "http://www.w3.org/ns/r2rml#constant":
-				if (isFunction(instruction)) {
-					executeFunction(element, entity, instruction, parent);
+		for (MappingInstruction instruction : map.get(firstKey)) {
+			if ("http://www.w3.org/ns/r2rml#parentTriplesMap".equals(instruction.getValueType())) {
+				List<MappingInstruction> instructions = map.get(instruction.getValue());
+				if (isBNode(instructions)) {
+					TTNode node = new TTNode();
+					for (MappingInstruction instr : instructions) {
+						setPredicateFromInstruction(element, node, instr, parent);
+					}
+					entity.set(TTIriRef.iri(instruction.getProperty()), node);
 				} else {
-					setConstant(element, entity, instruction);
+					TTEntity node = new TTEntity();
+					for (MappingInstruction instr : instructions) {
+						setPredicateFromInstruction(element, node, instr, parent);
+					}
+					entity.set(TTIriRef.iri(instruction.getProperty()), node);
 				}
-				break;
+
+			} else {
+				setPredicateFromInstruction(element, entity, instruction, parent);
 			}
 		}
 
 		return entity;
+	}
+
+	private static boolean isBNode(List<MappingInstruction> instructions) {
+		return instructions.stream()
+				.anyMatch(instruction -> instruction.getValue().equals("http://www.w3.org/ns/r2rml#BlankNode"));
+	}
+
+	private static void setPredicateFromInstruction(JsonNode element, TTValue entity, MappingInstruction instruction,
+			JsonNode parent) throws NoSuchMethodException, SecurityException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+		String value = getTTValue(element, instruction, parent);
+
+		if (IM.IRI.equals(instruction.getProperty())) {
+			((TTEntity) entity).setIri(value);
+		} else if (!"http://www.w3.org/ns/r2rml#BlankNode".equals(instruction.getValue())) {
+			entity.asNode().set(iri(instruction.getProperty()), new TTLiteral(value));
+		}
+
+	}
+
+	private static String getTTValue(JsonNode element, MappingInstruction instruction, JsonNode parent)
+			throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		String value = "";
+		switch (instruction.getValueType()) {
+		case "http://semweb.mmlab.be/ns/rml#reference":
+			value = element.at(instruction.getPathFromReference(null)).asText();
+			break;
+		case "http://www.w3.org/ns/r2rml#template":
+			String[] parts = instruction.getValue().split("\\{");
+			if (parts.length == 2) {
+				String second = element
+						.at(instruction.getPathFromReference(parts[1].substring(0, parts[1].length() - 1))).asText();
+				value = parts[0] + second;
+			}
+			break;
+		default:
+			if (isFunction(instruction)) {
+				String functionName = instruction.getValue().split("#")[1];
+				Class<?> classObj = MappingFunction.class;
+				Method function = classObj.getDeclaredMethod(functionName, JsonNode.class, JsonNode.class);
+				value = (String) function.invoke(classObj, element, parent);
+			} else {
+				value = instruction.getValue();
+			}
+			break;
+		}
+
+		return value;
 	}
 
 	private static boolean isFunction(MappingInstruction instruction) {
@@ -184,54 +223,6 @@ public class EntityBuilder {
 		Class<?> classObj = MappingFunction.class;
 		List<Method> functions = Arrays.asList(classObj.getDeclaredMethods());
 		return functions.stream().anyMatch(function -> value.equals(function.getName()));
-	}
-
-	private static void setFromTemplate(JsonNode element, TTEntity entity, MappingInstruction instruction) {
-		String[] parts = instruction.getValue().split("\\{");
-		if (parts.length == 2) {
-			String second = element.at(instruction.getPathFromReference(parts[1].substring(0, parts[1].length() - 1)))
-					.asText();
-
-			if (instruction.getProperty().equals("@id")) {
-				entity.setIri(parts[0] + second);
-			} else {
-				entity.set(TTIriRef.iri(instruction.getProperty()), new TTLiteral(parts[0] + second));
-			}
-		}
-	}
-
-	private static void setFromReference(JsonNode element, TTEntity entity, MappingInstruction instruction) {
-		if (instruction.getProperty().equals("@id")) {
-			entity.setIri(element.at(instruction.getPathFromReference(null)).asText());
-		} else {
-			entity.set(TTIriRef.iri(instruction.getProperty()),
-					new TTLiteral(element.at(instruction.getPathFromReference(null)).asText()));
-		}
-
-	}
-
-	private static void setConstant(JsonNode element, TTEntity entity, MappingInstruction instruction) {
-		if (instruction.getProperty().equals("@id")) {
-			entity.setIri(instruction.getValue());
-		} else {
-			entity.set(TTIriRef.iri(instruction.getProperty()), TTIriRef.iri(instruction.getValue()));
-		}
-
-	}
-
-	private static void executeFunction(JsonNode element, TTEntity entity, MappingInstruction instruction,
-			JsonNode parent) throws Exception {
-		String functionName = instruction.getValue().split("#")[1];
-		Class<?> classObj = MappingFunction.class;
-		Method function = classObj.getDeclaredMethod(functionName, TTEntity.class, JsonNode.class,
-				JsonNode.class);
-		TTIriRef iriRef = (TTIriRef) function.invoke(classObj, entity, element, parent);
-
-		if (instruction.getProperty().equals("@id")) {
-			entity.setIri(iriRef.getIri());
-		} else {
-			entity.set(TTIriRef.iri(instruction.getProperty()), iriRef);
-		}
 	}
 
 }

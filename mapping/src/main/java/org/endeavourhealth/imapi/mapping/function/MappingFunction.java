@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
 
-	public static TTIriRef generateIri(TTEntity entity, JsonNode contentObject, JsonNode parent) throws Exception {
+	public static String generateIri(JsonNode contentObject, JsonNode parent) throws Exception {
 		String contentName = contentObject.get("name").get(0).get("#text").asText();
 
 		String name = "";
@@ -27,18 +27,18 @@ public class MappingFunction {
 			String camelCasePart = part.substring(0, 1).toUpperCase() + part.substring(1).toLowerCase();
 			name += camelCasePart;
 		}
-		if (RDF.PROPERTY.equals(getType(entity, contentObject, parent))) {
+		if (RDF.PROPERTY.getIri().equals(getType(contentObject, parent))) {
 			name = name.substring(0, 1).toLowerCase() + name.substring(1);
 		}
-		return TTIriRef.iri((PRSB.NAMESPACE + name).replace("'s", ""));
+		return (PRSB.NAMESPACE + name).replace("'s", "");
 	}
 
-	public static TTIriRef getType(TTEntity entity, JsonNode contentObject, JsonNode parent) {
+	public static String getType(JsonNode contentObject, JsonNode parent) {
 		String contentType = contentObject.get("type").asText();
 		switch (contentType) {
 		case "group":
 			if (!contentObject.has("concept")) {
-				return IM.FOLDER;
+				return IM.FOLDER.getIri();
 			} else {
 				Iterator<JsonNode> it = contentObject.get("concept").elements();
 				Stream<JsonNode> stream = StreamSupport
@@ -46,19 +46,19 @@ public class MappingFunction {
 				boolean hasObjectPropertiesAsChildren = stream
 						.filter(child -> child.get("type").asText().equals("item") && child.has("valueDomain"))
 						.findFirst().isPresent();
-				return hasObjectPropertiesAsChildren ? IM.RECORD : IM.FOLDER;
+				return hasObjectPropertiesAsChildren ? IM.RECORD.getIri() : IM.FOLDER.getIri();
 			}
 
 		case "item":
 			if (contentObject.has("valueSet")) {
-				return IM.VALUESET;
+				return IM.VALUESET.getIri();
 			} else if (contentObject.has("valueDomain")) {
-				return OWL.OBJECTPROPERTY;
+				return OWL.OBJECTPROPERTY.getIri();
 			}
-			return IM.RECORD;
+			return IM.RECORD.getIri();
 
 		}
-		return OWL.CLASS;
+		return OWL.CLASS.getIri();
 	}
 
 }

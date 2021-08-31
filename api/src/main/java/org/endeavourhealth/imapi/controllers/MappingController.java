@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
-import org.endeavourhealth.imapi.mapping.builder.MappingInstructionBuilder;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -35,10 +34,10 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 public class MappingController {
 
 	ObjectMapper mapper = new ObjectMapper();
-	
+
 	@PostMapping
 	public TTDocument map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
-			@RequestParam String graph, @RequestParam boolean nested) throws IOException {
+			@RequestParam String graph, @RequestParam boolean nested) throws Exception {
 		JsonNode content = FileParser.parseFile(contentFile);
 		MappingInstructionWrapper map = FileParser.parseMap(mappingFile);
 		writeToFile("content", content, "Content files loaded.");
@@ -47,14 +46,14 @@ public class MappingController {
 	}
 
 	public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
-			throws IOException {
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 2: map content to entities
+			throws Exception {
+		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to entities
 		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
-		
-		entities = EntityBuilder.groupEntities(entities); // Step 3: group entities with same IRI
+
+		entities = EntityBuilder.groupEntities(entities); // Step 2: group entities with same IRI
 		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
-		
-		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 4: populate ttdocument
+
+		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 3: populate ttdocument
 	}
 
 	private void writeToFile(String filename, Object object, String message) throws IOException {

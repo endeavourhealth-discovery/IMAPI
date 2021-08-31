@@ -39,7 +39,7 @@
 
   rr:subjectMap [
     rr:template "http://org.endhealth.info/im#{LocationId}";
-    rr:class im:BlankNode
+    rr:termType rr:BlankNode
   ];
 
   rr:predicateObjectMap [

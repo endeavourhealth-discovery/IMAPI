@@ -40,18 +40,15 @@ public class MappingController {
 	public TTDocument map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
 			@RequestParam String graph, @RequestParam boolean nested) throws IOException {
 		JsonNode content = FileParser.parseFile(contentFile);
-		JsonNode map = FileParser.parseFile(mappingFile);
+		MappingInstructionWrapper map = FileParser.parseMap(mappingFile);
 		writeToFile("content", content, "Content files loaded.");
 		writeToFile("map", map, "Map files loaded.");
 		return mapFromJsonNodes(content, map, graph, nested);
 	}
 
-	public TTDocument mapFromJsonNodes(JsonNode content, JsonNode map, String graph, boolean nested)
+	public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
 			throws IOException {
-		MappingInstructionWrapper instructionWrapper = MappingInstructionBuilder.buildMappingInstructionList(map); // Step 1: simple mapping instructions generating
-		writeToFile("instructions", instructionWrapper, "Mapping instructions converted.");
-		
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, instructionWrapper, nested); // Step 2: map content to entities
+		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 2: map content to entities
 		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 		
 		entities = EntityBuilder.groupEntities(entities); // Step 3: group entities with same IRI

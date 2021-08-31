@@ -5,12 +5,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class MappingInstruction {
 
 	private String property;
-	private String nestedProperty;
+	private String parentProperty;
 	private boolean isBnode;
 	private String valueType; // [reference, constant, template, functionValue]
 	private String value;
 
 	public MappingInstruction() {
+	}
+
+	public MappingInstruction(String property, String parentProperty, boolean isBnode, String valueType, String value) {
+		this.parentProperty = parentProperty;
+		this.isBnode = isBnode;
+		this.property = property;
+		this.valueType = valueType;
+		this.value = value;
 	}
 
 	public MappingInstruction(String property, String valueType, String value) {
@@ -67,12 +75,12 @@ public class MappingInstruction {
 		return this;
 	}
 
-	public String getNestedProperty() {
-		return nestedProperty;
+	public String getParentProperty() {
+		return parentProperty;
 	}
 
-	public MappingInstruction setNestedProperty(String nestedProperty) {
-		this.nestedProperty = nestedProperty;
+	public MappingInstruction setParentProperty(String parentProperty) {
+		this.parentProperty = parentProperty;
 		return this;
 	}
 

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.mapping.builder;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,9 +29,6 @@ public class EntityBuilder {
 	public static List<TTEntity> buildEntityListFromJson(JsonNode content, MappingInstructionWrapper instructionWrapper,
 			boolean nested) {
 		ArrayList<TTEntity> entities = new ArrayList<TTEntity>();
-
-//		// $.dataset[*].concept[*]
-//		// /dataset/*/concept
 
 		Iterator<JsonNode> elements = instructionWrapper.getIterator() != null
 				? elements = getElementsFromIteratorJsonPath(content, instructionWrapper.getIterator())
@@ -156,22 +154,36 @@ public class EntityBuilder {
 
 		for (MappingInstruction instruction : instructions) {
 			switch (instruction.getValueType()) {
-			case "functionValue":
-				executeFunction(element, entity, instruction, parent);
+			case "http://www.w3.org/ns/r2rml#class":
+				setConstant(element, entity, instruction);
 				break;
-			case "reference":
+			case "http://semweb.mmlab.be/ns/rml#reference":
 				setFromReference(element, entity, instruction);
 				break;
-			case "template":
+			case "http://www.w3.org/ns/r2rml#template":
 				setFromTemplate(element, entity, instruction);
 				break;
-			case "constant":
-				setConstant(element, entity, instruction);
+			case "http://www.w3.org/ns/r2rml#constant":
+				if (isFunction(instruction)) {
+					executeFunction(element, entity, instruction, parent);
+				} else {
+					setConstant(element, entity, instruction);
+				}
 				break;
 			}
 		}
 
 		return entity;
+	}
+
+	private static boolean isFunction(MappingInstruction instruction) {
+		String value = instruction.getValue().split("#")[1];
+		if (value == null) {
+			return false;
+		}
+		Class<?> classObj = MappingFunction.class;
+		List<Method> functions = Arrays.asList(classObj.getDeclaredMethods());
+		return functions.stream().anyMatch(function -> value.equals(function.getName()));
 	}
 
 	private static void setFromTemplate(JsonNode element, TTEntity entity, MappingInstruction instruction) {
@@ -209,8 +221,9 @@ public class EntityBuilder {
 
 	private static void executeFunction(JsonNode element, TTEntity entity, MappingInstruction instruction,
 			JsonNode parent) throws Exception {
+		String functionName = instruction.getValue().split("#")[1];
 		Class<?> classObj = MappingFunction.class;
-		Method function = classObj.getDeclaredMethod(instruction.getValue(), TTEntity.class, JsonNode.class,
+		Method function = classObj.getDeclaredMethod(functionName, TTEntity.class, JsonNode.class,
 				JsonNode.class);
 		TTIriRef iriRef = (TTIriRef) function.invoke(classObj, entity, element, parent);
 

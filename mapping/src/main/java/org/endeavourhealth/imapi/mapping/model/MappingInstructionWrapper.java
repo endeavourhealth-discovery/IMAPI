@@ -1,10 +1,12 @@
 package org.endeavourhealth.imapi.mapping.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MappingInstructionWrapper {
 
 	public MappingInstructionWrapper() {
+		this.instructions = new ArrayList<MappingInstruction>();
 	}
 
 	private String iterator;
@@ -21,6 +23,11 @@ public class MappingInstructionWrapper {
 		}
 
 		return lastProp;
+	}
+
+	public MappingInstructionWrapper addInstruction(MappingInstruction instruction) {
+		this.instructions.add(instruction);
+		return this;
 	}
 
 	public List<MappingInstruction> getInstructions() {

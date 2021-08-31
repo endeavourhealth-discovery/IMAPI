@@ -53,6 +53,10 @@ public class MappingInstructionBuilder {
 
 				} else if (node.get("predicate").get("localName").asText().equals("functionValue")) {
 					instructions.add(new MappingInstruction(property, mappingType, getFunctionName(map, node)));
+				} else if (node.get("predicate").get("localName").asText().equals("parentTriplesMap")) {
+//					TODO
+//					find all where subject.localName == Address (object.localName)
+//					foreach
 				}
 			}
 

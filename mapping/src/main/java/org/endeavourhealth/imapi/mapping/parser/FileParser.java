@@ -15,6 +15,8 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.R2RML;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -46,7 +48,7 @@ public class FileParser {
 			System.out.println("Map: " + map.getSubject().toString());
 			ObjectNode mapNode = JsonNodeFactory.instance.objectNode();
 			result.add(mapNode);
-			mapNode.set("@id", JsonNodeFactory.instance.textNode(map.getSubject().stringValue()));
+			mapNode.set(IM.IRI, JsonNodeFactory.instance.textNode(map.getSubject().stringValue()));
 			// Recursively add the triples
 			addData(map.getSubject().toString(), mapModel, mapNode, map.getSubject(), wrapper);
 		}
@@ -59,13 +61,10 @@ public class FileParser {
 		for (Statement tpl : triples) {
 			if (tpl.getObject().isBNode()) {
 				recurse(mapName, mapModel, (Resource) tpl.getObject(), property, wrapper);
-			} else if (!tpl.getPredicate().stringValue().equals("http://www.w3.org/ns/r2rml#predicate")) {
-				System.out.println(
-						property + " : " + tpl.getPredicate().stringValue() + " : " + tpl.getObject().stringValue());
-
-				if ("http://www.w3.org/ns/r2rml#class".equals(tpl.getPredicate().stringValue())
-						|| "http://www.w3.org/ns/r2rml#termType".equals(tpl.getPredicate().stringValue())) {
-					wrapper.addInstruction(mapName, new MappingInstruction(mapName, RDFS.SUBCLASSOF.getIri(),
+			} else if (!tpl.getPredicate().stringValue().equals(R2RML.PREDICATE.getIri())) {
+				if (R2RML.CLASS.getIri().equals(tpl.getPredicate().stringValue())
+						|| R2RML.TERM_TYPE.getIri().equals(tpl.getPredicate().stringValue())) {
+					wrapper.addInstruction(mapName, new MappingInstruction(mapName, org.endeavourhealth.imapi.vocabulary.RDF.TYPE.getIri(),
 							tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
 				} else {
 					wrapper.addInstruction(mapName, new MappingInstruction(mapName, property,
@@ -83,7 +82,7 @@ public class FileParser {
 			String predicate = tpl.getPredicate().stringValue();
 			Value object = tpl.getObject();
 
-			if (predicate.equals("http://www.w3.org/ns/r2rml#predicate")
+			if (predicate.equals(R2RML.PREDICATE.getIri())
 					&& !object.stringValue().equals("https://w3id.org/function/ontology#executes")) {
 				recurse(mapName, mapModel, subject, object.stringValue(), wrapper);
 			}
@@ -92,8 +91,8 @@ public class FileParser {
 				wrapper.setIterator(object.stringValue());
 			}
 
-			if (predicate.equals("http://www.w3.org/ns/r2rml#subjectMap")) {
-				recurse(mapName, mapModel, (Resource) object, "@id", wrapper);
+			if (predicate.equals(R2RML.SUBJECT_MAP.getIri())) {
+				recurse(mapName, mapModel, (Resource) object, IM.IRI, wrapper);
 			}
 
 			JsonNode childNode = null;
@@ -101,7 +100,7 @@ public class FileParser {
 				childNode = JsonNodeFactory.instance.textNode(object.stringValue());
 			else if (tpl.getObject().isIRI()) {
 				childNode = JsonNodeFactory.instance.objectNode();
-				((ObjectNode) childNode).set("@id", JsonNodeFactory.instance.textNode(object.stringValue()));
+				((ObjectNode) childNode).set(IM.IRI, JsonNodeFactory.instance.textNode(object.stringValue()));
 			} else if (tpl.getObject().isBNode()) {
 				childNode = JsonNodeFactory.instance.objectNode();
 				// Recurse nested triple via bnode

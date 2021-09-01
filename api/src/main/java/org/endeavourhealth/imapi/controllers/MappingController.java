@@ -53,7 +53,10 @@ public class MappingController {
 		entities = EntityBuilder.groupEntities(entities); // Step 2: group entities with same IRI
 		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
 
-		return new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 3: populate ttdocument
+		TTDocument ttdocument = new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 3: populate ttdocument
+		writeToFile("ttdocument", entities, "TTDocument populated.");
+		
+		return ttdocument;
 	}
 
 	private void writeToFile(String filename, Object object, String message) throws IOException {

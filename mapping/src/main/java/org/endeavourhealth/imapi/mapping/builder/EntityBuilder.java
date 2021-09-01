@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
@@ -21,6 +20,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.R2RML;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -142,21 +142,13 @@ public class EntityBuilder {
 		String firstKey = map.keySet().stream().findFirst().get();
 
 		for (MappingInstruction instruction : map.get(firstKey)) {
-			if ("http://www.w3.org/ns/r2rml#parentTriplesMap".equals(instruction.getValueType())) {
+			if (R2RML.PARENT_TRIPLES_MAP.getIri().equals(instruction.getValueType())) {
 				List<MappingInstruction> instructions = map.get(instruction.getValue());
-				if (isBNode(instructions)) {
-					TTNode node = new TTNode();
-					for (MappingInstruction instr : instructions) {
-						setPredicateFromInstruction(element, node, instr, parent);
-					}
-					entity.set(TTIriRef.iri(instruction.getProperty()), node);
-				} else {
-					TTEntity node = new TTEntity();
-					for (MappingInstruction instr : instructions) {
-						setPredicateFromInstruction(element, node, instr, parent);
-					}
-					entity.set(TTIriRef.iri(instruction.getProperty()), node);
+				TTValue ttvalue = isBNode(instructions) ? new TTNode() : new TTEntity();
+				for (MappingInstruction instr : instructions) {
+					setPredicateFromInstruction(element, ttvalue, instr, parent);
 				}
+				entity.set(TTIriRef.iri(instruction.getProperty()), ttvalue);
 
 			} else {
 				setPredicateFromInstruction(element, entity, instruction, parent);
@@ -167,27 +159,27 @@ public class EntityBuilder {
 	}
 
 	private static boolean isBNode(List<MappingInstruction> instructions) {
-		return instructions.stream()
-				.anyMatch(instruction -> instruction.getValue().equals("http://www.w3.org/ns/r2rml#BlankNode"));
+		return instructions.stream().anyMatch(instruction -> instruction.getValue().equals(R2RML.BLANK_NODE.getIri()));
 	}
 
 	private static void setPredicateFromInstruction(JsonNode element, TTValue entity, MappingInstruction instruction,
 			JsonNode parent) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
-		String value = getTTValue(element, instruction, parent);
+		String value = getStringTTValue(element, instruction, parent);
 
 		if (IM.IRI.equals(instruction.getProperty())) {
 			((TTEntity) entity).setIri(value);
-		} else if (!"http://www.w3.org/ns/r2rml#BlankNode".equals(instruction.getValue())) {
+		} else if (!R2RML.BLANK_NODE.getIri().equals(instruction.getValue())) {
 			entity.asNode().set(iri(instruction.getProperty()), new TTLiteral(value));
 		}
 
 	}
 
-	private static String getTTValue(JsonNode element, MappingInstruction instruction, JsonNode parent)
+	private static String getStringTTValue(JsonNode element, MappingInstruction instruction, JsonNode parent)
 			throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
 		String value = "";
+
 		switch (instruction.getValueType()) {
 		case "http://semweb.mmlab.be/ns/rml#reference":
 			value = element.at(instruction.getPathFromReference(null)).asText();

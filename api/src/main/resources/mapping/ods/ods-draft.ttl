@@ -38,8 +38,8 @@
   ];
 
   rr:subjectMap [
-    rml:constant "http://endhealth.info/ref#addressId";
-    # rr:termType rr:BlankNode
+    # rml:constant "http://endhealth.info/ref#addressId";
+    rr:termType rr:BlankNode
     # rr:class im:Address
   ];
 
@@ -48,53 +48,53 @@
     rr:objectMap [
       rml:reference "AddrLn1"
     ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:addressLine2;
+    rr:objectMap [
+      rml:reference "AddrLn2"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:addressLine3;
+    rr:objectMap [
+      rml:reference "AddrLn3"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:town;
+    rr:objectMap [
+      rml:reference "Town"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:county;
+    rr:objectMap [
+      rml:reference "County"
+    ]
+  ];
+
+  rr:predicateObjectMap [
+    rr:predicate im:postcode;
+    rr:objectMap [
+      rml:reference "PostCode"
+    ]
+  ];
+  
+  rr:predicateObjectMap [
+    rr:predicate im:country;
+    rr:objectMap [
+      rml:reference "Country"
+    ]
+  ];
+  
+  rr:predicateObjectMap [
+    rr:predicate im:uprn;
+    rr:objectMap [
+      rml:reference "UPRN"
+    ]
   ].
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:addressLine2;
-  #   rr:objectMap [
-  #     rml:reference "AddrLn2"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:addressLine3;
-  #   rr:objectMap [
-  #     rml:reference "AddrLn3"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:town;
-  #   rr:objectMap [
-  #     rml:reference "Town"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:county;
-  #   rr:objectMap [
-  #     rml:reference "County"
-  #   ]
-  # ];
-
-  # rr:predicateObjectMap [
-  #   rr:predicate im:postcode;
-  #   rr:objectMap [
-  #     rml:reference "PostCode"
-  #   ]
-  # ];
-  
-  # rr:predicateObjectMap [
-  #   rr:predicate im:country;
-  #   rr:objectMap [
-  #     rml:reference "Country"
-  #   ]
-  # ];
-  
-  # rr:predicateObjectMap [
-  #   rr:predicate im:uprn;
-  #   rr:objectMap [
-  #     rml:reference "UPRN"
-  #   ]
-  # ].

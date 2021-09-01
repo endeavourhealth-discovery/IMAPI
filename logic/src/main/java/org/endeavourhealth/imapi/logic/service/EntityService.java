@@ -484,7 +484,7 @@ public class EntityService {
 
 		GraphDto dataModelInherited = new GraphDto().setKey("0_3_1").setName("Inherited");
 		GraphDto dataModelInheritedWrapper = getDataModelInheritedWrapper(dataModelProps);
-		addWrapper(dataModelInherited,dataModelDirectWrapper,"0_3_1_0");
+		addWrapper(dataModelInherited,dataModelInheritedWrapper,"0_3_1_0");
 
 		if (!dataModelDirectWrapper.getLeafNodes().isEmpty()) {
 			dataModel.getChildren().add(dataModelDirect);

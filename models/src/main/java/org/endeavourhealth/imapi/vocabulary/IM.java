@@ -77,7 +77,7 @@ public class IM {
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
     public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
     public static final TTIriRef SUPPLIER_ASSURED = iri(NAMESPACE + "SupplierAssured");
-    public static final TTIriRef IM1_DBID = iri(NAMESPACE + "im1Dbid");
+    public static final TTIriRef DBID = iri(NAMESPACE + "dbid");
 
 
 
@@ -104,6 +104,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_KINGS_APEX = TTIriRef.iri(DOMAIN +"kingsapex#");
     public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kingswinpath#");
     public static final TTIriRef CODE_SCHEME_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
+    public static final TTIriRef CODE_SCHEME_ENCOUNTER_TYPE = TTIriRef.iri(DOMAIN +"enc#");
 
 
 
@@ -132,6 +133,7 @@ public class IM {
     public static final TTIriRef MAP_SNOMED_BC = TTIriRef.iri(NAMESPACE +"SnomedBartsCernerMap");
     public static final TTIriRef GRAPH_CEG16= TTIriRef.iri(NAMESPACE +"ceg16");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(NAMESPACE +"nhsethnic2001#");
+    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(NAMESPACE +"im1Maps");
 
 
 

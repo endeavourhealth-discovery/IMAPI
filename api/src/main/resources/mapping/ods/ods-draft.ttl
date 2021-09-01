@@ -3,6 +3,8 @@
 @prefix ql: <http://semweb.mmlab.be/ns/ql#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix im: <http://endhealth.info/im#>.
+@prefix fnml: <http://semweb.mmlab.be/ns/fnml#>.
+@prefix fno: <https://w3id.org/function/ontology#>.
 @base <http://example.com/ns#>.
 
 <#ODS> a rr:TriplesMap;
@@ -39,8 +41,14 @@
 
   rr:subjectMap [
     # rml:constant "http://endhealth.info/ref#addressId";
-    rr:termType rr:BlankNode
-    # rr:class im:Address
+    fnml:functionValue [
+        rr:predicateObjectMap [
+          rr:predicate fno:executes ;
+          rr:objectMap [ rr:constant im:generateUUID ] 
+        ];
+    ];
+    # rr:termType rr:BlankNode    
+    rr:class im:Address
   ];
 
   rr:predicateObjectMap [

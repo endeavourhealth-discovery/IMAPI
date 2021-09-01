@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.endeavourhealth.imapi.mapping.function.MappingFunction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
@@ -45,7 +46,11 @@ public class EntityBuilder {
 				addEntity(entities, element, instructionWrapper.getInstructions(),
 						instructionWrapper.getNestedPropName(), null);
 			} else {
-				entities.add(buildEntity(element, instructionWrapper.getInstructions(), null));
+				for (Entry<String, List<MappingInstruction>> entry : instructionWrapper.getInstructions().entrySet()) {
+					if (!isBNode(instructionWrapper.getInstructions().get(entry.getKey())))
+						entities.add(buildEntity(element, entry.getKey(), instructionWrapper.getInstructions(), null));
+				}
+
 			}
 		}
 
@@ -124,7 +129,10 @@ public class EntityBuilder {
 	private static void addEntity(List<TTEntity> entities, JsonNode element, Map<String, List<MappingInstruction>> map,
 			String nestedProp, JsonNode parent) throws Exception {
 
-		entities.add(buildEntity(element, map, parent));
+		for (Entry<String, List<MappingInstruction>> entry : map.entrySet()) {
+			if (!isBNode(map.get(entry.getKey())))
+				entities.add(buildEntity(element, entry.getKey(), map, parent));
+		}
 
 		if (element.has(nestedProp)) {
 			Iterator<JsonNode> subElements = element.get(nestedProp).elements();
@@ -136,19 +144,27 @@ public class EntityBuilder {
 		}
 	}
 
-	private static TTEntity buildEntity(JsonNode element, Map<String, List<MappingInstruction>> map, JsonNode parent)
-			throws Exception {
+	private static TTEntity buildEntity(JsonNode element, String key, Map<String, List<MappingInstruction>> map,
+			JsonNode parent) throws Exception {
 		TTEntity entity = new TTEntity();
-		String firstKey = map.keySet().stream().findFirst().get();
 
-		for (MappingInstruction instruction : map.get(firstKey)) {
+		for (MappingInstruction instruction : map.get(key)) {
 			if (R2RML.PARENT_TRIPLES_MAP.getIri().equals(instruction.getValueType())) {
 				List<MappingInstruction> instructions = map.get(instruction.getValue());
-				TTValue ttvalue = isBNode(instructions) ? new TTNode() : new TTEntity();
-				for (MappingInstruction instr : instructions) {
-					setPredicateFromInstruction(element, ttvalue, instr, parent);
+
+				if (isBNode(instructions)) {
+					TTValue ttvalue = new TTNode();
+					for (MappingInstruction instr : instructions) {
+						setPredicateFromInstruction(element, ttvalue, instr, parent);
+					}
+					entity.set(TTIriRef.iri(instruction.getProperty()), ttvalue);
+				} else {
+					TTValue ttvalue = new TTIriRef();
+					List<MappingInstruction> instrList = instructions.stream()
+							.filter(instr -> IM.IRI.equals(instr.getProperty())).collect(Collectors.toList());
+					setPredicateFromInstruction(element, ttvalue, instrList.get(0), parent);
+					entity.set(TTIriRef.iri(instruction.getProperty()), ttvalue);
 				}
-				entity.set(TTIriRef.iri(instruction.getProperty()), ttvalue);
 
 			} else {
 				setPredicateFromInstruction(element, entity, instruction, parent);
@@ -167,7 +183,9 @@ public class EntityBuilder {
 			IllegalArgumentException, InvocationTargetException {
 		String value = getStringTTValue(element, instruction, parent);
 
-		if (IM.IRI.equals(instruction.getProperty())) {
+		if (IM.IRI.equals(instruction.getProperty()) && entity instanceof TTIriRef) {
+			((TTIriRef) entity).setIri(value);
+		} else if (IM.IRI.equals(instruction.getProperty()) && entity instanceof TTEntity) {
 			((TTEntity) entity).setIri(value);
 		} else if (!R2RML.BLANK_NODE.getIri().equals(instruction.getValue())) {
 			entity.asNode().set(iri(instruction.getProperty()), new TTLiteral(value));

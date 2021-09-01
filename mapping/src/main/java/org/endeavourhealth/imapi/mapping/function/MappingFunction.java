@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.mapping.function;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -17,6 +18,11 @@ import org.endeavourhealth.imapi.vocabulary.PRSB;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
+
+	public static String generateUUID(JsonNode contentObject, JsonNode parent) {
+		String uniqueID = UUID.randomUUID().toString();
+		return IM.NAMESPACE + uniqueID;
+	}
 
 	public static String generateIri(JsonNode contentObject, JsonNode parent) throws Exception {
 		String contentName = contentObject.get("name").get(0).get("#text").asText();

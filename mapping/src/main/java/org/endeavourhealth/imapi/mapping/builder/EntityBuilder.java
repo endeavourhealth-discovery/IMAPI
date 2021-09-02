@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.R2RML;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -187,6 +188,9 @@ public class EntityBuilder {
 			((TTIriRef) entity).setIri(value);
 		} else if (IM.IRI.equals(instruction.getProperty()) && entity instanceof TTEntity) {
 			((TTEntity) entity).setIri(value);
+		} else if (RDF.TYPE.getIri().equals(instruction.getProperty())
+				&& !R2RML.BLANK_NODE.getIri().equals(instruction.getValue())) {
+			entity.asNode().set(iri(instruction.getProperty()), new TTIriRef(value));
 		} else if (!R2RML.BLANK_NODE.getIri().equals(instruction.getValue())) {
 			entity.asNode().set(iri(instruction.getProperty()), new TTLiteral(value));
 		}

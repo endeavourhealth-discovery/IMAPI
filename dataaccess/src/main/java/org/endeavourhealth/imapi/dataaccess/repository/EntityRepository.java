@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -233,5 +234,26 @@ public class EntityRepository extends BaseRepository {
         }
         return iri;
     }
+
+	public Set<String> getAllPredicateIris() throws SQLException {
+//		SELECT iri FROM entity WHERE dbid IN (SELECT DISTINCT predicate FROM tpl);
+		Set<String> predicateIris = new HashSet<>();
+		StringJoiner sql = new StringJoiner("\n")
+				.add("SELECT iri")
+				.add("FROM `entity`")
+				.add("WHERE dbid IN ")
+				.add("(SELECT DISTINCT predicate FROM tpl)");
+		try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                    	predicateIris.add(rs.getString("iri"));
+                    }
+                }
+            }
+        }
+		return predicateIris;
+	}
 
 }

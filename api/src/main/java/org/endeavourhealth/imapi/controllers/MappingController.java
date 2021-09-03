@@ -6,7 +6,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
+import org.endeavourhealth.imapi.mapping.validator.PredicateValidator;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -33,6 +36,9 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 @Api(value = "MappingController", description = "Mapping endpoint")
 public class MappingController {
 
+	@Autowired
+	PredicateValidator predicateValidator;
+
 	ObjectMapper mapper = new ObjectMapper();
 
 	@PostMapping
@@ -45,17 +51,25 @@ public class MappingController {
 		return mapFromJsonNodes(content, map, graph, nested);
 	}
 
+	@PostMapping("/newPredicates")
+	public Set<String> validateMapDocument(@RequestParam MultipartFile mapDocument) throws Exception {
+		MappingInstructionWrapper map = FileParser.parseMap(mapDocument);
+		return predicateValidator.getNewPredicates(map);
+	}
+
 	public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
 			throws Exception {
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to entities
+		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to
+																								// entities
 		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 
 		entities = EntityBuilder.groupEntities(entities); // Step 2: group entities with same IRI
 		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
 
-		TTDocument ttdocument = new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph)).setCrud(IM.REPLACE); // Step 3: populate ttdocument
+		TTDocument ttdocument = new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph))
+				.setCrud(IM.REPLACE); // Step 3: populate ttdocument
 		writeToFile("ttdocument", ttdocument, "TTDocument populated.");
-		
+
 		return ttdocument;
 	}
 

@@ -631,4 +631,8 @@ public class EntityService {
 		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
 		return namespaces;
 	}
+
+	public Set<String> getPredicateIris() throws SQLException {
+		return entityRepository.getAllPredicateIris();
+	}
 }

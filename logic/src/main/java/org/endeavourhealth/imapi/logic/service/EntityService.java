@@ -268,6 +268,19 @@ public class EntityService {
 	}
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
+        if (predicate.getIri() == IM.HAS_MEMBER.getIri()) {
+            Set<String> predicates = new HashSet<>();
+            predicates.add(predicate.getIri());
+            TTEntity result = getEntityPredicates(iri, predicates);
+            TTValue result2 = result.getAsArray(IM.HAS_MEMBER);
+            result2.getElements().forEach(element -> {
+                if (element.isNode()) {
+                    System.out.println("is node");
+                    System.out.println(element);
+                }
+            });
+            System.out.println(result2);
+        }
 		return entityTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
 	}
 

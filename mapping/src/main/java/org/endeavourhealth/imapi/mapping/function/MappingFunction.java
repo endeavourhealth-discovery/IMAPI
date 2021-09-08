@@ -1,5 +1,9 @@
 package org.endeavourhealth.imapi.mapping.function;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -18,6 +22,23 @@ import org.endeavourhealth.imapi.vocabulary.PRSB;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class MappingFunction {
+
+	public static String generateLocationIri(JsonNode contentObject, JsonNode parent) throws NoSuchAlgorithmException {
+//		AddrLn1 AddrLn2 AddrLn3 Town County PostCode Country UPRN
+        String address = contentObject.get("AddrLn1").asText();
+        address+=contentObject.get("AddrLn2").asText();
+        address+=contentObject.get("AddrLn3").asText();
+        address+=contentObject.get("Town").asText();
+        address+=contentObject.get("County").asText();
+        address+=contentObject.get("PostCode").asText();
+        address+=contentObject.get("Country").asText();
+        address+=contentObject.get("UPRN").asText();
+        
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] digest = md.digest(address.getBytes(StandardCharsets.UTF_8));
+        String hash = Base64.getEncoder().encodeToString(digest);
+        return IM.NAMESPACE + hash.substring(0, 16);
+	}
 
 	public static String generateUUID(JsonNode contentObject, JsonNode parent) {
 		String uniqueID = UUID.randomUUID().toString();

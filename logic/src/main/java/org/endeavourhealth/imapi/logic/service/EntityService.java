@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
@@ -208,22 +209,30 @@ public class EntityService {
 
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri == iri) {
-				included.setLabel("MemberIncluded");
-				included.setType(MemberType.INCLUDED);
+				if (included.getType() != MemberType.COMPLEX) {
+					included.setLabel("MemberIncluded");
+					included.setType(MemberType.INCLUDED);
+				}
 			} else {
-				included.setLabel("Subset - " + parentSetName);
-				included.setType(MemberType.SUBSET);
+				if (included.getType() != MemberType.COMPLEX) {
+					included.setLabel("Subset - " + parentSetName);
+					included.setType(MemberType.SUBSET);
+				}
 			}
 			included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
 		for (ValueSetMember excluded : definedMemberExclusions) {
 			if (originalParentIri == iri) {
-				excluded.setLabel("MemberXcluded");
-				excluded.setType(MemberType.EXCLUDED);
+				if (excluded.getType() != MemberType.COMPLEX) {
+					excluded.setLabel("MemberXcluded");
+					excluded.setType(MemberType.EXCLUDED);
+				}
 			} else {
-				excluded.setLabel("Subset - " + parentSetName);
-				excluded.setType(MemberType.SUBSET);
+				if (excluded.getType() != MemberType.COMPLEX) {
+					excluded.setLabel("Subset - " + parentSetName);
+					excluded.setType(MemberType.SUBSET);
+				}
 			}
 			excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
@@ -268,20 +277,41 @@ public class EntityService {
 	}
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
-        if (predicate.getIri() == IM.HAS_MEMBER.getIri()) {
+		Set<ValueSetMember> members = new HashSet<>();
+		if (predicate.getIri() == IM.HAS_MEMBER.getIri()) {
             Set<String> predicates = new HashSet<>();
             predicates.add(predicate.getIri());
-            TTEntity result = getEntityPredicates(iri, predicates);
-            TTValue result2 = result.getAsArray(IM.HAS_MEMBER);
-            result2.getElements().forEach(element -> {
-                if (element.isNode()) {
-                    System.out.println("is node");
-                    System.out.println(element);
-                }
-            });
-            System.out.println(result2);
+            List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(IM.HAS_MEMBER).getElements();
+            for (TTValue element : results) {
+				if (element.isNode()) {
+					ValueSetMember member = new ValueSetMember();
+					Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
+					TTIriRef key = keys.entrySet().iterator().next().getKey();
+					member.setEntity(key);
+					member.setType(MemberType.COMPLEX);
+					member.setLabel("Complex Member");
+					members.add(member);
+				}
+				if (element.isIriRef()) {
+					ValueSetMember member = null;
+					member = getValueSetMemberFromIri(element.asIriRef().getIri());
+					members.add(member);
+				}
+			}
         }
-		return entityTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
+		return members;
+	}
+
+	private ValueSetMember getValueSetMemberFromIri(String iri) throws SQLException {
+		ValueSetMember member = new ValueSetMember();
+		Set<String> elementPredicates = new HashSet<>();
+		elementPredicates.add(IM.HAS_SCHEME.getIri());
+		elementPredicates.add(IM.CODE.getIri());
+		EntitySummary summary = entityRepository.getEntitySummaryByIri(iri);
+		member.setEntity(iri(summary.getIri(), summary.getName()));
+		member.setCode(summary.getCode());
+		member.setScheme(summary.getScheme());
+		return member;
 	}
 
 	private Map<String, ValueSetMember> processMembers(Set<ValueSetMember> valueSetMembers, boolean expand, Integer memberCount, Integer limit)

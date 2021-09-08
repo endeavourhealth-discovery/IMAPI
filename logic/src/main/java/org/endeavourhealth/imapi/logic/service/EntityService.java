@@ -278,31 +278,29 @@ public class EntityService {
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
 		Set<ValueSetMember> members = new HashSet<>();
-		if (predicate.getIri() == IM.HAS_MEMBER.getIri()) {
-            Set<String> predicates = new HashSet<>();
-            predicates.add(predicate.getIri());
-            List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(IM.HAS_MEMBER).getElements();
-            Boolean hasComplexMember = false;
-            for (TTValue element : results) {
-				if (element.isNode()) {
-					if (!hasComplexMember) {
-						ValueSetMember member = new ValueSetMember();
-						Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
-						TTIriRef key = keys.entrySet().iterator().next().getKey();
-						member.setEntity(key);
-						member.setType(MemberType.COMPLEX);
-						member.setLabel("zComplex Member");
-						members.add(member);
-						hasComplexMember = true;
-					}
-				}
-				if (element.isIriRef()) {
-					ValueSetMember member = null;
-					member = getValueSetMemberFromIri(element.asIriRef().getIri());
+		Set<String> predicates = new HashSet<>();
+		predicates.add(predicate.getIri());
+		List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(predicate.asIriRef()).getElements();
+		Boolean hasComplexMember = false;
+		for (TTValue element : results) {
+			if (element.isNode()) {
+				if (!hasComplexMember) {
+					ValueSetMember member = new ValueSetMember();
+					Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
+					TTIriRef key = keys.entrySet().iterator().next().getKey();
+					member.setEntity(key);
+					member.setType(MemberType.COMPLEX);
+					member.setLabel("zComplex Member");
 					members.add(member);
+					hasComplexMember = true;
 				}
 			}
-        }
+			if (element.isIriRef()) {
+				ValueSetMember member = null;
+				member = getValueSetMemberFromIri(element.asIriRef().getIri());
+				members.add(member);
+			}
+		}
 		return members;
 	}
 

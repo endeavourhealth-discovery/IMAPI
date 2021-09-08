@@ -282,15 +282,19 @@ public class EntityService {
             Set<String> predicates = new HashSet<>();
             predicates.add(predicate.getIri());
             List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(IM.HAS_MEMBER).getElements();
+            Boolean hasComplexMember = false;
             for (TTValue element : results) {
 				if (element.isNode()) {
-					ValueSetMember member = new ValueSetMember();
-					Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
-					TTIriRef key = keys.entrySet().iterator().next().getKey();
-					member.setEntity(key);
-					member.setType(MemberType.COMPLEX);
-					member.setLabel("Complex Member");
-					members.add(member);
+					if (!hasComplexMember) {
+						ValueSetMember member = new ValueSetMember();
+						Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
+						TTIriRef key = keys.entrySet().iterator().next().getKey();
+						member.setEntity(key);
+						member.setType(MemberType.COMPLEX);
+						member.setLabel("zComplex Member");
+						members.add(member);
+						hasComplexMember = true;
+					}
 				}
 				if (element.isIriRef()) {
 					ValueSetMember member = null;

@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -337,6 +338,14 @@ public class EntityService {
 			}
 		}
 		return memberHashMap;
+	}
+
+	public List<TTValue> getComplexMembers(String iri) throws SQLException {
+		Set<String> predicates = new HashSet<>();
+		predicates.add(IM.HAS_MEMBER.getIri());
+		List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(IM.HAS_MEMBER).getElements();
+		List<TTValue> filteredResults = results.stream().filter(r -> r.isNode()).collect(Collectors.toList());
+		return filteredResults;
 	}
 
 	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) throws SQLException {

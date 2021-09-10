@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.dto;
 
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 
 import java.io.Serializable;
@@ -9,26 +10,27 @@ import java.util.List;
 
 public class DownloadDto implements Serializable {
 
-	private List<EntityReferenceNode> children;
-	private List<EntityReferenceNode> parents;
+	private EntitySummary summary;
+	private List<EntityReferenceNode> hasSubTypes;
+	private List<EntityReferenceNode> isA;
 	private List<SemanticProperty> semanticProperties;
 	private ExportValueSet members;
 	private List<DataModelProperty> dataModelProperties;
 
-	public List<EntityReferenceNode> getChildren() {
-		return children;
+	public List<EntityReferenceNode> getHasSubTypes() {
+		return hasSubTypes;
 	}
 
-	public void setChildren(List<EntityReferenceNode> children) {
-		this.children = children;
+	public void setHasSubTypes(List<EntityReferenceNode> hasSubTypes) {
+		this.hasSubTypes = hasSubTypes;
 	}
 
-	public List<EntityReferenceNode> getParents() {
-		return parents;
+	public List<EntityReferenceNode> getIsA() {
+		return isA;
 	}
 
-	public void setParents(List<EntityReferenceNode> parents) {
-		this.parents = parents;
+	public void setIsA(List<EntityReferenceNode> isA) {
+		this.isA = isA;
 	}
 
 	public List<SemanticProperty> getSemanticProperties() {
@@ -55,4 +57,11 @@ public class DownloadDto implements Serializable {
 		this.dataModelProperties = dataModelProperties;
 	}
 
+	public EntitySummary getSummary() {
+		return summary;
+	}
+
+	public void setSummary(EntitySummary summary) {
+		this.summary = summary;
+	}
 }

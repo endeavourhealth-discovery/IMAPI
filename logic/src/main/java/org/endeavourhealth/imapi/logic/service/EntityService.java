@@ -337,8 +337,10 @@ public class EntityService {
 
         DownloadDto downloadDto = new DownloadDto();
 
-        if (children) downloadDto.setChildren(getImmediateChildren(iri, null, null, inactive));
-        if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, inactive));
+        downloadDto.setSummary(getSummary(iri));
+
+        if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, inactive));
+        if (parents) downloadDto.setIsA(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
@@ -355,8 +357,8 @@ public class EntityService {
 
         xls.addSummary(getSummary(iri));
 
-        if (children) xls.addChildren(getImmediateChildren(iri, null, null, inactive));
-        if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
+        if (children) xls.addHasSubTypes(getImmediateChildren(iri, null, null, inactive));
+        if (parents) xls.addIsA(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));

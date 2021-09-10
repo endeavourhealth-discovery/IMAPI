@@ -85,7 +85,7 @@ public class XlsHelper {
 		cell8.setCellValue(descendantString);
 	}
 
-	public void addChildren(List<EntityReferenceNode> childrenList) {
+	public void addHasSubTypes(List<EntityReferenceNode> childrenList) {
 		Sheet sheet = workbook.createSheet("Has sub types");
 		addHeaders(sheet, 20000, "Name", "Iri");
 
@@ -99,7 +99,7 @@ public class XlsHelper {
 
 	}
 
-	public void addParents(List<EntityReferenceNode> parentList) {
+	public void addIsA(List<EntityReferenceNode> parentList) {
 		Sheet sheet = workbook.createSheet("Is a");
 		addHeaders(sheet, 20000, "Name", "Iri");
 

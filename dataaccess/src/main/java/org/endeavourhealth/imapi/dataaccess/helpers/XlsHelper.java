@@ -6,6 +6,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.dto.SemanticProperty;
+import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
@@ -34,8 +37,56 @@ public class XlsHelper {
 		return headerStyle;
 	}
 
+	public void addSummary(EntitySummary summary) {
+		Sheet sheet = workbook.createSheet("Concept summary");
+		addHeaders(sheet, 10000, "Name", "Iri", "Code", "Description", "Status", "Scheme", "Type", "IsDescendantOf");
+		Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+//		name
+		Cell cell1 = row.createCell(0);
+		cell1.setCellValue(summary.getName());
+//		iri
+		Cell cell2 = row.createCell(1);
+		cell2.setCellValue(summary.getIri());
+//		code
+		Cell cell3 = row.createCell(2);
+		cell3.setCellValue(summary.getCode());
+//		description
+		Cell cell4 = row.createCell(3);
+		cell4.setCellValue(summary.getDescription());
+//		status
+		Cell cell5 = row.createCell(4);
+		cell5.setCellValue(summary.getStatus().getName());
+//		scheme
+		Cell cell6 = row.createCell(5);
+		cell6.setCellValue(summary.getScheme().getName());
+//		type
+		Cell cell7 = row.createCell(6);
+		String typeString = "";
+		for (TTValue type : summary.getEntityType().getElements()) {
+			if (type.isIriRef()) {
+				if (typeString == "") {
+					typeString = type.asIriRef().getName();
+				} else {
+					typeString = typeString + ", " + type.asIriRef().getName();
+				}
+			}
+		}
+		cell7.setCellValue(typeString);
+//		isDescendantOf
+		Cell cell8 = row.createCell(7);
+		String descendantString = "";
+		for (TTIriRef descendant : summary.getIsDescendentOf()) {
+			if (descendantString == "") {
+				descendantString = descendant.getName();
+			} else {
+				descendantString = descendantString + ", " + descendant.getName();
+			}
+		}
+		cell8.setCellValue(descendantString);
+	}
+
 	public void addChildren(List<EntityReferenceNode> childrenList) {
-		Sheet sheet = workbook.createSheet("Children");
+		Sheet sheet = workbook.createSheet("Has sub types");
 		addHeaders(sheet, 20000, "Name", "Iri");
 
 		for (EntityReferenceNode child : childrenList) {
@@ -49,7 +100,7 @@ public class XlsHelper {
 	}
 
 	public void addParents(List<EntityReferenceNode> parentList) {
-		Sheet sheet = workbook.createSheet("Parents");
+		Sheet sheet = workbook.createSheet("Is a");
 		addHeaders(sheet, 20000, "Name", "Iri");
 
 		for (TTValue parent : parentList) {

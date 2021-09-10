@@ -353,6 +353,8 @@ public class EntityService {
 
         XlsHelper xls = new XlsHelper();
 
+        xls.addSummary(getSummary(iri));
+
         if (children) xls.addChildren(getImmediateChildren(iri, null, null, inactive));
         if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));

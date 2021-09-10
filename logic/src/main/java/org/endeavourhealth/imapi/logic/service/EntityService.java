@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
@@ -330,7 +331,18 @@ public class EntityService {
 		return termCodeRepository.findAllByIri(iri);
 	}
 
-    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
+	public TTEntity getSummaryFromConfig(String iri, List<ComponentLayoutItem> configs) throws SQLException {
+		if (iri == null || iri.isEmpty() || configs == null || configs.isEmpty()) {
+			return new TTEntity();
+		}
+		List<String> excludedForSummary = Arrays.asList("None", IM.IS_A.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
+		List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
+		List<String> predicates = filteredConfigs.stream().map(config -> config.getPredicate()).collect(Collectors.toList());
+		TTEntity entity = getEntityPredicates(iri, new HashSet<>(predicates));
+		return entity;
+	}
+
+    public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
 									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
@@ -348,8 +360,8 @@ public class EntityService {
         return downloadDto;
     }
 
-    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
-									  boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
+    public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
+									  boolean members, boolean expandMembers, boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 

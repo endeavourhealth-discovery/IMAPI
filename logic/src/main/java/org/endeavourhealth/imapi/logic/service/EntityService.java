@@ -349,7 +349,7 @@ public class EntityService {
 
         DownloadDto downloadDto = new DownloadDto();
 
-        downloadDto.setSummary(getSummary(iri));
+        downloadDto.setSummary(getSummaryFromConfig(iri, configs));
 
         if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, inactive));
         if (parents) downloadDto.setIsA(getImmediateParents(iri, null, null, inactive));
@@ -367,7 +367,7 @@ public class EntityService {
 
         XlsHelper xls = new XlsHelper();
 
-        xls.addSummary(getSummary(iri));
+        xls.addSummary(getSummaryFromConfig(iri, configs));
 
         if (children) xls.addHasSubTypes(getImmediateChildren(iri, null, null, inactive));
         if (parents) xls.addIsA(getImmediateParents(iri, null, null, inactive));

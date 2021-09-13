@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.dto;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 
 import java.io.Serializable;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class DownloadDto implements Serializable {
 
-	private EntitySummary summary;
+	private TTEntity summary;
 	private List<EntityReferenceNode> hasSubTypes;
 	private List<EntityReferenceNode> isA;
 	private List<SemanticProperty> semanticProperties;
@@ -57,11 +58,11 @@ public class DownloadDto implements Serializable {
 		this.dataModelProperties = dataModelProperties;
 	}
 
-	public EntitySummary getSummary() {
+	public TTEntity getSummary() {
 		return summary;
 	}
 
-	public void setSummary(EntitySummary summary) {
+	public void setSummary(TTEntity summary) {
 		this.summary = summary;
 	}
 }

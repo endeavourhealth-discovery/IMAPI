@@ -6,7 +6,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.dto.SemanticProperty;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -14,7 +13,13 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class XlsHelper {
 
@@ -37,57 +42,43 @@ public class XlsHelper {
 		return headerStyle;
 	}
 
-	public void addSummary(EntitySummary summary) {
+	public void addSummary(TTEntity summary) {
+		if (summary.getIri().isEmpty()) {
+			return;
+		}
+		Set<TTIriRef> predicates = summary.getPredicateMap().keySet();
+		List<String> predicateNames = new ArrayList<>();
+		predicateNames.add("Iri");
+		predicateNames.addAll(predicates.stream().map(prefix -> prefix.getName()).collect(Collectors.toList()));
 		Sheet sheet = workbook.createSheet("Concept summary");
-		addHeaders(sheet, 10000, "Name", "Iri", "Code", "Description", "Status", "Scheme", "Type", "IsDescendantOf");
+		addHeaders(sheet, 10000, predicateNames);
 		Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-//		name
-		Cell cell1 = row.createCell(0);
-		cell1.setCellValue(summary.getName());
 //		iri
-		Cell cell2 = row.createCell(1);
-		cell2.setCellValue(summary.getIri());
-//		code
-		Cell cell3 = row.createCell(2);
-		cell3.setCellValue(summary.getCode());
-//		description
-		Cell cell4 = row.createCell(3);
-		cell4.setCellValue(summary.getDescription());
-//		status
-		Cell cell5 = row.createCell(4);
-		cell5.setCellValue(summary.getStatus().getName());
-//		scheme
-		Cell cell6 = row.createCell(5);
-		cell6.setCellValue(summary.getScheme().getName());
-//		type
-		Cell cell7 = row.createCell(6);
-		String typeString = "";
-		for (TTValue type : summary.getEntityType().getElements()) {
-			if (type.isIriRef()) {
-				if (typeString == "") {
-					typeString = type.asIriRef().getName();
-				} else {
-					typeString = typeString + ", " + type.asIriRef().getName();
-				}
-			}
-		}
-		cell7.setCellValue(typeString);
-//		isDescendantOf
-		Cell cell8 = row.createCell(7);
-		String descendantString = "";
-		for (TTIriRef descendant : summary.getIsDescendentOf()) {
-			if (descendantString == "") {
-				descendantString = descendant.getName();
+		Cell iriCell = row.createCell(row.getLastCellNum() + 1);
+		iriCell.setCellValue(summary.getIri());
+
+		for (TTIriRef predicate : predicates) {
+			Cell cell = row.createCell(row.getLastCellNum());
+			TTValue value = summary.get(iri(predicate.getIri(), predicate.getName()));
+			if (value.isIriRef()) {
+				cell.setCellValue(value.asIriRef().getName());
+			} else if (value.isLiteral()) {
+				cell.setCellValue(value.asLiteral().getValue());
+			} else if (value.isList()) {
+				String result;
+				List<String> names = value.asArray().getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
+				result = String.join(",", names);
+				cell.setCellValue(result);
 			} else {
-				descendantString = descendantString + ", " + descendant.getName();
+				System.out.println("XLS helper encountered unexpected concept summary type while adding summaries to spreadsheet");
 			}
 		}
-		cell8.setCellValue(descendantString);
 	}
 
 	public void addHasSubTypes(List<EntityReferenceNode> childrenList) {
 		Sheet sheet = workbook.createSheet("Has sub types");
-		addHeaders(sheet, 20000, "Name", "Iri");
+		List<String> headers = Arrays.asList(new String[]{"Name", "Iri"});
+		addHeaders(sheet, 20000, headers);
 
 		for (EntityReferenceNode child : childrenList) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -101,7 +92,8 @@ public class XlsHelper {
 
 	public void addIsA(List<EntityReferenceNode> parentList) {
 		Sheet sheet = workbook.createSheet("Is a");
-		addHeaders(sheet, 20000, "Name", "Iri");
+		List<String> headers = Arrays.asList(new String[]{"Name", "Iri"});
+		addHeaders(sheet, 20000, headers);
 
 		for (TTValue parent : parentList) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -114,7 +106,8 @@ public class XlsHelper {
 
 	public void addSemanticProperties(List<SemanticProperty> propertyList) {
 		Sheet sheet = workbook.createSheet("Semantic properties");
-		addHeaders(sheet, 10000, "Name", "Iri", "Type Name", "Type Iri");
+		List<String> headers = Arrays.asList(new String[]{"Name", "Iri", "Type Name", "Type Iri"});
+		addHeaders(sheet, 10000, headers);
 
 		for (SemanticProperty property : propertyList) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -131,7 +124,8 @@ public class XlsHelper {
 
 	public void addMembersSheet(ExportValueSet exportValueSet) {
 		Sheet sheet = workbook.createSheet("Members");
-		addHeaders(sheet, 10000, "Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri");
+		List<String> headers = Arrays.asList(new String[]{"Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri"});
+		addHeaders(sheet, 10000, headers);
 
         addMembers(sheet, exportValueSet.getMembers());
 
@@ -171,7 +165,8 @@ public class XlsHelper {
 
     public void addDataModelProperties(List<DataModelProperty> properties) {
 		Sheet sheet = workbook.createSheet("Data model properties");
-        addHeaders(sheet, 10000, "Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri");
+		List<String> headers = Arrays.asList(new String[]{"Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri"});
+        addHeaders(sheet, 10000, headers);
 
 		for (DataModelProperty property : properties) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -195,7 +190,7 @@ public class XlsHelper {
 		}
 	}
 
-	private void addHeaders(Sheet sheet, int size, String...names) {
+	private void addHeaders(Sheet sheet, int size, List<String> names) {
         Row header = sheet.createRow(0);
 
         int i = 0;

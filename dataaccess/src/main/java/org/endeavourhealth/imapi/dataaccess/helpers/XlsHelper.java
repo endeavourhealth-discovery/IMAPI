@@ -193,15 +193,15 @@ public class XlsHelper {
 
 	public void addTerms(List<TermCode> terms) {
 		Sheet sheet = workbook.createSheet("Terms");
-		List<String> headers = Arrays.asList(new String[]{"Code", "Name", "Scheme"});
+		List<String> headers = Arrays.asList(new String[]{"Name", "Code", "Scheme"});
 		addHeaders(sheet, 10000, headers);
 
 		for (TermCode term : terms) {
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 			Cell cell = row.createCell(0);
-			cell.setCellValue(term.getCode());
-			cell = row.createCell(1);
 			cell.setCellValue(term.getName());
+			cell = row.createCell(1);
+			cell.setCellValue(term.getCode());
 			cell = row.createCell(2);
 			cell.setCellValue(term.getScheme());
 		}

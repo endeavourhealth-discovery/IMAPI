@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -187,6 +188,22 @@ public class XlsHelper {
 				cell = row.createCell(5);
 				cell.setCellValue(property.getInheritedFrom().getIri());
 			}
+		}
+	}
+
+	public void addTerms(List<TermCode> terms) {
+		Sheet sheet = workbook.createSheet("Terms");
+		List<String> headers = Arrays.asList(new String[]{"Code", "Name", "Scheme"});
+		addHeaders(sheet, 10000, headers);
+
+		for (TermCode term : terms) {
+			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+			Cell cell = row.createCell(0);
+			cell.setCellValue(term.getCode());
+			cell = row.createCell(1);
+			cell.setCellValue(term.getName());
+			cell = row.createCell(2);
+			cell.setCellValue(term.getScheme());
 		}
 	}
 

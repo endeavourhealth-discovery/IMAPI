@@ -99,6 +99,7 @@ public class EntityController {
         @RequestParam(required = false, defaultValue = "false") boolean expandMembers,
         @RequestParam(required = false, defaultValue = "false") boolean expandSubsets,
         @RequestParam(required = false, defaultValue = "false") boolean semanticProperties,
+        @RequestParam(required = false, defaultValue = "false") boolean terms,
         @RequestParam(required = false, defaultValue = "false") boolean inactive
     ) throws SQLException, IOException {
         LOG.debug("download");
@@ -113,7 +114,7 @@ public class EntityController {
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, configs, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, terms, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -124,7 +125,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, configs, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, terms, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");

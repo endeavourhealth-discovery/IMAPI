@@ -343,7 +343,7 @@ public class EntityService {
 	}
 
     public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
-									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
+									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean terms, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -356,12 +356,13 @@ public class EntityService {
         if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
+        if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
 
         return downloadDto;
     }
 
     public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
-									  boolean members, boolean expandMembers, boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
+									  boolean members, boolean expandMembers, boolean expandSubsets, boolean semanticProperties, boolean terms, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -374,6 +375,7 @@ public class EntityService {
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
+		if (terms) xls.addTerms(getEntityTermCodes(iri));
 
         return xls;
     }

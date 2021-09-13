@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.dto;
 
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -17,6 +18,7 @@ public class DownloadDto implements Serializable {
 	private List<SemanticProperty> semanticProperties;
 	private ExportValueSet members;
 	private List<DataModelProperty> dataModelProperties;
+	private List<TermCode> terms;
 
 	public List<EntityReferenceNode> getHasSubTypes() {
 		return hasSubTypes;
@@ -64,5 +66,13 @@ public class DownloadDto implements Serializable {
 
 	public void setSummary(TTEntity summary) {
 		this.summary = summary;
+	}
+
+	public List<TermCode> getTerms() {
+		return terms;
+	}
+
+	public void setTerms(List<TermCode> terms) {
+		this.terms = terms;
 	}
 }

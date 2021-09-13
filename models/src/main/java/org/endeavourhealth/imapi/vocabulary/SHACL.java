@@ -31,6 +31,7 @@ public class SHACL {
    public static final TTIriRef OR= iri(NAMESPACE +"or");
    public static final TTIriRef NODE_KIND= iri(NAMESPACE +"nodeKind");
    public static final TTIriRef PROPERTYSHAPE= iri(NAMESPACE +"PropertyShape");
+   public static final TTIriRef AND= iri(NAMESPACE +"and");
 
     private SHACL() {}
 }

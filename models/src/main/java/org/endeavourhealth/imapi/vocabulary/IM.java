@@ -144,6 +144,11 @@ public class IM {
     public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
 
+    //Predicate functions
+
+    public static final TTIriRef relativeDate = TTIriRef.iri(NAMESPACE +"relativeDate");
+
+
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

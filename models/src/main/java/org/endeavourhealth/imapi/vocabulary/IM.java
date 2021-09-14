@@ -41,6 +41,7 @@ public class IM {
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
     public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePredicates");
     public static final TTIriRef SOME_OF= iri(NAMESPACE+"someOf");
+    public static final TTIriRef HAS_CHILDREN = iri(NAMESPACE + "hasChildren");
 
     //Document collection predicates
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
@@ -143,6 +144,11 @@ public class IM {
     public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
     public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
+
+    //Predicate functions
+
+    public static final TTIriRef relativeDate = TTIriRef.iri(NAMESPACE +"relativeDate");
+
 
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");

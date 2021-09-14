@@ -6,12 +6,15 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -57,6 +60,9 @@ public class EntityController {
 	@Autowired
     EntityService entityService;
 
+	@Autowired
+	ConfigService configService;
+
 	@PostMapping(value = "/search")
     @ApiOperation(
         value = "Advanced entity search",
@@ -88,14 +94,17 @@ public class EntityController {
 	public HttpEntity<Object> download(
 	    @RequestParam String iri,
         @RequestParam String format,
-        @RequestParam(required = false, defaultValue = "false") boolean children,
-        @RequestParam(required = false, defaultValue = "false") boolean parents,
-        @RequestParam(required = false, defaultValue = "false") boolean dataModelProperties,
-        @RequestParam(required = false, defaultValue = "false") boolean members,
-        @RequestParam(required = false, defaultValue = "false") boolean expandMembers,
-        @RequestParam(required = false, defaultValue = "false") boolean expandSubsets,
-        @RequestParam(required = false, defaultValue = "false") boolean semanticProperties,
-        @RequestParam(required = false, defaultValue = "false") boolean inactive
+        @RequestParam(name = "hasSubTypes", required = false, defaultValue = "false") boolean hasSubTypes,
+        @RequestParam(name = "isA", required = false, defaultValue = "false") boolean isA,
+        @RequestParam(name = "dataModelProperties", required = false, defaultValue = "false") boolean dataModelProperties,
+        @RequestParam(name = "members", required = false, defaultValue = "false") boolean members,
+        @RequestParam(name = "expandMembers", required = false, defaultValue = "false") boolean expandMembers,
+        @RequestParam(name = "expandSubsets", required = false, defaultValue = "false") boolean expandSubsets,
+        @RequestParam(name = "semanticProperties", required = false, defaultValue = "false") boolean semanticProperties,
+        @RequestParam(name = "terms", required = false, defaultValue = "false") boolean terms,
+        @RequestParam(name = "isChildOf", required = false, defaultValue = "false") boolean isChildOf,
+        @RequestParam(name = "hasChildren", required = false, defaultValue = "false") boolean hasChildren,
+        @RequestParam(name = "inactive", required = false, defaultValue = "false") boolean inactive
     ) throws SQLException, IOException {
         LOG.debug("download");
         if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
@@ -103,11 +112,13 @@ public class EntityController {
 
         TTIriRef entity = entityService.getEntityReference(iri);
 
+        List<ComponentLayoutItem> configs = configService.getConfig("definition", new TypeReference<List<ComponentLayoutItem>>(){});
+
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, isA, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, terms, isChildOf, hasChildren, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -118,7 +129,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, isA, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");

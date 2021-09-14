@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
@@ -330,34 +331,59 @@ public class EntityService {
 		return termCodeRepository.findAllByIri(iri);
 	}
 
-    public DownloadDto getJsonDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
-									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
+	public TTEntity getSummaryFromConfig(String iri, List<ComponentLayoutItem> configs) throws SQLException {
+		if (iri == null || iri.isEmpty() || configs == null || configs.isEmpty()) {
+			return new TTEntity();
+		}
+		List<String> excludedForSummary = Arrays.asList("None", IM.IS_A.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
+		List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
+		List<String> predicates = filteredConfigs.stream().map(config -> config.getPredicate()).collect(Collectors.toList());
+		TTEntity entity = getEntityPredicates(iri, new HashSet<>(predicates));
+		return entity;
+	}
+
+    public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
+									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
         DownloadDto downloadDto = new DownloadDto();
 
-        if (children) downloadDto.setChildren(getImmediateChildren(iri, null, null, inactive));
-        if (parents) downloadDto.setParents(getImmediateParents(iri, null, null, inactive));
+        downloadDto.setSummary(getSummaryFromConfig(iri, configs));
+
+        if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, inactive));
+        if (parents) downloadDto.setIsA(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) downloadDto.setSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
+        if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
+        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.IS_CHILD_OF.getIri()))).get(IM.IS_CHILD_OF));
+		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.HAS_CHILDREN.getIri()))).get(IM.HAS_CHILDREN));
 
         return downloadDto;
     }
 
-    public XlsHelper getExcelDownload(String iri, boolean children, boolean parents, boolean dataModelProperties,
-									  boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean inactive) throws SQLException {
+    public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
+									  boolean members, boolean expandMembers, boolean expandSubsets, boolean semanticProperties, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
         XlsHelper xls = new XlsHelper();
 
-        if (children) xls.addChildren(getImmediateChildren(iri, null, null, inactive));
-        if (parents) xls.addParents(getImmediateParents(iri, null, null, inactive));
+        xls.addSummary(getSummaryFromConfig(iri, configs));
+
+        if (children) xls.addHasSubTypes(getImmediateChildren(iri, null, null, inactive));
+        if (parents) xls.addIsA(getImmediateParents(iri, null, null, inactive));
         if (semanticProperties) xls.addSemanticProperties(getSemanticProperties(iri));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
+		if (terms) xls.addTerms(getEntityTermCodes(iri));
+		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.IS_CHILD_OF.getIri())));
+		TTValue isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
+		if (isChildOf && isChildOfData != null) xls.addIsChildOf(isChildOfData.getElements());
+		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.HAS_CHILDREN.getIri())));
+		TTValue hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
+		if (hasChildren && hasChildrenData != null) xls.addHasChildren(hasChildrenData.getElements());
 
         return xls;
     }

@@ -44,7 +44,10 @@ public class XlsHelper {
 	}
 
 	public void addSummary(TTEntity summary) {
-		if (summary.getIri().isEmpty()) {
+		if (summary == null) {
+			return;
+		}
+		if (summary.getIri() == null) {
 			return;
 		}
 		Set<TTIriRef> predicates = summary.getPredicateMap().keySet();

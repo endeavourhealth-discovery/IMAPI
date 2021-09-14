@@ -187,7 +187,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/complexMembers")
-	public List<TTValue> getComplexMembers(@RequestParam(name = "iri") String iri) throws SQLException {
+	public List<String> getComplexMembers(@RequestParam(name = "iri") String iri) throws SQLException {
 		LOG.debug("getComplexMembers");
 		return entityService.getComplexMembers(iri);
 	}

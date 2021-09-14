@@ -25,8 +25,7 @@ class TTToHTMLTest {
 		roleGroup.set(TTIriRef.iri(SNOMED.NAMESPACE+"411116001").setName("Has manufactured dose form (attribute)"),
 			TTIriRef.iri(SNOMED.NAMESPACE+"385268001").setName("Oral dose form (dose form)"));
 		inters.add(roleGroup);
-		TTToHTML converter= new TTToHTML();
-		String html= converter.getExpressionText(exp);
+		String html= TTToHTML.getExpressionText(exp);
 		System.out.println(html);
 	}
 }

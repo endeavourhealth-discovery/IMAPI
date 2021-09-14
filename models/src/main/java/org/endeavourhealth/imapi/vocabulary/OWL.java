@@ -18,7 +18,7 @@ public class OWL {
     public static final TTIriRef SOMEVALUESFROM = iri(NAMESPACE + "someValuesFrom");
     public static final TTIriRef ALLVALUESFROM = iri(NAMESPACE + "allValuesFrom");
     public static final TTIriRef OBJECTPROPERTY = iri(NAMESPACE + "ObjectProperty");
-    public static final TTIriRef DATAPROPERTY = iri(NAMESPACE + "DataProperty");
+    public static final TTIriRef DATATYPEPROPERTY = iri(NAMESPACE + "DatatypeProperty");
     public static final TTIriRef ANNOTATIONPROPERTY = iri(NAMESPACE + "AnnotationProperty");
     public static final TTIriRef INVERSEOF = iri(NAMESPACE + "inverseOf");
     public static final TTIriRef INVERSEOBJECTPROPERTY = iri(NAMESPACE + "inverseOf");

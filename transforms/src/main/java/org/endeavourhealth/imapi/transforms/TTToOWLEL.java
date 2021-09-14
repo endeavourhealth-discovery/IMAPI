@@ -121,9 +121,9 @@ public class TTToOWLEL {
             } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF)) {
                TTIriRef propertyType;
                if (entity.isType(RDF.PROPERTY))
-                  propertyType=OWL.DATAPROPERTY;
-               else if (entity.isType(OWL.DATAPROPERTY))
-                  propertyType=OWL.DATAPROPERTY;
+                  propertyType=OWL.DATATYPEPROPERTY;
+               else if (entity.isType(OWL.DATATYPEPROPERTY))
+                  propertyType=OWL.DATATYPEPROPERTY;
                else
                   propertyType= OWL.OBJECTPROPERTY;
                addSubPropertyOf(iri, propertyType,entry.getValue().asArray());
@@ -275,7 +275,7 @@ public class TTToOWLEL {
                     .collect(Collectors.toSet()));
          } else if (cex.asNode().get(OWL.ONPROPERTY) != null) {
             TTIriRef propertyType = guessPropertyType(cex.asNode());
-            if (propertyType.equals(OWL.DATAPROPERTY))
+            if (propertyType.equals(OWL.DATATYPEPROPERTY))
                return getDPERestrictionAsOWLClassExpression(cex);
             else
                return getOPERestrictionAsOWlClassExpression(cex);
@@ -295,10 +295,10 @@ public class TTToOWLEL {
       TTEntity entity= ttManager.getEntity(exp.get(OWL.ONPROPERTY).asIriRef().getIri());
       if (entity==null)
          return OWL.OBJECTPROPERTY;
-      if (entity.isType(OWL.DATAPROPERTY))
-         return OWL.DATAPROPERTY;
+      if (entity.isType(OWL.DATATYPEPROPERTY))
+         return OWL.DATATYPEPROPERTY;
       else  if (entity.isType(RDF.PROPERTY))
-         return OWL.DATAPROPERTY;
+         return OWL.DATATYPEPROPERTY;
       else
          return OWL.OBJECTPROPERTY;
    }
@@ -335,7 +335,7 @@ public class TTToOWLEL {
             entity = dataFactory.getOWLEntity(EntityType.CLASS, iri);
          else if (ttEntity.isType(OWL.OBJECTPROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
-         else if (ttEntity.isType(OWL.DATAPROPERTY))
+         else if (ttEntity.isType(OWL.DATATYPEPROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.DATA_PROPERTY, iri);
       else if (ttEntity.isType(RDF.PROPERTY))
          entity = dataFactory.getOWLEntity(EntityType.DATA_PROPERTY, iri);

@@ -77,7 +77,7 @@ public class MappingController {
 		System.out.println(
 				LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
 		mapper.enable(SerializationFeature.INDENT_OUTPUT)
-				.writeValue(new File("src/main/resources/mapping/logs/" + filename + ".json"), object);
+				.writeValue(new File("src/main/resources/" + filename + ".json"), object);
 	}
 
 }

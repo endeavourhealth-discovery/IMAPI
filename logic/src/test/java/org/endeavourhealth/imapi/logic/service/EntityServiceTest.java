@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
@@ -639,28 +640,28 @@ public class EntityServiceTest {
 
     @Test
     public void download_ExcelNullIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload(null, true, true, true ,true, false,false, true, true);
+        XlsHelper actual = entityService.getExcelDownload(null, new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true,  true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_ExcelEmptyIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload("", true, true, true ,true, false,false, true, true);
+        XlsHelper actual = entityService.getExcelDownload("", new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONNullIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload(null, true, true, true ,true, false,false, true, true);
+        DownloadDto actual = entityService.getJsonDownload(null, new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONEmptyIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload("", true, true, true ,true, false,false, true, true);
+        DownloadDto actual = entityService.getJsonDownload("", new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
 
         assertNull(actual);
     }
@@ -694,8 +695,8 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember1));
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", true,
-                true, true ,true, false,false, true, true);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
+                true, true ,true, false,false, true, true, true, true,true);
 
         assertNotNull(actual);
 
@@ -704,8 +705,8 @@ public class EntityServiceTest {
     @Test
     public void download_AllSelectionsFalseExcelFormat() throws SQLException{
 
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", false,
-                false, false ,false, false,false, false, false);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
+                false, false ,false, false,false, false, false, false, false,false);
 
         assertNotNull(actual);
 
@@ -741,8 +742,8 @@ public class EntityServiceTest {
                 .thenReturn(Collections.singleton(valueSetMember1));
         when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
                 .thenReturn(Collections.singleton(valueSetMember2));
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", true,
-                true, true ,true, false,false, true, true);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
+                true, true ,true, false,false, true, true, true, true, true);
 
         assertNotNull(actual);
 
@@ -751,8 +752,8 @@ public class EntityServiceTest {
     @Test
     public void download_AllSelectionsFalseJsonFormat() throws SQLException {
 
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", false,
-                false, false ,false, false,false, false, true);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
+                false, false ,false, false,false, false, false, false, false, false);
 
         assertNotNull(actual);
 

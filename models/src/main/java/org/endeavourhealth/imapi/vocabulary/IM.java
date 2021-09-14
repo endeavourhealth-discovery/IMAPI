@@ -41,6 +41,7 @@ public class IM {
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
     public static final TTIriRef USE_PREDICATES= iri(NAMESPACE+"usePredicates");
     public static final TTIriRef SOME_OF= iri(NAMESPACE+"someOf");
+    public static final TTIriRef HAS_CHILDREN = iri(NAMESPACE + "hasChildren");
 
     //Document collection predicates
     public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");

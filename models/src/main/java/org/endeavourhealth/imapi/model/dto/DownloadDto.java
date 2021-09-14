@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 
 import java.io.Serializable;
@@ -19,6 +20,8 @@ public class DownloadDto implements Serializable {
 	private ExportValueSet members;
 	private List<DataModelProperty> dataModelProperties;
 	private List<TermCode> terms;
+	private TTValue isChildOf;
+	private TTValue hasChildren;
 
 	public List<EntityReferenceNode> getHasSubTypes() {
 		return hasSubTypes;
@@ -74,5 +77,21 @@ public class DownloadDto implements Serializable {
 
 	public void setTerms(List<TermCode> terms) {
 		this.terms = terms;
+	}
+
+	public TTValue getIsChildOf() {
+		return isChildOf;
+	}
+
+	public void setIsChildOf(TTValue isChildOf) {
+		this.isChildOf = isChildOf;
+	}
+
+	public TTValue getHasChildren() {
+		return hasChildren;
+	}
+
+	public void setHasChildren(TTValue hasChildren) {
+		this.hasChildren = hasChildren;
 	}
 }

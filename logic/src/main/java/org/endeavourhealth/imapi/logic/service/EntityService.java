@@ -343,7 +343,7 @@ public class EntityService {
 	}
 
     public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
-									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean terms, boolean inactive) throws SQLException {
+									   boolean members, boolean expandMembers,boolean expandSubsets, boolean semanticProperties, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -357,12 +357,14 @@ public class EntityService {
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
         if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
+        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.IS_CHILD_OF.getIri()))).get(IM.IS_CHILD_OF));
+		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.HAS_CHILDREN.getIri()))).get(IM.HAS_CHILDREN));
 
         return downloadDto;
     }
 
     public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean parents, boolean dataModelProperties,
-									  boolean members, boolean expandMembers, boolean expandSubsets, boolean semanticProperties, boolean terms, boolean inactive) throws SQLException {
+									  boolean members, boolean expandMembers, boolean expandSubsets, boolean semanticProperties, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -376,6 +378,8 @@ public class EntityService {
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
 		if (terms) xls.addTerms(getEntityTermCodes(iri));
+		if (isChildOf) xls.addIsChildOf(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.IS_CHILD_OF.getIri()))).get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName())).getElements());
+		if (hasChildren) xls.addHasChildren(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.HAS_CHILDREN.getIri()))).get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName())).getElements());
 
         return xls;
     }

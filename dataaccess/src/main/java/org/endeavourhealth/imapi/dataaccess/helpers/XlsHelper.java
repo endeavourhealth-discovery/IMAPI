@@ -78,7 +78,7 @@ public class XlsHelper {
 
 	public void addHasSubTypes(List<EntityReferenceNode> childrenList) {
 		Sheet sheet = workbook.createSheet("Has sub types");
-		List<String> headers = Arrays.asList(new String[]{"Name", "Iri"});
+		List<String> headers = Arrays.asList("Name", "Iri");
 		addHeaders(sheet, 20000, headers);
 
 		for (EntityReferenceNode child : childrenList) {
@@ -93,7 +93,7 @@ public class XlsHelper {
 
 	public void addIsA(List<EntityReferenceNode> parentList) {
 		Sheet sheet = workbook.createSheet("Is a");
-		List<String> headers = Arrays.asList(new String[]{"Name", "Iri"});
+		List<String> headers = Arrays.asList("Name", "Iri");
 		addHeaders(sheet, 20000, headers);
 
 		for (TTValue parent : parentList) {
@@ -107,7 +107,7 @@ public class XlsHelper {
 
 	public void addSemanticProperties(List<SemanticProperty> propertyList) {
 		Sheet sheet = workbook.createSheet("Semantic properties");
-		List<String> headers = Arrays.asList(new String[]{"Name", "Iri", "Type Name", "Type Iri"});
+		List<String> headers = Arrays.asList("Name", "Iri", "Type Name", "Type Iri");
 		addHeaders(sheet, 10000, headers);
 
 		for (SemanticProperty property : propertyList) {
@@ -123,9 +123,41 @@ public class XlsHelper {
 		}
 	}
 
+	public void addIsChildOf(List<TTValue> childList) {
+		Sheet sheet = workbook.createSheet("Is child of");
+		List<String> headers = Arrays.asList("Iri", "Name");
+		addHeaders(sheet, 10000, headers);
+
+		for (TTValue child : childList) {
+			if (child.isIriRef()) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue(child.asIriRef().getIri());
+				cell = row.createCell(1);
+				cell.setCellValue(child.asIriRef().getName());
+			}
+		}
+	}
+
+	public void addHasChildren(List<TTValue> childList) {
+		Sheet sheet = workbook.createSheet("Has children");
+		List<String> headers = Arrays.asList("Iri", "Name");
+		addHeaders(sheet, 10000, headers);
+
+		for (TTValue child : childList) {
+			if (child.isIriRef()) {
+				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+				Cell cell = row.createCell(0);
+				cell.setCellValue(child.asIriRef().getIri());
+				cell = row.createCell(1);
+				cell.setCellValue(child.asIriRef().getName());
+			}
+		}
+	}
+
 	public void addMembersSheet(ExportValueSet exportValueSet) {
 		Sheet sheet = workbook.createSheet("Members");
-		List<String> headers = Arrays.asList(new String[]{"Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri"});
+		List<String> headers = Arrays.asList("Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri");
 		addHeaders(sheet, 10000, headers);
 
         addMembers(sheet, exportValueSet.getMembers());
@@ -166,7 +198,7 @@ public class XlsHelper {
 
     public void addDataModelProperties(List<DataModelProperty> properties) {
 		Sheet sheet = workbook.createSheet("Data model properties");
-		List<String> headers = Arrays.asList(new String[]{"Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri"});
+		List<String> headers = Arrays.asList("Included", "Member Name", "Member Iri", "Member Code", "Inherited Name", "Inherited Iri");
         addHeaders(sheet, 10000, headers);
 
 		for (DataModelProperty property : properties) {
@@ -193,7 +225,7 @@ public class XlsHelper {
 
 	public void addTerms(List<TermCode> terms) {
 		Sheet sheet = workbook.createSheet("Terms");
-		List<String> headers = Arrays.asList(new String[]{"Name", "Code", "Scheme"});
+		List<String> headers = Arrays.asList("Name", "Code", "Scheme");
 		addHeaders(sheet, 10000, headers);
 
 		for (TermCode term : terms) {

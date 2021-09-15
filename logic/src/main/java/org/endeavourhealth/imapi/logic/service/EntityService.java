@@ -212,7 +212,7 @@ public class EntityService {
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri == iri) {
 				if (included.getType() != MemberType.COMPLEX) {
-					included.setLabel("MemberIncluded");
+					included.setLabel("a_MemberIncluded");
 					included.setType(MemberType.INCLUDED);
 				}
 			} else {
@@ -227,7 +227,7 @@ public class EntityService {
 		for (ValueSetMember excluded : definedMemberExclusions) {
 			if (originalParentIri == iri) {
 				if (excluded.getType() != MemberType.COMPLEX) {
-					excluded.setLabel("MemberXcluded");
+					excluded.setLabel("b_MemberExcluded");
 					excluded.setType(MemberType.EXCLUDED);
 				}
 			} else {
@@ -292,7 +292,7 @@ public class EntityService {
 					TTIriRef key = keys.entrySet().iterator().next().getKey();
 					member.setEntity(key);
 					member.setType(MemberType.COMPLEX);
-					member.setLabel("zComplex Member");
+					member.setLabel("z_ComplexMember");
 					members.add(member);
 					hasComplexMember = true;
 				}

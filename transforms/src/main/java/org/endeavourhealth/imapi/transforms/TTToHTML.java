@@ -13,19 +13,20 @@ public class TTToHTML {
 		StringBuilder html = new StringBuilder();
 		boolean first = true;
 		if (expression.get(OWL.INTERSECTIONOF) != null) {
+			html.append("<p class=\"intersection\">Intersection of</p>");
 			for (TTValue inter : expression.get(OWL.INTERSECTIONOF).asArray().getElements()) {
 				if (inter.isIriRef()) {
 					if (!first)
-						html.append("<p class=\"and\">and</p> ");
+						html.append("<p class=\"and\" style=\"margin-left: 40px;\">and</p> ");
 					first = false;
-					html.append("<p class=\"name\">");
+					html.append("<p class=\"name\" style=\"margin-left: 40px;\">");
 					html.append(inter.asIriRef().getName());
 					html.append("</p>");
 				} else {
 					if (!first)
-						html.append("<p class=\"having\">having</p> ");
+						html.append("<p class=\"having\" style=\"margin-left: 40px;\">having</p> ");
 					first = false;
-					setRoleGroup(inter.asNode(), html,40);
+					setRoleGroup(inter.asNode(), html,80);
 				}
 			}
 		}

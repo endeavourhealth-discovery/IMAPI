@@ -4,5 +4,6 @@ public enum MemberType {
     INCLUDED,
     EXCLUDED,
     SUBSET,
-    EXPANDED
+    EXPANDED,
+    COMPLEX
 }

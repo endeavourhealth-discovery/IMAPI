@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -590,25 +591,9 @@ public class EntityService {
 		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
 		if (entity.has(IM.ROLE_GROUP)) {
 			for (TTValue roleGroup : entity.asNode().get(IM.ROLE_GROUP).getElements()) {
-				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
-					recordStructure.add(new SemanticProperty()
-							.setProperty(
-									new TTIriRef(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-							.setType(
-									new TTIriRef(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
-				} else {
-					if (roleGroup.asNode().has(IM.ROLE)) {
-						roleGroup.asNode().get(IM.ROLE).getElements().forEach(role -> recordStructure.add(new SemanticProperty()
-                                .setProperty(
-                                        new TTIriRef(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-                                                role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-                                .setType(new TTIriRef(
-                                        role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-                                        role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName()))));
-					}
-				}
+				for(Entry<TTIriRef, TTValue> entry : roleGroup.asNode().getPredicateMap().entrySet()) {
+					recordStructure.add(new SemanticProperty().setProperty(entry.getKey()).setType((TTIriRef) entry.getValue()));
+				}				
 			}
 		}
 		return recordStructure;

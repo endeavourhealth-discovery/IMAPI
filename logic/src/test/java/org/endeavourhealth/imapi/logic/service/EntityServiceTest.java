@@ -491,12 +491,12 @@ public class EntityServiceTest {
         org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
             .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
-            .thenReturn(Collections.singleton(includedSet));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(includedMember));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(excludedMember));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
+//            .thenReturn(Collections.singleton(includedSet));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
+//            .thenReturn(Collections.singleton(includedMember));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
+//            .thenReturn(Collections.singleton(excludedMember));
 
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
@@ -523,12 +523,12 @@ public class EntityServiceTest {
         org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
             .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
-            .thenReturn(Collections.singleton(includedSet));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(includedMember));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(excludedMember));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
+//            .thenReturn(Collections.singleton(includedSet));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
+//            .thenReturn(Collections.singleton(includedMember));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
+//            .thenReturn(Collections.singleton(excludedMember));
 
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, valueSetIri.getIri());
@@ -691,10 +691,10 @@ public class EntityServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(valueSetMember1));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(valueSetMember2));
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
                 true, true ,true, false,false, true, true, true, true,true);
 
@@ -738,10 +738,10 @@ public class EntityServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(valueSetMember1));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(valueSetMember2));
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
                 true, true ,true, false,false, true, true, true, true, true);
 
@@ -805,19 +805,19 @@ public class EntityServiceTest {
         org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
-                .thenReturn(Collections.singleton(includedSet));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(includedMember));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(excludedMember));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
+//                .thenReturn(Collections.singleton(includedSet));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(includedMember));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(excludedMember));
 
         org.endeavourhealth.imapi.model.valuset.ValueSetMember childMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#Child","Child"))
                 .setCode("3")
                 .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
 
-        when(valueSetRepository.expandMember(eq("http://endhealth.info/im#IncludedMember"), any())).thenReturn(Collections.singletonList(childMember));
+//        when(valueSetRepository.expandMember(eq("http://endhealth.info/im#IncludedMember"), any())).thenReturn(Collections.singletonList(childMember));
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
         assertNotNull(actual);
@@ -835,10 +835,10 @@ public class EntityServiceTest {
                 .setCode("25451000252115")
                 .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(valueSetMember1));
+//        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
+//                .thenReturn(Collections.singleton(valueSetMember2));
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
         String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false, false);

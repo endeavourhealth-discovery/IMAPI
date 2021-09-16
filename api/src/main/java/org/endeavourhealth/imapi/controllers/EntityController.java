@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -28,6 +29,7 @@ import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.slf4j.Logger;
@@ -182,6 +184,12 @@ public class EntityController {
 			@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset) throws SQLException {
         LOG.debug("valueSetMembersCSV");
         return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
+	}
+
+	@GetMapping(value = "/complexMembers")
+	public List<String> getComplexMembers(@RequestParam(name = "iri") String iri) throws SQLException {
+		LOG.debug("getComplexMembers");
+		return entityService.getComplexMembers(iri);
 	}
 
 	@GetMapping(value = "/isMemberOf")

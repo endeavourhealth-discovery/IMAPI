@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.transforms.TTToHTML;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
@@ -210,22 +212,30 @@ public class EntityService {
 
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri == iri) {
-				included.setLabel("MemberIncluded");
-				included.setType(MemberType.INCLUDED);
+				if (included.getType() != MemberType.COMPLEX) {
+					included.setLabel("a_MemberIncluded");
+					included.setType(MemberType.INCLUDED);
+				}
 			} else {
-				included.setLabel("Subset - " + parentSetName);
-				included.setType(MemberType.SUBSET);
+				if (included.getType() != MemberType.COMPLEX) {
+					included.setLabel("Subset - " + parentSetName);
+					included.setType(MemberType.SUBSET);
+				}
 			}
 			included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
 		for (ValueSetMember excluded : definedMemberExclusions) {
 			if (originalParentIri == iri) {
-				excluded.setLabel("MemberXcluded");
-				excluded.setType(MemberType.EXCLUDED);
+				if (excluded.getType() != MemberType.COMPLEX) {
+					excluded.setLabel("b_MemberExcluded");
+					excluded.setType(MemberType.EXCLUDED);
+				}
 			} else {
-				excluded.setLabel("Subset - " + parentSetName);
-				excluded.setType(MemberType.SUBSET);
+				if (excluded.getType() != MemberType.COMPLEX) {
+					excluded.setLabel("Subset - " + parentSetName);
+					excluded.setType(MemberType.SUBSET);
+				}
 			}
 			excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
@@ -270,7 +280,43 @@ public class EntityService {
 	}
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
-		return entityTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
+		Set<ValueSetMember> members = new HashSet<>();
+		Set<String> predicates = new HashSet<>();
+		predicates.add(predicate.getIri());
+		List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(predicate.asIriRef()).getElements();
+		Boolean hasComplexMember = false;
+		for (TTValue element : results) {
+			if (element.isNode()) {
+				if (!hasComplexMember) {
+					ValueSetMember member = new ValueSetMember();
+					Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
+					TTIriRef key = keys.entrySet().iterator().next().getKey();
+					member.setEntity(key);
+					member.setType(MemberType.COMPLEX);
+					member.setLabel("z_ComplexMember");
+					members.add(member);
+					hasComplexMember = true;
+				}
+			}
+			if (element.isIriRef()) {
+				ValueSetMember member = null;
+				member = getValueSetMemberFromIri(element.asIriRef().getIri());
+				members.add(member);
+			}
+		}
+		return members;
+	}
+
+	private ValueSetMember getValueSetMemberFromIri(String iri) throws SQLException {
+		ValueSetMember member = new ValueSetMember();
+		Set<String> elementPredicates = new HashSet<>();
+		elementPredicates.add(IM.HAS_SCHEME.getIri());
+		elementPredicates.add(IM.CODE.getIri());
+		EntitySummary summary = entityRepository.getEntitySummaryByIri(iri);
+		member.setEntity(iri(summary.getIri(), summary.getName()));
+		member.setCode(summary.getCode());
+		member.setScheme(summary.getScheme());
+		return member;
 	}
 
 	private Map<String, ValueSetMember> processMembers(Set<ValueSetMember> valueSetMembers, boolean expand, Integer memberCount, Integer limit)
@@ -294,6 +340,15 @@ public class EntityService {
 			}
 		}
 		return memberHashMap;
+	}
+
+	public List<String> getComplexMembers(String iri) throws SQLException {
+		Set<String> predicates = new HashSet<>();
+		predicates.add(IM.HAS_MEMBER.getIri());
+		List<TTValue> results = getEntityPredicates(iri, predicates).getAsArray(IM.HAS_MEMBER).getElements();
+		List<TTValue> filteredResults = results.stream().filter(r -> r.isNode()).collect(Collectors.toList());
+		List<String> memberAsHTML = filteredResults.stream().map(result -> TTToHTML.getExpressionText(result.asNode())).collect(Collectors.toList());
+		return memberAsHTML;
 	}
 
 	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) throws SQLException {

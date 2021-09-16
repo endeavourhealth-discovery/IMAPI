@@ -235,7 +235,7 @@ public class EntityRepository extends BaseRepository {
         return iri;
     }
 
-	public Set<String> getAllPredicateIris() throws SQLException {
+	public Set<String> findAllPredicateIris() throws SQLException {
 //		SELECT iri FROM entity WHERE dbid IN (SELECT DISTINCT predicate FROM tpl);
 		Set<String> predicateIris = new HashSet<>();
 		StringJoiner sql = new StringJoiner("\n")

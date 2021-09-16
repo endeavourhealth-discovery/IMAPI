@@ -57,6 +57,17 @@ public class MappingController {
 		return predicateValidator.getNewPredicates(map);
 	}
 
+	@PostMapping("/references")
+	public Set<String> getReferencesFromContentFile(@RequestParam MultipartFile contentFile) throws IOException {
+		if ("text/csv".equals(contentFile.getContentType())) {
+			return FileParser.getColumnNamesFromCsv(contentFile);
+		}
+		if ("json".equals(contentFile.getContentType())) {
+
+		}
+		return null;
+	}
+
 	public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
 			throws Exception {
 		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to

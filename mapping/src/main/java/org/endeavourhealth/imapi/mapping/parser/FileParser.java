@@ -2,6 +2,9 @@ package org.endeavourhealth.imapi.mapping.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import org.eclipse.rdf4j.model.Model;
@@ -64,8 +67,9 @@ public class FileParser {
 			} else if (!tpl.getPredicate().stringValue().equals(R2RML.PREDICATE.getIri())) {
 				if (R2RML.CLASS.getIri().equals(tpl.getPredicate().stringValue())
 						|| R2RML.TERM_TYPE.getIri().equals(tpl.getPredicate().stringValue())) {
-					wrapper.addInstruction(mapName, new MappingInstruction(mapName, org.endeavourhealth.imapi.vocabulary.RDF.TYPE.getIri(),
-							tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
+					wrapper.addInstruction(mapName,
+							new MappingInstruction(mapName, org.endeavourhealth.imapi.vocabulary.RDF.TYPE.getIri(),
+									tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
 				} else {
 					wrapper.addInstruction(mapName, new MappingInstruction(mapName, property,
 							tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
@@ -172,6 +176,14 @@ public class FileParser {
 
 		ObjectMapper mapper = new ObjectMapper(factory);
 		return mapper.readTree(file.getBytes());
+	}
+
+	public static Set<String> getColumnNamesFromCsv(MultipartFile csvFile) throws IOException {
+		CsvMapper csvMapper = new CsvMapper();
+		CsvSchema csvSchema = csvMapper.typedSchemaFor(Map.class).withHeader();
+		MappingIterator<Map<String, String>> it = csvMapper.readerFor(Map.class)
+				.with(csvSchema.withColumnSeparator(',')).readValues(csvFile.getInputStream());
+		return it.next().keySet();
 	}
 
 }

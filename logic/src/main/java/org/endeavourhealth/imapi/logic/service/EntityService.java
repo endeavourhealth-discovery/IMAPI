@@ -659,6 +659,6 @@ public class EntityService {
 	}
 
 	public Set<String> getPredicateIris() throws SQLException {
-		return entityRepository.getAllPredicateIris();
+		return entityRepository.findAllPredicateIris();
 	}
 }

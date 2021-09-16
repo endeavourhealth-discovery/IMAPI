@@ -808,20 +808,20 @@ public class EntityServiceTest {
         tplList.add(new Tpl()
                 .setDbid(3)
                 .setPredicate(IM.ROLE_GROUP));
-        tplList.add(new Tpl()
-                .setDbid(7)
-                .setPredicate(IM.ROLE)
-                .setParent(3));
-        tplList.add(new Tpl()
-                .setDbid(8)
-                .setPredicate(OWL.ONPROPERTY)
-                .setParent(7)
-                .setObject(iri("http://endhealth.info/im#25451000252115")));
-        tplList.add(new Tpl()
-                .setDbid(9)
-                .setPredicate(OWL.SOMEVALUESFROM)
-                .setParent(7)
-                .setObject(iri("http://endhealth.info/im#25451000252115")));
+//        tplList.add(new Tpl()
+//                .setDbid(7)
+//                .setPredicate(IM.ROLE)
+//                .setParent(3));
+//        tplList.add(new Tpl()
+//                .setDbid(8)
+//                .setPredicate(OWL.ONPROPERTY)
+//                .setParent(7)
+//                .setObject(iri("http://endhealth.info/im#25451000252115")));
+//        tplList.add(new Tpl()
+//                .setDbid(9)
+//                .setPredicate(OWL.SOMEVALUESFROM)
+//                .setParent(7)
+//                .setObject(iri("http://endhealth.info/im#25451000252115")));
         tplList.add(new Tpl()
                 .setDbid(10)
                 .setPredicate(IM.PROPERTY_GROUP));

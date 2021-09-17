@@ -60,15 +60,17 @@ public class EntityServiceTest {
     @Test
     public void getEntityPredicates_nullIriPredicates() throws SQLException {
 
-        TTEntity actual = entityService.getEntityPredicates(null,null);
+        TTBundle actual = entityService.getEntityPredicates(null,null);
         assertNotNull(actual);
+        assertNotNull(actual.getEntity());
     }
 
     @Test
     public void getEntityPredicates_EmptyIri() throws SQLException {
 
-        TTEntity actual = entityService.getEntityPredicates("",null);
+        TTBundle actual = entityService.getEntityPredicates("",null);
         assertNotNull(actual);
+        assertNotNull(actual.getEntity());
     }
 
     @Test
@@ -101,7 +103,7 @@ public class EntityServiceTest {
                 .setObject(iri("http://endhealth.info/im#25451000252115")));
 
         when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
-        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()));
+        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri())).getEntity();
         assertNotNull(actual);
     }
 

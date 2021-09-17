@@ -22,7 +22,6 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.transforms.TTToHTML;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -597,7 +596,6 @@ public class EntityService {
 		return graphData;
 	}
 
-	@NotNull
 	private GraphDto getWrapper(List<GraphDto> props,String key) {
 		GraphDto wrapper = new GraphDto().setKey(key).setType(GraphType.PROPERTIES);
 		wrapper.getLeafNodes()
@@ -606,7 +604,6 @@ public class EntityService {
 		return wrapper;
 	}
 
-	@NotNull
 	private GraphDto getDataModelInheritedWrapper(List<GraphDto> dataModelProps) {
 		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
 		dataModelInheritedWrapper.getLeafNodes()

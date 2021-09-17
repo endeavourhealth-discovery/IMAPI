@@ -8,15 +8,13 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TTNodeJsonTest {
     //@Test
@@ -119,16 +117,16 @@ public class TTNodeJsonTest {
     }
 
     private void checkNode(TTNode node) {
-        Assert.assertEquals("Adverse reaction to Amlodipine Besilate", node
+        assertEquals("Adverse reaction to Amlodipine Besilate", node
             .getAsLiteral(RDFS.LABEL)
             .getValue()
         );
-        Assert.assertEquals(3, node
+        assertEquals(3, node
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
-        Assert.assertEquals("http://snomed.info/sct#384976003", node
+        assertEquals("http://snomed.info/sct#384976003", node
             .getAsArray(OWL.EQUIVALENTCLASS)
             .getAsNode(0).getAsArray(OWL.INTERSECTIONOF)
             .getAsNode(1).getAsIriRef(OWL.SOMEVALUESFROM).getIri()

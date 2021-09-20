@@ -2,18 +2,19 @@ package org.endeavourhealth.imapi.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Set;
 
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+import org.endeavourhealth.imapi.mapping.model.MapDocument;
+import org.endeavourhealth.imapi.mapping.repository.MapDocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,8 +34,13 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 @RestController
 @RequestMapping("api/mapping")
 @CrossOrigin(origins = "*")
-@Api(value = "MappingController", description = "Mapping endpoint")
+@Api(value = "MappingController")
+@SwaggerDefinition(tags = {
+        @Tag(name = "Mapping Controller", description = "Mapping endpoint")
+})
 public class MappingController {
+
+    MapDocumentRepository mapDocumentRepository = new MapDocumentRepository();
 
     @Autowired
     PredicateValidator predicateValidator;
@@ -49,6 +55,16 @@ public class MappingController {
         writeToFile("content", content, "Content files loaded.");
         writeToFile("map", map, "Map files loaded.");
         return mapFromJsonNodes(content, map, graph, nested);
+    }
+
+    @GetMapping("/mapDocument")
+    public List<MapDocument> getMapDocuments() throws SQLException {
+        return mapDocumentRepository.findAllMapDocuments();
+    }
+
+    @GetMapping("/mapDocument/{id}")
+    public MapDocument getMapDocumentsById(@PathVariable int id) throws SQLException {
+        return mapDocumentRepository.findMapDocumentById(id);
     }
 
     @PostMapping("/newPredicates")

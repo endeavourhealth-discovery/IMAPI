@@ -36,59 +36,61 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 @Api(value = "MappingController", description = "Mapping endpoint")
 public class MappingController {
 
-	@Autowired
-	PredicateValidator predicateValidator;
+    @Autowired
+    PredicateValidator predicateValidator;
 
-	ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
 
-	@PostMapping
-	public TTDocument map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
-			@RequestParam String graph, @RequestParam boolean nested) throws Exception {
-		JsonNode content = FileParser.parseFile(contentFile);
-		MappingInstructionWrapper map = FileParser.parseMap(mappingFile);
-		writeToFile("content", content, "Content files loaded.");
-		writeToFile("map", map, "Map files loaded.");
-		return mapFromJsonNodes(content, map, graph, nested);
-	}
+    @PostMapping
+    public TTDocument map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
+                          @RequestParam String graph, @RequestParam boolean nested) throws Exception {
+        JsonNode content = FileParser.parseFile(contentFile);
+        MappingInstructionWrapper map = FileParser.parseMap(mappingFile);
+        writeToFile("content", content, "Content files loaded.");
+        writeToFile("map", map, "Map files loaded.");
+        return mapFromJsonNodes(content, map, graph, nested);
+    }
 
-	@PostMapping("/newPredicates")
-	public Set<String> validateMapDocument(@RequestParam MultipartFile mapDocument) throws Exception {
-		MappingInstructionWrapper map = FileParser.parseMap(mapDocument);
-		return predicateValidator.getNewPredicates(map);
-	}
+    @PostMapping("/newPredicates")
+    public Set<String> validateMapDocument(@RequestParam MultipartFile mapDocument) throws Exception {
+        MappingInstructionWrapper map = FileParser.parseMap(mapDocument);
+        return predicateValidator.getNewPredicates(map);
+    }
 
-	@PostMapping("/references")
-	public Set<String> getReferencesFromContentFile(@RequestParam MultipartFile contentFile) throws IOException {
-		if ("text/csv".equals(contentFile.getContentType())) {
-			return FileParser.getColumnNamesFromCsv(contentFile);
-		}
-		if ("json".equals(contentFile.getContentType())) {
+    @PostMapping("/references")
+    public Set<String> getReferencesFromContentFile(@RequestParam MultipartFile contentFile) throws IOException {
+        if ("text/csv".equals(contentFile.getContentType())) {
+            return FileParser.getColumnNamesFromCsv(contentFile);
+        }
+        if ("json".equals(contentFile.getContentType())) {
 
-		}
-		return null;
-	}
+        }
+        return null;
+    }
 
-	public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
-			throws Exception {
-		List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to
-																								// entities
-		writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
+    public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
+            throws Exception {
+        List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to
+        // entities
+        writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 
-		entities = EntityBuilder.groupEntities(entities); // Step 2: group entities with same IRI
-		writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
+        entities = EntityBuilder.groupEntities(entities); // Step 2: group entities with same IRI
+        writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
 
-		TTDocument ttdocument = new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph))
-				.setCrud(IM.REPLACE); // Step 3: populate ttdocument
-		writeToFile("ttdocument", ttdocument, "TTDocument populated.");
+        TTDocument ttdocument = new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph))
+                .setCrud(IM.REPLACE); // Step 3: populate ttdocument
+        writeToFile("ttdocument", ttdocument, "TTDocument populated.");
 
-		return ttdocument;
-	}
+        return ttdocument;
+    }
 
-	private void writeToFile(String filename, Object object, String message) throws IOException {
-		System.out.println(
-				LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
-		mapper.enable(SerializationFeature.INDENT_OUTPUT)
-				.writeValue(new File("src/main/resources/" + filename + ".json"), object);
-	}
+    private void writeToFile(String filename, Object object, String message) throws IOException {
+        File file = new File("api/src/main/resources/" + filename + ".json");
+        file.createNewFile();
+        System.out.println(
+                LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT)
+                .writeValue(file, object);
+    }
 
 }

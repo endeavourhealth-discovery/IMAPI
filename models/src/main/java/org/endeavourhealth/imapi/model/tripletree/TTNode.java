@@ -14,10 +14,16 @@ public class TTNode implements TTValue {
     private Map<TTIriRef, TTValue> predicateValues = new HashMap<>();
 
     public TTNode set(TTIriRef predicate, TTValue value) {
-        if (value==null)
+        if (value == null || value.isLiteral() && value.asLiteral().getValue().isEmpty()
+                || value.isIriRef() && value.asIriRef().getIri().isEmpty())
             predicateValues.remove(predicate);
         else
             predicateValues.put(predicate, value);
+        return this;
+    }
+
+    public TTNode remove(TTIriRef predicate) {
+        predicateValues.remove(predicate);
         return this;
     }
 

@@ -42,9 +42,9 @@ public class EntityRepository extends BaseRepository {
     public EntitySummary getEntitySummaryByIri(String iri) throws SQLException {
         EntitySummary entitySummary = new EntitySummary();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT c.iri, c.name, c.code, s.iri AS schemeIri, s.name AS schemeName")
+                .add("SELECT c.iri, c.name, c.code, n.iri AS schemeIri, n.name AS schemeName")
                 .add("FROM entity c")
-                .add("JOIN entity s ON s.iri = c.scheme")
+                .add("LEFT JOIN namespace n ON n.iri = c.scheme")
                 .add("WHERE c.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;

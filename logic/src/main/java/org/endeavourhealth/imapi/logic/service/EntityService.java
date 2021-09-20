@@ -20,14 +20,16 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.transforms.TTToHTML;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
@@ -47,22 +49,33 @@ public class EntityService {
 
 	EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
 
-	public TTEntity getEntityPredicates(String iri, Set<String> predicates) throws SQLException {
-        TTEntity result = new TTEntity(iri);
-
+	public TTBundle getEntityPredicates(String iri, Set<String> predicates) throws SQLException {
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates);
+        return buildEntityFromTriples(iri, triples);
+    }
+
+    public TTBundle getEntityAxioms(String iri) throws SQLException {
+        List<Tpl> triples = entityTripleRepository.getAxiomTriplesRecursive(iri);
+        return buildEntityFromTriples(iri, triples);
+    }
+
+    private TTBundle buildEntityFromTriples(String iri, List<Tpl> triples) {
+        TTEntity entity = new TTEntity(iri);
+        TTBundle result = new TTBundle().setEntity(entity);
 
         // Reconstruct
         HashMap<Integer, TTNode> nodeMap = new HashMap<>();
 
         for (Tpl triple : triples) {
+            result.addPredicate(triple.getPredicate());
+
             TTValue v = getValue(nodeMap, triple);
 
             if (triple.getParent() == null) {
                 if (triple.isFunctional()) {
-                    result.set(triple.getPredicate(), v);
+                    entity.set(triple.getPredicate(), v);
                 } else {
-                    result.addObject(triple.getPredicate(), v);
+                    entity.addObject(triple.getPredicate(), v);
                 }
             } else {
                 TTNode n = nodeMap.get(triple.getParent());
@@ -209,22 +222,30 @@ public class EntityService {
 
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri == iri) {
-				included.setLabel("MemberIncluded");
-				included.setType(MemberType.INCLUDED);
+				if (included.getType() != MemberType.COMPLEX) {
+					included.setLabel("a_MemberIncluded");
+					included.setType(MemberType.INCLUDED);
+				}
 			} else {
-				included.setLabel("Subset - " + parentSetName);
-				included.setType(MemberType.SUBSET);
+				if (included.getType() != MemberType.COMPLEX) {
+					included.setLabel("Subset - " + parentSetName);
+					included.setType(MemberType.SUBSET);
+				}
 			}
 			included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
 		for (ValueSetMember excluded : definedMemberExclusions) {
 			if (originalParentIri == iri) {
-				excluded.setLabel("MemberXcluded");
-				excluded.setType(MemberType.EXCLUDED);
+				if (excluded.getType() != MemberType.COMPLEX) {
+					excluded.setLabel("b_MemberExcluded");
+					excluded.setType(MemberType.EXCLUDED);
+				}
 			} else {
-				excluded.setLabel("Subset - " + parentSetName);
-				excluded.setType(MemberType.SUBSET);
+				if (excluded.getType() != MemberType.COMPLEX) {
+					excluded.setLabel("Subset - " + parentSetName);
+					excluded.setType(MemberType.SUBSET);
+				}
 			}
 			excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
@@ -269,7 +290,46 @@ public class EntityService {
 	}
 
 	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
-		return entityTripleRepository.getObjectBySubjectAndPredicate(iri, predicate.getIri());
+		Set<ValueSetMember> members = new HashSet<>();
+		Set<String> predicates = new HashSet<>();
+		predicates.add(predicate.getIri());
+		List<TTValue> results = getEntityPredicates(iri, predicates)
+            .getEntity()
+            .getAsArray(predicate.asIriRef())
+            .getElements();
+		Boolean hasComplexMember = false;
+		for (TTValue element : results) {
+			if (element.isNode()) {
+				if (!hasComplexMember) {
+					ValueSetMember member = new ValueSetMember();
+					Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
+					TTIriRef key = keys.entrySet().iterator().next().getKey();
+					member.setEntity(key);
+					member.setType(MemberType.COMPLEX);
+					member.setLabel("z_ComplexMember");
+					members.add(member);
+					hasComplexMember = true;
+				}
+			}
+			if (element.isIriRef()) {
+				ValueSetMember member = null;
+				member = getValueSetMemberFromIri(element.asIriRef().getIri());
+				members.add(member);
+			}
+		}
+		return members;
+	}
+
+	private ValueSetMember getValueSetMemberFromIri(String iri) throws SQLException {
+		ValueSetMember member = new ValueSetMember();
+		Set<String> elementPredicates = new HashSet<>();
+		elementPredicates.add(IM.HAS_SCHEME.getIri());
+		elementPredicates.add(IM.CODE.getIri());
+		EntitySummary summary = entityRepository.getEntitySummaryByIri(iri);
+		member.setEntity(iri(summary.getIri(), summary.getName()));
+		member.setCode(summary.getCode());
+		member.setScheme(summary.getScheme());
+		return member;
 	}
 
 	private Map<String, ValueSetMember> processMembers(Set<ValueSetMember> valueSetMembers, boolean expand, Integer memberCount, Integer limit)
@@ -293,6 +353,17 @@ public class EntityService {
 			}
 		}
 		return memberHashMap;
+	}
+
+	public List<String> getComplexMembers(String iri) throws SQLException {
+		Set<String> predicates = new HashSet<>();
+		predicates.add(IM.HAS_MEMBER.getIri());
+		List<TTValue> results = getEntityPredicates(iri, predicates)
+            .getEntity()
+            .getAsArray(IM.HAS_MEMBER).getElements();
+		List<TTValue> filteredResults = results.stream().filter(r -> r.isNode()).collect(Collectors.toList());
+		List<String> memberAsHTML = filteredResults.stream().map(result -> TTToHTML.getExpressionText(result.asNode())).collect(Collectors.toList());
+		return memberAsHTML;
 	}
 
 	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) throws SQLException {
@@ -338,7 +409,7 @@ public class EntityService {
 		List<String> excludedForSummary = Arrays.asList("None", IM.IS_A.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
 		List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
 		List<String> predicates = filteredConfigs.stream().map(config -> config.getPredicate()).collect(Collectors.toList());
-		TTEntity entity = getEntityPredicates(iri, new HashSet<>(predicates));
+		TTEntity entity = getEntityPredicates(iri, new HashSet<>(predicates)).getEntity();
 		return entity;
 	}
 
@@ -357,8 +428,8 @@ public class EntityService {
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
         if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
-        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.IS_CHILD_OF.getIri()))).get(IM.IS_CHILD_OF));
-		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.HAS_CHILDREN.getIri()))).get(IM.HAS_CHILDREN));
+        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.IS_CHILD_OF.getIri()))).getEntity().get(IM.IS_CHILD_OF));
+		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.HAS_CHILDREN.getIri()))).getEntity().get(IM.HAS_CHILDREN));
 
         return downloadDto;
     }
@@ -378,10 +449,10 @@ public class EntityService {
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
 		if (terms) xls.addTerms(getEntityTermCodes(iri));
-		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.IS_CHILD_OF.getIri())));
+		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.IS_CHILD_OF.getIri()))).getEntity();
 		TTValue isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
 		if (isChildOf && isChildOfData != null) xls.addIsChildOf(isChildOfData.getElements());
-		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.HAS_CHILDREN.getIri())));
+		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.HAS_CHILDREN.getIri()))).getEntity();
 		TTValue hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
 		if (hasChildren && hasChildrenData != null) xls.addHasChildren(hasChildrenData.getElements());
 
@@ -389,7 +460,7 @@ public class EntityService {
     }
 
     public List<DataModelProperty> getDataModelProperties(String iri) throws SQLException {
-		TTEntity entity = getEntityPredicates(iri, Set.of(IM.PROPERTY_GROUP.getIri()));
+		TTEntity entity = getEntityPredicates(iri, Set.of(IM.PROPERTY_GROUP.getIri())).getEntity();
 		return getDataModelProperties(entity);
 	}
 
@@ -476,7 +547,7 @@ public class EntityService {
 	}
 
 	public GraphDto getGraphData(String iri) throws SQLException {
-		TTEntity entity = getEntityPredicates(iri, Set.of(IM.IS_A.getIri(), RDFS.LABEL.getIri()));
+		TTEntity entity = getEntityPredicates(iri, Set.of(IM.IS_A.getIri(), RDFS.LABEL.getIri())).getEntity();
 
 		GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
 		GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
@@ -541,7 +612,6 @@ public class EntityService {
 		return graphData;
 	}
 
-	@NotNull
 	private GraphDto getWrapper(List<GraphDto> props,String key) {
 		GraphDto wrapper = new GraphDto().setKey(key).setType(GraphType.PROPERTIES);
 		wrapper.getLeafNodes()
@@ -550,7 +620,6 @@ public class EntityService {
 		return wrapper;
 	}
 
-	@NotNull
 	private GraphDto getDataModelInheritedWrapper(List<GraphDto> dataModelProps) {
 		GraphDto dataModelInheritedWrapper = new GraphDto().setKey("0_3_1_0").setType(GraphType.PROPERTIES);
 		dataModelInheritedWrapper.getLeafNodes()
@@ -587,28 +656,12 @@ public class EntityService {
 
 	public List<SemanticProperty> getSemanticProperties(String iri) throws SQLException {
 		List<SemanticProperty> recordStructure = new ArrayList<>();
-		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri()));
+		TTEntity entity = getEntityPredicates(iri,Set.of(IM.ROLE_GROUP.getIri())).getEntity();
 		if (entity.has(IM.ROLE_GROUP)) {
 			for (TTValue roleGroup : entity.asNode().get(IM.ROLE_GROUP).getElements()) {
-				if (roleGroup.asNode().has(OWL.ONPROPERTY)) {
-					recordStructure.add(new SemanticProperty()
-							.setProperty(
-									new TTIriRef(roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-											roleGroup.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-							.setType(
-									new TTIriRef(roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-											roleGroup.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName())));
-				} else {
-					if (roleGroup.asNode().has(IM.ROLE)) {
-						roleGroup.asNode().get(IM.ROLE).getElements().forEach(role -> recordStructure.add(new SemanticProperty()
-                                .setProperty(
-                                        new TTIriRef(role.asNode().get(OWL.ONPROPERTY).asIriRef().getIri(),
-                                                role.asNode().get(OWL.ONPROPERTY).asIriRef().getName()))
-                                .setType(new TTIriRef(
-                                        role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getIri(),
-                                        role.asNode().get(OWL.SOMEVALUESFROM).asIriRef().getName()))));
-					}
-				}
+				for(Entry<TTIriRef, TTValue> entry : roleGroup.asNode().getPredicateMap().entrySet()) {
+					recordStructure.add(new SemanticProperty().setProperty(entry.getKey()).setType((TTIriRef) entry.getValue()));
+				}				
 			}
 		}
 		return recordStructure;
@@ -621,7 +674,7 @@ public class EntityService {
 	}
 
 	public EntityDefinitionDto getEntityDefinitionDto(String iri) throws SQLException {
-		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.STATUS.getIri()));
+		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.STATUS.getIri())).getEntity();
 		List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
 				: entity.getType().getElements().stream()
 						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
@@ -645,7 +698,7 @@ public class EntityService {
 	public TTEntity getConceptShape(String iri) throws SQLException {
 		if(iri==null || iri.isEmpty())
 			return null;
-		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()));
+		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri())).getEntity();
 		TTValue value = entity.get(RDF.TYPE);
 		if(!value.getElements().contains(SHACL.NODESHAPE)){
 			return null;

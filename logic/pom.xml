@@ -71,9 +71,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>1.14.3</version>
+      <groupId>org.endeavourhealth.imapi</groupId>
+      <artifactId>transforms</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

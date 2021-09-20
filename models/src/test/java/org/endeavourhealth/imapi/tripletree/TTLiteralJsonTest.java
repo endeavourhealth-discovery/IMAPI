@@ -4,15 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TTLiteralJsonTest {
     private static final String LIT_STR_JSON = "\"Test name\"";
@@ -25,7 +24,7 @@ public class TTLiteralJsonTest {
 
     private ObjectMapper om;
 
-    @Before
+    @BeforeEach
     public void init() {
         this.om = new ObjectMapper();
     }

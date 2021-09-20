@@ -10,6 +10,32 @@ public class Tpl {
     private String literal;
     private boolean functional = true;
 
+    public Tpl() {};
+
+    public Tpl(int dbid, Integer parent, TTIriRef predicate, boolean functional) {
+        this.dbid = dbid;
+        this.parent = parent;
+        this.predicate = predicate;
+        this.functional = functional;
+    }
+
+    public Tpl(int dbid, Integer parent, TTIriRef predicate, TTIriRef object, boolean functional) {
+        this.dbid = dbid;
+        this.parent = parent;
+        this.predicate = predicate;
+        this.object = object;
+        this.functional = functional;
+    }
+
+    public Tpl(int dbid, Integer parent, TTIriRef predicate, TTIriRef object, String literal, boolean functional) {
+        this.dbid = dbid;
+        this.parent = parent;
+        this.predicate = predicate;
+        this.object = object;
+        this.literal = literal;
+        this.functional = functional;
+    }
+
     public int getDbid() {
         return dbid;
     }

@@ -658,7 +658,7 @@ public class EntityService {
 		return namespaces;
 	}
 
-	public Set<String> getPredicateIris() throws SQLException {
-		return entityRepository.findAllPredicateIris();
-	}
+    public Set<String> getPredicateIris(Set<String> predicateIris) throws SQLException {
+        return entityRepository.findAllByIriIn(predicateIris).stream().map(iriRef -> iriRef.getIri()).collect(Collectors.toSet());
+    }
 }

@@ -41,7 +41,7 @@ public class FileParser {
 		ArrayNode result = JsonNodeFactory.instance.arrayNode();
 		// Read the map into RDF4J triples
 		InputStream inputStream = file.getInputStream();
-		Model mapModel = Rio.parse(inputStream, RDFFormat.TURTLE);
+		Model mapModel = Rio.parse(inputStream, "http://example.com/ns#",RDFFormat.TURTLE);
 		inputStream.close();
 
 		// Get the "TriplesMap" roots (i.e. the maps)

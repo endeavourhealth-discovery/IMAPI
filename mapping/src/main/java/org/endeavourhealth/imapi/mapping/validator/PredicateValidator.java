@@ -26,6 +26,7 @@ public class PredicateValidator {
         }
         Set<String> existingPredicates = entityService.getPredicateIris(mapPredicates);
         existingPredicates.add("@id");
+        existingPredicates.add("http://www.w3.org/ns/r2rml#graph");
         mapPredicates.removeAll(existingPredicates);
         return mapPredicates;
     }

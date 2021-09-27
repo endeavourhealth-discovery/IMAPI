@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTEntityDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTEntitySerializer;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.R2RML;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
@@ -52,6 +53,16 @@ public class TTEntity extends TTNode {
 
     public String getDescription() {
         TTLiteral literal = getAsLiteral(RDFS.COMMENT);
+        return (literal == null) ? null : literal.getValue();
+    }
+
+    public TTEntity setGraph (String graph) {
+        set(R2RML.GRAPH, literal(graph));
+        return this;
+    }
+
+    public String getGraph() {
+        TTLiteral literal = getAsLiteral(R2RML.GRAPH);
         return (literal == null) ? null : literal.getValue();
     }
 

@@ -6,8 +6,10 @@ import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
@@ -48,13 +50,13 @@ public class MappingController {
     ObjectMapper mapper = new ObjectMapper();
 
     @PostMapping
-    public TTDocument map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
+    public List<TTDocument> map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
                           @RequestParam String graph, @RequestParam boolean nested) throws Exception {
         JsonNode content = FileParser.parseFile(contentFile);
         MappingInstructionWrapper map = FileParser.parseMap(mappingFile);
         writeToFile("content", content, "Content files loaded.");
         writeToFile("map", map, "Map files loaded.");
-        return mapFromJsonNodes(content, map, graph, nested);
+        return mapFromJsonNodes(content, map, nested);
     }
 
     @GetMapping("/mapDocument")
@@ -84,29 +86,30 @@ public class MappingController {
         return null;
     }
 
-    public TTDocument mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, String graph, boolean nested)
+    public List<TTDocument> mapFromJsonNodes(JsonNode content, MappingInstructionWrapper map, boolean nested)
             throws Exception {
-        List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to
-        // entities
+        List<TTEntity> entities = EntityBuilder.buildEntityListFromJson(content, map, nested); // Step 1: map content to entities
         writeToFile("entities", entities, "Content mapped to " + entities.size() + " entities.");
 
         entities = EntityBuilder.groupEntities(entities); // Step 2: group entities with same IRI
         writeToFile("grouped", entities, "Grouped to " + entities.size() + " entities.");
 
-        TTDocument ttdocument = new TTDocument().setEntities(entities).setGraph(TTIriRef.iri(graph))
-                .setCrud(IM.REPLACE); // Step 3: populate ttdocument
-        writeToFile("ttdocument", ttdocument, "TTDocument populated.");
+        List<TTDocument> ttdocuments = new ArrayList<>();
+        for (String uniqueGraph : map.getGraphs()) {
+            List<TTEntity> graphEntities = entities.stream().filter(ttEntity -> uniqueGraph.equals(ttEntity.getGraph())).collect(Collectors.toList());
+            TTDocument ttdocument = new TTDocument().setEntities(graphEntities).setGraph(TTIriRef.iri(uniqueGraph)).setCrud(IM.REPLACE);
+            ttdocuments.add(ttdocument);
+            writeToFile("ttdocument", ttdocument, "TTDocument populated.");
+        }
 
-        return ttdocument;
+        return ttdocuments;
     }
 
     private void writeToFile(String filename, Object object, String message) throws IOException {
         File file = new File("api/src/main/resources/" + filename + ".json");
         file.createNewFile();
-        System.out.println(
-                LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT)
-                .writeValue(file, object);
+        System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT).writeValue(file, object);
     }
 
 }

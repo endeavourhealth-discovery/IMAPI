@@ -50,8 +50,7 @@ public class MappingController {
     ObjectMapper mapper = new ObjectMapper();
 
     @PostMapping
-    public List<TTDocument> map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile,
-                          @RequestParam String graph, @RequestParam boolean nested) throws Exception {
+    public List<TTDocument> map(@RequestParam MultipartFile contentFile, @RequestParam MultipartFile mappingFile, @RequestParam boolean nested) throws Exception {
         JsonNode content = FileParser.parseFile(contentFile);
         MappingInstructionWrapper map = FileParser.parseMap(mappingFile);
         writeToFile("content", content, "Content files loaded.");

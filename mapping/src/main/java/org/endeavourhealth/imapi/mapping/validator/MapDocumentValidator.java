@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.mapping.model.MapDocumentError;
 import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
+import org.endeavourhealth.imapi.mapping.parser.FileParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class PredicateValidator {
+public class MapDocumentValidator {
 
     @Autowired
     EntityService entityService;
@@ -29,6 +32,15 @@ public class PredicateValidator {
         existingPredicates.add("http://www.w3.org/ns/r2rml#graph");
         mapPredicates.removeAll(existingPredicates);
         return mapPredicates;
+    }
+
+    public MapDocumentError getError(MultipartFile mapDocument) {
+        try {
+            FileParser.readMapToTriples(mapDocument);
+        } catch (Exception e) {
+            return new MapDocumentError(e.getMessage());
+        }
+        return null;
     }
 
 }

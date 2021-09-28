@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.mapping.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +20,6 @@ import org.endeavourhealth.imapi.mapping.model.MappingInstruction;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.R2RML;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,15 +33,20 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 public class FileParser {
 
+    public static Model readMapToTriples(MultipartFile file) throws IOException {
+        InputStream inputStream = file.getInputStream();
+        Model mapModel = Rio.parse(inputStream, "http://example.com/ns#", RDFFormat.TURTLE);
+        inputStream.close();
+        return mapModel;
+    }
+
     public static MappingInstructionWrapper parseMap(MultipartFile file) throws IOException {
         MappingInstructionWrapper wrapper = new MappingInstructionWrapper();
 
         // Array of maps
         ArrayNode result = JsonNodeFactory.instance.arrayNode();
         // Read the map into RDF4J triples
-        InputStream inputStream = file.getInputStream();
-        Model mapModel = Rio.parse(inputStream, "http://example.com/ns#", RDFFormat.TURTLE);
-        inputStream.close();
+        Model mapModel = readMapToTriples(file);
 
         // Get the "TriplesMap" roots (i.e. the maps)
         Iterable<Statement> maps = mapModel.getStatements(null, RDF.TYPE,

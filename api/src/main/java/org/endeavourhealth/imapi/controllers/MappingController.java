@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.mapping.model.MapDocument;
+import org.endeavourhealth.imapi.mapping.model.MapDocumentError;
 import org.endeavourhealth.imapi.mapping.repository.MapDocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.swagger.annotations.Api;
 import org.endeavourhealth.imapi.mapping.parser.FileParser;
-import org.endeavourhealth.imapi.mapping.validator.PredicateValidator;
+import org.endeavourhealth.imapi.mapping.validator.MapDocumentValidator;
 import org.endeavourhealth.imapi.mapping.builder.EntityBuilder;
 import org.endeavourhealth.imapi.mapping.model.MappingInstructionWrapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -45,7 +46,7 @@ public class MappingController {
     MapDocumentRepository mapDocumentRepository = new MapDocumentRepository();
 
     @Autowired
-    PredicateValidator predicateValidator;
+    MapDocumentValidator mapDocumentValidator;
 
     ObjectMapper mapper = new ObjectMapper();
 
@@ -69,9 +70,14 @@ public class MappingController {
     }
 
     @PostMapping("/newPredicates")
-    public Set<String> validateMapDocument(@RequestParam MultipartFile mapDocument) throws Exception {
+    public Set<String> getNewPredicatesFromMapDocument(@RequestParam MultipartFile mapDocument) throws Exception {
         MappingInstructionWrapper map = FileParser.parseMap(mapDocument);
-        return predicateValidator.getNewPredicates(map);
+        return mapDocumentValidator.getNewPredicates(map);
+    }
+
+    @PostMapping("/mapDocument/errors")
+    public MapDocumentError validateMapDocument(@RequestParam MultipartFile mapDocument) {
+       return mapDocumentValidator.getError(mapDocument);
     }
 
     @PostMapping("/references")
@@ -79,9 +85,7 @@ public class MappingController {
         if ("text/csv".equals(contentFile.getContentType())) {
             return FileParser.getColumnNamesFromCsv(contentFile);
         }
-        if ("json".equals(contentFile.getContentType())) {
-
-        }
+//      addition of diff
         return null;
     }
 

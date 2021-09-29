@@ -22,7 +22,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTripleRepository extends BaseRepository{
 
-    public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates) throws SQLException {
+    public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner("\n")
@@ -44,7 +44,9 @@ public class EntityTripleRepository extends BaseRepository{
             .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
             .add("FROM triples t")
             .add("JOIN entity p ON t.predicate = p.dbid")
-            .add("LEFT JOIN entity o ON t.object = o.dbid;");
+            .add("LEFT JOIN entity o ON t.object = o.dbid");
+        if (limit > 0)
+            sql.add("LIMIT ?");
 
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -55,6 +57,8 @@ public class EntityTripleRepository extends BaseRepository{
                     for (String predicate : predicates)
                         statement.setString(++i, predicate);
                 }
+                if (limit > 0)
+                    statement.setInt(++i, limit);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         TTIriRef pred = iri(rs.getString("predicateIri"), rs.getString("predicate"));
@@ -273,7 +277,7 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("WHERE c.iri = ?");
         if(!includeInactive)
             sql.add("AND s.status <> ?");
-        sql.add("ORDER BY s.name ");
+        sql.add("ORDER BY s.name, s.iri ");
         if(rowNumber!=null && pageSize!=null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
@@ -298,6 +302,34 @@ public class EntityTripleRepository extends BaseRepository{
             }
         }
         return children;
+    }
+
+    public boolean hasChildren(String iri, boolean includeInactive) throws SQLException {
+        StringJoiner sql = new StringJoiner("\n")
+            .add("SELECT 1")
+            .add("FROM entity c ")
+            .add("JOIN tpl t ON t.object = c.dbid ")
+            .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
+            .add("JOIN entity s ON s.dbid = t.subject ")
+            .add("WHERE c.iri = ?");
+        if(!includeInactive)
+            sql.add("AND s.status <> ?");
+        sql.add("LIMIT 1 ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                int i = 0;
+                statement.setString(++i, IM.IS_A.getIri());
+                statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
+                statement.setString(++i, IM.IS_CHILD_OF.getIri());
+                statement.setString(++i, iri);
+                if(!includeInactive)
+                    statement.setString(++i, IM.INACTIVE.getIri());
+                try (ResultSet rs = statement.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        }
     }
 
     public List<Namespace> findNamespaces() throws SQLException {

@@ -59,7 +59,7 @@ public class EntityServiceTest {
     @Test
     public void getEntityPredicates_nullIriPredicates() throws SQLException {
 
-        TTBundle actual = entityService.getEntityPredicates(null,null);
+        TTBundle actual = entityService.getEntityPredicates(null,null, 0);
         assertNotNull(actual);
         assertNotNull(actual.getEntity());
     }
@@ -67,7 +67,7 @@ public class EntityServiceTest {
     @Test
     public void getEntityPredicates_EmptyIri() throws SQLException {
 
-        TTBundle actual = entityService.getEntityPredicates("",null);
+        TTBundle actual = entityService.getEntityPredicates("", null, 0);
         assertNotNull(actual);
         assertNotNull(actual.getEntity());
     }
@@ -101,8 +101,8 @@ public class EntityServiceTest {
                 .setParent(7)
                 .setObject(iri("http://endhealth.info/im#25451000252115")));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
-        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri())).getEntity();
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
+        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()), 0).getEntity();
         assertNotNull(actual);
     }
 
@@ -485,7 +485,7 @@ public class EntityServiceTest {
         ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
         mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates)))
+        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates),anyInt()))
             .thenReturn(mockHasSubsetReturn);
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
@@ -505,7 +505,7 @@ public class EntityServiceTest {
         ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
         mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates)))
+        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()), eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, valueSetIri.getIri());
@@ -665,7 +665,7 @@ public class EntityServiceTest {
         ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
         mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates)))
+        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
                 true, true ,true, false,false, true, true, true, true,true);
@@ -707,7 +707,7 @@ public class EntityServiceTest {
         ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
         mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates)))
+        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
                 true, true ,true, false,false, true, true, true, true, true);
@@ -765,7 +765,7 @@ public class EntityServiceTest {
         ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
         mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates)))
+        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates), eq(EntityService.UNLIMITED)))
                 .thenReturn(mockHasSubsetReturn);
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
@@ -780,7 +780,7 @@ public class EntityServiceTest {
         ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
         mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates)))
+        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
@@ -861,7 +861,7 @@ public class EntityServiceTest {
                 .setParent(12)
                 .setLiteral("10"));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -892,7 +892,7 @@ public class EntityServiceTest {
                 .setParent(3)
                 .setObject(iri("http://endhealth.info/im#25451000252115")));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -942,7 +942,7 @@ public class EntityServiceTest {
                 .setParent(12)
                 .setLiteral("10"));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -960,7 +960,7 @@ public class EntityServiceTest {
                 .setPredicate(IM.IS_A).setFunctional(false)
                 .setObject(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -995,7 +995,7 @@ public class EntityServiceTest {
                 .setDbid(5)
                 .setPredicate(IM.STATUS)
                 .setObject(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
 
@@ -1033,7 +1033,7 @@ public class EntityServiceTest {
         tplList.add(new Tpl()
                 .setDbid(3)
                 .setPredicate(SHACL.OR));
-        when(entityTripleRepository.getTriplesRecursive(any(), anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNull(actual);
     }
@@ -1054,7 +1054,7 @@ public class EntityServiceTest {
                 .setDbid(3)
                 .setFunctional(false)
                 .setPredicate(SHACL.OR));
-        when(entityTripleRepository.getTriplesRecursive(any(), anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }

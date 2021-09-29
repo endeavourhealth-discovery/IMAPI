@@ -72,9 +72,13 @@ public class EntityController {
 	}
 
     @GetMapping(value = "/partial", produces = "application/json")
-    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") Set<String> predicates) throws SQLException {
+    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri,
+                                     @RequestParam(name = "predicate") Set<String> predicates,
+                                     @RequestParam(name = "limit", required = false) Integer limit) throws SQLException {
         LOG.debug("getPartialEntity");
-        return entityService.getEntityPredicates(iri, predicates).getEntity();
+        if (limit == null)
+            limit = EntityService.UNLIMITED;
+        return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
     @GetMapping(value = "/axioms", produces = "application/json")
@@ -88,6 +92,10 @@ public class EntityController {
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
         LOG.debug("getEntityChildren");
+        if (page == null & size == null) {
+            page = 1;
+            size = EntityService.MAX_CHILDREN;
+        }
         return entityService.getImmediateChildren(iri, page, size, false);
 	}
 

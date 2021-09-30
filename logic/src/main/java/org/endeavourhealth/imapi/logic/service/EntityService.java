@@ -229,7 +229,10 @@ public class EntityService {
 					included.setType(MemberType.INCLUDED);
 				}
 			} else {
-				if (included.getType() != MemberType.COMPLEX) {
+				if (expandSets) {
+					included.setLabel("Subset - expanded");
+					included.setType(MemberType.SUBSET);
+				} else if (included.getType() != MemberType.COMPLEX) {
 					included.setLabel("Subset - " + parentSetName);
 					included.setType(MemberType.SUBSET);
 				}
@@ -244,7 +247,10 @@ public class EntityService {
 					excluded.setType(MemberType.EXCLUDED);
 				}
 			} else {
-				if (excluded.getType() != MemberType.COMPLEX) {
+				if (expandSets) {
+					excluded.setLabel("Subset - expanded");
+					excluded.setType(MemberType.SUBSET);
+				} else if (excluded.getType() != MemberType.COMPLEX) {
 					excluded.setLabel("Subset - " + parentSetName);
 					excluded.setType(MemberType.SUBSET);
 				}

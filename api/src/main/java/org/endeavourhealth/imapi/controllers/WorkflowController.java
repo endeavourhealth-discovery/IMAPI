@@ -27,7 +27,7 @@ import java.util.List;
 })
 public class WorkflowController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorkflowController.class);
 
     @Autowired
     WorkflowService workflowService;

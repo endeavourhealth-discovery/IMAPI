@@ -219,11 +219,8 @@ public class EntityService {
 		int memberCount = 0;
 
 		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
-		Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
-		Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
-
 		for (ValueSetMember included : definedMemberInclusions) {
-			if (originalParentIri == iri) {
+			if (originalParentIri.equals(iri)) {
 				if (included.getType() != MemberType.COMPLEX) {
 					included.setLabel("a_MemberIncluded");
 					included.setType(MemberType.INCLUDED);
@@ -240,8 +237,9 @@ public class EntityService {
 			included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
+        Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
 		for (ValueSetMember excluded : definedMemberExclusions) {
-			if (originalParentIri == iri) {
+			if (originalParentIri.equals(iri)) {
 				if (excluded.getType() != MemberType.COMPLEX) {
 					excluded.setLabel("b_MemberExcluded");
 					excluded.setType(MemberType.EXCLUDED);
@@ -258,12 +256,13 @@ public class EntityService {
 			excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
 		}
 
+        Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
 		if (expandSets || expandMembers) {
 			for (ValueSetMember set : definedSetInclusions) {
 				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null, originalParentIri);
 				memberCount += individualResults.getMembers().size();
 				result.addAllMembers(individualResults.getMembers());
-			};
+			}
 		} else {
 			for (ValueSetMember set : definedSetInclusions) {
 				if (parentSetName == null) {
@@ -305,20 +304,18 @@ public class EntityService {
             .getEntity()
             .getAsArray(predicate.asIriRef())
             .getElements();
-		Boolean hasComplexMember = false;
+		boolean hasComplexMember = false;
 		for (TTValue element : results) {
-			if (element.isNode()) {
-				if (!hasComplexMember) {
-					ValueSetMember member = new ValueSetMember();
-					Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
-					TTIriRef key = keys.entrySet().iterator().next().getKey();
-					member.setEntity(key);
-					member.setType(MemberType.COMPLEX);
-					member.setLabel("z_ComplexMember");
-					members.add(member);
-					hasComplexMember = true;
-				}
-			}
+			if (element.isNode() && !hasComplexMember) {
+                ValueSetMember member = new ValueSetMember();
+                Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
+                TTIriRef key = keys.entrySet().iterator().next().getKey();
+                member.setEntity(key);
+                member.setType(MemberType.COMPLEX);
+                member.setLabel("z_ComplexMember");
+                members.add(member);
+                hasComplexMember = true;
+            }
 			if (element.isIriRef()) {
 				ValueSetMember member = null;
 				member = getValueSetMemberFromIri(element.asIriRef().getIri());

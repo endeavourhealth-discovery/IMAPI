@@ -81,6 +81,16 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
+    @GetMapping(value = "/partialBundle", produces = "application/json")
+    public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri,
+                                     @RequestParam(name = "predicate") Set<String> predicates,
+                                     @RequestParam(name = "limit", required = false) Integer limit) throws SQLException {
+        LOG.debug("getPartialEntityBundle");
+        if (limit == null)
+            limit = EntityService.UNLIMITED;
+        return entityService.getEntityPredicates(iri, predicates, limit);
+    }
+
     @GetMapping(value = "/axioms", produces = "application/json")
     public TTBundle getEntityAxioms(@RequestParam(name = "iri") String iri) throws SQLException {
         LOG.debug("getEntityAxioms");

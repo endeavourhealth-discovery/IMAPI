@@ -81,62 +81,6 @@ public class EntityTripleRepository extends BaseRepository{
         return result;
     }
 
-    public List<Tpl> getAxiomTriplesRecursive(String iri) throws SQLException {
-        List<Tpl> result = new ArrayList<>();
-
-        List<String> predicateSchemes = Arrays.asList(OWL.NAMESPACE, RDF.NAMESPACE, RDFS.NAMESPACE);
-
-        StringJoiner sql = new StringJoiner("\n")
-            .add("WITH RECURSIVE triples AS (")
-            .add("\tSELECT tpl.dbid, tpl.subject, tpl.blank_node AS parent, tpl.predicate, tpl.object, tpl.literal, tpl.functional")
-            .add("\tFROM tpl")
-            .add("\tJOIN entity e ON tpl.subject=e.dbid")
-            .add("\tJOIN entity p ON p.dbid = tpl.predicate AND p.scheme in (")
-            .add(DALHelper.inListParams(predicateSchemes.size()))
-            .add(")")
-            .add("\tWHERE e.iri = ? ")
-            .add("\tAND tpl.blank_node IS NULL")
-            .add("UNION ALL")
-            .add("\tSELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
-            .add("\tFROM triples t")
-            .add("\tJOIN tpl t2 ON t2.blank_node= t.dbid")
-            .add("\tWHERE t2.dbid <> t.dbid")
-            .add(")")
-            .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
-            .add("FROM triples t")
-            .add("JOIN entity p ON t.predicate = p.dbid")
-            .add("LEFT JOIN entity o ON t.object = o.dbid;");
-
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                int i = 0;
-                for(String scheme: predicateSchemes) {
-                    statement.setString(++i, scheme);
-                }
-                statement.setString(++i, iri);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        TTIriRef pred = iri(rs.getString("predicateIri"), rs.getString("predicate"));
-                        String objIri = DALHelper.getNullableString(rs, "objectIri");
-                        TTIriRef object = objIri == null ? null : iri(rs.getString("objectIri"), rs.getString("object"));
-                        String literal = rs.getString("literal");
-                        result.add(new Tpl()
-                            .setDbid(rs.getInt("dbid"))
-                            .setParent(DALHelper.getNullableInt(rs, "parent"))
-                            .setPredicate(pred)
-                            .setObject(object)
-                            .setLiteral(literal)
-                            .setFunctional(rs.getBoolean("functional"))
-                        );
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String predicateIri) throws SQLException {
         List<TTIriRef> usages = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")

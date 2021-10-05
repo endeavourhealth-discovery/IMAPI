@@ -651,9 +651,6 @@ public class EntityServiceTest {
         when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
                 0,null,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
-        when(entityTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,null,true))
-                .thenReturn(Collections.singletonList(entityReferenceNode));
         TTIriRef ttEntity = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
@@ -691,9 +688,6 @@ public class EntityServiceTest {
                 .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
         when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
-                0,null,true))
-                .thenReturn(Collections.singletonList(entityReferenceNode));
-        when(entityTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
                 0,null,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         TTIriRef ttEntity = new TTIriRef()
@@ -1057,69 +1051,5 @@ public class EntityServiceTest {
         when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
-    }
-
-    @Test
-    public void getEntityAxioms() throws SQLException {
-        List<Tpl> tpls = new ArrayList<>();
-        tpls.add(new Tpl(1, null, RDF.TYPE, OWL.CLASS, false));
-        tpls.add(new Tpl(2, null, RDFS.LABEL, XSD.STRING, "Adverse reaction to Testogel", true));
-        tpls.add(new Tpl(3, null, OWL.EQUIVALENTCLASS, false));
-        tpls.add(new Tpl(4, 3, OWL.INTERSECTIONOF, iri("http://snomed.info/sct#281647001","Adverse reaction (disorder)"), false));
-        tpls.add(new Tpl(5, 3, OWL.INTERSECTIONOF, false));
-        tpls.add(new Tpl(6, 5, OWL.SOMEVALUESFROM, iri("http://snomed.info/sct#9364701000001104","Testogel (product)"), true));
-        tpls.add(new Tpl(7, 5, OWL.ONPROPERTY, iri("http://snomed.info/sct#246075003","Causative agent (attribute)"), true));
-        tpls.add(new Tpl(8, 5, RDF.TYPE, OWL.RESTRICTION, true));
-
-        when(entityTripleRepository.getAxiomTriplesRecursive("http://endhealth.info/im#24951000252112")).thenReturn(tpls);
-
-        TTBundle actual = entityService.getEntityAxioms("http://endhealth.info/im#24951000252112");
-
-        assertNotNull(actual);
-
-        // Check predicates
-        assertNotNull(actual.getPredicates());
-        assertTrue(actual.getPredicates().containsAll(Arrays.asList(OWL.SOMEVALUESFROM, OWL.ONPROPERTY, RDF.TYPE, OWL.INTERSECTIONOF, RDFS.LABEL, OWL.EQUIVALENTCLASS)));
-
-        // Check entity
-        assertNotNull(actual.getEntity());
-        Map<TTIriRef, TTValue> predicateMap = actual.getEntity().getPredicateMap();
-        assertEquals(3, predicateMap.size());
-        assertTrue(predicateMap.keySet().containsAll(Arrays.asList(RDFS.LABEL, RDF.TYPE, OWL.EQUIVALENTCLASS)));
-
-        assertNotNull(predicateMap.get(RDF.TYPE).asArray());
-        assertEquals(1, predicateMap.get(RDF.TYPE).asArray().size());
-        assertEquals(OWL.CLASS, predicateMap.get(RDF.TYPE).asArray().get(0));
-
-        assertNotNull(predicateMap.get(RDFS.LABEL));
-        assertEquals("Adverse reaction to Testogel", predicateMap.get(RDFS.LABEL).asLiteral().getValue());
-
-        assertNotNull(predicateMap.get(OWL.EQUIVALENTCLASS));
-        assertNotNull(predicateMap.get(OWL.EQUIVALENTCLASS).asArray());
-        TTArray equivArray = predicateMap.get(OWL.EQUIVALENTCLASS).asArray();
-        assertEquals(1, equivArray.size());
-
-        assertNotNull(equivArray.get(0).asNode());
-        TTNode equiv0 = equivArray.get(0).asNode();
-
-        assertEquals(1, equiv0.getPredicateMap().size());
-        assertTrue(equiv0.has(OWL.INTERSECTIONOF));
-
-        assertNotNull(equiv0.get(OWL.INTERSECTIONOF).asArray());
-        TTArray isect = equiv0.get(OWL.INTERSECTIONOF).asArray();
-        assertEquals(2, isect.size());
-
-        assertNotNull(isect.get(0).asIriRef());
-        assertEquals(isect.get(0), iri("http://snomed.info/sct#281647001","Adverse reaction (disorder)"));
-
-        assertNotNull(isect.get(1).asNode());
-        TTNode isect1 = isect.get(1).asNode();
-
-        assertEquals(3, isect1.getPredicateMap().size());
-        assertTrue(isect1.getPredicateMap().keySet().containsAll(Arrays.asList(OWL.SOMEVALUESFROM, OWL.ONPROPERTY, RDF.TYPE)));
-
-        assertEquals(iri("http://snomed.info/sct#9364701000001104","Testogel (product)"), isect1.get(OWL.SOMEVALUESFROM));
-        assertEquals(iri("http://snomed.info/sct#246075003","Causative agent (attribute)"), isect1.get(OWL.ONPROPERTY));
-        assertEquals(OWL.RESTRICTION, isect1.get(RDF.TYPE));
     }
 }

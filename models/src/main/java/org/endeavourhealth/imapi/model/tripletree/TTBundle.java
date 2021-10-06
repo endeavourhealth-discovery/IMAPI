@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TTBundle {
     private TTEntity entity;
-    private Set<TTIriRef> predicates = new HashSet<>();
+    private Map<String, String> predicates = new HashMap<>();
 
     public TTEntity getEntity() {
         return entity;
@@ -16,20 +16,20 @@ public class TTBundle {
         return this;
     }
 
-    public Set<TTIriRef> getPredicates() {
+    public Map<String, String> getPredicates() {
         return predicates;
     }
 
-    public TTBundle setPredicates(Set<TTIriRef> predicates) {
+    public TTBundle setPredicates(Map<String, String> predicates) {
         this.predicates = predicates;
         return this;
     }
 
     public TTBundle addPredicate(TTIriRef predicate) {
         if (null == this.predicates)
-            this.predicates = new HashSet<>();
+            this.predicates = new HashMap<>();
 
-        predicates.add(predicate);
+        predicates.put(predicate.getIri(), predicate.getName());
 
         return this;
     }

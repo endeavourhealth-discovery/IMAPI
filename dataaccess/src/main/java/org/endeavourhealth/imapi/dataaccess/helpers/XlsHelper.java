@@ -231,9 +231,6 @@ public class XlsHelper {
     }
 
     private void addBundleToSheet(TTBundle inferred, Sheet sheet) {
-        Map<String, String> predicates = new HashMap<>();
-        inferred.getPredicates().forEach(p -> predicates.put(p.getIri(), p.getName()));
-
         AtomicInteger indent = new AtomicInteger();
         TTVisitor v = new TTVisitor();
 

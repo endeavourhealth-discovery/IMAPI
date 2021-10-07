@@ -195,8 +195,8 @@ public class SetRepository {
 		try (Connection conn = ConnectionPool.get()){
 			assert conn != null;
 			queryLegacyExpansion = conn.prepareStatement(buildLegacyExpansionSQL(conceptSet));
+            return populateSet(conceptSet,queryLegacyExpansion);
 		}
-		return populateSet(conceptSet,queryLegacyExpansion);
 	}
 
 	private String buildLegacyExpansionSQL(TTEntity conceptSet) throws SQLException {
@@ -228,8 +228,8 @@ public class SetRepository {
 		try (Connection conn = ConnectionPool.get()){
 			assert conn != null;
 			queryExpansion = conn.prepareStatement(buildCoreExpansionSQL(conceptSet));
+            return populateSet(conceptSet,queryExpansion);
 		}
-		return populateSet(conceptSet,queryExpansion);
 	}
 	private TTEntity populateSet(TTEntity conceptSet,PreparedStatement queryExpansion) throws SQLException {
 		TTEntity expanded=new TTEntity();

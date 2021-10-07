@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
+@Component
 public class SetService {
     private SetRepository setRepository;
 
@@ -182,7 +184,7 @@ public class SetService {
         }
     }
 
-    public Workbook getExcelDownload(String iri, boolean members, boolean expand, boolean v1) throws JsonProcessingException, SQLException {
+    public Workbook getExcelDownload(String iri, boolean expand, boolean v1) throws JsonProcessingException, SQLException {
         TTEntity set = setRepository.getSetDefinition(iri);
 
         Workbook workbook = new XSSFWorkbook();
@@ -196,9 +198,7 @@ public class SetService {
         Row row = addRow(sheet);
         addCells(row, set.getIri(), set.getName());
 
-        if (members) {
-            addMembersToWorkbook(set, workbook, headerStyle);
-        }
+        addDefinitionsToWorkbook(set, workbook, headerStyle);
 
         if (expand) {
             addExpandedToWorkbook(set, workbook, headerStyle);
@@ -236,18 +236,15 @@ public class SetService {
         sheet = workbook.createSheet("Expanded");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "Code", "Scheme");
         TTEntity expanded = setRepository.getExpansion(set);
-        if (expanded.has(IM.HAS_MEMBER)) {
-            for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
-                TTEntity member = (TTEntity) value.asNode();
-                String code = member.getCode();
-                String scheme = member.getScheme().getIri();
-                row = addRow(sheet);
-                addCells(row, member.getIri(), member.getName(), code, scheme);
-            }
-        }
+        addEntityMembersToWorkbook(sheet, expanded);
 
         expanded = setRepository.getLegacyExpansion(set);
-        if (expanded.has(IM.HAS_MEMBER)) {
+        addEntityMembersToWorkbook(sheet, expanded);
+    }
+
+    private void addEntityMembersToWorkbook(Sheet sheet, TTEntity expanded) {
+        Row row;
+        if (expanded != null && expanded.has(IM.HAS_MEMBER)) {
             for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
@@ -258,12 +255,10 @@ public class SetService {
         }
     }
 
-    private void addMembersToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws JsonProcessingException {
-        Sheet sheet;
-        Row row;
-        sheet = workbook.createSheet("Definitions");
+    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws JsonProcessingException {
+        Sheet sheet = workbook.createSheet("Definitions");
         addHeaders(sheet, headerStyle, 10000, "ECL", "JSON");
-        row = addRow(sheet);
+        Row row = addRow(sheet);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

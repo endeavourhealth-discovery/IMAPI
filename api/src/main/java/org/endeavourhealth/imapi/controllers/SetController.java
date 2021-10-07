@@ -43,7 +43,6 @@ public class SetController {
         notes = "Returns a download for a set"
     )
 	public HttpEntity<Object> downloadSet(@RequestParam(name = "iri") String iri,
-                                          @RequestParam(name = "members") boolean members,
                                           @RequestParam(name = "expandMembers") boolean expanded,
                                           @RequestParam(name = "v1") boolean v1) throws SQLException, IOException {
         LOG.debug("downloadSet");
@@ -51,7 +50,7 @@ public class SetController {
         TTIriRef entity = entityService.getEntityReference(iri);
         String filename = entity.getName() + " " + LocalDate.now();
 
-        Workbook wb = setService.getExcelDownload(iri, members, expanded, v1);
+        Workbook wb = setService.getExcelDownload(iri, expanded, v1);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             wb.write(outputStream);

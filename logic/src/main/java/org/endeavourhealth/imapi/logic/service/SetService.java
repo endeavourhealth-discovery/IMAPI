@@ -215,7 +215,7 @@ public class SetService {
         Sheet sheet;
         Row row;
         TTEntity im1 = setRepository.getIM1Expansion(set);
-        if (im1.get(IM.HAS_MEMBER)!=null){
+        if (im1.has(IM.HAS_MEMBER)){
             sheet = workbook.createSheet("IM v1 Map");
             addHeaders(sheet, headerStyle, 10000, "IMv2 Code", "IMv2 Scheme", "IMv1 Dbid");
 
@@ -236,21 +236,25 @@ public class SetService {
         sheet = workbook.createSheet("Expanded");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "Code", "Scheme");
         TTEntity expanded = setRepository.getExpansion(set);
-        for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
-            TTEntity member = (TTEntity) value.asNode();
-            String code = member.getCode();
-            String scheme = member.getScheme().getIri();
-            row = addRow(sheet);
-            addCells(row, member.getIri(), member.getName(), code, scheme);
+        if (expanded.has(IM.HAS_MEMBER)) {
+            for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
+                TTEntity member = (TTEntity) value.asNode();
+                String code = member.getCode();
+                String scheme = member.getScheme().getIri();
+                row = addRow(sheet);
+                addCells(row, member.getIri(), member.getName(), code, scheme);
+            }
         }
 
         expanded = setRepository.getLegacyExpansion(set);
-        for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
-            TTEntity member = (TTEntity) value.asNode();
-            String code = member.getCode();
-            String scheme = member.getScheme().getIri();
-            row = addRow(sheet);
-            addCells(row, member.getIri(), member.getName(), code, scheme);
+        if (expanded.has(IM.HAS_MEMBER)) {
+            for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
+                TTEntity member = (TTEntity) value.asNode();
+                String code = member.getCode();
+                String scheme = member.getScheme().getIri();
+                row = addRow(sheet);
+                addCells(row, member.getIri(), member.getName(), code, scheme);
+            }
         }
     }
 

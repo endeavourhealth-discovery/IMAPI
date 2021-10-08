@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.model.dto;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 
@@ -15,8 +15,8 @@ public class DownloadDto implements Serializable {
 
 	private TTEntity summary;
 	private List<EntityReferenceNode> hasSubTypes;
-	private List<EntityReferenceNode> isA;
-	private List<SemanticProperty> semanticProperties;
+	private TTNode inferred;
+	private TTNode axioms;
 	private ExportValueSet members;
 	private List<DataModelProperty> dataModelProperties;
 	private List<TermCode> terms;
@@ -31,23 +31,25 @@ public class DownloadDto implements Serializable {
 		this.hasSubTypes = hasSubTypes;
 	}
 
-	public List<EntityReferenceNode> getIsA() {
-		return isA;
-	}
+    public TTNode getInferred() {
+        return inferred;
+    }
 
-	public void setIsA(List<EntityReferenceNode> isA) {
-		this.isA = isA;
-	}
+    public DownloadDto setInferred(TTNode inferred) {
+        this.inferred = inferred;
+        return this;
+    }
 
-	public List<SemanticProperty> getSemanticProperties() {
-		return semanticProperties;
-	}
+    public TTNode getAxioms() {
+        return axioms;
+    }
 
-	public void setSemanticProperties(List<SemanticProperty> semanticProperties) {
-		this.semanticProperties = semanticProperties;
-	}
+    public DownloadDto setAxioms(TTNode axioms) {
+        this.axioms = axioms;
+        return this;
+    }
 
-	public ExportValueSet getMembers() {
+    public ExportValueSet getMembers() {
 		return members;
 	}
 

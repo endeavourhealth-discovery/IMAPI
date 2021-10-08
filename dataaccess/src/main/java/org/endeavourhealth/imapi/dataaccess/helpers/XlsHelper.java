@@ -6,18 +6,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
-import org.endeavourhealth.imapi.model.dto.SemanticProperty;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -92,38 +87,6 @@ public class XlsHelper {
 			cell.setCellValue(child.getIri());
 		}
 
-	}
-
-	public void addIsA(List<EntityReferenceNode> parentList) {
-		Sheet sheet = workbook.createSheet("Is a");
-		List<String> headers = Arrays.asList("Name", "Iri");
-		addHeaders(sheet, 20000, headers);
-
-		for (TTValue parent : parentList) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue(parent.asIriRef().getName());
-			cell = row.createCell(1);
-			cell.setCellValue(parent.asIriRef().getIri());
-		}
-	}
-
-	public void addSemanticProperties(List<SemanticProperty> propertyList) {
-		Sheet sheet = workbook.createSheet("Semantic properties");
-		List<String> headers = Arrays.asList("Name", "Iri", "Type Name", "Type Iri");
-		addHeaders(sheet, 10000, headers);
-
-		for (SemanticProperty property : propertyList) {
-			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-			Cell cell = row.createCell(0);
-			cell.setCellValue(property.getProperty().getName());
-			cell = row.createCell(1);
-			cell.setCellValue(property.getProperty().getIri());
-			cell = row.createCell(2);
-			cell.setCellValue(property.getType().getName());
-			cell = row.createCell(3);
-			cell.setCellValue(property.getType().getIri());
-		}
 	}
 
 	public void addIsChildOf(List<TTValue> childList) {
@@ -254,4 +217,49 @@ public class XlsHelper {
             i++;
         }
     }
+
+    public void addInferred(TTBundle inferred) {
+        Sheet sheet = workbook.createSheet("Inferred");
+
+        addBundleToSheet(inferred, sheet);
+    }
+
+    public void addAxioms(TTBundle axioms) {
+        Sheet sheet = workbook.createSheet("Axioms");
+
+        addBundleToSheet(axioms, sheet);
+    }
+
+    private void addBundleToSheet(TTBundle inferred, Sheet sheet) {
+        AtomicInteger indent = new AtomicInteger();
+        TTVisitor v = new TTVisitor();
+
+        v.onIriRef((predicate, iriRef) -> {
+            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+            Cell cell = row.createCell(indent.get());
+            cell.setCellValue(iriRef.getIri());
+            cell = row.createCell(indent.get() + 1);
+            cell.setCellValue(iriRef.getName());
+        });
+
+        v.onList((predicate, node) -> {
+            Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+            Cell cell = row.createCell(indent.get());
+            cell.setCellValue(predicate.getIri());
+            cell = row.createCell(indent.get() + 1);
+            cell.setCellValue(predicate.getName());
+            indent.getAndIncrement();
+        });
+        v.onListExit((predicate, node) -> indent.getAndDecrement());
+
+        v.onNode((predicate, node) -> {
+            sheet.createRow(sheet.getLastRowNum() + 1);
+            indent.getAndIncrement();
+        });
+        v.onNodeExit((predicate, node) -> indent.getAndDecrement());
+
+        v.visit(inferred.getEntity());
+    }
+
+
 }

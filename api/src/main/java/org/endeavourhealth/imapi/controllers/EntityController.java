@@ -81,10 +81,14 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
-    @GetMapping(value = "/axioms", produces = "application/json")
-    public TTBundle getEntityAxioms(@RequestParam(name = "iri") String iri) throws SQLException {
-        LOG.debug("getEntityAxioms");
-        return entityService.getEntityAxioms(iri);
+    @GetMapping(value = "/partialBundle", produces = "application/json")
+    public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri,
+                                     @RequestParam(name = "predicate") Set<String> predicates,
+                                     @RequestParam(name = "limit", required = false) Integer limit) throws SQLException {
+        LOG.debug("getPartialEntityBundle");
+        if (limit == null)
+            limit = EntityService.UNLIMITED;
+        return entityService.getEntityPredicates(iri, predicates, limit);
     }
 
 	@GetMapping(value = "/children")
@@ -104,12 +108,12 @@ public class EntityController {
 	    @RequestParam String iri,
         @RequestParam String format,
         @RequestParam(name = "hasSubTypes", required = false, defaultValue = "false") boolean hasSubTypes,
-        @RequestParam(name = "isA", required = false, defaultValue = "false") boolean isA,
+        @RequestParam(name = "inferred", required = false, defaultValue = "false") boolean inferred,
         @RequestParam(name = "dataModelProperties", required = false, defaultValue = "false") boolean dataModelProperties,
         @RequestParam(name = "members", required = false, defaultValue = "false") boolean members,
         @RequestParam(name = "expandMembers", required = false, defaultValue = "false") boolean expandMembers,
         @RequestParam(name = "expandSubsets", required = false, defaultValue = "false") boolean expandSubsets,
-        @RequestParam(name = "semanticProperties", required = false, defaultValue = "false") boolean semanticProperties,
+        @RequestParam(name = "axioms", required = false, defaultValue = "false") boolean axioms,
         @RequestParam(name = "terms", required = false, defaultValue = "false") boolean terms,
         @RequestParam(name = "isChildOf", required = false, defaultValue = "false") boolean isChildOf,
         @RequestParam(name = "hasChildren", required = false, defaultValue = "false") boolean hasChildren,
@@ -127,7 +131,7 @@ public class EntityController {
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, isA, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, terms, isChildOf, hasChildren, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -138,7 +142,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, isA, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, terms, isChildOf, hasChildren, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
@@ -235,12 +239,6 @@ public class EntityController {
 	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getTermCodes");
 		return entityService.getEntityTermCodes(iri);
-	}
-	
-	@GetMapping("/semanticProperties")
-	public List<SemanticProperty> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException {
-	    LOG.debug("getSemanticProperties");
-		return entityService.getSemanticProperties(iri);
 	}
 
 	@GetMapping("/dataModelProperties")

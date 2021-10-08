@@ -91,6 +91,18 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit);
     }
 
+    @GetMapping(value = "/inferredBundle", produces = "application/json")
+    public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) throws SQLException {
+        LOG.debug("getInferredBundle");
+        return entityService.getInferredBundle(iri);
+    }
+
+    @GetMapping(value = "/axiomBundle", produces = "application/json")
+    public TTBundle getAxiomBundle(@RequestParam(name = "iri") String iri) throws SQLException {
+        LOG.debug("getAxiomBundle");
+        return entityService.getAxiomBundle(iri);
+    }
+
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,

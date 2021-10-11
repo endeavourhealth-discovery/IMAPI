@@ -46,33 +46,30 @@ public class SetServiceTest {
     public void getExcelDownload_Definition() throws SQLException, JsonProcessingException {
         Workbook wb = setService.getExcelDownload("http://endhealth.info/im#CSET_BartsCVSSMeds", false, false);
         assertNotNull(wb);
-        assertEquals(2, wb.getNumberOfSheets());
+        assertEquals(1, wb.getNumberOfSheets());
 
         checkSummarySheet(wb.getSheetAt(0));
-        checkDefinitionSheet(wb.getSheetAt(1));
     }
 
     @Test
     public void getExcelDownload_Expand() throws SQLException, JsonProcessingException {
         Workbook wb = setService.getExcelDownload("http://endhealth.info/im#CSET_BartsCVSSMeds", true, false);
         assertNotNull(wb);
-        assertEquals(3, wb.getNumberOfSheets());
+        assertEquals(2, wb.getNumberOfSheets());
 
         checkSummarySheet(wb.getSheetAt(0));
-        checkDefinitionSheet(wb.getSheetAt(1));
-        checkExpandedSheet(wb.getSheetAt(2));
+        checkExpandedSheet(wb.getSheetAt(1));
     }
 
     @Test
     public void getExcelDownload_v1() throws SQLException, JsonProcessingException {
         Workbook wb = setService.getExcelDownload("http://endhealth.info/im#CSET_BartsCVSSMeds", true, true);
         assertNotNull(wb);
-        assertEquals(4, wb.getNumberOfSheets());
+        assertEquals(3, wb.getNumberOfSheets());
 
         checkSummarySheet(wb.getSheetAt(0));
-        checkDefinitionSheet(wb.getSheetAt(1));
-        checkExpandedSheet(wb.getSheetAt(2));
-        checkIMv1Sheet(wb.getSheetAt(3));
+        checkExpandedSheet(wb.getSheetAt(1));
+        checkIMv1Sheet(wb.getSheetAt(2));
     }
 
 
@@ -129,18 +126,10 @@ public class SetServiceTest {
 
         assertEquals(2, sheet.getPhysicalNumberOfRows());
 
-        checkCells(sheet.getRow(0), "Iri", "Name");
-        checkCells(sheet.getRow(1), "http://endhealth.info/im#CSET_BartsCVSSMeds", "Concept Set- Barts Covid vaccine study medication concepts");
-    }
-
-    private void checkDefinitionSheet(Sheet sheet) {
-        assertEquals("Definitions", sheet.getSheetName());
-
-        assertEquals(2, sheet.getPhysicalNumberOfRows());
-
-        checkCells(sheet.getRow(0), "ECL", "JSON");
-
+        checkCells(sheet.getRow(0), "Iri", "Name", "ECL", "JSON");
         checkCells(sheet.getRow(1),
+            "http://endhealth.info/im#CSET_BartsCVSSMeds",
+            "Concept Set- Barts Covid vaccine study medication concepts",
             "<<39330711000001103 OR (<<10363601000001109 : <<10362601000001103 = <<39330711000001103)",
             "{\"@id\":\"http://endhealth.info/im#CSET_BartsCVSSMeds\",\"http://endhealth.info/im#hasMembers\":[{\"@id\":\"http://snomed.info/sct#39330711000001103\",\"name\":\"COVID-19 vaccine (product)\"},{\"http://www.w3.org/2002/07/owl#intersectionOf\":[{\"@id\":\"http://snomed.info/sct#10363601000001109\",\"name\":\"UK product (product)\"},{\"http://snomed.info/sct#10362601000001103\":{\"@id\":\"http://snomed.info/sct#39330711000001103\",\"name\":\"COVID-19 vaccine (product)\"}}]}],\"http://endhealth.info/im#isContainedIn\":[{\"@id\":\"http://endhealth.info/im#CSET_BartsVaccineSafety\",\"name\":\"Value sets for the Barts Vaccine safety study\"}],\"http://www.w3.org/2000/01/rdf-schema#label\":\"Concept Set- Barts Covid vaccine study medication concepts\"}"
         );

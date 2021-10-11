@@ -193,11 +193,6 @@ public class SetService {
         font.setBold(true);
         headerStyle.setFont(font);
 
-        Sheet sheet = workbook.createSheet("Concept summary");
-        addHeaders(sheet, headerStyle, 10000, "Iri", "Name");
-        Row row = addRow(sheet);
-        addCells(row, set.getIri(), set.getName());
-
         addDefinitionsToWorkbook(set, workbook, headerStyle);
 
         if (expand) {
@@ -256,8 +251,8 @@ public class SetService {
     }
 
     private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws JsonProcessingException {
-        Sheet sheet = workbook.createSheet("Definitions");
-        addHeaders(sheet, headerStyle, 10000, "ECL", "JSON");
+        Sheet sheet = workbook.createSheet("Concept summary");
+        addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "JSON");
         Row row = addRow(sheet);
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -269,9 +264,9 @@ public class SetService {
 
         try {
             String ecl = eclConverter.getConceptSetECL(set, null);
-            addCells(row, ecl, json);
+            addCells(row, set.getIri(), set.getName(), ecl, json);
         } catch (DataFormatException e){
-            addCells(row, "ERROR", json);
+            addCells(row, set.getIri(), set.getName(), "Error", json);
 
         }
     }

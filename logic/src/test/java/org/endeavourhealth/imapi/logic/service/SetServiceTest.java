@@ -140,11 +140,11 @@ public class SetServiceTest {
 
         assertEquals(5, sheet.getPhysicalNumberOfRows());
 
-        checkCells(sheet.getRow(0), "Iri", "Name", "Code", "Scheme");
-        checkCells(sheet.getRow(1), "http://snomed.info/sct#39330711000001103","COVID-19 vaccine (product)","39330711000001103","http://snomed.info/sct#");
-        checkCells(sheet.getRow(2), "http://snomed.info/sct#39116211000001106","Generic COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (product)","39116211000001106","http://snomed.info/sct#");
-        checkCells(sheet.getRow(3), "http://snomed.info/sct#39114911000001105","COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (AstraZeneca UK Ltd) (product)","39114911000001105","http://snomed.info/sct#");
-        checkCells(sheet.getRow(4), "http://snomed.info/sct#39116111000001100","Generic COVID-19 mRNA Vaccine Pfizer-BioNTech BNT162b2 30micrograms/0.3ml dose concentrate for suspension for injection multidose vials (product)","39116111000001100","http://snomed.info/sct#");
+        checkCells(sheet.getRow(0), "Set Iri", "Set Name", "Member Iri", "Member Name", "Code", "Scheme");
+        checkCells(sheet.getRow(1), "http://endhealth.info/im#CSET_BartsCVSSMeds", "Concept Set- Barts Covid vaccine study medication concepts", "http://snomed.info/sct#39330711000001103","COVID-19 vaccine (product)","39330711000001103","http://snomed.info/sct#");
+        checkCells(sheet.getRow(2), "http://endhealth.info/im#CSET_BartsCVSSMeds", "Concept Set- Barts Covid vaccine study medication concepts", "http://snomed.info/sct#39116211000001106","Generic COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (product)","39116211000001106","http://snomed.info/sct#");
+        checkCells(sheet.getRow(3), "http://endhealth.info/im#CSET_BartsCVSSMeds", "Concept Set- Barts Covid vaccine study medication concepts", "http://snomed.info/sct#39114911000001105","COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (AstraZeneca UK Ltd) (product)","39114911000001105","http://snomed.info/sct#");
+        checkCells(sheet.getRow(4), "http://endhealth.info/im#CSET_BartsCVSSMeds", "Concept Set- Barts Covid vaccine study medication concepts", "http://snomed.info/sct#39116111000001100","Generic COVID-19 mRNA Vaccine Pfizer-BioNTech BNT162b2 30micrograms/0.3ml dose concentrate for suspension for injection multidose vials (product)","39116111000001100","http://snomed.info/sct#");
 
     }
 

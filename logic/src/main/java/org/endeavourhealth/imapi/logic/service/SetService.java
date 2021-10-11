@@ -229,15 +229,15 @@ public class SetService {
         Sheet sheet;
         Row row;
         sheet = workbook.createSheet("Expanded");
-        addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "Code", "Scheme");
+        addHeaders(sheet, headerStyle, 10000, "Set Iri", "Set Name", "Member Iri", "Member Name", "Code", "Scheme");
         TTEntity expanded = setRepository.getExpansion(set);
-        addEntityMembersToWorkbook(sheet, expanded);
+        addEntityMembersToWorkbook(set, sheet, expanded);
 
         expanded = setRepository.getLegacyExpansion(set);
-        addEntityMembersToWorkbook(sheet, expanded);
+        addEntityMembersToWorkbook(set, sheet, expanded);
     }
 
-    private void addEntityMembersToWorkbook(Sheet sheet, TTEntity expanded) {
+    private void addEntityMembersToWorkbook(TTEntity set, Sheet sheet, TTEntity expanded) {
         Row row;
         if (expanded != null && expanded.has(IM.HAS_MEMBER)) {
             for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
@@ -245,7 +245,7 @@ public class SetService {
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
                 row = addRow(sheet);
-                addCells(row, member.getIri(), member.getName(), code, scheme);
+                addCells(row, set.getIri(), set.getName(), member.getIri(), member.getName(), code, scheme);
             }
         }
     }

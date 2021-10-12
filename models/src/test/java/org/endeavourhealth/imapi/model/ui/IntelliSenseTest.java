@@ -3,21 +3,20 @@ package org.endeavourhealth.imapi.model.ui;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IntelliSenseTest {
     private TTNode restriction;
     private IntelliSenseRequest request;
 
-    @Before
+    @BeforeEach
     public void setData() {
         restriction = new TTNode()
             .set(RDF.TYPE, OWL.RESTRICTION);
@@ -32,7 +31,6 @@ public class IntelliSenseTest {
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription("Adverse reaction to Amlodipine Besilate or its derivatives")
             .setCode("25451000252115")
-            .setScheme(iri("http://snomed.info/sct#891071000252105", "SNOMED"))
             .addType(OWL.CLASS)
 
             .set(OWL.EQUIVALENTCLASS, new TTArray()

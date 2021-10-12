@@ -3,10 +3,13 @@ package org.endeavourhealth.imapi.dataaccess.repository;
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALHelper;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +22,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTripleRepository extends BaseRepository{
 
-    public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates) throws SQLException {
+    public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner("\n")
@@ -41,7 +44,9 @@ public class EntityTripleRepository extends BaseRepository{
             .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
             .add("FROM triples t")
             .add("JOIN entity p ON t.predicate = p.dbid")
-            .add("LEFT JOIN entity o ON t.object = o.dbid;");
+            .add("LEFT JOIN entity o ON t.object = o.dbid");
+        if (limit > 0)
+            sql.add("LIMIT ?");
 
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -52,6 +57,8 @@ public class EntityTripleRepository extends BaseRepository{
                     for (String predicate : predicates)
                         statement.setString(++i, predicate);
                 }
+                if (limit > 0)
+                    statement.setInt(++i, limit);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         TTIriRef pred = iri(rs.getString("predicateIri"), rs.getString("predicate"));
@@ -110,12 +117,12 @@ public class EntityTripleRepository extends BaseRepository{
     public Set<ValueSetMember> getObjectBySubjectAndPredicate(String iri, String predicate) throws SQLException {
         Set<ValueSetMember> members = new HashSet<>();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT o.iri, o.name, o.code, sc.iri AS schemeIri, sc.name AS schemeName")
+                .add("SELECT o.iri, o.name, o.code, n.iri AS schemeIri, n.name AS schemeName")
                 .add("FROM tpl tpl")
                 .add("JOIN entity s ON s.dbid = tpl.subject ")
                 .add("JOIN entity p ON p.dbid = tpl.predicate ")
                 .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("LEFT JOIN entity sc ON sc.iri = o.scheme ")
+                .add("LEFT JOIN namespace n ON n.iri = o.scheme ")
                 .add("WHERE s.iri = ?")
                 .add("AND p.iri = ?");
         try (Connection conn = ConnectionPool.get()) {
@@ -214,7 +221,7 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("WHERE c.iri = ?");
         if(!includeInactive)
             sql.add("AND s.status <> ?");
-        sql.add("ORDER BY s.name ");
+        sql.add("ORDER BY s.name, s.iri ");
         if(rowNumber!=null && pageSize!=null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
@@ -239,6 +246,56 @@ public class EntityTripleRepository extends BaseRepository{
             }
         }
         return children;
+    }
+
+    public boolean hasChildren(String iri, boolean includeInactive) throws SQLException {
+        StringJoiner sql = new StringJoiner("\n")
+            .add("SELECT 1")
+            .add("FROM entity c ")
+            .add("JOIN tpl t ON t.object = c.dbid ")
+            .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
+            .add("JOIN entity s ON s.dbid = t.subject ")
+            .add("WHERE c.iri = ?");
+        if(!includeInactive)
+            sql.add("AND s.status <> ?");
+        sql.add("LIMIT 1 ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                int i = 0;
+                statement.setString(++i, IM.IS_A.getIri());
+                statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
+                statement.setString(++i, IM.IS_CHILD_OF.getIri());
+                statement.setString(++i, iri);
+                if(!includeInactive)
+                    statement.setString(++i, IM.INACTIVE.getIri());
+                try (ResultSet rs = statement.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        }
+    }
+
+    public List<Namespace> findNamespaces() throws SQLException {
+        List<Namespace> namespaces = new ArrayList<>();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT n.iri, n.prefix, n.name")
+                .add("FROM namespace n ")
+                .add("ORDER BY n.name ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        if (rs.getString("name") != null) {
+                            Namespace namespace = new Namespace(rs.getString("iri"), rs.getString("prefix"), rs.getString("name"));
+                            namespaces.add(namespace);
+                        }
+                    }
+                }
+            }
+        }
+        return namespaces;
     }
 
 }

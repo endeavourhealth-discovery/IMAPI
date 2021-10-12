@@ -1,13 +1,20 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.logic.service.ConfigService;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
+import org.endeavourhealth.imapi.model.config.FilterDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/config")
@@ -17,6 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
     @Tag(name = "Config Controller", description = "IM application configuration endpoint")
 })
 public class ConfigController {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigController.class);
+
     @Autowired
     ConfigService configService;
+
+    @GetMapping(value = "/componentLayout")
+    public List<ComponentLayoutItem> getComponentLayout(
+            @RequestParam(name="name") String name
+    ) throws SQLException, JsonProcessingException {
+        LOG.debug("getComponentLayout");
+        return configService.getConfig(name, new TypeReference<List<ComponentLayoutItem>>(){});
+    }
+
+    @GetMapping(value="filterDefaults")
+    public FilterDefault getFilterDefaults() throws SQLException, JsonProcessingException {
+        LOG.debug("getFilterDefaults");
+        return configService.getConfig("filterDefaults", new TypeReference<FilterDefault>(){});
+    }
 }

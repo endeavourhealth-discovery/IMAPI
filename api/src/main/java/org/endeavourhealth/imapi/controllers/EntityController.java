@@ -6,15 +6,18 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import org.endeavourhealth.imapi.logic.converters.EntityToImLang;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.logic.service.ConfigService;
+import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
@@ -24,7 +27,6 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.slf4j.Logger;
@@ -56,7 +58,7 @@ public class EntityController {
     EntityService entityService;
 
 	@Autowired
-	EntityToImLang entityToImLang;
+	ConfigService configService;
 
 	@PostMapping(value = "/search")
     @ApiOperation(
@@ -70,22 +72,46 @@ public class EntityController {
 	}
 
     @GetMapping(value = "/partial", produces = "application/json")
-    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri, @RequestParam(name = "predicate") Set<String> predicates) throws SQLException {
+    public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri,
+                                     @RequestParam(name = "predicate") Set<String> predicates,
+                                     @RequestParam(name = "limit", required = false) Integer limit) throws SQLException {
         LOG.debug("getPartialEntity");
-        return entityService.getEntityPredicates(iri, predicates);
+        if (limit == null)
+            limit = EntityService.UNLIMITED;
+        return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
-	@GetMapping(value = "", produces = "application/imlang")
-	public String getEntityImLang(@RequestParam(name = "iri") String iri) throws SQLException {
-        LOG.debug("getEntityImLang");
-		return entityToImLang.translateEntityToImLang(entityService.getEntityPredicates(iri,null));
-	}
+    @GetMapping(value = "/partialBundle", produces = "application/json")
+    public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri,
+                                     @RequestParam(name = "predicate") Set<String> predicates,
+                                     @RequestParam(name = "limit", required = false) Integer limit) throws SQLException {
+        LOG.debug("getPartialEntityBundle");
+        if (limit == null)
+            limit = EntityService.UNLIMITED;
+        return entityService.getEntityPredicates(iri, predicates, limit);
+    }
+
+    @GetMapping(value = "/inferredBundle", produces = "application/json")
+    public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) throws SQLException {
+        LOG.debug("getInferredBundle");
+        return entityService.getInferredBundle(iri);
+    }
+
+    @GetMapping(value = "/axiomBundle", produces = "application/json")
+    public TTBundle getAxiomBundle(@RequestParam(name = "iri") String iri) throws SQLException {
+        LOG.debug("getAxiomBundle");
+        return entityService.getAxiomBundle(iri);
+    }
 
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
         LOG.debug("getEntityChildren");
+        if (page == null & size == null) {
+            page = 1;
+            size = EntityService.MAX_CHILDREN;
+        }
         return entityService.getImmediateChildren(iri, page, size, false);
 	}
 
@@ -93,14 +119,17 @@ public class EntityController {
 	public HttpEntity<Object> download(
 	    @RequestParam String iri,
         @RequestParam String format,
-        @RequestParam(required = false, defaultValue = "false") boolean children,
-        @RequestParam(required = false, defaultValue = "false") boolean parents,
-        @RequestParam(required = false, defaultValue = "false") boolean dataModelProperties,
-        @RequestParam(required = false, defaultValue = "false") boolean members,
-        @RequestParam(required = false, defaultValue = "false") boolean expandMembers,
-        @RequestParam(required = false, defaultValue = "false") boolean expandSubsets,
-        @RequestParam(required = false, defaultValue = "false") boolean semanticProperties,
-        @RequestParam(required = false, defaultValue = "false") boolean inactive
+        @RequestParam(name = "hasSubTypes", required = false, defaultValue = "false") boolean hasSubTypes,
+        @RequestParam(name = "inferred", required = false, defaultValue = "false") boolean inferred,
+        @RequestParam(name = "dataModelProperties", required = false, defaultValue = "false") boolean dataModelProperties,
+        @RequestParam(name = "members", required = false, defaultValue = "false") boolean members,
+        @RequestParam(name = "expandMembers", required = false, defaultValue = "false") boolean expandMembers,
+        @RequestParam(name = "expandSubsets", required = false, defaultValue = "false") boolean expandSubsets,
+        @RequestParam(name = "axioms", required = false, defaultValue = "false") boolean axioms,
+        @RequestParam(name = "terms", required = false, defaultValue = "false") boolean terms,
+        @RequestParam(name = "isChildOf", required = false, defaultValue = "false") boolean isChildOf,
+        @RequestParam(name = "hasChildren", required = false, defaultValue = "false") boolean hasChildren,
+        @RequestParam(name = "inactive", required = false, defaultValue = "false") boolean inactive
     ) throws SQLException, IOException {
         LOG.debug("download");
         if (iri == null || iri.isEmpty() || format == null || format.isEmpty())
@@ -108,11 +137,13 @@ public class EntityController {
 
         TTIriRef entity = entityService.getEntityReference(iri);
 
+        List<ComponentLayoutItem> configs = configService.getConfig("definition", new TypeReference<List<ComponentLayoutItem>>(){});
+
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -123,7 +154,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, children, parents, dataModelProperties, members, expandMembers,expandSubsets, semanticProperties, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
@@ -166,11 +197,10 @@ public class EntityController {
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
-        @RequestParam(name = "parentSetName", required = false) String parentSetName,
         @RequestParam(name = "limit", required = false) Integer limit
     ) throws SQLException {
         LOG.debug("valueSetMembersJson");
-        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit, parentSetName);
+        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
 	}
 
 	@GetMapping(value = "/members", produces = { "text/csv" })
@@ -179,6 +209,12 @@ public class EntityController {
 			@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset) throws SQLException {
         LOG.debug("valueSetMembersCSV");
         return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
+	}
+
+	@GetMapping(value = "/complexMembers")
+	public List<String> getComplexMembers(@RequestParam(name = "iri") String iri) throws SQLException {
+		LOG.debug("getComplexMembers");
+		return entityService.getComplexMembers(iri);
 	}
 
 	@GetMapping(value = "/isMemberOf")
@@ -216,12 +252,6 @@ public class EntityController {
 	    LOG.debug("getTermCodes");
 		return entityService.getEntityTermCodes(iri);
 	}
-	
-	@GetMapping("/semanticProperties")
-	public List<SemanticProperty> getSemanticProperties(@RequestParam(name = "iri") String iri) throws SQLException {
-	    LOG.debug("getSemanticProperties");
-		return entityService.getSemanticProperties(iri);
-	}
 
 	@GetMapping("/dataModelProperties")
 	public List<DataModelProperty> getDataModelProperties(@RequestParam(name = "iri") String iri) throws SQLException {
@@ -245,6 +275,12 @@ public class EntityController {
 	public TTEntity getConceptShape(@RequestParam(name = "iri") String iri) throws SQLException {
 		LOG.debug("getConceptShape");
 		return entityService.getConceptShape(iri);
+	}
+
+	@GetMapping("/namespaces")
+	public List<Namespace> getNamespaces() throws SQLException {
+		LOG.debug("getNamespaces");
+		return entityService.getNamespaces();
 	}
 
 }

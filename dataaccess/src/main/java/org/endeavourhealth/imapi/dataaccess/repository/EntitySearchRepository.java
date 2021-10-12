@@ -43,12 +43,12 @@ public class EntitySearchRepository extends BaseRepository {
 
     private String generateSearchSql(List<String> schemeFilter, List<String> typeFilter, List<String> statusFilter) {
         StringJoiner sql = new StringJoiner("\n")
-            .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, s.name AS scheme_name, t.name AS status_name")
+            .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, n.name AS scheme_name, t.name AS status_name")
             .add("FROM entity_search cs")
             .add("JOIN entity c ON cs.entity_dbid = c.dbid")
             .add("JOIN entity_type ct ON cs.entity_dbid = ct.entity")
             .add("JOIN entity t ON t.iri = c.status")
-            .add("LEFT JOIN entity s ON s.iri = c.scheme")
+            .add("LEFT JOIN namespace n ON n.iri = c.scheme")
             .add("WHERE MATCH(cs.term) AGAINST (? IN BOOLEAN MODE)");
 
         if (schemeFilter != null && !schemeFilter.isEmpty())
@@ -99,12 +99,12 @@ public class EntitySearchRepository extends BaseRepository {
     public EntitySummary getSummary(String iri) throws SQLException {
         EntitySummary summary = new EntitySummary();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, s.name AS scheme_name, t.name AS status_name")
+                .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, n.name AS scheme_name, t.name AS status_name")
                 .add("FROM entity_search cs")
                 .add("JOIN entity c ON cs.entity_dbid = c.dbid")
                 .add("JOIN entity_type ct ON cs.entity_dbid = ct.entity")
                 .add("JOIN entity t ON t.iri = c.status")
-                .add("LEFT JOIN entity s ON s.iri = c.scheme")
+                .add("LEFT JOIN namespace n ON n.iri = c.scheme")
                 .add("WHERE c.iri=? ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;

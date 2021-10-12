@@ -6,8 +6,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TTEntityJsonTest {
     @Test
@@ -31,8 +30,7 @@ public class TTEntityJsonTest {
             .add("  \"http://endhealth.info/im#code\" : \"25451000252115\",")
             .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"Adverse reaction to Amlodipine Besilate or its derivatives\",")
             .add("  \"http://endhealth.info/im#scheme\" : {")
-            .add("    \"@id\" : \"http://snomed.info/sct#891071000252105\",")
-            .add("    \"name\" : \"SNOMED\"")
+            .add("    \"@id\" : \"http://snomed.info/sct#\"")
             .add("  },")
             .add("  \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : [ {")
             .add("    \"@id\" : \"http://www.w3.org/2002/07/owl#Class\"")
@@ -119,13 +117,11 @@ public class TTEntityJsonTest {
             .addPrefix("http://www.w3.org/2002/07/owl#", "owl")
             .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs")
             .addPrefix("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf")
-
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription("Adverse reaction to Amlodipine Besilate or its derivatives")
             .setCode("25451000252115")
-            .setScheme(iri("http://snomed.info/sct#891071000252105", "SNOMED"))
+          .setScheme(iri("http://snomed.info/sct#"))
             .setType(new TTArray().add(OWL.CLASS))
-
             .set(OWL.EQUIVALENTCLASS, new TTArray()
                 .add(new TTNode()
                     .set(OWL.INTERSECTIONOF, new TTArray()

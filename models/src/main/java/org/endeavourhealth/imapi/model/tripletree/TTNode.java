@@ -58,6 +58,9 @@ public class TTNode implements TTValue {
     }
 
     public TTArray getAsArray(TTIriRef predicate) {
+        if (!predicateValues.containsKey(predicate)) {
+            return new TTArray();
+        }
         return predicateValues.get(predicate).asArray();
     }
 

@@ -3,9 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.dataaccess.entity.Config;
-import org.endeavourhealth.imapi.dataaccess.repository.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.repository.EntityTctRepository;
+import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.dataaccess.repository.ConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +18,6 @@ public class ConfigService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigService.class);
 
     private final ObjectMapper om = new ObjectMapper();
-
-    EntityRepository entityRepository = new EntityRepository();
-
-    EntityTctRepository entityTctRepository= new EntityTctRepository();
 
     ConfigRepository configRepository = new ConfigRepository();
 

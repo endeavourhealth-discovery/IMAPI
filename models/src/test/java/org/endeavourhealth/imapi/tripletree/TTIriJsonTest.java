@@ -3,17 +3,11 @@ package org.endeavourhealth.imapi.tripletree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.regex.Pattern;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TTIriJsonTest {
     private static final String IRI_JSON = "{\"name\":\"Test name\",\"@id\":\"http://endhealth.info/im#Test\"}";
@@ -23,7 +17,7 @@ public class TTIriJsonTest {
 
     private ObjectMapper om;
 
-    @Before
+    @BeforeEach
     public void init() {
         this.om = new ObjectMapper();
     }

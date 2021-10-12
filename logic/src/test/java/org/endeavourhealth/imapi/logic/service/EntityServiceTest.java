@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.springframework.http.HttpEntity;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -22,12 +21,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -61,15 +58,17 @@ public class EntityServiceTest {
     @Test
     public void getEntityPredicates_nullIriPredicates() throws SQLException {
 
-        TTEntity actual = entityService.getEntityPredicates(null,null);
+        TTBundle actual = entityService.getEntityPredicates(null,null, 0);
         assertNotNull(actual);
+        assertNotNull(actual.getEntity());
     }
 
     @Test
     public void getEntityPredicates_EmptyIri() throws SQLException {
 
-        TTEntity actual = entityService.getEntityPredicates("",null);
+        TTBundle actual = entityService.getEntityPredicates("", null, 0);
         assertNotNull(actual);
+        assertNotNull(actual.getEntity());
     }
 
     @Test
@@ -101,8 +100,8 @@ public class EntityServiceTest {
                 .setParent(7)
                 .setObject(iri("http://endhealth.info/im#25451000252115")));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
-        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()));
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
+        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()), 0).getEntity();
         assertNotNull(actual);
     }
 
@@ -460,7 +459,7 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_NullIri() throws SQLException {
-        ExportValueSet actual = entityService.getValueSetMembers(null, true,false);
+        ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null);
 
         assertNull(actual);
 
@@ -468,7 +467,7 @@ public class EntityServiceTest {
 
     @Test
     public void getValueSetMembers_EmptyIri() throws SQLException {
-        ExportValueSet actual = entityService.getValueSetMembers("", true,false);
+        ExportValueSet actual = entityService.getValueSetMembers("", true,false, null);
 
         assertNull(actual);
 
@@ -479,28 +478,16 @@ public class EntityServiceTest {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-            .setEntity(iri("http://endhealth.info/im#IncludedMember","Included member"))
-            .setCode("1")
-            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+        Set<String> hasSubsetPredicates = new HashSet<>();
+        hasSubsetPredicates.add(IM.HAS_MEMBER.getIri());
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember excludedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-            .setEntity(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-            .setCode("2")
-            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+        ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
+        mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-            .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
+        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates),anyInt()))
+            .thenReturn(mockHasSubsetReturn);
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
-            .thenReturn(Collections.singleton(includedSet));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(includedMember));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(excludedMember));
-
-
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -511,28 +498,16 @@ public class EntityServiceTest {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-            .setEntity(iri("http://endhealth.info/im#IncludedMember","Included member"))
-            .setCode("1")
-            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+        Set<String> hasSubsetPredicates = new HashSet<>();
+        hasSubsetPredicates.add(IM.HAS_MEMBER.getIri());
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember excludedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-            .setEntity(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-            .setCode("2")
-            .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+        ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
+        mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-            .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
+        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()), eq(hasSubsetPredicates), anyInt()))
+                .thenReturn(mockHasSubsetReturn);
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
-            .thenReturn(Collections.singleton(includedSet));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(includedMember));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
-            .thenReturn(Collections.singleton(excludedMember));
-
-
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null);
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -541,7 +516,7 @@ public class EntityServiceTest {
     @Test
     public void getValueSetMembers_ExpandFalse() throws SQLException {
 
-        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false,0,null);
+        ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false,0,null, "http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
 
@@ -631,10 +606,8 @@ public class EntityServiceTest {
     public void getEntityTermCodes_NotNullIri() throws SQLException {
         org.endeavourhealth.imapi.model.TermCode termCode = new org.endeavourhealth.imapi.model.TermCode()
                 .setCode("24951000252112")
-                .setTerm("Adverse reaction to Testogel")
-                .setScheme(new TTIriRef()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setName("Adverse reaction to Amlodipine Besilate"))
+                .setName("Adverse reaction to Testogel")
+                .setScheme("http://endhealth.info/im#25451000252115")
                 .setEntityTermCode("32231000252116");
         when(termCodeRepository.findAllByIri(any())).thenReturn(Collections.singletonList(termCode));
         List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes("http://endhealth.info/im#25451000252115");
@@ -643,28 +616,28 @@ public class EntityServiceTest {
 
     @Test
     public void download_ExcelNullIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload(null, true, true, true ,true, false,false, true, true);
+        XlsHelper actual = entityService.getExcelDownload(null, new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true,  true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_ExcelEmptyIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload("", true, true, true ,true, false,false, true, true);
+        XlsHelper actual = entityService.getExcelDownload("", new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONNullIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload(null, true, true, true ,true, false,false, true, true);
+        DownloadDto actual = entityService.getJsonDownload(null, new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONEmptyIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload("", true, true, true ,true, false,false, true, true);
+        DownloadDto actual = entityService.getJsonDownload("", new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
 
         assertNull(actual);
     }
@@ -677,29 +650,21 @@ public class EntityServiceTest {
         when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
                 0,null,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
-        when(entityTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,null,true))
-                .thenReturn(Collections.singletonList(entityReferenceNode));
         TTIriRef ttEntity = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        Set<String> hasSubsetPredicates = new HashSet<>();
+        hasSubsetPredicates.add(IM.HAS_MEMBER.getIri());
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", true,
-                true, true ,true, false,false, true, true);
+        ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
+        mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
+
+        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
+                .thenReturn(mockHasSubsetReturn);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
+                true, true ,true, false,false, true, true, true, true,true);
 
         assertNotNull(actual);
 
@@ -708,8 +673,8 @@ public class EntityServiceTest {
     @Test
     public void download_AllSelectionsFalseExcelFormat() throws SQLException{
 
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", false,
-                false, false ,false, false,false, false, false);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
+                false, false ,false, false,false, false, false, false, false,false);
 
         assertNotNull(actual);
 
@@ -724,29 +689,21 @@ public class EntityServiceTest {
         when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
                 0,null,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
-        when(entityTripleRepository.findImmediateParentsByIri( "http://endhealth.info/im#25451000252115",
-                0,null,true))
-                .thenReturn(Collections.singletonList(entityReferenceNode));
         TTIriRef ttEntity = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttEntity);
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        Set<String> hasSubsetPredicates = new HashSet<>();
+        hasSubsetPredicates.add(IM.HAS_MEMBER.getIri());
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", true,
-                true, true ,true, false,false, true, true);
+        ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
+        mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
+
+        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
+                .thenReturn(mockHasSubsetReturn);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
+                true, true ,true, false,false, true, true, true, true, true);
 
         assertNotNull(actual);
 
@@ -755,8 +712,8 @@ public class EntityServiceTest {
     @Test
     public void download_AllSelectionsFalseJsonFormat() throws SQLException {
 
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", false,
-                false, false ,false, false,false, false, true);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
+                false, false ,false, false,false, false, false, false, false, false);
 
         assertNotNull(actual);
 
@@ -795,32 +752,14 @@ public class EntityServiceTest {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#IncludedMember","Included member"))
-                .setCode("1")
-                .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+        Set<String> hasSubsetPredicates = new HashSet<>();
+        hasSubsetPredicates.add(IM.HAS_MEMBER.getIri());
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember excludedMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setCode("2")
-                .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
+        ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
+        mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember includedSet = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_SUBSET.getIri())))
-                .thenReturn(Collections.singleton(includedSet));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(includedMember));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(eq(valueSetIri.getIri()),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(excludedMember));
-
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember childMember = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#Child","Child"))
-                .setCode("3")
-                .setScheme(iri("http://endhealth.info/im#DiscoveryCode","Discovery code"));
-
-        when(valueSetRepository.expandMember(eq("http://endhealth.info/im#IncludedMember"), any())).thenReturn(Collections.singletonList(childMember));
+        when(entityTripleRepository.getTriplesRecursive(eq(valueSetIri.getIri()),eq(hasSubsetPredicates), eq(EntityService.UNLIMITED)))
+                .thenReturn(mockHasSubsetReturn);
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
         assertNotNull(actual);
@@ -828,20 +767,14 @@ public class EntityServiceTest {
 
     @Test
     public void valueSetMembersCSV_NotNullIriExpandFalse() throws SQLException {
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        Set<String> hasSubsetPredicates = new HashSet<>();
+        hasSubsetPredicates.add(IM.HAS_MEMBER.getIri());
 
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#25451000552115","Adverse reaction to Amlodipine Besilate"))
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105","Discovery code"));
+        ArrayList<Tpl> mockHasSubsetReturn = new ArrayList<>();
+        mockHasSubsetReturn.add(new Tpl().setPredicate(iri(IM.HAS_SUBSET.getIri(), IM.HAS_SUBSET.getName())));
 
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.HAS_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember1));
-        when(entityTripleRepository.getObjectBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(valueSetMember2));
+        when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
+                .thenReturn(mockHasSubsetReturn);
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
         String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false, false);
@@ -869,20 +802,20 @@ public class EntityServiceTest {
         tplList.add(new Tpl()
                 .setDbid(3)
                 .setPredicate(IM.ROLE_GROUP));
-        tplList.add(new Tpl()
-                .setDbid(7)
-                .setPredicate(IM.ROLE)
-                .setParent(3));
-        tplList.add(new Tpl()
-                .setDbid(8)
-                .setPredicate(OWL.ONPROPERTY)
-                .setParent(7)
-                .setObject(iri("http://endhealth.info/im#25451000252115")));
-        tplList.add(new Tpl()
-                .setDbid(9)
-                .setPredicate(OWL.SOMEVALUESFROM)
-                .setParent(7)
-                .setObject(iri("http://endhealth.info/im#25451000252115")));
+//        tplList.add(new Tpl()
+//                .setDbid(7)
+//                .setPredicate(IM.ROLE)
+//                .setParent(3));
+//        tplList.add(new Tpl()
+//                .setDbid(8)
+//                .setPredicate(OWL.ONPROPERTY)
+//                .setParent(7)
+//                .setObject(iri("http://endhealth.info/im#25451000252115")));
+//        tplList.add(new Tpl()
+//                .setDbid(9)
+//                .setPredicate(OWL.SOMEVALUESFROM)
+//                .setParent(7)
+//                .setObject(iri("http://endhealth.info/im#25451000252115")));
         tplList.add(new Tpl()
                 .setDbid(10)
                 .setPredicate(IM.PROPERTY_GROUP));
@@ -921,7 +854,7 @@ public class EntityServiceTest {
                 .setParent(12)
                 .setLiteral("10"));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -952,7 +885,7 @@ public class EntityServiceTest {
                 .setParent(3)
                 .setObject(iri("http://endhealth.info/im#25451000252115")));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -1002,7 +935,7 @@ public class EntityServiceTest {
                 .setParent(12)
                 .setLiteral("10"));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -1020,7 +953,7 @@ public class EntityServiceTest {
                 .setPredicate(IM.IS_A).setFunctional(false)
                 .setObject(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
 
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -1055,7 +988,7 @@ public class EntityServiceTest {
                 .setDbid(5)
                 .setPredicate(IM.STATUS)
                 .setObject(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.getTriplesRecursive(any(),anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
 
@@ -1093,7 +1026,7 @@ public class EntityServiceTest {
         tplList.add(new Tpl()
                 .setDbid(3)
                 .setPredicate(SHACL.OR));
-        when(entityTripleRepository.getTriplesRecursive(any(), anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNull(actual);
     }
@@ -1114,7 +1047,7 @@ public class EntityServiceTest {
                 .setDbid(3)
                 .setFunctional(false)
                 .setPredicate(SHACL.OR));
-        when(entityTripleRepository.getTriplesRecursive(any(), anySet())).thenReturn(tplList);
+        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }

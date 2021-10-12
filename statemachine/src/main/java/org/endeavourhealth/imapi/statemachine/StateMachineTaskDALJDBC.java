@@ -1,13 +1,9 @@
 package org.endeavourhealth.imapi.statemachine;
 
-import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class StateMachineTaskDALJDBC implements StateMachineTaskDAL {
     @Override

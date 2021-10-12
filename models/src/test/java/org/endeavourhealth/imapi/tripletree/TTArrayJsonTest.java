@@ -6,14 +6,13 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TTArrayJsonTest {
     // @Test
@@ -96,11 +95,11 @@ public class TTArrayJsonTest {
     }
 
     private void checkArray(TTArray array) {
-        Assert.assertEquals(3, array
+        assertEquals(3, array
             .getAsNode(0)
             .getAsArray(OWL.INTERSECTIONOF)
             .size());
-        Assert.assertEquals("http://snomed.info/sct#384976003", array
+        assertEquals("http://snomed.info/sct#384976003", array
             .getAsNode(0).getAsArray(OWL.INTERSECTIONOF)
             .getAsNode(1).getAsIriRef(OWL.SOMEVALUESFROM).getIri()
         );

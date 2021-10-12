@@ -39,4 +39,15 @@ class FileUploadServiceImplTest {
         StateMachine<States, Events> processSM = fileUploadService.process(savedFile.getId());
         assertEquals("PROCESSING", processSM.getState().getId().toString());
     }
+
+    @Transactional
+    @Test
+    void testProcess_changeEvent() {
+        FileUpload savedFile = fileUploadService.newUpload(fileUpload);
+        assertEquals("UPLOADED", savedFile.getState().toString());
+        StateMachine<States, Events> processSM = fileUploadService.changeEvent(savedFile.getId(),Events.PROCESS);
+        assertEquals("PROCESSING", processSM.getState().getId().toString());
+    }
+
+
 }

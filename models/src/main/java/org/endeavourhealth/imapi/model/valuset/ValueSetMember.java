@@ -8,7 +8,9 @@ public class ValueSetMember implements Serializable {
     private TTIriRef entity;
     private String code;
     private TTIriRef scheme;
-    private String type;
+    private String label;
+    private MemberType type;
+    private TTIriRef directParent;
 
     public TTIriRef getEntity() {
         return entity;
@@ -37,12 +39,28 @@ public class ValueSetMember implements Serializable {
         return this;
     }
 
-    public String getType() {
+    public String getLabel() {
+        return label;
+    }
+
+    public ValueSetMember setLabel(String label) {
+        this.label = label;
+        return this;
+    }
+
+    public MemberType getType() {
         return type;
     }
 
-    public ValueSetMember setType(String type) {
+    public void setType(MemberType type) {
         this.type = type;
-        return this;
+    }
+
+    public TTIriRef getDirectParent() {
+        return directParent;
+    }
+
+    public void setDirectParent(TTIriRef directParent) {
+        this.directParent = directParent;
     }
 }

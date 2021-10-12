@@ -4,8 +4,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,7 +13,8 @@ import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class TTNodeTreeTest {
 
@@ -35,14 +35,14 @@ public class TTNodeTreeTest {
         // Different iri, same name - NOT EQUAL
         test1 = iri("http://endhealth.info/im#11111", "test1");
         test2 = iri("http://endhealth.info/im#22222", "test1");
-        Assert.assertNotEquals(test1, test2);
-        Assert.assertNotEquals(test1.hashCode(), test2.hashCode());
+        assertNotEquals(test1, test2);
+        assertNotEquals(test1.hashCode(), test2.hashCode());
 
         // Different iri, different name - NOT EQUAL
         test1 = iri("http://endhealth.info/im#11111", "test1");
         test2 = iri("http://endhealth.info/im#22222", "test2");
-        Assert.assertNotEquals(test1, test2);
-        Assert.assertNotEquals(test1.hashCode(), test2.hashCode());
+        assertNotEquals(test1, test2);
+        assertNotEquals(test1.hashCode(), test2.hashCode());
     }
 
     @Test
@@ -98,7 +98,6 @@ public class TTNodeTreeTest {
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription("Adverse reaction to Amlodipine Besilate or its derivatives")
             .setCode("25451000252115")
-            .setScheme(iri("http://snomed.info/sct#891071000252105", "SNOMED"))
             .setType(new TTArray().add(OWL.CLASS))
 
             .set(OWL.EQUIVALENTCLASS, new TTArray()

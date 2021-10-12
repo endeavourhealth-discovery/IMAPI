@@ -156,7 +156,7 @@ public class SetService {
         TTToECL eclConverter = new TTToECL();
         //ecl only supports snomed and discovery concepts
         try {
-            String ecl = eclConverter.getConceptSetECL(conceptSet, null);
+            String ecl = eclConverter.getConceptSetECL(conceptSet, null, true);
             definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + ecl + "\t" + json + "\n");
         } catch (DataFormatException e){
             definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + "" + "\t" + json + "\n");
@@ -263,7 +263,7 @@ public class SetService {
         TTToECL eclConverter = new TTToECL();
 
         try {
-            String ecl = eclConverter.getConceptSetECL(set, null);
+            String ecl = eclConverter.getConceptSetECL(set, null, true);
             addCells(row, set.getIri(), set.getName(), ecl, json);
         } catch (DataFormatException e){
             addCells(row, set.getIri(), set.getName(), "Error", json);

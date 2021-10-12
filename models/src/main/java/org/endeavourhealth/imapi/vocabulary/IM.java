@@ -15,7 +15,8 @@ public class IM {
     //Entity top level predicates
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
-    public static final TTIriRef STATUS = iri(NAMESPACE + "status");
+    public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
+    public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
 
     //Entity tope level triples

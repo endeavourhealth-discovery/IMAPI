@@ -27,7 +27,7 @@ public class IM {
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
-    public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE +"QueryTemplate");
+    public static final TTIriRef DATASET = iri(NAMESPACE +"DataSet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
 

@@ -33,7 +33,12 @@ public class SHACL {
    public static final TTIriRef PROPERTYSHAPE= iri(NAMESPACE +"PropertyShape");
    public static final TTIriRef AND= iri(NAMESPACE +"and");
    public static final TTIriRef NODES= iri(NAMESPACE +"nodes");
+   public static final TTIriRef TARGET_TYPE= iri(NAMESPACE +"targetType");
+   public static final TTIriRef TARGET= iri(NAMESPACE +"target");
+   public static final TTIriRef SPARQL_TARGET= iri(NAMESPACE +"SPARQLTarget");
 
-    private SHACL() {}
+
+
+   private SHACL() {}
 }
 

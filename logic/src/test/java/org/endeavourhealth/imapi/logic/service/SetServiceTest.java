@@ -158,25 +158,20 @@ public class SetServiceTest {
         checkCells(sheet.getRow(1),
             "http://endhealth.info/im#CSET_BartsCVSSMeds",
             "Concept Set- Barts Covid vaccine study medication concepts",
-            "<<39330711000001103 | COVID-19 vaccine (product) OR (<<10363601000001109 | UK product (product) : <<10362601000001103 | Has VMP (attribute) = <<39330711000001103 | COVID-19 vaccine (product))",
-            "@prefix im: <http://endhealth.info/im#> .\n" +
-                    "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n" +
-                    "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
-                    "@prefix sn: <http://snomed.info/sct#> .\n" +
-                    "\n" +
-                    "im:CSET_BartsCVSSMeds a ;\n" +
-                    "     im:hasMembers (\n" +
-                    "          sn:39330711000001103 \n" +
-                    "          [owl:intersectionOf (\n" +
-                    "                sn:10363601000001109 \n" +
-                    "                [sn:10362601000001103 sn:39330711000001103]\n" +
-                    "                )]\n" +
-                    "          );\n" +
-                    "     im:isContainedIn (\n" +
-                    "          im:CSET_BartsVaccineSafety\n" +
-                    "          );\n" +
-                    "     rdfs:label \"Concept Set- Barts Covid vaccine study medication concepts\" .\n\n"
-        );
+            "<<39330711000001103 | COVID-19 vaccine (product) OR (<<10363601000001109 | UK product (product) : <<10362601000001103 | Has VMP (attribute) = <<39330711000001103 | COVID-19 vaccine (product) )",
+            "@prefix sn: <http://snomed.info/sct#> .\n" +
+              "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+              "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n" +
+              "@prefix im: <http://endhealth.info/im#> .\n" +
+              "\n" +
+              "im:CSET_BartsCVSSMeds\n" +
+              "   im:hasMembers \n" +
+              "         sn:39330711000001103 , \n" +
+              "         [owl:intersectionOf \n" +
+              "               sn:10363601000001109 , \n" +
+              "               [sn:10362601000001103 sn:39330711000001103]];\n" +
+              "   im:isContainedIn im:CSET_BartsVaccineSafety;\n" +
+              "   rdfs:label \"Concept Set- Barts Covid vaccine study medication concepts\" ." );
     }
 
     private void checkExpandedSheet(Sheet sheet) {

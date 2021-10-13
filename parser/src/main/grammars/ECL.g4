@@ -12,7 +12,7 @@ eclfocusconcept : eclconceptreference | wildcard;
 dot : PERIOD;
 memberof : CARAT;
 eclconceptreference : conceptid (ws PIPE ws term ws PIPE)?;
-conceptid : sctid;
+conceptid : sctid ;
 term : nonwsnonpipe+ ( sp+ nonwsnonpipe+ )*;
 wildcard : ASTERISK;
 constraintoperator : childof | descendantorselfof | descendantof | parentof | ancestororselfof | ancestorof;
@@ -45,16 +45,26 @@ eclattributename : subexpressionconstraint;
 expressioncomparisonoperator : EQUALS | (EXCLAMATION EQUALS);
 numericcomparisonoperator : EQUALS | (EXCLAMATION EQUALS) | (LESS_THAN EQUALS) | LESS_THAN | (GREATER_THAN EQUALS) | GREATER_THAN;
 stringcomparisonoperator : EQUALS | (EXCLAMATION EQUALS);
-numericvalue : (DASH|PLUS)? (decimalvalue | integervalue);
+numericvalue : ('-'|'+')? (decimalvalue | integervalue);
 stringvalue : (anynonescapedchar | escapedchar)+;
 integervalue :  (digitnonzero digit*) | zero;
 decimalvalue : integervalue PERIOD digit+;
 nonnegativeintegervalue : (digitnonzero digit* ) | zero;
-sctid : digitnonzero ( digit ) (digit) (digit) (digit) (digit) ((digit)? | ((digit) (digit)) | ((digit) (digit) (digit)) | ((digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)));
+sctid :  (H T T P nonspacechar+) |(digitnonzero ( digit ) (digit) (digit) (digit) (digit) ((digit)? | ((digit) (digit)) | ((digit) (digit) (digit)) | ((digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit)) | ((digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit) (digit))));
 ws : ( sp | htab | cr | lf | comment )*; // optional white space
 mws : ( sp | htab | cr | lf | comment )+; // mandatory white space
 comment : (SLASH ASTERISK) (nonstarchar | starwithnonfslash)* (ASTERISK SLASH);
-nonstarchar : sp | htab | cr | lf | (EXCLAMATION | QUOTE | POUND | DOLLAR | PERCENT | AMPERSAND | APOSTROPHE | LEFT_PAREN | RIGHT_PAREN) | (PLUS | COMMA | DASH | PERIOD | SLASH | ZERO | ONE | TWO | THREE | FOUR | FIVE | SIX | SEVEN | EIGHT | NINE | COLON | SEMICOLON | LESS_THAN | EQUALS | GREATER_THAN | QUESTION | AT | CAP_A | CAP_B | CAP_C | CAP_D | CAP_E | CAP_F | CAP_G | CAP_H | CAP_I | CAP_J | CAP_K | CAP_L | CAP_M | CAP_N | CAP_O | CAP_P | CAP_Q | CAP_R | CAP_S | CAP_T | CAP_U | CAP_V | CAP_W | CAP_X | CAP_Y | CAP_Z | LEFT_BRACE | BACKSLASH | RIGHT_BRACE | CARAT | UNDERSCORE | ACCENT | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | LEFT_CURLY_BRACE | PIPE | RIGHT_CURLY_BRACE | TILDE) | UTF8_LETTER;
+nonstarchar : sp | htab | cr | lf | (EXCLAMATION | QUOTE | POUND | DOLLAR | PERCENT | AMPERSAND |
+      APOSTROPHE | LEFT_PAREN | RIGHT_PAREN) | (PLUS | COMMA | DASH | PERIOD | SLASH | ZERO | ONE | TWO | THREE | FOUR | FIVE | SIX | SEVEN | EIGHT | NINE |
+      COLON | SEMICOLON | LESS_THAN | EQUALS | GREATER_THAN | QUESTION | AT | CAP_A | CAP_B | CAP_C | CAP_D | CAP_E | CAP_F | CAP_G | CAP_H | CAP_I | CAP_J | CAP_K | CAP_L | CAP_M | CAP_N | CAP_O | CAP_P |
+      CAP_Q | CAP_R | CAP_S | CAP_T | CAP_U | CAP_V | CAP_W | CAP_X | CAP_Y | CAP_Z | LEFT_BRACE | BACKSLASH | RIGHT_BRACE | CARAT | UNDERSCORE | ACCENT |
+       A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | LEFT_CURLY_BRACE | PIPE | RIGHT_CURLY_BRACE | TILDE) | UTF8_LETTER;
+nonspacechar : ('#'| POUND | DOLLAR | PERCENT | AMPERSAND | APOSTROPHE | LEFT_PAREN | RIGHT_PAREN) | (PLUS|
+COMMA | DASH | PERIOD | SLASH | ZERO | ONE | TWO | THREE | FOUR | FIVE | SIX | SEVEN | EIGHT | NINE | COLON | SEMICOLON | LESS_THAN | EQUALS | GREATER_THAN | QUESTION | AT |
+CAP_A | CAP_B | CAP_C | CAP_D | CAP_E | CAP_F | CAP_G | CAP_H | CAP_I | CAP_J | CAP_K | CAP_L | CAP_M | CAP_N | CAP_O | CAP_P | CAP_Q | CAP_R | CAP_S | CAP_T | CAP_U | CAP_V | CAP_W | CAP_X | CAP_Y | CAP_Z |
+LEFT_BRACE | BACKSLASH | RIGHT_BRACE | CARAT | UNDERSCORE | ACCENT | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | LEFT_CURLY_BRACE | PIPE | RIGHT_CURLY_BRACE | TILDE) | UTF8_LETTER;
+
+
 starwithnonfslash : ASTERISK nonfslash;
 nonfslash : sp | htab | cr | lf | (EXCLAMATION | QUOTE | POUND | DOLLAR | PERCENT | AMPERSAND | APOSTROPHE | LEFT_PAREN | RIGHT_PAREN | ASTERISK | PLUS | COMMA | DASH | PERIOD) | (ZERO | ONE | TWO | THREE | FOUR | FIVE | SIX | SEVEN | EIGHT | NINE | COLON | SEMICOLON | LESS_THAN | EQUALS | GREATER_THAN | QUESTION | AT | CAP_A | CAP_B | CAP_C | CAP_D | CAP_E | CAP_F | CAP_G | CAP_H | CAP_I | CAP_J | CAP_K | CAP_L | CAP_M | CAP_N | CAP_O | CAP_P | CAP_Q | CAP_R | CAP_S | CAP_T | CAP_U | CAP_V | CAP_W | CAP_X | CAP_Y | CAP_Z | LEFT_BRACE | BACKSLASH | RIGHT_BRACE | CARAT | UNDERSCORE | ACCENT | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | LEFT_CURLY_BRACE | PIPE | RIGHT_CURLY_BRACE | TILDE) | UTF8_LETTER;
 sp : SPACE; // space
@@ -85,6 +95,7 @@ UTF8_LETTER
    | '\uF900' .. '\uFDCF'
    | '\uFDF0' .. '\uFFFD'
    ;
+
 TAB : '\t';
 LF : '\n';
 CR : '\r';
@@ -183,3 +194,4 @@ LEFT_CURLY_BRACE : '{';
 PIPE : '|';
 RIGHT_CURLY_BRACE : '}';
 TILDE : '~';
+

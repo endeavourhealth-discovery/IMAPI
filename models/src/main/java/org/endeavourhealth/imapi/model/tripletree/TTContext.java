@@ -42,6 +42,8 @@ public class TTContext implements Serializable {
         toName.put(iri,name);
     }
 
+
+
     public String prefix(String iri) {
         int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
         String path = iri.substring(0, end + 1);
@@ -64,5 +66,12 @@ public class TTContext implements Serializable {
             return iri;
         else
             return path + iri.substring(colonPos + 1);
+    }
+    public String getPrefix(String ns){
+        return byIri.get(ns);
+    }
+
+    public String getNamespace(String prefix) {
+        return byPrefix.get(prefix);
     }
 }

@@ -51,6 +51,8 @@ public class TTContext implements Serializable {
         else
             if (end<iri.length()-1)
                 return prefix + ":" + iri.substring(end + 1);
+            else if(end == iri.length()-1)
+                return prefix + ":";
             else return iri;
     }
 

@@ -707,8 +707,8 @@ public class EntityService {
 	}
 
 	public List<Namespace> getNamespaces() throws SQLException {
-		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
-		return namespaces;
+//		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+		return entityTripleRepository.findNamespaces();
 	}
 
     public TTBundle getInferredBundle(String iri) throws SQLException {

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.SetRepository;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
@@ -18,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -33,6 +37,9 @@ public class SetServiceTest {
     @Mock
     SetRepository setRepository;
 
+    @Mock
+    EntityTripleRepository entityTripleRepository;
+
     @Before
     public void init() throws SQLException {
         // Definition mock
@@ -44,6 +51,13 @@ public class SetServiceTest {
 
     @Test
     public void getExcelDownload_Definition() throws SQLException, JsonProcessingException {
+        List<Namespace> namespace = new ArrayList<>();
+        namespace.add(new Namespace("http://endhealth.info/im#","im","Discovery namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2000/01/rdf-schema#", "rdfs", "RDFS namespace"));
+        namespace.add(new Namespace("http://snomed.info/sct#", "sn", "Snomed-CT namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2001/XMLSchema#", "xsd", "xsd namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2002/07/owl#", "owl", "OWL2 namespace"));
+        when(entityTripleRepository.findNamespaces()).thenReturn(namespace);
         Workbook wb = setService.getExcelDownload("http://endhealth.info/im#CSET_BartsCVSSMeds", false, false);
         assertNotNull(wb);
         assertEquals(1, wb.getNumberOfSheets());
@@ -53,6 +67,13 @@ public class SetServiceTest {
 
     @Test
     public void getExcelDownload_Expand() throws SQLException, JsonProcessingException {
+        List<Namespace> namespace = new ArrayList<>();
+        namespace.add(new Namespace("http://endhealth.info/im#","im","Discovery namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2000/01/rdf-schema#", "rdfs", "RDFS namespace"));
+        namespace.add(new Namespace("http://snomed.info/sct#", "sn", "Snomed-CT namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2001/XMLSchema#", "xsd", "xsd namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2002/07/owl#", "owl", "OWL2 namespace"));
+        when(entityTripleRepository.findNamespaces()).thenReturn(namespace);
         Workbook wb = setService.getExcelDownload("http://endhealth.info/im#CSET_BartsCVSSMeds", true, false);
         assertNotNull(wb);
         assertEquals(2, wb.getNumberOfSheets());
@@ -63,6 +84,13 @@ public class SetServiceTest {
 
     @Test
     public void getExcelDownload_v1() throws SQLException, JsonProcessingException {
+        List<Namespace> namespace = new ArrayList<>();
+        namespace.add(new Namespace("http://endhealth.info/im#","im","Discovery namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2000/01/rdf-schema#", "rdfs", "RDFS namespace"));
+        namespace.add(new Namespace("http://snomed.info/sct#", "sn", "Snomed-CT namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2001/XMLSchema#", "xsd", "xsd namespace"));
+        namespace.add(new Namespace("http://www.w3.org/2002/07/owl#", "owl", "OWL2 namespace"));
+        when(entityTripleRepository.findNamespaces()).thenReturn(namespace);
         Workbook wb = setService.getExcelDownload("http://endhealth.info/im#CSET_BartsCVSSMeds", true, true);
         assertNotNull(wb);
         assertEquals(3, wb.getNumberOfSheets());
@@ -126,12 +154,28 @@ public class SetServiceTest {
 
         assertEquals(2, sheet.getPhysicalNumberOfRows());
 
-        checkCells(sheet.getRow(0), "Iri", "Name", "ECL", "JSON");
+        checkCells(sheet.getRow(0), "Iri", "Name", "ECL", "Turtle");
         checkCells(sheet.getRow(1),
             "http://endhealth.info/im#CSET_BartsCVSSMeds",
             "Concept Set- Barts Covid vaccine study medication concepts",
             "<<39330711000001103 | COVID-19 vaccine (product) OR (<<10363601000001109 | UK product (product) : <<10362601000001103 | Has VMP (attribute) = <<39330711000001103 | COVID-19 vaccine (product))",
-            "{\"@id\":\"http://endhealth.info/im#CSET_BartsCVSSMeds\",\"http://endhealth.info/im#hasMembers\":[{\"@id\":\"http://snomed.info/sct#39330711000001103\",\"name\":\"COVID-19 vaccine (product)\"},{\"http://www.w3.org/2002/07/owl#intersectionOf\":[{\"@id\":\"http://snomed.info/sct#10363601000001109\",\"name\":\"UK product (product)\"},{\"http://snomed.info/sct#10362601000001103\":{\"@id\":\"http://snomed.info/sct#39330711000001103\",\"name\":\"COVID-19 vaccine (product)\"}}]}],\"http://endhealth.info/im#isContainedIn\":[{\"@id\":\"http://endhealth.info/im#CSET_BartsVaccineSafety\",\"name\":\"Value sets for the Barts Vaccine safety study\"}],\"http://www.w3.org/2000/01/rdf-schema#label\":\"Concept Set- Barts Covid vaccine study medication concepts\"}"
+            "@prefix im: <http://endhealth.info/im#> .\n" +
+                    "@prefix owl: <http://www.w3.org/2002/07/owl#> .\n" +
+                    "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
+                    "@prefix sn: <http://snomed.info/sct#> .\n" +
+                    "\n" +
+                    "im:CSET_BartsCVSSMeds a ;\n" +
+                    "     im:hasMembers (\n" +
+                    "          sn:39330711000001103 \n" +
+                    "          [owl:intersectionOf (\n" +
+                    "                sn:10363601000001109 \n" +
+                    "                [sn:10362601000001103 sn:39330711000001103]\n" +
+                    "                )]\n" +
+                    "          );\n" +
+                    "     im:isContainedIn (\n" +
+                    "          im:CSET_BartsVaccineSafety\n" +
+                    "          );\n" +
+                    "     rdfs:label \"Concept Set- Barts Covid vaccine study medication concepts\" .\n\n"
         );
     }
 

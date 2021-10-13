@@ -2,8 +2,9 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +15,9 @@ import java.util.Map;
 public class TTToTurtle {
 	private TTContext context = new TTContext();
 	private StringBuilder turtle;
+	private StringBuilder prefixes;
 	private int level;
+	private List<String> entityPrefixes = new ArrayList<>();
 
 
 	/**
@@ -27,18 +30,46 @@ public class TTToTurtle {
 		turtle= new StringBuilder();
 		setPrefixes();
 		for (TTEntity entity:document.getEntities())
-			transformEntity(entity);
+			appendEntity(entity);
 		return turtle.toString();
+	}
+
+	public String transformEntity(TTEntity entity, TTContext context){
+		StringBuilder result = new StringBuilder();
+		this.context = context;
+		turtle= new StringBuilder();
+		prefixes = new StringBuilder();
+		appendEntity(entity);
+		setEntityPrefixes();
+		result.append(prefixes)
+				.append("\n")
+		        .append(turtle);
+		return result.toString();
 	}
 
 	private void nl(){
 		turtle.append("\n");
 		if (level>0) {
-			String indent = ("                                                                           ").substring(0, level);
+			StringBuilder indent = new StringBuilder();
+			for(int i=0; i<level;i++){
+				indent.append(" ");
+			}
 			turtle.append(indent);
 		}
 	}
 
+	private void setEntityPrefixes() {
+		if (context!=null)
+			if (context.getPrefixes()!=null)
+				for (TTPrefix prefix:context.getPrefixes()){
+					if(entityPrefixes.contains(prefix.getIri())){
+						prefixes.append("@prefix ")
+								.append(prefix.getPrefix()+": ")
+								.append("<"+prefix.getIri()+"> .")
+						        .append("\n");
+					}
+				}
+	}
 
 	private void setPrefixes() {
 		if (context!=null)
@@ -52,7 +83,7 @@ public class TTToTurtle {
 		nl();
 	}
 
-	private void transformEntity(TTEntity entity){
+	private void appendEntity(TTEntity entity){
 		level=0;
 		setIriandType(entity);
 		if (entity.getPredicateMap()!=null){
@@ -124,19 +155,20 @@ public class TTToTurtle {
 			}
 	}
 
-
 	private void setIriandType(TTEntity entity) {
 		append(getShort(entity.getIri()));
 		append(" a ");
 		int first=1;
-		for (TTValue type:entity.getType().getElements()){
-			if (first>1)
-				append(" , ");
-			append(getShort(type.asIriRef().getIri()));
-			first++;
+		if(entity.getType()!=null){
+			for (TTValue type:entity.getType().getElements()){
+				if (first>1)
+					append(" , ");
+				append(getShort(type.asIriRef().getIri()));
+				first++;
+			}
 		}
-	}
 
+	}
 
 	private StringBuilder append(String aString){
 		turtle.append(aString);
@@ -147,7 +179,9 @@ public class TTToTurtle {
 		if (iri.contains("#")) {
 			int lnPos = iri.indexOf("#") + 1;
 			String ns= iri.substring(0,lnPos);
-			String ln= iri.substring(lnPos,iri.length());
+			String ln= iri.substring(lnPos);
+			if(!entityPrefixes.contains(ns))
+			    entityPrefixes.add(ns);
 			return getPrefix(ns)+ ln;
 		}
 		return iri;

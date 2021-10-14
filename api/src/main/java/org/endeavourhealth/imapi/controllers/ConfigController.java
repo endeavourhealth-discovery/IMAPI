@@ -7,6 +7,7 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
+import org.endeavourhealth.imapi.model.config.DashboardLayout;
 import org.endeavourhealth.imapi.model.config.FilterDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +38,17 @@ public class ConfigController {
         return configService.getConfig(name, new TypeReference<List<ComponentLayoutItem>>(){});
     }
 
-    @GetMapping(value="filterDefaults")
+    @GetMapping(value="/filterDefaults")
     public FilterDefault getFilterDefaults() throws SQLException, JsonProcessingException {
         LOG.debug("getFilterDefaults");
         return configService.getConfig("filterDefaults", new TypeReference<FilterDefault>(){});
+    }
+
+    @GetMapping(value="/dashboardLayout")
+    public List<DashboardLayout> getDashboardLayout(
+            @RequestParam(name ="name") String name
+    ) throws SQLException, JsonProcessingException {
+        LOG.debug("getDashboardLayout");
+        return configService.getConfig(name, new TypeReference<List<DashboardLayout>>(){});
     }
 }

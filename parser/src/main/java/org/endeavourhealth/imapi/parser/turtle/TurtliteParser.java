@@ -629,33 +629,35 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
+			{
 			setState(81);
 			verb();
 			setState(82);
 			objectList();
-			setState(91);
+			}
+			setState(92);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__5) {
 				{
 				{
-				setState(83);
+				setState(84);
 				match(T__5);
-				setState(87);
+				setState(88);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__7) | (1L << IRIREF) | (1L << PrefixedName))) != 0)) {
 					{
-					setState(84);
-					verb();
 					setState(85);
+					verb();
+					setState(86);
 					objectList();
 					}
 				}
 
 				}
 				}
-				setState(93);
+				setState(94);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -705,21 +707,21 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(94);
+			setState(95);
 			object();
-			setState(99);
+			setState(100);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__6) {
 				{
 				{
-				setState(95);
-				match(T__6);
 				setState(96);
+				match(T__6);
+				setState(97);
 				object();
 				}
 				}
-				setState(101);
+				setState(102);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -763,21 +765,21 @@ public class TurtliteParser extends Parser {
 		VerbContext _localctx = new VerbContext(_ctx, getState());
 		enterRule(_localctx, 20, RULE_verb);
 		try {
-			setState(104);
+			setState(105);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
 			case PrefixedName:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(102);
+				setState(103);
 				predicate();
 				}
 				break;
 			case T__7:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(103);
+				setState(104);
 				match(T__7);
 				}
 				break;
@@ -827,28 +829,28 @@ public class TurtliteParser extends Parser {
 		SubjectContext _localctx = new SubjectContext(_ctx, getState());
 		enterRule(_localctx, 22, RULE_subject);
 		try {
-			setState(109);
+			setState(110);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
 			case PrefixedName:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(106);
+				setState(107);
 				iri();
 				}
 				break;
 			case BlankNode:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(107);
+				setState(108);
 				match(BlankNode);
 				}
 				break;
 			case T__10:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(108);
+				setState(109);
 				collection();
 				}
 				break;
@@ -896,7 +898,7 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(111);
+			setState(112);
 			iri();
 			}
 		}
@@ -948,35 +950,35 @@ public class TurtliteParser extends Parser {
 		ObjectContext _localctx = new ObjectContext(_ctx, getState());
 		enterRule(_localctx, 26, RULE_object);
 		try {
-			setState(118);
+			setState(119);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
 			case PrefixedName:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(113);
+				setState(114);
 				iri();
 				}
 				break;
 			case BlankNode:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(114);
+				setState(115);
 				match(BlankNode);
 				}
 				break;
 			case T__10:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(115);
+				setState(116);
 				collection();
 				}
 				break;
 			case T__8:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(116);
+				setState(117);
 				blankNodePropertyList();
 				}
 				break;
@@ -985,7 +987,7 @@ public class TurtliteParser extends Parser {
 			case String:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(117);
+				setState(118);
 				literal();
 				}
 				break;
@@ -1033,27 +1035,27 @@ public class TurtliteParser extends Parser {
 		LiteralContext _localctx = new LiteralContext(_ctx, getState());
 		enterRule(_localctx, 28, RULE_literal);
 		try {
-			setState(123);
+			setState(124);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case String:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(120);
+				setState(121);
 				rdfLiteral();
 				}
 				break;
 			case NumericLiteral:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(121);
+				setState(122);
 				match(NumericLiteral);
 				}
 				break;
 			case BooleanLiteral:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(122);
+				setState(123);
 				match(BooleanLiteral);
 				}
 				break;
@@ -1101,11 +1103,11 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(125);
-			match(T__8);
 			setState(126);
-			predicateObjectList();
+			match(T__8);
 			setState(127);
+			predicateObjectList();
+			setState(128);
 			match(T__9);
 			}
 		}
@@ -1153,23 +1155,23 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(129);
+			setState(130);
 			match(T__10);
-			setState(133);
+			setState(134);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__8) | (1L << T__10) | (1L << NumericLiteral) | (1L << BooleanLiteral) | (1L << String) | (1L << BlankNode) | (1L << IRIREF) | (1L << PrefixedName))) != 0)) {
 				{
 				{
-				setState(130);
+				setState(131);
 				object();
 				}
 				}
-				setState(135);
+				setState(136);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(136);
+			setState(137);
 			match(T__11);
 			}
 		}
@@ -1215,22 +1217,22 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(138);
+			setState(139);
 			match(String);
-			setState(142);
+			setState(143);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LANGTAG:
 				{
-				setState(139);
+				setState(140);
 				match(LANGTAG);
 				}
 				break;
 			case T__12:
 				{
-				setState(140);
-				match(T__12);
 				setState(141);
+				match(T__12);
+				setState(142);
 				iri();
 				}
 				break;
@@ -1293,7 +1295,7 @@ public class TurtliteParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(144);
+			setState(145);
 			_la = _input.LA(1);
 			if ( !(_la==IRIREF || _la==PrefixedName) ) {
 			_errHandler.recoverInline(this);
@@ -1317,22 +1319,22 @@ public class TurtliteParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3/\u0095\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3/\u0096\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\3\2\7\2*\n\2\f\2\16\2-\13\2\3\3\3\3\3\3\3\3\5\3\63"+
 		"\n\3\3\4\3\4\3\4\3\4\5\49\n\4\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\6\3\7"+
 		"\3\7\3\7\3\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\5\tP\n\t\5\tR\n\t\3\n\3\n"+
-		"\3\n\3\n\3\n\3\n\5\nZ\n\n\7\n\\\n\n\f\n\16\n_\13\n\3\13\3\13\3\13\7\13"+
-		"d\n\13\f\13\16\13g\13\13\3\f\3\f\5\fk\n\f\3\r\3\r\3\r\5\rp\n\r\3\16\3"+
-		"\16\3\17\3\17\3\17\3\17\3\17\5\17y\n\17\3\20\3\20\3\20\5\20~\n\20\3\21"+
-		"\3\21\3\21\3\21\3\22\3\22\7\22\u0086\n\22\f\22\16\22\u0089\13\22\3\22"+
-		"\3\22\3\23\3\23\3\23\3\23\5\23\u0091\n\23\3\24\3\24\3\24\2\2\25\2\4\6"+
-		"\b\n\f\16\20\22\24\26\30\32\34\36 \"$&\2\3\4\2\26\26\30\30\2\u0097\2+"+
-		"\3\2\2\2\4\62\3\2\2\2\68\3\2\2\2\b:\3\2\2\2\n?\3\2\2\2\fC\3\2\2\2\16F"+
-		"\3\2\2\2\20Q\3\2\2\2\22S\3\2\2\2\24`\3\2\2\2\26j\3\2\2\2\30o\3\2\2\2\32"+
-		"q\3\2\2\2\34x\3\2\2\2\36}\3\2\2\2 \177\3\2\2\2\"\u0083\3\2\2\2$\u008c"+
-		"\3\2\2\2&\u0092\3\2\2\2(*\5\4\3\2)(\3\2\2\2*-\3\2\2\2+)\3\2\2\2+,\3\2"+
+		"\3\n\3\n\3\n\3\n\3\n\5\n[\n\n\7\n]\n\n\f\n\16\n`\13\n\3\13\3\13\3\13\7"+
+		"\13e\n\13\f\13\16\13h\13\13\3\f\3\f\5\fl\n\f\3\r\3\r\3\r\5\rq\n\r\3\16"+
+		"\3\16\3\17\3\17\3\17\3\17\3\17\5\17z\n\17\3\20\3\20\3\20\5\20\177\n\20"+
+		"\3\21\3\21\3\21\3\21\3\22\3\22\7\22\u0087\n\22\f\22\16\22\u008a\13\22"+
+		"\3\22\3\22\3\23\3\23\3\23\3\23\5\23\u0092\n\23\3\24\3\24\3\24\2\2\25\2"+
+		"\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&\2\3\4\2\26\26\30\30\2\u0098"+
+		"\2+\3\2\2\2\4\62\3\2\2\2\68\3\2\2\2\b:\3\2\2\2\n?\3\2\2\2\fC\3\2\2\2\16"+
+		"F\3\2\2\2\20Q\3\2\2\2\22S\3\2\2\2\24a\3\2\2\2\26k\3\2\2\2\30p\3\2\2\2"+
+		"\32r\3\2\2\2\34y\3\2\2\2\36~\3\2\2\2 \u0080\3\2\2\2\"\u0084\3\2\2\2$\u008d"+
+		"\3\2\2\2&\u0093\3\2\2\2(*\5\4\3\2)(\3\2\2\2*-\3\2\2\2+)\3\2\2\2+,\3\2"+
 		"\2\2,\3\3\2\2\2-+\3\2\2\2.\63\5\6\4\2/\60\5\20\t\2\60\61\7\3\2\2\61\63"+
 		"\3\2\2\2\62.\3\2\2\2\62/\3\2\2\2\63\5\3\2\2\2\649\5\b\5\2\659\5\n\6\2"+
 		"\669\5\16\b\2\679\5\f\7\28\64\3\2\2\28\65\3\2\2\28\66\3\2\2\28\67\3\2"+
@@ -1340,22 +1342,23 @@ public class TurtliteParser extends Parser {
 		"@\7\5\2\2@A\7\26\2\2AB\7\3\2\2B\13\3\2\2\2CD\7\6\2\2DE\7\26\2\2E\r\3\2"+
 		"\2\2FG\7\7\2\2GH\7\27\2\2HI\7\26\2\2I\17\3\2\2\2JK\5\30\r\2KL\5\22\n\2"+
 		"LR\3\2\2\2MO\5 \21\2NP\5\22\n\2ON\3\2\2\2OP\3\2\2\2PR\3\2\2\2QJ\3\2\2"+
-		"\2QM\3\2\2\2R\21\3\2\2\2ST\5\26\f\2T]\5\24\13\2UY\7\b\2\2VW\5\26\f\2W"+
-		"X\5\24\13\2XZ\3\2\2\2YV\3\2\2\2YZ\3\2\2\2Z\\\3\2\2\2[U\3\2\2\2\\_\3\2"+
-		"\2\2][\3\2\2\2]^\3\2\2\2^\23\3\2\2\2_]\3\2\2\2`e\5\34\17\2ab\7\t\2\2b"+
-		"d\5\34\17\2ca\3\2\2\2dg\3\2\2\2ec\3\2\2\2ef\3\2\2\2f\25\3\2\2\2ge\3\2"+
-		"\2\2hk\5\32\16\2ik\7\n\2\2jh\3\2\2\2ji\3\2\2\2k\27\3\2\2\2lp\5&\24\2m"+
-		"p\7\23\2\2np\5\"\22\2ol\3\2\2\2om\3\2\2\2on\3\2\2\2p\31\3\2\2\2qr\5&\24"+
-		"\2r\33\3\2\2\2sy\5&\24\2ty\7\23\2\2uy\5\"\22\2vy\5 \21\2wy\5\36\20\2x"+
-		"s\3\2\2\2xt\3\2\2\2xu\3\2\2\2xv\3\2\2\2xw\3\2\2\2y\35\3\2\2\2z~\5$\23"+
-		"\2{~\7\20\2\2|~\7\21\2\2}z\3\2\2\2}{\3\2\2\2}|\3\2\2\2~\37\3\2\2\2\177"+
-		"\u0080\7\13\2\2\u0080\u0081\5\22\n\2\u0081\u0082\7\f\2\2\u0082!\3\2\2"+
-		"\2\u0083\u0087\7\r\2\2\u0084\u0086\5\34\17\2\u0085\u0084\3\2\2\2\u0086"+
-		"\u0089\3\2\2\2\u0087\u0085\3\2\2\2\u0087\u0088\3\2\2\2\u0088\u008a\3\2"+
-		"\2\2\u0089\u0087\3\2\2\2\u008a\u008b\7\16\2\2\u008b#\3\2\2\2\u008c\u0090"+
-		"\7\22\2\2\u008d\u0091\7\33\2\2\u008e\u008f\7\17\2\2\u008f\u0091\5&\24"+
-		"\2\u0090\u008d\3\2\2\2\u0090\u008e\3\2\2\2\u0090\u0091\3\2\2\2\u0091%"+
-		"\3\2\2\2\u0092\u0093\t\2\2\2\u0093\'\3\2\2\2\20+\628OQY]ejox}\u0087\u0090";
+		"\2QM\3\2\2\2R\21\3\2\2\2ST\5\26\f\2TU\5\24\13\2U^\3\2\2\2VZ\7\b\2\2WX"+
+		"\5\26\f\2XY\5\24\13\2Y[\3\2\2\2ZW\3\2\2\2Z[\3\2\2\2[]\3\2\2\2\\V\3\2\2"+
+		"\2]`\3\2\2\2^\\\3\2\2\2^_\3\2\2\2_\23\3\2\2\2`^\3\2\2\2af\5\34\17\2bc"+
+		"\7\t\2\2ce\5\34\17\2db\3\2\2\2eh\3\2\2\2fd\3\2\2\2fg\3\2\2\2g\25\3\2\2"+
+		"\2hf\3\2\2\2il\5\32\16\2jl\7\n\2\2ki\3\2\2\2kj\3\2\2\2l\27\3\2\2\2mq\5"+
+		"&\24\2nq\7\23\2\2oq\5\"\22\2pm\3\2\2\2pn\3\2\2\2po\3\2\2\2q\31\3\2\2\2"+
+		"rs\5&\24\2s\33\3\2\2\2tz\5&\24\2uz\7\23\2\2vz\5\"\22\2wz\5 \21\2xz\5\36"+
+		"\20\2yt\3\2\2\2yu\3\2\2\2yv\3\2\2\2yw\3\2\2\2yx\3\2\2\2z\35\3\2\2\2{\177"+
+		"\5$\23\2|\177\7\20\2\2}\177\7\21\2\2~{\3\2\2\2~|\3\2\2\2~}\3\2\2\2\177"+
+		"\37\3\2\2\2\u0080\u0081\7\13\2\2\u0081\u0082\5\22\n\2\u0082\u0083\7\f"+
+		"\2\2\u0083!\3\2\2\2\u0084\u0088\7\r\2\2\u0085\u0087\5\34\17\2\u0086\u0085"+
+		"\3\2\2\2\u0087\u008a\3\2\2\2\u0088\u0086\3\2\2\2\u0088\u0089\3\2\2\2\u0089"+
+		"\u008b\3\2\2\2\u008a\u0088\3\2\2\2\u008b\u008c\7\16\2\2\u008c#\3\2\2\2"+
+		"\u008d\u0091\7\22\2\2\u008e\u0092\7\33\2\2\u008f\u0090\7\17\2\2\u0090"+
+		"\u0092\5&\24\2\u0091\u008e\3\2\2\2\u0091\u008f\3\2\2\2\u0091\u0092\3\2"+
+		"\2\2\u0092%\3\2\2\2\u0093\u0094\t\2\2\2\u0094\'\3\2\2\2\20+\628OQZ^fk"+
+		"py~\u0088\u0091";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

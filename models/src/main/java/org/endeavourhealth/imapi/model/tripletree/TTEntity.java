@@ -105,11 +105,11 @@ public class TTEntity extends TTNode {
     }
 
     public TTIriRef getStatus(){
-        return this.getAsIriRef(IM.STATUS);
+        return this.getAsIriRef(IM.HAS_STATUS);
     }
 
     public TTEntity setStatus(TTIriRef status) {
-        set(IM.STATUS, status);
+        set(IM.HAS_STATUS, status);
         return this;
     }
 

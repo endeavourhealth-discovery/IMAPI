@@ -986,7 +986,7 @@ public class EntityServiceTest {
                 .setLiteral("Adverse reaction to Amlodipine Besilate"));
         tplList.add(new Tpl()
                 .setDbid(5)
-                .setPredicate(IM.STATUS)
+                .setPredicate(IM.HAS_STATUS)
                 .setObject(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(), anyInt())).thenReturn(tplList);
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);

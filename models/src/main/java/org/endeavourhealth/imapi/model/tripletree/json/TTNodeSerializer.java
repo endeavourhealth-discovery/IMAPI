@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,8 +39,10 @@ public class TTNodeSerializer {
     }
 
     public void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
-      if (predicateTemplate!=null)
-         serializeOrdered(node,gen);
+       if (node.getPredicateTemplate()!=null)
+          serializeOrdered(node, Arrays.asList(node.getPredicateTemplate()),gen);
+      else if (predicateTemplate!=null)
+         serializeOrdered(node,predicateTemplate,gen);
       else {
          Map<TTIriRef, TTValue> predicates = node.getPredicateMap();
          if (predicates != null && !predicates.isEmpty()) {
@@ -51,7 +54,7 @@ public class TTNodeSerializer {
       }
    }
 
-   private void serializeOrdered(TTNode node, JsonGenerator gen) throws IOException {
+   private void serializeOrdered(TTNode node, List<TTIriRef> predicateTemplate,JsonGenerator gen) throws IOException {
       for (TTIriRef predicate:predicateTemplate){
          if (node.get(predicate)!=null)
             serializeFieldValue(predicate.getIri(),node.get(predicate),gen);

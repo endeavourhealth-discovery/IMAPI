@@ -568,6 +568,16 @@ public interface ECLListener extends ParseTreeListener {
 	 */
 	void exitNonstarchar(ECLParser.NonstarcharContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ECLParser#nonspacechar}.
+	 * @param ctx the parse tree
+	 */
+	void enterNonspacechar(ECLParser.NonspacecharContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#nonspacechar}.
+	 * @param ctx the parse tree
+	 */
+	void exitNonspacechar(ECLParser.NonspacecharContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ECLParser#starwithnonfslash}.
 	 * @param ctx the parse tree
 	 */

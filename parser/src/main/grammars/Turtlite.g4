@@ -38,7 +38,7 @@ triples
    ;
 
 predicateObjectList
-   : verb objectList (';' (verb objectList)?)*
+   : (verb objectList) (';' (verb objectList)?)*
    ;
 
 objectList

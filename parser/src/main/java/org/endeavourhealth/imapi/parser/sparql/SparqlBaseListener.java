@@ -1,868 +1,844 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammars\ECL.g4 by ANTLR 4.9.1
-package org.endeavourhealth.imapi.parser.ecl;
+// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammars\Sparql.g4 by ANTLR 4.9.1
+package org.endeavourhealth.imapi.parser.sparql;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
- * This class provides an empty implementation of {@link ECLListener},
+ * This class provides an empty implementation of {@link SparqlListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class ECLBaseListener implements ECLListener {
+public class SparqlBaseListener implements SparqlListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpressionconstraint(ECLParser.ExpressionconstraintContext ctx) { }
+	@Override public void enterQuery(SparqlParser.QueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpressionconstraint(ECLParser.ExpressionconstraintContext ctx) { }
+	@Override public void exitQuery(SparqlParser.QueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRefinedexpressionconstraint(ECLParser.RefinedexpressionconstraintContext ctx) { }
+	@Override public void enterPrologue(SparqlParser.PrologueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRefinedexpressionconstraint(ECLParser.RefinedexpressionconstraintContext ctx) { }
+	@Override public void exitPrologue(SparqlParser.PrologueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCompoundexpressionconstraint(ECLParser.CompoundexpressionconstraintContext ctx) { }
+	@Override public void enterBaseDecl(SparqlParser.BaseDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCompoundexpressionconstraint(ECLParser.CompoundexpressionconstraintContext ctx) { }
+	@Override public void exitBaseDecl(SparqlParser.BaseDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConjunctionexpressionconstraint(ECLParser.ConjunctionexpressionconstraintContext ctx) { }
+	@Override public void enterPrefixDecl(SparqlParser.PrefixDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConjunctionexpressionconstraint(ECLParser.ConjunctionexpressionconstraintContext ctx) { }
+	@Override public void exitPrefixDecl(SparqlParser.PrefixDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDisjunctionexpressionconstraint(ECLParser.DisjunctionexpressionconstraintContext ctx) { }
+	@Override public void enterSelectQuery(SparqlParser.SelectQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDisjunctionexpressionconstraint(ECLParser.DisjunctionexpressionconstraintContext ctx) { }
+	@Override public void exitSelectQuery(SparqlParser.SelectQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx) { }
+	@Override public void enterConstructQuery(SparqlParser.ConstructQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx) { }
+	@Override public void exitConstructQuery(SparqlParser.ConstructQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDottedexpressionconstraint(ECLParser.DottedexpressionconstraintContext ctx) { }
+	@Override public void enterDescribeQuery(SparqlParser.DescribeQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDottedexpressionconstraint(ECLParser.DottedexpressionconstraintContext ctx) { }
+	@Override public void exitDescribeQuery(SparqlParser.DescribeQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDottedexpressionattribute(ECLParser.DottedexpressionattributeContext ctx) { }
+	@Override public void enterAskQuery(SparqlParser.AskQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDottedexpressionattribute(ECLParser.DottedexpressionattributeContext ctx) { }
+	@Override public void exitAskQuery(SparqlParser.AskQueryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSubexpressionconstraint(ECLParser.SubexpressionconstraintContext ctx) { }
+	@Override public void enterDatasetClause(SparqlParser.DatasetClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSubexpressionconstraint(ECLParser.SubexpressionconstraintContext ctx) { }
+	@Override public void exitDatasetClause(SparqlParser.DatasetClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclfocusconcept(ECLParser.EclfocusconceptContext ctx) { }
+	@Override public void enterDefaultGraphClause(SparqlParser.DefaultGraphClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclfocusconcept(ECLParser.EclfocusconceptContext ctx) { }
+	@Override public void exitDefaultGraphClause(SparqlParser.DefaultGraphClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDot(ECLParser.DotContext ctx) { }
+	@Override public void enterNamedGraphClause(SparqlParser.NamedGraphClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDot(ECLParser.DotContext ctx) { }
+	@Override public void exitNamedGraphClause(SparqlParser.NamedGraphClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMemberof(ECLParser.MemberofContext ctx) { }
+	@Override public void enterSourceSelector(SparqlParser.SourceSelectorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMemberof(ECLParser.MemberofContext ctx) { }
+	@Override public void exitSourceSelector(SparqlParser.SourceSelectorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclconceptreference(ECLParser.EclconceptreferenceContext ctx) { }
+	@Override public void enterWhereClause(SparqlParser.WhereClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclconceptreference(ECLParser.EclconceptreferenceContext ctx) { }
+	@Override public void exitWhereClause(SparqlParser.WhereClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConceptid(ECLParser.ConceptidContext ctx) { }
+	@Override public void enterSolutionModifier(SparqlParser.SolutionModifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConceptid(ECLParser.ConceptidContext ctx) { }
+	@Override public void exitSolutionModifier(SparqlParser.SolutionModifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTerm(ECLParser.TermContext ctx) { }
+	@Override public void enterLimitOffsetClauses(SparqlParser.LimitOffsetClausesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTerm(ECLParser.TermContext ctx) { }
+	@Override public void exitLimitOffsetClauses(SparqlParser.LimitOffsetClausesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWildcard(ECLParser.WildcardContext ctx) { }
+	@Override public void enterOrderClause(SparqlParser.OrderClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWildcard(ECLParser.WildcardContext ctx) { }
+	@Override public void exitOrderClause(SparqlParser.OrderClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConstraintoperator(ECLParser.ConstraintoperatorContext ctx) { }
+	@Override public void enterOrderCondition(SparqlParser.OrderConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConstraintoperator(ECLParser.ConstraintoperatorContext ctx) { }
+	@Override public void exitOrderCondition(SparqlParser.OrderConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDescendantof(ECLParser.DescendantofContext ctx) { }
+	@Override public void enterLimitClause(SparqlParser.LimitClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDescendantof(ECLParser.DescendantofContext ctx) { }
+	@Override public void exitLimitClause(SparqlParser.LimitClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDescendantorselfof(ECLParser.DescendantorselfofContext ctx) { }
+	@Override public void enterOffsetClause(SparqlParser.OffsetClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDescendantorselfof(ECLParser.DescendantorselfofContext ctx) { }
+	@Override public void exitOffsetClause(SparqlParser.OffsetClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterChildof(ECLParser.ChildofContext ctx) { }
+	@Override public void enterGroupGraphPattern(SparqlParser.GroupGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitChildof(ECLParser.ChildofContext ctx) { }
+	@Override public void exitGroupGraphPattern(SparqlParser.GroupGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAncestorof(ECLParser.AncestorofContext ctx) { }
+	@Override public void enterTriplesBlock(SparqlParser.TriplesBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAncestorof(ECLParser.AncestorofContext ctx) { }
+	@Override public void exitTriplesBlock(SparqlParser.TriplesBlockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAncestororselfof(ECLParser.AncestororselfofContext ctx) { }
+	@Override public void enterGraphPatternNotTriples(SparqlParser.GraphPatternNotTriplesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAncestororselfof(ECLParser.AncestororselfofContext ctx) { }
+	@Override public void exitGraphPatternNotTriples(SparqlParser.GraphPatternNotTriplesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParentof(ECLParser.ParentofContext ctx) { }
+	@Override public void enterOptionalGraphPattern(SparqlParser.OptionalGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParentof(ECLParser.ParentofContext ctx) { }
+	@Override public void exitOptionalGraphPattern(SparqlParser.OptionalGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConjunction(ECLParser.ConjunctionContext ctx) { }
+	@Override public void enterGraphGraphPattern(SparqlParser.GraphGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConjunction(ECLParser.ConjunctionContext ctx) { }
+	@Override public void exitGraphGraphPattern(SparqlParser.GraphGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDisjunction(ECLParser.DisjunctionContext ctx) { }
+	@Override public void enterGroupOrUnionGraphPattern(SparqlParser.GroupOrUnionGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDisjunction(ECLParser.DisjunctionContext ctx) { }
+	@Override public void exitGroupOrUnionGraphPattern(SparqlParser.GroupOrUnionGraphPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExclusion(ECLParser.ExclusionContext ctx) { }
+	@Override public void enterFilter_(SparqlParser.Filter_Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExclusion(ECLParser.ExclusionContext ctx) { }
+	@Override public void exitFilter_(SparqlParser.Filter_Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclrefinement(ECLParser.EclrefinementContext ctx) { }
+	@Override public void enterConstraint(SparqlParser.ConstraintContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclrefinement(ECLParser.EclrefinementContext ctx) { }
+	@Override public void exitConstraint(SparqlParser.ConstraintContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConjunctionrefinementset(ECLParser.ConjunctionrefinementsetContext ctx) { }
+	@Override public void enterFunctionCall(SparqlParser.FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConjunctionrefinementset(ECLParser.ConjunctionrefinementsetContext ctx) { }
+	@Override public void exitFunctionCall(SparqlParser.FunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDisjunctionrefinementset(ECLParser.DisjunctionrefinementsetContext ctx) { }
+	@Override public void enterArgList(SparqlParser.ArgListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDisjunctionrefinementset(ECLParser.DisjunctionrefinementsetContext ctx) { }
+	@Override public void exitArgList(SparqlParser.ArgListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSubrefinement(ECLParser.SubrefinementContext ctx) { }
+	@Override public void enterConstructTemplate(SparqlParser.ConstructTemplateContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSubrefinement(ECLParser.SubrefinementContext ctx) { }
+	@Override public void exitConstructTemplate(SparqlParser.ConstructTemplateContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclattributeset(ECLParser.EclattributesetContext ctx) { }
+	@Override public void enterConstructTriples(SparqlParser.ConstructTriplesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclattributeset(ECLParser.EclattributesetContext ctx) { }
+	@Override public void exitConstructTriples(SparqlParser.ConstructTriplesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterConjunctionattributeset(ECLParser.ConjunctionattributesetContext ctx) { }
+	@Override public void enterTriplesSameSubject(SparqlParser.TriplesSameSubjectContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitConjunctionattributeset(ECLParser.ConjunctionattributesetContext ctx) { }
+	@Override public void exitTriplesSameSubject(SparqlParser.TriplesSameSubjectContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx) { }
+	@Override public void enterPropertyListNotEmpty(SparqlParser.PropertyListNotEmptyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx) { }
+	@Override public void exitPropertyListNotEmpty(SparqlParser.PropertyListNotEmptyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSubattributeset(ECLParser.SubattributesetContext ctx) { }
+	@Override public void enterPropertyList(SparqlParser.PropertyListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSubattributeset(ECLParser.SubattributesetContext ctx) { }
+	@Override public void exitPropertyList(SparqlParser.PropertyListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclattributegroup(ECLParser.EclattributegroupContext ctx) { }
+	@Override public void enterObjectList(SparqlParser.ObjectListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclattributegroup(ECLParser.EclattributegroupContext ctx) { }
+	@Override public void exitObjectList(SparqlParser.ObjectListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclattribute(ECLParser.EclattributeContext ctx) { }
+	@Override public void enterObject_(SparqlParser.Object_Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclattribute(ECLParser.EclattributeContext ctx) { }
+	@Override public void exitObject_(SparqlParser.Object_Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCardinality(ECLParser.CardinalityContext ctx) { }
+	@Override public void enterVerb(SparqlParser.VerbContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCardinality(ECLParser.CardinalityContext ctx) { }
+	@Override public void exitVerb(SparqlParser.VerbContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMinvalue(ECLParser.MinvalueContext ctx) { }
+	@Override public void enterTriplesNode(SparqlParser.TriplesNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMinvalue(ECLParser.MinvalueContext ctx) { }
+	@Override public void exitTriplesNode(SparqlParser.TriplesNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTo(ECLParser.ToContext ctx) { }
+	@Override public void enterBlankNodePropertyList(SparqlParser.BlankNodePropertyListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTo(ECLParser.ToContext ctx) { }
+	@Override public void exitBlankNodePropertyList(SparqlParser.BlankNodePropertyListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMaxvalue(ECLParser.MaxvalueContext ctx) { }
+	@Override public void enterCollection(SparqlParser.CollectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMaxvalue(ECLParser.MaxvalueContext ctx) { }
+	@Override public void exitCollection(SparqlParser.CollectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMany(ECLParser.ManyContext ctx) { }
+	@Override public void enterGraphNode(SparqlParser.GraphNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMany(ECLParser.ManyContext ctx) { }
+	@Override public void exitGraphNode(SparqlParser.GraphNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReverseflag(ECLParser.ReverseflagContext ctx) { }
+	@Override public void enterVarOrTerm(SparqlParser.VarOrTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReverseflag(ECLParser.ReverseflagContext ctx) { }
+	@Override public void exitVarOrTerm(SparqlParser.VarOrTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclattributename(ECLParser.EclattributenameContext ctx) { }
+	@Override public void enterVarOrIRIref(SparqlParser.VarOrIRIrefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclattributename(ECLParser.EclattributenameContext ctx) { }
+	@Override public void exitVarOrIRIref(SparqlParser.VarOrIRIrefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpressioncomparisonoperator(ECLParser.ExpressioncomparisonoperatorContext ctx) { }
+	@Override public void enterVar_(SparqlParser.Var_Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpressioncomparisonoperator(ECLParser.ExpressioncomparisonoperatorContext ctx) { }
+	@Override public void exitVar_(SparqlParser.Var_Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumericcomparisonoperator(ECLParser.NumericcomparisonoperatorContext ctx) { }
+	@Override public void enterGraphTerm(SparqlParser.GraphTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericcomparisonoperator(ECLParser.NumericcomparisonoperatorContext ctx) { }
+	@Override public void exitGraphTerm(SparqlParser.GraphTermContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStringcomparisonoperator(ECLParser.StringcomparisonoperatorContext ctx) { }
+	@Override public void enterExpression(SparqlParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStringcomparisonoperator(ECLParser.StringcomparisonoperatorContext ctx) { }
+	@Override public void exitExpression(SparqlParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumericvalue(ECLParser.NumericvalueContext ctx) { }
+	@Override public void enterConditionalOrExpression(SparqlParser.ConditionalOrExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumericvalue(ECLParser.NumericvalueContext ctx) { }
+	@Override public void exitConditionalOrExpression(SparqlParser.ConditionalOrExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStringvalue(ECLParser.StringvalueContext ctx) { }
+	@Override public void enterConditionalAndExpression(SparqlParser.ConditionalAndExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStringvalue(ECLParser.StringvalueContext ctx) { }
+	@Override public void exitConditionalAndExpression(SparqlParser.ConditionalAndExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIntegervalue(ECLParser.IntegervalueContext ctx) { }
+	@Override public void enterValueLogical(SparqlParser.ValueLogicalContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIntegervalue(ECLParser.IntegervalueContext ctx) { }
+	@Override public void exitValueLogical(SparqlParser.ValueLogicalContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDecimalvalue(ECLParser.DecimalvalueContext ctx) { }
+	@Override public void enterRelationalExpression(SparqlParser.RelationalExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDecimalvalue(ECLParser.DecimalvalueContext ctx) { }
+	@Override public void exitRelationalExpression(SparqlParser.RelationalExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNonnegativeintegervalue(ECLParser.NonnegativeintegervalueContext ctx) { }
+	@Override public void enterNumericExpression(SparqlParser.NumericExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNonnegativeintegervalue(ECLParser.NonnegativeintegervalueContext ctx) { }
+	@Override public void exitNumericExpression(SparqlParser.NumericExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSctid(ECLParser.SctidContext ctx) { }
+	@Override public void enterAdditiveExpression(SparqlParser.AdditiveExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSctid(ECLParser.SctidContext ctx) { }
+	@Override public void exitAdditiveExpression(SparqlParser.AdditiveExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWs(ECLParser.WsContext ctx) { }
+	@Override public void enterMultiplicativeExpression(SparqlParser.MultiplicativeExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitWs(ECLParser.WsContext ctx) { }
+	@Override public void exitMultiplicativeExpression(SparqlParser.MultiplicativeExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMws(ECLParser.MwsContext ctx) { }
+	@Override public void enterUnaryExpression(SparqlParser.UnaryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitMws(ECLParser.MwsContext ctx) { }
+	@Override public void exitUnaryExpression(SparqlParser.UnaryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComment(ECLParser.CommentContext ctx) { }
+	@Override public void enterPrimaryExpression(SparqlParser.PrimaryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComment(ECLParser.CommentContext ctx) { }
+	@Override public void exitPrimaryExpression(SparqlParser.PrimaryExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNonstarchar(ECLParser.NonstarcharContext ctx) { }
+	@Override public void enterBrackettedExpression(SparqlParser.BrackettedExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNonstarchar(ECLParser.NonstarcharContext ctx) { }
+	@Override public void exitBrackettedExpression(SparqlParser.BrackettedExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNonspacechar(ECLParser.NonspacecharContext ctx) { }
+	@Override public void enterBuiltInCall(SparqlParser.BuiltInCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNonspacechar(ECLParser.NonspacecharContext ctx) { }
+	@Override public void exitBuiltInCall(SparqlParser.BuiltInCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStarwithnonfslash(ECLParser.StarwithnonfslashContext ctx) { }
+	@Override public void enterRegexExpression(SparqlParser.RegexExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStarwithnonfslash(ECLParser.StarwithnonfslashContext ctx) { }
+	@Override public void exitRegexExpression(SparqlParser.RegexExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNonfslash(ECLParser.NonfslashContext ctx) { }
+	@Override public void enterIriRefOrFunction(SparqlParser.IriRefOrFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNonfslash(ECLParser.NonfslashContext ctx) { }
+	@Override public void exitIriRefOrFunction(SparqlParser.IriRefOrFunctionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSp(ECLParser.SpContext ctx) { }
+	@Override public void enterRdfLiteral(SparqlParser.RdfLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSp(ECLParser.SpContext ctx) { }
+	@Override public void exitRdfLiteral(SparqlParser.RdfLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterHtab(ECLParser.HtabContext ctx) { }
+	@Override public void enterNumericLiteral(SparqlParser.NumericLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitHtab(ECLParser.HtabContext ctx) { }
+	@Override public void exitNumericLiteral(SparqlParser.NumericLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCr(ECLParser.CrContext ctx) { }
+	@Override public void enterNumericLiteralUnsigned(SparqlParser.NumericLiteralUnsignedContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCr(ECLParser.CrContext ctx) { }
+	@Override public void exitNumericLiteralUnsigned(SparqlParser.NumericLiteralUnsignedContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLf(ECLParser.LfContext ctx) { }
+	@Override public void enterNumericLiteralPositive(SparqlParser.NumericLiteralPositiveContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLf(ECLParser.LfContext ctx) { }
+	@Override public void exitNumericLiteralPositive(SparqlParser.NumericLiteralPositiveContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterQm(ECLParser.QmContext ctx) { }
+	@Override public void enterNumericLiteralNegative(SparqlParser.NumericLiteralNegativeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitQm(ECLParser.QmContext ctx) { }
+	@Override public void exitNumericLiteralNegative(SparqlParser.NumericLiteralNegativeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBs(ECLParser.BsContext ctx) { }
+	@Override public void enterBooleanLiteral(SparqlParser.BooleanLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBs(ECLParser.BsContext ctx) { }
+	@Override public void exitBooleanLiteral(SparqlParser.BooleanLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDigit(ECLParser.DigitContext ctx) { }
+	@Override public void enterString(SparqlParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDigit(ECLParser.DigitContext ctx) { }
+	@Override public void exitString(SparqlParser.StringContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterZero(ECLParser.ZeroContext ctx) { }
+	@Override public void enterIriRef(SparqlParser.IriRefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitZero(ECLParser.ZeroContext ctx) { }
+	@Override public void exitIriRef(SparqlParser.IriRefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDigitnonzero(ECLParser.DigitnonzeroContext ctx) { }
+	@Override public void enterPrefixedName(SparqlParser.PrefixedNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDigitnonzero(ECLParser.DigitnonzeroContext ctx) { }
+	@Override public void exitPrefixedName(SparqlParser.PrefixedNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNonwsnonpipe(ECLParser.NonwsnonpipeContext ctx) { }
+	@Override public void enterBlankNode(SparqlParser.BlankNodeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNonwsnonpipe(ECLParser.NonwsnonpipeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAnynonescapedchar(ECLParser.AnynonescapedcharContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAnynonescapedchar(ECLParser.AnynonescapedcharContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEscapedchar(ECLParser.EscapedcharContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEscapedchar(ECLParser.EscapedcharContext ctx) { }
+	@Override public void exitBlankNode(SparqlParser.BlankNodeContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -8,48 +8,97 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class TTToECL {
-	public String getConceptSetECL(TTEntity entity, TTDocument document) throws DataFormatException {
-			StringBuilder ecl = new StringBuilder();
-			if (entity.get(IM.HAS_MEMBER) != null) {
+
+	public static String getConceptSetECL(TTEntity entity, TTDocument document, Boolean includeName) throws DataFormatException {
+		StringBuilder ecl = new StringBuilder();
+		if (entity.get(IM.NOT_MEMBER) != null)
+			exclusionExpression(entity, ecl,includeName);
+		else if (entity.get(IM.HAS_SUBSET) != null)
+			subExpression(entity, IM.HAS_SUBSET, ecl,includeName);
+		else
+			subExpression(entity, IM.HAS_MEMBER, ecl,includeName);
+		return ecl.toString();
+	}
+
+	private static void exclusionExpression(TTEntity entity, StringBuilder ecl,Boolean includeName) throws DataFormatException {
+		if (entity.get(IM.HAS_MEMBER).asArray().size()>1)
+			ecl.append("(");
+		subExpression(entity,IM.HAS_MEMBER,ecl,includeName);
+		if (entity.get(IM.HAS_MEMBER).asArray().size()>1)
+			ecl.append(")");
+		ecl.append(" MINUS ");
+		if (entity.get(IM.NOT_MEMBER).asArray().size()>1)
+			ecl.append("( ");
+		subExpression(entity,IM.NOT_MEMBER,ecl,includeName);
+		if (entity.get(IM.NOT_MEMBER).asArray().size()>1)
+			ecl.append(" )");
+	}
+	private static void subExpression(TTEntity entity,TTIriRef memberPredicate,StringBuilder ecl,Boolean includeName) throws DataFormatException {
+		String iri;
+		if (entity.get(memberPredicate) != null) {
 				boolean first = true;
-				for (TTValue member : entity.get(IM.HAS_MEMBER).asArray().getElements()) {
+				for (TTValue member : entity.get(memberPredicate).asArray().getElements()) {
 					if (!first)
 						ecl.append(" OR ");
 					first = false;
 					if (member.isIriRef()) {
-						checkMember(member.asIriRef().getIri());
-						ecl.append("<<" + member.asIriRef().getIri().split("#")[1]);
+						iri=checkMember(member.asIriRef().getIri());
+						if(includeName){
+							ecl.append("<<" + iri + " | " + member.asIriRef().getName());
+						} else {
+							ecl.append("<<" + iri);
+						}
 					} else {
 						ecl.append("(");
 						TTNode expression = member.asNode();
 						if (expression.get(OWL.INTERSECTIONOF) != null) {
+							boolean intFirst=true;
 							for (TTValue inter : expression.get(OWL.INTERSECTIONOF).asArray().getElements()) {
 								if (inter.isIriRef()) {
-									checkMember(inter.asIriRef().getIri());
-									ecl.append("<<" + inter.asIriRef().getIri().split("#")[1]);
-								} else {
-									for (Map.Entry<TTIriRef, TTValue> entry : inter.asNode().getPredicateMap().entrySet()) {
-										checkMember(entry.getKey().getIri());
-										checkMember(entry.getValue().asIriRef().getIri());
-										ecl.append(" : <<" + entry.getKey().getIri().split("#")[1]);
-										ecl.append(" = <<" + entry.getValue().asIriRef().getIri().split("#")[1]);
+									if (!intFirst)
+										ecl.append(" + ");
+									iri = checkMember(inter.asIriRef().getIri());
+									if (includeName) {
+										ecl.append("<<" + iri + " | " + inter.asIriRef().getName());
+									} else {
+										ecl.append("<<" + iri);
 									}
 								}
 							}
-							ecl.append(")");
+							intFirst=true;
+							for (TTValue inter : expression.get(OWL.INTERSECTIONOF).asArray().getElements()) {
+								if (!inter.isIriRef()) {
+									if (!intFirst)
+										ecl.append(" , ");
+									intFirst=false;
+									for (Map.Entry<TTIriRef, TTValue> entry : inter.asNode().getPredicateMap().entrySet()) {
+										String predIri= checkMember(entry.getKey().getIri());
+										iri= checkMember(entry.getValue().asIriRef().getIri());
+										if(includeName){
+											ecl.append(" : <<" + predIri + " | " + entry.getKey().getName());
+											ecl.append(" = <<" + iri + " | " + entry.getValue().asIriRef().getName());
+										}else {
+											ecl.append(" : <<" + predIri);
+											ecl.append(" = <<" + iri);
+										}
+									}
+								}
+							}
+							ecl.append(" )");
 						}
 
 					}
 
 				}
-				return ecl.toString();
 			}
-		return null;
 	}
 
-	private void checkMember(String iri) throws DataFormatException {
-		if (!iri.contains("/sct#")&(!iri.contains("/im#")))
-			throw new DataFormatException("ECL converter supports snomed and discovery codes only");
+	private static String checkMember(String iri) throws DataFormatException {
+		if (iri.contains("/sct#")|(iri.contains("/im#")))
+			return iri.split("#")[1];
+		else
+				return iri;
+
 	}
 }
 

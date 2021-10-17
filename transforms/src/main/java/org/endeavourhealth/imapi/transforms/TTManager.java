@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -11,6 +12,7 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -24,6 +26,7 @@ public class TTManager {
    private Map<String, TTEntity> nameMap;
    private TTDocument document;
    private TTContext context;
+   private Set<TTIriRef> templatedPredicates;
    // private List<TTPrefix> defaultPrefixes;
    // private Map<String,String> prefixMap;
 
@@ -72,6 +75,7 @@ public class TTManager {
    public TTContext createDefaultContext() {
       context = new TTContext();
       context.add(IM.NAMESPACE, "im","Discovery namespace");
+      context.add(IMQ.NAMESPACE, "imq","Discovery query namespace");
       context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
       context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
       context.add(RDF.NAMESPACE, "rdf","RDF namespace");
@@ -126,7 +130,6 @@ public class TTManager {
     */
 
    public void saveOWLOntology(OWLOntologyManager manager, File outputFile) throws IOException {
-      FileWriter writer = new FileWriter(outputFile);
       manager.getOntologies().forEach(o -> {
          try {
             OWLDocumentFormat format = manager.getOntologyFormat(o);
@@ -183,7 +186,6 @@ public class TTManager {
 
    /**
     * Saves the Discovery ontology held by the manager
-    *
     * @param outputFile file to save ontology to
     * @throws JsonProcessingException if deserialization fails
     */
@@ -200,6 +202,48 @@ public class TTManager {
       } catch (Exception e) {
          e.printStackTrace();
       }
+   }
+
+   /**
+    * Applies run time display template to an entity and its sub nodes and nodes using the static
+    * template predicate lists as defined in TTDisplay.
+    * @param node the TTNode to reorder
+    * @return the node
+    * @throws DataFormatException
+    */
+   public TTNode reorderPredicates(TTNode node) throws DataFormatException {
+      node.setPredicateTemplate(TTDisplay.getTemplate(node));
+      for (Map.Entry<TTIriRef,TTValue> entry:node.getPredicateMap().entrySet()) {
+         TTIriRef predicate = entry.getKey();
+         TTValue value = entry.getValue();
+         TTIriRef[] template = TTDisplay.getTemplate(predicate);
+         if (template != null) {
+            if (value.isNode()) {
+               value.asNode().setPredicateTemplate(template);
+               reorderPredicates(value.asNode());
+            } else if (value.isList()) {
+               for (TTValue listEntry : value.asArray().getElements()) {
+                  if (listEntry.isNode()) {
+                     listEntry.asNode().setPredicateTemplate(template);
+                     reorderPredicates(listEntry.asNode());
+                  }
+               }
+            }
+         }
+      }
+      return node;
+   }
+
+
+
+   public void saveTurtleDocument(File outputFile) throws JsonProcessingException {
+      TTToTurtle converter= new TTToTurtle();
+     String ttl= converter.transformDocument(getDocument());
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+         writer.write(ttl);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
 
    }
 
@@ -209,7 +253,6 @@ public class TTManager {
     *
     * @param document the TTDocument holding the ontology
     * @return the json serialization of the document
-    * @throws JsonProcessingException
     */
    public String getJson(TTDocument document) throws JsonProcessingException {
       ObjectMapper objectMapper = new ObjectMapper();
@@ -217,6 +260,22 @@ public class TTManager {
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
       String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+      return json;
+   }
+   /**
+    * Returns a string of JSON from a TTEntity instance
+    *
+    * @param entity the TTEntity holding the entity
+    * @return the json serialization of the document
+    * @throws JsonProcessingException
+    */
+   public String getJson(TTEntity entity) throws JsonProcessingException {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
+        .writeValueAsString(entity);
       return json;
    }
 
@@ -366,32 +425,6 @@ public class TTManager {
       return false;
    }
 
-   public static TTEntity addProperty(TTEntity entity,TTIriRef logicalConstraint,TTIriRef property,TTIriRef constraintComponent, TTIriRef valueType,Integer min, Integer max, String data){
-      TTNode nodeShape= new TTNode();
-      entity.addObject(logicalConstraint,nodeShape);
-      nodeShape.set(SHACL.PATH,property);
-      if (valueType!=null)
-         nodeShape.set(constraintComponent,valueType);
-      if (min!=null)
-         nodeShape.set(SHACL.MINCOUNT,TTLiteral.literal(min));
-      if (max!=null)
-         nodeShape.set(SHACL.MAXCOUNT,TTLiteral.literal(max));
-      if (data!=null)
-         nodeShape.set(SHACL.HASVALUE,TTLiteral.literal(data));
-
-      return entity;
-   }
-
-
-   public boolean isValidIri(String iri) {
-      if (context == null)
-         createDefaultContext();
-      if (expand(iri) == null)
-         return false;
-      else
-         return true;
-
-   }
 
    public static TTEntity createInstance(TTIriRef iri,TTIriRef crud){
       TTEntity result= new TTEntity();
@@ -411,9 +444,6 @@ public class TTManager {
 
    }
 
-   public static void addEquivalentClass(TTEntity entity, TTIriRef andOr, TTValue eqClass) {
-      addESAxiom(entity,OWL.EQUIVALENTCLASS,andOr,eqClass);
-   }
 
    private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                   TTIriRef andOr, TTValue newExpression) {

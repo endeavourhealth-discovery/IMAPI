@@ -77,13 +77,16 @@ public class MappingController {
 
     @PostMapping("/mapDocument/errors")
     public MapDocumentError validateMapDocument(@RequestParam MultipartFile mapDocument) {
-       return mapDocumentValidator.getError(mapDocument);
+        return mapDocumentValidator.getError(mapDocument);
     }
 
     @PostMapping("/references")
     public Set<String> getReferencesFromContentFile(@RequestParam MultipartFile contentFile) throws IOException {
         if ("text/csv".equals(contentFile.getContentType())) {
-            return FileParser.getColumnNamesFromCsv(contentFile);
+            return FileParser.getColumnNamesFromCsv(contentFile, ",".charAt(0));
+        }
+        if ("text/plain".equals(contentFile.getContentType())) {
+            return FileParser.getColumnNamesFromCsv(contentFile, "\t".charAt(0));
         }
 //      addition of diff
         return null;

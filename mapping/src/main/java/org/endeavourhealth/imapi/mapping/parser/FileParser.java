@@ -185,11 +185,11 @@ public class FileParser {
         return mapper.readTree(file.getBytes());
     }
 
-    public static Set<String> getColumnNamesFromCsv(MultipartFile csvFile) throws IOException {
+    public static Set<String> getColumnNamesFromCsv(MultipartFile csvFile, char separator) throws IOException {
         CsvMapper csvMapper = new CsvMapper();
         CsvSchema csvSchema = csvMapper.typedSchemaFor(Map.class).withHeader();
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(Map.class)
-                .with(csvSchema.withColumnSeparator(',')).readValues(csvFile.getInputStream());
+                .with(csvSchema.withColumnSeparator(separator)).readValues(csvFile.getInputStream());
         return it.next().keySet();
     }
 

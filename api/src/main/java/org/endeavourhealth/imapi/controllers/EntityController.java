@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
+import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
@@ -80,6 +81,12 @@ public class EntityController {
             limit = EntityService.UNLIMITED;
         return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
+
+	@GetMapping(value = "/matchedFrom", produces = "application/json")
+	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) throws SQLException {
+		LOG.debug("getMatchedFrom");
+		return entityService.getMatchedFrom(iri);
+	}
 
     @GetMapping(value = "/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri,

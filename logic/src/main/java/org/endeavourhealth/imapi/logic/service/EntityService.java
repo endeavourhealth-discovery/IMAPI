@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -744,4 +745,8 @@ public class EntityService {
 
         return getEntityPredicates(iri, predicates, UNLIMITED);
     }
+
+	public Collection<SimpleMap> getMatchedFrom(String iri) throws SQLException {
+		return entityTripleRepository.getSubjectFromObject(iri, IM.MATCHED_TO);
+	}
 }

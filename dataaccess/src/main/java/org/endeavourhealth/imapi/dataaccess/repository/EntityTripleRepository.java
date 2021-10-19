@@ -4,6 +4,7 @@ import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALHelper;
 import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -20,31 +21,31 @@ import java.util.*;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
-public class EntityTripleRepository extends BaseRepository{
+public class EntityTripleRepository extends BaseRepository {
 
     public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner("\n")
-            .add("WITH RECURSIVE triples AS (")
-            .add("\tSELECT tpl.dbid, tpl.subject, tpl.blank_node AS parent, tpl.predicate, tpl.object, tpl.literal, tpl.functional")
-            .add("\tFROM tpl")
-            .add("\tJOIN entity e ON tpl.subject=e.dbid")
-            .add("\tJOIN entity p ON p.dbid = tpl.predicate")
-            .add("\tWHERE e.iri = ? ");
+                .add("WITH RECURSIVE triples AS (")
+                .add("\tSELECT tpl.dbid, tpl.subject, tpl.blank_node AS parent, tpl.predicate, tpl.object, tpl.literal, tpl.functional")
+                .add("\tFROM tpl")
+                .add("\tJOIN entity e ON tpl.subject=e.dbid")
+                .add("\tJOIN entity p ON p.dbid = tpl.predicate")
+                .add("\tWHERE e.iri = ? ");
         if (predicates != null && !predicates.isEmpty())
-            sql.add("\tAND p.iri IN " + inList(predicates.size())) ;
+            sql.add("\tAND p.iri IN " + inList(predicates.size()));
         sql.add("\tAND tpl.blank_node IS NULL")
-            .add("UNION ALL")
-            .add("\tSELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
-            .add("\tFROM triples t")
-            .add("\tJOIN tpl t2 ON t2.blank_node= t.dbid")
-            .add("\tWHERE t2.dbid <> t.dbid")
-            .add(")")
-            .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
-            .add("FROM triples t")
-            .add("JOIN entity p ON t.predicate = p.dbid")
-            .add("LEFT JOIN entity o ON t.object = o.dbid");
+                .add("UNION ALL")
+                .add("\tSELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
+                .add("\tFROM triples t")
+                .add("\tJOIN tpl t2 ON t2.blank_node= t.dbid")
+                .add("\tWHERE t2.dbid <> t.dbid")
+                .add(")")
+                .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
+                .add("FROM triples t")
+                .add("JOIN entity p ON t.predicate = p.dbid")
+                .add("LEFT JOIN entity o ON t.object = o.dbid");
         if (limit > 0)
             sql.add("LIMIT ?");
 
@@ -66,12 +67,12 @@ public class EntityTripleRepository extends BaseRepository{
                         TTIriRef object = objIri == null ? null : iri(rs.getString("objectIri"), rs.getString("object"));
                         String literal = rs.getString("literal");
                         result.add(new Tpl()
-                            .setDbid(rs.getInt("dbid"))
-                            .setParent(DALHelper.getNullableInt(rs, "parent"))
-                            .setPredicate(pred)
-                            .setObject(object)
-                            .setLiteral(literal)
-                            .setFunctional(rs.getBoolean("functional"))
+                                .setDbid(rs.getInt("dbid"))
+                                .setParent(DALHelper.getNullableInt(rs, "parent"))
+                                .setPredicate(pred)
+                                .setObject(object)
+                                .setLiteral(literal)
+                                .setFunctional(rs.getBoolean("functional"))
                         );
                     }
                 }
@@ -92,7 +93,7 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("WHERE o.iri = ?")
                 .add("AND p.iri <> ?")
                 .add("AND s.status <> ?");
-        if(rowNumber!=null && pageSize!=null)
+        if (rowNumber != null && pageSize != null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -100,13 +101,13 @@ public class EntityTripleRepository extends BaseRepository{
                 statement.setString(1, objectIri);
                 statement.setString(2, predicateIri);
                 statement.setString(3, IM.INACTIVE.getIri());
-                if(rowNumber!=null && pageSize!=null) {
+                if (rowNumber != null && pageSize != null) {
                     statement.setInt(4, rowNumber);
                     statement.setInt(5, pageSize);
                 }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        usages.add(iri(rs.getString("iri"),rs.getString("name")));
+                        usages.add(iri(rs.getString("iri"), rs.getString("name")));
                     }
                 }
             }
@@ -133,10 +134,10 @@ public class EntityTripleRepository extends BaseRepository{
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         ValueSetMember valueSetMember = new ValueSetMember()
-                                .setEntity(iri(rs.getString("iri"),rs.getString("name")))
+                                .setEntity(iri(rs.getString("iri"), rs.getString("name")))
                                 .setCode(rs.getString("code"));
-                        if(rs.getString("schemeIri")!=null && rs.getString("schemeName")!=null)
-                            valueSetMember.setScheme(iri(rs.getString("schemeIri"),rs.getString("schemeName")));
+                        if (rs.getString("schemeIri") != null && rs.getString("schemeName") != null)
+                            valueSetMember.setScheme(iri(rs.getString("schemeIri"), rs.getString("schemeName")));
                         members.add(valueSetMember);
                     }
                 }
@@ -162,7 +163,7 @@ public class EntityTripleRepository extends BaseRepository{
                 statement.setString(2, predicate);
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        memberIriRefs.add(iri(rs.getString("iri"),rs.getString("name")));
+                        memberIriRefs.add(iri(rs.getString("iri"), rs.getString("name")));
                     }
                 }
             }
@@ -179,10 +180,10 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?,?) ")
                 .add("JOIN entity o ON o.dbid = t.object ")
                 .add("WHERE c.iri = ?");
-        if(!includeInactive)
+        if (!includeInactive)
             sql.add("AND o.status <> ?").add("AND o.iri <> ?");
         sql.add("ORDER BY o.name ");
-        if(rowNumber!=null && pageSize!=null)
+        if (rowNumber != null && pageSize != null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -192,17 +193,17 @@ public class EntityTripleRepository extends BaseRepository{
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
-                if(!includeInactive) {
+                if (!includeInactive) {
                     statement.setString(++i, IM.INACTIVE.getIri());
                     statement.setString(++i, OWL.THING.getIri());
                 }
-                if(rowNumber!=null && pageSize!=null) {
+                if (rowNumber != null && pageSize != null) {
                     statement.setInt(++i, rowNumber);
                     statement.setInt(++i, pageSize);
                 }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        parents.add(iri(rs.getString("iri"),rs.getString("name")));
+                        parents.add(iri(rs.getString("iri"), rs.getString("name")));
                     }
                 }
             }
@@ -219,10 +220,10 @@ public class EntityTripleRepository extends BaseRepository{
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
                 .add("JOIN entity s ON s.dbid = t.subject ")
                 .add("WHERE c.iri = ?");
-        if(!includeInactive)
+        if (!includeInactive)
             sql.add("AND s.status <> ?");
         sql.add("ORDER BY s.name, s.iri ");
-        if(rowNumber!=null && pageSize!=null)
+        if (rowNumber != null && pageSize != null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
@@ -232,15 +233,15 @@ public class EntityTripleRepository extends BaseRepository{
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
-                if(!includeInactive)
+                if (!includeInactive)
                     statement.setString(++i, IM.INACTIVE.getIri());
-                if(rowNumber!=null && pageSize!=null) {
+                if (rowNumber != null && pageSize != null) {
                     statement.setInt(++i, rowNumber);
                     statement.setInt(++i, pageSize);
                 }
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        children.add(iri(rs.getString("iri"),rs.getString("name")));
+                        children.add(iri(rs.getString("iri"), rs.getString("name")));
                     }
                 }
             }
@@ -250,13 +251,13 @@ public class EntityTripleRepository extends BaseRepository{
 
     public boolean hasChildren(String iri, boolean includeInactive) throws SQLException {
         StringJoiner sql = new StringJoiner("\n")
-            .add("SELECT 1")
-            .add("FROM entity c ")
-            .add("JOIN tpl t ON t.object = c.dbid ")
-            .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
-            .add("JOIN entity s ON s.dbid = t.subject ")
-            .add("WHERE c.iri = ?");
-        if(!includeInactive)
+                .add("SELECT 1")
+                .add("FROM entity c ")
+                .add("JOIN tpl t ON t.object = c.dbid ")
+                .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
+                .add("JOIN entity s ON s.dbid = t.subject ")
+                .add("WHERE c.iri = ?");
+        if (!includeInactive)
             sql.add("AND s.status <> ?");
         sql.add("LIMIT 1 ");
         try (Connection conn = ConnectionPool.get()) {
@@ -267,7 +268,7 @@ public class EntityTripleRepository extends BaseRepository{
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
-                if(!includeInactive)
+                if (!includeInactive)
                     statement.setString(++i, IM.INACTIVE.getIri());
                 try (ResultSet rs = statement.executeQuery()) {
                     return rs.next();
@@ -298,4 +299,30 @@ public class EntityTripleRepository extends BaseRepository{
         return namespaces;
     }
 
+    public Collection<SimpleMap> getSubjectFromObject(String iri, TTIriRef predicate) throws SQLException {
+        HashMap<String, SimpleMap> simpleMaps = new HashMap<>();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT e.iri, e.name, e.code, e.scheme ")
+                .add("FROM tpl t ")
+                .add("JOIN entity e ON e.dbid=t.subject")
+                .add("WHERE object=(SELECT dbid FROM entity WHERE iri = ?) ")
+                .add("AND predicate=(SELECT dbid FROM entity WHERE iri = ?) ");
+
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                int i = 0;
+                statement.setString(++i, iri);
+                statement.setString(++i, predicate.getIri());
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        simpleMaps.put(rs.getString("iri"), new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
+                    }
+                }
+            }
+        }
+
+        return simpleMaps.values();
+    }
 }

@@ -1,511 +1,497 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammars\ECL.g4 by ANTLR 4.9.1
-package org.endeavourhealth.imapi.parser.ecl;
+// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammars\Sparql.g4 by ANTLR 4.9.1
+package org.endeavourhealth.imapi.parser.sparql;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
- * This class provides an empty implementation of {@link ECLVisitor},
+ * This class provides an empty implementation of {@link SparqlVisitor},
  * which can be extended to create a visitor which only needs to handle a subset
  * of the available methods.
  *
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements ECLVisitor<T> {
+public class SparqlBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements SparqlVisitor<T> {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExpressionconstraint(ECLParser.ExpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitQuery(SparqlParser.QueryContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRefinedexpressionconstraint(ECLParser.RefinedexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrologue(SparqlParser.PrologueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCompoundexpressionconstraint(ECLParser.CompoundexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBaseDecl(SparqlParser.BaseDeclContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunctionexpressionconstraint(ECLParser.ConjunctionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrefixDecl(SparqlParser.PrefixDeclContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunctionexpressionconstraint(ECLParser.DisjunctionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSelectQuery(SparqlParser.SelectQueryContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConstructQuery(SparqlParser.ConstructQueryContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDottedexpressionconstraint(ECLParser.DottedexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDescribeQuery(SparqlParser.DescribeQueryContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDottedexpressionattribute(ECLParser.DottedexpressionattributeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAskQuery(SparqlParser.AskQueryContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubexpressionconstraint(ECLParser.SubexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDatasetClause(SparqlParser.DatasetClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclfocusconcept(ECLParser.EclfocusconceptContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDefaultGraphClause(SparqlParser.DefaultGraphClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDot(ECLParser.DotContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNamedGraphClause(SparqlParser.NamedGraphClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMemberof(ECLParser.MemberofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSourceSelector(SparqlParser.SourceSelectorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclconceptreference(ECLParser.EclconceptreferenceContext ctx) { return visitChildren(ctx); }
+	@Override public T visitWhereClause(SparqlParser.WhereClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConceptid(ECLParser.ConceptidContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSolutionModifier(SparqlParser.SolutionModifierContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTerm(ECLParser.TermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLimitOffsetClauses(SparqlParser.LimitOffsetClausesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWildcard(ECLParser.WildcardContext ctx) { return visitChildren(ctx); }
+	@Override public T visitOrderClause(SparqlParser.OrderClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConstraintoperator(ECLParser.ConstraintoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitOrderCondition(SparqlParser.OrderConditionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDescendantof(ECLParser.DescendantofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLimitClause(SparqlParser.LimitClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDescendantorselfof(ECLParser.DescendantorselfofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitOffsetClause(SparqlParser.OffsetClauseContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitChildof(ECLParser.ChildofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGroupGraphPattern(SparqlParser.GroupGraphPatternContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAncestorof(ECLParser.AncestorofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTriplesBlock(SparqlParser.TriplesBlockContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAncestororselfof(ECLParser.AncestororselfofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGraphPatternNotTriples(SparqlParser.GraphPatternNotTriplesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitParentof(ECLParser.ParentofContext ctx) { return visitChildren(ctx); }
+	@Override public T visitOptionalGraphPattern(SparqlParser.OptionalGraphPatternContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunction(ECLParser.ConjunctionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGraphGraphPattern(SparqlParser.GraphGraphPatternContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunction(ECLParser.DisjunctionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGroupOrUnionGraphPattern(SparqlParser.GroupOrUnionGraphPatternContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExclusion(ECLParser.ExclusionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFilter_(SparqlParser.Filter_Context ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclrefinement(ECLParser.EclrefinementContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConstraint(SparqlParser.ConstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunctionrefinementset(ECLParser.ConjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitFunctionCall(SparqlParser.FunctionCallContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunctionrefinementset(ECLParser.DisjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitArgList(SparqlParser.ArgListContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubrefinement(ECLParser.SubrefinementContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConstructTemplate(SparqlParser.ConstructTemplateContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributeset(ECLParser.EclattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConstructTriples(SparqlParser.ConstructTriplesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitConjunctionattributeset(ECLParser.ConjunctionattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTriplesSameSubject(SparqlParser.TriplesSameSubjectContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPropertyListNotEmpty(SparqlParser.PropertyListNotEmptyContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubattributeset(ECLParser.SubattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPropertyList(SparqlParser.PropertyListContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributegroup(ECLParser.EclattributegroupContext ctx) { return visitChildren(ctx); }
+	@Override public T visitObjectList(SparqlParser.ObjectListContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattribute(ECLParser.EclattributeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitObject_(SparqlParser.Object_Context ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCardinality(ECLParser.CardinalityContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVerb(SparqlParser.VerbContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMinvalue(ECLParser.MinvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTriplesNode(SparqlParser.TriplesNodeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTo(ECLParser.ToContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBlankNodePropertyList(SparqlParser.BlankNodePropertyListContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMaxvalue(ECLParser.MaxvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitCollection(SparqlParser.CollectionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMany(ECLParser.ManyContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGraphNode(SparqlParser.GraphNodeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitReverseflag(ECLParser.ReverseflagContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVarOrTerm(SparqlParser.VarOrTermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributename(ECLParser.EclattributenameContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVarOrIRIref(SparqlParser.VarOrIRIrefContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitExpressioncomparisonoperator(ECLParser.ExpressioncomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitVar_(SparqlParser.Var_Context ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNumericcomparisonoperator(ECLParser.NumericcomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitGraphTerm(SparqlParser.GraphTermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringcomparisonoperator(ECLParser.StringcomparisonoperatorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitExpression(SparqlParser.ExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNumericvalue(ECLParser.NumericvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConditionalOrExpression(SparqlParser.ConditionalOrExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringvalue(ECLParser.StringvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitConditionalAndExpression(SparqlParser.ConditionalAndExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIntegervalue(ECLParser.IntegervalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitValueLogical(SparqlParser.ValueLogicalContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDecimalvalue(ECLParser.DecimalvalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitRelationalExpression(SparqlParser.RelationalExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonnegativeintegervalue(ECLParser.NonnegativeintegervalueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericExpression(SparqlParser.NumericExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSctid(ECLParser.SctidContext ctx) { return visitChildren(ctx); }
+	@Override public T visitAdditiveExpression(SparqlParser.AdditiveExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitWs(ECLParser.WsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMultiplicativeExpression(SparqlParser.MultiplicativeExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMws(ECLParser.MwsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitUnaryExpression(SparqlParser.UnaryExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitComment(ECLParser.CommentContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrimaryExpression(SparqlParser.PrimaryExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonstarchar(ECLParser.NonstarcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBrackettedExpression(SparqlParser.BrackettedExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonspacechar(ECLParser.NonspacecharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBuiltInCall(SparqlParser.BuiltInCallContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStarwithnonfslash(ECLParser.StarwithnonfslashContext ctx) { return visitChildren(ctx); }
+	@Override public T visitRegexExpression(SparqlParser.RegexExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonfslash(ECLParser.NonfslashContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIriRefOrFunction(SparqlParser.IriRefOrFunctionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSp(ECLParser.SpContext ctx) { return visitChildren(ctx); }
+	@Override public T visitRdfLiteral(SparqlParser.RdfLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitHtab(ECLParser.HtabContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericLiteral(SparqlParser.NumericLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCr(ECLParser.CrContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericLiteralUnsigned(SparqlParser.NumericLiteralUnsignedContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLf(ECLParser.LfContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericLiteralPositive(SparqlParser.NumericLiteralPositiveContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitQm(ECLParser.QmContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNumericLiteralNegative(SparqlParser.NumericLiteralNegativeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBs(ECLParser.BsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBooleanLiteral(SparqlParser.BooleanLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDigit(ECLParser.DigitContext ctx) { return visitChildren(ctx); }
+	@Override public T visitString(SparqlParser.StringContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitZero(ECLParser.ZeroContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIriRef(SparqlParser.IriRefContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDigitnonzero(ECLParser.DigitnonzeroContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrefixedName(SparqlParser.PrefixedNameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNonwsnonpipe(ECLParser.NonwsnonpipeContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitAnynonescapedchar(ECLParser.AnynonescapedcharContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitEscapedchar(ECLParser.EscapedcharContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBlankNode(SparqlParser.BlankNodeContext ctx) { return visitChildren(ctx); }
 }

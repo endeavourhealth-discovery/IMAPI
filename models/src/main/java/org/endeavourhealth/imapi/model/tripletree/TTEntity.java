@@ -103,7 +103,7 @@ public class TTEntity extends TTNode {
     }
     public boolean isType(TTIriRef type){
         if (this.getType()!=null){
-            return this.getType().getElements().contains(type);
+            return this.getType().contains(type);
         }
         return false;
     }
@@ -116,11 +116,11 @@ public class TTEntity extends TTNode {
     }
 
     public TTIriRef getStatus(){
-        return this.getAsIriRef(IM.STATUS);
+        return this.getAsIriRef(IM.HAS_STATUS);
     }
 
     public TTEntity setStatus(TTIriRef status) {
-        set(IM.STATUS, status);
+        set(IM.HAS_STATUS, status);
         return this;
     }
 

@@ -1,9 +1,15 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 
+import org.endeavourhealth.imapi.vocabulary.RDF;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.endeavourhealth.imapi.query.Query;
+import org.endeavourhealth.imapi.vocabulary.*;
+
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,10 +17,15 @@ import java.util.Map;
  * The default serializations of TT Classes is JSON-LD. Turtle provides a more easily readable format
  */
 
+
 public class TTToTurtle {
-	private TTContext context = new TTContext();
+	private TTContext context;
 	private StringBuilder turtle;
 	private int level;
+	private Map<String,String> prefixes= new HashMap<>();
+
+	public TTToTurtle(){
+	}
 
 
 	/**
@@ -25,68 +36,103 @@ public class TTToTurtle {
 	public String transformDocument(TTDocument document){
 		this.context= document.getContext();
 		turtle= new StringBuilder();
-		setPrefixes();
+		nl();
 		for (TTEntity entity:document.getEntities())
-			transformEntity(entity);
+			appendEntity(entity);
+		turtle.append("\n");
+		for (TTEntity entity:document.getEntities()) {
+			level=0;
+			appendEntity(entity);
+			append("\n");
+		}
+		insertPrefixes();
+		return turtle.toString();
+	}
+
+	public String transformEntity(TTEntity entity, TTContext context){
+		turtle = new StringBuilder();
+		this.context = context;
+		appendEntity(entity);
+		insertPrefixes();
 		return turtle.toString();
 	}
 
 	private void nl(){
 		turtle.append("\n");
 		if (level>0) {
-			String indent = ("                                                                           ").substring(0, level);
+			StringBuilder indent = new StringBuilder();
+			for(int i=0; i<level;i++){
+				indent.append(" ");
+			}
 			turtle.append(indent);
 		}
 	}
 
+	private void insertPrefixes() {
+		for (Map.Entry<String, String> entry : prefixes.entrySet()) {
+			turtle.insert(0, "@prefix " + entry.getValue() + ": <" + entry.getKey() + "> .\n");
 
-	private void setPrefixes() {
-		if (context!=null)
-			if (context.getPrefixes()!=null)
-				for (TTPrefix prefix:context.getPrefixes()){
-					turtle.append("@prefix ")
-					.append(prefix.getPrefix()+": ")
-					.append("<"+prefix.getIri()+"> .");
-					nl();
-				}
-		nl();
+		}
 	}
 
-	private void transformEntity(TTEntity entity){
+	public String transformEntity (TTEntity entity){
+		return transformEntity(entity,entity.getContext());
+	}
+
+
+	private  void appendEntity(TTEntity entity){
 		level=0;
-		setIriandType(entity);
+		nl();
+		append(getShort(entity.getIri()));
 		if (entity.getPredicateMap()!=null){
-			level=level+5;
-			append(";");
+			level=level+3;
 			nl();
 			setPredicateObjects(entity);
 			append(" .");
-			level=level-5;
-			nl();
-			nl();
+			level=level-3;
 		}
 
 	}
 
 	private void setPredicateObjects(TTNode node) {
+		int nodeCount = 1;
 		Map<TTIriRef, TTValue> predicateObjectList = node.getPredicateMap();
-		if (predicateObjectList!=null) {
-			int first = 1;
+		if (predicateObjectList != null) {
 			for (Map.Entry<TTIriRef, TTValue> entry : predicateObjectList.entrySet()) {
 				TTIriRef predicate = entry.getKey();
-				if (!predicate.equals(RDF.TYPE)) {
-					if (first > 1) {
-						append(";");
-						nl();
+				outputPredicateObject(predicate, entry.getValue(), nodeCount);
+				nodeCount++;
 					}
-					first++;
-					append(getShort(predicate.getIri()) + " ");
-					TTValue object = entry.getValue();
-					setObject(object);
-				}
 			}
-		}
 	}
+	private void outputPredicateObject(TTIriRef predicate,TTValue object,int nodeCount) {
+		if (nodeCount > 1) {
+			append(";");
+			nl();
+		}
+		String pred = getShort(predicate.getIri()) + " ";
+		append(pred);
+		int olevel=level;
+		if (predicate.equals(IMQ.HAS_QUERY))
+			if (object.isNode())
+				setSparql(object.asNode());
+			else {
+				object=TTLiteral.literal("\"\""+ object.asLiteral().getValue()+"\"\"");
+				setObject(object);
+			}
+		else
+			setObject(object);
+		level = olevel;
+	}
+
+	private void setSparql(TTNode node){
+		Query query= new Query(node);
+		TTToSPARQL ttToSPARQL= new TTToSPARQL();
+		String spq= ttToSPARQL.transform(query,context,false);
+		append("\"\"\""+ spq+"\"\"\"");
+
+	}
+
 
 	private void setObject(TTValue value){
 			if (value.isIriRef())
@@ -95,47 +141,31 @@ public class TTToTurtle {
 				if (value.asLiteral().getType()==null)
 					append("\""+ value.asLiteral().getValue()+"\"");
 				else {
-						append("\""+value.asLiteral().getValue()+"\"^^"+ getShort(value.asLiteral().getType().getIri()));
+						append("\""+value.asLiteral().getValue()+"\"^^"+ getPrefix(value.asLiteral().getType().getIri()));
 				}
 			} else if (value.isList()){
-				append("(");
-				level=level+5;
-				nl();
 				int firstIn=1;
+				if (value.asArray().size()>1){
+					level=level+6;
+					nl();
+				}
 				for (TTValue entry:value.asArray().getElements()){
 					if (firstIn>1){
-						append(" ");
+						append(" , ");
 						nl();
 					}
 					firstIn++;
 					setObject(entry);
 				}
 
-				nl();
-				append(")");
-				level=level-5;
 			} else{ ;
 				append("[");
-				level=level+1;
 				setPredicateObjects(value.asNode());
 				append("]");
-				level=level-1;
 
 			}
 	}
 
-
-	private void setIriandType(TTEntity entity) {
-		append(getShort(entity.getIri()));
-		append(" a ");
-		int first=1;
-		for (TTValue type:entity.getType().getElements()){
-			if (first>1)
-				append(" , ");
-			append(getShort(type.asIriRef().getIri()));
-			first++;
-		}
-	}
 
 
 	private StringBuilder append(String aString){
@@ -146,32 +176,29 @@ public class TTToTurtle {
 	private String getShort(String iri) {
 		if (iri.contains("#")) {
 			int lnPos = iri.indexOf("#") + 1;
-			String ns= iri.substring(0,lnPos);
-			String ln= iri.substring(lnPos,iri.length());
-			return getPrefix(ns)+ ln;
-		}
-		return iri;
+			String ns = iri.substring(0, lnPos);
+			String ln = iri.substring(lnPos);
+			String prefix=getPrefix(ns);
+			if (prefix!=null)
+				return prefix+ ":" + ln;
+			else
+				return iri;
+		} else
+			return iri;
 	}
 
-	public TTToTurtle addPrefix(TTPrefix directive) {
-		addPrefix(directive.getIri(), directive.getPrefix());
-		return this;
-	}
-	public String getPrefix(String iri) {
-			return context.prefix(iri);
+
+	private String getPrefix(String ns) {
+		if (prefixes.get(ns)!=null)
+			return prefixes.get(ns);
+		String prefix=context.getPrefix(ns);
+		if (prefix!=null){
+			prefixes.put(ns,prefix);
+			return prefix;
+		} else
+			return null;
 	}
 
-	public TTToTurtle addPrefix(String iri, String prefix) {
-		context.add(iri, prefix);
-		return this;
-	}
 
-	public TTContext getContext() {
-		return context;
-	}
 
-	public TTToTurtle setContext(TTContext context) {
-		this.context = context;
-		return this;
-	}
 }

@@ -6,26 +6,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.SetRepository;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
+import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
 @Component
 public class SetService {
     private SetRepository setRepository;
+    private EntityTripleRepository entityTripleRepository;
 
     public SetService() {
         setRepository = new SetRepository();
+        entityTripleRepository = new EntityTripleRepository();
     }
 
     /**
@@ -147,19 +152,22 @@ public class SetService {
         }
     }
 
-    private void exportDefinition(FileWriter definitions, TTEntity conceptSet) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-        String json = objectMapper.writeValueAsString(conceptSet);
+    private void exportDefinition(FileWriter definitions, TTEntity conceptSet) throws IOException, SQLException {
+
+        TTToTurtle turtleConverter = new TTToTurtle();
+        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+        TTContext context = new TTContext();
+        for(Namespace namespace : namespaces){
+            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+        }
+        String turtle = turtleConverter.transformEntity(conceptSet, context);
         TTToECL eclConverter = new TTToECL();
         //ecl only supports snomed and discovery concepts
         try {
-            String ecl = eclConverter.getConceptSetECL(conceptSet, null);
-            definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + ecl + "\t" + json + "\n");
+            String ecl = eclConverter.getConceptSetECL(conceptSet, null, true);
+            definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + ecl + "\t" + turtle + "\n");
         } catch (DataFormatException e){
-            definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + "" + "\t" + json + "\n");
+            definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + "" + "\t" + turtle + "\n");
         }
     }
 
@@ -192,11 +200,6 @@ public class SetService {
         CellStyle headerStyle = workbook.createCellStyle();
         font.setBold(true);
         headerStyle.setFont(font);
-
-        Sheet sheet = workbook.createSheet("Concept summary");
-        addHeaders(sheet, headerStyle, 10000, "Iri", "Name");
-        Row row = addRow(sheet);
-        addCells(row, set.getIri(), set.getName());
 
         addDefinitionsToWorkbook(set, workbook, headerStyle);
 
@@ -234,15 +237,15 @@ public class SetService {
         Sheet sheet;
         Row row;
         sheet = workbook.createSheet("Expanded");
-        addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "Code", "Scheme");
+        addHeaders(sheet, headerStyle, 10000, "Set Iri", "Set Name", "Member Iri", "Member Name", "Code", "Scheme");
         TTEntity expanded = setRepository.getExpansion(set);
-        addEntityMembersToWorkbook(sheet, expanded);
+        addEntityMembersToWorkbook(set, sheet, expanded);
 
         expanded = setRepository.getLegacyExpansion(set);
-        addEntityMembersToWorkbook(sheet, expanded);
+        addEntityMembersToWorkbook(set, sheet, expanded);
     }
 
-    private void addEntityMembersToWorkbook(Sheet sheet, TTEntity expanded) {
+    private void addEntityMembersToWorkbook(TTEntity set, Sheet sheet, TTEntity expanded) {
         Row row;
         if (expanded != null && expanded.has(IM.HAS_MEMBER)) {
             for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
@@ -250,28 +253,30 @@ public class SetService {
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
                 row = addRow(sheet);
-                addCells(row, member.getIri(), member.getName(), code, scheme);
+                addCells(row, set.getIri(), set.getName(), member.getIri(), member.getName(), code, scheme);
             }
         }
     }
 
-    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws JsonProcessingException {
-        Sheet sheet = workbook.createSheet("Definitions");
-        addHeaders(sheet, headerStyle, 10000, "ECL", "JSON");
+    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws JsonProcessingException, SQLException {
+        Sheet sheet = workbook.createSheet("Concept summary");
+        addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "Turtle");
         Row row = addRow(sheet);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-        String json = objectMapper.writeValueAsString(set);
+        TTToTurtle turtleConverter = new TTToTurtle();
+        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+        TTContext context = new TTContext();
+        for(Namespace namespace : namespaces){
+            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+        }
+        String turtle = turtleConverter.transformEntity(set, context);
         TTToECL eclConverter = new TTToECL();
 
         try {
-            String ecl = eclConverter.getConceptSetECL(set, null);
-            addCells(row, ecl, json);
+            String ecl = eclConverter.getConceptSetECL(set, null, true);
+            addCells(row, set.getIri(), set.getName(), ecl, turtle);
         } catch (DataFormatException e){
-            addCells(row, "ERROR", json);
+            addCells(row, set.getIri(), set.getName(), "Error", turtle);
 
         }
     }

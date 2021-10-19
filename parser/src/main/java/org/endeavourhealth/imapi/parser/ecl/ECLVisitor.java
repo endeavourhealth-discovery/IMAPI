@@ -347,6 +347,12 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNonstarchar(ECLParser.NonstarcharContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ECLParser#nonspacechar}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNonspacechar(ECLParser.NonspacecharContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ECLParser#starwithnonfslash}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -12,6 +12,7 @@ import java.util.*;
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue {
     private Map<TTIriRef, TTValue> predicateValues = new HashMap<>();
+    private TTIriRef[] predicateTemplate;
 
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value == null || value.isLiteral() && value.asLiteral().getValue().isEmpty()
@@ -106,4 +107,14 @@ public class TTNode implements TTValue {
         return this;
     }
 
+    @JsonIgnore
+    public TTIriRef[] getPredicateTemplate() {
+        return predicateTemplate;
+    }
+
+    @JsonIgnore
+    public TTNode setPredicateTemplate(TTIriRef[] predicateTemplate) {
+        this.predicateTemplate = predicateTemplate;
+        return this;
+    }
 }

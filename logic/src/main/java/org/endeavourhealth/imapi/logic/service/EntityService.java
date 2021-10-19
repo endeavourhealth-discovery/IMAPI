@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
@@ -11,8 +12,8 @@ import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -22,11 +23,13 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.transforms.TTToHTML;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -34,6 +37,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
 public class EntityService {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
 
@@ -50,6 +55,9 @@ public class EntityService {
 	EntitySearchRepository entitySearchRepository = new EntitySearchRepository();
 
 	EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
+
+	@Autowired
+	ConfigService configService;
 
 	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
@@ -667,7 +675,7 @@ public class EntityService {
 	}
 
 	public EntityDefinitionDto getEntityDefinitionDto(String iri) throws SQLException {
-		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.STATUS.getIri()), UNLIMITED).getEntity();
+		TTEntity entity = getEntityPredicates(iri,Set.of(IM.IS_A.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.HAS_STATUS.getIri()), UNLIMITED).getEntity();
 		List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
 				: entity.getType().getElements().stream()
 						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
@@ -700,8 +708,46 @@ public class EntityService {
 	}
 
 	public List<Namespace> getNamespaces() throws SQLException {
-		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
-		return namespaces;
+//		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+		return entityTripleRepository.findNamespaces();
+	}
+
+    public TTBundle getInferredBundle(String iri) throws SQLException {
+        Set<String> predicates = null;
+        try {
+            predicates = configService.getConfig("inferredPredicates", new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.warn("Error getting inferredPredicates config, reverting to default", e);
+        }
+
+        if (predicates == null) {
+            LOG.warn("Config for inferredPredicates not set, reverting to default");
+            predicates = new HashSet<>(Arrays.asList(IM.IS_A.getIri(), IM.ROLE_GROUP.getIri()));
+        }
+
+        return getEntityPredicates(iri, predicates, UNLIMITED);
+    }
+
+    public TTBundle getAxiomBundle(String iri) throws SQLException {
+        Set<String> predicates = null;
+        try {
+            predicates = configService.getConfig("axiomPredicates", new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.warn("Error getting axiomPredicates config, reverting to default", e);
+        }
+
+        if (predicates == null) {
+            LOG.warn("Config for axiomPredicates not set, reverting to default");
+            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), RDFS.SUBPROPERTYOF.getIri(), OWL.EQUIVALENTCLASS.getIri()));
+        }
+
+        return getEntityPredicates(iri, predicates, UNLIMITED);
+    }
+
+	public Collection<SimpleMap> getMatchedFrom(String iri) throws SQLException {
+		return entityTripleRepository.getSubjectFromObject(iri, IM.MATCHED_TO);
 	}
 
     public Set<String> getPredicateIris(Set<String> predicateIris) throws SQLException {

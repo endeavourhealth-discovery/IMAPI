@@ -85,7 +85,7 @@ public class SetRepository {
 						TTNode node= dbIdNodes.get(parentDbid);
 						if (parentDbid==null)
 							node.set(IM.DBID,TTLiteral.literal(rs.getInt("subject")));
-						TTIriRef predicate= 	TTIriRef.iri(rs.getString("predicateIri"));
+						TTIriRef predicate= TTIriRef.iri(rs.getString("predicateIri"),rs.getString("predicate"));
 						TTValue ttobject= node.get(predicate);
 						boolean functional= rs.getInt("functional")==1;
 						if (ttobject==null) {

@@ -218,12 +218,6 @@ public class EntityController {
         return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
 	}
 
-	@GetMapping(value = "/complexMembers")
-	public List<String> getComplexMembers(@RequestParam(name = "iri") String iri) throws SQLException {
-		LOG.debug("getComplexMembers");
-		return entityService.getComplexMembers(iri);
-	}
-
 	@GetMapping(value = "/isMemberOf")
 	public ValueSetMembership isMemberOfValueSet(@RequestParam(name = "iri") String entityIri,
 			@RequestParam("valueSetIri") String valueSetIri) throws SQLException {

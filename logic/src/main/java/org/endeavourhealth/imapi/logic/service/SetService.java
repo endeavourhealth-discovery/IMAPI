@@ -161,10 +161,9 @@ public class SetService {
             context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
         }
         String turtle = turtleConverter.transformEntity(conceptSet, context);
-        TTToECL eclConverter = new TTToECL();
         //ecl only supports snomed and discovery concepts
         try {
-            String ecl = eclConverter.getConceptSetECL(conceptSet, null, true);
+            String ecl = TTToECL.getExpressionConstraint(conceptSet.get(IM.HAS_MEMBER),true);
             definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + ecl + "\t" + turtle + "\n");
         } catch (DataFormatException e){
             definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + "" + "\t" + turtle + "\n");
@@ -270,10 +269,9 @@ public class SetService {
             context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
         }
         String turtle = turtleConverter.transformEntity(set, context);
-        TTToECL eclConverter = new TTToECL();
 
         try {
-            String ecl = eclConverter.getConceptSetECL(set, null, true);
+            String ecl = TTToECL.getExpressionConstraint(set.get(IM.HAS_MEMBER),true);
             addCells(row, set.getIri(), set.getName(), ecl, turtle);
         } catch (DataFormatException e){
             addCells(row, set.getIri(), set.getName(), "Error", turtle);

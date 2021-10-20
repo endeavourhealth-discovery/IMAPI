@@ -117,7 +117,7 @@ public class TTToTurtle {
 			if (object.isNode())
 				setSparql(object.asNode());
 			else {
-				object=TTLiteral.literal("\"\""+ object.asLiteral().getValue()+"\"\"");
+				object=TTLiteral.literal("\"\""+ object.asLiteral().getValue().replace("\"","")+"\"\"");
 				setObject(object);
 			}
 		else
@@ -139,9 +139,10 @@ public class TTToTurtle {
 				append(getShort(value.asIriRef().getIri()));
 			else if(value.isLiteral()){
 				if (value.asLiteral().getType()==null)
-					append("\""+ value.asLiteral().getValue()+"\"");
+				 append("\""+ value.asLiteral().getValue().replace("\"","")+"\"");
 				else {
-						append("\""+value.asLiteral().getValue()+"\"^^"+ getPrefix(value.asLiteral().getType().getIri()));
+					append("\""+value.asLiteral().getValue().replace("\"","")+"\"^^"+ getShort(value.asLiteral().getType().getIri()));
+
 				}
 			} else if (value.isList()){
 				int firstIn=1;

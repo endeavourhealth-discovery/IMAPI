@@ -2,95 +2,141 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class TTToECL {
 
-	public static String getConceptSetECL(TTEntity entity, TTDocument document, Boolean includeName) throws DataFormatException {
+	public static String getExpressionConstraint(TTValue exp, Boolean includeName) throws DataFormatException {
 		StringBuilder ecl = new StringBuilder();
-		if (entity.get(IM.NOT_MEMBER) != null)
-			exclusionExpression(entity, ecl,includeName);
-		else if (entity.get(IM.HAS_SUBSET) != null)
-			subExpression(entity, IM.HAS_SUBSET, ecl,includeName);
-		else
-			subExpression(entity, IM.HAS_MEMBER, ecl,includeName);
+		subExpression(exp,ecl,includeName);
 		return ecl.toString();
 	}
 
-	private static void exclusionExpression(TTEntity entity, StringBuilder ecl,Boolean includeName) throws DataFormatException {
-		if (entity.get(IM.HAS_MEMBER).asArray().size()>1)
-			ecl.append("(");
-		subExpression(entity,IM.HAS_MEMBER,ecl,includeName);
-		if (entity.get(IM.HAS_MEMBER).asArray().size()>1)
-			ecl.append(")");
-		ecl.append(" MINUS ");
-		if (entity.get(IM.NOT_MEMBER).asArray().size()>1)
-			ecl.append("( ");
-		subExpression(entity,IM.NOT_MEMBER,ecl,includeName);
-		if (entity.get(IM.NOT_MEMBER).asArray().size()>1)
-			ecl.append(" )");
-	}
-	private static void subExpression(TTEntity entity,TTIriRef memberPredicate,StringBuilder ecl,Boolean includeName) throws DataFormatException {
-		String iri;
-		if (entity.get(memberPredicate) != null) {
-				boolean first = true;
-				for (TTValue member : entity.get(memberPredicate).asArray().getElements()) {
-					if (!first)
-						ecl.append(" OR ");
-					first = false;
-					if (member.isIriRef()) {
-						iri=checkMember(member.asIriRef().getIri());
-						if(includeName){
-							ecl.append("<<" + iri + " | " + member.asIriRef().getName());
-						} else {
-							ecl.append("<<" + iri);
-						}
-					} else {
-						ecl.append("(");
-						TTNode expression = member.asNode();
-						if (expression.get(OWL.INTERSECTIONOF) != null) {
-							boolean intFirst=true;
-							for (TTValue inter : expression.get(OWL.INTERSECTIONOF).asArray().getElements()) {
-								if (inter.isIriRef()) {
-									if (!intFirst)
-										ecl.append(" + ");
-									iri = checkMember(inter.asIriRef().getIri());
-									if (includeName) {
-										ecl.append("<<" + iri + " | " + inter.asIriRef().getName());
-									} else {
-										ecl.append("<<" + iri);
-									}
-								}
-							}
-							intFirst=true;
-							for (TTValue inter : expression.get(OWL.INTERSECTIONOF).asArray().getElements()) {
-								if (!inter.isIriRef()) {
-									if (!intFirst)
-										ecl.append(" , ");
-									intFirst=false;
-									for (Map.Entry<TTIriRef, TTValue> entry : inter.asNode().getPredicateMap().entrySet()) {
-										String predIri= checkMember(entry.getKey().getIri());
-										iri= checkMember(entry.getValue().asIriRef().getIri());
-										if(includeName){
-											ecl.append(" : <<" + predIri + " | " + entry.getKey().getName());
-											ecl.append(" = <<" + iri + " | " + entry.getValue().asIriRef().getName());
-										}else {
-											ecl.append(" : <<" + predIri);
-											ecl.append(" = <<" + iri);
-										}
-									}
-								}
-							}
-							ecl.append(" )");
-						}
 
-					}
-
-				}
+	private static void subExpression(TTValue exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
+		if (exp.isIriRef()){
+			addClass(exp.asIriRef(),ecl,includeName);
+		} else if (exp.isNode()) {
+			if (exp.asNode().get(SHACL.OR) != null) {
+				addJunction(exp.asNode(), SHACL.OR,ecl, includeName);
+			} else if (exp.asNode().get(SHACL.AND) != null) {
+				addJunction(exp.asNode(), SHACL.AND,ecl, includeName);
+			} else if (exp.asNode().get(SHACL.NOT)!=null) {
+				ecl.append(" MINUS ");
+				if (!exp.asNode().get(SHACL.NOT).isIriRef())
+					ecl.append("(");
+				subExpression(exp.asNode().get(SHACL.NOT),ecl,includeName);
+				if (!exp.asNode().get(SHACL.NOT).isIriRef())
+				ecl.append(")");
 			}
+			else {
+				addRefined(exp.asNode(), ecl, includeName);
+			}
+		} else {
+			for (TTValue subExp:exp.asArray().getElements()){
+				subExpression(subExp,ecl,includeName);
+			}
+		}
+
+	}
+
+
+
+	private static void addJunction(TTNode exp, TTIriRef junction,StringBuilder ecl, Boolean includeName) throws DataFormatException {
+		boolean first = true;
+		for (TTValue member : exp.asNode().get(junction).asArray().getElements()) {
+			if (!first)
+				ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
+			first = false;
+			if (member.isIriRef()) {
+				addClass(member.asIriRef(), ecl, includeName);
+			} else if (member.asNode().get(SHACL.NOT) != null) {
+				ecl.append(" MINUS ");
+				subExpression(member.asNode().get(SHACL.NOT), ecl, includeName);
+			} else if (member.asNode().get(SHACL.AND)!=null){
+				ecl.append("(");
+				subExpression(member.asNode().get(SHACL.AND), ecl, includeName);
+				ecl.append(")");
+			}  else if (member.asNode().get(SHACL.OR)!=null) {
+				ecl.append("(");
+				subExpression(member.asNode().get(SHACL.OR), ecl, includeName);
+				ecl.append(")");
+			}
+			else {
+				ecl.append("(");
+				addRefined(member.asNode(), ecl, includeName);
+				ecl.append(")");
+			}
+		}
+	}
+
+
+
+
+	private static void addRefined(TTNode exp, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+		if (exp.get(RDFS.SUBCLASSOF)!=null){
+			boolean first=true;
+			for (TTValue superClass:exp.get(RDFS.SUBCLASSOF).asArray().getElements()){
+				if (!first) {
+					if (superClass.isIriRef())
+						ecl.append(" + ");
+				}
+				first=false;
+				subExpression(superClass,ecl,includeName);
+			}
+		}
+		if (exp.get(IM.PROPERTY_GROUP)!=null){
+			ecl.append(" : ");
+			Integer groupCount= exp.get(IM.PROPERTY_GROUP).asArray().size();
+			boolean first=true;
+			for (TTValue group:exp.get(IM.PROPERTY_GROUP).asArray().getElements()){
+				if (!first)
+					ecl.append(" , ");
+				first=false;
+				if (groupCount>1){
+					ecl.append(" {");
+				}
+				addAttributeSet(group.asNode(),ecl,includeName);
+				if (groupCount>1)
+					ecl.append("}");
+			}
+		}
+	}
+
+	private static void addAttributeSet(TTNode group, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+		if (group.get(SHACL.PROPERTY)!=null){
+			for (TTValue property:group.get(SHACL.PROPERTY).asArray().getElements()){
+				if (property.isNode()){
+					if (property.asNode().get(SHACL.PATH)!=null){
+						addClass(property.asNode().get(SHACL.PATH).asIriRef(),ecl,includeName);
+						ecl.append(" = ");
+						if (property.asNode().get(SHACL.CLASS)!=null){
+							if (property.asNode().get(SHACL.CLASS).isIriRef()) {
+								addClass(property.asNode().get(SHACL.CLASS).asIriRef(), ecl, includeName);
+							} else
+								throw new DataFormatException("Attribute value type not suitable for ecl conversion");
+						} else
+							throw new DataFormatException("Invalid attribute refinement for ecl conversion");
+
+					} else
+						throw new DataFormatException("Property group not suited to ecl conversion");
+				}
+
+			}
+		}
+	}
+
+	private static void addClass(TTIriRef exp,StringBuilder ecl,boolean includeName) throws DataFormatException {
+		String iri=checkMember(exp.asIriRef().getIri());
+		if(includeName){
+			ecl.append("<< " + iri + " | " + exp.asIriRef().getName()+" |");
+		} else {
+			ecl.append("<< " + iri);
+		}
 	}
 
 	private static String checkMember(String iri) throws DataFormatException {

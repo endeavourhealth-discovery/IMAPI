@@ -386,7 +386,7 @@ public class SetRepository {
 		sql.add("select distinct tct.descendant as dbid from");
 		sql.add("entity cs")
 			.add("join tpl on tpl.subject= cs.dbid")
-			.add("join entity hasmembers on tpl.predicate= hasmembers.dbid")
+			.add("join entity hasmember on tpl.predicate= hasmember.dbid")
 			.add("join entity core on tpl.object= core.dbid")
 			.add("join tct on tct.ancestor= tpl.object")
 			.add("where cs.iri='"+ conceptSet.getIri()+ "'")

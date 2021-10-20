@@ -354,17 +354,6 @@ public class EntityService {
 		return memberHashMap;
 	}
 
-	public List<String> getComplexMembers(String iri) throws SQLException {
-		Set<String> predicates = new HashSet<>();
-		predicates.add(IM.HAS_MEMBER.getIri());
-		List<TTValue> results = getEntityPredicates(iri, predicates, UNLIMITED)
-            .getEntity()
-            .getAsArray(IM.HAS_MEMBER).getElements();
-		List<TTValue> filteredResults = results.stream().filter(r -> r.isNode()).collect(Collectors.toList());
-		List<String> memberAsHTML = filteredResults.stream().map(result -> TTToHTML.getExpressionText(result.asNode())).collect(Collectors.toList());
-		return memberAsHTML;
-	}
-
 	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) throws SQLException {
 		if (valueSetIri == null || valueSetIri.isEmpty() || memberIri == null || memberIri.isEmpty())
 			return null;

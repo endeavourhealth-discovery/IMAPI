@@ -30,7 +30,6 @@
     <module>workflow</module>
     <module>statemachine</module>
       <module>transforms</module>
-    <module>MappingFunctions</module>
 	<module>mapping</module>
   </modules>
 

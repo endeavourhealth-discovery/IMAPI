@@ -223,10 +223,8 @@ public class EntityService {
 		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri.equals(iri)) {
-				if (included.getType() != MemberType.COMPLEX) {
-					included.setLabel("a_MemberIncluded");
-					included.setType(MemberType.INCLUDED);
-				}
+				included.setLabel("a_MemberIncluded");
+				included.setType(MemberType.INCLUDED);
 			} else {
 				if (expandSets) {
 					included.setLabel("Subset - expanded");
@@ -242,10 +240,8 @@ public class EntityService {
         Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
 		for (ValueSetMember excluded : definedMemberExclusions) {
 			if (originalParentIri.equals(iri)) {
-				if (excluded.getType() != MemberType.COMPLEX) {
-					excluded.setLabel("b_MemberExcluded");
-					excluded.setType(MemberType.EXCLUDED);
-				}
+				excluded.setLabel("b_MemberExcluded");
+				excluded.setType(MemberType.EXCLUDED);
 			} else {
 				if (expandSets) {
 					excluded.setLabel("Subset - expanded");
@@ -306,17 +302,9 @@ public class EntityService {
             .getEntity()
             .getAsArray(predicate.asIriRef())
             .getElements();
-		boolean hasComplexMember = false;
 		for (TTValue element : results) {
-			if (element.isNode() && !hasComplexMember) {
-                ValueSetMember member = new ValueSetMember();
-                Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
-                TTIriRef key = keys.entrySet().iterator().next().getKey();
-                member.setEntity(key);
-                member.setType(MemberType.COMPLEX);
-                member.setLabel("z_ComplexMember");
-                members.add(member);
-                hasComplexMember = true;
+			if (element.isNode()) {
+				members.add(getValueSetMemberFromNode(element));
             }
 			if (element.isIriRef()) {
 				ValueSetMember member = null;
@@ -327,11 +315,15 @@ public class EntityService {
 		return members;
 	}
 
+	private ValueSetMember getValueSetMemberFromNode(TTValue node) throws SQLException {
+		ValueSetMember member = new ValueSetMember();
+		String nodeAsString = TTToHTML.getExpressionText(node.asNode());
+		member.setEntity(iri("", nodeAsString));
+		return member;
+	}
+
 	private ValueSetMember getValueSetMemberFromIri(String iri) throws SQLException {
 		ValueSetMember member = new ValueSetMember();
-		Set<String> elementPredicates = new HashSet<>();
-		elementPredicates.add(IM.HAS_SCHEME.getIri());
-		elementPredicates.add(IM.CODE.getIri());
 		EntitySummary summary = entityRepository.getEntitySummaryByIri(iri);
 		member.setEntity(iri(summary.getIri(), summary.getName()));
 		member.setCode(summary.getCode());

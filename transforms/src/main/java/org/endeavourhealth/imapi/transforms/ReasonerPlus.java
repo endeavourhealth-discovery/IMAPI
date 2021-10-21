@@ -17,6 +17,7 @@ import java.util.zip.DataFormatException;
  */
 public class ReasonerPlus {
    private TTDocument document;
+   private TTDocument inferred;
    private HashMap<String, TTEntity> entityMap;
    private boolean consistent;
    private OWLReasoner owlReasoner;
@@ -30,9 +31,12 @@ public class ReasonerPlus {
 
    public TTDocument generateInferred(TTDocument document) throws OWLOntologyCreationException,DataFormatException {
       //Creates isas
-      classify(document);
       manager= new TTManager();
       manager.setDocument(document);
+      inferred= new TTDocument();
+      inferred.setContext(document.getContext());
+      inferred.setGraph(document.getGraph());
+      classify(document);
       generateRoleGroups(document);
       generateInheritedRoles(document);
       generatePropertyGroups(document);

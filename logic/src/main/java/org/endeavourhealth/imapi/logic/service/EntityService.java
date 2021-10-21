@@ -221,7 +221,7 @@ public class EntityService {
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
 		int memberCount = 0;
 
-		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
+		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION);
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri.equals(iri)) {
 				included.setLabel("a_MemberIncluded");
@@ -359,7 +359,7 @@ public class EntityService {
 		if (valueSetIri == null || valueSetIri.isEmpty() || memberIri == null || memberIri.isEmpty())
 			return null;
 		ValueSetMembership result = new ValueSetMembership();
-		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.HAS_MEMBER);
+		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.DEFINITION);
 		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
 		for (TTIriRef m : included) {
 			Optional<ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream()

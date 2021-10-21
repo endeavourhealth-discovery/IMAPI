@@ -63,7 +63,7 @@ public class SetService {
         System.out.println("Exporting " + setIri + "..");
 
         TTEntity conceptSet = setRepository.getSetDefinition(setIri);
-        if (conceptSet.get(IM.HAS_MEMBER) != null)
+        if (conceptSet.get(IM.DEFINITION) != null)
             exportMembers(definitions, expansions, legacies, im1maps, conceptSet);
 
         if (conceptSet.get(IM.HAS_SUBSET) != null)
@@ -97,7 +97,7 @@ public class SetService {
                 String setIri = conceptSet.getIri();
                 System.out.println("Exporting " + setIri + "..");
 
-                if (conceptSet.get(IM.HAS_MEMBER) != null)
+                if (conceptSet.get(IM.DEFINITION) != null)
                     exportMembers(definitions, expansions, legacies, im1maps, conceptSet);
 
                 if (conceptSet.get(IM.HAS_SUBSET) != null) {
@@ -117,7 +117,7 @@ public class SetService {
 
     private void exportExpansion(FileWriter expansions, TTEntity conceptSet) throws SQLException, IOException {
         TTEntity expanded = setRepository.getExpansion(conceptSet);
-        for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
+        for (TTValue value : expanded.get(IM.DEFINITION).asArray().getElements()) {
             TTEntity member = (TTEntity) value.asNode();
             String code = member.getCode();
             String scheme = member.getScheme().getIri();
@@ -128,8 +128,8 @@ public class SetService {
 
     private void exportLegacy(FileWriter legacies, TTEntity conceptSet) throws SQLException, IOException {
         TTEntity legacy = setRepository.getLegacyExpansion(conceptSet);
-        if (legacy.get(IM.HAS_MEMBER)!=null) {
-            for (TTValue value : legacy.get(IM.HAS_MEMBER).asArray().getElements()) {
+        if (legacy.get(IM.DEFINITION)!=null) {
+            for (TTValue value : legacy.get(IM.DEFINITION).asArray().getElements()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
@@ -141,8 +141,8 @@ public class SetService {
 
     private void exportIMv1(FileWriter im1maps, TTEntity conceptSet) throws SQLException, IOException {
         TTEntity im1 = setRepository.getIM1Expansion(conceptSet);
-        if (im1.get(IM.HAS_MEMBER)!=null){
-            for (TTValue value : im1.get(IM.HAS_MEMBER).asArray().getElements()) {
+        if (im1.get(IM.DEFINITION)!=null){
+            for (TTValue value : im1.get(IM.DEFINITION).asArray().getElements()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
@@ -163,7 +163,7 @@ public class SetService {
         String turtle = turtleConverter.transformEntity(conceptSet, context);
         //ecl only supports snomed and discovery concepts
         try {
-            String ecl = TTToECL.getExpressionConstraint(conceptSet.get(IM.HAS_MEMBER),true);
+            String ecl = TTToECL.getExpressionConstraint(conceptSet.get(IM.DEFINITION),true);
             definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + ecl + "\t" + turtle + "\n");
         } catch (DataFormatException e){
             definitions.write(conceptSet.getIri() + "\t" + conceptSet.getName() + "\t" + "" + "\t" + turtle + "\n");
@@ -217,11 +217,11 @@ public class SetService {
         Sheet sheet;
         Row row;
         TTEntity im1 = setRepository.getIM1Expansion(set);
-        if (im1.has(IM.HAS_MEMBER)){
+        if (im1.has(IM.DEFINITION)){
             sheet = workbook.createSheet("IM v1 Map");
             addHeaders(sheet, headerStyle, 10000, "IMv2 Code", "IMv2 Scheme", "IMv1 Dbid");
 
-            for (TTValue value : im1.get(IM.HAS_MEMBER).asArray().getElements()) {
+            for (TTValue value : im1.get(IM.DEFINITION).asArray().getElements()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
@@ -246,8 +246,8 @@ public class SetService {
 
     private void addEntityMembersToWorkbook(TTEntity set, Sheet sheet, TTEntity expanded) {
         Row row;
-        if (expanded != null && expanded.has(IM.HAS_MEMBER)) {
-            for (TTValue value : expanded.get(IM.HAS_MEMBER).asArray().getElements()) {
+        if (expanded != null && expanded.has(IM.DEFINITION)) {
+            for (TTValue value : expanded.get(IM.DEFINITION).asArray().getElements()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
@@ -271,7 +271,7 @@ public class SetService {
         String turtle = turtleConverter.transformEntity(set, context);
 
         try {
-            String ecl = TTToECL.getExpressionConstraint(set.get(IM.HAS_MEMBER),true);
+            String ecl = TTToECL.getExpressionConstraint(set.get(IM.DEFINITION),true);
             addCells(row, set.getIri(), set.getName(), ecl, turtle);
         } catch (DataFormatException e){
             addCells(row, set.getIri(), set.getName(), "Error", turtle);

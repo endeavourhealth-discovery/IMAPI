@@ -111,7 +111,7 @@ public class SetServiceTest {
 
         definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety", "Value sets for the Barts Vaccine safety study")));
 
-        definition.set(IM.HAS_MEMBER, new TTNode()
+        definition.set(IM.DEFINITION, new TTNode()
           .set(SHACL.OR,new TTArray()
             .add(iri("http://snomed.info/sct#39330711000001103", "COVID-19 vaccine (product)"))
             .add(new TTNode().set(RDFS.SUBCLASSOF, new TTArray()
@@ -136,10 +136,10 @@ public class SetServiceTest {
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept Set- Barts Covid vaccine study medication concepts");
 
-        expansion.addObject(IM.HAS_MEMBER, new TTEntity().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setCode("39330711000001103").setScheme(iri("http://snomed.info/sct#")));
-        expansion.addObject(IM.HAS_MEMBER, new TTEntity().setIri("http://snomed.info/sct#39116211000001106").setName("Generic COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (product)").setCode("39116211000001106").setScheme(iri("http://snomed.info/sct#")));
-        expansion.addObject(IM.HAS_MEMBER, new TTEntity().setIri("http://snomed.info/sct#39114911000001105").setName("COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (AstraZeneca UK Ltd) (product)").setCode("39114911000001105").setScheme(iri("http://snomed.info/sct#")));
-        expansion.addObject(IM.HAS_MEMBER, new TTEntity().setIri("http://snomed.info/sct#39116111000001100").setName("Generic COVID-19 mRNA Vaccine Pfizer-BioNTech BNT162b2 30micrograms/0.3ml dose concentrate for suspension for injection multidose vials (product)").setCode("39116111000001100").setScheme(iri("http://snomed.info/sct#")));
+        expansion.addObject(IM.DEFINITION, new TTEntity().setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setCode("39330711000001103").setScheme(iri("http://snomed.info/sct#")));
+        expansion.addObject(IM.DEFINITION, new TTEntity().setIri("http://snomed.info/sct#39116211000001106").setName("Generic COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (product)").setCode("39116211000001106").setScheme(iri("http://snomed.info/sct#")));
+        expansion.addObject(IM.DEFINITION, new TTEntity().setIri("http://snomed.info/sct#39114911000001105").setName("COVID-19 Vaccine AstraZeneca (ChAdOx1 S [recombinant]) 5x10,000,000,000 viral particles/0.5ml dose solution for injection multidose vials (AstraZeneca UK Ltd) (product)").setCode("39114911000001105").setScheme(iri("http://snomed.info/sct#")));
+        expansion.addObject(IM.DEFINITION, new TTEntity().setIri("http://snomed.info/sct#39116111000001100").setName("Generic COVID-19 mRNA Vaccine Pfizer-BioNTech BNT162b2 30micrograms/0.3ml dose concentrate for suspension for injection multidose vials (product)").setCode("39116111000001100").setScheme(iri("http://snomed.info/sct#")));
 
         when(setRepository.getExpansion(definition))
             .thenReturn(expansion);
@@ -150,10 +150,10 @@ public class SetServiceTest {
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept Set- Barts Covid vaccine study medication concepts");
 
-        v1.addObject(IM.HAS_MEMBER, new TTEntity().setCode("39330711000001103").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(2873859)));
-        v1.addObject(IM.HAS_MEMBER, new TTEntity().setCode("39116211000001106").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(2654668)));
-        v1.addObject(IM.HAS_MEMBER, new TTEntity().setCode("39114911000001105").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(1564467)));
-        v1.addObject(IM.HAS_MEMBER, new TTEntity().setCode("39116111000001100").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(2796244)));
+        v1.addObject(IM.DEFINITION, new TTEntity().setCode("39330711000001103").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(2873859)));
+        v1.addObject(IM.DEFINITION, new TTEntity().setCode("39116211000001106").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(2654668)));
+        v1.addObject(IM.DEFINITION, new TTEntity().setCode("39114911000001105").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(1564467)));
+        v1.addObject(IM.DEFINITION, new TTEntity().setCode("39116111000001100").setScheme(iri("http://snomed.info/sct#")).set(iri(IM.NAMESPACE + "im1dbid"), literal(2796244)));
 
         when(setRepository.getIM1Expansion(definition))
             .thenReturn(v1);
@@ -175,13 +175,13 @@ public class SetServiceTest {
               "\n" +
               "im:CSET_BartsCVSSMeds\n" +
               "   im:isContainedIn im:CSET_BartsVaccineSafety;\n" +
-              "   im:hasMember [http://www.w3.org/ns/shacl#or \n" +
+              "   rdfs:label \"Concept Set- Barts Covid vaccine study medication concepts\";\n" +
+              "   im:definition [http://www.w3.org/ns/shacl#or \n" +
               "         sn:39330711000001103 , \n" +
               "         [rdfs:subClassOf \n" +
               "               sn:10363601000001109 , \n" +
               "               [im:propertyGroup [http://www.w3.org/ns/shacl#property [http://www.w3.org/ns/shacl#path sn:10362601000001103;\n" +
-              "               http://www.w3.org/ns/shacl#class sn:39330711000001103]]]]];\n" +
-              "   rdfs:label \"Concept Set- Barts Covid vaccine study medication concepts\" ." );
+              "               http://www.w3.org/ns/shacl#class sn:39330711000001103]]]]] ." );
     }
 
     private void checkExpandedSheet(Sheet sheet) {

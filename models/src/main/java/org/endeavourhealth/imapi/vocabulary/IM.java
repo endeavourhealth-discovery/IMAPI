@@ -33,7 +33,8 @@ public class IM {
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
 
     //Collection predicates
-    public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
+    public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
+    public static final TTIriRef MEMBERS = iri(NAMESPACE + "members");
     public static final TTIriRef MEMBER_OF_GROUP = iri(NAMESPACE + "memberOfGroup");
     public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubsets");
     public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");

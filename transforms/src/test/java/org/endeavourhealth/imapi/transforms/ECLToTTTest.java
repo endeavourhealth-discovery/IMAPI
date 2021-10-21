@@ -19,9 +19,9 @@ class ECLToTTTest {
 		ECLToTT cnv= new ECLToTT();
 		TTEntity entity = new TTEntity();
 		entity.setContext(new TTManager().createDefaultContext());
-		entity.set(IM.HAS_MEMBER,cnv.getClassExpression(ecl));
+		entity.set(IM.DEFINITION,cnv.getClassExpression(ecl));
 		TTToECL rev= new TTToECL();
-		String ecl2=TTToECL.getExpressionConstraint(entity.get(IM.HAS_MEMBER), false);
+		String ecl2=TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), false);
 		System.out.println(ecl2);
 		assertEquals(ecl,ecl2);
 	}

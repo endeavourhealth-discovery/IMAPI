@@ -122,7 +122,7 @@ public class EntityRepository extends BaseRepository {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 statement.setString(1, IM.IS_A.getIri());
-                statement.setString(2, IM.HAS_MEMBER.getIri());
+                statement.setString(2, IM.DEFINITION.getIri());
                 statement.setString(3, vSet);
                 statement.setString(4, code);
                 statement.setString(5, scheme);
@@ -186,7 +186,7 @@ public class EntityRepository extends BaseRepository {
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 statement.setString(1, IM.MATCHED_TO.getIri());
                 statement.setString(2, IM.IS_A.getIri());
-                statement.setString(3, IM.HAS_MEMBER.getIri());
+                statement.setString(3, IM.DEFINITION.getIri());
                 statement.setString(4, vSet);
                 statement.setString(5, code);
                 statement.setString(6, scheme);

@@ -135,4 +135,29 @@ public class TTLiteral implements TTValue {
     public boolean isLiteral() {
         return true;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TTLiteral v = (TTLiteral) o;
+
+        if (value == null && v.value != null) return false;
+        if (value != null && !value.equals(v.value)) return false;
+
+        if (type == null && v.type != null) return false;
+
+        return type == null || type.equals(v.type);
+    }
+
+    @Override
+    public int hashCode() {
+        String toHash = "";
+        if (value != null)
+            toHash += value;
+        if (type != null)
+            toHash += type.getIri();
+        return toHash.hashCode();
+    }
 }

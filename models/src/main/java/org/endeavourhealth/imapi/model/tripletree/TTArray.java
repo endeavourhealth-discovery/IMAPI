@@ -7,43 +7,48 @@ import org.endeavourhealth.imapi.model.tripletree.json.TTArrayDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTArraySerializer;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @JsonSerialize(using = TTArraySerializer.class)
 @JsonDeserialize(using = TTArrayDeserializer.class)
 public class TTArray implements TTValue, Serializable {
-    private List<TTValue> elements = new ArrayList<>();
+    private LinkedHashSet<TTValue> elements = new LinkedHashSet<>();
 
     public TTArray add(TTValue value) {
+        if (elements != null && elements.contains(value))
+            return this;
+
         if (elements == null)
-            elements = new ArrayList<>();
+            elements = new LinkedHashSet<>();
 
         elements.add(value);
 
         return this;
     }
 
-    public TTValue get(int index) {
-        return elements.get(index);
-    }
-
     public TTNode getAsNode(int index) {
-        return (TTNode)elements.get(index);
+        return (TTNode)get(index);
     }
     public TTLiteral getAsLiteral(int index) {
-        return (TTLiteral)elements.get(index);
+        return (TTLiteral)get(index);
     }
     public TTIriRef getAsIriRef(int index) {
-        return (TTIriRef)elements.get(index);
+        return (TTIriRef)get(index);
     }
     public TTArray getAsArray(int index) {
-        return (TTArray)elements.get(index);
+        return (TTArray)get(index);
     }
 
+    public TTValue get(int index) {
+        return getElements().get(index);
+    }
 
     public int size() {
         return elements.size();
+    }
+
+    public boolean contains(TTValue value) {
+        return elements.contains(value);
     }
 
     @Override
@@ -53,7 +58,7 @@ public class TTArray implements TTValue, Serializable {
 
     @Override
     public List<TTValue> getElements() {
-        return elements;
+        return new ArrayList<>(elements);
     }
 
     @Override

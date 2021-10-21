@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -223,10 +224,8 @@ public class EntityService {
 		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.HAS_MEMBER);
 		for (ValueSetMember included : definedMemberInclusions) {
 			if (originalParentIri.equals(iri)) {
-				if (included.getType() != MemberType.COMPLEX) {
-					included.setLabel("a_MemberIncluded");
-					included.setType(MemberType.INCLUDED);
-				}
+				included.setLabel("a_MemberIncluded");
+				included.setType(MemberType.INCLUDED);
 			} else {
 				if (expandSets) {
 					included.setLabel("Subset - expanded");
@@ -242,10 +241,8 @@ public class EntityService {
         Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
 		for (ValueSetMember excluded : definedMemberExclusions) {
 			if (originalParentIri.equals(iri)) {
-				if (excluded.getType() != MemberType.COMPLEX) {
-					excluded.setLabel("b_MemberExcluded");
-					excluded.setType(MemberType.EXCLUDED);
-				}
+				excluded.setLabel("b_MemberExcluded");
+				excluded.setType(MemberType.EXCLUDED);
 			} else {
 				if (expandSets) {
 					excluded.setLabel("Subset - expanded");
@@ -306,17 +303,9 @@ public class EntityService {
             .getEntity()
             .getAsArray(predicate.asIriRef())
             .getElements();
-		boolean hasComplexMember = false;
 		for (TTValue element : results) {
-			if (element.isNode() && !hasComplexMember) {
-                ValueSetMember member = new ValueSetMember();
-                Map<TTIriRef, TTValue> keys = element.asNode().getPredicateMap();
-                TTIriRef key = keys.entrySet().iterator().next().getKey();
-                member.setEntity(key);
-                member.setType(MemberType.COMPLEX);
-                member.setLabel("z_ComplexMember");
-                members.add(member);
-                hasComplexMember = true;
+			if (element.isNode()) {
+				members.add(getValueSetMemberFromNode(element));
             }
 			if (element.isIriRef()) {
 				ValueSetMember member = null;
@@ -327,11 +316,15 @@ public class EntityService {
 		return members;
 	}
 
+	private ValueSetMember getValueSetMemberFromNode(TTValue node) throws SQLException {
+		ValueSetMember member = new ValueSetMember();
+		String nodeAsString = TTToHTML.getExpressionText(node.asNode());
+		member.setEntity(iri("", nodeAsString));
+		return member;
+	}
+
 	private ValueSetMember getValueSetMemberFromIri(String iri) throws SQLException {
 		ValueSetMember member = new ValueSetMember();
-		Set<String> elementPredicates = new HashSet<>();
-		elementPredicates.add(IM.HAS_SCHEME.getIri());
-		elementPredicates.add(IM.CODE.getIri());
 		EntitySummary summary = entityRepository.getEntitySummaryByIri(iri);
 		member.setEntity(iri(summary.getIri(), summary.getName()));
 		member.setCode(summary.getCode());
@@ -360,17 +353,6 @@ public class EntityService {
 			}
 		}
 		return memberHashMap;
-	}
-
-	public List<String> getComplexMembers(String iri) throws SQLException {
-		Set<String> predicates = new HashSet<>();
-		predicates.add(IM.HAS_MEMBER.getIri());
-		List<TTValue> results = getEntityPredicates(iri, predicates, UNLIMITED)
-            .getEntity()
-            .getAsArray(IM.HAS_MEMBER).getElements();
-		List<TTValue> filteredResults = results.stream().filter(r -> r.isNode()).collect(Collectors.toList());
-		List<String> memberAsHTML = filteredResults.stream().map(result -> TTToHTML.getExpressionText(result.asNode())).collect(Collectors.toList());
-		return memberAsHTML;
 	}
 
 	public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) throws SQLException {
@@ -744,4 +726,8 @@ public class EntityService {
 
         return getEntityPredicates(iri, predicates, UNLIMITED);
     }
+
+	public Collection<SimpleMap> getMatchedFrom(String iri) throws SQLException {
+		return entityTripleRepository.getSubjectFromObject(iri, IM.MATCHED_TO);
+	}
 }

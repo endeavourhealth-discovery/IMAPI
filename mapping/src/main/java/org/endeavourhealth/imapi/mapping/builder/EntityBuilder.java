@@ -212,12 +212,20 @@ public class EntityBuilder {
                 returnValue = element.at(getPathFromReference(value)).asText();
                 break;
             case "http://www.w3.org/ns/r2rml#template":
+                StringBuilder templateValue = new StringBuilder();
                 String[] parts = value.split("\\{");
-                if (parts.length == 2) {
-                    String second = element
-                            .at(getPathFromReference(parts[1].substring(0, parts[1].length() - 1))).asText();
-                    returnValue = parts[0] + second;
+                for (String part : parts) {
+                    if (part.contains("}")) {
+                        String[] nestedParts = part.split("}");
+                        templateValue.append(element.at(getPathFromReference(nestedParts[0])).asText());
+                        if (nestedParts.length > 1) {
+                            templateValue.append(nestedParts[1]);
+                        }
+                    } else {
+                        templateValue.append(part);
+                    }
                 }
+                returnValue = templateValue.toString();
                 break;
             default:
                 if (isFunction(value)) {

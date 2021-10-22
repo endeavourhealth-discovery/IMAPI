@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class TTToString {
+    private static String regex = "/ *\\([^)]*\\) */g";
     public static String getBundleAsString(TTBundle bundle) throws DataFormatException {
         Map<String, String> predicates = bundle.getPredicates();
         if (predicates.containsKey(IM.IS_A.getIri())) predicates.replace(IM.IS_A.getIri(), "Is a");
@@ -37,7 +38,7 @@ public class TTToString {
         String pad = new String(new char[indent]).replace("\0", "  ");
         String result = "";
         if (!inline) result += pad;
-        if (iri.getName() != null) result += iri.getName().replaceAll("/ *\\([^)]*\\) */g", "");
+        if (iri.getName() != null) result += iri.getName().replaceAll(regex, "");
         else result += iri.getIri();
         if (previous == "array") result += "\n";
         return result;
@@ -67,14 +68,14 @@ public class TTToString {
             }
             if (element.getValue().isNode() && element.getValue().asNode().has(TTIriRef.iri("@id"))) {
                 if (iriMap.containsKey(element.getKey())) {
-                    result += pad + prefix + iriMap.get(element.getKey()).replaceAll("/ *\\([^)]*\\) */g", "") + " : ";
+                    result += pad + prefix + iriMap.get(element.getKey()).replaceAll(regex, "") + " : ";
                     result += ttIriToString(element.getValue().asIriRef(), "object", indent, true);
                     result += suffix;
                 } else {
                     result += ttIriToString(element.getValue().asIriRef(), "object", indent, false);
                 }
             } else {
-                if (iriMap.containsKey(element.getKey())) result += pad + prefix + iriMap.get(element.getKey()).replaceAll("/ *\\([^)]*\\) */g", "") + ":\n";
+                if (iriMap.containsKey(element.getKey())) result += pad + prefix + iriMap.get(element.getKey()).replaceAll(regex, "") + ":\n";
                 if (previousType == "array") {
                     if (group) {
                         result += ttValueToString(element.getValue(), "object", iriMap, indent + 1);

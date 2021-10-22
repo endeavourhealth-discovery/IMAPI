@@ -13,6 +13,7 @@ public class R2RML {
     public static final TTIriRef TEMPLATE = iri(NAMESPACE + "template");
     public static final TTIriRef PARENT_TRIPLES_MAP = iri(NAMESPACE + "parentTriplesMap");
     public static final TTIriRef PREDICATE = iri(NAMESPACE + "predicate");
+    public static final TTIriRef PREDICATE_MAP = iri(NAMESPACE + "predicateMap");
     public static final TTIriRef CLASS = iri(NAMESPACE + "class");
     public static final TTIriRef TERM_TYPE = iri(NAMESPACE + "termType");
     public static final TTIriRef SUBJECT_MAP = iri(NAMESPACE + "subjectMap");

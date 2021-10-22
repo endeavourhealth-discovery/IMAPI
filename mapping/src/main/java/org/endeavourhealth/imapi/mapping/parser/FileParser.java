@@ -2,11 +2,14 @@ package org.endeavourhealth.imapi.mapping.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
+import com.google.common.collect.Lists;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -62,28 +65,49 @@ public class FileParser {
         return wrapper;
     }
 
-    private static void recurse(String mapName, Model mapModel, Resource subject, String property,
+    private static void recurse(String mapName, Model mapModel, Resource subject, String propertyType, String property,
                                 MappingInstructionWrapper wrapper) {
         Iterable<Statement> triples = mapModel.getStatements(subject, null, null);
         for (Statement tpl : triples) {
             if (tpl.getObject().isBNode()) {
-                recurse(mapName, mapModel, (Resource) tpl.getObject(), property, wrapper);
+                recurse(mapName, mapModel, (Resource) tpl.getObject(), propertyType, property, wrapper);
             } else if (!tpl.getPredicate().stringValue().equals(R2RML.PREDICATE.getIri())) {
                 if (R2RML.CLASS.getIri().equals(tpl.getPredicate().stringValue())
                         || R2RML.TERM_TYPE.getIri().equals(tpl.getPredicate().stringValue())) {
                     wrapper.addInstruction(mapName,
-                            new MappingInstruction(mapName, org.endeavourhealth.imapi.vocabulary.RDF.TYPE.getIri(),
+                            new MappingInstruction(propertyType, org.endeavourhealth.imapi.vocabulary.RDF.TYPE.getIri(),
                                     tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
                 } else if (R2RML.GRAPH.getIri().equals(tpl.getPredicate().stringValue())) {
-                    wrapper.addInstruction(mapName, new MappingInstruction(mapName, tpl.getPredicate().stringValue(),
+                    wrapper.addInstruction(mapName, new MappingInstruction(propertyType, tpl.getPredicate().stringValue(),
                             R2RML.CONSTANT.getIri(), tpl.getObject().stringValue()));
                 } else {
-                    wrapper.addInstruction(mapName, new MappingInstruction(mapName, property,
+                    wrapper.addInstruction(mapName, new MappingInstruction(propertyType, property,
                             tpl.getPredicate().stringValue(), tpl.getObject().stringValue()));
                 }
 
             }
         }
+    }
+
+    private static Map<String, String> findPredicateObjectMapByObjectId(Iterable<Statement> triples, Value object) {
+        Map<String, String> property = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode objectNode = mapper.convertValue(object, JsonNode.class);
+        Iterator<Statement> i = triples.iterator();
+        boolean found = false;
+        while (i.hasNext() && !found) {
+            Statement tpl = i.next();
+            JsonNode tplNode = mapper.convertValue(tpl.getSubject(), JsonNode.class);
+            if (tplNode.has("id") && objectNode.get("id").asText().equals(tplNode.get("id").asText())) {
+                JsonNode objectValueNode = mapper.convertValue(tpl.getObject(), JsonNode.class);
+                JsonNode predicateValueNode = mapper.convertValue(tpl.getPredicate(), JsonNode.class);
+                String propertyType = predicateValueNode.get("namespace").asText() + predicateValueNode.get("localName").asText();
+                property.put("propertyType", predicateValueNode.get("namespace").asText() + predicateValueNode.get("localName").asText());
+                property.put("propertyValue", objectValueNode.get("label").asText());
+                found = true;
+            }
+        }
+        return property;
     }
 
     private static void addData(String mapName, Model mapModel, ObjectNode mapNode, Resource subject,
@@ -93,9 +117,14 @@ public class FileParser {
             String predicate = tpl.getPredicate().stringValue();
             Value object = tpl.getObject();
 
+            if (predicate.equals(R2RML.PREDICATE_MAP.getIri())) {
+                Map<String, String> property = findPredicateObjectMapByObjectId(mapModel.getStatements((Resource) object, null, null), object);
+                recurse(mapName, mapModel, subject, property.get("propertyType"), property.get("propertyValue"), wrapper);
+            }
+
             if (predicate.equals(R2RML.PREDICATE.getIri())
                     && !object.stringValue().equals("https://w3id.org/function/ontology#executes")) {
-                recurse(mapName, mapModel, subject, object.stringValue(), wrapper);
+                recurse(mapName, mapModel, subject, R2RML.CONSTANT.getIri(), object.stringValue(), wrapper);
             }
 
             if (predicate.equals("http://semweb.mmlab.be/ns/rml#iterator")) {
@@ -103,7 +132,7 @@ public class FileParser {
             }
 
             if (predicate.equals(R2RML.SUBJECT_MAP.getIri())) {
-                recurse(mapName, mapModel, (Resource) object, IM.IRI, wrapper);
+                recurse(mapName, mapModel, (Resource) object, R2RML.CONSTANT.getIri(), IM.IRI, wrapper);
             }
 
             JsonNode childNode = null;

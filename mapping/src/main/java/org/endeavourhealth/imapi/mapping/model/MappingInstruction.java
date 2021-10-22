@@ -4,72 +4,55 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class MappingInstruction {
 
-	private String property;
-	private String valueType; // [reference, constant, template]
-	private String value;
+    private String propertyType; // [reference, constant, template]
+    private String property;
+    private String valueType; // [reference, constant, template]
+    private String value;
 
-	public MappingInstruction() {
-	}
+    public MappingInstruction() {
+    }
 
-	public MappingInstruction(String mapName, String property, String parentProperty, boolean isBnode, String valueType,
-			String value) {
-		this.property = property;
-		this.valueType = valueType;
-		this.value = value;
-	}
+    public MappingInstruction(String propertyType, String property, String valueType, String value) {
+        this.propertyType = propertyType;
+        this.property = property;
+        this.valueType = valueType;
+        this.value = value;
+    }
 
-	public MappingInstruction(String mapName, String property, String valueType, String value) {
-		this.property = property;
-		this.valueType = valueType;
-		this.value = value;
-	}
+    public String getValueType() {
+        return valueType;
+    }
 
-	@JsonIgnore
-	public String getPathFromReference(String reference) {
-		reference = reference == null ? this.value : reference;
-		if (reference.contains(".")) {
-			reference = reference.replaceAll(".", "/");
-		}
-		if (reference.contains("[")) {
-			reference = reference.replaceAll("[\\[\\]]", "/");
-		}
-		if (reference.contains("//")) {
-			reference = reference.replaceAll("//", "/");
-		}
-		if (reference.contains("'")) {
-			reference = reference.replaceAll("'", "");
-		}
-		if (reference.endsWith("/")) {
-			reference = reference.substring(0, reference.length() - 1);
-		}
-		return "/" + reference;
-	}
+    public MappingInstruction setValueType(String valueType) {
+        this.valueType = valueType;
+        return this;
+    }
 
-	public String getValueType() {
-		return valueType;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	public MappingInstruction setValueType(String valueType) {
-		this.valueType = valueType;
-		return this;
-	}
+    public MappingInstruction setValue(String value) {
+        this.value = value;
+        return this;
+    }
 
-	public String getValue() {
-		return value;
-	}
+    public String getProperty() {
+        return property;
+    }
 
-	public MappingInstruction setValue(String value) {
-		this.value = value;
-		return this;
-	}
+    public MappingInstruction setProperty(String property) {
+        this.property = property;
+        return this;
+    }
 
-	public String getProperty() {
-		return property;
-	}
+    public String getPropertyType() {
+        return propertyType;
+    }
 
-	public MappingInstruction setProperty(String property) {
-		this.property = property;
-		return this;
-	}
+    public MappingInstruction setPropertyType(String propertyType) {
+        this.propertyType = propertyType;
+        return this;
+    }
 
 }

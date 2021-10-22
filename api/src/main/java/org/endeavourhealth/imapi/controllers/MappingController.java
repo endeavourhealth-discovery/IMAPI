@@ -111,10 +111,24 @@ public class MappingController {
         return ttdocuments;
     }
 
+    @PostMapping("/schemata")
+    public HttpEntity<Object> getSchemataFromCsvFiles(@RequestParam List<MultipartFile> csvFiles) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        XSSFWorkbook xls = FileParser.getSchemataFromCsvFiles(csvFiles);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            xls.write(outputStream);
+            xls.close();
+            headers.setContentType(new MediaType("application", "force-download"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=schemata.xlsx");
+
+            return new HttpEntity<>(outputStream.toByteArray(), headers);
+        }
+    }
+
     private void writeToFile(String filename, Object object, String message) throws IOException {
         File file = new File("api/src/main/resources/" + filename + ".json");
         file.createNewFile();
-        System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
+//        System.out.println(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)) + " : " + message);
         mapper.enable(SerializationFeature.INDENT_OUTPUT).writeValue(file, object);
     }
 

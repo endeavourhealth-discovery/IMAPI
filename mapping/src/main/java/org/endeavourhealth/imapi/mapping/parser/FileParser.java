@@ -4,12 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
 import com.google.common.collect.Lists;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -222,4 +229,58 @@ public class FileParser {
         return it.next().keySet();
     }
 
+    public static XSSFWorkbook getSchemataFromCsvFiles(List<MultipartFile> csvFiles) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFFont font = workbook.createFont();
+        XSSFCellStyle headerStyle = workbook.createCellStyle();
+        font.setBold(true);
+        headerStyle.setFont(font);
+        for (MultipartFile csvFile : csvFiles) {
+            // defaults to tab seperated
+            String separator = "\t";
+            if (csvFile.getOriginalFilename().endsWith(".csv")) {
+                separator = ",";
+            }
+            CsvMapper csvMapper = new CsvMapper();
+            CsvSchema csvSchema = csvMapper.typedSchemaFor(Map.class).withHeader();
+            MappingIterator<Map<String, String>> it = csvMapper.readerFor(Map.class)
+                    .with(csvSchema.withColumnSeparator(separator.charAt(0))).readValues(csvFile.getInputStream());
+
+            Sheet sheet = workbook.createSheet(csvFile.getOriginalFilename());
+            Row headerRow = sheet.createRow(0);
+            Row row = sheet.createRow(1);
+            int i = 0;
+            try {
+                if (it.hasNext()) {
+                    for (Map.Entry<String, String> entry : it.next().entrySet()) {
+                        String header = entry.getKey();
+                        sheet.setColumnWidth(i, 1);
+                        Cell headerCell = headerRow.createCell(i);
+                        headerCell.setCellValue(header);
+                        headerCell.setCellStyle(headerStyle);
+
+                        String exampleValue = entry.getValue();
+                        Cell cell = row.createCell(i);
+                        cell.setCellValue(exampleValue);
+
+                        i++;
+                    }
+                } else {
+                    List<Map<String, String>> all = it.readAll();
+                    for (Map<String, String> map : all) {
+                        for (Map.Entry entry : map.entrySet()) {
+                            System.out.println(entry.getKey());
+                            System.out.println(entry.getValue());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // TODO
+                System.out.println("There was an error with file: " + csvFile.getOriginalFilename());
+            }
+        }
+
+        return workbook;
+
+    }
 }

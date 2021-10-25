@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.endeavourhealth.imapi.transforms.TTToHTML;
+import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -299,13 +301,14 @@ public class EntityService {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
-		List<TTValue> results = getEntityPredicates(iri, predicates, UNLIMITED)
+		TTBundle results = getEntityPredicates(iri, predicates, UNLIMITED);
+		List<TTValue> resultsEntity = results
             .getEntity()
             .getAsArray(predicate.asIriRef())
             .getElements();
-		for (TTValue element : results) {
+		for (TTValue element : resultsEntity) {
 			if (element.isNode()) {
-				members.add(getValueSetMemberFromNode(element));
+				members.add(getValueSetMemberFromNode(element, results.getPredicates()));
             }
 			if (element.isIriRef()) {
 				ValueSetMember member = null;
@@ -316,9 +319,9 @@ public class EntityService {
 		return members;
 	}
 
-	private ValueSetMember getValueSetMemberFromNode(TTValue node) throws SQLException {
+	private ValueSetMember getValueSetMemberFromNode(TTValue node, Map<String, String> predicates) {
 		ValueSetMember member = new ValueSetMember();
-		String nodeAsString = TTToHTML.getExpressionText(node.asNode());
+		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, predicates);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

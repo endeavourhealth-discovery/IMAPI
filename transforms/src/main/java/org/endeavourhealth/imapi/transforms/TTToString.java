@@ -10,7 +10,7 @@ import java.util.zip.DataFormatException;
 public class TTToString {
     private static String regex = "\\s\\(([^)]*)\\)[^(]*$";
 
-    public static String getBundleAsString(TTBundle bundle) throws DataFormatException {
+    public static String getBundleAsString(TTBundle bundle) {
         Map<String, String> predicates = bundle.getPredicates();
         if (predicates.containsKey(IM.IS_A.getIri())) predicates.replace(IM.IS_A.getIri(), "Is a");
         if (predicates.containsKey(IM.ROLE_GROUP.getIri())) predicates.replace(IM.ROLE_GROUP.getIri(), "Where");
@@ -25,7 +25,7 @@ public class TTToString {
         return result;
     }
 
-    public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent) throws DataFormatException {
+    public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent) {
         if (node.isIriRef()) {
             return ttIriToString(node.asIriRef(), previousType, indent, false);
         } else if (node.isNode()) {
@@ -47,7 +47,7 @@ public class TTToString {
         return result;
     }
 
-    public static String ttNodeToString(TTNode node, String previousType, int indent, Map<String, String> iriMap) throws DataFormatException {
+    public static String ttNodeToString(TTNode node, String previousType, int indent, Map<String, String> iriMap) {
         String pad = new String(new char[indent]).replace("\0", "  ");
         String result = "";
         Boolean first = true;
@@ -95,7 +95,7 @@ public class TTToString {
         return result;
     }
 
-    public static String ttArrayToString(TTArray arr, int indent, Map<String, String> iriMap) throws DataFormatException {
+    public static String ttArrayToString(TTArray arr, int indent, Map<String, String> iriMap) {
         String result = "";
         for (TTValue item : arr.getElements()) {
             result += ttValueToString(item, "array", iriMap, indent + 1);

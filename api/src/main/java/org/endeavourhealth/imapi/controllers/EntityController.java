@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.Api;
@@ -205,7 +206,7 @@ public class EntityController {
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
         @RequestParam(name = "limit", required = false) Integer limit
-    ) throws SQLException {
+    ) throws SQLException, DataFormatException {
         LOG.debug("valueSetMembersJson");
         return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
 	}

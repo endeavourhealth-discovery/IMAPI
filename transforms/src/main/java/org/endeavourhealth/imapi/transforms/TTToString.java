@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class TTToString {
-    private static String regex = "/ *\\([^)]*\\) */g";
+    private static String regex = "\\s\\(([^)]*)\\)[^(]*$";
+
     public static String getBundleAsString(TTBundle bundle) throws DataFormatException {
         Map<String, String> predicates = bundle.getPredicates();
         if (predicates.containsKey(IM.IS_A.getIri())) predicates.replace(IM.IS_A.getIri(), "Is a");
@@ -16,9 +17,11 @@ public class TTToString {
         if (predicates.containsKey(OWL.EQUIVALENTCLASS.getIri())) predicates.replace(OWL.EQUIVALENTCLASS.getIri(), "Is equivalent to");
         if (predicates.containsKey(OWL.INTERSECTIONOF.getIri())) predicates.replace(OWL.INTERSECTIONOF.getIri(), "Combination of");
         if (predicates.containsKey(OWL.SOMEVALUESFROM.getIri())) predicates.replace(OWL.SOMEVALUESFROM.getIri(), "With a value");
-        if (predicates.containsKey(OWL.ONPROPERTY.getIri())) predicates.replace(OWL.ONPROPERTY.getIri(), "Is a");
+        if (predicates.containsKey(OWL.ONPROPERTY.getIri())) predicates.replace(OWL.ONPROPERTY.getIri(), "On property");
         String result = "";
-        result += ttValueToString(bundle.getEntity(), "object", predicates, 0);
+        for (Map.Entry<TTIriRef, TTValue> element : bundle.getEntity().getPredicateMap().entrySet()) {
+            result += ttValueToString(new TTNode().set(element.getKey(), element.getValue()), "object", predicates, 0);
+        }
         return result;
     }
 
@@ -66,16 +69,16 @@ public class TTToString {
                 }
                 if (last) suffix = ")\n";
             }
-            if (element.getValue().isNode() && element.getValue().asNode().has(TTIriRef.iri("@id"))) {
-                if (iriMap.containsKey(element.getKey())) {
-                    result += pad + prefix + iriMap.get(element.getKey()).replaceAll(regex, "") + " : ";
+            if (element.getValue().isIriRef()) {
+                if (iriMap.containsKey(element.getKey().getIri())) {
+                    result += pad + prefix + iriMap.get(element.getKey().getIri()).replaceAll(regex, "") + " : ";
                     result += ttIriToString(element.getValue().asIriRef(), "object", indent, true);
                     result += suffix;
                 } else {
                     result += ttIriToString(element.getValue().asIriRef(), "object", indent, false);
                 }
             } else {
-                if (iriMap.containsKey(element.getKey())) result += pad + prefix + iriMap.get(element.getKey()).replaceAll(regex, "") + ":\n";
+                if (iriMap.containsKey(element.getKey().getIri())) result += pad + prefix + iriMap.get(element.getKey().getIri()).replaceAll(regex, "") + ":\n";
                 if (previousType == "array") {
                     if (group) {
                         result += ttValueToString(element.getValue(), "object", iriMap, indent + 1);

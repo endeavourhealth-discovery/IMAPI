@@ -23,7 +23,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
@@ -459,7 +458,7 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getValueSetMembers_NullIri() throws SQLException, DataFormatException {
+    public void getValueSetMembers_NullIri() throws SQLException {
         ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null);
 
         assertNull(actual);
@@ -467,7 +466,7 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void getValueSetMembers_EmptyIri() throws SQLException, DataFormatException {
+    public void getValueSetMembers_EmptyIri() throws SQLException {
         ExportValueSet actual = entityService.getValueSetMembers("", true,false, null);
 
         assertNull(actual);

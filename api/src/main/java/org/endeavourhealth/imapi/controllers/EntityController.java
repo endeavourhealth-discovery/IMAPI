@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.Api;
@@ -26,7 +25,6 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -206,7 +204,7 @@ public class EntityController {
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
         @RequestParam(name = "limit", required = false) Integer limit
-    ) throws SQLException, DataFormatException {
+    ) throws SQLException {
         LOG.debug("valueSetMembersJson");
         return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
 	}

@@ -1,7 +1,12 @@
 package org.endeavourhealth.imapi.mapping.parser;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -266,16 +271,19 @@ public class FileParser {
                         i++;
                     }
                 } else {
-                    List<Map<String, String>> all = it.readAll();
-                    for (Map<String, String> map : all) {
-                        for (Map.Entry entry : map.entrySet()) {
-                            System.out.println(entry.getKey());
-                            System.out.println(entry.getValue());
-                        }
+                    InputStream inputStream = csvFile.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                    String[] headers = br.readLine().split(",");
+
+                    for(String header: headers) {
+                        sheet.setColumnWidth(i, 1);
+                        Cell headerCell = headerRow.createCell(i);
+                        headerCell.setCellValue(header);
+                        headerCell.setCellStyle(headerStyle);
+                        i++;
                     }
                 }
             } catch (Exception e) {
-                // TODO
                 System.out.println("There was an error with file: " + csvFile.getOriginalFilename());
             }
         }

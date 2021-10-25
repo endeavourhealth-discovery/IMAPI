@@ -25,6 +25,7 @@ public class IM {
 
     //Core model types
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
+    public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
     public static final TTIriRef SET_GROUP = iri(NAMESPACE + "ConceptSetGroup");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");

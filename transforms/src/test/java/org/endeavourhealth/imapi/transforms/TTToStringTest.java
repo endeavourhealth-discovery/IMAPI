@@ -145,7 +145,7 @@ class TTToStringTest {
 
     @Test
     public void ttNodeToString() throws Exception {
-        String expected = "intersectionOf:\n" +
+        String expected = "Combination of:\n" +
                 "  Duane's syndrome, type 3\n" +
                 "  Scoliosis deformity of spine\n" +
                 "  Multiple system malformation syndrome\n";

@@ -6,7 +6,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -25,7 +28,6 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.dto.SemanticProperty;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -122,6 +124,31 @@ public class EntityController {
         return entityService.getImmediateChildren(iri, page, size, false);
 	}
 
+	@GetMapping("/exportConcept")
+	public HttpEntity<Object> exportConcept(@RequestParam String iri) throws JsonProcessingException, SQLException {
+		LOG.debug("exportConcept");
+		if (iri == null || iri.isEmpty())
+			return null;
+
+		TTIriRef entity = entityService.getEntityReference(iri);
+
+		String filename = entity.getName() + " " + LocalDate.now();
+		HttpHeaders headers = new HttpHeaders();
+
+		TTDocument document = entityService.getConcept(iri);
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+		String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
+
+		return new HttpEntity<>(json, headers);
+
+	}
+
 	@GetMapping(value = "/download")
 	public HttpEntity<Object> download(
 	    @RequestParam String iri,
@@ -216,12 +243,6 @@ public class EntityController {
 			@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset) throws SQLException {
         LOG.debug("valueSetMembersCSV");
         return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
-	}
-
-	@GetMapping(value = "/complexMembers")
-	public List<String> getComplexMembers(@RequestParam(name = "iri") String iri) throws SQLException {
-		LOG.debug("getComplexMembers");
-		return entityService.getComplexMembers(iri);
 	}
 
 	@GetMapping(value = "/isMemberOf")

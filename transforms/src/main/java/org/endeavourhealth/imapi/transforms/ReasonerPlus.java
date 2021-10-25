@@ -17,6 +17,7 @@ import java.util.zip.DataFormatException;
  */
 public class ReasonerPlus {
    private TTDocument document;
+   private TTDocument inferred;
    private HashMap<String, TTEntity> entityMap;
    private boolean consistent;
    private OWLReasoner owlReasoner;
@@ -30,241 +31,65 @@ public class ReasonerPlus {
 
    public TTDocument generateInferred(TTDocument document) throws OWLOntologyCreationException,DataFormatException {
       //Creates isas
-      classify(document);
       manager= new TTManager();
       manager.setDocument(document);
-      generateRoleGroups(document);
-      generateInheritedRoles(document);
+      inferred= new TTDocument();
+      inferred.setContext(document.getContext());
+      inferred.setGraph(document.getGraph());
+      classify(document);
       generatePropertyGroups(document);
+      for (TTEntity c:inferred.getEntities()){
+         if (c.isType(OWL.CLASS)){
+            TTArray types= c.getType();
+            List<TTValue> oldTypes= types.getElements();
+            oldTypes.remove(OWL.CLASS);
+            oldTypes.add(RDFS.CLASS);
+            c.setType(new TTArray());
+            for (TTValue type:oldTypes)
+               c.getType().add(type);
+         }
+         if (c.isType(OWL.OBJECTPROPERTY))
+            c.setType(new TTArray().add(RDF.PROPERTY));
+         if (c.isType(OWL.DATATYPEPROPERTY))
+            c.setType(new TTArray().add(RDF.PROPERTY));
+         c.getPredicateMap().remove(RDFS.SUBCLASSOF);
+         c.getPredicateMap().remove(RDFS.SUBPROPERTYOF);
+         c.getPredicateMap().remove(OWL.EQUIVALENTCLASS);
+      }
 
-      return document;
+      return inferred;
    }
 
 
 
 
-   private void generatePropertyGroups(TTDocument document) {
-      if (document.getEntities() == null)
+
+   private void generatePropertyGroups(TTDocument document) throws DataFormatException {
+      if (inferred.getEntities() == null)
          return;
-      for (TTEntity entity:document.getEntities()) {
-         done = new HashSet<>();
-         done.add(entity.getIri());
-         if (entity.isType(IM.RECORD)||entity.isType(SHACL.NODESHAPE))
-            setPropertyGroups(entity);
-      }
-   }
-
-   private void generateRoleGroups(TTDocument document) throws DataFormatException {
-      if (document.getEntities() == null)
-         return;
-      for (TTEntity entity:document.getEntities()) {
-         setRoleGroups(entity);
+      for (TTEntity entity:inferred.getEntities()) {
+         setPropertyGroups(entity);
 
 
       }
    }
 
-   /**
-    * Takes a classified document and propogates inherited roles and properties to descendants to enable direct access to properties
-    * Creates roles in role group and properties in Property group
-    * @param document The document including the inherited roles
-    * @return a document containing the rols as inherited
-    */
 
-   public TTDocument generateInheritedRoles(TTDocument document) {
-      //Now brings down properties
-      for (TTEntity entity:document.getEntities()){
-         done = new HashSet<>();
-         done.add(entity.getIri());
-         if (entity.get(IM.IS_A)!=null)
-            for (TTValue parent:entity.get(IM.IS_A).asArray().getElements()) {
-               TTEntity parentEntity= manager.getEntity(parent.asIriRef().getIri());
-               if (parentEntity!=null)
-                  bringDownRoles(entity, parentEntity);
+
+   private void setPropertyGroups(TTEntity entity) throws DataFormatException {
+      if (entity.get(IM.PROPERTY_GROUP)==null) {
+         if (entity.get(RDFS.SUBCLASSOF) != null) {
+            for (TTValue superClass : entity.get(RDFS.SUBCLASSOF).asArray().getElements()) {
+               setExpression(entity, superClass);
+
             }
-      }
-      return document;
 
-
-   }
-
-
-   private void setPropertyGroups(TTEntity entity) {
-      if (entity.get(IM.PROPERTY_GROUP)!=null)
-         entity.getPredicateMap().remove((IM.PROPERTY_GROUP));
-      done= new HashSet<>();
-      done.add(entity.getIri());
-      Integer groupNumber=0;
-      if (entity.get(SHACL.PROPERTY)!=null){
-         //Adds the entity's property list as the first Property group for the entity
-         TTArray propertyGroups = new TTArray();
-         entity.set(IM.PROPERTY_GROUP,propertyGroups);
-         TTNode propertyGroup= new TTNode();
-         propertyGroups.add(propertyGroup);
-         propertyGroup.set(SHACL.PROPERTY,entity.get(SHACL.PROPERTY));
-         propertyGroup.set(IM.GROUP_NUMBER,TTLiteral.literal(groupNumber.toString()));
-
-      }
-      if (entity.get(IM.IS_A)!=null)
-         for (TTValue element:entity.get(IM.IS_A).asArray().getElements()){
-            if (element.isIriRef()){
-               TTEntity parentEntity= manager.getEntity(element.asIriRef().getIri());
-               if (parentEntity!=null) {
-                  groupNumber++;
-                  groupNumber= bringDownPropertyGroups(entity, parentEntity,groupNumber);
+         }
+         if (entity.get(OWL.EQUIVALENTCLASS) != null) {
+            if (entity.get(OWL.EQUIVALENTCLASS).isList()) {
+               for (TTValue equClass : entity.get(OWL.EQUIVALENTCLASS).asArray().getElements()) {
+                  setExpression(entity, equClass);
                }
-            }
-
-         }
-   }
-
-   private Integer bringDownPropertyGroups(TTEntity entity, TTEntity parentEntity,Integer groupNumber) {
-      if (done.contains(parentEntity.getIri()))
-         return groupNumber;
-
-      if (parentEntity.get(SHACL.PROPERTY)!=null) {
-         TTNode propertyGroup = null;
-         for (TTValue element : parentEntity.get(SHACL.PROPERTY).asArray().getElements()) {
-            TTNode parentProperty = element.asNode();
-            TTIriRef property = parentProperty.get(SHACL.PATH).asIriRef();
-            TTValue value = null;
-            if (parentProperty.get(SHACL.DATATYPE) != null)
-               value = parentProperty.get(SHACL.DATATYPE);
-            else if (parentProperty.get(SHACL.CLASS) != null) {
-               value = parentProperty.get(SHACL.CLASS);
-            }
-            if (value != null)
-               if (!overriddenProperties(property, value, entity)) {
-                  if (entity.get(IM.PROPERTY_GROUP)==null){
-                     TTArray propertyGroups= new TTArray();
-                     entity.set(IM.PROPERTY_GROUP,propertyGroups);
-                  }
-                  if (propertyGroup==null){
-                     propertyGroup= new TTNode();
-                     propertyGroup.set(IM.GROUP_NUMBER,TTLiteral.literal(groupNumber.toString()));
-                     propertyGroup.set(IM.INHERITED_FROM,TTIriRef.iri(parentEntity.getIri()));
-                     entity.get(IM.PROPERTY_GROUP).asArray().add(propertyGroup);
-                  }
-                  if (propertyGroup.get(SHACL.PROPERTY)==null)
-                     propertyGroup.set(SHACL.PROPERTY,new TTArray());
-                  propertyGroup.get(SHACL.PROPERTY).asArray().add(parentProperty);
-               }
-         }
-      }
-      if (parentEntity.get(IM.IS_A)!=null)
-         for (TTValue grandparent:parentEntity.get(IM.IS_A).asArray().getElements()) {
-            TTEntity grandparentEntity= manager.getEntity(grandparent.asIriRef().getIri());
-            if (grandparentEntity!=null) {
-               groupNumber++;
-               return bringDownPropertyGroups(entity, grandparentEntity,groupNumber);
-            }
-         }
-      return groupNumber;
-
-   }
-
-
-
-   private void bringDownRoles(TTEntity entity,TTEntity parent) {
-      if (done.contains(parent.getIri()))
-         return;
-      done.add(parent.getIri());
-      TTArray roleGroups=null;
-      if (parent.get(IM.ROLE_GROUP)!=null) {
-         TTArray parentRoleGroups = parent.get(IM.ROLE_GROUP).asArray();
-         TTNode newGroup=null;
-         for (TTValue element : parentRoleGroups.getElements()) {
-            TTNode roleGroup = element.asNode();
-            for (Map.Entry<TTIriRef,TTValue> entry:roleGroup.getPredicateMap().entrySet()){
-               TTIriRef property= entry.getKey();
-               TTValue value= entry.getValue();
-               if (!overriddenRole(property,entity))
-                  newGroup= addInheritedRole(entity,newGroup,property,value);
-            }
-         }
-      }
-      if (parent.get(IM.IS_A)!=null)
-         for (TTValue grandparent:parent.get(IM.IS_A).asArray().getElements()) {
-            TTEntity grandparentEntity= manager.getEntity(grandparent.asIriRef().getIri());
-            if (grandparentEntity!=null)
-               bringDownRoles(entity, grandparentEntity);
-         }
-
-   }
-
-   private TTNode addInheritedRole(TTEntity entity, TTNode newGroup, TTIriRef property,TTValue value) {
-      Integer nextGroup = 1;
-      if (entity.get(IM.ROLE_GROUP) != null) {
-         nextGroup = entity.get(IM.ROLE_GROUP).asArray().size();
-      } else{
-         TTArray groups= new TTArray();
-         entity.set(IM.ROLE_GROUP,groups);
-      }
-      if (newGroup==null){
-         newGroup = new TTNode();
-         newGroup.set(IM.GROUP_NUMBER,TTLiteral.literal(nextGroup));
-
-      }
-      newGroup.set(property,value);
-      return newGroup;
-   }
-
-   private boolean overriddenRole(TTIriRef property, TTEntity entity) {
-      if (entity.get(IM.ROLE_GROUP)!=null)
-         for (TTValue roleGroup : entity.get(IM.ROLE_GROUP).asArray().getElements()) {
-               for (Map.Entry<TTIriRef,TTValue> entry:roleGroup.asNode().getPredicateMap().entrySet()){
-                  TTIriRef subProperty = entry.getKey();
-                  if (manager.isA(subProperty, property))
-                     return true;
-               }
-            }
-
-      return false;
-   }
-
-
-
-   private boolean overriddenProperties(TTIriRef property, TTValue value, TTEntity entity) {
-      if (entity.get(IM.PROPERTY_GROUP) != null) {
-         TTArray propertyGroups = entity.get(IM.PROPERTY_GROUP).asArray();
-         for (TTValue element : propertyGroups.getElements()) {
-            TTNode propertyGroup = element.asNode();
-            TTArray rootProperties = propertyGroup.get(SHACL.PROPERTY).asArray();
-            for (TTValue PropertyElement : rootProperties.getElements()) {
-               TTNode Property = PropertyElement.asNode();
-               if (manager.isA(Property.get(SHACL.PATH).asIriRef(), property)) {
-                  if (Property.get(SHACL.DATATYPE) != null) {
-                     if (value.asIriRef().equals(Property.get(SHACL.DATATYPE).asIriRef()))
-                        return true;
-                  } else {
-                     if (Property.get(SHACL.CLASS) != null) {
-                        TTValue rootValue = Property.get(SHACL.CLASS);
-                        if (rootValue.isIriRef())
-                           if (manager.isA(Property.get(SHACL.CLASS).asIriRef(), value.asIriRef()))
-                              return true;
-                     }
-                  }
-               }
-            }
-         }
-      }
-      return false;
-   }
-
-   private void setRoleGroups(TTEntity entity) throws DataFormatException {
-      if (entity.get(IM.ROLE_GROUP)!=null)
-         entity.getPredicateMap().remove(IM.ROLE_GROUP);
-      if (entity.get(RDFS.SUBCLASSOF)!=null){
-         for (TTValue superClass:entity.get(RDFS.SUBCLASSOF).asArray().getElements()){
-            setExpression(entity,superClass);
-
-         }
-
-      }
-      if (entity.get(OWL.EQUIVALENTCLASS)!=null) {
-         if (entity.get(OWL.EQUIVALENTCLASS).isList()) {
-            for (TTValue equClass : entity.get(OWL.EQUIVALENTCLASS).asArray().getElements()) {
-               setExpression(entity, equClass);
             }
          }
       }
@@ -291,22 +116,25 @@ public class ReasonerPlus {
       TTValue roleGroups= entity.get(IM.ROLE_GROUP);
       if (roleGroups==null) {
          roleGroups = new TTArray();
-         entity.set(IM.ROLE_GROUP, roleGroups);
+         entity.set(IM.PROPERTY_GROUP, roleGroups);
          TTNode roleGroup= new TTNode();
          roleGroups.asArray().add(roleGroup);
-         roleGroup.set(IM.GROUP_NUMBER,TTLiteral.literal(0));
+         roleGroup.set(SHACL.PROPERTY,new TTArray());
       }
+      TTNode property= new TTNode();
       TTNode roleGroup= roleGroups.asArray().getElements().stream().findFirst().get().asNode();
+      roleGroup.get(SHACL.PROPERTY).asArray().add(property);
       if (attribute.get(OWL.ONPROPERTY) != null) {
+         TTIriRef path= attribute.get(OWL.ONPROPERTY).asIriRef();
+         property.set(SHACL.PATH,path);
          if (attribute.get(OWL.ONCLASS) != null)
-               roleGroup.set(attribute.get(OWL.ONPROPERTY).asIriRef(),attribute.get(OWL.ONCLASS));
+            property.set(SHACL.CLASS,attribute.get(OWL.ONCLASS));
          else if (attribute.get(OWL.SOMEVALUESFROM) != null)
-               roleGroup.set(attribute.get(OWL.ONPROPERTY).asIriRef(),attribute.get(OWL.SOMEVALUESFROM));
+               property.set(SHACL.CLASS,attribute.get(OWL.SOMEVALUESFROM));
          else if (attribute.get(OWL.ALLVALUESFROM) != null)
-               roleGroup.set(attribute.get(OWL.ONPROPERTY).asIriRef(),attribute.get(OWL.ALLVALUESFROM));
-         else if (attribute.get(OWL.ONDATARANGE) != null)
-               roleGroup.set(attribute.get(OWL.ONPROPERTY).asIriRef(),attribute.get(OWL.ONDATARANGE));
+               property.set(SHACL.CLASS,attribute.get(OWL.ALLVALUESFROM));
          else if (attribute.get(OWL.ONDATATYPE) != null)
+
                roleGroup.set(attribute.get(OWL.ONPROPERTY).asIriRef(),attribute.get(OWL.ONDATATYPE));
          else if (attribute.get(OWL.HASVALUE) != null)
                roleGroup.set(attribute.get(OWL.ONPROPERTY).asIriRef(),attribute.get(OWL.HASVALUE));
@@ -352,9 +180,10 @@ public class ReasonerPlus {
          }
          consistent = true;
          OWLDataFactory dataFactory = new OWLDataFactoryImpl();
-         //First removes the current "isas"
          for (TTEntity c : document.getEntities()) {
-            c.getPredicateMap().remove(IM.IS_A);
+            inferred.addEntity(c);
+            if (c.get(OWL.EQUIVALENTCLASS)!=null)
+               c.set(IM.DEFINITIONAL_STATUS,IM.SUFFICIENTLY_DEFINED);
             if (c.isType(OWL.OBJECTPROPERTY)) {
                OWLObjectPropertyExpression ope = dataFactory.getOWLObjectProperty(IRI.create(c.getIri()));
                NodeSet<OWLObjectPropertyExpression> superOb = owlReasoner.getSuperObjectProperties(ope, true);
@@ -404,8 +233,8 @@ public class ReasonerPlus {
                            ;});
                   }
 
-
                }
+
             }
          }
       return document;

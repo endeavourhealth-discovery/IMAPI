@@ -12,7 +12,7 @@ public class TTDisplay {
 	private static TTIriRef[] clause = {IMQ.TRIPLE,IMQ.FILTER,IMQ.UNION,IMQ.MINUS};
 	private static TTIriRef[] triple = {IMQ.ENTITY,IMQ.PROPERTY,IMQ.VALUE};
 	private static TTIriRef[] filter = {RDF.TYPE,IMQ.VAR,IMQ.EXPRESSION};
-	private static TTIriRef[] entity = {RDF.TYPE,RDFS.LABEL,IM.HAS_MEMBER,IM.NOT_MEMBER};
+	private static TTIriRef[] entity = {RDF.TYPE,RDFS.LABEL,IM.DEFINITION,IM.NOT_MEMBER};
 
 	public static TTIriRef[] getTemplate(TTNode node){
 		return entity;

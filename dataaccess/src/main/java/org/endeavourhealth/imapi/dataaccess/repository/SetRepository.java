@@ -29,7 +29,7 @@ public class SetRepository {
 					while (rs.next()) {
 						String iri = rs.getString("iri");
 						TTEntity set = getSetDefinition(iri);
-						if (set.get(IM.HAS_MEMBER)!=null|(set.get(IM.HAS_SUBSET)!=null))
+						if (set.get(IM.DEFINITION)!=null|(set.get(IM.HAS_SUBSET)!=null))
 							result.add(set);
 					}
 				}
@@ -40,7 +40,7 @@ public class SetRepository {
 
 	public TTEntity getSetDefinition(String iri) throws SQLException {
 		Set<TTIriRef> predicates= new HashSet<>();
-		predicates.add(IM.HAS_MEMBER);
+		predicates.add(IM.DEFINITION);
 		predicates.add(IM.HAS_SUBSET);
 		predicates.add(IM.NOT_MEMBER);
 		predicates.add(IM.IS_CONTAINED_IN);
@@ -147,7 +147,7 @@ public class SetRepository {
 				ResultSet rs= queryIM1Expansion.executeQuery();
 				while (rs.next()) {
 					TTEntity member = new TTEntity();
-					expanded.addObject(IM.HAS_MEMBER, member);
+					expanded.addObject(IM.DEFINITION, member);
 					member.setCode(rs.getString("code"));
 					member.setScheme(TTIriRef.iri(rs.getString("scheme")));
 					member.set(IM.DBID, TTLiteral.literal(rs.getInt("im2")));
@@ -221,7 +221,7 @@ public class SetRepository {
 	 */
 	public TTEntity getExpansion(TTEntity conceptSet) throws SQLException {
 		//No members null return
-		if (conceptSet.get(IM.HAS_MEMBER) == null)
+		if (conceptSet.get(IM.DEFINITION) == null)
 			return null;
 		//build Expansion SQL first
 		PreparedStatement queryExpansion;
@@ -237,7 +237,7 @@ public class SetRepository {
 			expanded.setIri(conceptSet.getIri());
 			while (rs.next()){
 				TTEntity member= new TTEntity();
-				expanded.addObject(IM.HAS_MEMBER,member);
+				expanded.addObject(IM.DEFINITION,member);
 				member.setIri(rs.getString("iri"));
 				member.setCode(rs.getString("code"));
 				member.setScheme(TTIriRef.iri(rs.getString("scheme")));
@@ -266,7 +266,7 @@ public class SetRepository {
 		buildSimpleExpressions(conceptSet, sql);
 		//Loops through the members that have complex expressions
 
-		for (TTValue member : conceptSet.get(IM.HAS_MEMBER).asArray().getElements()) {
+		for (TTValue member : conceptSet.get(IM.DEFINITION).asArray().getElements()) {
 			if (member.isNode()) {
 				sql.add("Union all");
 				StringJoiner from = new StringJoiner("\n");
@@ -386,7 +386,7 @@ public class SetRepository {
 		sql.add("select distinct tct.descendant as dbid from");
 		sql.add("entity cs")
 			.add("join tpl on tpl.subject= cs.dbid")
-			.add("join entity hasmembers on tpl.predicate= hasmembers.dbid")
+			.add("join entity hasmember on tpl.predicate= hasmember.dbid")
 			.add("join entity core on tpl.object= core.dbid")
 			.add("join tct on tct.ancestor= tpl.object")
 			.add("where cs.iri='"+ conceptSet.getIri()+ "'")

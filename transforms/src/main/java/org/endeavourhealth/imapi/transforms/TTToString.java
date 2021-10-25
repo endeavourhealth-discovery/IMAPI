@@ -74,11 +74,16 @@ public class TTToString {
                     result += pad + prefix + iriMap.get(element.getKey().getIri()).replaceAll(regex, "") + " : ";
                     result += ttIriToString(element.getValue().asIriRef(), "object", indent, true);
                     result += suffix;
+                } else if (element.getKey().getName() != null) {
+                    result += pad + prefix + element.getKey().getName().replaceAll(regex, "") + " : ";
+                    result += ttIriToString(element.getValue().asIriRef(), "object", indent, true);
+                    result += suffix;
                 } else {
                     result += ttIriToString(element.getValue().asIriRef(), "object", indent, false);
                 }
             } else {
                 if (iriMap.containsKey(element.getKey().getIri())) result += pad + prefix + iriMap.get(element.getKey().getIri()).replaceAll(regex, "") + ":\n";
+                else if (element.getKey().getName() != null) result += pad + prefix + element.getKey().getName().replaceAll(regex, "") + ":\n";
                 if (previousType == "array") {
                     if (group) {
                         result += ttValueToString(element.getValue(), "object", iriMap, indent + 1);

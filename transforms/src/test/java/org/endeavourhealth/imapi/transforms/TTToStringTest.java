@@ -7,6 +7,8 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -16,11 +18,14 @@ class TTToStringTest {
     }
 
     public TTArray getTestArray() {
-        return new TTArray().add(getTestIri()).add(getTestIri()).add(getTestIri());
+        return new TTArray()
+                .add(iri("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
+                .add(iri("http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
+                .add(iri("http://snomed.info/sct#82354003","Multiple system malformation syndrome (disorder)"));
     }
 
     public TTNode getTestNode() {
-        return new TTNode().set(OWL.INTERSECTIONOF, getTestArray());
+        return new TTNode().set(iri(OWL.INTERSECTIONOF.getIri(), "intersectionOf"), getTestArray());
     }
 
     public TTBundle getTestBundle() {
@@ -136,5 +141,14 @@ class TTToStringTest {
                 "      On property : role group\n" +
                 "      type : Restriction)\n";
         assertEquals(expected, TTToString.getBundleAsString(getTestBundle()));
+    }
+
+    @Test
+    public void ttNodeToString() throws Exception {
+        String expected = "intersectionOf:\n" +
+                "  Duane's syndrome, type 3\n" +
+                "  Scoliosis deformity of spine\n" +
+                "  Multiple system malformation syndrome\n";
+        assertEquals(expected, TTToString.ttNodeToString(getTestNode(), "array", 0, new HashMap<>()));
     }
 }

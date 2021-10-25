@@ -299,14 +299,13 @@ public class EntityService {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
-		TTBundle results = getEntityPredicates(iri, predicates, UNLIMITED);
-		List<TTValue> resultsEntity = results
+		List<TTValue> results = getEntityPredicates(iri, predicates, UNLIMITED)
             .getEntity()
             .getAsArray(predicate.asIriRef())
             .getElements();
-		for (TTValue element : resultsEntity) {
+		for (TTValue element : results) {
 			if (element.isNode()) {
-				members.add(getValueSetMemberFromNode(element, results.getPredicates()));
+				members.add(getValueSetMemberFromNode(element));
             }
 			if (element.isIriRef()) {
 				ValueSetMember member = null;
@@ -317,9 +316,9 @@ public class EntityService {
 		return members;
 	}
 
-	private ValueSetMember getValueSetMemberFromNode(TTValue node, Map<String, String> predicates) {
+	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
-		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, predicates);
+		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, new HashMap<>());
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

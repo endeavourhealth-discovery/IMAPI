@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +30,7 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.transforms.TTToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,11 +105,27 @@ public class EntityController {
         return entityService.getInferredBundle(iri);
     }
 
+	@GetMapping(value = "/inferredAsString", produces = "application/json")
+	public String getInferredAsString(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+		LOG.debug("getInferredAsString");
+		TTBundle inferredBundle = entityService.getInferredBundle(iri);
+		String inferredString = TTToString.getBundleAsString(inferredBundle, configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {}));
+		return inferredString;
+	}
+
     @GetMapping(value = "/axiomBundle", produces = "application/json")
     public TTBundle getAxiomBundle(@RequestParam(name = "iri") String iri) throws SQLException {
         LOG.debug("getAxiomBundle");
         return entityService.getAxiomBundle(iri);
     }
+
+	@GetMapping(value = "/axiomAsString", produces = "application/json")
+	public String getAxiomAsString(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+		LOG.debug("getAxiomAsString");
+		TTBundle axiomBundle = entityService.getAxiomBundle(iri);
+		String axiomString = TTToString.getBundleAsString(axiomBundle, configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {}));
+		return axiomString;
+	}
 
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,

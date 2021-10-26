@@ -114,17 +114,13 @@ public class SetServiceTest {
         definition.set(IM.DEFINITION, new TTNode()
           .set(SHACL.OR,new TTArray()
             .add(iri("http://snomed.info/sct#39330711000001103", "COVID-19 vaccine (product)"))
-            .add(new TTNode().set(RDFS.SUBCLASSOF, new TTArray()
+            .add(new TTNode().set(SHACL.AND, new TTArray()
                 .add(iri("http://snomed.info/sct#10363601000001109", "UK product (product)"))
                 .add(new TTNode()
-                  .set(IM.PROPERTY_GROUP, new TTArray()
-                    .add(new TTNode()
-                      .set(SHACL.PROPERTY,new TTArray()
-                        .add(new TTNode()
-                          .set(SHACL.PATH,iri("http://snomed.info/sct#10362601000001103","Has VMP (attribute)"))
-                            .set(SHACL.CLASS,iri("http://snomed.info/sct#39330711000001103","COVID-19 vaccine (product)")))
+                   .set(iri("http://snomed.info/sct#10362601000001103","Has VMP (attribute)")
+                            ,iri("http://snomed.info/sct#39330711000001103","COVID-19 vaccine (product)")))
             ))
-        ))))));
+        ));
 
         when(setRepository.getSetDefinition(any()))
             .thenReturn(definition);
@@ -168,7 +164,7 @@ public class SetServiceTest {
         checkCells(sheet.getRow(1),
             "http://endhealth.info/im#CSET_BartsCVSSMeds",
             "Concept Set- Barts Covid vaccine study medication concepts",
-            "<< 39330711000001103 | COVID-19 vaccine (product) | OR (<< 10363601000001109 | UK product (product) | : << 10362601000001103 | Has VMP (attribute) | = << 39330711000001103 | COVID-19 vaccine (product) |)",
+            "<< 39330711000001103 |COVID-19 vaccine (product) | OR (<< 10363601000001109 |UK product (product) | : << 10362601000001103 |Has VMP (attribute) | = << 39330711000001103 |COVID-19 vaccine (product) |)",
             "@prefix sn: <http://snomed.info/sct#> .\n" +
               "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n" +
               "@prefix im: <http://endhealth.info/im#> .\n" +
@@ -178,10 +174,9 @@ public class SetServiceTest {
               "   rdfs:label \"Concept Set- Barts Covid vaccine study medication concepts\";\n" +
               "   im:definition [http://www.w3.org/ns/shacl#or \n" +
               "         sn:39330711000001103 , \n" +
-              "         [rdfs:subClassOf \n" +
+              "         [http://www.w3.org/ns/shacl#and \n" +
               "               sn:10363601000001109 , \n" +
-              "               [im:propertyGroup [http://www.w3.org/ns/shacl#property [http://www.w3.org/ns/shacl#path sn:10362601000001103;\n" +
-              "               http://www.w3.org/ns/shacl#class sn:39330711000001103]]]]] ." );
+              "               [sn:10362601000001103 sn:39330711000001103]]] ." );
     }
 
     private void checkExpandedSheet(Sheet sheet) {

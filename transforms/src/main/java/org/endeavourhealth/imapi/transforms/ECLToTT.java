@@ -65,30 +65,29 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
    }
 
    private TTValue convertRefined(ECLParser.RefinedexpressionconstraintContext refined) throws DataFormatException {
-      TTNode exp;
+      TTNode exp=new TTNode();
+      exp.set(SHACL.AND,new TTArray());
       if (refined.subexpressionconstraint().expressionconstraint() != null) {
-         exp = convertECContext(refined.subexpressionconstraint().expressionconstraint()).asNode();
+         exp.get(SHACL.AND).asArray().add(convertECContext(refined.subexpressionconstraint().expressionconstraint()).asNode());
       } else {
-         exp = new TTNode();
-         exp.set(RDFS.SUBCLASSOF,new TTArray().add(convertSubECContext(refined.subexpressionconstraint())));
+         exp.get(SHACL.AND).asArray().add(convertSubECContext(refined.subexpressionconstraint()));
       }
       ECLParser.EclrefinementContext refinement = refined.eclrefinement();
       ECLParser.SubrefinementContext subref = refinement.subrefinement();
       if (subref.eclattributeset() != null) {
-         exp.set(IM.PROPERTY_GROUP,new TTArray());
-         TTNode group= new TTNode();
-         exp.get(IM.PROPERTY_GROUP).asArray().add(group);
-         convertAttributeSet(group, subref.eclattributeset());
+         convertAttributeSet(exp.get(SHACL.AND).asArray(), subref.eclattributeset());
       } else if (subref.eclattributegroup() != null) {
-         exp.set(IM.PROPERTY_GROUP,new TTArray());
+         exp.set(IM.ROLE_GROUP,new TTArray());
          TTNode group= new TTNode();
-         exp.get(IM.PROPERTY_GROUP).asArray().add(group);
+         exp.get(IM.ROLE_GROUP).asArray().add(group);
          convertAttributeGroup(group, subref.eclattributegroup());
       } else
          throw new UnknownFormatConversionException("ECL attribute format not supported " + ecl);
       if (refinement.conjunctionrefinementset() != null) {
          for (ECLParser.SubrefinementContext subref2 : refinement.conjunctionrefinementset().subrefinement()) {
-            convertAttributeGroup(exp, subref2.eclattributegroup());
+            TTNode group= new TTNode();
+            exp.get(IM.ROLE_GROUP).asArray().add(group);
+            convertAttributeGroup(group, subref2.eclattributegroup());
          }
          return exp;
 
@@ -96,24 +95,25 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
          return exp;
    }
 
-   private TTValue convertAttributeSet(TTNode exp, ECLParser.EclattributesetContext eclAtSet) throws DataFormatException {
+   private TTValue convertAttributeSet(TTArray ttPropList, ECLParser.EclattributesetContext eclAtSet) throws DataFormatException {
       if (eclAtSet.subattributeset() != null) {
          if (eclAtSet.subattributeset().eclattribute() != null) {
-            return convertAttribute(exp,eclAtSet.subattributeset().eclattribute());
-         } else if (eclAtSet.conjunctionattributeset() != null) {
-               convertAndAttributeSet(exp, eclAtSet.conjunctionattributeset());
-               return exp;
+            ttPropList.add(convertAttribute(eclAtSet.subattributeset().eclattribute()));
+         }
+         if (eclAtSet.conjunctionattributeset() != null) {
+               convertAndAttributeSet(ttPropList, eclAtSet.conjunctionattributeset());
             }
+         return ttPropList;
       }
       throw new UnknownFormatConversionException("ECL Attribute format not supoorted " + ecl);
    }
 
-   private TTValue convertAndAttributeSet(TTNode group, ECLParser
+   private TTArray convertAndAttributeSet(TTArray ttPropList, ECLParser
        .ConjunctionattributesetContext eclAtAnd) throws DataFormatException {
       for (ECLParser.SubattributesetContext subAt : eclAtAnd.subattributeset()) {
-         convertAttribute(group,subAt.eclattribute());
+         ttPropList.add(convertAttribute(subAt.eclattribute()));
       }
-      return group;
+      return ttPropList;
    }
 
 
@@ -149,20 +149,17 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
       return exp;
    }
 
-   private TTValue convertAttribute(TTNode exp,ECLParser.EclattributeContext attecl) throws DataFormatException {
-      if (exp.get(SHACL.PROPERTY)==null)
-         exp.set(SHACL.PROPERTY,new TTArray());
+   private TTNode convertAttribute(ECLParser.EclattributeContext attecl) throws DataFormatException {
       TTNode pv = new TTNode();
-      exp.get(SHACL.PROPERTY).asArray().add(pv);
-      pv.set(SHACL.PATH,getConRef(attecl.eclattributename()
+      TTIriRef property=getConRef(attecl.eclattributename()
           .subexpressionconstraint()
           .eclfocusconcept()
           .eclconceptreference()
-          .conceptid()));
+          .conceptid());
       if (attecl.expressioncomparisonoperator() != null) {
          if (attecl.expressioncomparisonoperator().EQUALS() != null) {
             if (attecl.subexpressionconstraint().eclfocusconcept() != null) {
-               pv.set(SHACL.CLASS,getConRef(attecl
+               pv.set(property,getConRef(attecl
                    .subexpressionconstraint().eclfocusconcept().eclconceptreference().conceptid()));
                return pv;
             } else {
@@ -191,7 +188,8 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
    private TTValue convertAttributeGroup(TTNode group,
                                                  ECLParser.EclattributegroupContext eclGroup) throws DataFormatException {
       if (eclGroup.eclattributeset()!=null) {
-         convertAttributeSet(group, eclGroup.eclattributeset());
+         group.set(SHACL.AND,new TTArray());
+         convertAttributeSet(group.get(SHACL.AND).asArray(), eclGroup.eclattributeset());
          return group;
       }
       else

@@ -4,6 +4,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.formats.PrefixDocumentFormat;
@@ -333,6 +334,8 @@ public class TTToOWLEL {
       OWLEntity entity;;
       if (ttEntity.isType(OWL.CLASS))
             entity = dataFactory.getOWLEntity(EntityType.CLASS, iri);
+      else  if (ttEntity.isType(IM.CONCEPT))
+         entity = dataFactory.getOWLEntity(EntityType.CLASS, iri);
          else if (ttEntity.isType(OWL.OBJECTPROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
          else if (ttEntity.isType(OWL.DATATYPEPROPERTY))

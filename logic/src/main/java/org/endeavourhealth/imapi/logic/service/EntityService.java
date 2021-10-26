@@ -734,6 +734,19 @@ public class EntityService {
         return getEntityPredicates(iri, predicates, UNLIMITED);
     }
 
+    public TTDocument getConcept(String iri) throws SQLException {
+		TTBundle bundle = getEntityPredicates(iri, null, 0);
+		TTDocument document = new TTDocument();
+		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+		TTContext context = new TTContext();
+		for(Namespace namespace : namespaces){
+			context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+		}
+		document.setContext(context);
+		document.addEntity(bundle.getEntity());
+		return document;
+	}
+
 	public Collection<SimpleMap> getMatchedFrom(String iri) throws SQLException {
 		return entityTripleRepository.getSubjectFromObject(iri, IM.MATCHED_TO);
 	}

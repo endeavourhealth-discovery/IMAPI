@@ -7,20 +7,37 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TTToStringTest {
+    public Map<String, String> getTestDefaultPredicates() {
+        Map<String, String> defaults = new HashMap<>();
+        defaults.put("http://endhealth.info/im#isA", "Is a");
+        defaults.put("http://endhealth.info/im#roleGroup", "Where");
+        defaults.put("http://www.w3.org/2002/07/owl#equivalentClass", "Is equivalent to");
+        defaults.put("http://www.w3.org/2002/07/owl#intersectionOf", "Combination of");
+        defaults.put("http://www.w3.org/2002/07/owl#someValuesFrom", "With a value");
+        defaults.put("http://www.w3.org/2002/07/owl#onProperty", "On property");
+        return defaults;
+    }
+
     public TTIriRef getTestIri() {
         return iri("http://snomed.info/sct#370135005", "Pathological process (attribute)");
     }
 
     public TTArray getTestArray() {
-        return new TTArray().add(getTestIri()).add(getTestIri()).add(getTestIri());
+        return new TTArray()
+                .add(iri("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
+                .add(iri("http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
+                .add(iri("http://snomed.info/sct#82354003","Multiple system malformation syndrome (disorder)"));
     }
 
     public TTNode getTestNode() {
-        return new TTNode().set(OWL.INTERSECTIONOF, getTestArray());
+        return new TTNode().set(iri(OWL.INTERSECTIONOF.getIri(), "intersectionOf"), getTestArray());
     }
 
     public TTBundle getTestBundle() {
@@ -135,6 +152,15 @@ class TTToStringTest {
                 "          type : Restriction)\n" +
                 "      On property : role group\n" +
                 "      type : Restriction)\n";
-        assertEquals(expected, TTToString.getBundleAsString(getTestBundle()));
+        assertEquals(expected, TTToString.getBundleAsString(getTestBundle(), getTestDefaultPredicates()));
+    }
+
+    @Test
+    public void ttNodeToString() throws Exception {
+        String expected = "Combination of:\n" +
+                "  Duane's syndrome, type 3\n" +
+                "  Scoliosis deformity of spine\n" +
+                "  Multiple system malformation syndrome\n";
+        assertEquals(expected, TTToString.ttNodeToString(getTestNode(), "array", 0, getTestDefaultPredicates()));
     }
 }

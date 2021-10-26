@@ -21,7 +21,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
-import org.endeavourhealth.imapi.transforms.TTToHTML;
+import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -316,9 +316,16 @@ public class EntityService {
 		return members;
 	}
 
-	private ValueSetMember getValueSetMemberFromNode(TTValue node) throws SQLException {
+	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
-		String nodeAsString = TTToHTML.getExpressionText(node.asNode());
+		Map<String, String> defaultPredicates = new HashMap<>();
+		try {
+			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
+			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
+		}
+		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, defaultPredicates);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

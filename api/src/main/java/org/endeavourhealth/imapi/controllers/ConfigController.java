@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.config.DashboardLayout;
 import org.endeavourhealth.imapi.model.config.FilterDefault;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/config")
@@ -50,5 +52,13 @@ public class ConfigController {
     ) throws SQLException, JsonProcessingException {
         LOG.debug("getDashboardLayout");
         return configService.getConfig(name, new TypeReference<List<DashboardLayout>>(){});
+    }
+
+    @GetMapping(value="/defaultPredicateNames")
+    public Map<String, String> getDefaultPredicateNames(
+            @RequestParam(name = "name") String name
+        ) throws SQLException, JsonProcessingException {
+        LOG.debug("getDefaultPredicateNames");
+        return configService.getConfig(name, new TypeReference<Map<String, String>>() {});
     }
 }

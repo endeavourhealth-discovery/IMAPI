@@ -1,34 +1,24 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OWL;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 public class TTToString {
     private static String regex = "\\s\\(([^)]*)\\)[^(]*$";
 
-    private static Map<String, String> setPredicateDefaults(Map<String, String> predicates) {
-        if (predicates.containsKey(IM.IS_A.getIri())) predicates.replace(IM.IS_A.getIri(), "Is a");
-        else predicates.put(IM.IS_A.getIri(), "Is a");
-        if (predicates.containsKey(IM.ROLE_GROUP.getIri())) predicates.replace(IM.ROLE_GROUP.getIri(), "Where");
-        else predicates.put(IM.ROLE_GROUP.getIri(), "Where");
-        if (predicates.containsKey(OWL.EQUIVALENTCLASS.getIri())) predicates.replace(OWL.EQUIVALENTCLASS.getIri(), "Is equivalent to");
-        else predicates.put(OWL.EQUIVALENTCLASS.getIri(), "Is equivalent to");
-        if (predicates.containsKey(OWL.INTERSECTIONOF.getIri())) predicates.replace(OWL.INTERSECTIONOF.getIri(), "Combination of");
-        else predicates.put(OWL.INTERSECTIONOF.getIri(), "Combination of");
-        if (predicates.containsKey(OWL.SOMEVALUESFROM.getIri())) predicates.replace(OWL.SOMEVALUESFROM.getIri(), "With a value");
-        else predicates.put(OWL.SOMEVALUESFROM.getIri(), "With a value");
-        if (predicates.containsKey(OWL.ONPROPERTY.getIri())) predicates.replace(OWL.ONPROPERTY.getIri(), "On property");
-        else predicates.put(OWL.ONPROPERTY.getIri(), "On property");
+    private static Map<String, String> setPredicateDefaults(Map<String, String> predicates, Map<String, String> defaultPredicates) {
+        for (Map.Entry<String, String> defaultPredicate : defaultPredicates.entrySet()) {
+            if (predicates.containsKey(defaultPredicate.getKey())) predicates.replace(defaultPredicate.getKey(), defaultPredicate.getValue());
+            else predicates.put(defaultPredicate.getKey(), defaultPredicate.getValue());
+        }
         return predicates;
     }
 
-    public static String getBundleAsString(TTBundle bundle) {
+    public static String getBundleAsString(TTBundle bundle, Map<String, String> defaultPredicates) {
         Map<String, String> predicates = bundle.getPredicates();
-        predicates = setPredicateDefaults(predicates);
+        predicates = setPredicateDefaults(predicates, defaultPredicates);
         String result = "";
         for (Map.Entry<TTIriRef, TTValue> element : bundle.getEntity().getPredicateMap().entrySet()) {
             result += ttValueToString(new TTNode().set(element.getKey(), element.getValue()), "object", predicates, 0);
@@ -37,7 +27,7 @@ public class TTToString {
     }
 
     public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent) {
-        if (indent == 0) iriMap = setPredicateDefaults(iriMap);
+        if (indent == 0 && iriMap.isEmpty()) iriMap = setPredicateDefaults(iriMap, iriMap);
         if (node.isIriRef()) {
             return ttIriToString(node.asIriRef(), previousType, indent, false);
         } else if (node.isNode()) {
@@ -60,7 +50,7 @@ public class TTToString {
     }
 
     public static String ttNodeToString(TTNode node, String previousType, int indent, Map<String, String> iriMap) {
-        if (indent == 0) iriMap = setPredicateDefaults(iriMap);
+        if (indent == 0) iriMap = setPredicateDefaults(iriMap, iriMap);
         String pad = new String(new char[indent]).replace("\0", "  ");
         String result = "";
         Boolean first = true;
@@ -114,7 +104,7 @@ public class TTToString {
     }
 
     public static String ttArrayToString(TTArray arr, int indent, Map<String, String> iriMap) {
-        if (indent == 0) iriMap = setPredicateDefaults(iriMap);
+        if (indent == 0) iriMap = setPredicateDefaults(iriMap, iriMap);
         String result = "";
         for (TTValue item : arr.getElements()) {
             result += ttValueToString(item, "array", iriMap, indent + 1);

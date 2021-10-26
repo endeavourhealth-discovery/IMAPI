@@ -318,7 +318,14 @@ public class EntityService {
 
 	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
-		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, new HashMap<>());
+		Map<String, String> defaultPredicates = new HashMap<>();
+		try {
+			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {
+			});
+		} catch (Exception e) {
+			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
+		}
+		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, defaultPredicates);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

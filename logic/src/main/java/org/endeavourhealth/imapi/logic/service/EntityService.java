@@ -221,61 +221,15 @@ public class EntityService {
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
 		int memberCount = 0;
 
-		Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION);
-		for (ValueSetMember included : definedMemberInclusions) {
-			if (originalParentIri.equals(iri)) {
-				included.setLabel("a_MemberIncluded");
-				included.setType(MemberType.INCLUDED);
-			} else {
-				if (expandSets) {
-					included.setLabel("Subset - expanded");
-					included.setType(MemberType.SUBSET);
-				} else if (included.getType() != MemberType.COMPLEX) {
-					included.setLabel("Subset - " + parentSetName);
-					included.setType(MemberType.SUBSET);
-				}
-			}
-			included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
-		}
+        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, parentSetName, originalParentIri);
 
-        Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
-		for (ValueSetMember excluded : definedMemberExclusions) {
-			if (originalParentIri.equals(iri)) {
-				excluded.setLabel("b_MemberExcluded");
-				excluded.setType(MemberType.EXCLUDED);
-			} else {
-				if (expandSets) {
-					excluded.setLabel("Subset - expanded");
-					excluded.setType(MemberType.SUBSET);
-				} else if (excluded.getType() != MemberType.COMPLEX) {
-					excluded.setLabel("Subset - " + parentSetName);
-					excluded.setType(MemberType.SUBSET);
-				}
-			}
-			excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
-		}
+        Set<ValueSetMember> definedMemberExclusions = getDefinedExclusions(iri, expandSets, parentSetName, originalParentIri);
 
         Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
-		if (expandSets || expandMembers) {
-			for (ValueSetMember set : definedSetInclusions) {
-				ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null, originalParentIri);
-				memberCount += individualResults.getMembers().size();
-				result.addAllMembers(individualResults.getMembers());
-			}
-		} else {
-			for (ValueSetMember set : definedSetInclusions) {
-				if (parentSetName == null) {
-					set.setLabel("Subset - " + set.getEntity().getName());
-				} else {
-					set.setLabel("Subset - " + parentSetName);
-				}
-				ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName(), originalParentIri);
-				memberCount += setMembers.getMembers().size();
-				result.addAllMembers(setMembers.getMembers());
-			}
-		}
 
-		Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
+        memberCount = processExpansions(expandMembers, expandSets, limit, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
+
+        Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
 		memberCount += evaluatedMemberInclusions.size();
 		Map<String, ValueSetMember> evaluatedMemberExclusions = processMembers(definedMemberExclusions, expandMembers, memberCount, limit);
         memberCount += evaluatedMemberExclusions.size();
@@ -295,24 +249,91 @@ public class EntityService {
 		return result;
 	}
 
-	private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
+    private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) throws SQLException {
+        if (expandSets || expandMembers) {
+            for (ValueSetMember set : definedSetInclusions) {
+                ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null, originalParentIri);
+                memberCount += individualResults.getMembers().size();
+                result.addAllMembers(individualResults.getMembers());
+            }
+        } else {
+            for (ValueSetMember set : definedSetInclusions) {
+                if (parentSetName == null) {
+                    set.setLabel("Subset - " + set.getEntity().getName());
+                } else {
+                    set.setLabel("Subset - " + parentSetName);
+                }
+                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName(), originalParentIri);
+                memberCount += setMembers.getMembers().size();
+                result.addAllMembers(setMembers.getMembers());
+            }
+        }
+        return memberCount;
+    }
+
+    private Set<ValueSetMember> getDefinedExclusions(String iri, boolean expandSets, String parentSetName, String originalParentIri) throws SQLException {
+        Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
+        for (ValueSetMember excluded : definedMemberExclusions) {
+            if (originalParentIri.equals(iri)) {
+                excluded.setLabel("b_MemberExcluded");
+                excluded.setType(MemberType.EXCLUDED);
+            } else {
+                if (expandSets) {
+                    excluded.setLabel("Subset - expanded");
+                    excluded.setType(MemberType.SUBSET);
+                } else if (excluded.getType() != MemberType.COMPLEX) {
+                    excluded.setLabel("Subset - " + parentSetName);
+                    excluded.setType(MemberType.SUBSET);
+                }
+            }
+            excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
+        }
+        return definedMemberExclusions;
+    }
+
+    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, String parentSetName, String originalParentIri) throws SQLException {
+        Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION);
+        for (ValueSetMember included : definedMemberInclusions) {
+            if (originalParentIri.equals(iri)) {
+                included.setLabel("a_MemberIncluded");
+                included.setType(MemberType.INCLUDED);
+            } else {
+                if (expandSets) {
+                    included.setLabel("Subset - expanded");
+                    included.setType(MemberType.SUBSET);
+                } else if (included.getType() != MemberType.COMPLEX) {
+                    included.setLabel("Subset - " + parentSetName);
+                    included.setType(MemberType.SUBSET);
+                }
+            }
+            included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
+        }
+        return definedMemberInclusions;
+    }
+
+    private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) throws SQLException {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
-		List<TTValue> results = getEntityPredicates(iri, predicates, UNLIMITED)
+		TTValue result = getEntityPredicates(iri, predicates, UNLIMITED)
             .getEntity()
-            .getAsArray(predicate.asIriRef())
-            .getElements();
-		for (TTValue element : results) {
-			if (element.isNode()) {
-				members.add(getValueSetMemberFromNode(element));
+            .get(predicate.asIriRef());
+
+		if (result != null) {
+            if (result.isIriRef())
+                members.add(getValueSetMemberFromIri(result.asIriRef().getIri()));
+            else if (result.isNode())
+                members.add(getValueSetMemberFromNode(result));
+            else if (result.isList()) {
+                for (TTValue element : result.getElements()) {
+                    if (element.isNode()) {
+                        members.add(getValueSetMemberFromNode(element));
+                    } else if (element.isIriRef()) {
+                        members.add(getValueSetMemberFromIri(element.asIriRef().getIri()));
+                    }
+                }
             }
-			if (element.isIriRef()) {
-				ValueSetMember member = null;
-				member = getValueSetMemberFromIri(element.asIriRef().getIri());
-				members.add(member);
-			}
-		}
+        }
 		return members;
 	}
 
@@ -510,23 +531,15 @@ public class EntityService {
 	public String valueSetMembersCSV(String iri, boolean expandMember, boolean expandSubset) throws SQLException {
 		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset, null);
 		StringBuilder valueSetMembers = new StringBuilder();
-		valueSetMembers.append(
-				"Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
+		valueSetMembers.append("Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
+
 		if (exportValueSet == null)
 			return valueSetMembers.toString();
+
 		for (ValueSetMember inc : exportValueSet.getMembers()) {
 			appendValueSet(exportValueSet, valueSetMembers, inc, "Inc");
 		}
-//		if(exportValueSet.getIncludedSubsets() != null){
-//			for(ValueSetMember incSubset : exportValueSet.getIncludedSubsets()){
-//				appendValueSet(exportValueSet, valueSetMembers, incSubset, "IncSubset");
-//			}
-//		}
-//		if (exportValueSet.getExcludedMembers() != null) {
-//			for (ValueSetMember exc : exportValueSet.getExcludedMembers()) {
-//				appendValueSet(exportValueSet, valueSetMembers, exc, "Exc");
-//			}
-//		}
+
 		return valueSetMembers.toString();
 	}
 
@@ -696,7 +709,6 @@ public class EntityService {
 	}
 
 	public List<Namespace> getNamespaces() throws SQLException {
-//		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
 		return entityTripleRepository.findNamespaces();
 	}
 

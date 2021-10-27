@@ -161,6 +161,7 @@ public class IM {
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
     public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
+    public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE+"displayOrder");
     private IM() {}
 }
 

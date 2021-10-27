@@ -346,7 +346,7 @@ public class EntityService {
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
 		}
-		String nodeAsString = TTToString.ttNodeToString(node.asNode(), "object", 0, defaultPredicates);
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

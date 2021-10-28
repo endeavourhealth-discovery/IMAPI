@@ -55,10 +55,8 @@ public class ConfigController {
     }
 
     @GetMapping(value="/defaultPredicateNames")
-    public Map<String, String> getDefaultPredicateNames(
-            @RequestParam(name = "name") String name
-        ) throws SQLException, JsonProcessingException {
+    public Map<String, String> getDefaultPredicateNames() throws SQLException, JsonProcessingException {
         LOG.debug("getDefaultPredicateNames");
-        return configService.getConfig(name, new TypeReference<Map<String, String>>() {});
+        return configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {});
     }
 }

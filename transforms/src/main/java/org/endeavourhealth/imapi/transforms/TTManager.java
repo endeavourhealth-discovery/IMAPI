@@ -406,9 +406,10 @@ public class TTManager {
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
       if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
          return true;
+      TTIriRef subType= descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
       boolean isa = false;
-      if (descendant.get(IM.IS_A) != null)
-         for (TTValue ref : descendant.get(IM.IS_A).asArray().getElements())
+      if (descendant.get(subType) != null)
+         for (TTValue ref : descendant.get(subType).asArray().getElements())
             if (ref.equals(ancestor))
                return true;
             else {
@@ -447,6 +448,7 @@ public class TTManager {
 
    private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                   TTIriRef andOr, TTValue newExpression) {
+      TTIriRef subType= entity.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
       if (entity.get(axiom) == null)
          entity.set(axiom, new TTArray());
       TTValue oldExpression;
@@ -464,9 +466,9 @@ public class TTManager {
       } else
          expressions.add(newExpression);
       if (newExpression.isIriRef()){
-         if (entity.get(IM.IS_A)==null)
-            entity.set(IM.IS_A, new TTArray());
-         entity.addObject(IM.IS_A,newExpression);
+         if (entity.get(subType)==null)
+            entity.set(subType, new TTArray());
+         entity.addObject(subType,newExpression);
       }
 
    }

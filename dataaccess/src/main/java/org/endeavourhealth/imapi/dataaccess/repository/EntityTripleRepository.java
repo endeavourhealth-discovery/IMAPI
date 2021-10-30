@@ -189,7 +189,7 @@ public class EntityTripleRepository extends BaseRepository {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 int i = 0;
-                statement.setString(++i, IM.IS_A.getIri());
+                statement.setString(++i, RDFS.SUBCLASSOF.getIri());
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
@@ -229,7 +229,7 @@ public class EntityTripleRepository extends BaseRepository {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 int i = 0;
-                statement.setString(++i, IM.IS_A.getIri());
+                statement.setString(++i, RDFS.SUBCLASSOF.getIri());
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
@@ -264,7 +264,7 @@ public class EntityTripleRepository extends BaseRepository {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
                 int i = 0;
-                statement.setString(++i, IM.IS_A.getIri());
+                statement.setString(++i, RDFS.SUBCLASSOF.getIri());
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);

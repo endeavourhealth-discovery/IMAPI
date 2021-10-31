@@ -46,6 +46,10 @@ public class TTArray implements TTValue, Serializable {
     public int size() {
         return elements.size();
     }
+    public void remove(TTValue value){
+        elements.remove(value);
+    }
+
 
     public boolean contains(TTValue value) {
         return elements.contains(value);

@@ -477,7 +477,7 @@ public class EntityService {
     }
 
     public List<DataModelProperty> getDataModelProperties(String iri) throws SQLException {
-		TTEntity entity = getEntityPredicates(iri, Set.of(IM.PROPERTY_GROUP.getIri()),UNLIMITED).getEntity();
+		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), RDFS.LABEL.getIri()),UNLIMITED).getEntity();
 		return getDataModelProperties(entity);
 	}
 
@@ -485,19 +485,19 @@ public class EntityService {
 		List<DataModelProperty> properties = new ArrayList<>();
 		if (entity == null)
 			return Collections.emptyList();
-		if (entity.has(IM.PROPERTY_GROUP)) {
+		if (entity.has(SHACL.PROPERTY)) {
             getDataModelPropertyGroups(entity, properties);
         }
 		return properties;
 	}
 
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
-        for (TTValue propertyGroup : entity.getAsArray(IM.PROPERTY_GROUP).getElements()) {
+        for (TTValue propertyGroup : entity.getAsArray(SHACL.PROPERTY).getElements()) {
             if (propertyGroup.isNode()) {
                 TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
                     ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
                     : null;
-                if (propertyGroup.asNode().has(SHACL.PROPERTY)) {
+                if (propertyGroup.asNode().has(SHACL.PATH)) {
                     getDataModelShaclProperties(properties, propertyGroup, inheritedFrom);
                 }
             }
@@ -505,13 +505,11 @@ public class EntityService {
     }
 
     private void getDataModelShaclProperties(List<DataModelProperty> properties, TTValue propertyGroup, TTIriRef inheritedFrom) {
-        for (TTValue property : propertyGroup.asNode().get(SHACL.PROPERTY).asArray().getElements()) {
-            TTIriRef propertyPath = property.asNode().get(SHACL.PATH).asIriRef();
+            TTIriRef propertyPath = propertyGroup.asNode().get(SHACL.PATH).asIriRef();
             if (properties.stream()
                     .noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
-                properties.add(getPropertyValue(inheritedFrom, property, propertyPath));
-            }
-        }
+				properties.add(getPropertyValue(inheritedFrom, propertyGroup, propertyPath));
+			}
     }
 
     private DataModelProperty getPropertyValue(TTIriRef inheritedFrom, TTValue property, TTIriRef propertyPath) {

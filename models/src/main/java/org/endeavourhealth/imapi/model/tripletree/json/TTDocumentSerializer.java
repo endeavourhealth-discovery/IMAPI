@@ -76,7 +76,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       predicateTemplate.add(IM.CODE);
       predicateTemplate.add(IM.HAS_SCHEME);
       predicateTemplate.add(IM.HAS_STATUS);
-      predicateTemplate.add(IM.IS_A);
+      predicateTemplate.add(RDFS.SUBCLASSOF);
    }
 
 }

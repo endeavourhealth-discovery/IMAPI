@@ -32,6 +32,8 @@ public class IM {
     public static final TTIriRef DATASET = iri(NAMESPACE +"DataSet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
+    public static final TTIriRef METACLASS= iri(NAMESPACE+"MetaClass");
+    public static final TTIriRef METAPROPERTY= iri(NAMESPACE+"MetaProperty");
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
@@ -162,6 +164,7 @@ public class IM {
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
     public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE+"displayOrder");
+    public static final TTIriRef HAS= iri(NAMESPACE+"has");
     private IM() {}
 }
 

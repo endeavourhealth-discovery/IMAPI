@@ -40,11 +40,7 @@ public class TTToTurtle {
 		for (TTEntity entity:document.getEntities())
 			appendEntity(entity);
 		turtle.append("\n");
-		for (TTEntity entity:document.getEntities()) {
-			level=0;
-			appendEntity(entity);
-			append("\n");
-		}
+
 		insertPrefixes();
 		return turtle.toString();
 	}

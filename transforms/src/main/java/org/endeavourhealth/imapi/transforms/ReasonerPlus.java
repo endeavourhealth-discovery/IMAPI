@@ -54,8 +54,12 @@ public class ReasonerPlus {
             c.setType(new TTArray().add(RDF.PROPERTY));
          if (c.isType(OWL.DATATYPEPROPERTY))
             c.setType(new TTArray().add(RDF.PROPERTY));
-         c.getPredicateMap().remove(RDFS.SUBCLASSOF);
-         c.getPredicateMap().remove(RDFS.SUBPROPERTYOF);
+         if (c.get(IM.IS_A)!=null)
+            if (c.isType(RDF.PROPERTY))
+               c.set(RDFS.SUBPROPERTYOF,c.get(IM.IS_A));
+            else
+               c.set(RDFS.SUBCLASSOF,c.get(IM.IS_A));
+            c.getPredicateMap().remove(IM.IS_A);
          c.getPredicateMap().remove(OWL.EQUIVALENTCLASS);
          c.getPredicateMap().remove(OWL.PROPERTYCHAIN);
       }
@@ -243,26 +247,26 @@ public class ReasonerPlus {
          OWLDataFactory dataFactory = new OWLDataFactoryImpl();
          for (TTEntity c : document.getEntities()) {
             inferred.addEntity(c);
+            c.getPredicateMap().remove(RDFS.SUBCLASSOF);
+            c.getPredicateMap().remove(RDFS.SUBPROPERTYOF);
             if (c.get(OWL.EQUIVALENTCLASS)!=null)
                c.set(IM.DEFINITIONAL_STATUS,IM.SUFFICIENTLY_DEFINED);
             if (c.isType(OWL.OBJECTPROPERTY)) {
                OWLObjectPropertyExpression ope = dataFactory.getOWLObjectProperty(IRI.create(c.getIri()));
                NodeSet<OWLObjectPropertyExpression> superOb = owlReasoner.getSuperObjectProperties(ope, true);
                if (superOb != null) {
-                  TTArray parents = new TTArray();
-                  c.set(IM.IS_A, parents);
                   superOb.forEach(sob -> {
                      if (!sob.getRepresentativeElement().isAnonymous())
                         if (!sob.getRepresentativeElement().asOWLObjectProperty()
                           .getIRI()
                           .toString().equals(OWL.NAMESPACE+"topObjectProperty")) {
-                           parents.add(TTIriRef
+                           addIsa(c,TTIriRef
                              .iri(sob
                                .getRepresentativeElement().asOWLObjectProperty()
                                .getIRI()
                                .toString()));
                         } else
-                           parents.add(RDF.PROPERTY);
+                           addIsa(c,RDF.PROPERTY);
                   }
                   );
 
@@ -272,20 +276,18 @@ public class ReasonerPlus {
                OWLDataProperty dpe = dataFactory.getOWLDataProperty(IRI.create(c.getIri()));
                NodeSet<OWLDataProperty> superP = owlReasoner.getSuperDataProperties(dpe, true);
                if (superP != null) {
-                  TTArray parents = new TTArray();
-                  c.set(IM.IS_A, parents);
                   superP.forEach(sob -> {
                      if (!sob.getRepresentativeElement().isAnonymous())
                         if (!sob.getRepresentativeElement().asOWLDataProperty()
                            .getIRI()
                           .toString().equals(OWL.NAMESPACE+"topDataProperty")) {
-                           parents.add(TTIriRef
+                           addIsa(c,TTIriRef
                              .iri(sob
                                .getRepresentativeElement().asOWLDataProperty()
                                .getIRI()
                                .toString()));
                         } else
-                           parents.add(RDF.PROPERTY);
+                           addIsa(c,RDF.PROPERTY);
                   }
                   );
                };

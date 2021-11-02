@@ -45,11 +45,11 @@ public class SetService {
      * @return Set of concepts conforming to the concept sets definition
      * @throws SQLException
      */
-    public Set<TTIriRef> evaluateConceptSet(String conceptSetIri) throws SQLException {
+    public Set<TTIriRef> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) throws SQLException {
         LOG.debug("Load definition");
         TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
-        return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION));
+        return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION), includeLegacy);
     }
 
     /**
@@ -58,7 +58,7 @@ public class SetService {
      * @return  Set of concepts conforming to the definition
      * @throws SQLException
      */
-    public Set<TTIriRef> evaluateDefinition(TTValue definition) throws SQLException {
+    public Set<TTIriRef> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
         LOG.debug("Evaluate");
         EditSet editSet = evaluateConceptSetNode(definition);
         Set<TTIriRef> result = editSet.getIncs();
@@ -66,9 +66,10 @@ public class SetService {
         if (editSet.getExcs() != null)
             result.removeAll(editSet.getExcs());
 
-        LOG.debug("Fetching legacy concepts for {} members", result.size());
-
-        entityTripleRepository.addLegacyConcepts(result);
+        if (includeLegacy) {
+            LOG.debug("Fetching legacy concepts for {} members", result.size());
+            entityTripleRepository.addLegacyConcepts(result);
+        }
 
         LOG.debug("Found {} total concepts", result.size());
 

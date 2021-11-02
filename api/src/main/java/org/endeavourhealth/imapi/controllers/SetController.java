@@ -71,8 +71,8 @@ public class SetController {
         value = "Evaluate set",
         notes = "Evaluates a given set"
     )
-    public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri) throws SQLException {
-	    return setService.evaluateConceptSet(iri);
+    public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) throws SQLException {
+	    return setService.evaluateConceptSet(iri, includeLegacy);
     }
 
     @PostMapping(value = "/evaluateEcl", consumes = "text/plain", produces = "application/json")
@@ -80,8 +80,8 @@ public class SetController {
         value = "Evaluate ECL",
         notes = "Evaluates an query"
     )
-    public Set<TTIriRef> evaluateEcl(@RequestBody String ecl) throws SQLException, DataFormatException {
+    public Set<TTIriRef> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws SQLException, DataFormatException {
         TTValue definition = new ECLToTT().getClassExpression(ecl);
-        return setService.evaluateDefinition(definition);
+        return setService.evaluateDefinition(definition, includeLegacy);
     }
 }

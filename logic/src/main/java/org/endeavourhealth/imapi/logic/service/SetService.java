@@ -136,15 +136,19 @@ public class SetService {
     }
 
     private void processNOT(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
-        TTArray nots = predicateValue.getValue().asArray();
-        for (int i = 0; i < nots.size(); i++) {
-            EditSet notNode = evaluateConceptSetNode(nots.get(i));
+        if (predicateValue.getValue().isIriRef()) {
+            result.addAllExcs(evaluateConceptSetNode(predicateValue.getValue()).getIncs());
+        } else {
+            TTArray nots = predicateValue.getValue().asArray();
+            for (int i = 0; i < nots.size(); i++) {
+                EditSet notNode = evaluateConceptSetNode(nots.get(i));
 
-            if (notNode.getIncs() != null)
-                result.addAllExcs(notNode.getIncs());
+                if (notNode.getIncs() != null)
+                    result.addAllExcs(notNode.getIncs());
 
-            if (notNode.getExcs() != null)
-                throw new IllegalStateException("'NOT NOT' currently unsupported");
+                if (notNode.getExcs() != null)
+                    throw new IllegalStateException("'NOT NOT' currently unsupported");
+            }
         }
     }
 

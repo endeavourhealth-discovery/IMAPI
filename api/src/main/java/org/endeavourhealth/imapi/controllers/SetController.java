@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.dataaccess.repository.EntitySearchRepository;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.search.EntitySummary;
-import org.endeavourhealth.imapi.model.search.SearchString;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.ECLToTT;
@@ -25,9 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
@@ -84,13 +81,13 @@ public class SetController {
 	    return setService.evaluateConceptSet(iri);
     }
 
-    @PostMapping(value = "/evaluateEcl", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/evaluateEcl", consumes = "text/plain", produces = "application/json")
     @ApiOperation(
         value = "Evaluate ECL",
         notes = "Evaluates an query"
     )
-    public List<EntitySummary> evaluateEcl(@RequestBody SearchString ecl) throws SQLException, DataFormatException {
-        TTValue definition = new ECLToTT().getClassExpression(ecl.getSearchString());
+    public List<EntitySummary> evaluateEcl(@RequestBody String ecl) throws SQLException, DataFormatException {
+        TTValue definition = new ECLToTT().getClassExpression(ecl);
         Set<TTIriRef> evaluated = setService.evaluateDefinition(definition);
         List<EntitySummary> evaluatedAsSummary = evaluated.stream().map(ttIriRef -> {
             try {

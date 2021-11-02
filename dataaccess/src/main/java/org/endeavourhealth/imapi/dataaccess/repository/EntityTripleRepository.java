@@ -444,4 +444,56 @@ public class EntityTripleRepository extends BaseRepository {
         }
         return v;
     }
+
+    public void addLegacyConcepts(Set<TTIriRef> iris) throws SQLException {
+        int batchsize = 100;
+        int remainder = iris.size() % batchsize;
+
+        String baseSql = new StringJoiner(System.lineSeparator())
+            .add("SELECT o.iri, o.name")
+            .add("FROM entity e")
+            .add("JOIN tpl t ON t.subject = e.dbid")
+            .add("JOIN entity p ON p.dbid = t.predicate AND p.iri = ?")
+            .add("JOIN entity o ON o.dbid = t.object")
+            .toString();
+
+
+        String batchSql = baseSql + " WHERE e.iri IN (" + DALHelper.inListParams(batchsize) + ")";
+        String remainSql = baseSql + ((remainder > 1) ? " WHERE e.iri IN (" + DALHelper.inListParams(remainder) + ")" : " WHERE e.iri = ?");
+
+        Set<TTIriRef> legacy = new HashSet<>();
+
+        try (Connection conn = ConnectionPool.get();
+             PreparedStatement batchStmt = conn.prepareStatement(batchSql);
+             PreparedStatement remainStmt = conn.prepareStatement(remainSql)) {
+
+            batchStmt.setString(1, IM.MATCHED_TO.getIri());
+            remainStmt.setString(1, IM.MATCHED_TO.getIri());
+
+            PreparedStatement statement = (iris.size() >= batchsize)
+                ? batchStmt
+                : remainStmt;
+
+            int i = 0;
+            for (TTIriRef iri : iris) {
+                int b = i++ % batchsize;    // Index within batch
+
+                statement.setString(2 + b, iri.getIri());
+
+                if (b + 1 == batchsize || i > iris.size()) {
+                    // End of a batch or whole list, so execute
+                    try (ResultSet rs = statement.executeQuery()) {
+                        while (rs.next()) {
+                            legacy.add(iri(rs.getString("iri"), rs.getString("name")));
+                        }
+                    }
+
+                    if (i + batchsize > iris.size())
+                        statement = remainStmt;         // Out of batches into remainder
+                }
+            }
+
+            iris.addAll(legacy);
+        }
+    }
 }

@@ -8,6 +8,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.transforms.ECLToTT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/set")
@@ -70,5 +73,15 @@ public class SetController {
     )
     public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri) throws SQLException {
 	    return setService.evaluateConceptSet(iri);
+    }
+
+    @PostMapping(value = "/evaluateEcl", consumes = "text/plain", produces = "application/json")
+    @ApiOperation(
+        value = "Evaluate ECL",
+        notes = "Evaluates an query"
+    )
+    public Set<TTIriRef> evaluateEcl(@RequestBody String ecl) throws SQLException, DataFormatException {
+        TTValue definition = new ECLToTT().getClassExpression(ecl);
+        return setService.evaluateDefinition(definition);
     }
 }

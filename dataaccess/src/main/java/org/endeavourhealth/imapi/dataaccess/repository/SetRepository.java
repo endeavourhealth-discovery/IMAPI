@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class SetRepository {
-
 	public Set<TTEntity> getAllConceptSets(TTIriRef type) throws SQLException {
 		Set<TTEntity> result= new HashSet<>();
 		StringJoiner sql = new StringJoiner("\n")
@@ -29,7 +28,7 @@ public class SetRepository {
 					while (rs.next()) {
 						String iri = rs.getString("iri");
 						TTEntity set = getSetDefinition(iri);
-						if (set.get(IM.DEFINITION)!=null|(set.get(IM.HAS_SUBSET)!=null))
+						if (set.get(IM.DEFINITION)!=null || (set.get(IM.HAS_SUBSET)!=null))
 							result.add(set);
 					}
 				}
@@ -41,8 +40,6 @@ public class SetRepository {
 	public TTEntity getSetDefinition(String iri) throws SQLException {
 		Set<TTIriRef> predicates= new HashSet<>();
 		predicates.add(IM.DEFINITION);
-		predicates.add(IM.HAS_SUBSET);
-		predicates.add(IM.NOT_MEMBER);
 		predicates.add(IM.IS_CONTAINED_IN);
 		predicates.add(RDFS.LABEL);
 		TTEntity result= new TTEntity().setIri(iri);
@@ -54,9 +51,8 @@ public class SetRepository {
 			.add("\tFROM tpl")
 			.add("\tJOIN entity e ON tpl.subject=e.dbid")
 			.add("\tJOIN entity p ON p.dbid = tpl.predicate")
-			.add("\tWHERE e.iri = ? ");
-		if (!predicates.isEmpty())
-			sql.add("\tAND p.iri IN " + inList(predicates.size())) ;
+			.add("\tWHERE e.iri = ? ")
+			.add("\tAND p.iri IN " + inList(predicates.size())) ;
 		sql.add("\tAND tpl.blank_node IS NULL")
 			.add("UNION ALL")
 			.add("\tSELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
@@ -74,10 +70,10 @@ public class SetRepository {
 			try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
 				int i = 0;
 				statement.setString(++i, iri);
-				if (predicates != null && !predicates.isEmpty()) {
-					for (TTIriRef predicate : predicates)
-						statement.setString(++i, predicate.getIri());
-				}
+
+                for (TTIriRef predicate : predicates)
+                    statement.setString(++i, predicate.getIri());
+
 
 				try (ResultSet rs = statement.executeQuery()) {
 					while (rs.next()) {
@@ -88,8 +84,7 @@ public class SetRepository {
 						TTIriRef predicate= TTIriRef.iri(rs.getString("predicateIri"),rs.getString("predicate"));
 						TTValue ttobject= node.get(predicate);
 						boolean functional= rs.getInt("functional")==1;
-						if (ttobject==null) {
-							if (!functional)
+						if (ttobject==null && !functional) {
 								node.set(predicate, new TTArray());
 						}
 						String objectIri=rs.getString("objectIri");
@@ -117,26 +112,6 @@ public class SetRepository {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * Returns a TTEntity with has members consisting of a list of entities representing the TCT of the set
-	 * @param iri  the iri of the concept set
-	 * @return the entity with expanded members null if no members
-	 * @throws SQLException with database access problems
-	 */
-	public TTEntity getExpansion(String iri) throws SQLException {
-		//First get the definition you want to expand
-		TTEntity definition= getSetDefinition(iri);
-		//Now get expansion
-		TTEntity expanded= getExpansion(definition);
-		return expanded;
-
-	}
-
-	public TTEntity getIM1Expansion(String iri) throws SQLException{
-		TTEntity definition= getSetDefinition(iri);
-		return getIM1Expansion(definition);
 	}
 
 	public TTEntity getIM1Expansion(TTEntity conceptSet) throws SQLException {
@@ -199,7 +174,7 @@ public class SetRepository {
 		}
 	}
 
-	private String buildLegacyExpansionSQL(TTEntity conceptSet) throws SQLException {
+	private String buildLegacyExpansionSQL(TTEntity conceptSet) {
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add("Select distinct legacy.dbid as dbid,legacy.code,legacy.name,legacy.scheme,legacy.iri from (");
 		buildIncludedSQL(conceptSet,sql);
@@ -264,8 +239,8 @@ public class SetRepository {
 
 		//First union all the simple iri members which most concept sets are made up from
 		buildSimpleExpressions(conceptSet, sql);
-		//Loops through the members that have complex expressions
 
+		//Loops through the members that have complex expressions
 		for (TTValue member : conceptSet.get(IM.DEFINITION).asArray().getElements()) {
 			if (member.isNode()) {
 				sql.add("Union all");
@@ -276,6 +251,7 @@ public class SetRepository {
 				}
 			}
 		}
+
 		sql.add(") as included");
 
 
@@ -354,7 +330,7 @@ public class SetRepository {
 	private void buildRoleSQL(TTIriRef attributeIri,TTIriRef valueIri,int e, int r,StringJoiner from, StringJoiner where) {
 		String grouper="_e"+e+"_r"+r;//Indicates the expression number and role number for aliases
 		String lastRole="_e"+e+"_r"+(r-1);
-		if (e>1|r>1)
+		if (e>1 || r>1)
 		 {
 			from.add("");
 			from.add("join tpl tpl"+grouper+ " on tpl"+grouper+".subject=tpl"+lastRole+".subject");
@@ -366,7 +342,7 @@ public class SetRepository {
 			.add("join entity value" + grouper + " on value" + grouper + "_tct.ancestor= value" + grouper + ".dbid")
 			.add("join tpl tpl" + grouper + "_2 on tpl" + grouper + ".blank_node= tpl" + grouper + "_2.dbid")
 			.add("join entity role" + grouper + "_2 on tpl" + grouper + "_2.predicate= role" + grouper + "_2.dbid");
-		if (e == 1&r==1)
+		if (e == 1 && r==1)
 			where.add("where");
 		else
 			where.add("and");

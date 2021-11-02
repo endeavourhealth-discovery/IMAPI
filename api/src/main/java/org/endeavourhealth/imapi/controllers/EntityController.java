@@ -111,22 +111,7 @@ public class EntityController {
 	public String getInferredAsString(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		LOG.debug("getInferredAsString");
 		TTBundle inferredBundle = entityService.getInferredBundle(iri);
-		String inferredString = TTToString.getBundleAsString(inferredBundle, configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {}));
-		return inferredString;
-	}
-
-    @GetMapping(value = "/axiomBundle", produces = "application/json")
-    public TTBundle getAxiomBundle(@RequestParam(name = "iri") String iri) throws SQLException {
-        LOG.debug("getAxiomBundle");
-        return entityService.getAxiomBundle(iri);
-    }
-
-	@GetMapping(value = "/axiomAsString", produces = "application/json")
-	public String getAxiomAsString(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
-		LOG.debug("getAxiomAsString");
-		TTBundle axiomBundle = entityService.getAxiomBundle(iri);
-		String axiomString = TTToString.getBundleAsString(axiomBundle, configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {}));
-		return axiomString;
+		return TTToString.getBundleAsString(inferredBundle, configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {}));
 	}
 
 	@GetMapping(value = "/children")
@@ -134,7 +119,7 @@ public class EntityController {
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
         LOG.debug("getEntityChildren");
-        if (page == null & size == null) {
+        if (page == null && size == null) {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
@@ -176,7 +161,6 @@ public class EntityController {
         @RequestParam(name = "members", required = false, defaultValue = "false") boolean members,
         @RequestParam(name = "expandMembers", required = false, defaultValue = "false") boolean expandMembers,
         @RequestParam(name = "expandSubsets", required = false, defaultValue = "false") boolean expandSubsets,
-        @RequestParam(name = "axioms", required = false, defaultValue = "false") boolean axioms,
         @RequestParam(name = "terms", required = false, defaultValue = "false") boolean terms,
         @RequestParam(name = "isChildOf", required = false, defaultValue = "false") boolean isChildOf,
         @RequestParam(name = "hasChildren", required = false, defaultValue = "false") boolean hasChildren,
@@ -194,7 +178,7 @@ public class EntityController {
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, terms, isChildOf, hasChildren, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -205,7 +189,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");

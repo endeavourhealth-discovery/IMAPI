@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @Component
 public class EntityService {
@@ -61,54 +60,7 @@ public class EntityService {
 
 	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
-        return buildEntityFromTriples(iri, triples);
-    }
-
-    private TTBundle buildEntityFromTriples(String iri, List<Tpl> triples) {
-        TTEntity entity = new TTEntity(iri);
-        TTBundle result = new TTBundle().setEntity(entity);
-
-        // Reconstruct
-        HashMap<Integer, TTNode> nodeMap = new HashMap<>();
-
-        for (Tpl triple : triples) {
-            result.addPredicate(triple.getPredicate());
-
-            TTValue v = getValue(nodeMap, triple);
-
-            if (triple.getParent() == null) {
-                if (triple.isFunctional()) {
-                    entity.set(triple.getPredicate(), v);
-                } else {
-                    entity.addObject(triple.getPredicate(), v);
-                }
-            } else {
-                TTNode n = nodeMap.get(triple.getParent());
-                if (n == null)
-                    throw new IllegalStateException("Unknown parent node!");
-                if (triple.isFunctional()) {
-                    n.set(triple.getPredicate(), v);
-                } else {
-                    n.addObject(triple.getPredicate(), v);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private TTValue getValue(HashMap<Integer, TTNode> nodeMap, Tpl triple) {
-        TTValue v;
-
-        if (triple.getLiteral() != null)
-            v = literal(triple.getLiteral(), triple.getObject());
-        else if (triple.getObject() != null)
-            v = triple.getObject();
-        else {
-            v = new TTNode();
-            nodeMap.put(triple.getDbid(), (TTNode) v);
-        }
-        return v;
+        return EntityTripleRepository.buildEntityFromTriples(iri, triples);
     }
 
     public TTIriRef getEntityReference(String iri) throws SQLException {
@@ -425,13 +377,12 @@ public class EntityService {
 		}
 		List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASSOF.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
 		List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
-		List<String> predicates = filteredConfigs.stream().map(config -> config.getPredicate()).collect(Collectors.toList());
-		TTEntity entity = getEntityPredicates(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
-		return entity;
+		List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).collect(Collectors.toList());
+		return getEntityPredicates(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
 	}
 
     public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean inferred, boolean dataModelProperties,
-									   boolean members, boolean expandMembers,boolean expandSubsets, boolean axioms, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
+									   boolean members, boolean expandMembers,boolean expandSubsets, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -444,14 +395,14 @@ public class EntityService {
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
         if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
-        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));
-		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<String>(Arrays.asList(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));
+        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));
+		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(Arrays.asList(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));
 
         return downloadDto;
     }
 
     public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean inferred, boolean dataModelProperties,
-									  boolean members, boolean expandMembers, boolean expandSubsets, boolean axioms, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
+									  boolean members, boolean expandMembers, boolean expandSubsets, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) throws SQLException {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -616,11 +567,7 @@ public class EntityService {
 	}
 
     private List<GraphDto> bundleToGraphDtos(TTBundle axioms) {
-	    List<GraphDto> result = new ArrayList<>();
-
-
-
-	    return result;
+	    return new ArrayList<>();
     }
 
     private GraphDto getWrapper(List<GraphDto> props,String key) {

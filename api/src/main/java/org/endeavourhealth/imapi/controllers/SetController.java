@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.controllers;
 
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -21,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/set")
@@ -61,5 +61,14 @@ public class SetController {
 
             return new HttpEntity<>(outputStream.toByteArray(), headers);
         }
+    }
+
+    @GetMapping(value = "/evaluate")
+    @ApiOperation(
+        value = "Evaluate set",
+        notes = "Evaluates a given set"
+    )
+    public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri) throws SQLException {
+	    return setService.evaluateConceptSet(iri);
     }
 }

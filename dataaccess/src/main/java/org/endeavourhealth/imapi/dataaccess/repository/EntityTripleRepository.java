@@ -5,11 +5,10 @@ import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALHelper;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.sql.Connection;
@@ -19,9 +18,15 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTripleRepository extends BaseRepository {
+
+    public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
+        List<Tpl> triples = getTriplesRecursive(iri, predicates, limit);
+        return buildEntityFromTriples(iri, triples);
+    }
 
     public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> result = new ArrayList<>();
@@ -324,5 +329,119 @@ public class EntityTripleRepository extends BaseRepository {
         }
 
         return simpleMaps.values();
+    }
+
+    public Set<TTIriRef> getDescendantsInclusive(String iri, TTIriRef... types) throws SQLException {
+        Set<TTIriRef> result = new HashSet<>();
+
+        String sql = new StringJoiner(System.lineSeparator())
+            .add("SELECT c.iri, c.name")
+            .add("FROM entity c")
+            .add("JOIN tct t ON t.descendant = c.dbid ")
+            .add("JOIN entity p ON p.dbid = t.type AND p.iri IN (" + DALHelper.inListParams(types.length) + ")")
+            .add("JOIN entity a ON a.dbid = t.ancestor")
+            .add("WHERE a.iri = ?")
+            .toString();
+
+        try (Connection conn = ConnectionPool.get();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+
+            int i = 0;
+            for (TTIriRef type : types) {
+                statement.setString(++i, type.getIri());
+            }
+
+            statement.setString(++i, iri);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    result.add(iri(rs.getString("iri"), rs.getString("name")));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public Collection<TTIriRef> getSubjectDescendantIriRefsFromPredicateDescendantObjectDescendant(String predicate, String object, TTIriRef... types) throws SQLException {
+        Set<TTIriRef> memberIriRefs = new HashSet<>();
+        String sql = new StringJoiner("\n")
+            .add("SELECT DISTINCT sd.iri, sd.name")
+            .add("FROM entity s")
+            .add("JOIN tpl t ON t.subject = s.dbid")
+            .add("JOIN tct pt ON pt.descendant = t.predicate")
+            .add("JOIN entity p ON p.dbid = pt.ancestor AND p.iri = ?")
+            .add("JOIN tct ot ON ot.descendant = t.object")
+            .add("JOIN entity o ON o.dbid = ot.ancestor AND o.iri = ?")
+            .add("JOIN tct st ON st.ancestor = s.dbid")
+            .add("JOIN entity stt ON stt.dbid = st.type AND stt.iri IN (" + DALHelper.inListParams(types.length) + ")")
+            .add("JOIN entity sd ON sd.dbid = st.descendant")
+            .toString();
+
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                int i = 0;
+                statement.setString(++i, predicate);
+                statement.setString(++i, object);
+                for (TTIriRef type : types) {
+                    statement.setString(++i, type.getIri());
+                }
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        memberIriRefs.add(iri(rs.getString("iri"), rs.getString("name")));
+                    }
+                }
+            }
+        }
+        return memberIriRefs;
+    }
+
+    public static TTBundle buildEntityFromTriples(String iri, List<Tpl> triples) {
+        TTEntity entity = new TTEntity(iri);
+        TTBundle result = new TTBundle().setEntity(entity);
+
+        // Reconstruct
+        HashMap<Integer, TTNode> nodeMap = new HashMap<>();
+
+        for (Tpl triple : triples) {
+            result.addPredicate(triple.getPredicate());
+
+            TTValue v = getValue(nodeMap, triple);
+
+            if (triple.getParent() == null) {
+                if (triple.isFunctional()) {
+                    entity.set(triple.getPredicate(), v);
+                } else {
+                    entity.addObject(triple.getPredicate(), v);
+                }
+            } else {
+                TTNode n = nodeMap.get(triple.getParent());
+                if (n == null)
+                    throw new IllegalStateException("Unknown parent node!");
+                if (triple.isFunctional()) {
+                    n.set(triple.getPredicate(), v);
+                } else {
+                    n.addObject(triple.getPredicate(), v);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static TTValue getValue(HashMap<Integer, TTNode> nodeMap, Tpl triple) {
+        TTValue v;
+
+        if (triple.getLiteral() != null)
+            v = literal(triple.getLiteral(), triple.getObject());
+        else if (triple.getObject() != null)
+            v = triple.getObject();
+        else {
+            v = new TTNode();
+            nodeMap.put(triple.getDbid(), (TTNode) v);
+        }
+        return v;
     }
 }

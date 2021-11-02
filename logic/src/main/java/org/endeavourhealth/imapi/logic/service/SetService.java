@@ -39,17 +39,17 @@ public class SetService {
     }
 
     public Set<TTIriRef> evaluateConceptSet(String conceptSetIri) throws SQLException {
-        LOG.info("Load definition");
+        LOG.debug("Load definition");
         TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
-        LOG.info("Evaluate");
+        LOG.debug("Evaluate");
         EditSet editSet = evaluateConceptSetNode(conceptSetBundle.getEntity().get(IM.DEFINITION));
         Set<TTIriRef> result = editSet.getIncs();
 
         if (editSet.getExcs() != null)
             result.removeAll(editSet.getExcs());
 
-        LOG.info("Done");
+        LOG.debug("Found {} members", result.size());
 
         return result;
     }

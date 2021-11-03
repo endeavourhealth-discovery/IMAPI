@@ -1,57 +1,46 @@
 package org.endeavourhealth.imapi.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Holds a synonym or a key to a concept, may or may not have a term code.
- */
 public class TermCode {
-   private String term;
-   private String code;
-   private List<String> key;
+    private String name;
+    private String code;
+    private String scheme;
+    private String entityTermCode;
 
+    public String getName() {
+        return name;
+    }
 
-   public TermCode(){}
-   public TermCode(String term, String code){
-      this.term=term;
-      this.code=code;
-   }
+    public TermCode setName(String name) {
+        this.name = name;
+        return this;
+    }
 
-   public String getTerm() {
-      return term;
-   }
+    public String getCode() {
+        return code;
+    }
 
-   public TermCode setTerm(String term) {
-      this.term = term;
-      return this;
-   }
+    public TermCode setCode(String code) {
+        this.code = code;
+        return this;
+    }
 
-   public String getCode() {
-      return code;
-   }
+    public String getScheme() {
+        return scheme;
+    }
 
-   public TermCode setCode(String code) {
-      this.code = code;
-      return this;
-   }
+    public TermCode setScheme(String scheme) {
+        this.scheme = scheme;
+        return this;
+    }
 
-   @JsonProperty("Key")
-   public List<String> getKey() {
-      return key;
-   }
+    public String getEntityTermCode() {
+        return entityTermCode;
+    }
 
-   public TermCode setKey(List<String> key) {
-      this.key = key;
-      return this;
-   }
-   public TermCode addKey(String key){
-      if (this.key==null)
-         this.key = new ArrayList<>();
-      this.key.add(key);
-      return this;
-   }
+    public TermCode setEntityTermCode(String entityTermCode) {
+        this.entityTermCode = entityTermCode;
+        return this;
+    }
 }

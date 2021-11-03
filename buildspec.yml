@@ -4,7 +4,7 @@ run-as: root
 phases:
   install:
     runtime-versions:
-      java: openjdk8
+      java: corretto11
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
@@ -16,6 +16,7 @@ phases:
       - echo Build started on `date`
       - chmod +x aws_scripts/build.sh
       - aws_scripts/build.sh mvn -B deploy
+      - mvn sonar:sonar
   post_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32

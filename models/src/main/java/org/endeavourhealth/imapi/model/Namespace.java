@@ -1,17 +1,14 @@
 package org.endeavourhealth.imapi.model;
 
 public class Namespace {
-    private String prefix;
     private String iri;
-    private String version;
+    private String prefix;
+    private String name;
 
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public Namespace setPrefix(String prefix) {
+    public Namespace(String iri, String prefix, String name) {
+        this.iri = iri;
         this.prefix = prefix;
-        return this;
+        this.name = name;
     }
 
     public String getIri() {
@@ -23,12 +20,21 @@ public class Namespace {
         return this;
     }
 
-    public String getVersion() {
-        return version;
+    public String getPrefix() {
+        return prefix;
     }
 
-    public Namespace setVersion(String version) {
-        this.version = version;
+    public Namespace setPrefix(String prefix) {
+        this.prefix = prefix;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Namespace setName(String name) {
+        this.name = name;
         return this;
     }
 }

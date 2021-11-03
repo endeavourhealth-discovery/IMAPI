@@ -1,18 +1,23 @@
 package org.endeavourhealth.imapi.model.valuset;
 
-import org.endeavourhealth.imapi.model.ConceptReference;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class ValueSetMember {
-    private ConceptReference concept;
+import java.io.Serializable;
+
+public class ValueSetMember implements Serializable {
+    private TTIriRef entity;
     private String code;
-    private ConceptReference scheme;
+    private TTIriRef scheme;
+    private String label;
+    private MemberType type;
+    private TTIriRef directParent;
 
-    public ConceptReference getConcept() {
-        return concept;
+    public TTIriRef getEntity() {
+        return entity;
     }
 
-    public ValueSetMember setConcept(ConceptReference concept) {
-        this.concept = concept;
+    public ValueSetMember setEntity(TTIriRef entity) {
+        this.entity = entity;
         return this;
     }
 
@@ -25,12 +30,37 @@ public class ValueSetMember {
         return this;
     }
 
-    public ConceptReference getScheme() {
+    public TTIriRef getScheme() {
         return scheme;
     }
 
-    public ValueSetMember setScheme(ConceptReference scheme) {
+    public ValueSetMember setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public ValueSetMember setLabel(String label) {
+        this.label = label;
+        return this;
+    }
+
+    public MemberType getType() {
+        return type;
+    }
+
+    public void setType(MemberType type) {
+        this.type = type;
+    }
+
+    public TTIriRef getDirectParent() {
+        return directParent;
+    }
+
+    public void setDirectParent(TTIriRef directParent) {
+        this.directParent = directParent;
     }
 }

@@ -98,9 +98,13 @@ public class SetController {
         value="ECL search",
         notes="Search entities using ECL string"
     )
-    public SearchResponse elcSearch(@RequestBody String ecl) throws DataFormatException, SQLException {
-        Set<TTIriRef> evaluated = evaluateEcl(false, ecl);
-        List<EntitySummary> evaluatedAsSummary = evaluated.stream().limit(100).map(ttIriRef -> {
+    public SearchResponse elcSearch(
+            @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
+            @RequestParam(name="limit", required = false) Integer limit,
+            @RequestBody String ecl
+    ) throws DataFormatException, SQLException {
+        Set<TTIriRef> evaluated = evaluateEcl(includeLegacy, ecl);
+        List<EntitySummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
             try {
                 return entitySearchRepository.getSummary(ttIriRef.getIri());
             } catch (SQLException e) {

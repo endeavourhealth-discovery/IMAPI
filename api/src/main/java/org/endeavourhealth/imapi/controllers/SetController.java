@@ -79,8 +79,8 @@ public class SetController {
         value = "Evaluate set",
         notes = "Evaluates a given set"
     )
-    public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri) throws SQLException {
-	    return setService.evaluateConceptSet(iri);
+    public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) throws SQLException {
+	    return setService.evaluateConceptSet(iri, includeLegacy);
     }
 
     @PostMapping(value = "/evaluateEcl", consumes = "text/plain", produces = "application/json")
@@ -88,9 +88,9 @@ public class SetController {
         value = "Evaluate ECL",
         notes = "Evaluates an query"
     )
-    public Set<TTIriRef> evaluateEcl(@RequestBody String ecl) throws DataFormatException, SQLException {
+    public Set<TTIriRef> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws SQLException, DataFormatException {
         TTValue definition = new ECLToTT().getClassExpression(ecl);
-        return setService.evaluateDefinition(definition);
+        return setService.evaluateDefinition(definition, includeLegacy);
     }
 
     @PostMapping(value="/eclSearch", consumes="text/plain", produces="application/json")
@@ -99,7 +99,7 @@ public class SetController {
         notes="Search entities using ECL string"
     )
     public SearchResponse elcSearch(@RequestBody String ecl) throws DataFormatException, SQLException {
-        Set<TTIriRef> evaluated = evaluateEcl(ecl);
+        Set<TTIriRef> evaluated = evaluateEcl(false, ecl);
         List<EntitySummary> evaluatedAsSummary = evaluated.stream().limit(100).map(ttIriRef -> {
             try {
                 return entitySearchRepository.getSummary(ttIriRef.getIri());

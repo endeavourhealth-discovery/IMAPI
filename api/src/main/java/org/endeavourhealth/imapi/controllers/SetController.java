@@ -98,7 +98,7 @@ public class SetController {
         value="ECL search",
         notes="Search entities using ECL string"
     )
-    public SearchResponse elcSearch(
+    public SearchResponse eclSearch(
             @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
             @RequestParam(name="limit", required = false) Integer limit,
             @RequestBody String ecl

@@ -5,8 +5,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.endeavourhealth.imapi.dataaccess.repository.EntitySearchRepository;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
+import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.ECLToTT;
@@ -22,7 +25,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -37,6 +43,8 @@ public class SetController {
 
     @Autowired
     EntityService entityService;
+
+    EntitySearchRepository entitySearchRepository = new EntitySearchRepository();
 
     SetService setService = new SetService();
 
@@ -83,5 +91,30 @@ public class SetController {
     public Set<TTIriRef> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws SQLException, DataFormatException {
         TTValue definition = new ECLToTT().getClassExpression(ecl);
         return setService.evaluateDefinition(definition, includeLegacy);
+    }
+
+    @PostMapping(value="/eclSearch", consumes="text/plain", produces="application/json")
+    @ApiOperation(
+        value="ECL search",
+        notes="Search entities using ECL string"
+    )
+    public SearchResponse eclSearch(
+            @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
+            @RequestParam(name="limit", required = false) Integer limit,
+            @RequestBody String ecl
+    ) throws DataFormatException, SQLException {
+        Set<TTIriRef> evaluated = evaluateEcl(includeLegacy, ecl);
+        List<EntitySummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
+            try {
+                return entitySearchRepository.getSummary(ttIriRef.getIri());
+            } catch (SQLException e) {
+                return new EntitySummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
+            }
+        }).collect(Collectors.toList());
+        SearchResponse result = new SearchResponse();
+        result.setEntities(evaluatedAsSummary);
+        result.setCount(evaluated.size());
+        result.setPage(1);
+        return result;
     }
 }

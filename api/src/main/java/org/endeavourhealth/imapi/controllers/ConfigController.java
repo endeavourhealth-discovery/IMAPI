@@ -59,4 +59,10 @@ public class ConfigController {
         LOG.debug("getDefaultPredicateNames");
         return configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {});
     }
+
+    @GetMapping(value="/xmlSchemaDataTypes")
+    public List<String> getXMLSchemaDataTypes() throws SQLException, JsonProcessingException {
+        LOG.debug("getXMLSchemaDataTypes");
+        return configService.getConfig("xlmSchemaDataTypes", new TypeReference<List<String>>() {});
+    }
 }

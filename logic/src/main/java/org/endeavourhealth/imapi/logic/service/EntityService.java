@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
@@ -130,9 +131,13 @@ public class EntityService {
 				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
 	}
 
-	public List<TTIriRef> usages(String iri, Integer pageIndex, Integer pageSize) throws SQLException {
+	public List<TTIriRef> usages(String iri, Integer pageIndex, Integer pageSize) throws SQLException, JsonProcessingException {
 
 		if (iri == null || iri.isEmpty())
+			return Collections.emptyList();
+
+		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<List<String>>() {});
+		if (xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
 		int rowNumber = 0;
@@ -144,9 +149,14 @@ public class EntityService {
 				.distinct().collect(Collectors.toList());
 	}
 
-	public Integer totalRecords(String iri) throws SQLException {
+	public Integer totalRecords(String iri) throws SQLException, JsonProcessingException {
 		if (iri == null || iri.isEmpty())
 			return 0;
+
+		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<List<String>>() {});
+		if (xmlDataTypes.contains(iri))
+			return 0;
+
 		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri,null,null,RDFS.SUBCLASSOF.getIri()).size();
 	}
 

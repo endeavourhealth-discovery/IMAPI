@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.spring.web.json.Json;
 
 @RestController
 @RequestMapping("api/entity")
@@ -209,13 +210,14 @@ public class EntityController {
 	@GetMapping(value = "/usages")
 	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
-			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
+			@RequestParam(name = "size", required = false) Integer size) throws SQLException, JsonProcessingException {
         LOG.debug("entityUsages");
+
         return entityService.usages(iri,page,size);
 	}
 
 	@GetMapping("/usagesTotalRecords")
-	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException {
+	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		LOG.debug("totalRecords");
 		return entityService.totalRecords(iri);
 	}

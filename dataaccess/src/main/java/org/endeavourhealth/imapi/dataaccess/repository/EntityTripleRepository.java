@@ -90,14 +90,14 @@ public class EntityTripleRepository extends BaseRepository {
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String predicateIri) throws SQLException {
         List<TTIriRef> usages = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT DISTINCT s.iri, s.name")
-                .add("FROM tpl tpl")
-                .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("JOIN entity p ON p.dbid = tpl.predicate ")
-                .add("JOIN entity s ON s.dbid = tpl.subject ")
-                .add("WHERE o.iri = ?")
-                .add("AND p.iri <> ?")
-                .add("AND s.status <> ?");
+            .add("SELECT DISTINCT s.iri, s.name")
+            .add("FROM tpl tpl")
+            .add("JOIN entity o ON o.dbid = tpl.object ")
+            .add("JOIN entity p ON p.dbid = tpl.predicate ")
+            .add("JOIN entity s ON s.dbid = tpl.subject ")
+            .add("WHERE o.iri = ?")
+            .add("AND p.iri <> ?")
+            .add("AND s.status <> ?");
         if (rowNumber != null && pageSize != null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
@@ -113,6 +113,33 @@ public class EntityTripleRepository extends BaseRepository {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         usages.add(iri(rs.getString("iri"), rs.getString("name")));
+                    }
+                }
+            }
+        }
+        return usages;
+    }
+
+    public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String predicateIri) throws SQLException {
+        Integer usages = 0;
+        StringJoiner sql = new StringJoiner("\n")
+            .add("SELECT DISTINCT s.iri, COUNT(1) as rowcount")
+            .add("FROM tpl tpl")
+            .add("JOIN entity o ON o.dbid = tpl.object ")
+            .add("JOIN entity p ON p.dbid = tpl.predicate ")
+            .add("JOIN entity s ON s.dbid = tpl.subject ")
+            .add("WHERE o.iri = ?")
+            .add("AND p.iri <> ?")
+            .add("AND s.status <> ?");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                statement.setString(1, objectIri);
+                statement.setString(2, predicateIri);
+                statement.setString(3, IM.INACTIVE.getIri());
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        usages += rs.getInt("rowcount");
                     }
                 }
             }

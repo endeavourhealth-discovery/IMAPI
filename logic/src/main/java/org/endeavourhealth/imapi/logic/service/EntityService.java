@@ -157,7 +157,7 @@ public class EntityService {
 		if (xmlDataTypes.contains(iri))
 			return 0;
 
-		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri,null,null,RDFS.SUBCLASSOF.getIri()).size();
+		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
 	public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {

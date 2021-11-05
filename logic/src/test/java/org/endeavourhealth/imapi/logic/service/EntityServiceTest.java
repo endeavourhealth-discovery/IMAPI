@@ -1,10 +1,14 @@
 package org.endeavourhealth.imapi.logic.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.jayway.jsonpath.TypeRef;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
@@ -54,6 +58,9 @@ public class EntityServiceTest {
 
     @Mock
     EntityTypeRepository entityTypeRepository;
+
+    @Mock
+    ConfigService configService;
 
     @Test
     public void getEntityPredicates_nullIriPredicates() throws SQLException {
@@ -323,26 +330,27 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void usages_NullIri() throws SQLException {
+    public void usages_NullIri() throws SQLException, JsonProcessingException {
         List<TTIriRef> actual = entityService.usages(null,null,null);
 
         assertNotNull(actual);
     }
 
     @Test
-    public void usages_EmptyIri() throws SQLException {
+    public void usages_EmptyIri() throws SQLException, JsonProcessingException {
         List<TTIriRef> actual = entityService.usages("",null,null);
 
         assertNotNull(actual);
     }
 
     @Test
-    public void usages_NotNullIri() throws SQLException {
+    public void usages_NotNullIri() throws SQLException, JsonProcessingException {
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
 
         when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
 
@@ -350,17 +358,18 @@ public class EntityServiceTest {
     }
 
     @Test
-    public void totalRecords_NullIri() throws SQLException {
+    public void totalRecords_NullIri() throws SQLException, JsonProcessingException {
         Integer actual = entityService.totalRecords(null);
         assertNotNull(actual);
     }
 
     @Test
-    public void totalRecords_NotNullIri() throws SQLException {
+    public void totalRecords_NotNullIri() throws SQLException, JsonProcessingException {
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
         when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
@@ -616,28 +625,28 @@ public class EntityServiceTest {
 
     @Test
     public void download_ExcelNullIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload(null, new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true,  true);
+        XlsHelper actual = entityService.getExcelDownload(null, new ArrayList<>(), true, true, true ,true, false, true, true, true, true,  true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_ExcelEmptyIri() throws SQLException{
-        XlsHelper actual = entityService.getExcelDownload("", new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
+        XlsHelper actual = entityService.getExcelDownload("", new ArrayList<>(), true, true, true ,true, false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONNullIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload(null, new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
+        DownloadDto actual = entityService.getJsonDownload(null, new ArrayList<>(), true, true, true ,true, false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
     public void download_JSONEmptyIri() throws SQLException {
-        DownloadDto actual = entityService.getJsonDownload("", new ArrayList<>(), true, true, true ,true, false,false, true, true, true, true, true);
+        DownloadDto actual = entityService.getJsonDownload("", new ArrayList<>(), true, true, true ,true, false, true, true, true, true, true);
 
         assertNull(actual);
     }
@@ -664,7 +673,7 @@ public class EntityServiceTest {
         when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
-                true, true ,true, false,false, true, true, true, true,true);
+                true, true ,true, false, true, true, true, true,true);
 
         assertNotNull(actual);
 
@@ -674,7 +683,7 @@ public class EntityServiceTest {
     public void download_AllSelectionsFalseExcelFormat() throws SQLException{
 
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
-                false, false ,false, false,false, false, false, false, false,false);
+                false, false ,false, false, false, false, false, false,false);
 
         assertNotNull(actual);
 
@@ -703,7 +712,7 @@ public class EntityServiceTest {
         when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), true,
-                true, true ,true, false,false, true, true, true, true, true);
+                true, true ,true, false, true, true, true, true, true);
 
         assertNotNull(actual);
 
@@ -713,7 +722,7 @@ public class EntityServiceTest {
     public void download_AllSelectionsFalseJsonFormat() throws SQLException {
 
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
-                false, false ,false, false,false, false, false, false, false, false);
+                false, false ,false, false, false, false, false, false, false);
 
         assertNotNull(actual);
 

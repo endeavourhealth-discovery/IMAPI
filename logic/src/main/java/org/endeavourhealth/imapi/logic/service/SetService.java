@@ -1,8 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -10,27 +7,150 @@ import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.SetRepository;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.valuset.EditSet;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.DataFormatException;
+
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class SetService {
+    private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
+
     private SetRepository setRepository;
     private EntityTripleRepository entityTripleRepository;
 
     public SetService() {
         setRepository = new SetRepository();
         entityTripleRepository = new EntityTripleRepository();
+    }
+
+
+    /**
+     * @param conceptSetIri
+     * Evaluates a concept set
+     * @return Set of concepts conforming to the concept sets definition
+     * @throws SQLException
+     */
+    public Set<TTIriRef> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) throws SQLException {
+        LOG.debug("Load definition");
+        TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
+
+        return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION), includeLegacy);
+    }
+
+    /**
+     * @param definition
+     * Evaluates a definition
+     * @return  Set of concepts conforming to the definition
+     * @throws SQLException
+     */
+    public Set<TTIriRef> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
+        LOG.debug("Evaluate");
+        EditSet editSet = evaluateConceptSetNode(definition);
+        Set<TTIriRef> result = editSet.getIncs();
+
+        if (editSet.getExcs() != null)
+            result.removeAll(editSet.getExcs());
+
+        if (includeLegacy) {
+            LOG.debug("Fetching legacy concepts for {} members", result.size());
+            entityTripleRepository.addLegacyConcepts(result);
+        }
+
+        LOG.debug("Found {} total concepts", result.size());
+
+        return result;
+    }
+
+    private EditSet evaluateConceptSetNode(TTValue ttValue) throws SQLException {
+        EditSet result = new EditSet();
+        if (ttValue.isNode()) {
+            for (Map.Entry<TTIriRef, TTValue> predicateValue : ttValue.asNode().getPredicateMap().entrySet()) {
+                if (SHACL.AND.equals(predicateValue.getKey())) {
+                    processAND(result, predicateValue);
+                } else if (SHACL.OR.equals(predicateValue.getKey())) {
+                    processOR(result, predicateValue);
+                } else if (SHACL.NOT.equals(predicateValue.getKey())) {
+                    processNOT(result, predicateValue);
+                } else {
+                    result.addAllIncs(entityTripleRepository.getSubjectDescendantIriRefsFromPredicateDescendantObjectDescendant(predicateValue.getKey().getIri(), predicateValue.getValue().asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
+                }
+            }
+        } else if (ttValue.isIriRef()) {
+            result.addAllIncs(entityTripleRepository.getDescendantsInclusive(ttValue.asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
+        } else {
+            throw new IllegalStateException("Unhandled concept set node type");
+        }
+
+        if (result.getIncs() != null && result.getExcs() != null) {
+            result.getIncs().removeAll(result.getExcs());
+            result.setExcs(null);
+        }
+
+        return result;
+    }
+
+    private void processAND(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
+        TTArray ands = predicateValue.getValue().asArray();
+        for (int i = 0; i < ands.size(); i++) {
+            EditSet andNode = evaluateConceptSetNode(ands.get(i));
+
+            if (andNode.getIncs() != null) {
+                if (result.getIncs() == null) {
+                    result.addAllIncs(andNode.getIncs());
+                } else {
+                    result.getIncs().retainAll(andNode.getIncs());
+                }
+            }
+
+            if (andNode.getExcs() != null) {
+                result.addAllExcs(andNode.getExcs());
+            }
+        }
+    }
+
+    private void processOR(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
+        TTArray ors = predicateValue.getValue().asArray();
+        for (int i = 0; i < ors.size(); i++) {
+            EditSet orNode = evaluateConceptSetNode(ors.get(i));
+
+            if (orNode.getIncs() != null)
+                result.addAllIncs(orNode.getIncs());
+
+            if (orNode.getExcs() != null)
+                throw new IllegalStateException("'OR NOT' currently unsupported");
+        }
+    }
+
+    private void processNOT(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
+        if (predicateValue.getValue().isIriRef()) {
+            result.addAllExcs(evaluateConceptSetNode(predicateValue.getValue()).getIncs());
+        } else {
+            TTArray nots = predicateValue.getValue().asArray();
+            for (int i = 0; i < nots.size(); i++) {
+                EditSet notNode = evaluateConceptSetNode(nots.get(i));
+
+                if (notNode.getIncs() != null)
+                    result.addAllExcs(notNode.getIncs());
+
+                if (notNode.getExcs() != null)
+                    throw new IllegalStateException("'NOT NOT' currently unsupported");
+            }
+        }
     }
 
     /**
@@ -41,7 +161,7 @@ public class SetService {
      * @throws ClassNotFoundException
      * @throws IOException
      */
-    public void exportSingle(String path, String setIri) throws SQLException, ClassNotFoundException, IOException {
+    public void exportSingle(String path, String setIri) throws SQLException, IOException {
         try (FileWriter definitions = new FileWriter(path + "\\ConceptSetDefinitions.txt");
              FileWriter expansions = new FileWriter(path + "\\ConceptSetCoreExpansions.txt");
              FileWriter legacies = new FileWriter(path + "\\ConceptSetLegacyExpansions.txt");
@@ -60,7 +180,7 @@ public class SetService {
     }
 
     private void exportSingle(String setIri, FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps) throws SQLException, IOException {
-        System.out.println("Exporting " + setIri + "..");
+        LOG.debug("Exporting {}...", setIri);
 
         TTEntity conceptSet = setRepository.getSetDefinition(setIri);
         if (conceptSet.get(IM.DEFINITION) != null)
@@ -78,7 +198,7 @@ public class SetService {
 	 * @throws ClassNotFoundException
 	 * @throws IOException
 	 */
-	public void exportAll(String path, TTIriRef type) throws SQLException, ClassNotFoundException, IOException {
+	public void exportAll(String path, TTIriRef type) throws SQLException, IOException {
         Set<TTEntity> conceptSets = setRepository.getAllConceptSets(type);
 
         try (FileWriter definitions = new FileWriter(path + "\\ConceptSetDefinitions.txt");
@@ -95,7 +215,7 @@ public class SetService {
 
             for (TTEntity conceptSet : conceptSets) {
                 String setIri = conceptSet.getIri();
-                System.out.println("Exporting " + setIri + "..");
+                LOG.debug("Exporting {}...", setIri);
 
                 if (conceptSet.get(IM.DEFINITION) != null)
                     exportMembers(definitions, expansions, legacies, im1maps, conceptSet);
@@ -146,7 +266,7 @@ public class SetService {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
-                String im1id = member.get(TTIriRef.iri(IM.NAMESPACE + "im1dbid")).asLiteral().getValue();
+                String im1id = member.get(iri(IM.NAMESPACE + "im1dbid")).asLiteral().getValue();
                 im1maps.write(conceptSet.getIri()+"\t" + im1id + "\t"+scheme + code+"\n");
             }
         }
@@ -171,7 +291,7 @@ public class SetService {
     }
 
     private void exportSubsets(FileWriter subsets, TTEntity conceptSet, String setIri) throws IOException {
-        System.out.println("Exporting subset " + setIri + "..");
+        LOG.debug("Exporting subset {}...", setIri);
 
         for (TTValue value : conceptSet.get(IM.HAS_SUBSET).asArray().getElements()) {
             subsets.write(conceptSet.getIri() + "\t" + conceptSet.getName()+"\t"+
@@ -181,7 +301,7 @@ public class SetService {
 
 
     private void exportSubsetWithExpansion(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps, TTEntity conceptSet, String setIri) throws IOException, SQLException {
-        System.out.println("Exporting subset " + setIri + "..");
+        LOG.debug("Exporting subset {}...", setIri);
 
         for (TTValue value : conceptSet.get(IM.HAS_SUBSET).asArray().getElements()) {
             subsets.write(conceptSet.getIri() + "\t" + conceptSet.getName()+"\t"+
@@ -191,7 +311,9 @@ public class SetService {
         }
     }
 
-    public Workbook getExcelDownload(String iri, boolean expand, boolean v1) throws JsonProcessingException, SQLException {
+    // Excel export
+
+    public Workbook getExcelDownload(String iri, boolean expand, boolean v1) throws SQLException {
         TTEntity set = setRepository.getSetDefinition(iri);
 
         Workbook workbook = new XSSFWorkbook();
@@ -225,7 +347,7 @@ public class SetService {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
-                String im1id = member.get(TTIriRef.iri(IM.NAMESPACE + "im1dbid")).asLiteral().getValue();
+                String im1id = member.get(iri(IM.NAMESPACE + "im1dbid")).asLiteral().getValue();
                 row = addRow(sheet);
                 addCells(row, code, scheme, im1id);
             }
@@ -234,7 +356,7 @@ public class SetService {
 
     private void addExpandedToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws SQLException {
         Sheet sheet;
-        Row row;
+
         sheet = workbook.createSheet("Expanded");
         addHeaders(sheet, headerStyle, 10000, "Set Iri", "Set Name", "Member Iri", "Member Name", "Code", "Scheme");
         TTEntity expanded = setRepository.getExpansion(set);
@@ -257,7 +379,7 @@ public class SetService {
         }
     }
 
-    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws JsonProcessingException, SQLException {
+    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws SQLException {
         Sheet sheet = workbook.createSheet("Concept summary");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "Turtle");
         Row row = addRow(sheet);

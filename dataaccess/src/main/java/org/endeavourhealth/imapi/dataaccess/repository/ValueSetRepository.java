@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.dataaccess.repository;
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,9 +45,9 @@ public class ValueSetRepository extends BaseRepository {
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                statement.setString(1, IM.IS_A.getIri());
+                statement.setString(1, RDFS.SUBCLASSOF.getIri());
                 statement.setString(2, iri);
-                statement.setString(3, IM.IS_A.getIri());
+                statement.setString(3, RDFS.SUBCLASSOF.getIri());
                 statement.setString(4, iri);
                 try (ResultSet rs = statement.executeQuery()) {
                     int rows = 0;

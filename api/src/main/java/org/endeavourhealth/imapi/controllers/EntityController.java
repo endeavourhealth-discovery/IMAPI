@@ -32,6 +32,7 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.transforms.TTToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.spring.web.json.Json;
 
 @RestController
 @RequestMapping("api/entity")
@@ -106,18 +108,19 @@ public class EntityController {
         return entityService.getInferredBundle(iri);
     }
 
-    @GetMapping(value = "/axiomBundle", produces = "application/json")
-    public TTBundle getAxiomBundle(@RequestParam(name = "iri") String iri) throws SQLException {
-        LOG.debug("getAxiomBundle");
-        return entityService.getAxiomBundle(iri);
-    }
+	@GetMapping(value = "/inferredAsString", produces = "application/json")
+	public String getInferredAsString(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
+		LOG.debug("getInferredAsString");
+		TTBundle inferredBundle = entityService.getInferredBundle(iri);
+		return TTToString.getBundleAsString(inferredBundle, configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {}));
+	}
 
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
         LOG.debug("getEntityChildren");
-        if (page == null & size == null) {
+        if (page == null && size == null) {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
@@ -159,7 +162,6 @@ public class EntityController {
         @RequestParam(name = "members", required = false, defaultValue = "false") boolean members,
         @RequestParam(name = "expandMembers", required = false, defaultValue = "false") boolean expandMembers,
         @RequestParam(name = "expandSubsets", required = false, defaultValue = "false") boolean expandSubsets,
-        @RequestParam(name = "axioms", required = false, defaultValue = "false") boolean axioms,
         @RequestParam(name = "terms", required = false, defaultValue = "false") boolean terms,
         @RequestParam(name = "isChildOf", required = false, defaultValue = "false") boolean isChildOf,
         @RequestParam(name = "hasChildren", required = false, defaultValue = "false") boolean hasChildren,
@@ -177,7 +179,7 @@ public class EntityController {
         HttpHeaders headers = new HttpHeaders();
 
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, terms, isChildOf, hasChildren, inactive);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
@@ -188,7 +190,7 @@ public class EntityController {
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, axioms, terms, isChildOf, hasChildren, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers,expandSubsets, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
@@ -208,13 +210,14 @@ public class EntityController {
 	@GetMapping(value = "/usages")
 	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
-			@RequestParam(name = "size", required = false) Integer size) throws SQLException {
+			@RequestParam(name = "size", required = false) Integer size) throws SQLException, JsonProcessingException {
         LOG.debug("entityUsages");
+
         return entityService.usages(iri,page,size);
 	}
 
 	@GetMapping("/usagesTotalRecords")
-	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException {
+	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws SQLException, JsonProcessingException {
 		LOG.debug("totalRecords");
 		return entityService.totalRecords(iri);
 	}

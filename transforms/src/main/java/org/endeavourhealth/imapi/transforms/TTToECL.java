@@ -45,32 +45,33 @@ public class TTToECL {
 	}
 
 
-
 	private static void addJunction(TTNode exp, TTIriRef junction,StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		boolean first = true;
 		for (TTValue member : exp.asNode().get(junction).asArray().getElements()) {
-			if (!first)
-				ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
-			first = false;
 			if (member.isIriRef()) {
+				if (!first)
+					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
 				addClass(member.asIriRef(), ecl, includeName);
 			} else if (member.asNode().get(SHACL.NOT) != null) {
 				ecl.append(" MINUS ");
 				subExpression(member.asNode().get(SHACL.NOT), ecl, includeName);
 			} else if (member.asNode().get(SHACL.AND)!=null){
+				if (!first)
+					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
 				ecl.append("(");
 				subExpression(member.asNode().get(SHACL.AND), ecl, includeName);
 				ecl.append(")");
 			}  else if (member.asNode().get(SHACL.OR)!=null) {
+				if (!first)
+					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
 				ecl.append("(");
 				subExpression(member.asNode().get(SHACL.OR), ecl, includeName);
 				ecl.append(")");
 			}
 			else {
-				ecl.append("(");
 				addRefined(member.asNode(), ecl, includeName);
-				ecl.append(")");
 			}
+			first = false;
 		}
 	}
 
@@ -78,54 +79,24 @@ public class TTToECL {
 
 
 	private static void addRefined(TTNode exp, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		if (exp.get(RDFS.SUBCLASSOF)!=null){
-			boolean first=true;
-			for (TTValue superClass:exp.get(RDFS.SUBCLASSOF).asArray().getElements()){
-				if (!first) {
-					if (superClass.isIriRef())
-						ecl.append(" + ");
-				}
-				first=false;
-				subExpression(superClass,ecl,includeName);
-			}
-		}
-		if (exp.get(IM.PROPERTY_GROUP)!=null){
+
+		if (exp.getPredicateMap()!=null){
 			ecl.append(" : ");
-			Integer groupCount= exp.get(IM.PROPERTY_GROUP).asArray().size();
 			boolean first=true;
-			for (TTValue group:exp.get(IM.PROPERTY_GROUP).asArray().getElements()){
+			for (Map.Entry<TTIriRef,TTValue> entry:exp.getPredicateMap().entrySet()){
 				if (!first)
 					ecl.append(" , ");
 				first=false;
-				if (groupCount>1){
-					ecl.append(" {");
-				}
-				addAttributeSet(group.asNode(),ecl,includeName);
-				if (groupCount>1)
-					ecl.append("}");
-			}
-		}
-	}
-
-	private static void addAttributeSet(TTNode group, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		if (group.get(SHACL.PROPERTY)!=null){
-			for (TTValue property:group.get(SHACL.PROPERTY).asArray().getElements()){
-				if (property.isNode()){
-					if (property.asNode().get(SHACL.PATH)!=null){
-						addClass(property.asNode().get(SHACL.PATH).asIriRef(),ecl,includeName);
-						ecl.append(" = ");
-						if (property.asNode().get(SHACL.CLASS)!=null){
-							if (property.asNode().get(SHACL.CLASS).isIriRef()) {
-								addClass(property.asNode().get(SHACL.CLASS).asIriRef(), ecl, includeName);
-							} else
-								throw new DataFormatException("Attribute value type not suitable for ecl conversion");
-						} else
-							throw new DataFormatException("Invalid attribute refinement for ecl conversion");
-
-					} else
-						throw new DataFormatException("Property group not suited to ecl conversion");
-				}
-
+				if (entry.getValue().isIriRef()) {
+					addClass(entry.getKey(),ecl,includeName);
+					ecl.append(" = ");
+					addClass(entry.getValue().asIriRef(),ecl,includeName);
+				} else if (entry.getKey().equals(IM.ROLE_GROUP)){
+						ecl.append(" {");
+						addRefined(entry.getValue().asNode(),ecl,includeName);
+						ecl.append("}");
+				} else
+					throw new DataFormatException("Unknown epression constraint format. Expecting role group");
 			}
 		}
 	}
@@ -133,7 +104,7 @@ public class TTToECL {
 	private static void addClass(TTIriRef exp,StringBuilder ecl,boolean includeName) throws DataFormatException {
 		String iri=checkMember(exp.asIriRef().getIri());
 		if(includeName){
-			ecl.append("<< " + iri + " | " + exp.asIriRef().getName()+" |");
+			ecl.append("<< " + iri + " |" + exp.asIriRef().getName()+" |");
 		} else {
 			ecl.append("<< " + iri);
 		}

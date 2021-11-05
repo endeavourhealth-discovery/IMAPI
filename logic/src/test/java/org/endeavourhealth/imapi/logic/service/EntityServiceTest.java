@@ -365,14 +365,19 @@ public class EntityServiceTest {
 
     @Test
     public void totalRecords_NotNullIri() throws SQLException, JsonProcessingException {
-        TTIriRef ttIriRef = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-        when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
+        when(entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate( any(),any())).thenReturn(1000);
         when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115");
-        assertNotNull(actual);
+        assertEquals(1000, actual);
+    }
+
+    @Test
+    public void totalRecords_XMLIri() throws SQLException, JsonProcessingException {
+        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
+
+        Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string");
+        assertEquals(0, actual);
     }
 
     @Test

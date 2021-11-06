@@ -13,7 +13,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class TTLiteralJsonTest {
+class TTLiteralJsonTest {
     private static final String LIT_STR_JSON = "\"Test name\"";
     private static final String LIT_INT_JSON = "10";
     private static final String LIT_BOOL_JSON = "true";
@@ -30,7 +30,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralSerialization() throws JsonProcessingException {
+    void testTTLiteralSerialization() throws JsonProcessingException {
         TTLiteral lit = literal(NAME);
         String actual = om.writeValueAsString(lit);
 
@@ -38,7 +38,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralDeserialization() throws JsonProcessingException {
+    void testTTLiteralDeserialization() throws JsonProcessingException {
         TTLiteral lit = om.readValue(LIT_STR_JSON, TTLiteral.class);
 
         assertEquals(NAME, lit.getValue());
@@ -46,7 +46,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralIntSerialization() throws JsonProcessingException {
+    void testTTLiteralIntSerialization() throws JsonProcessingException {
         TTLiteral lit = literal(10);
         String actual = om.writeValueAsString(lit);
 
@@ -54,7 +54,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralIntDeserialization() throws JsonProcessingException {
+    void testTTLiteralIntDeserialization() throws JsonProcessingException {
         TTLiteral lit = om.readValue(LIT_INT_JSON, TTLiteral.class);
 
         assertEquals("10", lit.getValue());
@@ -62,7 +62,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralBoolSerialization() throws JsonProcessingException {
+    void testTTLiteralBoolSerialization() throws JsonProcessingException {
         TTLiteral lit = literal(true);
         String actual = om.writeValueAsString(lit);
 
@@ -70,7 +70,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralBoolDeserialization() throws JsonProcessingException {
+    void testTTLiteralBoolDeserialization() throws JsonProcessingException {
         TTLiteral lit = om.readValue(LIT_BOOL_JSON, TTLiteral.class);
 
         assertEquals("true", lit.getValue());
@@ -78,7 +78,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralPatSerialization() throws JsonProcessingException {
+    void testTTLiteralPatSerialization() throws JsonProcessingException {
         TTLiteral lit = literal(PATTERN);
         String actual = om.writeValueAsString(lit);
 
@@ -86,7 +86,7 @@ public class TTLiteralJsonTest {
     }
 
     @Test
-    public void testTTLiteralPatDeserialization() throws JsonProcessingException {
+    void testTTLiteralPatDeserialization() throws JsonProcessingException {
         TTLiteral lit = om.readValue(LIT_PAT_JSON, TTLiteral.class);
 
         assertEquals(".*", lit.getValue());

@@ -61,7 +61,7 @@ public class EntityService {
 
 	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
-        return EntityTripleRepository.buildEntityFromTriples(iri, triples);
+        return Tpl.toBundle(iri, triples);
     }
 
     public TTIriRef getEntityReference(String iri) throws SQLException {

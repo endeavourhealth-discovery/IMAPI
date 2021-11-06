@@ -18,14 +18,13 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTripleRepository extends BaseRepository {
 
     public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> triples = getTriplesRecursive(iri, predicates, limit);
-        return buildEntityFromTriples(iri, triples);
+        return Tpl.toBundle(iri, triples);
     }
 
     public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws SQLException {
@@ -423,53 +422,6 @@ public class EntityTripleRepository extends BaseRepository {
             }
         }
         return memberIriRefs;
-    }
-
-    public static TTBundle buildEntityFromTriples(String iri, List<Tpl> triples) {
-        TTEntity entity = new TTEntity(iri);
-        TTBundle result = new TTBundle().setEntity(entity);
-
-        // Reconstruct
-        HashMap<Integer, TTNode> nodeMap = new HashMap<>();
-
-        for (Tpl triple : triples) {
-            result.addPredicate(triple.getPredicate());
-
-            TTValue v = getValue(nodeMap, triple);
-
-            if (triple.getParent() == null) {
-                if (triple.isFunctional()) {
-                    entity.set(triple.getPredicate(), v);
-                } else {
-                    entity.addObject(triple.getPredicate(), v);
-                }
-            } else {
-                TTNode n = nodeMap.get(triple.getParent());
-                if (n == null)
-                    throw new IllegalStateException("Unknown parent node!");
-                if (triple.isFunctional()) {
-                    n.set(triple.getPredicate(), v);
-                } else {
-                    n.addObject(triple.getPredicate(), v);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private static TTValue getValue(HashMap<Integer, TTNode> nodeMap, Tpl triple) {
-        TTValue v;
-
-        if (triple.getLiteral() != null)
-            v = literal(triple.getLiteral(), triple.getObject());
-        else if (triple.getObject() != null)
-            v = triple.getObject();
-        else {
-            v = new TTNode();
-            nodeMap.put(triple.getDbid(), (TTNode) v);
-        }
-        return v;
     }
 
     public void addLegacyConcepts(Set<TTIriRef> iris) throws SQLException {

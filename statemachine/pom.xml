@@ -13,8 +13,6 @@
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
     <sonar.projectKey>endeavourhealth-discovery_IMAPI::statemachine</sonar.projectKey>
   </properties>
 

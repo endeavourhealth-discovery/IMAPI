@@ -38,6 +38,7 @@
     <lib.reactor>3.4.0</lib.reactor>
     <lib.springfox>2.9.2</lib.springfox>
     <lib.swagger>1.5.20</lib.swagger>
+    <lib.spring.statemachine>3.0.0</lib.spring.statemachine>
     <lib.testcontainers>1.14.3</lib.testcontainers>
   </properties>
 

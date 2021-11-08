@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.controllers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,10 +11,14 @@ import java.util.stream.Collectors;
 
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.mapping.model.MapDocument;
 import org.endeavourhealth.imapi.mapping.model.MapDocumentError;
 import org.endeavourhealth.imapi.mapping.repository.MapDocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -121,7 +123,7 @@ public class MappingController {
             headers.setContentType(new MediaType("application", "force-download"));
             headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=schemata.xlsx");
 
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
+            return new HttpEntity<Object>(outputStream.toByteArray(), headers);
         }
     }
 

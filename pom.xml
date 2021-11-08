@@ -81,7 +81,7 @@
         <artifactId>maven-deploy-plugin</artifactId>
         <version>${plugin.deploy}</version>
         <configuration>
-          <skip>true</skip>
+          <skip>false</skip>
         </configuration>
       </plugin>
       <plugin>
@@ -96,6 +96,15 @@
       </plugin>
     </plugins>
   </build>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>maven.endeavourhealth.org-snapshots</name>
+      <url>http://maven.endeavourhealth.net:8081/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
+
   <repositories>
     <repository>
       <snapshots/>

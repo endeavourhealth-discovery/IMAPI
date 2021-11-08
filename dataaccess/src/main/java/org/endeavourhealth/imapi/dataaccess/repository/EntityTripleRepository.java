@@ -18,14 +18,13 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @SuppressWarnings("java:S1192") // Disable "Literals as const" rule for SQL
 public class EntityTripleRepository extends BaseRepository {
 
     public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> triples = getTriplesRecursive(iri, predicates, limit);
-        return buildEntityFromTriples(iri, triples);
+        return Tpl.toBundle(iri, triples);
     }
 
     public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws SQLException {
@@ -90,14 +89,14 @@ public class EntityTripleRepository extends BaseRepository {
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String predicateIri) throws SQLException {
         List<TTIriRef> usages = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT DISTINCT s.iri, s.name")
-                .add("FROM tpl tpl")
-                .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("JOIN entity p ON p.dbid = tpl.predicate ")
-                .add("JOIN entity s ON s.dbid = tpl.subject ")
-                .add("WHERE o.iri = ?")
-                .add("AND p.iri <> ?")
-                .add("AND s.status <> ?");
+            .add("SELECT DISTINCT s.iri, s.name")
+            .add("FROM tpl tpl")
+            .add("JOIN entity o ON o.dbid = tpl.object ")
+            .add("JOIN entity p ON p.dbid = tpl.predicate ")
+            .add("JOIN entity s ON s.dbid = tpl.subject ")
+            .add("WHERE o.iri = ?")
+            .add("AND p.iri <> ?")
+            .add("AND s.status <> ?");
         if (rowNumber != null && pageSize != null)
             sql.add("LIMIT ? , ? ");
         try (Connection conn = ConnectionPool.get()) {
@@ -113,6 +112,33 @@ public class EntityTripleRepository extends BaseRepository {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         usages.add(iri(rs.getString("iri"), rs.getString("name")));
+                    }
+                }
+            }
+        }
+        return usages;
+    }
+
+    public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String predicateIri) throws SQLException {
+        Integer usages = 0;
+        StringJoiner sql = new StringJoiner("\n")
+            .add("SELECT DISTINCT s.iri, COUNT(1) as rowcount")
+            .add("FROM tpl tpl")
+            .add("JOIN entity o ON o.dbid = tpl.object ")
+            .add("JOIN entity p ON p.dbid = tpl.predicate ")
+            .add("JOIN entity s ON s.dbid = tpl.subject ")
+            .add("WHERE o.iri = ?")
+            .add("AND p.iri <> ?")
+            .add("AND s.status <> ?");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                statement.setString(1, objectIri);
+                statement.setString(2, predicateIri);
+                statement.setString(3, IM.INACTIVE.getIri());
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        usages += rs.getInt("rowcount");
                     }
                 }
             }
@@ -396,53 +422,6 @@ public class EntityTripleRepository extends BaseRepository {
             }
         }
         return memberIriRefs;
-    }
-
-    public static TTBundle buildEntityFromTriples(String iri, List<Tpl> triples) {
-        TTEntity entity = new TTEntity(iri);
-        TTBundle result = new TTBundle().setEntity(entity);
-
-        // Reconstruct
-        HashMap<Integer, TTNode> nodeMap = new HashMap<>();
-
-        for (Tpl triple : triples) {
-            result.addPredicate(triple.getPredicate());
-
-            TTValue v = getValue(nodeMap, triple);
-
-            if (triple.getParent() == null) {
-                if (triple.isFunctional()) {
-                    entity.set(triple.getPredicate(), v);
-                } else {
-                    entity.addObject(triple.getPredicate(), v);
-                }
-            } else {
-                TTNode n = nodeMap.get(triple.getParent());
-                if (n == null)
-                    throw new IllegalStateException("Unknown parent node!");
-                if (triple.isFunctional()) {
-                    n.set(triple.getPredicate(), v);
-                } else {
-                    n.addObject(triple.getPredicate(), v);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private static TTValue getValue(HashMap<Integer, TTNode> nodeMap, Tpl triple) {
-        TTValue v;
-
-        if (triple.getLiteral() != null)
-            v = literal(triple.getLiteral(), triple.getObject());
-        else if (triple.getObject() != null)
-            v = triple.getObject();
-        else {
-            v = new TTNode();
-            nodeMap.put(triple.getDbid(), (TTNode) v);
-        }
-        return v;
     }
 
     public void addLegacyConcepts(Set<TTIriRef> iris) throws SQLException {

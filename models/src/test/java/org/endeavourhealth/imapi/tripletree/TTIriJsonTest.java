@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TTIriJsonTest {
+class TTIriJsonTest {
     private static final String IRI_JSON = "{\"name\":\"Test name\",\"@id\":\"http://endhealth.info/im#Test\"}";
 
     private static final String IRI = "http://endhealth.info/im#Test";
@@ -23,7 +23,7 @@ public class TTIriJsonTest {
     }
 
     @Test
-    public void testTTIriSerialization() throws JsonProcessingException {
+    void testTTIriSerialization() throws JsonProcessingException {
         TTIriRef ref = iri(IRI, NAME);
         String actual = om.writeValueAsString(ref);
 
@@ -31,7 +31,7 @@ public class TTIriJsonTest {
     }
 
     @Test
-    public void testTTIriDeserialization() throws JsonProcessingException {
+    void testTTIriDeserialization() throws JsonProcessingException {
         TTIriRef ref = om.readValue(IRI_JSON, TTIriRef.class);
 
         assertEquals(IRI, ref.getIri());

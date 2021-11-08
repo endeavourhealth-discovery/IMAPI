@@ -3,6 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.5.6</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
 
   <groupId>org.endeavourhealth.imapi</groupId>
   <artifactId>IMAPI</artifactId>
@@ -12,33 +18,60 @@
   <properties>
     <java.version>11</java.version>
 
-    <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
+    <plugin.compiler>3.8.1</plugin.compiler>
+    <plugin.deploy>2.8.2</plugin.deploy>
+    <plugin.jacoco>0.8.5</plugin.jacoco>
+    <plugin.sonar>3.5.0.1254</plugin.sonar>
+    <plugin.spring>2.4.5</plugin.spring>
+    <plugin.surefire>2.22.0</plugin.surefire>
 
     <sonar.projectKey>endeavourhealth-discovery_IMAPI</sonar.projectKey>
     <sonar.organization>endeavourhealth-discovery</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.login>8ddba9bbb23a08a7cff43ecc620be3738a152b65</sonar.login>
     <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
+
+    <lib.antlr>4.9.2</lib.antlr>
+    <lib.apache.poi>5.0.0</lib.apache.poi>
+    <lib.factplusplus>1.6.5</lib.factplusplus>
+    <lib.owlapi>4.5.20</lib.owlapi>
+    <lib.reactor>3.4.0</lib.reactor>
+    <lib.springfox>2.9.2</lib.springfox>
+    <lib.swagger>1.5.20</lib.swagger>
+    <lib.spring.statemachine>3.0.0</lib.spring.statemachine>
+    <lib.testcontainers>1.14.3</lib.testcontainers>
   </properties>
 
   <modules>
     <module>api</module>
     <module>dataaccess</module>
-	  <module>models</module>
+    <module>models</module>
     <module>parser</module>
-      <module>logic</module>
+    <module>logic</module>
     <module>workflow</module>
     <module>statemachine</module>
-      <module>transforms</module>
+    <module>transforms</module>
 	<module>mapping</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.eclipse.rdf4j</groupId>
+        <artifactId>rdf4j-bom</artifactId>
+        <version>3.5.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>${plugin.compiler}</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -47,7 +80,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
+        <version>${plugin.deploy}</version>
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -55,12 +88,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
+        <version>${plugin.surefire}</version>
       </plugin>
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
-        <version>3.5.0.1254</version>
+        <version>${plugin.sonar}</version>
       </plugin>
     </plugins>
   </build>

@@ -3,21 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.5.0</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <groupId>org.endeavourhealth.imapi</groupId>
+    <artifactId>IMAPI</artifactId>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.endeavourhealth.imapi</groupId>
   <artifactId>statemachine</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
     <sonar.projectKey>endeavourhealth-discovery_IMAPI::statemachine</sonar.projectKey>
   </properties>
 
@@ -25,18 +20,17 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.7.2</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.3</version>
     </dependency>
+
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
-      <version>4.0.3</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -49,7 +43,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
     </dependency>
 
   </dependencies>

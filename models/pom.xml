@@ -3,15 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.5.0</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <groupId>org.endeavourhealth.imapi</groupId>
+    <artifactId>IMAPI</artifactId>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.endeavourhealth.imapi</groupId>
   <artifactId>models</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <name>models</name>
 
   <properties>
@@ -21,19 +19,12 @@
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.11.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.11.3</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
-      <version>1.5.20</version>
+      <version>${lib.swagger}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -47,18 +38,10 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.2</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.7.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -71,14 +54,12 @@
     </snapshotRepository>
   </distributionManagement>
 
-
-
   <build>
     <plugins>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
+        <version>${plugin.jacoco}</version>
         <executions>
           <execution>
             <id>jacoco-initialize</id>
@@ -98,28 +79,28 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-        <version>2.8.2</version>
+        <version>${plugin.deploy}</version>
         <configuration>
           <skip>false</skip>
         </configuration>
       </plugin>
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-javadoc-plugin</artifactId>-->
-<!--        <version>3.2.0</version>-->
-<!--        <configuration>-->
-<!--          <reportOutputDirectory>../api/target/api-0.0.1-SNAPSHOT</reportOutputDirectory>-->
-<!--          <destDir>/javadocs</destDir>-->
-<!--        </configuration>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <phase>package</phase>-->
-<!--            <goals>-->
-<!--              <goal>javadoc</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
+<!--      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <reportOutputDirectory>../api/target/api-0.0.1-SNAPSHOT</reportOutputDirectory>
+          <destDir>/javadocs</destDir>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>-->
     </plugins>
   </build>
 

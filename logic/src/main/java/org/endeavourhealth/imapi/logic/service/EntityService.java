@@ -61,7 +61,7 @@ public class EntityService {
 
 	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) throws SQLException {
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
-        return EntityTripleRepository.buildEntityFromTriples(iri, triples);
+        return Tpl.toBundle(iri, triples);
     }
 
     public TTIriRef getEntityReference(String iri) throws SQLException {
@@ -157,7 +157,7 @@ public class EntityService {
 		if (xmlDataTypes.contains(iri))
 			return 0;
 
-		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri,null,null,RDFS.SUBCLASSOF.getIri()).size();
+		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
 	public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {

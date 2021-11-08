@@ -5,35 +5,29 @@
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.5.0</version>
-    <relativePath/> <!-- lookup parent from repository -->
+    <groupId>org.endeavourhealth.imapi</groupId>
+    <artifactId>IMAPI</artifactId>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.endeavourhealth.imapi</groupId>
   <artifactId>logic</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <sonar.projectKey>endeavourhealth-discovery_IMAPI::logic</sonar.projectKey>
   </properties>
-
 
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.11.4</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
-      <version>2.3.5.RELEASE</version>
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-runner</artifactId>
+    </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
@@ -47,10 +41,9 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.11.4</version>
     </dependency>
     <dependency>
-      <groupId>org.endavourhealth.imapi</groupId>
+      <groupId>org.endeavourhealth.imapi</groupId>
       <artifactId>dataaccess</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
@@ -62,12 +55,10 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>5.3.7</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -90,7 +81,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
+        <version>${plugin.jacoco}</version>
         <executions>
           <execution>
             <id>jacoco-initialize</id>

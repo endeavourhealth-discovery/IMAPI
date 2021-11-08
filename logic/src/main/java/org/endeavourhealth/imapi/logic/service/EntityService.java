@@ -187,7 +187,7 @@ public class EntityService {
 
         Set<ValueSetMember> definedMemberExclusions = getDefinedExclusions(iri, expandSets, parentSetName, originalParentIri);
 
-        Set<ValueSetMember> definedSetInclusions = getMember(iri, IM.HAS_SUBSET);
+		Set<ValueSetMember> definedSetInclusions = entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(iri, IM.MEMBER_OF_GROUP.getIri());;
 
         memberCount = processExpansions(expandMembers, expandSets, limit, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
 

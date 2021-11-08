@@ -177,6 +177,37 @@ public class EntityTripleRepository extends BaseRepository {
         return members;
     }
 
+    public Set<ValueSetMember> getSubjectByObjectAndPredicateAsValueSetMembers(String iri, String predicate) throws SQLException {
+        Set<ValueSetMember> subsets = new HashSet<>();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT s.iri, s.name, s.code, s.iri AS schemeIri, n.name AS schemeName")
+                .add("FROM tpl tpl")
+                .add("JOIN entity o ON o.dbid = tpl.object")
+                .add("JOIN entity p ON p.dbid = tpl.predicate")
+                .add("JOIN entity s ON s.dbid = tpl.subject")
+                .add("LEFT JOIN namespace n ON n.iri = s.scheme")
+                .add("WHERE o.iri = ?")
+                .add("AND p.iri = ?");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                statement.setString(1, iri);
+                statement.setString(2, predicate);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        ValueSetMember valueSetMember = new ValueSetMember()
+                                .setEntity(iri(rs.getString("iri"), rs.getString("name")))
+                                .setCode(rs.getString("code"));
+                        if (rs.getString("schemeIri") != null && rs.getString("schemeName") != null)
+                            valueSetMember.setScheme(iri(rs.getString("schemeIri"), rs.getString("schemeName")));
+                        subsets.add(valueSetMember);
+                    }
+                }
+            }
+        }
+        return subsets;
+    }
+
     public Set<TTIriRef> getObjectIriRefsBySubjectAndPredicate(String iri, String predicate) throws SQLException {
         Set<TTIriRef> memberIriRefs = new HashSet<>();
         StringJoiner sql = new StringJoiner("\n")

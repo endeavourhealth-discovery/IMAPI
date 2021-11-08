@@ -3,16 +3,14 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
-import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
@@ -382,7 +380,7 @@ class EntityServiceTest {
 
     @Test
     void advancedSearch_NullRequest() throws Exception {
-        List<EntitySummary> actual = entityService.advancedSearch(null);
+        List<SearchResultSummary> actual = entityService.advancedSearch(null);
 
         assertNotNull(actual);
     }
@@ -391,7 +389,7 @@ class EntityServiceTest {
     void advancedSearch_NullTermFilter() throws Exception {
         SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
 
-        List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
+        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -400,7 +398,7 @@ class EntityServiceTest {
     void advancedSearch_EmptyTermFilter() throws Exception {
         SearchRequest searchRequest = new SearchRequest().setTermFilter("");
 
-        List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
+        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -411,7 +409,7 @@ class EntityServiceTest {
                 .setTermFilter("Encounter")
                 .setSchemeFilter(null);
 
-        EntitySummary entitySearch = new EntitySummary()
+        SearchResultSummary entitySearch = new SearchResultSummary()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate")
                 .setDescription(null)
@@ -421,7 +419,7 @@ class EntityServiceTest {
         when(entitySearchRepository.advancedSearch(any()))
                 .thenReturn(Collections.singletonList(entitySearch));
 
-        List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
+        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -433,7 +431,7 @@ class EntityServiceTest {
                 .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
         "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
 
-        EntitySummary entitySearch = new EntitySummary()
+        SearchResultSummary entitySearch = new SearchResultSummary()
             .setIri("http://endhealth.info/im#25451000252115")
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription(null)
@@ -443,7 +441,7 @@ class EntityServiceTest {
         when(entitySearchRepository.advancedSearch(any()))
             .thenReturn(Collections.singletonList(entitySearch));
 
-        List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
+        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -456,7 +454,7 @@ class EntityServiceTest {
                 .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
                         "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
 
-        EntitySummary entitySearch = new EntitySummary()
+        SearchResultSummary entitySearch = new SearchResultSummary()
             .setIri("http://endhealth.info/im#25451000252115")
             .setName("Adverse reaction to Amlodipine Besilate")
             .setDescription(null)
@@ -466,7 +464,7 @@ class EntityServiceTest {
         when(entitySearchRepository.advancedSearch(any()))
             .thenReturn(Collections.singletonList(entitySearch));
 
-        List<EntitySummary> actual = entityService.advancedSearch(searchRequest);
+        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
 
         assertNotNull(actual);
     }
@@ -1010,15 +1008,15 @@ class EntityServiceTest {
 
     @Test
     void getSummary_NullIri() throws SQLException {
-        EntitySummary actual = entityService.getSummary(null);
+        SearchResultSummary actual = entityService.getSummary(null);
         assertNull(actual);
     }
 
     @Test
     void getSummary_NotNullIri() throws SQLException {
-        EntitySummary summary = new EntitySummary();
+        SearchResultSummary summary = new SearchResultSummary();
         when(entitySearchRepository.getSummary(any())).thenReturn(summary);
-        EntitySummary actual = entityService.getSummary(null);
+        SearchResultSummary actual = entityService.getSummary(null);
         assertNotNull(actual);
     }
 

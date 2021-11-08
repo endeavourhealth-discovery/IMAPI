@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntitySummary {
+public class SearchResultSummary {
     private String name;
     private String iri;
     private String code;
@@ -22,7 +22,7 @@ public class EntitySummary {
         return name;
     }
 
-    public EntitySummary setName(String name) {
+    public SearchResultSummary setName(String name) {
         this.name = name;
         return this;
     }
@@ -31,7 +31,7 @@ public class EntitySummary {
         return iri;
     }
 
-    public EntitySummary setIri(String iri) {
+    public SearchResultSummary setIri(String iri) {
         this.iri = iri;
         return this;
     }
@@ -40,7 +40,7 @@ public class EntitySummary {
         return code;
     }
 
-    public EntitySummary setCode(String code) {
+    public SearchResultSummary setCode(String code) {
         this.code = code;
         return this;
     }
@@ -49,7 +49,7 @@ public class EntitySummary {
         return description;
     }
 
-    public EntitySummary setDescription(String description) {
+    public SearchResultSummary setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -58,7 +58,7 @@ public class EntitySummary {
         return status;
     }
 
-    public EntitySummary setStatus(TTIriRef status) {
+    public SearchResultSummary setStatus(TTIriRef status) {
         this.status = status;
         return this;
     }
@@ -67,7 +67,7 @@ public class EntitySummary {
         return scheme;
     }
 
-    public EntitySummary setScheme(TTIriRef scheme) {
+    public SearchResultSummary setScheme(TTIriRef scheme) {
         this.scheme = scheme;
         return this;
     }
@@ -76,7 +76,7 @@ public class EntitySummary {
         return entityType;
     }
 
-    public EntitySummary setEntityType(TTArray entityType) {
+    public SearchResultSummary setEntityType(TTArray entityType) {
         this.entityType = entityType;
         return this;
     }
@@ -85,7 +85,7 @@ public class EntitySummary {
         return isDescendentOf;
     }
 
-    public EntitySummary setIsDescendentOf(List<TTIriRef> isDescendentOf) {
+    public SearchResultSummary setIsDescendentOf(List<TTIriRef> isDescendentOf) {
         this.isDescendentOf = isDescendentOf;
         return this;
     }
@@ -94,7 +94,7 @@ public class EntitySummary {
         return weighting;
     }
 
-    public EntitySummary setWeighting(Integer weighting) {
+    public SearchResultSummary setWeighting(Integer weighting) {
         this.weighting = weighting;
         return this;
     }
@@ -103,7 +103,7 @@ public class EntitySummary {
         return match;
     }
 
-    public EntitySummary setMatch(String match) {
+    public SearchResultSummary setMatch(String match) {
         this.match = match;
         return this;
     }

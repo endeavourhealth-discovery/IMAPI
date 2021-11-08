@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.dataaccess.repository;
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALHelper;
+import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -388,15 +389,16 @@ public class EntityTripleRepository extends BaseRepository {
         return simpleMaps.values();
     }
 
-    public Set<TTIriRef> getDescendantsInclusive(String iri, TTIriRef... types) throws SQLException {
-        Set<TTIriRef> result = new HashSet<>();
+    public Set<EntitySummary> getDescendantSummariesInclusive(String iri, TTIriRef... types) throws SQLException {
+        Set<EntitySummary> result = new HashSet<>();
 
         String sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT c.iri, c.name")
+            .add("SELECT c.iri, c.name, c.code, s.iri AS schemeIri, s.name AS schemeName")
             .add("FROM entity c")
             .add("JOIN tct t ON t.descendant = c.dbid ")
             .add("JOIN entity p ON p.dbid = t.type AND p.iri IN (" + DALHelper.inListParams(types.length) + ")")
             .add("JOIN entity a ON a.dbid = t.ancestor")
+            .add("LEFT JOIN namespace s ON s.iri = c.scheme")
             .add("WHERE a.iri = ?")
             .toString();
 
@@ -410,20 +412,16 @@ public class EntityTripleRepository extends BaseRepository {
 
             statement.setString(++i, iri);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    result.add(iri(rs.getString("iri"), rs.getString("name")));
-                }
-            }
+            getExecuteAndAddSummaries(result, statement);
         }
 
         return result;
     }
 
-    public Collection<TTIriRef> getSubjectDescendantIriRefsFromPredicateDescendantObjectDescendant(String predicate, String object, TTIriRef... types) throws SQLException {
-        Set<TTIriRef> memberIriRefs = new HashSet<>();
+    public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object, TTIriRef... types) throws SQLException {
+        Set<EntitySummary> result = new HashSet<>();
         String sql = new StringJoiner("\n")
-            .add("SELECT DISTINCT sd.iri, sd.name")
+            .add("SELECT DISTINCT sd.iri, sd.name, sd.code, s.iri AS schemeIri, s.name AS schemeName")
             .add("FROM entity s")
             .add("JOIN tpl t ON t.subject = s.dbid")
             .add("JOIN tct pt ON pt.descendant = t.predicate")
@@ -433,6 +431,7 @@ public class EntityTripleRepository extends BaseRepository {
             .add("JOIN tct st ON st.ancestor = s.dbid")
             .add("JOIN entity stt ON stt.dbid = st.type AND stt.iri IN (" + DALHelper.inListParams(types.length) + ")")
             .add("JOIN entity sd ON sd.dbid = st.descendant")
+            .add("LEFT JOIN namespace s ON s.iri = sd.scheme")
             .toString();
 
         try (Connection conn = ConnectionPool.get()) {
@@ -445,33 +444,30 @@ public class EntityTripleRepository extends BaseRepository {
                     statement.setString(++i, type.getIri());
                 }
 
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        memberIriRefs.add(iri(rs.getString("iri"), rs.getString("name")));
-                    }
-                }
+                getExecuteAndAddSummaries(result, statement);
             }
         }
-        return memberIriRefs;
+        return result;
     }
 
-    public void addLegacyConcepts(Set<TTIriRef> iris) throws SQLException {
+    public Set<EntitySummary> getLegacyConceptSummaries(Set<EntitySummary> iris) throws SQLException {
         int batchsize = 100;
         int remainder = iris.size() % batchsize;
 
         String baseSql = new StringJoiner(System.lineSeparator())
-            .add("SELECT o.iri, o.name")
+            .add("SELECT o.iri, o.name, o.code, s.iri AS schemeIri, s.name AS schemeName")
             .add("FROM entity e")
             .add("JOIN tpl t ON t.subject = e.dbid")
             .add("JOIN entity p ON p.dbid = t.predicate AND p.iri = ?")
             .add("JOIN entity o ON o.dbid = t.object")
+            .add("LEFT JOIN namespace s ON s.iri = o.scheme")
             .toString();
 
 
         String batchSql = baseSql + " WHERE e.iri IN (" + DALHelper.inListParams(batchsize) + ")";
         String remainSql = baseSql + ((remainder > 1) ? " WHERE e.iri IN (" + DALHelper.inListParams(remainder) + ")" : " WHERE e.iri = ?");
 
-        Set<TTIriRef> legacy = new HashSet<>();
+        Set<EntitySummary> result = new HashSet<>();
 
         try (Connection conn = ConnectionPool.get();
              PreparedStatement batchStmt = conn.prepareStatement(batchSql);
@@ -485,25 +481,38 @@ public class EntityTripleRepository extends BaseRepository {
                 : remainStmt;
 
             int i = 0;
-            for (TTIriRef iri : iris) {
+            for (EntitySummary iri : iris) {
                 int b = i++ % batchsize;    // Index within batch
 
                 statement.setString(2 + b, iri.getIri());
 
                 if (b + 1 == batchsize || i > iris.size()) {
                     // End of a batch or whole list, so execute
-                    try (ResultSet rs = statement.executeQuery()) {
-                        while (rs.next()) {
-                            legacy.add(iri(rs.getString("iri"), rs.getString("name")));
-                        }
-                    }
+                    getExecuteAndAddSummaries(result, statement);
 
                     if (i + batchsize > iris.size())
                         statement = remainStmt;         // Out of batches into remainder
                 }
             }
 
-            iris.addAll(legacy);
+            return result;
+        }
+    }
+
+    private void getExecuteAndAddSummaries(Set<EntitySummary> result, PreparedStatement statement) throws SQLException {
+        try (ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                EntitySummary smry = new EntitySummary()
+                    .setIri(rs.getString("iri"))
+                    .setName(rs.getString("name"))
+                    .setCode(rs.getString("code"));
+
+                if (DALHelper.getNullableString(rs, "schemeIri") != null) {
+                    smry.setScheme(iri(rs.getString("schemeIri"), rs.getString("schemeName")));
+                }
+
+                result.add(smry);
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.spring.web.json.Json;
 
 @RestController
 @RequestMapping("api/entity")
@@ -297,7 +296,7 @@ public class EntityController {
 	}
 
 	@GetMapping("/summary")
-	public EntitySummary getSummary(@RequestParam(name = "iri") String iri) throws SQLException {
+	public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri) throws SQLException {
 	    LOG.debug("getSummary");
 		return entityService.getSummary(iri);
 	}

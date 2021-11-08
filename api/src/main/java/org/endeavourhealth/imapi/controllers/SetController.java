@@ -8,8 +8,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.endeavourhealth.imapi.dataaccess.repository.EntitySearchRepository;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.ECLToTT;
@@ -25,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,7 +79,7 @@ public class SetController {
         value = "Evaluate set",
         notes = "Evaluates a given set"
     )
-    public Set<TTIriRef> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) throws SQLException {
+    public Set<EntitySummary> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) throws SQLException {
 	    return setService.evaluateConceptSet(iri, includeLegacy);
     }
 
@@ -88,7 +88,7 @@ public class SetController {
         value = "Evaluate ECL",
         notes = "Evaluates an query"
     )
-    public Set<TTIriRef> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws SQLException, DataFormatException {
+    public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws SQLException, DataFormatException {
         TTValue definition = new ECLToTT().getClassExpression(ecl);
         return setService.evaluateDefinition(definition, includeLegacy);
     }
@@ -103,12 +103,12 @@ public class SetController {
             @RequestParam(name="limit", required = false) Integer limit,
             @RequestBody String ecl
     ) throws DataFormatException, SQLException {
-        Set<TTIriRef> evaluated = evaluateEcl(includeLegacy, ecl);
-        List<EntitySummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
+        Set<EntitySummary> evaluated = evaluateEcl(includeLegacy, ecl);
+        List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
             try {
                 return entitySearchRepository.getSummary(ttIriRef.getIri());
             } catch (SQLException e) {
-                return new EntitySummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
+                return new SearchResultSummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
             }
         }).collect(Collectors.toList());
         SearchResponse result = new SearchResponse();

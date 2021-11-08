@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess.repository;
 
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 
 import java.sql.Connection;
@@ -18,10 +18,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EntitySearchRepository extends BaseRepository {
     EntityTypeRepository typeRepo = new EntityTypeRepository();
 
-    public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {
+    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws SQLException {
         String searchSql = generateSearchSql(request.getSchemeFilter(), request.getTypeFilter(), request.getStatusFilter());
 
-        List<EntitySummary> result = new ArrayList<>();
+        List<SearchResultSummary> result = new ArrayList<>();
 
         try (Connection conn = ConnectionPool.get();
             PreparedStatement searchStmt = conn.prepareStatement(searchSql)) {
@@ -31,7 +31,7 @@ public class EntitySearchRepository extends BaseRepository {
             try (ResultSet rs = searchStmt.executeQuery()) {
 
                 while (rs.next()) {
-                    EntitySummary smry = getEntitySummary(request.getTermFilter(), rs);
+                    SearchResultSummary smry = getEntitySummary(request.getTermFilter(), rs);
                     smry.setEntityType(typeRepo.getEntityTypes(smry.getIri()));
                     result.add(smry);
                 }
@@ -85,8 +85,8 @@ public class EntitySearchRepository extends BaseRepository {
         searchStmt.setInt(++i, request.getSize());
     }
 
-    private EntitySummary getEntitySummary(String termFilter, ResultSet rs) throws SQLException {
-        return new EntitySummary()
+    private SearchResultSummary getEntitySummary(String termFilter, ResultSet rs) throws SQLException {
+        return new SearchResultSummary()
             .setIri(rs.getString("iri"))
             .setName(rs.getString("name"))
             .setDescription(rs.getString("description"))
@@ -96,8 +96,8 @@ public class EntitySearchRepository extends BaseRepository {
             .setStatus(iri(rs.getString("status"), rs.getString("status_name")));
     }
 
-    public EntitySummary getSummary(String iri) throws SQLException {
-        EntitySummary summary = new EntitySummary();
+    public SearchResultSummary getSummary(String iri) throws SQLException {
+        SearchResultSummary summary = new SearchResultSummary();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, n.name AS scheme_name, t.name AS status_name")
                 .add("FROM entity_search cs")

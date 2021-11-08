@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess.repository;
 
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -38,8 +38,8 @@ public class EntityRepository extends BaseRepository {
         return ttIriRef;
     }
 
-    public EntitySummary getEntitySummaryByIri(String iri) throws SQLException {
-        EntitySummary entitySummary = new EntitySummary();
+    public SearchResultSummary getEntitySummaryByIri(String iri) throws SQLException {
+        SearchResultSummary entitySummary = new SearchResultSummary();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT c.iri, c.name, c.code, n.iri AS schemeIri, n.name AS schemeName")
                 .add("FROM entity c")

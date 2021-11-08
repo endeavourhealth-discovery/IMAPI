@@ -6,7 +6,7 @@ import java.util.List;
 public class SearchResponse {
     private Integer page;
     private Integer count;
-    private List<EntitySummary> entities = new ArrayList<>();
+    private List<SearchResultSummary> entities = new ArrayList<>();
 
     public Integer getPage() {
         return page;
@@ -26,11 +26,11 @@ public class SearchResponse {
         return this;
     }
 
-    public List<EntitySummary> getEntities() {
+    public List<SearchResultSummary> getEntities() {
         return entities;
     }
 
-    public SearchResponse setEntities(List<EntitySummary> entities) {
+    public SearchResponse setEntities(List<SearchResultSummary> entities) {
         this.entities = entities;
         return this;
     }

@@ -62,8 +62,10 @@ public class SetService {
      */
     public Set<EntitySummary> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
         LOG.debug("Evaluate");
+        Set<EntitySummary> result = new HashSet<>();
         EditSet editSet = evaluateConceptSetNode(definition);
-        Set<EntitySummary> result = editSet.getIncs();
+
+        if (editSet.getIncs() != null) result = editSet.getIncs();
 
         if (includeLegacy) {
             LOG.debug("Fetching legacy concepts for {} members", result.size());

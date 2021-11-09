@@ -60,8 +60,9 @@ public class SetService {
      */
     public Set<TTIriRef> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
         LOG.debug("Evaluate");
+        Set<TTIriRef> result = new HashSet<>();
         EditSet editSet = evaluateConceptSetNode(definition);
-        Set<TTIriRef> result = editSet.getIncs();
+        if (editSet.getIncs() != null) result = editSet.getIncs();
 
         if (editSet.getExcs() != null)
             result.removeAll(editSet.getExcs());

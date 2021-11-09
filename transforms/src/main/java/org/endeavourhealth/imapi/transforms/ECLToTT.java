@@ -205,8 +205,12 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
             ECLParser.ConstraintoperatorContext entail = eclSub.constraintoperator();
             if (entail == null) {
                TTNode exp = new TTNode();
-               exp.set(IM.CODE, getConRef(eclSub.eclfocusconcept()
-                   .eclconceptreference().conceptid()));
+               if (eclSub.eclfocusconcept().eclconceptreference() != null && eclSub.eclfocusconcept().eclconceptreference().conceptid() != null) {
+                  exp.set(IM.CODE, getConRef(eclSub.eclfocusconcept()
+                          .eclconceptreference().conceptid()));
+               } else {
+                  throw new DataFormatException("ECL string contains illegal characters, resulting in null concept reference error");
+               }
                return exp;
             }
             else {

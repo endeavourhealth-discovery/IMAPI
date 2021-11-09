@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>statemachine</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
 
   <properties>
     <sonar.projectKey>endeavourhealth-discovery_IMAPI::statemachine</sonar.projectKey>

@@ -1,25 +1,25 @@
 package org.endeavourhealth.imapi.model.valuset;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.EntitySummary;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 public class EditSet {
-    private Set<TTIriRef> incs;
-    private Set<TTIriRef> excs;
+    private Set<EntitySummary> incs;
+    private Set<EntitySummary> excs;
 
-    public Set<TTIriRef> getIncs() {
+    public Set<EntitySummary> getIncs() {
         return incs;
     }
 
-    public EditSet setIncs(Set<TTIriRef> incs) {
+    public EditSet setIncs(Set<EntitySummary> incs) {
         this.incs = incs;
         return this;
     }
 
-    public EditSet addInc(TTIriRef inc) {
+    public EditSet addInc(EntitySummary inc) {
         if (incs == null)
             incs = new HashSet<>();
 
@@ -27,7 +27,7 @@ public class EditSet {
         return this;
     }
 
-    public EditSet addAllIncs(Collection<TTIriRef> inc) {
+    public EditSet addAllIncs(Collection<EntitySummary> inc) {
         if (incs == null)
             incs = new HashSet<>();
 
@@ -35,16 +35,16 @@ public class EditSet {
         return this;
     }
 
-    public Set<TTIriRef> getExcs() {
+    public Set<EntitySummary> getExcs() {
         return excs;
     }
 
-    public EditSet setExcs(Set<TTIriRef> excs) {
+    public EditSet setExcs(Set<EntitySummary> excs) {
         this.excs = excs;
         return this;
     }
 
-    public EditSet addExc(TTIriRef exc) {
+    public EditSet addExc(EntitySummary exc) {
         if (excs == null)
             excs = new HashSet<>();
 
@@ -52,7 +52,7 @@ public class EditSet {
         return this;
     }
 
-    public EditSet addAllExcs(Collection<TTIriRef> exc) {
+    public EditSet addAllExcs(Collection<EntitySummary> exc) {
         if (excs == null)
             excs = new HashSet<>();
 

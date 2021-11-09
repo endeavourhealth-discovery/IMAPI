@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.dataaccess.repository;
 
 import org.endeavourhealth.imapi.dataaccess.ConnectionPool;
+import org.endeavourhealth.imapi.model.EntitySummary;
+import org.endeavourhealth.imapi.model.IMv2v1Map;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
@@ -113,6 +115,39 @@ public class SetRepository {
 		}
 		return result;
 	}
+
+	public Set<IMv2v1Map> getIMv2v1Maps(Set<EntitySummary> members) throws SQLException {
+	    Set<IMv2v1Map> result = new HashSet<>();
+
+	    String sql = new StringJoiner(System.lineSeparator())
+            .add("SELECT v1.dbid")
+            .add("FROM im1_dbid_scheme_code v1")
+            .add("JOIN im1_scheme_map sm ON sm.scheme = v1.scheme")
+            .add("WHERE v1.code = ? AND sm.namespace = ?")
+            .toString();
+
+	    try(Connection conn = ConnectionPool.get();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+	        for (EntitySummary member : members) {
+	            if (member.getScheme() != null) {
+                    stmt.setString(1, member.getCode());
+                    stmt.setString(2, member.getScheme().getIri());
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next())
+                            result.add(
+                                new IMv2v1Map()
+                                    .setV2Code(member.getCode())
+                                    .setV2Scheme(member.getScheme().getIri())
+                                    .setV1Dbid(rs.getInt("dbid"))
+                            );
+                    }
+                }
+            }
+        }
+
+	    return result;
+    }
 
 	public TTEntity getIM1Expansion(TTEntity conceptSet) throws SQLException {
 		TTEntity expanded= new TTEntity();

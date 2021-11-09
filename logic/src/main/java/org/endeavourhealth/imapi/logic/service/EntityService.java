@@ -15,7 +15,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.search.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -160,15 +160,15 @@ public class EntityService {
 		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
-	public List<EntitySummary> advancedSearch(SearchRequest request) throws SQLException {
+	public List<SearchResultSummary> advancedSearch(SearchRequest request) throws SQLException {
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
 
-		List<EntitySummary> matchingEntity = entitySearchRepository.advancedSearch(request);
+		List<SearchResultSummary> matchingEntity = entitySearchRepository.advancedSearch(request);
 
 		return matchingEntity.stream()
             .map(e -> e.setWeighting(Levenshtein.calculate(request.getTermFilter(), e.getMatch())))
-            .sorted(Comparator.comparingInt(EntitySummary::getWeighting))
+            .sorted(Comparator.comparingInt(SearchResultSummary::getWeighting))
 			.collect(Collectors.toList());
 	}
 
@@ -315,7 +315,7 @@ public class EntityService {
 
 	private ValueSetMember getValueSetMemberFromIri(String iri) throws SQLException {
 		ValueSetMember member = new ValueSetMember();
-		EntitySummary summary = entityRepository.getEntitySummaryByIri(iri);
+        SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri);
 		member.setEntity(iri(summary.getIri(), summary.getName()));
 		member.setCode(summary.getCode());
 		member.setScheme(summary.getScheme());
@@ -646,7 +646,7 @@ public class EntityService {
 				.setSubtypes(getDefinitionSubTypes(iri)).setIsa(isa);
 	}
 
-	public EntitySummary getSummary(String iri) throws SQLException {
+	public SearchResultSummary getSummary(String iri) throws SQLException {
 		return entitySearchRepository.getSummary(iri);
 	}
 

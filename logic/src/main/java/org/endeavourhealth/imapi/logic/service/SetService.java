@@ -5,6 +5,8 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.repository.SetRepository;
+import org.endeavourhealth.imapi.model.EntitySummary;
+import org.endeavourhealth.imapi.model.IMv2v1Map;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.EditSet;
@@ -45,7 +47,7 @@ public class SetService {
      * @return Set of concepts conforming to the concept sets definition
      * @throws SQLException
      */
-    public Set<TTIriRef> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) throws SQLException {
+    public Set<EntitySummary> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) throws SQLException {
         LOG.debug("Load definition");
         TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
@@ -58,18 +60,16 @@ public class SetService {
      * @return  Set of concepts conforming to the definition
      * @throws SQLException
      */
-    public Set<TTIriRef> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
+    public Set<EntitySummary> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
         LOG.debug("Evaluate");
-        Set<TTIriRef> result = new HashSet<>();
+        Set<EntitySummary> result = new HashSet<>();
         EditSet editSet = evaluateConceptSetNode(definition);
-        if (editSet.getIncs() != null) result = editSet.getIncs();
 
-        if (editSet.getExcs() != null)
-            result.removeAll(editSet.getExcs());
+        if (editSet.getIncs() != null) result = editSet.getIncs();
 
         if (includeLegacy) {
             LOG.debug("Fetching legacy concepts for {} members", result.size());
-            entityTripleRepository.addLegacyConcepts(result);
+            result.addAll(entityTripleRepository.getLegacyConceptSummaries(result));
         }
 
         LOG.debug("Found {} total concepts", result.size());
@@ -88,11 +88,11 @@ public class SetService {
                 } else if (SHACL.NOT.equals(predicateValue.getKey())) {
                     processNOT(result, predicateValue);
                 } else {
-                    result.addAllIncs(entityTripleRepository.getSubjectDescendantIriRefsFromPredicateDescendantObjectDescendant(predicateValue.getKey().getIri(), predicateValue.getValue().asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
+                    result.addAllIncs(entityTripleRepository.getSubjectAndDescendantSummariesByPredicateObjectRelType(predicateValue.getKey().getIri(), predicateValue.getValue().asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
                 }
             }
         } else if (ttValue.isIriRef()) {
-            result.addAllIncs(entityTripleRepository.getDescendantsInclusive(ttValue.asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
+            result.addAllIncs(entityTripleRepository.getDescendantSummariesInclusive(ttValue.asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
         } else {
             throw new IllegalStateException("Unhandled concept set node type");
         }
@@ -326,57 +326,54 @@ public class SetService {
         addDefinitionsToWorkbook(set, workbook, headerStyle);
 
         if (expand) {
-            addExpandedToWorkbook(set, workbook, headerStyle);
+            Set<EntitySummary> members = evaluateDefinition(set.get(IM.DEFINITION), true);
+            addExpandedToWorkbook(set, workbook, headerStyle, members);
+
+            if (v1) {
+                addV1MapsToWorkbook(set, workbook, headerStyle, members);
+            }
         }
 
-        if (v1) {
-            addV1MapsToWorkbook(set, workbook, headerStyle);
-        }
+
 
         return workbook;
     }
 
-    private void addV1MapsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws SQLException {
+    private void addV1MapsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle, Set<EntitySummary> members) throws SQLException {
         Sheet sheet;
         Row row;
-        TTEntity im1 = setRepository.getIM1Expansion(set);
-        if (im1.has(IM.DEFINITION)){
+        Set<IMv2v1Map> im1 = setRepository.getIMv2v1Maps(members);
+        if (!im1.isEmpty()){
             sheet = workbook.createSheet("IM v1 Map");
             addHeaders(sheet, headerStyle, 10000, "IMv2 Code", "IMv2 Scheme", "IMv1 Dbid");
 
-            for (TTValue value : im1.get(IM.DEFINITION).asArray().getElements()) {
-                TTEntity member = (TTEntity) value.asNode();
-                String code = member.getCode();
-                String scheme = member.getScheme().getIri();
-                String im1id = member.get(iri(IM.NAMESPACE + "im1dbid")).asLiteral().getValue();
+            for (IMv2v1Map member : im1) {
+                String code = member.getV2Code();
+                String scheme = member.getV2Scheme();
+                String im1id = member.getV1Dbid().toString();
                 row = addRow(sheet);
                 addCells(row, code, scheme, im1id);
             }
         }
     }
 
-    private void addExpandedToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws SQLException {
+    private void addExpandedToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle, Set<EntitySummary> members) throws SQLException {
         Sheet sheet;
 
         sheet = workbook.createSheet("Expanded");
         addHeaders(sheet, headerStyle, 10000, "Set Iri", "Set Name", "Member Iri", "Member Name", "Code", "Scheme");
-        TTEntity expanded = setRepository.getExpansion(set);
-        addEntityMembersToWorkbook(set, sheet, expanded);
 
-        expanded = setRepository.getLegacyExpansion(set);
-        addEntityMembersToWorkbook(set, sheet, expanded);
+
+        addEntityMembersToWorkbook(set, sheet, members);
     }
 
-    private void addEntityMembersToWorkbook(TTEntity set, Sheet sheet, TTEntity expanded) {
+    private void addEntityMembersToWorkbook(TTEntity set, Sheet sheet, Set<EntitySummary> members) {
         Row row;
-        if (expanded != null && expanded.has(IM.DEFINITION)) {
-            for (TTValue value : expanded.get(IM.DEFINITION).asArray().getElements()) {
-                TTEntity member = (TTEntity) value.asNode();
-                String code = member.getCode();
-                String scheme = member.getScheme().getIri();
-                row = addRow(sheet);
-                addCells(row, set.getIri(), set.getName(), member.getIri(), member.getName(), code, scheme);
-            }
+
+        for(EntitySummary member: members) {
+            row = addRow(sheet);
+            String scheme = (member.getScheme() == null) ? null : member.getScheme().getName();
+            addCells(row, set.getIri(), set.getName(), member.getIri(), member.getName(), member.getCode(), scheme);
         }
     }
 

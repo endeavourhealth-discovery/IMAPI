@@ -28,10 +28,10 @@
     <plugin.spring>2.4.5</plugin.spring>
     <plugin.surefire>2.22.0</plugin.surefire>
 
-    <sonar.projectKey>endeavourhealth-discovery_IMAPI</sonar.projectKey>
-    <sonar.organization>endeavourhealth-discovery</sonar.organization>
+    <sonar.projectKey>${env.SONAR_PROJECT_KEY}</sonar.projectKey>
+    <sonar.organization>${env.SONAR_ORGANIZATION}</sonar.organization>
+    <sonar.login>${env.SONAR_LOGIN}</sonar.login>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    <sonar.login>8ddba9bbb23a08a7cff43ecc620be3738a152b65</sonar.login>
     <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
 
     <lib.antlr>4.9.2</lib.antlr>

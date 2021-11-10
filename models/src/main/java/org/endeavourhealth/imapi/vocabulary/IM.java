@@ -32,8 +32,8 @@ public class IM {
     public static final TTIriRef DATASET = iri(NAMESPACE +"DataSet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
-    public static final TTIriRef METACLASS= iri(NAMESPACE+"MetaClass");
-    public static final TTIriRef METAPROPERTY= iri(NAMESPACE+"MetaProperty");
+    public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
+
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
@@ -76,6 +76,8 @@ public class IM {
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
+    public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
+    public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
     public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE +"alternativeCode");
     public static final TTIriRef DESCRIPTION_ID= iri(NAMESPACE+"descriptionId");

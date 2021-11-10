@@ -3,8 +3,11 @@ package org.endeavourhealth.imapi.logic.service;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
-import org.endeavourhealth.imapi.dataaccess.repository.SetRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityTripleRepositoryImpl;
+import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.dataaccess.SetRepositoryImpl;
+import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.IMv2v1Map;
 import org.endeavourhealth.imapi.model.Namespace;
@@ -22,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
@@ -32,12 +34,12 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetService {
     private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
 
-    private SetRepository setRepository;
-    private EntityTripleRepository entityTripleRepository;
+    private final SetRepository setRepository;
+    private final EntityTripleRepository entityTripleRepository;
 
     public SetService() {
-        setRepository = new SetRepository();
-        entityTripleRepository = new EntityTripleRepository();
+        setRepository = new SetRepositoryImpl();
+        entityTripleRepository = new EntityTripleRepositoryImpl();
     }
 
 
@@ -45,9 +47,8 @@ public class SetService {
      * @param conceptSetIri
      * Evaluates a concept set
      * @return Set of concepts conforming to the concept sets definition
-     * @throws SQLException
      */
-    public Set<EntitySummary> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) throws SQLException {
+    public Set<EntitySummary> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) {
         LOG.debug("Load definition");
         TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
@@ -58,9 +59,8 @@ public class SetService {
      * @param definition
      * Evaluates a definition
      * @return  Set of concepts conforming to the definition
-     * @throws SQLException
      */
-    public Set<EntitySummary> evaluateDefinition(TTValue definition, boolean includeLegacy) throws SQLException {
+    public Set<EntitySummary> evaluateDefinition(TTValue definition, boolean includeLegacy) {
         LOG.debug("Evaluate");
         Set<EntitySummary> result = new HashSet<>();
         EditSet editSet = evaluateConceptSetNode(definition);
@@ -77,7 +77,7 @@ public class SetService {
         return result;
     }
 
-    private EditSet evaluateConceptSetNode(TTValue ttValue) throws SQLException {
+    private EditSet evaluateConceptSetNode(TTValue ttValue) throws DALException {
         EditSet result = new EditSet();
         if (ttValue.isNode()) {
             for (Map.Entry<TTIriRef, TTValue> predicateValue : ttValue.asNode().getPredicateMap().entrySet()) {
@@ -105,7 +105,7 @@ public class SetService {
         return result;
     }
 
-    private void processAND(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
+    private void processAND(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws DALException {
         TTArray ands = predicateValue.getValue().asArray();
         for (int i = 0; i < ands.size(); i++) {
             EditSet andNode = evaluateConceptSetNode(ands.get(i));
@@ -124,7 +124,7 @@ public class SetService {
         }
     }
 
-    private void processOR(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
+    private void processOR(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) {
         TTArray ors = predicateValue.getValue().asArray();
         for (int i = 0; i < ors.size(); i++) {
             EditSet orNode = evaluateConceptSetNode(ors.get(i));
@@ -137,7 +137,7 @@ public class SetService {
         }
     }
 
-    private void processNOT(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws SQLException {
+    private void processNOT(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) {
         if (predicateValue.getValue().isIriRef()) {
             result.addAllExcs(evaluateConceptSetNode(predicateValue.getValue()).getIncs());
         } else {
@@ -158,16 +158,13 @@ public class SetService {
      * Exports a single set definitions and expansions on the database
      * @param path  the output folder to place the output
      * @param setIri  IRI of the concept set
-     * @throws SQLException
-     * @throws ClassNotFoundException
-     * @throws IOException
      */
-    public void exportSingle(String path, String setIri) throws SQLException, IOException {
+    public void exportSingle(String path, String setIri) throws IOException {
         try (FileWriter definitions = new FileWriter(path + "\\ConceptSetDefinitions.txt");
              FileWriter expansions = new FileWriter(path + "\\ConceptSetCoreExpansions.txt");
              FileWriter legacies = new FileWriter(path + "\\ConceptSetLegacyExpansions.txt");
              FileWriter subsets = new FileWriter(path + "\\ConceptSetHierarchy.txt");
-             FileWriter im1maps = new FileWriter(path + "\\IM1Map.txt");) {
+             FileWriter im1maps = new FileWriter(path + "\\IM1Map.txt")) {
 
             subsets.write("Parent set iri\tParent set name\tChild set iri\tChild set name\n");
             definitions.write("Set iri\tSet name\tSet definition ECL\tSet definition json-LD\n");
@@ -180,7 +177,7 @@ public class SetService {
         }
     }
 
-    private void exportSingle(String setIri, FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps) throws SQLException, IOException {
+    private void exportSingle(String setIri, FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps) throws IOException {
         LOG.debug("Exporting {}...", setIri);
 
         TTEntity conceptSet = setRepository.getSetDefinition(setIri);
@@ -195,18 +192,15 @@ public class SetService {
 	 * Exports all set  definitions and expansions on the database
 	 * @param path  the output folder to place the output
 	 * @param type  IRI of the set type
-	 * @throws SQLException
-	 * @throws ClassNotFoundException
-	 * @throws IOException
 	 */
-	public void exportAll(String path, TTIriRef type) throws SQLException, IOException {
+	public void exportAll(String path, TTIriRef type) throws IOException {
         Set<TTEntity> conceptSets = setRepository.getAllConceptSets(type);
 
         try (FileWriter definitions = new FileWriter(path + "\\ConceptSetDefinitions.txt");
              FileWriter expansions = new FileWriter(path + "\\ConceptSetCoreExpansions.txt");
              FileWriter legacies = new FileWriter(path + "\\ConceptSetLegacyExpansions.txt");
              FileWriter subsets = new FileWriter(path + "\\ConceptSetHierarchy.txt");
-             FileWriter im1maps = new FileWriter(path + "\\IM1Map.txt");) {
+             FileWriter im1maps = new FileWriter(path + "\\IM1Map.txt")) {
 
             subsets.write("Parent set iri\tParent set name\tChild set iri\tChild set name\n");
             definitions.write("Set iri\tSet name\tSet definition ECL\tSet definition json-LD\n");
@@ -228,7 +222,7 @@ public class SetService {
         }
     }
 
-    private void exportMembers(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter im1maps, TTEntity conceptSet) throws IOException, SQLException {
+    private void exportMembers(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter im1maps, TTEntity conceptSet) throws IOException {
         exportDefinition(definitions, conceptSet);
 
         exportExpansion(expansions, conceptSet);
@@ -236,7 +230,7 @@ public class SetService {
         exportIMv1(im1maps, conceptSet);
     }
 
-    private void exportExpansion(FileWriter expansions, TTEntity conceptSet) throws SQLException, IOException {
+    private void exportExpansion(FileWriter expansions, TTEntity conceptSet) throws IOException {
         TTEntity expanded = setRepository.getExpansion(conceptSet);
         for (TTValue value : expanded.get(IM.DEFINITION).asArray().getElements()) {
             TTEntity member = (TTEntity) value.asNode();
@@ -247,7 +241,7 @@ public class SetService {
         }
     }
 
-    private void exportLegacy(FileWriter legacies, TTEntity conceptSet) throws SQLException, IOException {
+    private void exportLegacy(FileWriter legacies, TTEntity conceptSet) throws IOException {
         TTEntity legacy = setRepository.getLegacyExpansion(conceptSet);
         if (legacy.get(IM.DEFINITION)!=null) {
             for (TTValue value : legacy.get(IM.DEFINITION).asArray().getElements()) {
@@ -260,7 +254,7 @@ public class SetService {
         }
     }
 
-    private void exportIMv1(FileWriter im1maps, TTEntity conceptSet) throws SQLException, IOException {
+    private void exportIMv1(FileWriter im1maps, TTEntity conceptSet) throws IOException {
         TTEntity im1 = setRepository.getIM1Expansion(conceptSet);
         if (im1.get(IM.DEFINITION)!=null){
             for (TTValue value : im1.get(IM.DEFINITION).asArray().getElements()) {
@@ -273,7 +267,7 @@ public class SetService {
         }
     }
 
-    private void exportDefinition(FileWriter definitions, TTEntity conceptSet) throws IOException, SQLException {
+    private void exportDefinition(FileWriter definitions, TTEntity conceptSet) throws IOException {
 
         TTToTurtle turtleConverter = new TTToTurtle();
         List<Namespace> namespaces = entityTripleRepository.findNamespaces();
@@ -301,7 +295,7 @@ public class SetService {
     }
 
 
-    private void exportSubsetWithExpansion(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps, TTEntity conceptSet, String setIri) throws IOException, SQLException {
+    private void exportSubsetWithExpansion(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps, TTEntity conceptSet, String setIri) throws IOException {
         LOG.debug("Exporting subset {}...", setIri);
 
         for (TTValue value : conceptSet.get(IM.HAS_SUBSET).asArray().getElements()) {
@@ -314,11 +308,11 @@ public class SetService {
 
     // Excel export
 
-    public Workbook getExcelDownload(String iri, boolean expand, boolean v1) throws SQLException {
+    public Workbook getExcelDownload(String iri, boolean expand, boolean v1) {
         TTEntity set = setRepository.getSetDefinition(iri);
 
-        Workbook workbook = new XSSFWorkbook();
-        XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFFont font = workbook.createFont();
         CellStyle headerStyle = workbook.createCellStyle();
         font.setBold(true);
         headerStyle.setFont(font);
@@ -330,7 +324,7 @@ public class SetService {
             addExpandedToWorkbook(set, workbook, headerStyle, members);
 
             if (v1) {
-                addV1MapsToWorkbook(set, workbook, headerStyle, members);
+                addV1MapsToWorkbook(workbook, headerStyle, members);
             }
         }
 
@@ -339,7 +333,7 @@ public class SetService {
         return workbook;
     }
 
-    private void addV1MapsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle, Set<EntitySummary> members) throws SQLException {
+    private void addV1MapsToWorkbook(Workbook workbook, CellStyle headerStyle, Set<EntitySummary> members) {
         Sheet sheet;
         Row row;
         Set<IMv2v1Map> im1 = setRepository.getIMv2v1Maps(members);
@@ -357,7 +351,7 @@ public class SetService {
         }
     }
 
-    private void addExpandedToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle, Set<EntitySummary> members) throws SQLException {
+    private void addExpandedToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle, Set<EntitySummary> members) {
         Sheet sheet;
 
         sheet = workbook.createSheet("Expanded");
@@ -377,7 +371,7 @@ public class SetService {
         }
     }
 
-    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) throws SQLException {
+    private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) {
         Sheet sheet = workbook.createSheet("Concept summary");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "Turtle");
         Row row = addRow(sheet);

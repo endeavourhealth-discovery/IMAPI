@@ -1,23 +1,23 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.dataaccess.repository.WorkflowRepository;
+import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
+import org.endeavourhealth.imapi.dataaccess.WorkflowRepositoryImpl;
 import org.endeavourhealth.imapi.model.workflow.Task;
 import org.endeavourhealth.imapi.statemachine.StateMachineConfig;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @Component
 public class WorkflowService {
 
-    WorkflowRepository workflowRepository = new WorkflowRepository();
+    private final WorkflowRepository workflowRepository = new WorkflowRepositoryImpl();
 
-    public List<StateMachineConfig> getWorkflows() throws SQLException {
+    public List<StateMachineConfig> getWorkflows() {
         return workflowRepository.getWorkflows();
     }
 
-    public List<Task> getWorkflowTasks() throws SQLException {
+    public List<Task> getWorkflowTasks() {
         return workflowRepository.findAllTasks();
     }
 }

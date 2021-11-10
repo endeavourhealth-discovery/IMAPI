@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.dataaccess.ConfigRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.TermCodeRepository;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.dataaccess.repository.EntityRepository;
-import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
-import org.endeavourhealth.imapi.dataaccess.repository.ConfigRepository;
-import org.endeavourhealth.imapi.dataaccess.repository.TermCodeRepository;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.junit.Before;
@@ -46,7 +46,7 @@ public class RuntimeServiceTest {
     ConfigService configService;
 
     @Before
-    public void setConfig() throws SQLException {
+    public void setConfig() {
         runtimeService.configService = configService;
         Config config = new Config().setData("{\n" +
             "              \"SNOMED\" : \"http://endhealth.info/im#891101000252101\",\n" +
@@ -63,23 +63,23 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getEntityIdForSchemeCode_NullScheme() throws SQLException {
+    public void getEntityIdForSchemeCode_NullScheme() {
          String actual = runtimeService.getEntityIdForSchemeCode(null, "25451000252115");
          assertEquals("",actual);
     }
     @Test
-    public void getEntityIdForSchemeCode_NullCode() throws SQLException {
+    public void getEntityIdForSchemeCode_NullCode() {
         String actual = runtimeService.getEntityIdForSchemeCode("http://endhealth.info/im#891071000252105", null);
         assertEquals("",actual);
     }
     @Test
-    public void getEntityIdForSchemeCode_NullSchemeCode() throws SQLException {
+    public void getEntityIdForSchemeCode_NullSchemeCode() {
         String actual = runtimeService.getEntityIdForSchemeCode(null, null);
         assertEquals("",actual);
     }
 
     @Test
-    public void getEntityIdForSchemeCode_NotNullSchemeCode() throws SQLException {
+    public void getEntityIdForSchemeCode_NotNullSchemeCode() {
         TTIriRef entity = new TTIriRef().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme(any(),any())).thenReturn(entity);
         String actual = runtimeService.getEntityIdForSchemeCode("http://endhealth.info/im#891071000252105", "25451000252115");
@@ -87,28 +87,28 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getMappedCoreCodeForSchemeCode_NullScheme() throws SQLException {
+    public void getMappedCoreCodeForSchemeCode_NullScheme() {
         String actual = runtimeService.getMappedCoreCodeForSchemeCode(null, "25451000252115",false);
         assertEquals("",actual);
 
     }
 
     @Test
-    public void getMappedCoreCodeForSchemeCode_NullCode() throws SQLException {
+    public void getMappedCoreCodeForSchemeCode_NullCode() {
         String actual = runtimeService.getMappedCoreCodeForSchemeCode("http://endhealth.info/im#25451000252115", null,false);
         assertEquals("",actual);
 
     }
 
     @Test
-    public void getMappedCoreCodeForSchemeCode_NullSchemeCode() throws SQLException {
+    public void getMappedCoreCodeForSchemeCode_NullSchemeCode() {
         String actual = runtimeService.getMappedCoreCodeForSchemeCode(null, null,false);
         assertEquals("",actual);
 
     }
 
     @Test
-    public void getMappedCoreCodeForSchemeCode_SnomedOnlyTrueMapsSizeZero() throws SQLException {
+    public void getMappedCoreCodeForSchemeCode_SnomedOnlyTrueMapsSizeZero() {
         TTIriRef entity = new TTIriRef();
         when(termCodeRepository.findByCodeAndScheme(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
@@ -120,7 +120,7 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeZero() throws SQLException {
+    public void getMappedCoreCodeForSchemeCode_SnomedOnlyFalseMapsSizeZero() {
         TTIriRef entity = new TTIriRef();
         when(termCodeRepository.findByCodeAndScheme(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
@@ -132,7 +132,7 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNull() throws SQLException {
+    public void getMappedCoreCodeForSchemeCode_MapsSizeOneObjectNull() {
         TTIriRef entity = new TTIriRef().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
@@ -145,50 +145,50 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getEntityDbidForSchemeCode_NullScheme() throws SQLException {
+    public void getEntityDbidForSchemeCode_NullScheme() {
         Integer actual = runtimeService.getEntityDbidForSchemeCode(null, "25451000252115");
         assertNull(actual);
     }
 
     @Test
-    public void getEntityDbidForSchemeCode_NullCode() throws SQLException {
+    public void getEntityDbidForSchemeCode_NullCode() {
         Integer actual = runtimeService.getEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", null);
         assertNull(actual);
     }
 
     @Test
-    public void getEntityDbidForSchemeCode_NullSchemeCode() throws SQLException {
+    public void getEntityDbidForSchemeCode_NullSchemeCode() {
         Integer actual = runtimeService.getEntityDbidForSchemeCode(null, null);
         assertNull(actual);
     }
 
     @Test
-    public void getEntityDbidForSchemeCode_NotNullSchemeCode() throws SQLException {
+    public void getEntityDbidForSchemeCode_NotNullSchemeCode() {
         when(termCodeRepository.findDbidByCodeAndScheme(any(),any())).thenReturn(1);
         Integer actual = runtimeService.getEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", "25451000252115");
         assertNotNull(actual);
     }
 
     @Test
-    public void getMappedCoreEntityDbidForSchemeCode_NullScheme() throws SQLException {
+    public void getMappedCoreEntityDbidForSchemeCode_NullScheme() {
         Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode(null, "25451000252115");
         assertNull(actual);
     }
 
     @Test
-    public void getMappedCoreEntityDbidForSchemeCode_NullCode() throws SQLException {
+    public void getMappedCoreEntityDbidForSchemeCode_NullCode() {
         Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode("http://endhealth.info/im#25451000252115", null);
         assertNull(actual);
     }
 
     @Test
-    public void getMappedCoreEntityDbidForSchemeCode_NullSchemeCode() throws SQLException {
+    public void getMappedCoreEntityDbidForSchemeCode_NullSchemeCode() {
         Integer actual = runtimeService.getMappedCoreEntityDbidForSchemeCode(null, null);
         assertNull(actual);
     }
 
      @Test
-    public void getMappedCoreEntityDbidForSchemeCode_NullEntity() throws SQLException {
+    public void getMappedCoreEntityDbidForSchemeCode_NullEntity() {
          TTIriRef entity = new TTIriRef().setIri("http://endhealth.info/im#25451000252115");
         when(termCodeRepository.findByCodeAndScheme(any(),any())).thenReturn(entity);
         Set<ValueSetMember> valueSetMembers = new HashSet<>();
@@ -198,15 +198,15 @@ public class RuntimeServiceTest {
     }
 
     @Test
-    public void getCodeForEntityDbid_NullDbid() throws SQLException {
+    public void getCodeForEntityDbid_NullDbid() {
         String actual = runtimeService.getCodeForEntityDbid(null);
         assertEquals("",actual);
     }
 
     @Test
-    public void getCodeForEntityDbid_NotNullDbid() throws SQLException {
+    public void getCodeForEntityDbid_NotNullDbid() {
         String code = "25451000252115";
-        when(entityRepository.findByDbid(any())).thenReturn(code);
+        when(entityRepository.findCodeByDbid(any())).thenReturn(code);
         String actual = runtimeService.getCodeForEntityDbid(1);
         assertNotNull(actual);
     }

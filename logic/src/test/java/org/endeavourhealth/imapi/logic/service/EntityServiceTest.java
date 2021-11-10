@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
-import org.endeavourhealth.imapi.dataaccess.repository.*;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
@@ -61,7 +61,7 @@ class EntityServiceTest {
     ConfigService configService;
 
     @Test
-    void getEntityPredicates_nullIriPredicates() throws SQLException {
+    void getEntityPredicates_nullIriPredicates() {
 
         TTBundle actual = entityService.getEntityPredicates(null,null, 0);
         assertNotNull(actual);
@@ -69,7 +69,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityPredicates_EmptyIri() throws SQLException {
+    void getEntityPredicates_EmptyIri() {
 
         TTBundle actual = entityService.getEntityPredicates("", null, 0);
         assertNotNull(actual);
@@ -77,7 +77,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityPredicates_notNullIriPredicates() throws SQLException {
+    void getEntityPredicates_notNullIriPredicates() {
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
                 .setDbid(1)
@@ -111,7 +111,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityReference_NullIri() throws SQLException {
+    void getEntityReference_NullIri() {
         TTIriRef actual = entityService.getEntityReference(null);
 
         assertNull(actual);
@@ -119,7 +119,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityReference_NullEntity() throws SQLException {
+    void getEntityReference_NullEntity() {
         when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(null);
         TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
 
@@ -128,7 +128,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityReference_NotNullEntity() throws SQLException {
+    void getEntityReference_NotNullEntity() {
         TTIriRef ttIriRef = new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("http://endhealth.info/im#25451000252115");
         when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttIriRef);
         TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
@@ -138,7 +138,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateChildren_NullIri() throws SQLException {
+    void getImmediateChildren_NullIri() {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateChildren(null, 1, 10, true);
 
@@ -147,7 +147,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateChildren_EmptyIri() throws SQLException {
+    void getImmediateChildren_EmptyIri() {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateChildren("", 1, 10, true);
 
@@ -156,7 +156,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateChildren_NullIndexSize() throws SQLException {
+    void getImmediateChildren_NullIndexSize() {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateChildren("http://endhealth.info/im#25451000252115", null, null, true);
 
@@ -165,7 +165,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateChildren_NotNullIriAndInactiveTrue() throws SQLException {
+    void getImmediateChildren_NotNullIriAndInactiveTrue() {
 
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(
@@ -186,7 +186,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateChildren_NotNullIriAndInactiveFalse() throws SQLException {
+    void getImmediateChildren_NotNullIriAndInactiveFalse() {
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(
                         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
@@ -208,7 +208,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateParents_NullIri() throws SQLException {
+    void getImmediateParents_NullIri() {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateParents(null, 1, 10, true);
 
@@ -216,7 +216,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateParents_EmptyIri() throws SQLException {
+    void getImmediateParents_EmptyIri() {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateParents("", 1, 10, true);
 
@@ -224,7 +224,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateParents_NullIndexSize() throws SQLException {
+    void getImmediateParents_NullIndexSize() {
         List<EntityReferenceNode> actual = entityService
                 .getImmediateParents("http://endhealth.info/im#25451000252115", null, null, true);
 
@@ -232,7 +232,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateParents_NotNullIriAndInactiveTrue() throws SQLException {
+    void getImmediateParents_NotNullIriAndInactiveTrue() {
 
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(
@@ -255,7 +255,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getImmediateParents_NotNullIriAndInactiveFalse() throws SQLException {
+    void getImmediateParents_NotNullIriAndInactiveFalse() {
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
@@ -272,7 +272,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isWhichType_NullIri() throws SQLException {
+    void isWhichType_NullIri() {
         List<TTIriRef> actual = entityService
                 .isWhichType(null, Arrays.asList("A","B"));
 
@@ -280,7 +280,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isWhichType_EmptyIri() throws SQLException {
+    void isWhichType_EmptyIri() {
         List<TTIriRef> actual = entityService
                 .isWhichType("", Arrays.asList("A","B"));
 
@@ -288,7 +288,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isWhichType_EmptyCandidates() throws SQLException {
+    void isWhichType_EmptyCandidates() {
         List<TTIriRef> actual = entityService
                 .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList());
 
@@ -296,7 +296,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isWhichType_NullCandidates() throws SQLException {
+    void isWhichType_NullCandidates() {
         List<TTIriRef> actual = entityService
                 .isWhichType("http://endhealth.info/im#25451000252115", null);
 
@@ -304,7 +304,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isWhichType_NullIriAndCandidates() throws SQLException {
+    void isWhichType_NullIriAndCandidates() {
         List<TTIriRef> actual = entityService
                 .isWhichType(null, null);
 
@@ -312,7 +312,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isWhichType_NotNullIriAndCandidates() throws SQLException {
+    void isWhichType_NotNullIriAndCandidates() {
         TTIriRef ttIriRef = new TTIriRef()
                 .setIri("http://www.w3.org/2002/07/owl#Class")
                 .setName("Class");
@@ -470,7 +470,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getValueSetMembers_NullIri() throws SQLException {
+    void getValueSetMembers_NullIri() {
         ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null);
 
         assertNull(actual);
@@ -478,7 +478,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getValueSetMembers_EmptyIri() throws SQLException {
+    void getValueSetMembers_EmptyIri() {
         ExportValueSet actual = entityService.getValueSetMembers("", true,false, null);
 
         assertNull(actual);
@@ -486,7 +486,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getValueSetMembers_ExpandMemberTrue() throws SQLException {
+    void getValueSetMembers_ExpandMemberTrue() {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
@@ -506,7 +506,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getValueSetMembers_ExpandSubsetTrue() throws SQLException {
+    void getValueSetMembers_ExpandSubsetTrue() {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
@@ -526,7 +526,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getValueSetMembers_ExpandFalse() throws SQLException {
+    void getValueSetMembers_ExpandFalse() {
 
         ExportValueSet actual = entityService.getValueSetMembers("http://endhealth.info/im#25451000252115", false, false,0,null, "http://endhealth.info/im#25451000252115");
 
@@ -535,21 +535,21 @@ class EntityServiceTest {
     }
 
     @Test
-    void isValuesetMember_NullIriAndMember() throws SQLException {
+    void isValuesetMember_NullIriAndMember() {
         ValueSetMembership actual = entityService.isValuesetMember(null, null);
 
         assertNull(actual);
     }
 
     @Test
-    void isValuesetMember_EmptyIriAndMember() throws SQLException {
+    void isValuesetMember_EmptyIriAndMember() {
         ValueSetMembership actual = entityService.isValuesetMember("", "");
 
         assertNull(actual);
     }
 
     @Test
-    void isValuesetMember_NotNullIriAndHasMember() throws SQLException {
+    void isValuesetMember_NotNullIriAndHasMember() {
         TTIriRef ttIriRef1 = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
@@ -576,7 +576,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void isValuesetMember_NotNullIriAndNotMember() throws SQLException {
+    void isValuesetMember_NotNullIriAndNotMember() {
         TTIriRef ttIriRef1 = new TTIriRef()
                 .setIri("http://endhealth.info/im#25451000252115")
                 .setName("Adverse reaction to Amlodipine Besilate");
@@ -603,19 +603,19 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityTermCodes_NullIri() throws SQLException {
+    void getEntityTermCodes_NullIri() {
         List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes(null);
         assertNotNull(actual);
     }
 
     @Test
-    void getEntityTermCodes_EmptyIri() throws SQLException {
+    void getEntityTermCodes_EmptyIri() {
         List<org.endeavourhealth.imapi.model.TermCode> actual = entityService.getEntityTermCodes("");
         assertNotNull(actual);
     }
 
     @Test
-    void getEntityTermCodes_NotNullIri() throws SQLException {
+    void getEntityTermCodes_NotNullIri() {
         org.endeavourhealth.imapi.model.TermCode termCode = new org.endeavourhealth.imapi.model.TermCode()
                 .setCode("24951000252112")
                 .setName("Adverse reaction to Testogel")
@@ -641,14 +641,14 @@ class EntityServiceTest {
     }
 
     @Test
-    void download_JSONNullIri() throws SQLException {
+    void download_JSONNullIri() {
         DownloadDto actual = entityService.getJsonDownload(null, new ArrayList<>(), true, true, true ,true, false, true, true, true, true, true);
 
         assertNull(actual);
     }
 
     @Test
-    void download_JSONEmptyIri() throws SQLException {
+    void download_JSONEmptyIri() {
         DownloadDto actual = entityService.getJsonDownload("", new ArrayList<>(), true, true, true ,true, false, true, true, true, true, true);
 
         assertNull(actual);
@@ -692,7 +692,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void download_AllSelectionsTrueJsonFormat() throws SQLException {
+    void download_AllSelectionsTrueJsonFormat() {
 
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
@@ -721,7 +721,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void download_AllSelectionsFalseJsonFormat() throws SQLException {
+    void download_AllSelectionsFalseJsonFormat() {
 
         DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", new ArrayList<>(), false,
                 false, false ,false, false, false, false, false, false, false);
@@ -754,13 +754,13 @@ class EntityServiceTest {
     }
 
     @Test
-    void valueSetMembersCSV_NullIri() throws SQLException {
+    void valueSetMembersCSV_NullIri() {
         String actual = entityService.valueSetMembersCSV(null, true,true);
         assertNotNull(actual);
     }
 
     @Test
-    void valueSetMembersCSV_NotNullIriExpandTrue() throws SQLException {
+    void valueSetMembersCSV_NotNullIriExpandTrue() {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
@@ -778,7 +778,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void valueSetMembersCSV_NotNullIriExpandFalse() throws SQLException {
+    void valueSetMembersCSV_NotNullIriExpandFalse() {
         Set<String> hasSubsetPredicates = new HashSet<>();
         hasSubsetPredicates.add(IM.DEFINITION.getIri());
 
@@ -787,20 +787,22 @@ class EntityServiceTest {
 
         when(entityTripleRepository.getTriplesRecursive(any(),eq(hasSubsetPredicates), anyInt()))
                 .thenReturn(mockHasSubsetReturn);
+
         TTIriRef ttIriRef= new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("Adverse reaction to Amlodipine Besilate");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(ttIriRef);
+
         String actual = entityService.valueSetMembersCSV("http://endhealth.info/im#25451000252115", false, false);
         assertNotNull(actual);
     }
 
     @Test
-    void getGraphData_NullIri() throws SQLException {
+    void getGraphData_NullIri() {
         GraphDto actual = entityService.getGraphData(null);
         assertNotNull(actual);
     }
 
     @Test
-    void getGraphData_NotNullEntity() throws SQLException {
+    void getGraphData_NotNullEntity() {
 
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
@@ -872,7 +874,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getGraphData_RoleGroup() throws SQLException {
+    void getGraphData_RoleGroup() {
 
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
@@ -903,7 +905,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getGraphData_LeafNodes() throws SQLException {
+    void getGraphData_LeafNodes() {
 
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
@@ -953,7 +955,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getGraphData_ParentIsList() throws SQLException {
+    void getGraphData_ParentIsList() {
 
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
@@ -971,14 +973,14 @@ class EntityServiceTest {
     }
 
     @Test
-    void getEntityDefinitionDto_NullIri() throws SQLException {
+    void getEntityDefinitionDto_NullIri() {
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
 
     }
 
     @Test
-    void getEntityDefinitionDto_NotNullIri() throws SQLException {
+    void getEntityDefinitionDto_NotNullIri() {
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
                 .setDbid(1)
@@ -1007,13 +1009,13 @@ class EntityServiceTest {
     }
 
     @Test
-    void getSummary_NullIri() throws SQLException {
+    void getSummary_NullIri() {
         SearchResultSummary actual = entityService.getSummary(null);
         assertNull(actual);
     }
 
     @Test
-    void getSummary_NotNullIri() throws SQLException {
+    void getSummary_NotNullIri() {
         SearchResultSummary summary = new SearchResultSummary();
         when(entitySearchRepository.getSummary(any())).thenReturn(summary);
         SearchResultSummary actual = entityService.getSummary(null);
@@ -1021,13 +1023,13 @@ class EntityServiceTest {
     }
 
     @Test
-    void getConceptShape_NullIri() throws SQLException {
+    void getConceptShape_NullIri() {
         TTEntity actual = entityService.getConceptShape(null);
         assertNull(actual);
     }
 
     @Test
-    void getConceptShape_NotContainNodeShape() throws SQLException {
+    void getConceptShape_NotContainNodeShape() {
         List<Tpl> tplList = new ArrayList<>();
         tplList.add(new Tpl()
                 .setDbid(1)
@@ -1044,7 +1046,7 @@ class EntityServiceTest {
     }
 
     @Test
-    void getConceptShape_ContainsNodeShape() throws SQLException {
+    void getConceptShape_ContainsNodeShape() {
         List<Tpl> tplList = new ArrayList<>();
         tplList.add(new Tpl()
                 .setDbid(1)

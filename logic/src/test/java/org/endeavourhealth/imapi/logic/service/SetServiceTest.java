@@ -1,11 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.endeavourhealth.imapi.dataaccess.repository.EntityTripleRepository;
-import org.endeavourhealth.imapi.dataaccess.repository.SetRepository;
+import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -19,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +39,7 @@ public class SetServiceTest {
     EntityTripleRepository entityTripleRepository;
 
     @Before
-    public void init() throws SQLException {
+    public void init() {
         // Definition mock
         TTEntity definition = mockDefinition();
 
@@ -50,7 +48,7 @@ public class SetServiceTest {
     }
 
     @Test
-    public void getExcelDownload_Definition() throws SQLException, JsonProcessingException {
+    public void getExcelDownload_Definition() {
         List<Namespace> namespace = new ArrayList<>();
         namespace.add(new Namespace("http://endhealth.info/im#","im","Discovery namespace"));
         namespace.add(new Namespace("http://www.w3.org/2000/01/rdf-schema#", "rdfs", "RDFS namespace"));
@@ -66,7 +64,7 @@ public class SetServiceTest {
     }
 
     @Test
-    public void getExcelDownload_Expand() throws SQLException, JsonProcessingException {
+    public void getExcelDownload_Expand() {
         List<Namespace> namespace = new ArrayList<>();
         namespace.add(new Namespace("http://endhealth.info/im#","im","Discovery namespace"));
         namespace.add(new Namespace("http://www.w3.org/2000/01/rdf-schema#", "rdfs", "RDFS namespace"));
@@ -83,7 +81,7 @@ public class SetServiceTest {
     }
 
     @Test
-    public void getExcelDownload_v1() throws SQLException, JsonProcessingException {
+    public void getExcelDownload_v1() {
         List<Namespace> namespace = new ArrayList<>();
         namespace.add(new Namespace("http://endhealth.info/im#","im","Discovery namespace"));
         namespace.add(new Namespace("http://www.w3.org/2000/01/rdf-schema#", "rdfs", "RDFS namespace"));
@@ -101,7 +99,7 @@ public class SetServiceTest {
     }
 
 
-    private TTEntity mockDefinition() throws SQLException {
+    private TTEntity mockDefinition() {
         TTEntity definition = new TTEntity()
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept Set- Barts Covid vaccine study medication concepts");
@@ -124,7 +122,7 @@ public class SetServiceTest {
         return definition;
     }
 
-    private void mockExpansion(TTEntity definition) throws SQLException {
+    private void mockExpansion(TTEntity definition) {
         TTEntity expansion = new TTEntity()
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept Set- Barts Covid vaccine study medication concepts");
@@ -138,7 +136,7 @@ public class SetServiceTest {
             .thenReturn(expansion);
     }
 
-    private void mockv1Map(TTEntity definition) throws SQLException {
+    private void mockv1Map(TTEntity definition) {
         TTEntity v1 = new TTEntity()
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept Set- Barts Covid vaccine study medication concepts");

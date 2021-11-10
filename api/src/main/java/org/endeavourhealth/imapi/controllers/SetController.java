@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.endeavourhealth.imapi.dataaccess.repository.EntitySearchRepository;
+import org.endeavourhealth.imapi.dataaccess.EntitySearchRepository;
+import org.endeavourhealth.imapi.dataaccess.EntitySearchRepositoryImpl;
+import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.EntitySummary;
@@ -16,7 +18,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.ECLToTT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -41,12 +41,9 @@ import java.util.zip.DataFormatException;
 public class SetController {
     private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
 
-    @Autowired
-    EntityService entityService;
-
-    EntitySearchRepository entitySearchRepository = new EntitySearchRepository();
-
-    SetService setService = new SetService();
+    private final EntityService entityService = new EntityService();
+    private final EntitySearchRepository entitySearchRepository = new EntitySearchRepositoryImpl();
+    private final SetService setService = new SetService();
 
 	@GetMapping(value = "/download")
     @ApiOperation(
@@ -55,7 +52,7 @@ public class SetController {
     )
 	public HttpEntity<Object> downloadSet(@RequestParam(name = "iri") String iri,
                                           @RequestParam(name = "expandMembers") boolean expanded,
-                                          @RequestParam(name = "v1") boolean v1) throws SQLException, IOException {
+                                          @RequestParam(name = "v1") boolean v1) throws IOException {
         LOG.debug("downloadSet");
 
         TTIriRef entity = entityService.getEntityReference(iri);
@@ -79,7 +76,7 @@ public class SetController {
         value = "Evaluate set",
         notes = "Evaluates a given set"
     )
-    public Set<EntitySummary> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) throws SQLException {
+    public Set<EntitySummary> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) {
 	    return setService.evaluateConceptSet(iri, includeLegacy);
     }
 
@@ -88,7 +85,7 @@ public class SetController {
         value = "Evaluate ECL",
         notes = "Evaluates an query"
     )
-    public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws SQLException, DataFormatException {
+    public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException {
         TTValue definition = new ECLToTT().getClassExpression(ecl);
         return setService.evaluateDefinition(definition, includeLegacy);
     }
@@ -102,12 +99,12 @@ public class SetController {
             @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
             @RequestParam(name="limit", required = false) Integer limit,
             @RequestBody String ecl
-    ) throws DataFormatException, SQLException {
+    ) throws DataFormatException {
         Set<EntitySummary> evaluated = evaluateEcl(includeLegacy, ecl);
         List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
             try {
                 return entitySearchRepository.getSummary(ttIriRef.getIri());
-            } catch (SQLException e) {
+            } catch (DALException e) {
                 return new SearchResultSummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
             }
         }).collect(Collectors.toList());

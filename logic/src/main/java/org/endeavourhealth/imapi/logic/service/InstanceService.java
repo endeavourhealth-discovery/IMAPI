@@ -1,26 +1,26 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import org.endeavourhealth.imapi.dataaccess.InstanceRepository;
+import org.endeavourhealth.imapi.dataaccess.InstanceRepositoryImpl;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
-import org.endeavourhealth.imapi.dataaccess.repository.InstanceRepository;
 import org.endeavourhealth.imapi.model.dto.InstanceDTO;
 import org.endeavourhealth.imapi.model.report.SimpleCount;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.dataaccess.entity.Tpl.getValue;
 
 @Component
 public class InstanceService {
 
-    InstanceRepository instanceRepository = new InstanceRepository();
+    private final InstanceRepository instanceRepository = new InstanceRepositoryImpl();
 
-    public InstanceDTO getInstancePredicates(String iri, Set<String> predicates) throws SQLException {
+    public InstanceDTO getInstancePredicates(String iri, Set<String> predicates) {
         if(iri==null)
             return null;
         TTEntity ttEntity = new TTEntity(iri);
@@ -37,47 +37,37 @@ public class InstanceService {
             TTValue v = getValue(nodeMap, triple);
             pre.add(triple.getPredicate());
 
-            if (triple.getParent() == null) {
-                if (triple.isFunctional()) {
-                    ttEntity.set(triple.getPredicate(), v);
-                } else {
-                    ttEntity.addObject(triple.getPredicate(), v);
-                }
-            } else {
-                TTNode n = nodeMap.get(triple.getParent());
-                if (n == null)
-                    throw new IllegalStateException("Unknown parent node!");
-                if (triple.isFunctional()) {
-                    n.set(triple.getPredicate(), v);
-                } else {
-                    n.addObject(triple.getPredicate(), v);
-                }
-            }
+            addTripleValueToEntity(ttEntity, nodeMap, triple, v);
         }
         result.setEntity(ttEntity);
         result.setPredicates(pre);
         return result;
     }
 
-    private TTValue getValue(HashMap<Integer, TTNode> nodeMap, Tpl triple) {
-        TTValue v;
-
-        if (triple.getLiteral() != null)
-            v = literal(triple.getLiteral(), triple.getObject());
-        else if (triple.getObject() != null)
-            v = triple.getObject();
-        else {
-            v = new TTNode();
-            nodeMap.put(triple.getDbid(), (TTNode) v);
+    private void addTripleValueToEntity(TTEntity ttEntity, HashMap<Integer, TTNode> nodeMap, Tpl triple, TTValue v) {
+        if (triple.getParent() == null) {
+            if (triple.isFunctional()) {
+                ttEntity.set(triple.getPredicate(), v);
+            } else {
+                ttEntity.addObject(triple.getPredicate(), v);
+            }
+        } else {
+            TTNode n = nodeMap.get(triple.getParent());
+            if (n == null)
+                throw new IllegalStateException("Unknown parent node!");
+            if (triple.isFunctional()) {
+                n.set(triple.getPredicate(), v);
+            } else {
+                n.addObject(triple.getPredicate(), v);
+            }
         }
-        return v;
     }
 
-    public List<TTIriRef> search(String request, Set<String> types) throws SQLException {
+    public List<TTIriRef> search(String request, Set<String> types) {
         return instanceRepository.search(request, types);
     }
 
-    public List<SimpleCount> typesCount() throws SQLException {
+    public List<SimpleCount> typesCount() {
         return instanceRepository.getTypesCount();
     }
 }

@@ -10,10 +10,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-
   <artifactId>transforms</artifactId>
   <version>1.0-SNAPSHOT</version>
-
 
   <properties>
     <sonar.projectKey>endeavourhealth-discovery_IMAPI::transforms</sonar.projectKey>

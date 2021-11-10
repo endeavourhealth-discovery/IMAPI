@@ -12,8 +12,7 @@
   <artifactId>dataaccess-rdf4j</artifactId>
 
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <sonar.projectKey>endeavourhealth-discovery_IMAPI::dataaccess-rdf4j</sonar.projectKey>
   </properties>
 
   <dependencyManagement>

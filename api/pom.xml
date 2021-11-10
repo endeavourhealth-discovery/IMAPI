@@ -17,7 +17,6 @@
 
 	<properties>
     <sonar.projectKey>endeavourhealth-discovery_IMAPI::api</sonar.projectKey>
-    <sonar.skip>true</sonar.skip>
 	</properties>
 
 	<dependencies>

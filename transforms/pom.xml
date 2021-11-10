@@ -15,7 +15,6 @@
 
   <properties>
     <sonar.projectKey>endeavourhealth-discovery_IMAPI::transforms</sonar.projectKey>
-    <sonar.skip>true</sonar.skip>
   </properties>
 
 

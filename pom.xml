@@ -33,6 +33,7 @@
     <sonar.login>${env.SONAR_LOGIN}</sonar.login>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.junit.reportPaths>target/surefire-reports</sonar.junit.reportPaths>
+    <sonar.coverage.exclusions>api/**, dataaccess-*/**, models/**, parser/**, statemachine/**, transforms/**</sonar.coverage.exclusions>
 
     <lib.antlr>4.9.2</lib.antlr>
     <lib.apache.poi>5.0.0</lib.apache.poi>

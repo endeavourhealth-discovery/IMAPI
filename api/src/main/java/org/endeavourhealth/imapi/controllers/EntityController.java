@@ -30,8 +30,6 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
-import org.endeavourhealth.imapi.transforms.TTToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -101,13 +99,6 @@ public class EntityController {
         LOG.debug("getInferredBundle");
         return entityService.getInferredBundle(iri);
     }
-
-	@GetMapping(value = "/inferredAsString", produces = "application/json")
-	public String getInferredAsString(@RequestParam(name = "iri") String iri) throws JsonProcessingException {
-		LOG.debug("getInferredAsString");
-		TTBundle inferredBundle = entityService.getInferredBundle(iri);
-		return TTToString.getBundleAsString(inferredBundle, configService.getConfig("defaultPredicateNames", new TypeReference<>() {}));
-	}
 
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
@@ -216,13 +207,6 @@ public class EntityController {
 		return entityService.totalRecords(iri);
 	}
 
-	@PostMapping(value = "/isWhichType")
-	public List<TTIriRef> entityIsWhichType(@RequestParam(name = "iri") String iri,
-			@RequestBody List<String> candidates) {
-        LOG.debug("entityIsWhichType");
-        return entityService.isWhichType(iri, candidates);
-	}
-
 	@GetMapping(value = "/members")
 	public ExportValueSet valueSetMembersJson(
 	    @RequestParam(name = "iri") String iri,
@@ -240,13 +224,6 @@ public class EntityController {
 			@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset) {
         LOG.debug("valueSetMembersCSV");
         return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
-	}
-
-	@GetMapping(value = "/isMemberOf")
-	public ValueSetMembership isMemberOfValueSet(@RequestParam(name = "iri") String entityIri,
-			@RequestParam("valueSetIri") String valueSetIri) {
-        LOG.debug("isMemberOfValueSet");
-		return entityService.isValuesetMember(valueSetIri, entityIri);
 	}
 
 	@GetMapping(value = "/referenceSuggestions")
@@ -294,12 +271,6 @@ public class EntityController {
 	public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getSummary");
 		return entityService.getSummary(iri);
-	}
-
-	@GetMapping("/shape")
-	public TTEntity getConceptShape(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getConceptShape");
-		return entityService.getConceptShape(iri);
 	}
 
 	@GetMapping("/namespaces")

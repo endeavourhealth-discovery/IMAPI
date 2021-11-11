@@ -9,6 +9,9 @@ public class TTToString {
     private static String regex = "\\s\\(([^)]*)\\)[^(]*$";
 
     private static Map<String, String> setPredicateDefaults(Map<String, String> predicates, Map<String, String> defaultPredicates) {
+        if(defaultPredicates == null){
+            return predicates;
+        }
         for (Map.Entry<String, String> defaultPredicate : defaultPredicates.entrySet()) {
             if (predicates.containsKey(defaultPredicate.getKey())) predicates.replace(defaultPredicate.getKey(), defaultPredicate.getValue());
             else predicates.put(defaultPredicate.getKey(), defaultPredicate.getValue());
@@ -27,7 +30,7 @@ public class TTToString {
     }
 
     public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent) {
-        if (indent == 0 && iriMap.isEmpty()) iriMap = setPredicateDefaults(iriMap, iriMap);
+        if (indent == 0 && iriMap != null && iriMap.isEmpty()) iriMap = setPredicateDefaults(iriMap, iriMap);
         if (node.isIriRef()) {
             return ttIriToString(node.asIriRef(), previousType, indent, false);
         } else if (node.isNode()) {

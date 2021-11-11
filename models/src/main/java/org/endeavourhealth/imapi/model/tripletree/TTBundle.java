@@ -29,7 +29,8 @@ public class TTBundle {
         if (null == this.predicates)
             this.predicates = new HashMap<>();
 
-        predicates.put(predicate.getIri(), predicate.getName());
+        if(predicate != null)
+            predicates.put(predicate.getIri(), predicate.getName());
 
         return this;
     }

@@ -212,7 +212,7 @@ public class EntityService {
                 } else {
                     set.setLabel("Subset - " + parentSetName);
                 }
-                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, set.getEntity().getName(), originalParentIri);
+                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), false, false, limit, set.getEntity().getName(), originalParentIri);
                 memberCount += setMembers.getMembers().size();
                 result.addAllMembers(setMembers.getMembers());
             }
@@ -667,23 +667,6 @@ public class EntityService {
 
         return getEntityPredicates(iri, predicates, UNLIMITED);
     }
-
-/*    public TTBundle getAxiomBundle(String iri) {
-        Set<String> predicates = null;
-        try {
-            predicates = configService.getConfig("axiomPredicates", new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            LOG.warn("Error getting axiomPredicates config, reverting to default", e);
-        }
-
-        if (predicates == null) {
-            LOG.warn("Config for axiomPredicates not set, reverting to default");
-            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), RDFS.SUBPROPERTYOF.getIri(), OWL.EQUIVALENTCLASS.getIri()));
-        }
-
-        return getEntityPredicates(iri, predicates, UNLIMITED);
-    }*/
 
     public TTDocument getConcept(String iri) {
 		TTBundle bundle = getEntityPredicates(iri, null, 0);

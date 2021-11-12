@@ -406,7 +406,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("JOIN entity a ON a.dbid = t.ancestor")
             .add("JOIN tpl ON tpl.object = c.dbid")
             .add("JOIN entity tp ON tp.dbid = tpl.predicate AND tp.iri = ?")
-            .add("JOIN entity s ON s.dbid = tpl.subject")
+            .add("JOIN entity r ON r.dbid = tpl.subject")
             .add("LEFT JOIN namespace s ON s.iri = r.scheme")
             .add("WHERE a.iri = ?")
             .toString();

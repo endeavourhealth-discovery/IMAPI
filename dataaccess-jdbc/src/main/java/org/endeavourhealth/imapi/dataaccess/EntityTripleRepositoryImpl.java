@@ -429,10 +429,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object, TTIriRef... types) throws DALException {
+    public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object) throws DALException {
+        List<TTIriRef> types = Arrays.asList(RDFS.SUBCLASSOF, SNOMED.REPLACED_BY);
+
         Set<EntitySummary> result = new HashSet<>();
         String sql = new StringJoiner("\n")
-            .add("SELECT DISTINCT sd.iri, sd.name, sd.code, s.iri AS schemeIri, s.name AS schemeName")
+            .add("SELECT DISTINCT sd.iri, sd.name, sd.code, n.iri AS schemeIri, n.name AS schemeName")
             .add("FROM entity s")
             .add("JOIN tpl t ON t.subject = s.dbid")
             .add("JOIN tct pt ON pt.descendant = t.predicate")
@@ -440,9 +442,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("JOIN tct ot ON ot.descendant = t.object")
             .add("JOIN entity o ON o.dbid = ot.ancestor AND o.iri = ?")
             .add("JOIN tct st ON st.ancestor = s.dbid")
-            .add("JOIN entity stt ON stt.dbid = st.type AND stt.iri IN " + inListParams(types.length))
+            .add("JOIN entity stt ON stt.dbid = st.type AND stt.iri IN " + inListParams(types.size()))
             .add("JOIN entity sd ON sd.dbid = st.descendant")
-            .add("LEFT JOIN namespace s ON s.iri = sd.scheme")
+            .add("LEFT JOIN namespace n ON n.iri = sd.scheme")
             .toString();
 
         try (Connection conn = ConnectionPool.get();

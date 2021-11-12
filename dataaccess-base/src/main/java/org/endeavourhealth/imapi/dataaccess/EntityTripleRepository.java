@@ -40,7 +40,7 @@ public interface EntityTripleRepository {
 
     Set<EntitySummary> getLegacyConceptSummaries(Set<EntitySummary> result);
 
-    Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object, TTIriRef... types);
+    Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object);
 
     Set<EntitySummary> getSubclassesAndReplacements(String iri);
 }

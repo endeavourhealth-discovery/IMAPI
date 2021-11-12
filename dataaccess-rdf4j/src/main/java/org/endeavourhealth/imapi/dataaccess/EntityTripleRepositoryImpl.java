@@ -107,7 +107,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object, TTIriRef... types) {
+    public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object) {
         return null;
     }
 

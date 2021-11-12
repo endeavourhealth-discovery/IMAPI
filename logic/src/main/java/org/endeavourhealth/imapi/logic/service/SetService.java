@@ -88,7 +88,7 @@ public class SetService {
                 } else if (SHACL.NOT.equals(predicateValue.getKey())) {
                     processNOT(result, predicateValue);
                 } else {
-                    result.addAllIncs(entityTripleRepository.getSubjectAndDescendantSummariesByPredicateObjectRelType(predicateValue.getKey().getIri(), predicateValue.getValue().asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
+                    result.addAllIncs(entityTripleRepository.getSubjectAndDescendantSummariesByPredicateObjectRelType(predicateValue.getKey().getIri(), predicateValue.getValue().asIriRef().getIri()));
                 }
             }
         } else if (ttValue.isIriRef()) {

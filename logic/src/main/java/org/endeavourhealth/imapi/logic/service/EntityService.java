@@ -601,8 +601,10 @@ public class EntityService {
 							.setPropertyType(RDFS.SUBCLASSOF.getName()));
 			});
 		} else {
-			if (!OWL.THING.equals(parent.asIriRef()))
-				result.add(new GraphDto().setIri(parent.asIriRef().getIri()).setName(parent.asIriRef().getName())
+			if (parent.asIriRef()!= null && !OWL.THING.equals(parent.asIriRef()))
+				result.add(new GraphDto()
+						.setIri(parent.asIriRef().getIri())
+						.setName(parent.asIriRef().getName())
 						.setPropertyType(RDFS.SUBCLASSOF.getName()));
 		}
 		return result;

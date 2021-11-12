@@ -42,5 +42,5 @@ public interface EntityTripleRepository {
 
     Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object, TTIriRef... types);
 
-    Set<EntitySummary> getDescendantSummariesInclusive(String iri, TTIriRef... types);
+    Set<EntitySummary> getSubclassesAndReplacements(String iri);
 }

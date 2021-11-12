@@ -92,7 +92,7 @@ public class SetService {
                 }
             }
         } else if (ttValue.isIriRef()) {
-            result.addAllIncs(entityTripleRepository.getDescendantSummariesInclusive(ttValue.asIriRef().getIri(), RDFS.SUBCLASSOF, SNOMED.REPLACED_BY));
+            result.addAllIncs(entityTripleRepository.getSubclassesAndReplacements(ttValue.asIriRef().getIri()));
         } else {
             throw new IllegalStateException("Unhandled concept set node type");
         }

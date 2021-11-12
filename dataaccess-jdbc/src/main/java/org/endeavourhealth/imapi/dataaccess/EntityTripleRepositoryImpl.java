@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -386,28 +387,38 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Set<EntitySummary> getDescendantSummariesInclusive(String iri, TTIriRef... types) throws DALException {
+    public Set<EntitySummary> getSubclassesAndReplacements(String iri) throws DALException {
         Set<EntitySummary> result = new HashSet<>();
 
         String sql = new StringJoiner(System.lineSeparator())
             .add("SELECT c.iri, c.name, c.code, s.iri AS schemeIri, s.name AS schemeName")
             .add("FROM entity c")
             .add("JOIN tct t ON t.descendant = c.dbid ")
-            .add("JOIN entity p ON p.dbid = t.type AND p.iri IN " + inListParams(types.length))
+            .add("JOIN entity p ON p.dbid = t.type AND p.iri = ?")
             .add("JOIN entity a ON a.dbid = t.ancestor")
             .add("LEFT JOIN namespace s ON s.iri = c.scheme")
+            .add("WHERE a.iri = ?")
+            .add("UNION")
+            .add("SELECT r.iri, r.name, r.code, s.iri AS schemeIri, s.name AS schemeName")
+            .add("FROM entity c")
+            .add("JOIN tct t ON t.descendant = c.dbid ")
+            .add("JOIN entity p ON p.dbid = t.type AND p.iri = ?")
+            .add("JOIN entity a ON a.dbid = t.ancestor")
+            .add("JOIN tpl ON tpl.object = c.dbid")
+            .add("JOIN entity tp ON tp.dbid = tpl.predicate AND tp.iri = ?")
+            .add("JOIN entity s ON s.dbid = tpl.subject")
+            .add("LEFT JOIN namespace s ON s.iri = r.scheme")
             .add("WHERE a.iri = ?")
             .toString();
 
         try (Connection conn = ConnectionPool.get();
              PreparedStatement statement = conn.prepareStatement(sql)) {
 
-            int i = 0;
-            for (TTIriRef type : types) {
-                statement.setString(++i, type.getIri());
-            }
-
-            statement.setString(++i, iri);
+            statement.setString(1, RDFS.SUBCLASSOF.getIri());
+            statement.setString(2, iri);
+            statement.setString(3, RDFS.SUBCLASSOF.getIri());
+            statement.setString(4, SNOMED.REPLACED_BY.getIri());
+            statement.setString(5, iri);
 
             executeAndAddSummaries(result, statement);
         } catch (SQLException e) {

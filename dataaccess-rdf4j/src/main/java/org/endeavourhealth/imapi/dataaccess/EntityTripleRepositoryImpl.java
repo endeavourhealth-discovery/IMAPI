@@ -112,7 +112,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Set<EntitySummary> getDescendantSummariesInclusive(String iri, TTIriRef... types) {
+    public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
         return null;
     }
 

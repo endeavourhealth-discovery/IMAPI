@@ -15,7 +15,7 @@ import java.util.zip.DataFormatException;
 public class TTToSCG {
 	boolean refinedSet;
 	public TTIriRef[] corePredicates= {RDF.TYPE,IM.IS_A,IM.HAS_SCHEME,IM.IS_CONTAINED_IN,
-	IM.STATUS,IM.DEFINITIONAL_STATUS};
+	IM.HAS_STATUS,IM.DEFINITIONAL_STATUS};
 
 
 	public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {

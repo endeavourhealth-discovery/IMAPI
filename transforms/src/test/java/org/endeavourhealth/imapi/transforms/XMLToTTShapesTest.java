@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,20 +17,20 @@ class XMLToTTShapesTest {
 
 	@Test
 	void parseFromStream() throws XMLStreamException, JsonProcessingException {
-		/*
-		String xml="<root>\n" +
-			" <branch attrib=\"1\"/><branch2>\n" +
-			"  <branch3>leafdata</branch3></branch2><branch4 attrib=\"2\"></branch4>\n" +
-			"</root>\n";
-		InputStream input = new ByteArrayInputStream(xml.getBytes());
-		XMLToTTShapes importer= new XMLToTTShapes();
-		System.out.println("Creating model from file ......");
-		TTDocument document = importer.parseFromStream(input,"http://example#example", IM.NAMESPACE+"ExampleModel");
-		TTManager manager= new TTManager();
-		manager.setDocument(document);
-		manager.saveDocument(new File("c:\\temp\\ExampleShapes.json"));
 
-		 */
+
+
+	}
+
+	@Test
+	void parseFromFile() throws XMLStreamException, IOException {
+
+		XMLToTTShapes importer= new XMLToTTShapes();
+		TTDocument document= 	importer.parseFromFile("C:\\CodeMaps\\ODS\\HSCOrgRefData_Full_20210920.xml",IM.SOURCE_TRUD_ODS.getIri(),IM.NAMESPACE+"DiscoveryCommonDataModel");
+		TTManager.Grammar grammar= TTManager.Grammar.JSON;
+		//TTManager.Grammar grammar= TTManager.Grammar.TURTLE;
+		TTManager.saveDocument(document,"G:\\Shared drives\\Discovery Data Service\\InformationModel\\ImportData\\ODS\\TRUD-ODSDataModel.json", grammar);
+
 
 	}
 }

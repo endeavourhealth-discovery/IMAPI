@@ -16,7 +16,7 @@ public class IM {
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
-    public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
+    //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
 
     //Entity tope level triples
@@ -132,7 +132,6 @@ public class IM {
     public static final TTIriRef MAP_SNOMED_OPCS = TTIriRef.iri(NAMESPACE +"SnomedOPCSMaps");
     public static final TTIriRef MAP_SNOMED_ICD10 = TTIriRef.iri(NAMESPACE +"SnomedICD10Maps");
     public static final TTIriRef MAP_SNOMED_EMIS = TTIriRef.iri(NAMESPACE +"SnomedEMISMaps");
-    public static final TTIriRef MAP_SNOMED_TPP = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
     public static final TTIriRef MAP_SNOMED_VISION = TTIriRef.iri(NAMESPACE +"SnomedTPPMaps");
     public static final TTIriRef MAP_SNOMED_APEX_KINGS = TTIriRef.iri(NAMESPACE +"SnomedApexKingsMaps");
     public static final TTIriRef MAP_SNOMED_WINPATH_KINGS = TTIriRef.iri(NAMESPACE +"SnomedWinpathKingsMaps");
@@ -147,7 +146,8 @@ public class IM {
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(NAMESPACE +"nhsethnic2001#");
     public static final TTIriRef GRAPH_IM1= TTIriRef.iri(NAMESPACE +"im1Maps");
 
-
+   //Source graphs
+   public static final TTIriRef SOURCE_TRUD_ODS= iri(IM.DOMAIN+"trudods#");
 
 
     //Crud operations

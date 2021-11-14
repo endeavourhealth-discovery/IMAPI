@@ -35,16 +35,16 @@ public class XMLToTTShapes {
 	/**
 	 * Parses the xml from a file and produces data model as a shapes graph
 	 * @param fileName name of the file
-	 * @param graphName iri for the graph to be returned
+	 * @param namespace iri for the graph to be returned
 	 * @param modelFolder the iri of the data model folder that the model is contained in
 	 * @return TTDocument
 	 */
-	public TTDocument parseFromFile(String fileName, String graphName,String modelFolder ) throws IOException, XMLStreamException {
+	public TTDocument parseFromFile(String fileName, String namespace,String modelFolder ) throws IOException, XMLStreamException {
 
 		this.modelFolder= TTIriRef.iri(modelFolder);
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = factory.createXMLEventReader(new FileReader(fileName));
-		return parse(graphName,eventReader);
+		return parse(namespace,eventReader);
 
 	}
 
@@ -52,26 +52,26 @@ public class XMLToTTShapes {
 	/**
 	 * Parses the xml from a stream of characters and produces data model as a shapes graph
 	 * @param xml the stream of xml
-	 * @param graphName iri for the graph to be returned
+	 * @param namespace iri for the graph to be returned
 	 * @param modelFolder the iri of the data model folder that the model is contained in
 	 * @return TTDocument The shapes graph of entities
 	 */
-	public TTDocument parseFromStream(InputStream xml, String graphName, String modelFolder) throws XMLStreamException {
+	public TTDocument parseFromStream(InputStream xml, String namespace, String modelFolder) throws XMLStreamException {
 		this.modelFolder= TTIriRef.iri(modelFolder);
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader = factory.createXMLEventReader(xml);
-		return parse(graphName,eventReader);
+		return parse(namespace,eventReader);
 	}
 
 	/**
 		* Parses xml using a stax parser and creates a data model in the form of a shapes graph
-	 * @param graphName graph for the document
+	 * @param namespace graph for the document
 	 * @param eventReader event reader initialized
 
 	 * @return TTDocument containing entities.
 	 */
-	private TTDocument parse(String graphName,XMLEventReader eventReader) throws XMLStreamException {
-		createDocument(graphName);
+	private TTDocument parse(String namespace,XMLEventReader eventReader) throws XMLStreamException {
+		createDocument(namespace);
 		String path = "";
 		TTEntity subject = null;
 		TTEntity subSubject;
@@ -129,15 +129,14 @@ public class XMLToTTShapes {
 		resolveDuplicates();
 		if (!pathIriMap.isEmpty()){
 			TTEntity pathMaps= new TTEntity();
-			pathMaps.setIri(namespace+"XpathTypeMap");
+			pathMaps.setIri(namespace+"XpathMap");
 			pathMaps.addType(IM.TEXT_MAPS);
 			document.addEntity(pathMaps);
 			for (Map.Entry<String,String> entry:pathIriMap.entrySet()){
 				TTNode map= new TTNode();
 				pathMaps.addObject(IM.HAS_MAP,map);
 				map.set(IM.SOURCE_TEXT,TTLiteral.literal(entry.getKey()));
-				map.set(IM.TARGET_TEXT,TTLiteral.literal(entry.getValue()));
-
+				map.set(IM.MATCHED_TO,TTIriRef.iri(namespace+entry.getValue()));
 			}
 		}
 		return document;
@@ -280,12 +279,10 @@ public class XMLToTTShapes {
 		return entityMap.get(path);
 	}
 
-	private void createDocument(String graphName) {
+	private void createDocument(String namespace) {
 		document = new TTDocument();
-		namespace = graphName.substring(0,graphName.lastIndexOf("#"))+"#";
-		String defaultPrefix= graphName.substring(graphName.lastIndexOf("#")+1);
+		this.namespace = namespace;
 		TTContext context = new TTContext();
-		context.add(namespace, defaultPrefix);
 		context.add(RDF.NAMESPACE, "rdf");
 		context.add(RDFS.NAMESPACE, "rdfs");
 		context.add(OWL.NAMESPACE, "owl");
@@ -293,7 +290,7 @@ public class XMLToTTShapes {
 		context.add(SHACL.NAMESPACE, "sh");
 
 		document.setContext(context);
-		document.setGraph(TTIriRef.iri(graphName));
+		document.setGraph(TTIriRef.iri(namespace));
 	}
 
 	private String getData(String data){

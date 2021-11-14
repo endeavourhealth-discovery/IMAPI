@@ -27,8 +27,8 @@ public class TTManager {
    private TTDocument document;
    private TTContext context;
    private Set<TTIriRef> templatedPredicates;
-   // private List<TTPrefix> defaultPrefixes;
-   // private Map<String,String> prefixMap;
+
+   public enum Grammar {JSON,TURTLE}
 
    public TTManager() {
       createDefaultContext();
@@ -199,6 +199,33 @@ public class TTManager {
       String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
          writer.write(json);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+   /**
+    * Saves the Discovery TTDocument held by the manager
+    * @param document the document to save.
+    * @param outputFile file name to save ontology to
+    * @param grammar    language to output in
+    * @throws JsonProcessingException if deserialization fails
+    */
+   public static void saveDocument(TTDocument document, String outputFile,Grammar grammar) throws JsonProcessingException {
+      String outputString;
+      if (grammar== Grammar.JSON) {
+         ObjectMapper objectMapper = new ObjectMapper();
+         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+         outputString = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+      }
+      else {
+         TTToTurtle converter= new TTToTurtle();
+         outputString= converter.transformDocument(document);
+      }
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+         writer.write(outputString);
       } catch (Exception e) {
          e.printStackTrace();
       }

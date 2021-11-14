@@ -25,6 +25,8 @@ import java.util.*;
 public class XMLToTT {
 	private XMLEventReader eventReader;
 	private String namespace;
+	private TTDocument schema;
+	private TTManager manager;
 	private TTDocument document;
 	private XMLToTTListener listener;
 	private Map<String, TTEntity> entityMap = new HashMap<>();
@@ -34,26 +36,30 @@ public class XMLToTT {
 	/**
 	 * Parses xml from a file using a shapes graph that includes an entity XPath map as the data model
 	 * @param fileName name of the file
-	 * @param shapesGraph the shapes graph data model of the xml
+	 * @param schema the shapes graph data model of the xml
 	 * @param resourcePath an xpath of resources to file if null the entire document is parsed
 	 * @param offset the starting number of the resource for paging null starts at the first resource
 	 * @param limit the page count i.e. number of resources returned
 	 * @return TTDocument
 	 */
-	public TTDocument parseFromFile(String fileName, TTDocument shapesGraph, String resourcePath,Integer offset, Integer limit) throws IOException, XMLStreamException {
+	public TTDocument parseFromFile(String fileName, TTDocument schema, String resourcePath,int offset, int limit) throws IOException, XMLStreamException {
 
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		eventReader = factory.createXMLEventReader(new FileReader(fileName));
-		return parse(shapesGraph,resourcePath,eventReader);
+		return parse(schema,resourcePath,eventReader,offset,limit);
 
 	}
 
 
 
 
-	private TTDocument parse(TTDocument shapesGraph,String resourcePath, XMLEventReader eventReader) throws XMLStreamException {
-
+	private TTDocument parse(TTDocument schema,String resourcePath, XMLEventReader eventReader,int offset, int limit) throws XMLStreamException {
+		if (schema!=null)
+			this.schema=schema;
+		namespace=schema.getGraph().getIri();
+		manager= new TTManager();
 		String path = "";
+		buildPathMap();
 		TTEntity subject = null;
 		TTEntity subSubject;
 		int resourceCount=0;
@@ -114,6 +120,9 @@ public class XMLToTT {
 		return document;
 	}
 
+	private void buildPathMap() {
+		TTEntity schemaPaths= manager.getEntity(namespace+"XpathMap");
+	}
 
 
 	private boolean hasAttributes(StartElement startElement){

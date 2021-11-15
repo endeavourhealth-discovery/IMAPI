@@ -24,13 +24,14 @@ class XMLToTTShapesTest {
 
 	@Test
 	void parseFromFile() throws XMLStreamException, IOException {
-
+/*
 		XMLToTTShapes importer= new XMLToTTShapes();
 		TTDocument document= 	importer.parseFromFile("C:\\CodeMaps\\ODS\\HSCOrgRefData_Full_20210920.xml",IM.SOURCE_TRUD_ODS.getIri(),IM.NAMESPACE+"DiscoveryCommonDataModel");
 		TTManager.Grammar grammar= TTManager.Grammar.JSON;
 		//TTManager.Grammar grammar= TTManager.Grammar.TURTLE;
 		TTManager.saveDocument(document,"G:\\Shared drives\\Discovery Data Service\\InformationModel\\ImportData\\ODS\\TRUD-ODSDataModel.json", grammar);
 
+ */
 
 	}
 }

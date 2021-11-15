@@ -54,9 +54,9 @@ public class Query extends TTNode {
 	public TTArray addExpressionAs(String var, String as, String expression) throws DataFormatException {
 		TTArray select = setSelect();
 		TTNode expAs= new TTNode();
-		if (expression!=null&as==null)
+		if (expression!=null && as==null)
 			throw new DataFormatException("Must have column name for expression");
-		if (as!=null&var==null&expression==null)
+		if (as!=null && var==null && expression==null)
 			throw new DataFormatException("Must have variable or expression for column name");
 		select.add(expAs);
 		if (var!=null)

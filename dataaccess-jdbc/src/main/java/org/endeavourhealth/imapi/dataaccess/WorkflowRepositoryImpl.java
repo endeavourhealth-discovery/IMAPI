@@ -51,17 +51,18 @@ public class WorkflowRepositoryImpl implements WorkflowRepository {
 
     @Override
     public List<StateMachineConfig> getWorkflows() throws DALException {
+        String config = "config";
         List<StateMachineConfig> workflows = new ArrayList<>();
 
         try (Connection conn = ConnectionPool.get();
              PreparedStatement statement = conn.prepareStatement("SELECT w.config FROM workflow w");
              ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
-                if (rs.getString("config") == null || rs.getString("config").isEmpty()) {
+                if (rs.getString(config) == null || rs.getString(config).isEmpty()) {
                     LOG.error("Config is missing");
                     return Collections.emptyList();
                 }
-                StateMachineConfig workflow = om.readValue(rs.getString("config"), StateMachineConfig.class);
+                StateMachineConfig workflow = om.readValue(rs.getString(config), StateMachineConfig.class);
                 workflows.add(workflow);
 
             }

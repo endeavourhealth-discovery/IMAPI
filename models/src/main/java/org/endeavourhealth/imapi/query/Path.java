@@ -5,7 +5,6 @@ package org.endeavourhealth.imapi.query;
  * or one or more
  */
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;

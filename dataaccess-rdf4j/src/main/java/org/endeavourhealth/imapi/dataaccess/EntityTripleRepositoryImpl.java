@@ -48,7 +48,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public Set<ValueSetMember> getObjectBySubjectAndPredicate(String subjectIri, String predicateIri) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -58,17 +58,17 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public List<TTIriRef> findImmediateChildrenByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String excludePredicateIri) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -78,17 +78,17 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public Set<ValueSetMember> getSubjectByObjectAndPredicateAsValueSetMembers(String objectIri, String predicateIri) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public Set<TTIriRef> getObjectIriRefsBySubjectAndPredicate(String subjectIri, String predicateIri) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
     public List<Namespace> findNamespaces() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public Set<EntitySummary> getLegacyConceptSummaries(Set<EntitySummary> result) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
-        return null;
+        return Collections.emptySet();
     }
 
     private void addTriples(RepositoryConnection conn, List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates) {

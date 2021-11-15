@@ -2,9 +2,6 @@ package org.endeavourhealth.imapi.query;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IMQ;
-
-import java.util.Arrays;
-import java.util.List;
 import java.util.zip.DataFormatException;
 
 /**
@@ -29,14 +26,16 @@ public class QueryClause extends TTNode {
 		}
 			QueryTriple tpl = new QueryTriple();
 			get(IMQ.TRIPLE).asArray().add(tpl);
-			if (entity!=null)
+			if (entity!=null) {
 				if (entity instanceof TTIriRef)
-						tpl.set(IMQ.ENTITY,(TTIriRef) entity);
-				else
+					tpl.set(IMQ.ENTITY, (TTIriRef) entity);
+				else {
 					if (entity instanceof String)
-						tpl.set(IMQ.ENTITY,TTLiteral.literal((String) entity));
+						tpl.set(IMQ.ENTITY, TTLiteral.literal((String) entity));
 					else
 						throw new IllegalArgumentException("Invalid token in triple subject position");
+				}
+			}
 			Path path= new Path(pathType,property);
 			tpl.set(IMQ.PROPERTY,path);
 			tpl.set(IMQ.VALUE,value);

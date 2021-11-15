@@ -6,8 +6,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.IMQ;
 
-import java.util.Arrays;
-
 public class QueryTriple extends TTNode {
 
 	public QueryTriple(TTNode source){
@@ -102,10 +100,7 @@ public class QueryTriple extends TTNode {
 	 * @return true if optional predicate set, otherwise false
 	 */
 	public boolean getOptional(){
-		if (this.get(IMQ.OPTIONAL)!=null)
-			return true;
-		else
-			return false;
+		return this.get(IMQ.OPTIONAL) != null;
 	}
 
 }

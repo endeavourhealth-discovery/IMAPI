@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -32,20 +31,20 @@ public class InstanceController {
 
     @GetMapping(value = "/partial", produces = "application/json")
     public InstanceDTO getPartialInstance(@RequestParam(name = "iri") String iri,
-                                          @RequestParam(name = "predicate", required = false) Set<String> predicates) throws SQLException {
+                                          @RequestParam(name = "predicate", required = false) Set<String> predicates) {
         LOG.debug("getPartialInstance");
         return instanceService.getInstancePredicates(iri,predicates);
     }
 
     @GetMapping(value = "/search")
     public List<TTIriRef> search(@RequestParam(name = "request") String request,
-                                 @RequestParam(name = "typesIris") Set<String> typesIris ) throws SQLException {
+                                 @RequestParam(name = "typesIris") Set<String> typesIris ) {
         LOG.debug("search");
         return instanceService.search(request, typesIris);
     }
 
     @GetMapping("/typesCount")
-    public List<SimpleCount> typesCount() throws SQLException {
+    public List<SimpleCount> typesCount() {
         LOG.debug("typesCount");
         return instanceService.typesCount();
     }

@@ -536,21 +536,13 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
             .thenReturn(Collections.singleton(includedSet));
 
         List<ValueSetMember> valueSetMembers = new ArrayList<>();
         valueSetMembers.add(new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
         when(valueSetRepository.expandMember(any(),anyInt())).thenReturn(valueSetMembers);
-
-//        SearchResultSummary summary = new SearchResultSummary()
-//                .setIri(valueSetIri.getIri())
-//                .setName(valueSetIri.getName())
-//                .setCode("5")
-//                .setScheme(iri("http://endhealth.info/im#25451000252110","Scheme"));
-//
-//        when(entityRepository.getEntitySummaryByIri(eq(valueSetIri.getIri()))).thenReturn(summary);
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
 
@@ -590,7 +582,7 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, valueSetIri.getIri());
@@ -631,7 +623,7 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, "Parent", valueSetIri.getIri());
@@ -672,7 +664,7 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, true, 0, "Parent", valueSetIri.getIri());
@@ -713,7 +705,7 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, null, valueSetIri.getIri());
@@ -754,7 +746,7 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, "http://endhealth.info/im#25451000252115");
@@ -795,7 +787,7 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, null, "http://endhealth.info/im#25451000252115");
@@ -968,7 +960,7 @@ class EntityServiceTest {
                 .setCode("25")
                 .setScheme(iri("http://endhealth.info/im#emis","Emis"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
@@ -1009,7 +1001,7 @@ class EntityServiceTest {
                 .setCode("25")
                 .setScheme(iri("http://endhealth.info/im#emis","Emis"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(eq(valueSetIri.getIri()),eq(IM.MEMBER_OF_GROUP.getIri())))
+        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), false, false);

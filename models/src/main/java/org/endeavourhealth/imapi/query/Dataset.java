@@ -3,14 +3,8 @@ package org.endeavourhealth.imapi.query;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.IMQ;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A specialised RDF shape that provides methods to build a data set definition.

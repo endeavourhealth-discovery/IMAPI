@@ -4,9 +4,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IMQ;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class Filter extends TTNode {
 
 	/**

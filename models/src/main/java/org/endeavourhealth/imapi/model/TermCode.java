@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 public class TermCode {
     private String name;
     private String code;

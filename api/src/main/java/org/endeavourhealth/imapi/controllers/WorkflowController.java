@@ -33,13 +33,13 @@ public class WorkflowController {
     WorkflowService workflowService;
 
     @GetMapping()
-    public List<StateMachineConfig> getWorkflows() throws SQLException {
+    public List<StateMachineConfig> getWorkflows() {
         LOG.debug("getWorkflows");
         return workflowService.getWorkflows();
     }
 
     @GetMapping("/tasks")
-    public List<Task> getWorkflowTasks() throws SQLException {
+    public List<Task> getWorkflowTasks() {
         LOG.debug("getWorkflowTasks");
         return workflowService.getWorkflowTasks();
     }

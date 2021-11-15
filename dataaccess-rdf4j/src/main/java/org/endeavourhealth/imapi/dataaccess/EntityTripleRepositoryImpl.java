@@ -47,6 +47,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
+    public List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit) throws DALException {
+        return null;
+    }
+
+    @Override
     public Set<ValueSetMember> getObjectBySubjectAndPredicate(String subjectIri, String predicateIri) {
         return Collections.emptySet();
     }

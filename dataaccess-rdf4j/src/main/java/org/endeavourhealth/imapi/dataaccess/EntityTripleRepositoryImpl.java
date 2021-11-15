@@ -463,11 +463,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             triples.add(tpl);
 
             Value object = stmt.getObject();
-            if (object.isIRI())
+            if (object.isIRI()) {
                 tpl.setObject(TTIriRef.iri(object.stringValue()));
-            else if (object.isLiteral())
-                tpl.setLiteral(object.stringValue());
-            else if (object.isBNode()) {
+            } else if (object.isLiteral()) {
+                tpl.setLiteral(object.stringValue())
+                    .setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
+            } else if (object.isBNode()) {
                 bnodes.put(object.stringValue(), row - 1);
                 addTriples(conn, triples, (BNode) object, row - 1, null);
             } else {

@@ -16,6 +16,8 @@ import java.util.Set;
 public interface EntityTripleRepository {
     List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit);
 
+    List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit);
+
     Set<ValueSetMember> getObjectBySubjectAndPredicate(String subjectIri, String predicateIri);
 
     boolean hasChildren(String iri, boolean inactive) throws DALException;

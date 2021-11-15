@@ -80,6 +80,53 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return result;
     }
 
+    @Override
+    public List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit) throws DALException {
+        List<Tpl> result = new ArrayList<>();
+
+        StringJoiner sql = new StringJoiner("\n")
+                .add("WITH RECURSIVE triples AS (")
+                .add("\tSELECT tpl.dbid, tpl.subject, tpl.blank_node AS parent, tpl.predicate, tpl.object, tpl.literal, tpl.functional")
+                .add("\tFROM tpl")
+                .add("\tJOIN entity e ON tpl.subject=e.dbid")
+                .add("\tJOIN entity p ON p.dbid = tpl.predicate")
+                .add("\tWHERE e.iri = ? ");
+        if (exclusionPredicates != null && !exclusionPredicates.isEmpty())
+            sql.add("\tAND p.iri NOT IN " + inListParams(exclusionPredicates.size()));
+        sql.add("\tAND tpl.blank_node IS NULL")
+                .add("UNION ALL")
+                .add("\tSELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
+                .add("\tFROM triples t")
+                .add("\tJOIN tpl t2 ON t2.blank_node= t.dbid")
+                .add("\tWHERE t2.dbid <> t.dbid")
+                .add(")")
+                .add("SELECT t.dbid, t.parent, p.iri AS predicateIri, p.name AS predicate, o.iri AS objectIri, o.name AS object, t.literal, t.functional")
+                .add("FROM triples t")
+                .add("JOIN entity p ON t.predicate = p.dbid")
+                .add("LEFT JOIN entity o ON t.object = o.dbid");
+        if (limit > 0)
+            sql.add("LIMIT ?");
+
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                int i = 0;
+                statement.setString(++i, iri);
+                if (exclusionPredicates != null && !exclusionPredicates.isEmpty()) {
+                    for (String predicate : exclusionPredicates)
+                        statement.setString(++i, predicate);
+                }
+                if (limit > 0)
+                    statement.setInt(++i, limit);
+                executeAndAddTriples(result, statement);
+            }
+        } catch (SQLException e) {
+            throw new DALException("Error retrieving triples", e);
+        }
+
+        return result;
+    }
+
 
     @Override
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String predicateIri) throws DALException {

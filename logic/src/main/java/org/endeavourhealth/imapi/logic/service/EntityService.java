@@ -54,6 +54,11 @@ public class EntityService {
         return Tpl.toBundle(iri, triples);
     }
 
+	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
+		List<Tpl> triples = entityTripleRepository.getTriplesRecursiveByExclusions(iri, excludePredicates, limit);
+		return Tpl.toBundle(iri, triples);
+	}
+
     public TTIriRef getEntityReference(String iri) {
 		if (iri == null || iri.isEmpty())
 			return null;
@@ -656,7 +661,7 @@ public class EntityService {
     public TTBundle getInferredBundle(String iri) {
         Set<String> predicates = null;
         try {
-            predicates = configService.getConfig("inferredPredicates", new TypeReference<>() {
+            predicates = configService.getConfig("inferredExcludePredicates", new TypeReference<>() {
             });
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);
@@ -667,7 +672,7 @@ public class EntityService {
             predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri()));
         }
 
-        return getEntityPredicates(iri, predicates, UNLIMITED);
+        return getEntityByPredicateExclusions(iri, predicates, UNLIMITED);
     }
 
     public TTDocument getConcept(String iri) {

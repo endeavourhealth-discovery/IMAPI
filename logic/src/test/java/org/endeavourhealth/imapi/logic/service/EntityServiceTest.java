@@ -54,7 +54,7 @@ class EntityServiceTest {
     EntitySearchRepository entitySearchRepository;
 
     @Mock
-    ValueSetRepository valueSetRepository;
+    SetRepository SetRepository;
 
     @Mock
     TermCodeRepository termCodeRepository;
@@ -64,9 +64,6 @@ class EntityServiceTest {
 
     @Mock
     ConfigService configService;
-
-    @Mock
-    EntityService mockEntityService;
 
     @Test
     void getEntityPredicates_nullIriPredicates() {
@@ -542,7 +539,7 @@ class EntityServiceTest {
         List<ValueSetMember> valueSetMembers = new ArrayList<>();
         valueSetMembers.add(new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
-        when(valueSetRepository.expandMember(any(),anyInt())).thenReturn(valueSetMembers);
+        when(SetRepository.expandMember(any(),anyInt())).thenReturn(valueSetMembers);
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
 
@@ -829,8 +826,8 @@ class EntityServiceTest {
                 .setEntity(iri(IM.DEFINITION.getIri()));
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri(IM.NOT_MEMBER.getIri()));
-        when(valueSetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
-        when(valueSetRepository.expandMember(ttIriRef2.getIri())).thenReturn(Collections.singletonList(valueSetMember2));
+        when(SetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
+        when(SetRepository.expandMember(ttIriRef2.getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
         ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.DEFINITION.getIri());
@@ -856,8 +853,8 @@ class EntityServiceTest {
                 .setEntity(iri(IM.DEFINITION.getIri()));
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri(IM.NOT_MEMBER.getIri()));
-        when(valueSetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
-        when(valueSetRepository.expandMember(ttIriRef2.getIri())).thenReturn(Collections.singletonList(valueSetMember2));
+        when(SetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
+        when(SetRepository.expandMember(ttIriRef2.getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
         ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.NOT_MEMBER.getIri());

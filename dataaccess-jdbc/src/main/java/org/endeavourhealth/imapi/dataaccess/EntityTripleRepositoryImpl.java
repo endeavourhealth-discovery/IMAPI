@@ -195,29 +195,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Set<ValueSetMember> getObjectBySubjectAndPredicate(String iri, String predicate) throws DALException {
-        Set<ValueSetMember> members = new HashSet<>();
-        StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT o.iri, o.name, o.code, n.iri AS schemeIri, n.name AS schemeName")
-                .add("FROM tpl tpl")
-                .add("JOIN entity s ON s.dbid = tpl.subject ")
-                .add("JOIN entity p ON p.dbid = tpl.predicate ")
-                .add("JOIN entity o ON o.dbid = tpl.object ")
-                .add("LEFT JOIN namespace n ON n.iri = o.scheme ")
-                .add("WHERE s.iri = ?")
-                .add("AND p.iri = ?");
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                executeAndAddMembers(iri, predicate, members, statement);
-            }
-        } catch (Exception e) {
-            throw new DALException("Failed getObjectBySubjectAndPredicate()", e);
-        }
-        return members;
-    }
-
-    @Override
     public Set<ValueSetMember> getSubjectByObjectAndPredicateAsValueSetMembers(String iri, String predicate) throws DALException {
         Set<ValueSetMember> subsets = new HashSet<>();
         StringJoiner sql = new StringJoiner("\n")

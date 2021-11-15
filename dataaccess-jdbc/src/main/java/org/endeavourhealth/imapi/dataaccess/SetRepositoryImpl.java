@@ -2,9 +2,11 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionPool;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
+import org.endeavourhealth.imapi.dataaccess.helpers.JDBCHelper;
 import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.IMv2v1Map;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -57,7 +59,7 @@ public class SetRepositoryImpl implements SetRepository {
 			.add("\tJOIN entity e ON tpl.subject=e.dbid")
 			.add("\tJOIN entity p ON p.dbid = tpl.predicate")
 			.add("\tWHERE e.iri = ? ")
-			.add("\tAND p.iri IN " + inList(predicates.size())) ;
+			.add("\tAND p.iri IN " + JDBCHelper.inListParams(predicates.size())) ;
 		sql.add("\tAND tpl.blank_node IS NULL")
 			.add("UNION ALL")
 			.add("\tSELECT t2.dbid, t2.subject, t2.blank_node AS parent, t2.predicate, t2.object, t2.literal, t2.functional")
@@ -154,6 +156,56 @@ public class SetRepositoryImpl implements SetRepository {
     }
 
     @Override
+    public List<ValueSetMember> expandMember(String iri) throws DALException {
+        return expandMember(iri, null);
+    }
+
+    @Override
+    public List<ValueSetMember> expandMember(String iri, Integer limit) throws DALException {
+        List<ValueSetMember> members = new ArrayList<>();
+        StringJoiner sql = new StringJoiner("\n")
+            .add("SELECT m.iri AS entity_iri, m.name AS entity_name, m.code, m.scheme AS scheme_iri, n.name AS scheme_name")
+            .add("FROM entity c")
+            .add("JOIN tct tct ON tct.ancestor = c.dbid")
+            .add("JOIN entity t ON t.dbid = tct.type AND t.iri = ?")
+            .add("JOIN entity m ON m.dbid = tct.descendant")
+            .add("LEFT JOIN namespace n ON n.iri = m.scheme")
+            .add("WHERE c.iri = ?")
+            .add("UNION")
+            .add("SELECT m.iri AS entity_iri, tc.term AS entity_name, tc.code, m.scheme AS scheme_iri, n.name AS scheme_name")
+            .add("FROM entity c")
+            .add("JOIN tct tct ON tct.ancestor = c.dbid")
+            .add("JOIN entity t ON t.dbid = tct.type AND t.iri = ?")
+            .add("JOIN entity m ON m.dbid = tct.descendant")
+            .add("JOIN term_code tc ON tc.entity = m.dbid")
+            .add("LEFT JOIN namespace n ON n.iri = t.scheme")
+            .add("WHERE c.iri = ?");
+        if (limit != null)
+            sql.add("LIMIT " + (limit + 1));
+        try (Connection conn = ConnectionPool.get();
+             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+            statement.setString(1, RDFS.SUBCLASSOF.getIri());
+            statement.setString(2, iri);
+            statement.setString(3, RDFS.SUBCLASSOF.getIri());
+            statement.setString(4, iri);
+            try (ResultSet rs = statement.executeQuery()) {
+                int rows = 0;
+                while (rs.next() && (limit == null || rows <= limit)) {
+                    members.add(new ValueSetMember()
+                        .setEntity(TTIriRef.iri(rs.getString("entity_iri"), rs.getString("entity_name")))
+                        .setCode(rs.getString("code"))
+                        .setScheme(TTIriRef.iri(rs.getString("scheme_iri"), rs.getString("scheme_name"))));
+                    rows++;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DALException("Member expansion failed", e);
+        }
+        return members;
+    }
+    
+    @Override
 	public TTEntity getIM1Expansion(TTEntity conceptSet) throws DALException {
 		TTEntity expanded= new TTEntity();
 		try (Connection conn = ConnectionPool.get();
@@ -201,10 +253,10 @@ public class SetRepositoryImpl implements SetRepository {
 		return sql.toString();
 	}
 
-/*	public TTEntity getLegacyExpansion(String iri) throws SQLException {
+	public TTEntity getLegacyExpansion(String iri) throws SQLException {
 		TTEntity definition= getSetDefinition(iri);
 		return getLegacyExpansion(definition);
-	}*/
+	}
 
 	@Override
 	public TTEntity getLegacyExpansion(TTEntity conceptSet) throws DALException {
@@ -247,6 +299,7 @@ public class SetRepositoryImpl implements SetRepository {
 		    throw new DALException("Failed to expand concept set", e);
         }
 	}
+
 	private TTEntity populateSet(TTEntity conceptSet,PreparedStatement queryExpansion) throws SQLException {
 		TTEntity expanded=new TTEntity();
 		try (ResultSet rs=queryExpansion.executeQuery()) {
@@ -297,7 +350,6 @@ public class SetRepositoryImpl implements SetRepository {
 
 
 	}
-
 	private void buildExcludeSQL(TTEntity conceptSet, StringJoiner sql) {
 		sql.add(	"left join ")
 		.add("(select tct.descendant as exdbid")

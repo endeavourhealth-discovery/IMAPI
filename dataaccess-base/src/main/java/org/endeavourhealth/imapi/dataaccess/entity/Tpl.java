@@ -100,8 +100,15 @@ public class Tpl {
         TTEntity entity = new TTEntity(iri);
         TTBundle result = new TTBundle().setEntity(entity);
 
-        // Reconstruct
+        // Reconstruct bnode map
         HashMap<Integer, TTNode> nodeMap = new HashMap<>();
+
+        for (Tpl triple : triples) {
+            if (triple.getObject() == null && triple.getLiteral() == null) {
+                TTNode bNode = new TTNode();
+                nodeMap.put(triple.getDbid(), bNode);
+            }
+        }
 
         for (Tpl triple : triples) {
             result.addPredicate(triple.getPredicate());
@@ -124,7 +131,7 @@ public class Tpl {
         } else {
             TTNode n = nodeMap.get(triple.getParent());
             if (n == null)
-                throw new IllegalStateException("Unknown parent node!");
+                throw new IllegalStateException("Unknown parent node [" + triple.getParent() + "]");
             if (triple.isFunctional() && !n.has(triple.getPredicate())) {
                 n.set(triple.getPredicate(), v);
             } else {
@@ -141,8 +148,7 @@ public class Tpl {
         else if (triple.getObject() != null)
             v = triple.getObject();
         else {
-            v = new TTNode();
-            nodeMap.put(triple.getDbid(), (TTNode) v);
+            v = nodeMap.get(triple.getDbid());
         }
         return v;
     }

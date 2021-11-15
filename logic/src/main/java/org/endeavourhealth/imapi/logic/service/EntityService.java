@@ -43,7 +43,7 @@ public class EntityService {
 	private EntityRepository entityRepository = new EntityRepositoryImpl();
     private EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
-    private ValueSetRepository valueSetRepository = new ValueSetRepositoryImpl();
+    private SetRepository setRepository = new SetRepositoryImpl();
     private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
     private EntitySearchRepository entitySearchRepository = new EntitySearchRepositoryImpl();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
@@ -51,6 +51,7 @@ public class EntityService {
 
 	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
         List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
+        LOG.debug("Found {} triples for {}", triples.size(), iri);
         return Tpl.toBundle(iri, triples);
     }
 
@@ -129,7 +130,7 @@ public class EntityService {
 			return Collections.emptyList();
 
 		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
-		if (xmlDataTypes.contains(iri))
+		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
 		int rowNumber = 0;
@@ -146,7 +147,7 @@ public class EntityService {
 			return 0;
 
 		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
-		if (xmlDataTypes.contains(iri))
+		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return 0;
 
 		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
@@ -325,7 +326,7 @@ public class EntityService {
 			memberHashMap.put(member.getEntity().getIri() + "/" + member.getCode(), member);
 
 			if (expand) {
-                valueSetRepository
+                setRepository
                     .expandMember(member.getEntity().getIri(), limit)
                     .forEach(m -> {
                     	m.setLabel("MemberExpanded");
@@ -344,7 +345,7 @@ public class EntityService {
 		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.DEFINITION);
 		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
 		for (TTIriRef m : included) {
-			Optional<ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream()
+			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
 					.filter(em -> em.getEntity().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setIncludedBy(m);
@@ -352,7 +353,7 @@ public class EntityService {
 			}
 		}
 		for (TTIriRef m : excluded) {
-			Optional<ValueSetMember> match = valueSetRepository.expandMember(m.getIri()).stream()
+			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
 					.filter(em -> em.getEntity().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setExcludedBy(m);

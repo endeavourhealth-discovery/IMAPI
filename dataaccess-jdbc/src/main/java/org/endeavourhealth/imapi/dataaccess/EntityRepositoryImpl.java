@@ -18,15 +18,15 @@ public class EntityRepositoryImpl implements EntityRepository {
     public TTIriRef getEntityReferenceByIri(String iri) throws DALException {
         TTIriRef ttIriRef = new TTIriRef();
         StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT c.iri, c.name")
+                .add("SELECT c.name")
                 .add("FROM entity c")
                 .add("WHERE c.iri = ?");
         try (Connection conn = ConnectionPool.get();
              PreparedStatement statement = conn.prepareStatement(sql.toString())) {
             statement.setString(1, iri);
             try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    ttIriRef.setIri(rs.getString("iri")).setName(rs.getString("name"));
+                if (rs.next()) {
+                    ttIriRef.setIri(iri).setName(rs.getString("name"));
                 }
             }
         } catch (SQLException e) {
@@ -60,181 +60,5 @@ public class EntityRepositoryImpl implements EntityRepository {
             throw new DALException("Failed to get entity summary", e);
         }
         return entitySummary;
-    }
-
-/*    public List<TTIriRef> findAllByIriIn(Set<String> iris) throws SQLException {
-        List<TTIriRef> entities = new ArrayList<>();
-        StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT c.iri, c.name")
-                .add("FROM `entity` c")
-                .add("WHERE c.iri IN " + inListParams(iris.size()));
-        try (Connection conn = ConnectionPool.get()) {
-            assert conn != null;
-            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-                int i=0;
-                for(String iri : iris) {
-                    statement.setString(++i, iri);
-                }
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        entities.add(TTIriRef.iri(rs.getString("iri"),rs.getString("name")));
-                    }
-                }
-            }
-        }
-        return entities;
-    }*/
-
-    @Override
-    public String findCodeByDbid(Integer dbid) throws DALException {
-        String code = "";
-        StringJoiner sql = new StringJoiner("\n")
-                .add("SELECT c.code")
-                .add("FROM entity c")
-                .add("WHERE c.iri = ?");
-        try (Connection conn = ConnectionPool.get();
-             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-            statement.setInt(1, dbid);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    code = rs.getString("code");
-                }
-            }
-        } catch (SQLException e) {
-            throw new DALException("Failed to find code by dbid", e);
-        }
-        return code;
-    }
-
-    @Override
-    public String isCoreCodeSchemeIncludedInVSet(String code,  String scheme,  String vSet) throws DALException {
-        String iri = "";
-        StringJoiner sql = new StringJoiner("\n")
-                .add("select s.iri ")
-                .add("from entity c ")
-                .add("join tct t on t.descendant = c.dbid ")
-                .add("join entity a on a.dbid = t.ancestor ")
-                .add("join entity tt on tt.dbid = t.type and tt.iri = ?")
-                .add("join tpl l on l.object = a.dbid ")
-                .add("join entity p on p.dbid = l.predicate and p.iri = ? ")
-                .add("join entity s on s.dbid = l.subject and s.iri = ? ")
-                .add("where c.code = ? and c.scheme = ? ");
-        try (Connection conn = ConnectionPool.get();
-             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-            statement.setString(1, IM.IS_A.getIri());
-            statement.setString(2, IM.DEFINITION.getIri());
-            statement.setString(3, vSet);
-            statement.setString(4, code);
-            statement.setString(5, scheme);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    iri = rs.getString("iri");
-                }
-            }
-        } catch (SQLException e) {
-            throw new DALException("Failed to test code/scheme inclusion in vset", e);
-        }
-        return iri;
-    }
-
-    @Override
-    public String isCoreCodeSchemeExcludedInVSet(String code,  String scheme,  String vSet) throws DALException {
-        String iri = "";
-        StringJoiner sql = new StringJoiner("\n")
-                .add("select s.iri ")
-                .add("from entity c ")
-                .add("join tct t on t.descendant = c.dbid ")
-                .add("join entity a on a.dbid = t.ancestor ")
-                .add("join entity tt on tt.dbid = t.type and tt.iri = ? ")
-                .add("join tpl l on l.object = a.dbid ")
-                .add("join entity p on p.dbid = l.predicate and p.iri = ? ")
-                .add("join entity s on s.dbid = l.subject and s.iri = ? ")
-                .add("where c.code = ? and c.scheme = ? ");
-        try (Connection conn = ConnectionPool.get();
-             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-            statement.setString(1, IM.IS_A.getIri());
-            statement.setString(2, IM.NOT_MEMBER.getIri());
-            statement.setString(3, vSet);
-            statement.setString(4, code);
-            statement.setString(5, scheme);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    iri = rs.getString("iri");
-                }
-            }
-        } catch (SQLException e) {
-            throw new DALException("Failed to test code/scheme exclusion from vset", e);
-        }
-        return iri;
-    }
-
-    @Override
-    public String isLegacyCodeSchemeIncludedInVSet(String code,  String scheme,  String vSet) throws DALException {
-        String iri = "";
-        StringJoiner sql = new StringJoiner("\n")
-                .add("select s.iri ")
-                .add("from entity c ")
-                .add( "join tpl tl on tl.subject = c.dbid ")
-                .add("join entity cl on cl.dbid = tl.object ")
-                .add("join entity clp on clp.dbid = tl.predicate and clp.iri = ? ")
-                .add("join tct t on t.descendant = c.dbid ")
-                .add("join entity a on a.dbid = t.ancestor ")
-                .add("join entity tt on tt.dbid = t.type and tt.iri = ? ")
-                .add("join tpl l on l.object = a.dbid ")
-                .add("join entity p on p.dbid = l.predicate and p.iri = ? ")
-                .add("join entity s on s.dbid = l.subject and s.iri = ? ")
-                .add("where c.code = ? and c.scheme = ? ");
-        try (Connection conn = ConnectionPool.get();
-             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-            statement.setString(1, IM.MATCHED_TO.getIri());
-            statement.setString(2, IM.IS_A.getIri());
-            statement.setString(3, IM.DEFINITION.getIri());
-            statement.setString(4, vSet);
-            statement.setString(5, code);
-            statement.setString(6, scheme);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    iri = rs.getString("iri");
-                }
-            }
-        } catch (SQLException e) {
-            throw new DALException("Failed to test legacy code/scheme inclusion in vset", e);
-        }
-        return iri;
-    }
-
-    @Override
-    public String isLegacyCodeSchemeExcludedInVSet(String code,  String scheme,  String vSet) throws DALException {
-        String iri = "";
-        StringJoiner sql = new StringJoiner("\n")
-                .add("select s.iri ")
-                .add("from entity c ")
-                .add( "join tpl tl on tl.subject = c.dbid ")
-                .add("join entity cl on cl.dbid = tl.object ")
-                .add("join entity clp on clp.dbid = tl.predicate and clp.iri = ? ")
-                .add("join tct t on t.descendant = c.dbid ")
-                .add("join entity a on a.dbid = t.ancestor ")
-                .add("join entity tt on tt.dbid = t.type and tt.iri = ? ")
-                .add("join tpl l on l.object = a.dbid ")
-                .add("join entity p on p.dbid = l.predicate and p.iri = ? ")
-                .add("join entity s on s.dbid = l.subject and s.iri = ? ")
-                .add("where c.code = ? and c.scheme = ? ");
-        try (Connection conn = ConnectionPool.get();
-             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-            statement.setString(1, IM.MATCHED_TO.getIri());
-            statement.setString(2, IM.IS_A.getIri());
-            statement.setString(3, IM.NOT_MEMBER.getIri());
-            statement.setString(4, vSet);
-            statement.setString(5, code);
-            statement.setString(6, scheme);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    iri = rs.getString("iri");
-                }
-            }
-        } catch (SQLException e) {
-            throw new DALException("Failed to test legacy code/scheme exclusion from vset", e);
-        }
-        return iri;
     }
 }

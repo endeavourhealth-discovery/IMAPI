@@ -158,6 +158,7 @@ public class SetService {
      * @param path  the output folder to place the output
      * @param setIri  IRI of the concept set
      */
+
     public void exportSingle(String path, String setIri) throws IOException {
         try (FileWriter definitions = new FileWriter(path + "\\ConceptSetDefinitions.txt");
              FileWriter expansions = new FileWriter(path + "\\ConceptSetCoreExpansions.txt");
@@ -187,7 +188,7 @@ public class SetService {
             exportSubsetWithExpansion(definitions, expansions, legacies, subsets, im1maps, conceptSet, setIri);
     }
 
-    /**
+     /**
 	 * Exports all set  definitions and expansions on the database
 	 * @param path  the output folder to place the output
 	 * @param type  IRI of the set type

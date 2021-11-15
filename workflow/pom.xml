@@ -67,17 +67,6 @@
 
   </dependencies>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.statemachine</groupId>
-        <artifactId>spring-statemachine-bom</artifactId>
-        <version>${lib.spring.statemachine}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <distributionManagement>
     <snapshotRepository>

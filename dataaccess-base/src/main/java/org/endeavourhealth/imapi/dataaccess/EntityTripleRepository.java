@@ -18,8 +18,6 @@ public interface EntityTripleRepository {
 
     List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit);
 
-    Set<ValueSetMember> getObjectBySubjectAndPredicate(String subjectIri, String predicateIri);
-
     boolean hasChildren(String iri, boolean inactive) throws DALException;
 
     List<TTIriRef> findImmediateChildrenByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive);

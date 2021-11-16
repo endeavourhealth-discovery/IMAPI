@@ -403,7 +403,7 @@ public class TTManager {
       Set<TTIriRef> done = new HashSet<>();
       if (entityMap == null)
          createIndex();
-      if (entityMap.get(ancestor) == null)
+      if (entityMap.get(ancestor.getIri()) == null)
          throw new NoSuchElementException("ancestor not found in this module");
       return isA1(descendant, ancestor, done);
    }

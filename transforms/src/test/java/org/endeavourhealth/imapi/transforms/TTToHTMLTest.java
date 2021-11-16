@@ -27,5 +27,6 @@ class TTToHTMLTest {
 		inters.add(roleGroup);
 		String html= TTToHTML.getExpressionText(exp);
 		System.out.println(html);
+		assertNotNull(html);
 	}
 }

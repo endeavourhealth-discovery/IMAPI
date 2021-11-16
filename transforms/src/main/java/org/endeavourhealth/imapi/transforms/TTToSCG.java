@@ -46,6 +46,7 @@ public class TTToSCG {
 				scg.append("{");
 				refined(group.asNode(),scg,includeName);
 				scg.append("}");
+				first = false;
 			}
 		} else {
 			refined(node, scg, includeName);
@@ -100,7 +101,7 @@ public class TTToSCG {
 	}
 
 	private static String checkMember(String iri) throws DataFormatException {
-		if (iri.contains("/sct#")|(iri.contains("/im#")))
+		if (iri.contains("/sct#") || (iri.contains("/im#")))
 			return iri.split("#")[1];
 		else
 			return iri;

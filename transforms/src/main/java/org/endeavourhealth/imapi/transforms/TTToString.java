@@ -48,7 +48,7 @@ public class TTToString {
         if (!inline) result += pad;
         if (iri.getName() != null) result += iri.getName().replaceAll(regex, "");
         else result += iri.getIri();
-        if (previous == "array") result += "\n";
+        if ("array".equals(previous)) result += "\n";
         return result;
     }
 
@@ -90,14 +90,14 @@ public class TTToString {
             } else {
                 if (iriMap.containsKey(element.getKey().getIri())) result += pad + prefix + iriMap.get(element.getKey().getIri()).replaceAll(regex, "") + ":\n";
                 else if (element.getKey().getName() != null) result += pad + prefix + element.getKey().getName().replaceAll(regex, "") + ":\n";
-                if (previousType == "array") {
+                if ("array".equals(previousType)) {
                     if (group) {
                         result += ttValueToString(element.getValue(), "object", iriMap, indent + 1);
                     } else {
                         result += ttValueToString(element.getValue(), "object", iriMap, indent);
                     }
                 }
-                if (previousType == "object") {
+                if ("object".equals(previousType)) {
                     result += ttValueToString(element.getValue(), "object", iriMap, indent);
                 }
             }

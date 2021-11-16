@@ -30,5 +30,6 @@ class TTToTurtleTest {
 		TTToTurtle converter= new TTToTurtle();
 		String turtle=converter.transformEntity(entity);
 		System.out.println(turtle);
+		assertNotNull(turtle);
 	}
 }

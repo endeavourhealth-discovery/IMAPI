@@ -272,7 +272,7 @@ public class ReasonerPlus {
 
                };
             }
-            else if (c.isType(RDF.PROPERTY)|(c.isType(OWL.DATATYPEPROPERTY))) {
+            else if (c.isType(RDF.PROPERTY) || (c.isType(OWL.DATATYPEPROPERTY))) {
                OWLDataProperty dpe = dataFactory.getOWLDataProperty(IRI.create(c.getIri()));
                NodeSet<OWLDataProperty> superP = owlReasoner.getSuperDataProperties(dpe, true);
                if (superP != null) {

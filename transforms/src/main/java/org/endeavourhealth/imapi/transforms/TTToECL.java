@@ -111,7 +111,7 @@ public class TTToECL {
 	}
 
 	private static String checkMember(String iri) throws DataFormatException {
-		if (iri.contains("/sct#")|(iri.contains("/im#")))
+		if (iri.contains("/sct#") || (iri.contains("/im#")))
 			return iri.split("#")[1];
 		else
 				return iri;

@@ -268,6 +268,7 @@ public class TTToOWLEL {
                     .stream()
                     .map(this::getOWLClassExpression)
                     .collect(Collectors.toSet()));
+            //
          } else if (cex.asNode().get(OWL.UNIONOF) != null) {
             return dataFactory.getOWLObjectUnionOf(
                 cex.asNode().get(OWL.UNIONOF).asArray().getElements()
@@ -284,8 +285,6 @@ public class TTToOWLEL {
             return getOneOfAsOWLClassExpression(cex);
          } else if (cex.asNode().get(OWL.COMPLEMENTOF) != null) {
             return (getComplementOfAsAOWLClassExpression(cex));
-         } else if (cex.asNode().get(OWL.UNIONOF) != null) {
-            return dataFactory.getOWLClass("unions not supported", prefixManager);
          }
       }
       return dataFactory.getOWLClass("not sure of type of expression", prefixManager);

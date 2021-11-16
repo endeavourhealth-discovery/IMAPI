@@ -214,9 +214,7 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
                return exp;
             }
             else {
-               TTValue exp = getConRef(eclSub.eclfocusconcept()
-                   .eclconceptreference().conceptid());
-               return exp;
+               return getConRef(eclSub.eclfocusconcept().eclconceptreference().conceptid());
             }
          } else {
             throw new UnknownFormatConversionException("Unrecognised ECL subexpressionconstraint " + ecl);

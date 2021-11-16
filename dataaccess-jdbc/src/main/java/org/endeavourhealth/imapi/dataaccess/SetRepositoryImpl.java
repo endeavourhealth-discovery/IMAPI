@@ -253,7 +253,7 @@ public class SetRepositoryImpl implements SetRepository {
 		return sql.toString();
 	}
 
-	public TTEntity getLegacyExpansion(String iri) throws SQLException {
+	public TTEntity getLegacyExpansion(String iri) {
 		TTEntity definition= getSetDefinition(iri);
 		return getLegacyExpansion(definition);
 	}

@@ -9,13 +9,11 @@ import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.config.DashboardLayout;
 import org.endeavourhealth.imapi.model.config.FilterDefault;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -35,13 +33,13 @@ public class ConfigController {
     @GetMapping(value = "/componentLayout")
     public List<ComponentLayoutItem> getComponentLayout(
             @RequestParam(name="name") String name
-    ) throws SQLException, JsonProcessingException {
+    ) throws JsonProcessingException {
         LOG.debug("getComponentLayout");
         return configService.getConfig(name, new TypeReference<List<ComponentLayoutItem>>(){});
     }
 
     @GetMapping(value="/filterDefaults")
-    public FilterDefault getFilterDefaults() throws SQLException, JsonProcessingException {
+    public FilterDefault getFilterDefaults() throws JsonProcessingException {
         LOG.debug("getFilterDefaults");
         return configService.getConfig("filterDefaults", new TypeReference<FilterDefault>(){});
     }
@@ -49,19 +47,19 @@ public class ConfigController {
     @GetMapping(value="/dashboardLayout")
     public List<DashboardLayout> getDashboardLayout(
             @RequestParam(name ="name") String name
-    ) throws SQLException, JsonProcessingException {
+    ) throws JsonProcessingException {
         LOG.debug("getDashboardLayout");
         return configService.getConfig(name, new TypeReference<List<DashboardLayout>>(){});
     }
 
     @GetMapping(value="/defaultPredicateNames")
-    public Map<String, String> getDefaultPredicateNames() throws SQLException, JsonProcessingException {
+    public Map<String, String> getDefaultPredicateNames() throws JsonProcessingException {
         LOG.debug("getDefaultPredicateNames");
         return configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {});
     }
 
     @GetMapping(value="/xmlSchemaDataTypes")
-    public List<String> getXMLSchemaDataTypes() throws SQLException, JsonProcessingException {
+    public List<String> getXMLSchemaDataTypes() throws JsonProcessingException {
         LOG.debug("getXMLSchemaDataTypes");
         return configService.getConfig("xlmSchemaDataTypes", new TypeReference<List<String>>() {});
     }

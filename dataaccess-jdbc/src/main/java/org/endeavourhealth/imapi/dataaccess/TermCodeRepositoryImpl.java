@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.dataaccess;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionPool;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.model.TermCode;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

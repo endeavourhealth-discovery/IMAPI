@@ -175,7 +175,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("JOIN entity s ON s.dbid = tpl.subject ")
             .add("WHERE o.iri = ?")
             .add("AND p.iri <> ?")
-            .add("AND s.status <> ?");
+            .add("AND s.status <> ?")
+            .add("GROUP BY s.iri");
         try (Connection conn = ConnectionPool.get()) {
             assert conn != null;
             try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {

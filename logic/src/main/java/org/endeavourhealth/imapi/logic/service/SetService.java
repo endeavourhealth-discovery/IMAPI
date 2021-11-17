@@ -3,16 +3,16 @@ package org.endeavourhealth.imapi.logic.service;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepositoryImpl;
-import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.dataaccess.SetRepositoryImpl;
+import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.IMv2v1Map;
 import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.EditSet;
+import org.endeavourhealth.imapi.transforms.ECLToTT;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -35,10 +36,12 @@ public class SetService {
 
     private final SetRepository setRepository;
     private final EntityTripleRepository entityTripleRepository;
+    private final EntitySearchRepository entitySearchRepository;
 
     public SetService() {
         setRepository = new SetRepositoryImpl();
         entityTripleRepository = new EntityTripleRepositoryImpl();
+        entitySearchRepository = new EntitySearchRepositoryImpl();
     }
 
 
@@ -52,6 +55,11 @@ public class SetService {
         TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
         return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION), includeLegacy);
+    }
+
+    public Set<EntitySummary> evaluateDefinition(String ecl, boolean includeLegacy) throws DataFormatException {
+        TTValue definition = new ECLToTT().getClassExpression(ecl);
+        return evaluateDefinition(definition,includeLegacy);
     }
 
     /**
@@ -415,5 +423,21 @@ public class SetService {
             Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
             iriCell.setCellValue(value);
 	    }
+    }
+
+    public SearchResponse eclSearch(boolean includeLegacy, Integer limit, String ecl) throws DataFormatException {
+        Set<EntitySummary> evaluated = evaluateDefinition(ecl, includeLegacy);
+        List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
+            try {
+                return entitySearchRepository.getSummary(ttIriRef.getIri());
+            } catch (DALException e) {
+                return new SearchResultSummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
+            }
+        }).collect(Collectors.toList());
+        SearchResponse result = new SearchResponse();
+        result.setEntities(evaluatedAsSummary);
+        result.setCount(evaluated.size());
+        result.setPage(1);
+        return result;
     }
 }

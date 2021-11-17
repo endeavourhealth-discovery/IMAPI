@@ -121,12 +121,22 @@ public class ReasonerPlus {
 
    private void addEntityRoles(TTEntity entity) throws DataFormatException {
       if (entity.get(RDFS.SUBCLASSOF) != null) {
+         if (!entity.get(RDFS.SUBCLASSOF).isList()) {
+            System.err.println("Subclass should be an array");
+            TTValue superClass = entity.get(RDFS.SUBCLASSOF);
+            entity.set(RDFS.SUBCLASSOF, new TTArray().add(superClass));
+         }
          for (TTValue superClass : entity.get(RDFS.SUBCLASSOF).asArray().getElements()) {
             if (!superClass.isIriRef()) {
                addExpression(entity, superClass);
             }
          }
       } else if (entity.get(OWL.EQUIVALENTCLASS) != null) {
+         if (!entity.get(OWL.EQUIVALENTCLASS).isList()) {
+            System.err.println("equivalent class should be an array");
+            TTValue superClass = entity.get(OWL.EQUIVALENTCLASS);
+            entity.set(OWL.EQUIVALENTCLASS, new TTArray().add(superClass));
+         }
          for (TTValue superClass : entity.get(OWL.EQUIVALENTCLASS).asArray().getElements()) {
             if (!superClass.isIriRef()) {
                addExpression(entity, superClass);

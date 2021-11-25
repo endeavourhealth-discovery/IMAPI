@@ -18,6 +18,8 @@ public class IM {
     public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
     //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
+    public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");
+    public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
 
     //Entity tope level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");

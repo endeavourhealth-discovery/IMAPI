@@ -19,7 +19,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 return getConceptDashboard();
             case "defaultPredicateNames":
                 return getDefaultPredicateNames();
-            case "xmlSchemaDataTypes":
+            case "xlmSchemaDataTypes":
                 return getXmlSchemaDataTypes();
             default:
                 throw new DALException("Unhandled config");
@@ -30,131 +30,131 @@ public class ConfigRepositoryImpl implements ConfigRepository {
         return new Config()
             .setName("definition")
             .setData("[\n" +
-                "    {\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"TextSectionHeader\",\n" +
                 "    \"label\": \"Summary\",\n" +
                 "    \"order\": 100,\n" +
                 "    \"predicate\": \"None\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"TextWithLabel\",\n" +
                 "    \"label\": \"Name\",\n" +
                 "    \"order\": 101,\n" +
                 "    \"predicate\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"TextWithLabel\",\n" +
                 "    \"label\": \"Iri\",\n" +
                 "    \"order\": 102,\n" +
                 "    \"predicate\": \"@id\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"TextWithLabel\",\n" +
                 "    \"label\": \"Code\",\n" +
                 "    \"order\": 103,\n" +
                 "    \"predicate\": \"http://endhealth.info/im#code\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"ObjectNameTagWithLabel\",\n" +
                 "    \"label\": \"Status\",\n" +
                 "    \"order\": 103,\n" +
                 "    \"predicate\": \"http://endhealth.info/im#status\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"ArrayObjectNamesToStringWithLabel\",\n" +
                 "    \"label\": \"Types\",\n" +
                 "    \"order\": 104,\n" +
                 "    \"predicate\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"TextHTMLWithLabel\",\n" +
                 "    \"label\": \"Description\",\n" +
                 "    \"order\": 105,\n" +
                 "    \"predicate\": \"http://www.w3.org/2000/01/rdf-schema#comment\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"SectionDivider\",\n" +
                 "    \"label\": \"SummaryDefinitionDivider\",\n" +
                 "    \"order\": 200,\n" +
                 "    \"predicate\": \"None\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"TextDefinition\",\n" +
                 "    \"label\": \"Definition\",\n" +
                 "    \"order\": 201,\n" +
                 "    \"predicate\": \"inferred\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"ArrayObjectNameListboxWithLabel\",\n" +
                 "    \"label\": \"Has sub types\",\n" +
                 "    \"order\": 202,\n" +
                 "    \"predicate\": \"subtypes\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"ArrayObjectNameListboxWithLabel\",\n" +
                 "    \"label\": \"Is child of\",\n" +
                 "    \"order\": 203,\n" +
                 "    \"predicate\": \"http://endhealth.info/im#isChildOf\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"ArrayObjectNameListboxWithLabel\",\n" +
                 "    \"label\": \"Has children\",\n" +
                 "    \"order\": 204,\n" +
                 "    \"predicate\": \"http://endhealth.info/im#hasChildren\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"SectionDivider\",\n" +
                 "    \"label\": \"DefinitionTermsDivider\",\n" +
                 "    \"order\": 300,\n" +
                 "    \"predicate\": \"None\"\n" +
-                "    },\n" +
-                "    {\n" +
+                "  },\n" +
+                "  {\n" +
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"TermsTable\",\n" +
                 "    \"label\": \"Terms\",\n" +
                 "    \"order\": 301,\n" +
                 "    \"predicate\": \"termCodes\"\n" +
-                "    }\n" +
-                "    ]");
+                "  }\n" +
+                "]");
     }
 
     private Config getFilterDefaults() {
         return new Config()
             .setName("filterDefaults")
             .setData("{\n" +
-                "    \"schemeOptions\": [\n" +
-                "    \"Discovery namespace\",\n" +
-                "    \"Snomed-CT namespace\"\n" +
-                "    ],\n" +
+                "\t\"schemeOptions\": [\n" +
+                "\t\t\"http://endhealth.info/im#\",\n" +
+                "        \"http://snomed.info/sct#\"\n" +
+                "\t],\n" +
                 "    \"statusOptions\": [\n" +
-                "    \"Active\",\n" +
-                "    \"Draft\"\n" +
-                "    ],\n" +
+                "      \"http://endhealth.info/im#Active\",\n" +
+                "      \"http://endhealth.info/im#Draft\"\n" +
+                "\t],\n" +
                 "    \"typeOptions\": [\n" +
-                "    \"Concept\",\n" +
-                "    \"Concept Set\",\n" +
-                "    \"Folder\",\n" +
-                "    \"Node shape\",\n" +
-                "    \"ObjectProperty\",\n" +
-                "    \"Property\",\n" +
-                "    \"Query template\",\n" +
-                "    \"Record type\",\n" +
-                "    \"Value set\"\n" +
+                "      \"http://endhealth.info/im#Concept\",\n" +
+                "      \"http://endhealth.info/im#ConceptSet\",\n" +
+                "      \"http://endhealth.info/im#ConceptSetGroup\",\n" +
+                "      \"http://endhealth.info/im#Folder\",\n" +
+                "      \"http://www.w3.org/ns/shacl#NodeShape\",\n" +
+                "      \"http://www.w3.org/2002/07/owl#ObjectProperty\",\n" +
+                "      \"http://www.w3.org/1999/02/22-rdf-syntax-ns#Property\",\n" +
+                "      \"http://endhealth.info/im#QueryTemplate\",\n" +
+                "      \"http://endhealth.info/im#ValueSet\"\n" +
                 "    ]\n" +
-                "    }");
+                "}");
     }
 
     private Config getInferredPredicates() {
@@ -180,7 +180,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"http://endhealth.info/im#hasChildren\",\n" +
                 "    \"http://endhealth.info/im#isContainedIn\",\n" +
                 "    \"http://endhealth.info/im#code\"\n" +
-                "    ]");
+                "  ]");
     }
 
     private Config getConceptDashboard() {
@@ -220,7 +220,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"http://www.w3.org/2002/07/owl#intersectionOf\": \"Combination of\",\n" +
                 "    \"http://www.w3.org/2002/07/owl#someValuesFrom\": \"With a value\",\n" +
                 "    \"http://www.w3.org/2002/07/owl#onProperty\": \"On property\"\n" +
-                "    }");
+                "  }");
     }
 
     private Config getXmlSchemaDataTypes() {
@@ -271,7 +271,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"http://www.w3.org/2001/XMLSchema#gMonthDay\",\n" +
                 "    \"http://www.w3.org/2001/XMLSchema#gDay\",\n" +
                 "    \"http://www.w3.org/2001/XMLSchema#gMonth\"\n" +
-                "    ]");
+                "]");
     }
 }
 

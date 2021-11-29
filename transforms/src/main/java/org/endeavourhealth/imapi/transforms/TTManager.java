@@ -75,7 +75,6 @@ public class TTManager {
    public TTContext createDefaultContext() {
       context = new TTContext();
       context.add(IM.NAMESPACE, "im","Discovery namespace");
-      context.add(IMQ.NAMESPACE, "imq","Discovery query namespace");
       context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
       context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
       context.add(RDF.NAMESPACE, "rdf","RDF namespace");
@@ -231,36 +230,15 @@ public class TTManager {
       }
    }
 
-   /**
-    * Applies run time display template to an entity and its sub nodes and nodes using the static
-    * template predicate lists as defined in TTDisplay.
-    * @param node the TTNode to reorder
-    * @return the node
-    * @throws DataFormatException
-    */
-   public TTNode reorderPredicates(TTNode node) throws DataFormatException {
-      node.setPredicateTemplate(TTDisplay.getTemplate(node));
-      for (Map.Entry<TTIriRef,TTValue> entry:node.getPredicateMap().entrySet()) {
-         TTIriRef predicate = entry.getKey();
-         TTValue value = entry.getValue();
-         TTIriRef[] template = TTDisplay.getTemplate(predicate);
-         if (template != null) {
-            if (value.isNode()) {
-               value.asNode().setPredicateTemplate(template);
-               reorderPredicates(value.asNode());
-            } else if (value.isList()) {
-               for (TTValue listEntry : value.asArray().getElements()) {
-                  if (listEntry.isNode()) {
-                     listEntry.asNode().setPredicateTemplate(template);
-                     reorderPredicates(listEntry.asNode());
-                  }
-               }
-            }
-         }
-      }
-      return node;
+   public TTEntity createGraph(String iri,String name, String description){
+      TTEntity graph= new TTEntity()
+        .setIri(iri)
+        .addType(RDFS.RESOURCE)
+        .setName(name)
+        .setDescription(description);
+      graph.addObject(RDFS.SUBCLASSOF,RDFS.RESOURCE);
+      return graph;
    }
-
 
 
    public void saveTurtleDocument(File outputFile) throws JsonProcessingException {

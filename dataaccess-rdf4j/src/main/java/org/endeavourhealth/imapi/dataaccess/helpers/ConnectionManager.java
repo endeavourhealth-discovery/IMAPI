@@ -5,6 +5,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 
@@ -37,7 +38,9 @@ public class ConnectionManager {
 
     private static synchronized Repository getRepository() {
         if (repo == null)
-            repo = new SailRepository(new NativeStore(new File("Z:\\rdf4j\\im"), "spoc,posc,opsc"));
+           // repo = new SailRepository(new NativeStore(new File("Z:\\rdf4j\\im"), "spoc,posc,opsc"));
+            repo = new HTTPRepository("http://localhost:7200/", "im");
+
 
         return repo;
     }

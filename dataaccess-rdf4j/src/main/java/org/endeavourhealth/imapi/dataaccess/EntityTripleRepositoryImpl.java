@@ -17,6 +17,8 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,11 +153,14 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     @Override
     public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
         Set<EntitySummary> result = new HashSet<>();
+        String isa= "(<"+ RDFS.SUBCLASSOF.getIri()+
+          ">|<"+RDFS.SUBPROPERTYOF.getIri()+
+          ">|<"+ SNOMED.REPLACED_BY.getIri()+">)*";
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s") //  ?sname ?scode ?g ?gname")
+            .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
             .add("WHERE {")
-            .add("  ?s (rdfs:subClassOf|sn:370124000)* ?o .")
+            .add("  ?s "+isa+" ?o .")
             .add("  ?s rdfs:label ?sname .")
             .add("  GRAPH ?g { ?s im:code ?scode } .")
             .add("  OPTIONAL { ?g rdfs:label ?gname } .")

@@ -109,25 +109,11 @@ public class TTToTurtle {
 		String pred = getShort(predicate.getIri()) + " ";
 		append(pred);
 		int olevel=level;
-		if (predicate.equals(IMQ.HAS_QUERY))
-			if (object.isNode())
-				setSparql(object.asNode());
-			else {
-				object=TTLiteral.literal("\"\""+ object.asLiteral().getValue().replace("\"","")+"\"\"");
-				setObject(object);
-			}
-		else
-			setObject(object);
+		setObject(object);
 		level = olevel;
 	}
 
-	private void setSparql(TTNode node){
-		Query query= new Query(node);
-		TTToSPARQL ttToSPARQL= new TTToSPARQL();
-		String spq= ttToSPARQL.transform(query,context,false);
-		append("\"\"\""+ spq+"\"\"\"");
 
-	}
 
 
 	private void setObject(TTValue value){

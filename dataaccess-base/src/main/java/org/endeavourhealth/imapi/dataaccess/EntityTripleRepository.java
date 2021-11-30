@@ -22,7 +22,7 @@ public interface EntityTripleRepository {
 
     List<TTIriRef> findImmediateChildrenByIri(String iri,List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive);
 
-    List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive);
+    List<TTIriRef> findImmediateParentsByIri(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive);
 
     List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String excludePredicateIri);
 

@@ -245,7 +245,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean includeInactive) throws DALException {
+    public List<TTIriRef> findImmediateParentsByIri(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean includeInactive) throws DALException {
         List<TTIriRef> parents = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT o.iri, o.name, o.status")
@@ -254,6 +254,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?,?) ")
                 .add("JOIN entity o ON o.dbid = t.object ")
                 .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND o.scheme IN " + inListParams(schemeIris.size()));
+        }
         if (!includeInactive)
             sql.add("AND o.status <> ?").add("AND o.iri <> ?");
         sql.add("ORDER BY o.name ");
@@ -267,6 +270,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
                 if (!includeInactive) {
                     statement.setString(++i, IM.INACTIVE.getIri());
                     statement.setString(++i, OWL.THING.getIri());

@@ -92,7 +92,7 @@ public class EntityService {
 		return entityTripleRepository.findImmediateChildrenByIri(iri,schemeIris, rowNumber, pageSize, inactive);
 	}
 
-	public List<EntityReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
+	public List<EntityReferenceNode> getImmediateParents(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize,
 			boolean inactive) {
 
 		if (iri == null || iri.isEmpty())
@@ -102,7 +102,7 @@ public class EntityService {
 		if (pageIndex != null && pageSize != null)
 			rowNumber = (pageIndex - 1) * pageSize;
 
-		List<EntityReferenceNode> parents = getParents(iri, rowNumber, pageSize, inactive).stream()
+		List<EntityReferenceNode> parents = getParents(iri,schemeIris, rowNumber, pageSize, inactive).stream()
 				.map(p -> new EntityReferenceNode(p.getIri(), p.getName())).collect(Collectors.toList());
 
 		for (EntityReferenceNode parent : parents)
@@ -111,9 +111,9 @@ public class EntityService {
 		return parents;
 	}
 
-	private List<TTIriRef> getParents(String iri, int rowNumber, Integer pageSize, boolean inactive) {
+	private List<TTIriRef> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
 
-		return entityTripleRepository.findImmediateParentsByIri(iri, rowNumber, pageSize, inactive);
+		return entityTripleRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive);
 	}
 
 	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {

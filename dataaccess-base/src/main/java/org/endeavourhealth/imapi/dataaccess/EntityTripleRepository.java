@@ -20,7 +20,7 @@ public interface EntityTripleRepository {
 
     boolean hasChildren(String iri, boolean inactive) throws DALException;
 
-    List<TTIriRef> findImmediateChildrenByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive);
+    List<TTIriRef> findImmediateChildrenByIri(String iri,List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive);
 
     List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive);
 

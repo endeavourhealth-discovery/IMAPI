@@ -102,6 +102,7 @@ public class EntityController {
 
 	@GetMapping(value = "/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
+			@RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) {
         LOG.debug("getEntityChildren");
@@ -109,7 +110,7 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-        return entityService.getImmediateChildren(iri, page, size, false);
+        return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
 	}
 
 	@GetMapping("/exportConcept")
@@ -185,11 +186,14 @@ public class EntityController {
     }
 
 	@GetMapping(value = "/parents")
-	public List<EntityReferenceNode> getEntityParents(@RequestParam(name = "iri") String iri,
-			@RequestParam(name = "page", required = false) Integer page,
-			@RequestParam(name = "size", required = false) Integer size) {
+	public List<EntityReferenceNode> getEntityParents(
+            @RequestParam(name = "iri") String iri,
+            @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size
+    ) {
         LOG.debug("getEntityParents");
-        return entityService.getImmediateParents(iri, page, size, false);
+        return entityService.getImmediateParents(iri, schemeIris, page, size, false);
 	}
 
 	@GetMapping(value = "/usages")

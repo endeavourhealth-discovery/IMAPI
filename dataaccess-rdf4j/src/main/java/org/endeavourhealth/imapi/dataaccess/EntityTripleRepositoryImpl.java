@@ -257,7 +257,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateChildrenByIri(String parentIri, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
             StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -294,7 +294,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateParentsByIri(String childIri, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())

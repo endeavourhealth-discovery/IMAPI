@@ -18,7 +18,7 @@ public interface EntityTripleRepository {
 
     List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit);
 
-    boolean hasChildren(String iri, boolean inactive) throws DALException;
+    boolean hasChildren(String iri, List<String> schemeIris, boolean inactive) throws DALException;
 
     List<TTIriRef> findImmediateChildrenByIri(String iri,List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive);
 

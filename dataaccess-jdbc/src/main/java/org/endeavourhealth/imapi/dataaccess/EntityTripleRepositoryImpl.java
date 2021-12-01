@@ -345,7 +345,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public boolean hasChildren(String iri, boolean includeInactive) throws DALException {
+    public boolean hasChildren(String iri, List<String> schemeIris, boolean includeInactive) throws DALException {
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT 1")
                 .add("FROM entity c ")
@@ -353,6 +353,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
                 .add("JOIN entity s ON s.dbid = t.subject ")
                 .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND s.scheme IN " + inListParams(schemeIris.size()));
+        }
         if (!includeInactive)
             sql.add("AND s.status <> ?");
         sql.add("LIMIT 1 ");
@@ -364,6 +367,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
                 if (!includeInactive)
                     statement.setString(++i, IM.INACTIVE.getIri());
                 try (ResultSet rs = statement.executeQuery()) {

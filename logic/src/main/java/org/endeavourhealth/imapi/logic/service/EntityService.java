@@ -295,13 +295,19 @@ public class EntityService {
 	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
 		Map<String, String> defaultPredicates = new HashMap<>();
+		List<String> blockedIris = new ArrayList<>();
 		try {
 			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
 		}
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0);
+		try {
+			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+		} catch (Exception e) {
+			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+		}
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, blockedIris);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

@@ -19,7 +19,7 @@ public class IM {
     //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
 
-    //Entity tope level triples
+    //Entity top level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
 
 
@@ -33,6 +33,7 @@ public class IM {
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
+    public static final TTIriRef QUERY= iri(NAMESPACE+"Query");
 
 
     //Collection predicates
@@ -93,12 +94,6 @@ public class IM {
 
 
 
-    //SPARQL parameters
-    public static final TTIriRef QUERY_VARIABLE = iri(NAMESPACE +"queryVariable");
-    public static final TTIriRef CALL_QUERY= iri(NAMESPACE +"callQuery");
-
-
-
 
     //Namespaces (code schemes and graphs)
 
@@ -118,6 +113,9 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
     public static final TTIriRef CODE_SCHEME_ENCOUNTER_TYPE = TTIriRef.iri(DOMAIN +"enc#");
 
+
+    //DataTypes
+    public static final TTIriRef JSON = TTIriRef.iri(NAMESPACE +"Json");
 
 
     public static final TTIriRef GRAPH_DISCOVERY= iri(IM.NAMESPACE+"DiscoveryGraph");

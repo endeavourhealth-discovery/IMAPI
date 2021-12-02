@@ -6,16 +6,24 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class IMQ {
 	public static final String NAMESPACE = "http://endhealth.info/imq#";
+	public static final TTIriRef LATEST_EVENT = iri(NAMESPACE + "latestEvent");
 
-	//shacl target type-
-	public static final TTIriRef IMQ_TARGET = iri(NAMESPACE + "IMQTarget");
 
 	//Dataset predicates
 	public static final TTIriRef HAS_QUERY = iri(NAMESPACE + "query");
 
+	//root predicate
+	public static final TTIriRef STEP= iri(NAMESPACE+"step");
+	public static final TTIriRef ALIAS= iri(NAMESPACE+"alias");
+
+	//Step predicates
+	public static final TTIriRef GRAPH= iri(NAMESPACE+"graph");
+
 
 	//Clause predicates
 	public static final TTIriRef SELECT = iri(NAMESPACE + "select");
+	public static final TTIriRef INSERT = iri(NAMESPACE + "insert");
+	public static final TTIriRef CONSTRUCT = iri(NAMESPACE + "construct");
 	public static final TTIriRef WHERE = iri(NAMESPACE + "where");
 
 
@@ -28,6 +36,7 @@ public class IMQ {
 
 	//Clause fields
 
+	public static final TTIriRef SELECT_ITEM = iri(NAMESPACE + "selectItem");
 	public static final TTIriRef VAR = iri(NAMESPACE + "var");
 	public static final TTIriRef AS = iri(NAMESPACE + "as");
 	public static final TTIriRef EXPRESSION = iri(NAMESPACE + "expression");
@@ -46,6 +55,11 @@ public class IMQ {
 	public static final TTIriRef GREATER_OR_EQUAL = iri(NAMESPACE + "greaterOrEqual");
 	public static final TTIriRef NOT_EQUAL = iri(NAMESPACE + "notEqual");
 
+	//Subject
+	public static final TTIriRef SUBJECT = iri(NAMESPACE + "subject");
+	public static final TTIriRef PREDICATE = iri(NAMESPACE + "predicate");
+	public static final TTIriRef OBJECT = iri(NAMESPACE + "object");
+
 	//Path types
 	public static final TTIriRef IRI = iri(NAMESPACE + "Iri");
 	public static final TTIriRef INVERSE = iri(NAMESPACE + "Inverse");
@@ -54,11 +68,14 @@ public class IMQ {
 	public static final TTIriRef ONE_OR_MORE = iri(NAMESPACE + "OneOrMore");
 	public static final TTIriRef VARIABLE = iri(NAMESPACE + "Variable");
 
-	//Path predicate
-	public static final TTIriRef PATH = iri(NAMESPACE + "path");
 
-	//Filter types
-	public static final TTIriRef IN_LIST = iri(NAMESPACE + "InList");
+	//QueryFilter types
+	public static final TTIriRef IN = iri(NAMESPACE + "In");
+	public static final TTIriRef NOT_IN = iri(NAMESPACE + "NotIn");
+	public static final TTIriRef NOT_EXIST = iri(NAMESPACE + "notExist");
+	public static final TTIriRef EXIST = iri(NAMESPACE + "exist");
+	public static final TTIriRef NUMERICEXPRESSION = iri(NAMESPACE + "numericExpression");
+	public static final TTIriRef RDF_EQUAL = iri(NAMESPACE + "rdfEqual");
 
 
 }

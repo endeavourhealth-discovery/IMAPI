@@ -12,23 +12,12 @@ public class TTIriRef implements TTValue, Serializable {
     public static TTIriRef iri(String iri) {
         return new TTIriRef(iri);
     }
-
-    public static TTIriRef typedIri(String iri,TTIriRef iriType){
-        return new TTIriRef(iri,iriType);
-    }
-
     public static TTIriRef iri(String iri, String name) {
         return new TTIriRef(iri, name);
     }
-    public static TTIriRef typedIri(TTIriRef iri,TTIriRef iriType){
-        return new TTIriRef(iri.getIri()).setIriType(iriType);
-    }
-
 
     private String iri;
     private String name;
-    private TTIriRef iriType;
-
 
     public TTIriRef() {
     }
@@ -39,21 +28,6 @@ public class TTIriRef implements TTValue, Serializable {
         this.iri = iri;
         this.name = name;
     }
-    public TTIriRef(String iri, String name,String iriType) {
-        this.iri = iri;
-        this.name = name;
-        this.iriType= iri(iriType);
-    }
-    public TTIriRef(String iri, String name,TTIriRef iriType) {
-        this.iri = iri;
-        this.name = name;
-        this.iriType= iriType;
-    }
-    public TTIriRef(String iri, TTIriRef iriType) {
-        this.iri = iri;
-        this.iriType= iriType;
-    }
-
 
     @JsonProperty("@id")
     public String getIri() {
@@ -71,18 +45,6 @@ public class TTIriRef implements TTValue, Serializable {
 
     public TTIriRef setName(String name) {
         this.name = name;
-        return this;
-    }
-    public TTIriRef getIriType() {
-        return iriType;
-    }
-
-    public TTIriRef setIriType(String iriType) {
-        this.iriType = iri(iriType);
-        return this;
-    }
-    public TTIriRef setIriType(TTIriRef iriType) {
-        this.iriType = iriType;
         return this;
     }
 
@@ -109,21 +71,4 @@ public class TTIriRef implements TTValue, Serializable {
     public int hashCode() {
         return Objects.hash(iri);
     }
-
-    @Override
-    public boolean isTypedIri(){
-        return iriType != null;
-    }
-    @Override
-    public TTIriRef asTypedIri() {
-        if (iriType==null)
-            return null;
-        else
-            return this;
-    }
-
-
-
-
-
 }

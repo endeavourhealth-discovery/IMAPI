@@ -23,10 +23,14 @@ public class TTToString {
         Map<String, String> predicates = bundle.getPredicates();
         predicates = setPredicateDefaults(predicates, defaultPredicates);
         String result = "";
-        for (Map.Entry<TTIriRef, TTValue> element : bundle.getEntity().getPredicateMap().entrySet()) {
+        for (Map.Entry<TTIriRef, TTArray> element : bundle.getEntity().getPredicateMap().entrySet()) {
             result += ttValueToString(new TTNode().set(element.getKey(), element.getValue()), "object", predicates, 0);
         }
         return result;
+    }
+
+    public static String ttValueToString(TTArray node, String previousType, Map<String, String> iriMap, int indent) {
+        return ttArrayToString(node, indent, iriMap);
     }
 
     public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent) {
@@ -35,8 +39,6 @@ public class TTToString {
             return ttIriToString(node.asIriRef(), previousType, indent, false);
         } else if (node.isNode()) {
             return ttNodeToString(node.asNode(), previousType, indent, iriMap);
-        } else if (node.isList()) {
-            return ttArrayToString(node.asArray(), indent, iriMap);
         } else {
             return "";
         }
@@ -62,7 +64,7 @@ public class TTToString {
         int count = 1;
         Boolean group = false;
         if (totalKeys > 1) group = true;
-        for (Map.Entry<TTIriRef, TTValue> element : node.getPredicateMap().entrySet()) {
+        for (Map.Entry<TTIriRef, TTArray> element : node.getPredicateMap().entrySet()) {
             if (totalKeys == count) last = true;
             if (count == 1) first = true;
             String prefix = "";
@@ -109,7 +111,7 @@ public class TTToString {
     public static String ttArrayToString(TTArray arr, int indent, Map<String, String> iriMap) {
         if (indent == 0) iriMap = setPredicateDefaults(iriMap, iriMap);
         String result = "";
-        for (TTValue item : arr.getElements()) {
+        for (TTValue item : arr.iterator()) {
             result += ttValueToString(item, "array", iriMap, indent + 1);
         }
         return result;

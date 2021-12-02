@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTArrayDeserializer;
@@ -8,10 +7,11 @@ import org.endeavourhealth.imapi.model.tripletree.json.TTArraySerializer;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Stream;
 
 @JsonSerialize(using = TTArraySerializer.class)
 @JsonDeserialize(using = TTArrayDeserializer.class)
-public class TTArray implements TTValue, Serializable {
+public class TTArray implements Serializable {
     private LinkedHashSet<TTValue> elements = new LinkedHashSet<>();
 
     public TTArray add(TTValue value) {
@@ -26,48 +26,42 @@ public class TTArray implements TTValue, Serializable {
         return this;
     }
 
-    public TTNode getAsNode(int index) {
-        return (TTNode)get(index);
+    public int size() {
+        return elements.size();
     }
-    public TTLiteral getAsLiteral(int index) {
-        return (TTLiteral)get(index);
+    public boolean contains(TTValue value) {
+        return elements.contains(value);
     }
-    public TTIriRef getAsIriRef(int index) {
-        return (TTIriRef)get(index);
-    }
-    public TTArray getAsArray(int index) {
-        return (TTArray)get(index);
+
+    // Single element helpers
+    public boolean isLiteral() { return elements.size() == 1 && elements.stream().findFirst().get().isLiteral(); }
+    public TTLiteral asLiteral() { return elements.stream().findFirst().get().asLiteral(); }
+
+    public boolean isIriRef() { return elements.size() == 1 && elements.stream().findFirst().get().isIriRef(); }
+    public TTIriRef asIriRef() { return elements.stream().findFirst().get().asIriRef(); }
+
+    public boolean isNode() { return elements.size() == 1 && elements.stream().findFirst().get().isNode(); }
+    public TTNode asNode() { return elements.stream().findFirst().get().asNode(); }
+
+    public TTValue asValue() { return elements.stream().findFirst().get(); }
+
+    public Iterable<TTValue> iterator() {
+        return elements;
     }
 
     public TTValue get(int index) {
         return getElements().get(index);
     }
 
-    public int size() {
-        return elements.size();
-    }
-    public void remove(TTValue value){
-        elements.remove(value);
-    }
-
-
-    public boolean contains(TTValue value) {
-        return elements.contains(value);
-    }
-
-    @Override
-    public TTArray asArray() {
-        return this;
-    }
-
-    @Override
     public List<TTValue> getElements() {
         return new ArrayList<>(elements);
     }
 
-    @Override
-    @JsonIgnore
-    public boolean isList() {
-        return true;
+    public void remove(TTValue remove) {
+        elements.remove(remove);
+    }
+
+    public Stream<TTValue> stream() {
+        return elements.stream();
     }
 }

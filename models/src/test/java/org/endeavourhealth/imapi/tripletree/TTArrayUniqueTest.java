@@ -17,7 +17,7 @@ class TTArrayUniqueTest {
         actual.add(iri("http://example.org#SAME"));
         actual.add(iri("http://example.org#DIFFERENT"));
 
-        assertEquals(2, actual.getElements().size());
+        assertEquals(2, actual.size());
     }
 
     @Test
@@ -27,9 +27,9 @@ class TTArrayUniqueTest {
         TTArray actual = new TTArray();
 
         actual.add(testIri);
-        assertEquals(1, actual.getElements().size());
+        assertEquals(1, actual.size());
         actual.add(testIri);
-        assertEquals(1, actual.getElements().size());
+        assertEquals(1, actual.size());
     }
 
     @Test
@@ -38,7 +38,7 @@ class TTArrayUniqueTest {
         actual.add(iri("http://example.org#SAME"));
         actual.add(iri("http://example.org#SAME"));
 
-        assertEquals(1, actual.getElements().size());
+        assertEquals(1, actual.size());
     }
 
     @Test
@@ -47,7 +47,7 @@ class TTArrayUniqueTest {
         actual.add(literal("SAME"));
         actual.add(literal("DIFFERENT"));
 
-        assertEquals(2, actual.getElements().size());
+        assertEquals(2, actual.size());
     }
 
     @Test
@@ -56,7 +56,7 @@ class TTArrayUniqueTest {
         actual.add(literal("SAME"));
         actual.add(literal("SAME"));
 
-        assertEquals(1, actual.getElements().size());
+        assertEquals(1, actual.size());
     }
 
 
@@ -68,6 +68,6 @@ class TTArrayUniqueTest {
         actual.add(lit);
         actual.add(lit);
 
-        assertEquals(1, actual.getElements().size());
+        assertEquals(1, actual.size());
     }
 }

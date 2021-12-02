@@ -10,12 +10,17 @@ import java.util.zip.DataFormatException;
 
 public class TTToECL {
 
-	public static String getExpressionConstraint(TTValue exp, Boolean includeName) throws DataFormatException {
+	public static String getExpressionConstraint(TTArray exp, Boolean includeName) throws DataFormatException {
 		StringBuilder ecl = new StringBuilder();
 		subExpression(exp,ecl,includeName);
 		return ecl.toString();
 	}
 
+    private static void subExpression(TTArray exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
+        for (TTValue subExp:exp.iterator()){
+            subExpression(subExp,ecl,includeName);
+        }
+    }
 
 	private static void subExpression(TTValue exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
 		if (exp.isIriRef()){
@@ -36,10 +41,6 @@ public class TTToECL {
 			else {
 				addRefined(exp.asNode(), ecl, includeName);
 			}
-		} else {
-			for (TTValue subExp:exp.asArray().getElements()){
-				subExpression(subExp,ecl,includeName);
-			}
 		}
 
 	}
@@ -47,7 +48,7 @@ public class TTToECL {
 
 	private static void addJunction(TTNode exp, TTIriRef junction,StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		boolean first = true;
-		for (TTValue member : exp.asNode().get(junction).asArray().getElements()) {
+		for (TTValue member : exp.asNode().get(junction).iterator()) {
 			if (member.isIriRef()) {
 				if (!first)
 					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
@@ -83,7 +84,7 @@ public class TTToECL {
 		if (exp.getPredicateMap()!=null){
 			ecl.append(" : ");
 			boolean first=true;
-			for (Map.Entry<TTIriRef,TTValue> entry:exp.getPredicateMap().entrySet()){
+			for (Map.Entry<TTIriRef,TTArray> entry:exp.getPredicateMap().entrySet()){
 				if (!first)
 					ecl.append(" , ");
 				first=false;

@@ -12,6 +12,7 @@ class TTNodeJsonTest {
     @Test
     void serializationTest() throws JsonProcessingException {
         TTNode node = TestHelper.getTestEntity();
+        TestHelper.checkEntity(node);
 
         // Serialize
         ObjectMapper om = new ObjectMapper();

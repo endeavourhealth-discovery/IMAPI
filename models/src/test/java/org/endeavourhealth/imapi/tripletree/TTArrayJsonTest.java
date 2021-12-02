@@ -56,14 +56,14 @@ class TTArrayJsonTest {
             .add("  \"name\" : \"Amputation of left lower limb\",")
             .add("  \"@id\" : \"http://snomed.info/sct#732214009\"")
             .add("}, {")
-            .add("  \"http://snomed.info/sct#260686004\" : {")
+            .add("  \"http://snomed.info/sct#260686004\" : [ {")
             .add("    \"name\" : \"Amputation - action\",")
             .add("    \"@id\" : \"http://snomed.info/sct#129309007\"")
-            .add("  },")
-            .add("  \"http://snomed.info/sct#405813007\" : {")
+            .add("  } ],")
+            .add("  \"http://snomed.info/sct#405813007\" : [ {")
             .add("    \"name\" : \"Part of toe of left foot\",")
             .add("    \"@id\" : \"http://snomed.info/sct#732939008\"")
-            .add("  }")
+            .add("  } ]")
             .add("} ]");
 
         return json.toString();
@@ -79,7 +79,7 @@ class TTArrayJsonTest {
         assertEquals(iri("http://snomed.info/sct#732214009", "Amputation of left lower limb"), array.get(1));
 
         assertTrue(array.get(2).isNode());
-        TTNode node = array.getAsNode(2);
+        TTNode node = array.get(2).asNode();
 
         assertTrue(node.has(iri("http://snomed.info/sct#260686004", "Method")));
         assertTrue(node.get(iri("http://snomed.info/sct#260686004", "Method")).isIriRef());

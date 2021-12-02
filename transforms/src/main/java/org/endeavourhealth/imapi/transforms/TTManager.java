@@ -239,26 +239,22 @@ public class TTManager {
     * @throws DataFormatException
     */
    public TTNode reorderPredicates(TTNode node) throws DataFormatException {
-      node.setPredicateTemplate(TTDisplay.getTemplate(node));
-      for (Map.Entry<TTIriRef,TTValue> entry:node.getPredicateMap().entrySet()) {
-         TTIriRef predicate = entry.getKey();
-         TTValue value = entry.getValue();
-         TTIriRef[] template = TTDisplay.getTemplate(predicate);
-         if (template != null) {
-            if (value.isNode()) {
-               value.asNode().setPredicateTemplate(template);
-               reorderPredicates(value.asNode());
-            } else if (value.isList()) {
-               for (TTValue listEntry : value.asArray().getElements()) {
-                  if (listEntry.isNode()) {
-                     listEntry.asNode().setPredicateTemplate(template);
-                     reorderPredicates(listEntry.asNode());
-                  }
+       node.setPredicateTemplate(TTDisplay.getTemplate(node));
+       for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+           TTIriRef predicate = entry.getKey();
+           TTArray value = entry.getValue();
+           TTIriRef[] template = TTDisplay.getTemplate(predicate);
+           if (template != null) {
+               for (TTValue listEntry : value.iterator()) {
+                   if (listEntry.isNode()) {
+                       listEntry.asNode().setPredicateTemplate(template);
+                       reorderPredicates(listEntry.asNode());
+                   }
                }
-            }
-         }
-      }
-      return node;
+           }
+       }
+
+       return node;
    }
 
 
@@ -331,33 +327,26 @@ public class TTManager {
       }
       if (node.getPredicateMap() != null) {
          HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
-         for (Map.Entry<TTIriRef, TTValue> entry : node.getPredicateMap().entrySet()) {
-            TTIriRef predicate = entry.getKey();
-            TTValue value = entry.getValue();
-            if (value.isIriRef()) {
-               if (value.asIriRef().equals(from))
-                  newPredicates.put(entry.getKey(), to);
-            } else if (value.isNode()) {
-               if (replaceNode(value.asNode(), from, to))
-                  return true;
-            } else if (value.isList()) {
-               List<TTValue> toRemove = new ArrayList<>();
-               for (TTValue arrayValue : value.asArray().getElements()) {
-                  if (arrayValue.isIriRef()) {
+         for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+             TTIriRef predicate = entry.getKey();
+             TTArray value = entry.getValue();
+
+             List<TTValue> toRemove = new ArrayList<>();
+             for (TTValue arrayValue : value.iterator()) {
+                 if (arrayValue.isIriRef()) {
                      if (arrayValue.asIriRef().equals(from)) {
-                        toRemove.add(arrayValue);
+                         toRemove.add(arrayValue);
                      }
-                  } else if (arrayValue.isNode()) {
+                 } else if (arrayValue.isNode()) {
                      replaced = replaceNode(arrayValue.asNode(), from, to);
-                  }
-               }
-               if (!toRemove.isEmpty()) {
-                  for (TTValue remove : toRemove) {
-                     value.asArray().getElements().remove(remove);
-                  }
-                  value.asArray().add(to);
-               }
-            }
+                 }
+             }
+             if (!toRemove.isEmpty()) {
+                 for (TTValue remove : toRemove) {
+                     value.remove(remove);
+                 }
+                 value.add(to);
+             }
          }
          if (!newPredicates.isEmpty()) {
             for (Map.Entry<TTIriRef, TTValue> entry : newPredicates.entrySet()) {
@@ -371,7 +360,7 @@ public class TTManager {
 
    private TTArray replaceArray(TTArray array, TTIriRef from, TTIriRef to) {
       TTArray newArray = new TTArray();
-      for (TTValue value : array.getElements()) {
+      for (TTValue value : array.iterator()) {
          if (value.isIriRef()) {
             if (value.asIriRef().equals(from))
                newArray.add(to);
@@ -381,8 +370,6 @@ public class TTManager {
             newArray.add(value);
             if (value.isNode()) {
                replaceNode(value.asNode(), from, to);
-            } else if (value.isList()) {
-               newArray.add(replaceArray(value.asArray(), from, to));
             } else {
                newArray.add(value);
             }
@@ -436,7 +423,7 @@ public class TTManager {
       TTIriRef subType= descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
       boolean isa = false;
       if (descendant.get(subType) != null)
-         for (TTValue ref : descendant.get(subType).asArray().getElements())
+         for (TTValue ref : descendant.get(subType).iterator())
             if (ref.equals(ancestor))
                return true;
             else {
@@ -464,7 +451,7 @@ public class TTManager {
    public static void addChildOf(TTEntity c, TTIriRef parent) {
       if (c.get(IM.IS_CHILD_OF) == null)
          c.set(IM.IS_CHILD_OF, new TTArray());
-      c.get(IM.IS_CHILD_OF).asArray().add(parent);
+      c.get(IM.IS_CHILD_OF).add(parent);
    }
 
    public static void addSuperClass(TTEntity entity, TTIriRef andOr,TTValue superClass) {
@@ -479,17 +466,17 @@ public class TTManager {
       if (entity.get(axiom) == null)
          entity.set(axiom, new TTArray());
       TTValue oldExpression;
-      TTArray expressions = entity.get(axiom).asArray();
-      if (expressions.getElements().size() > 0) {
+      TTArray expressions = entity.get(axiom);
+      if (expressions.size() > 0) {
          oldExpression = expressions.getElements().get(0);
          if (oldExpression.isIriRef()||oldExpression.isNode()) {
             TTNode intersection = new TTNode();
             intersection.set(andOr, new TTArray());
-            intersection.get(andOr).asArray().add(oldExpression);
-            intersection.get(andOr).asArray().add(newExpression);
+            intersection.get(andOr).add(oldExpression);
+            intersection.get(andOr).add(newExpression);
             expressions.add(intersection);
          } else
-            oldExpression.asNode().get(andOr).asArray().add(newExpression);
+            oldExpression.asNode().get(andOr).add(newExpression);
       } else
          expressions.add(newExpression);
       if (newExpression.isIriRef()){

@@ -26,7 +26,7 @@ class TTToTurtleTest {
 			.add(new TTNode().set(TTIriRef.iri(
 				SNOMED.NAMESPACE+"10362601000001103"),
 				TTIriRef.iri(SNOMED.NAMESPACE+"39330711000001103"))));
-		entity.get(IM.DEFINITION).asArray().add(inter);
+		entity.get(IM.DEFINITION).add(inter);
 		TTToTurtle converter= new TTToTurtle();
 		String turtle=converter.transformEntity(entity);
 		System.out.println(turtle);

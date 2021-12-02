@@ -62,10 +62,10 @@ public class TTVisitor {
             predicateVisitor.visit(predicate);
 
         nodeVisitor.visit(predicate, node);
-        Map<TTIriRef, TTValue> predicateMap = node.getPredicateMap();
-        for (Map.Entry<TTIriRef, TTValue> entry : predicateMap.entrySet()) {
+        Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
+        for (Map.Entry<TTIriRef, TTArray> entry : predicateMap.entrySet()) {
             TTIriRef p = entry.getKey();
-            TTValue v = entry.getValue();
+            TTArray v = entry.getValue();
 
             visit(p, v);
         }
@@ -85,8 +85,6 @@ public class TTVisitor {
         }
         else if (value.isNode()) {
             visit(predicate, value.asNode());
-        } else if (value.isList()) {
-            visit(predicate, value.asArray());
         }
     }
 
@@ -94,7 +92,7 @@ public class TTVisitor {
         if (predicate != null)
             predicateVisitor.visit(predicate);
         listVisitor.visit(predicate, array);
-        for (TTValue value : array.getElements()) {
+        for (TTValue value : array.iterator()) {
             visit(predicate, value);
         }
         listExitVisitor.visit(predicate, array);

@@ -61,8 +61,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                 Map.Entry<String, JsonNode> field = fields.next();
                 if (field.getKey().equals("@id")) {
                     entity.setIri(helper.expand(field.getValue().textValue()));
-                } else
-                    entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+                } else {
+                    if (field.getValue().isArray())
+                        entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
+                    else
+                        entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+                }
             }
         }
 

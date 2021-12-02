@@ -82,7 +82,7 @@ public class TTEntity extends TTNode {
     public TTEntity addType(TTIriRef type) {
         TTArray types;
         if (has(RDF.TYPE)) {
-            types = getAsArray(RDF.TYPE);
+            types = get(RDF.TYPE);
         } else {
             types = new TTArray();
             setType(types);
@@ -101,7 +101,7 @@ public class TTEntity extends TTNode {
         if (get(RDF.TYPE)==null)
             return null;
         else
-         return getAsArray(RDF.TYPE);
+         return get(RDF.TYPE);
     }
 
     public TTIriRef getStatus(){
@@ -129,6 +129,12 @@ public class TTEntity extends TTNode {
 
     @Override
     public TTEntity set(TTIriRef predicate, TTValue value) {
+        super.set(predicate, value);
+        return this;
+    }
+
+    @Override
+    public TTEntity set(TTIriRef predicate, TTArray value) {
         super.set(predicate, value);
         return this;
     }

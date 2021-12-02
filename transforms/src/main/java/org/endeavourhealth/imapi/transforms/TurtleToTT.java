@@ -111,14 +111,20 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 	private void convertObjects(TTNode node, TTIriRef predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
 		boolean functional= objectList.object().size()>1;
 		for (TurtliteParser.ObjectContext object: objectList.object()) {
-			TTValue value= getObjectValue(object);
-			if (functional)
-				node.set(predicate, value);
-			else {
-				if (node.get(predicate) == null)
-					node.set(predicate, new TTArray());
-				node.get(predicate).asArray().add(value);
-			}
+		    if (object.collection() != null) {
+                TTArray value= new TTArray();
+                convertCollection(value,object.collection());
+                node.set(predicate, value);
+            } else {
+                TTValue value = getObjectValue(object);
+                if (functional)
+                    node.set(predicate, value);
+                else {
+                    if (node.get(predicate) == null)
+                        node.set(predicate, new TTArray());
+                    node.get(predicate).add(value);
+                }
+            }
 		}
 	}
 
@@ -138,9 +144,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 			convertBlankNodePropertyList(value.asNode(),object.blankNodePropertyList());
 			return value;
 		} else if (object.collection()!=null){
-			value= new TTArray();
-			convertCollection(value.asArray(),object.collection());
-			return value;
+            throw new DataFormatException("Unhandled collection");
 		}
 		else
 			throw new DataFormatException("Unknown object type " + object.getText());

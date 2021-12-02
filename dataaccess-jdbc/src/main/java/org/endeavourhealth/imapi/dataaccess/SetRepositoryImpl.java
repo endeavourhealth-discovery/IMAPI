@@ -88,7 +88,7 @@ public class SetRepositoryImpl implements SetRepository {
                     if (parentDbid == null)
                         node.set(IM.DBID, TTLiteral.literal(rs.getInt("subject")));
                     TTIriRef predicate = TTIriRef.iri(rs.getString("predicateIri"), rs.getString("predicate"));
-                    TTValue ttobject = node.get(predicate);
+                    TTArray ttobject = node.get(predicate);
                     boolean functional = rs.getInt("functional") == 1;
                     if (ttobject == null && !functional) {
                         node.set(predicate, new TTArray());
@@ -335,7 +335,7 @@ public class SetRepositoryImpl implements SetRepository {
 		buildSimpleExpressions(conceptSet, sql);
 
 		//Loops through the members that have complex expressions
-		for (TTValue member : conceptSet.get(IM.DEFINITION).asArray().getElements()) {
+		for (TTValue member : conceptSet.get(IM.DEFINITION).iterator()) {
 			if (member.isNode()) {
 				sql.add("Union all");
 				StringJoiner from = new StringJoiner("\n");
@@ -365,7 +365,7 @@ public class SetRepositoryImpl implements SetRepository {
 		// Sort expressions into role groups followed  by superclass iris
 		List<TTIriRef> superClasses = new ArrayList<>();
 		List<TTNode> roles = new ArrayList<>();
-		for (TTValue ob : member.asNode().get(OWL.INTERSECTIONOF).asArray().getElements()) {
+		for (TTValue ob : member.asNode().get(OWL.INTERSECTIONOF).iterator()) {
 			if (ob.isIriRef())
 				superClasses.add(ob.asIriRef());
 			else
@@ -378,8 +378,8 @@ public class SetRepositoryImpl implements SetRepository {
 			from.add("tpl tpl_e1_r1");
 			for (TTNode role : roles) {
 				expressionNum++;
-				Map<TTIriRef, TTValue> predicateMap = role.getPredicateMap();
-				for (Map.Entry<TTIriRef,TTValue> entry:predicateMap.entrySet()) {
+				Map<TTIriRef, TTArray> predicateMap = role.getPredicateMap();
+				for (Map.Entry<TTIriRef,TTArray> entry:predicateMap.entrySet()) {
 					roleNum++;
 					TTIriRef attributeIri = entry.getKey();
 					TTIriRef valueIri = entry.getValue().asIriRef();

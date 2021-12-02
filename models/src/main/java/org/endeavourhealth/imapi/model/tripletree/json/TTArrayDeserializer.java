@@ -39,7 +39,7 @@ public class TTArrayDeserializer extends StdDeserializer<TTArray> {
             if (node.isTextual())
                 result.add(literal(node.asText()));
             else if (node.isArray())
-                result.add(ctx.readValue(node.traverse(jsonParser.getCodec()), TTArray.class));
+                throw new IOException("Cant deserialize array of arrays");
             else if (node.isObject()) {
                 if (node.has("@id"))
                     result.add(iri(node.get("@id").textValue()));

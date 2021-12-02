@@ -57,18 +57,16 @@ public class XlsHelper {
 
 		for (TTIriRef predicate : predicates) {
 			Cell cell = row.createCell(row.getLastCellNum());
-			TTValue value = summary.get(iri(predicate.getIri(), predicate.getName()));
+			TTArray value = summary.get(iri(predicate.getIri(), predicate.getName()));
 			if (value.isIriRef()) {
 				cell.setCellValue(value.asIriRef().getName());
 			} else if (value.isLiteral()) {
 				cell.setCellValue(value.asLiteral().getValue());
-			} else if (value.isList()) {
+			} else {
 				String result;
-				List<String> names = value.asArray().getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
+				List<String> names = value.getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
 				result = String.join(",", names);
 				cell.setCellValue(result);
-			} else {
-				LOG.warn("XLS helper encountered unexpected concept summary type while adding summaries to spreadsheet");
 			}
 		}
 	}

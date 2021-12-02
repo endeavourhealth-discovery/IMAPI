@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
@@ -22,7 +19,7 @@ public class TTToSCG {
 		StringBuilder scg = new StringBuilder();
 		if (entity.get(IM.IS_A) != null) {
 			boolean first = true;
-			for (TTValue parent : entity.get(IM.IS_A).asArray().getElements()) {
+			for (TTValue parent : entity.get(IM.IS_A).iterator()) {
 				if (parent.isIriRef()) {
 					if (!first)
 						scg.append(" +");
@@ -40,7 +37,7 @@ public class TTToSCG {
 			scg.append(":");
 			this.refinedSet=true;
 			boolean first=true;
-			for (TTValue group:node.get(IM.ROLE_GROUP).asArray().getElements()){
+			for (TTValue group:node.get(IM.ROLE_GROUP).iterator()){
 				if (!first)
 					scg.append(" ,");
 				scg.append("{");
@@ -56,7 +53,7 @@ public class TTToSCG {
 
 	private void refined(TTNode node, StringBuilder scg, Boolean includeName) throws DataFormatException {
 		boolean first= true;
-		for (Map.Entry<TTIriRef,TTValue> entry:node.getPredicateMap().entrySet()){
+		for (Map.Entry<TTIriRef, TTArray> entry:node.getPredicateMap().entrySet()){
 			if (!excludeCorePredicates(entry.getKey())){
 				if (!entry.getValue().isLiteral())
 				if (!refinedSet) {

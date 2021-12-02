@@ -266,7 +266,7 @@ public class EntityService {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
-		TTValue result = getEntityPredicates(iri, predicates, UNLIMITED)
+		TTArray result = getEntityPredicates(iri, predicates, UNLIMITED)
             .getEntity()
             .get(predicate.asIriRef());
 
@@ -274,9 +274,9 @@ public class EntityService {
             if (result.isIriRef())
                 members.add(getValueSetMemberFromIri(result.asIriRef().getIri()));
             else if (result.isNode())
-                members.add(getValueSetMemberFromNode(result));
-            else if (result.isList()) {
-                for (TTValue element : result.getElements()) {
+                members.add(getValueSetMemberFromNode(result.asNode()));
+            else {
+                for (TTValue element : result.iterator()) {
                     if (element.isNode()) {
                         members.add(getValueSetMemberFromNode(element));
                     } else if (element.isIriRef()) {
@@ -421,10 +421,10 @@ public class EntityService {
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
 		if (terms) xls.addTerms(getEntityTermCodes(iri));
 		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
-		TTValue isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
+        TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
 		if (isChildOf && isChildOfData != null) xls.addIsChildOf(isChildOfData.getElements());
 		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
-		TTValue hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
+        TTArray hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
 		if (hasChildren && hasChildrenData != null) xls.addHasChildren(hasChildrenData.getElements());
 
         return xls;
@@ -446,7 +446,7 @@ public class EntityService {
 	}
 
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
-        for (TTValue propertyGroup : entity.getAsArray(SHACL.PROPERTY).getElements()) {
+        for (TTValue propertyGroup : entity.get(SHACL.PROPERTY).iterator()) {
             if (propertyGroup.isNode()) {
                 TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
                     ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
@@ -598,23 +598,16 @@ public class EntityService {
 	}
 
 	private List<GraphDto> getEntityDefinedParents(TTEntity entity) {
-		TTValue parent = entity.get(RDFS.SUBCLASSOF);
+        TTArray parent = entity.get(RDFS.SUBCLASSOF);
 		if (parent == null)
 			return Collections.emptyList();
 		List<GraphDto> result = new ArrayList<>();
-		if (parent.isList()) {
 			parent.getElements().forEach(item -> {
 				if (!OWL.THING.equals(item.asIriRef()))
 					result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName())
 							.setPropertyType(RDFS.SUBCLASSOF.getName()));
 			});
-		} else {
-			if (parent.asIriRef()!= null && !OWL.THING.equals(parent.asIriRef()))
-				result.add(new GraphDto()
-						.setIri(parent.asIriRef().getIri())
-						.setName(parent.asIriRef().getName())
-						.setPropertyType(RDFS.SUBCLASSOF.getName()));
-		}
+
 		return result;
 	}
 
@@ -650,7 +643,7 @@ public class EntityService {
 		if(iri==null || iri.isEmpty())
 			return null;
 		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()), UNLIMITED).getEntity();
-		TTValue value = entity.get(RDF.TYPE);
+		TTArray value = entity.get(RDF.TYPE);
 		if(!value.getElements().contains(SHACL.NODESHAPE)){
 			return null;
 		}

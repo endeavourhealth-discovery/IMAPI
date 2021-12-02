@@ -1,5 +1,6 @@
 import { JoinData, JoinInstruction, TransformInputUpload } from "../models";
 import alasql from "alasql";
+import { generateDataModel } from "./DataModelController";
 
 export function join(body: JoinData) {
   body.instructions.forEach(currentInstr => {
@@ -16,7 +17,8 @@ function getJoinedTransform(instr: JoinInstruction, joinedJson: any[], joinedDis
     id: instr.dataA + instr.dataB + Date.now(),
     inputJson: joinedJson,
     inputDisplayJson: joinedDisplayJson,
-    inputFile: { name: "Joined-" + Date.now() + ".json", lastModified: Date.now() } as File
+    inputFile: { name: "Joined-" + Date.now() + ".json", lastModified: Date.now() } as File,
+    dataModel: generateDataModel(joinedJson)
   } as TransformInputUpload;
 }
 

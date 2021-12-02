@@ -8,6 +8,7 @@ export interface TransformInputUpload {
   inputFile: File;
   inputJson: any[];
   inputDisplayJson: any[];
+  dataModel: any;
 }
 
 export interface JoinInstruction {

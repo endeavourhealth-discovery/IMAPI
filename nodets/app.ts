@@ -4,6 +4,7 @@ import { join } from "./controllers/JoinController";
 import { JoinData, JpathData, TransformInputUpload } from "./models";
 import { getInputFromJpath, getJsonPathOptions } from "./controllers/JsonPathController";
 import { getJsonFromFile } from "./controllers/ParseController";
+import { generateDataModel } from "./controllers/DataModelController";
 
 const app = express();
 const port = 3000;
@@ -32,4 +33,9 @@ app.post("/api/transform/jpathsFromInput", (request: Request, response: Response
 app.post("/api/transform/inputFromJpath", (request: Request, response: Response, next: NextFunction) => {
   const body: JpathData = request.body;
   response.status(200).json(getInputFromJpath(body.input, body.jpath));
+});
+
+app.post("/api/transform/datamodel", (request: Request, response: Response, next: NextFunction) => {
+  const body: any[] = request.body;
+  response.status(200).json(generateDataModel(body));
 });

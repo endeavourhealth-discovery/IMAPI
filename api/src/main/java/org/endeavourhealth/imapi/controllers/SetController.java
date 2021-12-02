@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.zip.DataFormatException;
 @SwaggerDefinition(tags = {
     @Tag(name = "Set Controller", description = "Main Set endpoint")
 })
+@RequestScope
 public class SetController {
     private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
 

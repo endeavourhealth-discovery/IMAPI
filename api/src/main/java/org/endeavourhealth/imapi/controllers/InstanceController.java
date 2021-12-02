@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.List;
 import java.util.Set;
@@ -22,6 +23,7 @@ import java.util.Set;
 @SwaggerDefinition(tags = {
         @Tag(name = "Instance Controller", description = "Main Instance endpoint")
 })
+@RequestScope
 public class InstanceController {
     private static final Logger LOG = LoggerFactory.getLogger(InstanceController.class);
 

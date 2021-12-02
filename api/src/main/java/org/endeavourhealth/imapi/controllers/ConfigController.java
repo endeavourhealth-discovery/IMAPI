@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Map;
 @SwaggerDefinition(tags = {
     @Tag(name = "Config Controller", description = "IM application configuration endpoint")
 })
+@RequestScope
 public class ConfigController {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigController.class);
 

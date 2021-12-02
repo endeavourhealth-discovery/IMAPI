@@ -31,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -1167,6 +1168,10 @@ class EntityServiceTest {
     void getGraphData_ParentIsList() {
 
         List<Tpl> tplList= new ArrayList<>();
+        tplList.add(new Tpl()
+            .setDbid(1)
+            .setPredicate(RDFS.LABEL)
+            .setLiteral("TestConcept"));
         tplList.add(new Tpl()
                 .setDbid(2)
                 .setPredicate(IM.IS_A).setFunctional(false)

@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.annotation.RequestScope;
 
 @RestController
 @RequestMapping("api/entity")
@@ -51,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SwaggerDefinition(tags = {
     @Tag(name = "Entity Controller", description = "Main Entity endpoint")
 })
+@RequestScope
 public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
 

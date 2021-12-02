@@ -40,28 +40,34 @@ public class EntityService {
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
 
+	private EntityRepository entityRepository = new EntityRepositoryImpl();
+    private EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
+    private SetRepository setRepository = new SetRepositoryImpl();
+    private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
+    private EntitySearchRepository entitySearchRepository = new EntitySearchRepositoryImpl();
+    private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
+    private ConfigService configService = new ConfigService();
+
 	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
-        List<Tpl> triples = new EntityTripleRepositoryImpl().getTriplesRecursive(iri, predicates, limit);
+        List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
         LOG.debug("Found {} triples for {}", triples.size(), iri);
         return Tpl.toBundle(iri, triples);
     }
 
 	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
-		List<Tpl> triples = new EntityTripleRepositoryImpl().getTriplesRecursiveByExclusions(iri, excludePredicates, limit);
+		List<Tpl> triples = entityTripleRepository.getTriplesRecursiveByExclusions(iri, excludePredicates, limit);
 		return Tpl.toBundle(iri, triples);
 	}
 
     public TTIriRef getEntityReference(String iri) {
 		if (iri == null || iri.isEmpty())
 			return null;
-		return new EntityRepositoryImpl().getEntityReferenceByIri(iri);
+		return entityRepository.getEntityReferenceByIri(iri);
 	}
 
 	public List<EntityReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize,
 			boolean inactive) {
-
-	    EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
-	    EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
 
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
@@ -83,7 +89,7 @@ public class EntityService {
 	}
 
 	private List<TTIriRef> getChildren(String iri, int rowNumber, Integer pageSize, boolean inactive) {
-		return new EntityTripleRepositoryImpl().findImmediateChildrenByIri(iri, rowNumber, pageSize, inactive);
+        return entityTripleRepository.findImmediateChildrenByIri(iri, rowNumber, pageSize, inactive);
 	}
 
 	public List<EntityReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
@@ -99,8 +105,6 @@ public class EntityService {
 		List<EntityReferenceNode> parents = getParents(iri, rowNumber, pageSize, inactive).stream()
 				.map(p -> new EntityReferenceNode(p.getIri(), p.getName())).collect(Collectors.toList());
 
-        EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
-
 		for (EntityReferenceNode parent : parents)
 			parent.setType(entityTypeRepository.getEntityTypes(parent.getIri()));
 
@@ -109,13 +113,13 @@ public class EntityService {
 
 	private List<TTIriRef> getParents(String iri, int rowNumber, Integer pageSize, boolean inactive) {
 
-		return new EntityTripleRepositoryImpl().findImmediateParentsByIri(iri, rowNumber, pageSize, inactive);
+		return entityTripleRepository.findImmediateParentsByIri(iri, rowNumber, pageSize, inactive);
 	}
 
 	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
 		if (iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty())
 			return Collections.emptyList();
-		return new EntityTctRepositoryImpl()
+		return entityTctRepository
 				.findAncestorsByType(iri, RDFS.SUBCLASSOF.getIri(), candidates).stream()
 				.sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
 	}
@@ -125,7 +129,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		List<String> xmlDataTypes = new ConfigService().getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
+		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
@@ -133,7 +137,7 @@ public class EntityService {
 		if (pageIndex != null && pageSize != null)
 			rowNumber = pageIndex * pageSize;
 
-		return new EntityTripleRepositoryImpl().getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASSOF.getIri()).stream()
+		return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASSOF.getIri()).stream()
 				.sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
 				.distinct().collect(Collectors.toList());
 	}
@@ -142,18 +146,18 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return 0;
 
-		List<String> xmlDataTypes = new ConfigService().getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
+		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return 0;
 
-		return new EntityTripleRepositoryImpl().getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
+		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
 	public List<SearchResultSummary> advancedSearch(SearchRequest request) {
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
 
-		List<SearchResultSummary> matchingEntity = new EntitySearchRepositoryImpl().advancedSearch(request);
+		List<SearchResultSummary> matchingEntity = entitySearchRepository.advancedSearch(request);
 
 		return matchingEntity.stream()
             .map(e -> e.setWeighting(Levenshtein.calculate(request.getTermFilter(), e.getMatch())))
@@ -176,7 +180,7 @@ public class EntityService {
 
         Set<ValueSetMember> definedMemberExclusions = getDefinedExclusions(iri, expandSets, parentSetName, originalParentIri);
 
-		Set<ValueSetMember> definedSetInclusions = new EntityTripleRepositoryImpl().getSubjectByObjectAndPredicateAsValueSetMembers(iri, IM.MEMBER_OF_GROUP.getIri());
+		Set<ValueSetMember> definedSetInclusions = entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(iri, IM.MEMBER_OF_GROUP.getIri());
 
         memberCount = processExpansions(expandMembers, expandSets, limit, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
 
@@ -292,7 +296,7 @@ public class EntityService {
 		ValueSetMember member = new ValueSetMember();
 		Map<String, String> defaultPredicates = new HashMap<>();
 		try {
-			defaultPredicates = new ConfigService().getConfig("defaultPredicateNames", new TypeReference<>() {
+			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
@@ -304,7 +308,7 @@ public class EntityService {
 
 	private ValueSetMember getValueSetMemberFromIri(String iri) {
 		ValueSetMember member = new ValueSetMember();
-        SearchResultSummary summary = new EntityRepositoryImpl().getEntitySummaryByIri(iri);
+        SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri);
 		member.setEntity(iri(summary.getIri(), summary.getName()));
 		member.setCode(summary.getCode());
 		member.setScheme(summary.getScheme());
@@ -314,9 +318,6 @@ public class EntityService {
 	private Map<String, ValueSetMember> processMembers(Set<ValueSetMember> valueSetMembers, boolean expand, Integer memberCount, Integer limit)
 			{
 		Map<String, ValueSetMember> memberHashMap = new HashMap<>();
-
-		SetRepository setRepository = new SetRepositoryImpl();
-
 		for (ValueSetMember member : valueSetMembers) {
 
             if (limit != null && (memberCount + memberHashMap.size()) > limit)
@@ -343,9 +344,6 @@ public class EntityService {
 		ValueSetMembership result = new ValueSetMembership();
 		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.DEFINITION);
 		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
-
-        SetRepository setRepository = new SetRepositoryImpl();
-
 		for (TTIriRef m : included) {
 			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
 					.filter(em -> em.getEntity().getIri().equals(memberIri)).findFirst();
@@ -366,14 +364,14 @@ public class EntityService {
 	}
 
 	private Set<TTIriRef> getMemberIriRefs(String valueSetIri, TTIriRef predicate) {
-		return new EntityTripleRepositoryImpl().getObjectIriRefsBySubjectAndPredicate(valueSetIri, predicate.getIri());
+		return entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(valueSetIri, predicate.getIri());
 
 	}
 
 	public List<TermCode> getEntityTermCodes(String iri) {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
-		return new TermCodeRepositoryImpl().findAllByIri(iri);
+		return termCodeRepository.findAllByIri(iri);
 	}
 
 	public TTEntity getSummaryFromConfig(String iri, List<ComponentLayoutItem> configs) {
@@ -613,7 +611,7 @@ public class EntityService {
 
 	public List<TTIriRef> getDefinitionSubTypes(String iri) {
 
-		return new EntityTripleRepositoryImpl().findImmediateChildrenByIri(iri, null, null, false).stream()
+		return entityTripleRepository.findImmediateChildrenByIri(iri, null, null, false).stream()
 				.map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
 	}
 
@@ -636,7 +634,7 @@ public class EntityService {
 	}
 
 	public SearchResultSummary getSummary(String iri) {
-		return new EntitySearchRepositoryImpl().getSummary(iri);
+		return entitySearchRepository.getSummary(iri);
 	}
 
 	public TTEntity getConceptShape(String iri) {
@@ -651,13 +649,13 @@ public class EntityService {
 	}
 
 	public List<Namespace> getNamespaces() {
-		return new EntityTripleRepositoryImpl().findNamespaces();
+		return entityTripleRepository.findNamespaces();
 	}
 
     public TTBundle getInferredBundle(String iri) {
         Set<String> predicates = null;
         try {
-            predicates = new ConfigService().getConfig("inferredExcludePredicates", new TypeReference<>() {
+            predicates = configService.getConfig("inferredExcludePredicates", new TypeReference<>() {
             });
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);
@@ -674,7 +672,7 @@ public class EntityService {
     public TTDocument getConcept(String iri) {
 		TTBundle bundle = getEntityPredicates(iri, null, 0);
 		TTDocument document = new TTDocument();
-		List<Namespace> namespaces = new EntityTripleRepositoryImpl().findNamespaces();
+		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
 		TTContext context = new TTContext();
 		for(Namespace namespace : namespaces){
 			context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
@@ -685,6 +683,6 @@ public class EntityService {
 	}
 
 	public Collection<SimpleMap> getMatchedFrom(String iri) {
-		return new EntityTripleRepositoryImpl().getSubjectFromObjectPredicate(iri, IM.MATCHED_TO);
+		return entityTripleRepository.getSubjectFromObjectPredicate(iri, IM.MATCHED_TO);
 	}
 }

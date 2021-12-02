@@ -16,7 +16,7 @@ function getJoinedTransform(instr: JoinInstruction, joinedJson: any[], joinedDis
     id: instr.dataA + instr.dataB + Date.now(),
     inputJson: joinedJson,
     inputDisplayJson: joinedDisplayJson,
-    inputFile: { name: "Joined: " + Date.now() + instr.dataA + instr.dataB, lastModified: Date.now() } as File
+    inputFile: { name: "Joined-" + Date.now() + ".json", lastModified: Date.now() } as File
   } as TransformInputUpload;
 }
 

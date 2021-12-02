@@ -81,7 +81,7 @@ public class EntityService {
 		    EntityReferenceNode node = new EntityReferenceNode();
 		    node.setIri(c.getIri()).setName(c.getName());
 		    node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
-		    node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), inactive));
+		    node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
 		    result.add(node);
         }
 

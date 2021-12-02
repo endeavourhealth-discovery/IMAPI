@@ -234,7 +234,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public boolean hasChildren(String parentIri, boolean inactive) throws DALException {
+    public boolean hasChildren(String parentIri, List<String> schemeIris, boolean inactive) throws DALException {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?c")
             .add("WHERE {")

@@ -16,22 +16,31 @@ export function generateDataModel(inputJson: any[]) {
 
   if (isArrayHasLength(inputJson)) {
     const exampleRow = inputJson[0];
-    const entity = {
-      "@id": "http://graph#MainEntity",
-      "rdf:type": [
-        {
-          "@id": "sh:NodeShape"
-        }
-      ],
-      "rdfs:label": "MainEntity"
-    };
-    if (isObjectHasKeys(exampleRow)) {
-      Object.keys(exampleRow).forEach(key => {
-        entity["im:" + key] = typeof exampleRow[key];
-      });
-    }
-    dataModel.entities.push(entity);
+    addEntitiesRecursively(dataModel, exampleRow, undefined);
   }
 
   return dataModel;
+}
+
+function addEntitiesRecursively(dataModel: any, exampleRow: any, propertyName: any) {
+  const entity = {
+    "@id": propertyName ? "http://graph#" + propertyName : "http://graph#MainEntity",
+    "rdf:type": [
+      {
+        "@id": "sh:NodeShape"
+      }
+    ],
+    "rdfs:label": propertyName ? propertyName : "MainEntity"
+  };
+  if (isObjectHasKeys(exampleRow)) {
+    Object.keys(exampleRow).forEach(key => {
+      if (isObjectHasKeys(exampleRow[key])) {
+        addEntitiesRecursively(dataModel, exampleRow[key], key);
+        entity["im:" + key] = { "@id": "http://graph#" + key };
+      } else {
+        entity["im:" + key] = typeof exampleRow[key];
+      }
+    });
+  }
+  dataModel.entities.push(entity);
 }

@@ -295,13 +295,19 @@ public class EntityService {
 	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
 		Map<String, String> defaultPredicates = new HashMap<>();
+		List<String> blockedIris = new ArrayList<>();
 		try {
 			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
 		}
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0);
+		try {
+			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+		} catch (Exception e) {
+			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+		}
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, blockedIris);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}
@@ -689,7 +695,12 @@ public class EntityService {
 		return document;
 	}
 
-	public Collection<SimpleMap> getMatchedFrom(String iri) {
-		return entityTripleRepository.getSubjectFromObjectPredicate(iri, IM.MATCHED_TO);
+	public List<SimpleMap> getSimpleMaps(String iri) {
+		if (iri == null || iri.equals("")) return new ArrayList<>();
+		String scheme = iri.substring(0,iri.indexOf("#") + 1);
+		List<Namespace> namespaces = getNamespaces();
+		List<String> schemes = namespaces.stream().map(namespace -> namespace.getIri()).collect(Collectors.toList());
+		if (schemes.contains(scheme)) schemes.remove(schemes.indexOf(scheme));
+		return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
 	}
 }

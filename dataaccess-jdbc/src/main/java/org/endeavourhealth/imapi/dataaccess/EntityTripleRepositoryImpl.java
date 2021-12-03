@@ -406,8 +406,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return namespaces;
     }
 
-    public Collection<SimpleMap> getSubjectFromObjectPredicate(String iri, TTIriRef predicate) throws DALException {
-        HashMap<String, SimpleMap> simpleMaps = new HashMap<>();
+    public List<SimpleMap> getSubjectFromObjectPredicate(String iri, TTIriRef predicate) throws DALException {
+        List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT e.iri, e.name, e.code, e.scheme ")
                 .add("FROM tpl t ")
@@ -424,7 +424,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        simpleMaps.put(rs.getString("iri"), new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
+                        simpleMaps.add(new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
                     }
                 }
             }
@@ -432,7 +432,44 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             throw new DALException("Failed to fetch subjects by object and predicate", e);
         }
 
-        return simpleMaps.values();
+        return simpleMaps;
+    }
+
+    @Override
+    public List<SimpleMap> findSimpleMapsByIri(String iri,List<String> schemeIris) throws DALException {
+        List<SimpleMap> simpleMaps = new ArrayList<>();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT s.iri, s.name, s.code, s.scheme")
+                .add("FROM entity c ")
+                .add("JOIN tpl t ON t.object = c.dbid ")
+                .add("JOIN entity p ON p.dbid = t.predicate AND p.iri = ?")
+                .add("JOIN entity s ON s.dbid = t.subject ")
+                .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND s.scheme IN " + inListParams(schemeIris.size()));
+        }
+        sql.add("ORDER BY s.name, s.iri ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                int i = 0;
+                statement.setString(++i, RDFS.SUBCLASSOF.getIri());
+                statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        simpleMaps.add(new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DALException("Failed to find simple maps", e);
+        }
+        return simpleMaps;
     }
 
     @Override

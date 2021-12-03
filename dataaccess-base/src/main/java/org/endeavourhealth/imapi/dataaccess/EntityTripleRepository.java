@@ -34,7 +34,7 @@ public interface EntityTripleRepository {
 
     List<Namespace> findNamespaces();
 
-    Collection<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate);
+    List<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate);
 
     TTBundle getEntityPredicates(String entityIri, Set<String> predicates, int unlimited);
 
@@ -43,4 +43,8 @@ public interface EntityTripleRepository {
     Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object);
 
     Set<EntitySummary> getSubclassesAndReplacements(String iri);
+
+    List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris);
+
+
 }

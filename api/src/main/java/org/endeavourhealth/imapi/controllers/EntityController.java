@@ -78,10 +78,10 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
-	@GetMapping(value = "/matchedFrom", produces = "application/json")
+	@GetMapping(value = "/simpleMaps", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getMatchedFrom");
-		return entityService.getMatchedFrom(iri);
+		LOG.debug("getSimpleMaps");
+		return entityService.getSimpleMaps(iri);
 	}
 
     @GetMapping(value = "/partialBundle", produces = "application/json")

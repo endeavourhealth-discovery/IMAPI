@@ -44,8 +44,8 @@
     </dependency>
     <dependency>
       <groupId>org.endeavourhealth.imapi</groupId>
-<!--      <artifactId>dataaccess-rdf4j</artifactId>-->
-      <artifactId>dataaccess-jdbc</artifactId>
+      <artifactId>dataaccess-rdf4j</artifactId>
+<!--      <artifactId>dataaccess-jdbc</artifactId>-->
       <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>

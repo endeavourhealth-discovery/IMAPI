@@ -78,7 +78,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("}");
 
         if (rowNumber != null && pageSize != null) {
-            sql.add("LIMIT " + rowNumber + ", " + pageSize);
+            sql.add("LIMIT "+ pageSize + " OFFSET " + rowNumber );
         }
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {

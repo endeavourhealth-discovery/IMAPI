@@ -35,15 +35,15 @@ public class TTArray implements Serializable {
 
     // Single element helpers
     public boolean isLiteral() { return elements.size() == 1 && elements.stream().findFirst().get().isLiteral(); }
-    public TTLiteral asLiteral() { return elements.stream().findFirst().get().asLiteral(); }
+    public TTLiteral asLiteral() { return (TTLiteral) elements.stream().findFirst().orElse(null); }
 
     public boolean isIriRef() { return elements.size() == 1 && elements.stream().findFirst().get().isIriRef(); }
-    public TTIriRef asIriRef() { return elements.stream().findFirst().get().asIriRef(); }
+    public TTIriRef asIriRef() { return (TTIriRef) elements.stream().findFirst().orElse(null); }
 
     public boolean isNode() { return elements.size() == 1 && elements.stream().findFirst().get().isNode(); }
-    public TTNode asNode() { return elements.stream().findFirst().get().asNode(); }
+    public TTNode asNode() { return (TTNode) elements.stream().findFirst().orElse(null); }
 
-    public TTValue asValue() { return elements.stream().findFirst().get(); }
+    public TTValue asValue() { return elements.stream().findFirst().orElse(null); }
 
     public Iterable<TTValue> iterator() {
         return elements;

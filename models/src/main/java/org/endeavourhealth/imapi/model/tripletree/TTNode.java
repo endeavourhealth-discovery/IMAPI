@@ -56,15 +56,18 @@ public class TTNode implements TTValue {
     }
 
     public TTLiteral getAsLiteral(TTIriRef predicate) {
-        return predicateValues.get(predicate).asLiteral();
+        TTArray vals = get(predicate);
+        return (vals == null) ? null : vals.asLiteral();
     }
 
     public TTIriRef getAsIriRef(TTIriRef predicate) {
-        return predicateValues.get(predicate).asIriRef();
+        TTArray vals = get(predicate);
+        return (vals == null) ? null : vals.asIriRef();
     }
 
     public TTNode getAsNode(TTIriRef predicate) {
-        return predicateValues.get(predicate).asNode();
+        TTArray vals = get(predicate);
+        return (vals == null) ? null : vals.asNode();
     }
 
 

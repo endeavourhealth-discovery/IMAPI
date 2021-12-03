@@ -19,7 +19,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 return getConceptDashboard();
             case "defaultPredicateNames":
                 return getDefaultPredicateNames();
-            case "xlmSchemaDataTypes":
+            case "xmlSchemaDataTypes":
                 return getXmlSchemaDataTypes();
             default:
                 throw new DALException("Unhandled config");
@@ -48,8 +48,8 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"TextWithLabel\",\n" +
                 "    \"label\": \"Iri\",\n" +
-                "    \"order\": 102,\n" +
-                "    \"predicate\": \"@id\"\n" +
+                "    \"order\": 102\n" +
+//                 "    \"predicate\": \"@id\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"size\": \"50%\",\n" +
@@ -83,8 +83,8 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"SectionDivider\",\n" +
                 "    \"label\": \"SummaryDefinitionDivider\",\n" +
-                "    \"order\": 200,\n" +
-                "    \"predicate\": \"None\"\n" +
+                "    \"order\": 200\n" +
+                //"    \"predicate\": \"None\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"size\": \"100%\",\n" +
@@ -118,8 +118,8 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"size\": \"100%\",\n" +
                 "    \"type\": \"SectionDivider\",\n" +
                 "    \"label\": \"DefinitionTermsDivider\",\n" +
-                "    \"order\": 300,\n" +
-                "    \"predicate\": \"None\"\n" +
+                "    \"order\": 300\n" +
+                //"    \"predicate\": \"None\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"size\": \"100%\",\n" +

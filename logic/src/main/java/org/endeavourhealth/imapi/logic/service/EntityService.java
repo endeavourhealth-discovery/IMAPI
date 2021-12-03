@@ -695,7 +695,12 @@ public class EntityService {
 		return document;
 	}
 
-	public Collection<SimpleMap> getMatchedFrom(String iri) {
-		return entityTripleRepository.getSubjectFromObjectPredicate(iri, IM.MATCHED_TO);
+	public List<SimpleMap> getSimpleMaps(String iri) {
+		if (iri == null || iri.equals("")) return new ArrayList<>();
+		String scheme = iri.substring(0,iri.indexOf("#") + 1);
+		List<Namespace> namespaces = getNamespaces();
+		List<String> schemes = namespaces.stream().map(namespace -> namespace.getIri()).collect(Collectors.toList());
+		if (schemes.contains(scheme)) schemes.remove(schemes.indexOf(scheme));
+		return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
 	}
 }

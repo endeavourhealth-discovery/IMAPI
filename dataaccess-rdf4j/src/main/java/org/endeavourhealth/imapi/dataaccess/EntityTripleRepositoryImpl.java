@@ -378,7 +378,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Collection<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate) {
+    public List<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate) {
         List<SimpleMap> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -482,5 +482,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
             // LOG.debug(tpl.getDbid() + ": " + tpl.getParent() + " - " + tpl.getPredicate().getIri() + " => " + tpl.getLiteral() + "/" + tpl.getObject());
         }
+    }
+
+    @Override
+    public List<SimpleMap> findSimpleMapsByIri(String iri,List<String> schemeIris) {
+        List<SimpleMap> simpleMaps = new ArrayList<>();
+        return simpleMaps;
     }
 }

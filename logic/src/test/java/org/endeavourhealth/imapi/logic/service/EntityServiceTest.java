@@ -1481,14 +1481,14 @@ class EntityServiceTest {
     }
 
     @Test
-    void getMatchedFrom_NullIri() {
-        Collection<SimpleMap> actual = entityService.getMatchedFrom(null);
+    void getSimpleMaps_NullIri() {
+        List<SimpleMap> actual = entityService.getSimpleMaps(null);
         assertNotNull(actual);
     }
 
     @Test
-    void getMatchedFrom_EmptyIri() {
-        Collection<SimpleMap> actual = entityService.getMatchedFrom("");
+    void getSimpleMaps_EmptyIri() {
+        Collection<SimpleMap> actual = entityService.getSimpleMaps("");
         assertNotNull(actual);
     }
 

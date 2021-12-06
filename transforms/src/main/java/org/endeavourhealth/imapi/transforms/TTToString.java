@@ -84,13 +84,13 @@ public class TTToString {
                 }
                 if (last) suffix = " )\n";
             }
-            result = processNode(element.getKey().getIri(), element.getValue(), result, nodeIndent, iriMap, pad, prefix, suffix, group, blockedIris);
+            result = processNode(element.getKey().getIri(), element.getValue(), result, nodeIndent, iriMap, pad, prefix, suffix, group, last, blockedIris);
             count ++;
         }
         return result;
     }
 
-    private static String processNode(String key, TTValue value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, Boolean group, List<String> blockedIris) {
+    private static String processNode(String key, TTValue value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, Boolean group, Boolean last, List<String> blockedIris) {
         if (value.isIriRef()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += ttIriToString(value.asIriRef(), "object", indent, true, blockedIris);
@@ -108,11 +108,15 @@ public class TTToString {
                 result += getObjectName(key, iriMap, pad, prefix);
                 result += "\n";
                 result += ttValueToString(value, "object", iriMap, indent + 1, blockedIris);
+                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+                else if (group && last) result += " )\n";
             }
         } else if (value.isNode()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += "\n";
             result += ttValueToString(value, "object", iriMap, indent, blockedIris);
+            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+            else if (group && last) result += " )\n";
         } else {
             result += getObjectName(key, iriMap, pad, prefix);
             result += ttValueToString(value, "object", iriMap, indent, blockedIris);

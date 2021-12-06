@@ -1,5 +1,34 @@
 import { isArrayHasLength, isObjectHasKeys } from "../helpers/DataTypeCheckers";
 
+export function getDataModelInstanceDisplay(ttdocument: any) {
+  const instances = [] as any[];
+  ttdocument.entities.forEach((entity: any) => {
+    const instance = {};
+    if (isObjectHasKeys(entity)) {
+      Object.keys(entity).forEach(key => {
+        switch (key) {
+          case "rdf:type":
+            (instance as any)[key] = entity["rdfs:label"];
+            break;
+          case "sh:property":
+            entity["sh:property"].forEach((property: any) => {
+              const propertyName: string = property["sh:path"]?.name || property["sh:path"]["@id"];
+              const value = "sh:node" in property ? { "@id": null } : null;
+              (instance as any)[propertyName] = value;
+            });
+            break;
+
+          default:
+            (instance as any)[key] = "";
+            break;
+        }
+      });
+    }
+    instances.push(instance);
+  });
+  return instances;
+}
+
 export function generateDataModel(inputJson: any[]) {
   const dataModel = {
     "@context": {

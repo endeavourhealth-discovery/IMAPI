@@ -108,13 +108,15 @@ public class TTToString {
                 result += getObjectName(key, iriMap, pad, prefix);
                 result += "\n";
                 result += ttValueToString(value, "object", iriMap, indent + 1, blockedIris);
-//                result += suffix;
             }
-        } else {
+        } else if (value.isNode()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += "\n";
             result += ttValueToString(value, "object", iriMap, indent, blockedIris);
-//            result += suffix;
+        } else {
+            result += getObjectName(key, iriMap, pad, prefix);
+            result += ttValueToString(value, "object", iriMap, indent, blockedIris);
+            result += "\n";
         }
         return result;
     }

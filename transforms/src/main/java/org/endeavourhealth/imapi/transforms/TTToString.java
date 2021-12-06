@@ -50,9 +50,7 @@ public class TTToString {
         if (!inline) result += pad;
         if (!blockedIris.contains(iri.getIri())) {
             String escapedUrl = iri.getIri().replaceAll("/","%2F").replaceAll("#", "%23");
-            String rootUrl = "";
-            if (Objects.equals(System.getenv("MODE"), "dev")) rootUrl = "localhost/8081";
-            if (Objects.equals(System.getenv("MODE"), "prod")) rootUrl = "im.endevourhealth.net";
+            String rootUrl = System.getenv("API_URL");
             result += "<a href=\"" + rootUrl + "/#/concept/" + escapedUrl + "\">";
         }
         if (iri.getName() != null) result += removeEndBrackets(iri.getName());

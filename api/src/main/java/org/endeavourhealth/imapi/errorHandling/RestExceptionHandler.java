@@ -76,7 +76,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnknownFormatConversionException.class)
     protected ResponseEntity<Object> handleDataFormatException(UnknownFormatConversionException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, "Invalid ECL format", ex));
+        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex));
     }
 
     private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {

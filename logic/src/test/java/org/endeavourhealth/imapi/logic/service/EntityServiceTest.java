@@ -146,7 +146,7 @@ class EntityServiceTest {
     @Test
     void getImmediateChildren_NullIri() {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateChildren(null, 1, 10, true);
+                .getImmediateChildren(null,null, 1, 10, true);
 
         assertNotNull(actual);
 
@@ -155,7 +155,7 @@ class EntityServiceTest {
     @Test
     void getImmediateChildren_EmptyIri() {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateChildren("", 1, 10, true);
+                .getImmediateChildren("",null, 1, 10, true);
 
         assertNotNull(actual);
 
@@ -164,7 +164,7 @@ class EntityServiceTest {
     @Test
     void getImmediateChildren_NullIndexSize() {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateChildren("http://endhealth.info/im#25451000252115", null, null, true);
+                .getImmediateChildren("http://endhealth.info/im#25451000252115", null,null, null, true);
 
         assertNotNull(actual);
 
@@ -180,14 +180,14 @@ class EntityServiceTest {
                 .setParents(Collections.singletonList(
                         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
                                 "Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
+        when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",null,
                 0, 20,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         TTArray ttArray = new TTArray()
                 .add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
         when(entityTypeRepository.getEntityTypes(any())).thenReturn(ttArray);
         List<EntityReferenceNode> actual = entityService.getImmediateChildren
-                ("http://endhealth.info/im#25451000252115", 1, 20, true);
+                ("http://endhealth.info/im#25451000252115",null, 1, 20, true);
         assertNotNull(actual);
     }
 
@@ -200,14 +200,14 @@ class EntityServiceTest {
                 .setParents(Collections.singletonList(
                         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
                                 "Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",
+        when(entityTripleRepository.findImmediateChildrenByIri("http://endhealth.info/im#25451000252115",null,
                                 0, 20,false))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         TTArray ttArray = new TTArray()
                 .add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
         when(entityTypeRepository.getEntityTypes(any())).thenReturn(ttArray);
         List<EntityReferenceNode> actual = entityService.getImmediateChildren
-                ("http://endhealth.info/im#25451000252115", 1, 20, false);
+                ("http://endhealth.info/im#25451000252115",null, 1, 20, false);
 
         assertNotNull(actual);
 
@@ -216,7 +216,7 @@ class EntityServiceTest {
     @Test
     void getImmediateParents_NullIri() {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateParents(null, 1, 10, true);
+                .getImmediateParents(null, null, 1, 10, true);
 
         assertNotNull(actual);
     }
@@ -224,7 +224,7 @@ class EntityServiceTest {
     @Test
     void getImmediateParents_EmptyIri() {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateParents("", 1, 10, true);
+                .getImmediateParents("",null, 1, 10, true);
 
         assertNotNull(actual);
     }
@@ -232,7 +232,7 @@ class EntityServiceTest {
     @Test
     void getImmediateParents_NullIndexSize() {
         List<EntityReferenceNode> actual = entityService
-                .getImmediateParents("http://endhealth.info/im#25451000252115", null, null, true);
+                .getImmediateParents("http://endhealth.info/im#25451000252115",null, null, null, true);
 
         assertNotNull(actual);
     }
@@ -247,14 +247,14 @@ class EntityServiceTest {
                 .setParents(Collections.singletonList(
                         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
                                 "Adverse reaction to Amlodipine Besilate")));
-        when(entityTripleRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115",
+        when(entityTripleRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
                 0, 20,true))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         TTArray ttArray = new TTArray()
                 .add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
         when(entityTypeRepository.getEntityTypes(any())).thenReturn(ttArray);
         List<EntityReferenceNode> actual = entityService.getImmediateParents
-                ("http://endhealth.info/im#25451000252115", 1, 20, true);
+                ("http://endhealth.info/im#25451000252115", null, 1, 20, true);
 
         assertNotNull(actual);
 
@@ -265,13 +265,13 @@ class EntityServiceTest {
         EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
                 .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
                 .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
-        when(entityTripleRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115",
+        when(entityTripleRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
                 0,10,false))
                 .thenReturn(Collections.singletonList(entityReferenceNode));
         TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115","Adverse reaction caused by drug (disorder)"));
         when(entityTypeRepository.getEntityTypes(any())).thenReturn(ttArray);
         List<EntityReferenceNode> actual = entityService.getImmediateParents
-                ("http://endhealth.info/im#25451000252115", 1, 10, false);
+                ("http://endhealth.info/im#25451000252115", null, 1, 10, false);
 
         assertNotNull(actual);
 
@@ -1486,14 +1486,14 @@ class EntityServiceTest {
     }
 
     @Test
-    void getMatchedFrom_NullIri() {
-        Collection<SimpleMap> actual = entityService.getMatchedFrom(null);
+    void getSimpleMaps_NullIri() {
+        List<SimpleMap> actual = entityService.getSimpleMaps(null);
         assertNotNull(actual);
     }
 
     @Test
-    void getMatchedFrom_EmptyIri() {
-        Collection<SimpleMap> actual = entityService.getMatchedFrom("");
+    void getSimpleMaps_EmptyIri() {
+        Collection<SimpleMap> actual = entityService.getSimpleMaps("");
         assertNotNull(actual);
     }
 

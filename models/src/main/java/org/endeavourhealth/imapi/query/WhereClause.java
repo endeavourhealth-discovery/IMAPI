@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.query;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IMQ;
 
 import java.util.ArrayList;
 import java.util.List;

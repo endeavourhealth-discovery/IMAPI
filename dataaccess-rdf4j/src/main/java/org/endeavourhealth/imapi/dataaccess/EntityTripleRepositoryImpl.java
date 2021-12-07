@@ -17,6 +17,8 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,11 +162,14 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     @Override
     public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
         Set<EntitySummary> result = new HashSet<>();
+        String isa= "(<"+ RDFS.SUBCLASSOF.getIri()+
+          ">|<"+RDFS.SUBPROPERTYOF.getIri()+
+          ">|<"+ SNOMED.REPLACED_BY.getIri()+">)*";
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
             .add("WHERE {")
-            .add("  ?s (rdfs:subClassOf|sn:370124000)* ?o .")
+            .add("  ?s "+isa+" ?o .")
             .add("  ?s rdfs:label ?sname .")
             .add("  GRAPH ?g { ?s im:code ?scode } .")
             .add("  OPTIONAL { ?g rdfs:label ?gname } .")
@@ -238,7 +243,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public boolean hasChildren(String parentIri, boolean inactive) throws DALException {
+    public boolean hasChildren(String parentIri, List<String> schemeIris, boolean inactive) throws DALException {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?c")
             .add("WHERE {")
@@ -262,7 +267,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateChildrenByIri(String parentIri, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
             StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -300,7 +305,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateParentsByIri(String childIri, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -385,7 +390,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public Collection<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate) {
+    public List<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate) {
         List<SimpleMap> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -557,5 +562,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 }
             }
         }
+    }
+
+    @Override
+    public List<SimpleMap> findSimpleMapsByIri(String iri,List<String> schemeIris) {
+        List<SimpleMap> simpleMaps = new ArrayList<>();
+        return simpleMaps;
     }
 }

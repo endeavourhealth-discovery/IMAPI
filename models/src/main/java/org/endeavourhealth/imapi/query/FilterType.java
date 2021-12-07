@@ -1,8 +1,5 @@
 package org.endeavourhealth.imapi.query;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IMQ;
-
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum FilterType {

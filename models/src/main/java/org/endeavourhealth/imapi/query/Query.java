@@ -5,14 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.IMQ;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 /**
 	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.

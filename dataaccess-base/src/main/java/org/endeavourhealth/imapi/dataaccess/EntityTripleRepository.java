@@ -18,11 +18,11 @@ public interface EntityTripleRepository {
 
     List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit);
 
-    boolean hasChildren(String iri, boolean inactive) throws DALException;
+    boolean hasChildren(String iri, List<String> schemeIris, boolean inactive) throws DALException;
 
-    List<TTIriRef> findImmediateChildrenByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive);
+    List<TTIriRef> findImmediateChildrenByIri(String iri,List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive);
 
-    List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean inactive);
+    List<TTIriRef> findImmediateParentsByIri(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive);
 
     List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String excludePredicateIri);
 
@@ -34,7 +34,7 @@ public interface EntityTripleRepository {
 
     List<Namespace> findNamespaces();
 
-    Collection<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate);
+    List<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate);
 
     TTBundle getEntityPredicates(String entityIri, Set<String> predicates, int unlimited);
 
@@ -43,4 +43,8 @@ public interface EntityTripleRepository {
     Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object);
 
     Set<EntitySummary> getSubclassesAndReplacements(String iri);
+
+    List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris);
+
+
 }

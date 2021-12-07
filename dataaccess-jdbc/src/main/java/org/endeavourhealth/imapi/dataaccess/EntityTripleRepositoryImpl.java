@@ -245,7 +245,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateParentsByIri(String iri, Integer rowNumber, Integer pageSize, boolean includeInactive) throws DALException {
+    public List<TTIriRef> findImmediateParentsByIri(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean includeInactive) throws DALException {
         List<TTIriRef> parents = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT o.iri, o.name, o.status")
@@ -254,6 +254,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?,?) ")
                 .add("JOIN entity o ON o.dbid = t.object ")
                 .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND o.scheme IN " + inListParams(schemeIris.size()));
+        }
         if (!includeInactive)
             sql.add("AND o.status <> ?").add("AND o.iri <> ?");
         sql.add("ORDER BY o.name ");
@@ -267,6 +270,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
                 if (!includeInactive) {
                     statement.setString(++i, IM.INACTIVE.getIri());
                     statement.setString(++i, OWL.THING.getIri());
@@ -288,7 +296,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<TTIriRef> findImmediateChildrenByIri(String iri, Integer rowNumber, Integer pageSize, boolean includeInactive) throws DALException {
+    public List<TTIriRef> findImmediateChildrenByIri(String iri,List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean includeInactive) throws DALException {
         List<TTIriRef> children = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT s.iri, s.name")
@@ -297,6 +305,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
                 .add("JOIN entity s ON s.dbid = t.subject ")
                 .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND s.scheme IN " + inListParams(schemeIris.size()));
+        }
         if (!includeInactive)
             sql.add("AND s.status <> ?");
         sql.add("ORDER BY s.name, s.iri ");
@@ -310,6 +321,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
                 if (!includeInactive)
                     statement.setString(++i, IM.INACTIVE.getIri());
                 if (rowNumber != null && pageSize != null) {
@@ -329,7 +345,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public boolean hasChildren(String iri, boolean includeInactive) throws DALException {
+    public boolean hasChildren(String iri, List<String> schemeIris, boolean includeInactive) throws DALException {
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT 1")
                 .add("FROM entity c ")
@@ -337,6 +353,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("JOIN entity p ON p.dbid = t.predicate AND p.iri IN(?, ?, ?) ")
                 .add("JOIN entity s ON s.dbid = t.subject ")
                 .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND s.scheme IN " + inListParams(schemeIris.size()));
+        }
         if (!includeInactive)
             sql.add("AND s.status <> ?");
         sql.add("LIMIT 1 ");
@@ -348,6 +367,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 statement.setString(++i, IM.IS_CONTAINED_IN.getIri());
                 statement.setString(++i, IM.IS_CHILD_OF.getIri());
                 statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
                 if (!includeInactive)
                     statement.setString(++i, IM.INACTIVE.getIri());
                 try (ResultSet rs = statement.executeQuery()) {
@@ -382,8 +406,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return namespaces;
     }
 
-    public Collection<SimpleMap> getSubjectFromObjectPredicate(String iri, TTIriRef predicate) throws DALException {
-        HashMap<String, SimpleMap> simpleMaps = new HashMap<>();
+    public List<SimpleMap> getSubjectFromObjectPredicate(String iri, TTIriRef predicate) throws DALException {
+        List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner("\n")
                 .add("SELECT e.iri, e.name, e.code, e.scheme ")
                 .add("FROM tpl t ")
@@ -400,7 +424,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
-                        simpleMaps.put(rs.getString("iri"), new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
+                        simpleMaps.add(new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
                     }
                 }
             }
@@ -408,7 +432,44 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             throw new DALException("Failed to fetch subjects by object and predicate", e);
         }
 
-        return simpleMaps.values();
+        return simpleMaps;
+    }
+
+    @Override
+    public List<SimpleMap> findSimpleMapsByIri(String iri,List<String> schemeIris) throws DALException {
+        List<SimpleMap> simpleMaps = new ArrayList<>();
+        StringJoiner sql = new StringJoiner("\n")
+                .add("SELECT s.iri, s.name, s.code, s.scheme")
+                .add("FROM entity c ")
+                .add("JOIN tpl t ON t.object = c.dbid ")
+                .add("JOIN entity p ON p.dbid = t.predicate AND p.iri = ?")
+                .add("JOIN entity s ON s.dbid = t.subject ")
+                .add("WHERE c.iri = ?");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("AND s.scheme IN " + inListParams(schemeIris.size()));
+        }
+        sql.add("ORDER BY s.name, s.iri ");
+        try (Connection conn = ConnectionPool.get()) {
+            assert conn != null;
+            try (PreparedStatement statement = conn.prepareStatement(sql.toString())) {
+                int i = 0;
+                statement.setString(++i, RDFS.SUBCLASSOF.getIri());
+                statement.setString(++i, iri);
+                if(schemeIris != null && !schemeIris.isEmpty()){
+                    for(String scheme : schemeIris){
+                        statement.setString(++i,scheme);
+                    }
+                }
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        simpleMaps.add(new SimpleMap(rs.getString("iri"), rs.getString("name"), rs.getString("code"), rs.getString("scheme")));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DALException("Failed to find simple maps", e);
+        }
+        return simpleMaps;
     }
 
     @Override

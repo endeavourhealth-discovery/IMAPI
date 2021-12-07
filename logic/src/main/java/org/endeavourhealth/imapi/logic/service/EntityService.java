@@ -66,7 +66,7 @@ public class EntityService {
 		return entityRepository.getEntityReferenceByIri(iri);
 	}
 
-	public List<EntityReferenceNode> getImmediateChildren(String iri, Integer pageIndex, Integer pageSize,
+	public List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize,
 			boolean inactive) {
 
 		if (iri == null || iri.isEmpty())
@@ -77,22 +77,22 @@ public class EntityService {
 		if (pageIndex != null && pageSize != null)
 			rowNumber = (pageIndex - 1) * pageSize;
 
-		for (TTIriRef c: getChildren(iri, rowNumber, pageSize, inactive)) {
+		for (TTIriRef c: getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
 		    EntityReferenceNode node = new EntityReferenceNode();
 		    node.setIri(c.getIri()).setName(c.getName());
 		    node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
-		    node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), inactive));
+		    node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
 		    result.add(node);
         }
 
 		return result;
 	}
 
-	private List<TTIriRef> getChildren(String iri, int rowNumber, Integer pageSize, boolean inactive) {
-        return entityTripleRepository.findImmediateChildrenByIri(iri, rowNumber, pageSize, inactive);
+	private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
+		return entityTripleRepository.findImmediateChildrenByIri(iri,schemeIris, rowNumber, pageSize, inactive);
 	}
 
-	public List<EntityReferenceNode> getImmediateParents(String iri, Integer pageIndex, Integer pageSize,
+	public List<EntityReferenceNode> getImmediateParents(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize,
 			boolean inactive) {
 
 		if (iri == null || iri.isEmpty())
@@ -102,7 +102,7 @@ public class EntityService {
 		if (pageIndex != null && pageSize != null)
 			rowNumber = (pageIndex - 1) * pageSize;
 
-		List<EntityReferenceNode> parents = getParents(iri, rowNumber, pageSize, inactive).stream()
+		List<EntityReferenceNode> parents = getParents(iri,schemeIris, rowNumber, pageSize, inactive).stream()
 				.map(p -> new EntityReferenceNode(p.getIri(), p.getName())).collect(Collectors.toList());
 
 		for (EntityReferenceNode parent : parents)
@@ -111,9 +111,9 @@ public class EntityService {
 		return parents;
 	}
 
-	private List<TTIriRef> getParents(String iri, int rowNumber, Integer pageSize, boolean inactive) {
+	private List<TTIriRef> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
 
-		return entityTripleRepository.findImmediateParentsByIri(iri, rowNumber, pageSize, inactive);
+		return entityTripleRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive);
 	}
 
 	public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
@@ -295,13 +295,19 @@ public class EntityService {
 	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
 		Map<String, String> defaultPredicates = new HashMap<>();
+		List<String> blockedIris = new ArrayList<>();
 		try {
 			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
 		}
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0);
+		try {
+			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+		} catch (Exception e) {
+			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+		}
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, blockedIris);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}
@@ -393,7 +399,7 @@ public class EntityService {
 
         downloadDto.setSummary(getSummaryFromConfig(iri, configs));
 
-        if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, inactive));
+        if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, inactive));
         if (inferred) downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());
         if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
         if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
@@ -413,7 +419,7 @@ public class EntityService {
 
         xls.addSummary(getSummaryFromConfig(iri, configs));
 
-        if (children) xls.addHasSubTypes(getImmediateChildren(iri, null, null, inactive));
+        if (children) xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, inactive));
         if (inferred) xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));
         if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
         if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
@@ -611,7 +617,7 @@ public class EntityService {
 
 	public List<TTIriRef> getDefinitionSubTypes(String iri) {
 
-		return entityTripleRepository.findImmediateChildrenByIri(iri, null, null, false).stream()
+		return entityTripleRepository.findImmediateChildrenByIri(iri,null, null, null, false).stream()
 				.map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
 	}
 
@@ -682,7 +688,12 @@ public class EntityService {
 		return document;
 	}
 
-	public Collection<SimpleMap> getMatchedFrom(String iri) {
-		return entityTripleRepository.getSubjectFromObjectPredicate(iri, IM.MATCHED_TO);
+	public List<SimpleMap> getSimpleMaps(String iri) {
+		if (iri == null || iri.equals("")) return new ArrayList<>();
+		String scheme = iri.substring(0,iri.indexOf("#") + 1);
+		List<Namespace> namespaces = getNamespaces();
+		List<String> schemes = namespaces.stream().map(namespace -> namespace.getIri()).collect(Collectors.toList());
+		if (schemes.contains(scheme)) schemes.remove(schemes.indexOf(scheme));
+		return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
 	}
 }

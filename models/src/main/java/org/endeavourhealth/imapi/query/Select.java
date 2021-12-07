@@ -1,11 +1,5 @@
 package org.endeavourhealth.imapi.query;
 
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.IMQ;
-
-import java.util.zip.DataFormatException;
-
 /**
  * A Select clause for a query consisting of an array of expressions which may be variables, variables with aliases or exprerssions
  */

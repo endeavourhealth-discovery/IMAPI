@@ -60,6 +60,8 @@ public class EntityController {
     private final EntityService entityService = new EntityService();
 	private final ConfigService configService = new ConfigService();
 
+	private final String ATTACHMENT_FILE = "attachment;filename=\"";
+
 	@PostMapping(value = "/search")
     @ApiOperation(
         value = "Advanced entity search",
@@ -135,7 +137,7 @@ public class EntityController {
 		String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
 
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILE + filename + ".json\"");
 
 		return new HttpEntity<>(json, headers);
 
@@ -174,7 +176,7 @@ public class EntityController {
                 xls.getWorkbook().write(outputStream);
                 xls.getWorkbook().close();
                 headers.setContentType(new MediaType("application", "force-download"));
-                headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".xlsx\"");
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILE + filename + ".xlsx\"");
 
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
@@ -182,7 +184,7 @@ public class EntityController {
             DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers, expandSubsets, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT_FILE + filename + ".json\"");
 
             return new HttpEntity<>(json, headers);
         }
@@ -287,12 +289,12 @@ public class EntityController {
 	}
 
 	@PostMapping("/ecl")
-	public String getEcl(@RequestBody TTBundle inferred) {
+	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
 		LOG.debug("getEcl");
-		try {
+//		try {
 			return entityService.getEcl(inferred);
-		} catch (DataFormatException exception) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-		}
+//		} catch (DataFormatException exception) {
+//			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
+//		}
 	}
 }

@@ -42,7 +42,7 @@ public class EntityRepositoryImpl implements EntityRepository {
         SearchResultSummary result = new SearchResultSummary();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname")
+            .add("SELECT ?sname ?scode ?g ?gname")
             .add("WHERE {")
             .add("  GRAPH ?g {")
             .add("    ?s rdfs:label ?sname ;")

@@ -32,15 +32,15 @@ public class TTToString {
         return result.toString();
     }
 
-    public static String ttValueToString(TTArray node, String previousType, Map<String, String> iriMap, int indent) {
-        return ttArrayToString(node, indent, iriMap);
+    public static String ttValueToString(TTArray node, String previousType, Map<String, String> iriMap, int indent, List<String> blockedIris) {
+        return ttArrayToString(node, indent, iriMap, blockedIris);
     }
 
     public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent, List<String> blockedIris) {
         if (node.isIriRef()) {
             return ttIriToString(node.asIriRef(), previousType, indent, false, blockedIris);
         } else if (node.isNode()) {
-            return ttNodeToString(node.asNode(), previousType, indent, iriMap);
+            return ttNodeToString(node.asNode(), previousType, indent, iriMap, blockedIris);
         } else {
             return node.toString();
         }
@@ -92,37 +92,27 @@ public class TTToString {
         return result;
     }
 
-    private static String processNode(String key, TTValue value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, Boolean group, Boolean last, List<String> blockedIris) {
+    private static String processNode(String key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, Boolean group, Boolean last, List<String> blockedIris) {
         if (value.isIriRef()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += ttIriToString(value.asIriRef(), "object", indent, true, blockedIris);
             result += suffix;
-        } else if (value.isList()) {
-            if (value.asArray().size() == 1 && value.asArray().getElements().get(0).isIriRef()) {
-                result += getObjectName(key, iriMap, pad, prefix);
-                result += ttIriToString(value.asArray().getElements().get(0).asIriRef(), "object", indent, true, blockedIris);
-                result += suffix;
-            } else if (value.asArray().size() == 1 && value.asArray().getElements().get(0).isLiteral()) {
-                result += getObjectName(key, iriMap, pad, prefix);
-                result += value.asArray().getElements().get(0).asLiteral().toString();
-                result += suffix;
-            } else {
-                result += getObjectName(key, iriMap, pad, prefix);
-                result += "\n";
-                result += ttValueToString(value, "object", iriMap, indent + 1, blockedIris);
-                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
-                else if (group && last) result += " )\n";
-            }
         } else if (value.isNode()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += "\n";
             result += ttValueToString(value, "object", iriMap, indent, blockedIris);
             if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
             else if (group && last) result += " )\n";
-        } else {
+        } else if (value.isLiteral()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += ttValueToString(value, "object", iriMap, indent, blockedIris);
             result += "\n";
+        } else {
+            result += getObjectName(key, iriMap, pad, prefix);
+            result += "\n";
+            result += ttValueToString(value, "object", iriMap, indent + 1, blockedIris);
+            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+            else if (group && last) result += " )\n";
         }
         return result;
     }

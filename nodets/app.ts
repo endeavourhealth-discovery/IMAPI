@@ -2,9 +2,10 @@ import express, { Request, Response, NextFunction, response } from "express";
 import cors from "cors";
 import { join } from "./controllers/JoinController";
 import { JoinData, JpathData, TransformInputUpload } from "./models";
-import { getInputFromJpath, getJsonPathOptions } from "./controllers/JsonPathController";
+import { getInputFromJpath, getJpathTreeOptions, getJsonPathOptions } from "./controllers/JsonPathController";
 import { getJsonFromFile } from "./controllers/ParseController";
 import { generateDataModel, getDataModelInstanceDisplay } from "./controllers/DataModelController";
+import { getTransformTypes } from "./controllers/TransformController";
 
 const app = express();
 const port = 3000;
@@ -26,13 +27,15 @@ app.post("/api/transform/transformInputUpload", async (request: Request, respons
 });
 
 app.post("/api/transform/jpathsFromInput", (request: Request, response: Response, next: NextFunction) => {
-  const body: TransformInputUpload = request.body;
-  response.status(200).json(getJsonPathOptions(body));
+  response.status(200).json(getJsonPathOptions(request.body));
 });
 
-app.post("/api/transform/inputFromJpath", (request: Request, response: Response, next: NextFunction) => {
-  const body: JpathData = request.body;
-  response.status(200).json(getInputFromJpath(body.input, body.jpath));
+app.post("/api/transform/jpathsFromInput", (request: Request, response: Response, next: NextFunction) => {
+  response.status(200).json(getJsonPathOptions(request.body));
+});
+
+app.post("/api/transform/jpathTreeOptions", (request: Request, response: Response, next: NextFunction) => {
+  response.status(200).json(getJpathTreeOptions(request.body));
 });
 
 app.post("/api/transform/datamodel", (request: Request, response: Response, next: NextFunction) => {
@@ -43,4 +46,8 @@ app.post("/api/transform/datamodel", (request: Request, response: Response, next
 app.post("/api/transform/datamodel/instance", (request: Request, response: Response, next: NextFunction) => {
   const body: any = request.body;
   response.status(200).json(getDataModelInstanceDisplay(body));
+});
+
+app.get("/api/transform/types", (request: Request, response: Response, next: NextFunction) => {
+  response.status(200).json(getTransformTypes());
 });

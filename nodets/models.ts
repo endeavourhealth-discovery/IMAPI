@@ -24,3 +24,24 @@ export interface JpathData {
   input: TransformInputUpload;
   jpath: string;
 }
+
+export interface TransformInstruction {
+  destinationPath: string[];
+  transformType: string;
+  transformValue: string | string[];
+  property: string | undefined;
+}
+
+export enum TransfromType {
+  FUNCTION = "function",
+  TEMPLATE = "template",
+  REFERENCE = "reference",
+  CONSTANT = "constant"
+}
+
+export interface PathOption {
+  key: string;
+  label: string;
+  data: string[];
+  children: PathOption[];
+}

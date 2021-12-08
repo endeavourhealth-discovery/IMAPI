@@ -32,8 +32,8 @@ public class TTToECL {
 				subExpression(exp.asNode().get(SHACL.NOT),ecl,includeName);
 				if (!exp.asNode().get(SHACL.NOT).isIriRef())
 				ecl.append(")");
-			} else if (exp.asNode().get(IM.DEFINITION).isNode()) {
-				subExpression(exp.asNode().get(IM.DEFINITION).asNode(), ecl, includeName);
+			} else if (exp.asNode().get(IM.DEFINITION) != null) {
+				subExpression(exp.asNode().get(IM.DEFINITION), ecl, includeName);
 			}
 			else {
 				addRefined(exp.asNode(), ecl, includeName);

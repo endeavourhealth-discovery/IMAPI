@@ -708,7 +708,7 @@ public class EntityService {
 
 	public String getEcl(TTBundle inferred) throws DataFormatException {
 		if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
-		if (inferred.getEntity() == null) throw new DataFormatException("Missing entity bundle definition for ECL conversion");
+		if (inferred.getEntity() == null || inferred.getEntity().asNode().getPredicateMap().isEmpty()) throw new DataFormatException("Missing entity bundle definition for ECL conversion");
 		return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
 	}
 }

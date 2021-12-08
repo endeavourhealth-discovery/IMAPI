@@ -309,7 +309,7 @@ public class EntityService {
 		} catch (Exception e) {
 			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
 		}
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, blockedIris);
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, true, blockedIris);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}

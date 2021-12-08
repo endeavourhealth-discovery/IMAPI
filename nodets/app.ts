@@ -5,7 +5,7 @@ import { JoinData, JpathData, TransformInputUpload } from "./models";
 import { getInputFromJpath, getJpathTreeOptions, getJsonPathOptions } from "./controllers/JsonPathController";
 import { getJsonFromFile } from "./controllers/ParseController";
 import { generateDataModel, getDataModelInstanceDisplay } from "./controllers/DataModelController";
-import { getTransformTypes } from "./controllers/TransformController";
+import { getFunctions, getTransformTypes } from "./controllers/TransformController";
 
 const app = express();
 const port = 3000;
@@ -50,4 +50,8 @@ app.post("/api/transform/datamodel/instance", (request: Request, response: Respo
 
 app.get("/api/transform/types", (request: Request, response: Response, next: NextFunction) => {
   response.status(200).json(getTransformTypes());
+});
+
+app.get("/api/transform/functions", (request: Request, response: Response, next: NextFunction) => {
+  response.status(200).json(getFunctions());
 });

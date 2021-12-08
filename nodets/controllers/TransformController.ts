@@ -7,6 +7,12 @@ export function getTransformTypes() {
   return Object.keys(TransfromType);
 }
 
+export function getFunctions() {
+  return Object.getOwnPropertyNames(FunctionWrapper.prototype)
+    .filter(item => typeof new FunctionWrapper()[item] === "function")
+    .filter(functionName => functionName !== "constructor");
+}
+
 export function transformRow(input: any[], instance: any, instruction: TransformInstruction) {
   const destinationPath = getPathFromPathArray(input[0], instruction.destinationPath);
   instance[destinationPath] = getValue(input, instance, instruction);

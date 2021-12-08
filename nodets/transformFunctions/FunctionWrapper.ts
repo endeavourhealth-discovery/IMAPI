@@ -18,12 +18,4 @@ export class FunctionWrapper {
     const firstPart = dataModel["@context"][shortcut[0]];
     return firstPart + value;
   }
-
-  getValueFromTemplate(input: any, instruction: TransformInstruction): string {
-    const openingIndex = instruction.transformValue.indexOf("{");
-    const closingIndex = instruction.transformValue.indexOf("}");
-    const enclosedString = (instruction.transformValue as string).substring(openingIndex, closingIndex + 1);
-    const value = input[0][enclosedString.substring(1, enclosedString.length - 1)];
-    return (instruction.transformValue as string).replace(new RegExp(enclosedString), value);
-  }
 }

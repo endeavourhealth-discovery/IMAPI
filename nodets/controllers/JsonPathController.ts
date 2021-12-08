@@ -1,5 +1,4 @@
 import jp, { PathComponent } from "jsonpath";
-import { isArrayHasLength, isObjectHasKeys } from "../helpers/DataTypeCheckers";
 import { PathOption, TransformInputUpload } from "../models";
 import { generateDataModel } from "./DataModelController";
 
@@ -20,12 +19,7 @@ export function getInputFromJpath(input: TransformInputUpload, jsonPath: string)
 }
 
 export function getJsonPathOptions(input: any) {
-  const paths = jp.paths(input, "$..*");
-  return paths;
-}
-
-export function getPathFromPathArray(input: any, paths: string[]) {
-  return jp.stringify(paths);
+  return jp.paths(input, "$..*");
 }
 
 export function getJpathTreeOptions(input: any) {
@@ -54,7 +48,7 @@ function addPathRecursively(pathOptions: PathOption[], parentNode: any, property
     const data = [];
     data.push(...parentNode.data);
     data.push(property);
-    const childNode = { key: parentNode.key + property, label: property, data: data, children: [] } as PathOption;
+    const childNode = { key: jp.stringify(data), label: property, data: data, children: [] } as PathOption;
     propertyList.shift();
     if (propertyList.length) {
       addPathRecursively(pathOptions, childNode, propertyList);

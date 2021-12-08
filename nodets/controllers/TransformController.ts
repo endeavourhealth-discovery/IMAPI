@@ -1,24 +1,26 @@
 import { isArrayHasLength, isObjectHasKeys } from "../helpers/DataTypeCheckers";
 import { TransformInstruction, TransfromType } from "../models";
 import { FunctionWrapper } from "../transformFunctions/FunctionWrapper";
-import { getPathFromPathArray } from "./JsonPathController";
 
 export function getTransformTypes() {
-  return Object.keys(TransfromType);
+  return Object.keys(TransfromType).map(functionName => functionName.toLowerCase());
 }
 
 export function getFunctions() {
   return Object.getOwnPropertyNames(FunctionWrapper.prototype)
-    .filter(item => typeof new FunctionWrapper()[item] === "function")
+    .filter(propertyName => typeof new FunctionWrapper()[propertyName] === "function")
     .filter(functionName => functionName !== "constructor");
 }
 
-export function transformRow(input: any[], instance: any, instruction: TransformInstruction) {
-  const destinationPath = getPathFromPathArray(input[0], instruction.destinationPath);
-  instance[destinationPath] = getValue(input, instance, instruction);
+export function transformByInstruction(instruction: TransformInstruction, instances: any[], input: any) {
+  const destinationPath = Object.keys(instruction.destinationPath)[0];
+  const newValue = getValue(input, instances, instruction);
+  instances[destinationPath] = newValue;
+  instruction.exampleTransformed = newValue;
+  return { instruction, instances };
 }
 
-export function getValue(input: any[], instance: any, instruction: TransformInstruction): string {
+function getValue(input: any[], instance: any, instruction: TransformInstruction): string {
   switch (instruction.transformType) {
     case "function":
       return getValueFromFunctions(instance, input, instruction);
@@ -34,13 +36,13 @@ export function getValue(input: any[], instance: any, instruction: TransformInst
 }
 
 function getValueFromFunctions(instance: any, input: any[], instruction: TransformInstruction): string {
-  const value = input[0][instruction.property as string];
+  const value = input[0][instruction.transformValue as string];
   const transformations: string[] = [];
   transformations.push(value);
   let index = 0;
   if (isArrayHasLength(instruction.transformValue)) {
-    (instruction.transformValue as []).forEach(transformValue => {
-      transformations.push(getValueFromFunction(instance, transformations[index], transformValue));
+    instruction.transformFunctions.forEach(transformFunction => {
+      transformations.push(getValueFromFunction(instance, transformations[index], transformFunction));
       index++;
     });
     return transformations[transformations.length - 1];

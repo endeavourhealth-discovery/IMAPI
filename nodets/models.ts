@@ -26,10 +26,12 @@ export interface JpathData {
 }
 
 export interface TransformInstruction {
-  destinationPath: string[];
+  destinationPath: string;
   transformType: string;
-  transformValue: string | string[];
-  property: string | undefined;
+  transformValue: string;
+  transformFunctions: string[];
+  example: string | undefined;
+  exampleTransformed: string | undefined;
 }
 
 export enum TransfromType {

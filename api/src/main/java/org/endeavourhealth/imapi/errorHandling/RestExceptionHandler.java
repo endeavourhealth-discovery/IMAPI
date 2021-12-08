@@ -25,33 +25,43 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
-        return buildResponseEntity(new ApiError(HttpStatus.NOT_FOUND, error, ex));
+        String message = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
+        ApiError error = new ApiError(HttpStatus.NOT_FOUND, message, ex);
+        error.setCode(ErrorCodes.NO_HANDLER_FOUND_EXCEPTION);
+        return buildResponseEntity(error);
     }
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = "Request required input is missing or null";
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
+        String message = "Request required input is missing or null";
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
+        error.setCode(ErrorCodes.HTTP_MESSAGE_NOT_READABLE);
+        return buildResponseEntity(error);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         StringBuilder builder = new StringBuilder();
         ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
-        String error = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
-        return buildResponseEntity(new ApiError(HttpStatus.METHOD_NOT_ALLOWED, error, ex));
+        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
+        ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex);
+        error.setCode(ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
+        return buildResponseEntity(error);
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = "Required parameter: " + ex.getParameterName() + " is missing";
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
+        String message = "Required parameter: " + ex.getParameterName() + " is missing";
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
+        error.setCode(ErrorCodes.MISSING_SERVLET_REQUEST_PARAMETER);
+        return buildResponseEntity(error);
     }
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String error = ex.getPropertyName() + " should be of type " + ex.getRequiredType().getName();
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
+        String message = ex.getPropertyName() + " should be of type " + ex.getRequiredType().getName();
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
+        error.setCode(ErrorCodes.TYPE_MISMATCH);
+        return buildResponseEntity(error);
     }
 
     @Override
@@ -60,7 +70,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         builder.append(ex.getContentType());
         builder.append(" media type is not supported. Supported media types are ");
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
-        return buildResponseEntity(new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, builder.substring(0, builder.length() -2), ex));
+        ApiError error = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, builder.substring(0, builder.length() -2), ex);
+        error.setCode(ErrorCodes.HTTP_MEDIA_TYPE_NOT_SUPPORTED);
+        return buildResponseEntity(error);
     }
 
     @ExceptionHandler({Exception.class})

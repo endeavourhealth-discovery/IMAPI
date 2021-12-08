@@ -65,18 +65,24 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-        String error = "Unhandled server error occurred";
-        return buildResponseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, error, ex));
+        String message = "Unhandled server error occurred";
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex);
+        error.setCode(ErrorCodes.UNHANDLED_EXCEPTION);
+        return buildResponseEntity(error);
     }
 
     @ExceptionHandler(DataFormatException.class)
     protected ResponseEntity<Object> handleDataFormatException(DataFormatException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex));
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        error.setCode(ErrorCodes.DATA_FORMAT_EXCEPTION);
+        return buildResponseEntity(error);
     }
 
     @ExceptionHandler(UnknownFormatConversionException.class)
     protected ResponseEntity<Object> handleUnknownFormatConversionException(UnknownFormatConversionException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex));
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        error.setCode(ErrorCodes.UNKNOWN_FORMAT_CONVERSION_EXCEPTION);
+        return buildResponseEntity(error);
     }
 
     private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {

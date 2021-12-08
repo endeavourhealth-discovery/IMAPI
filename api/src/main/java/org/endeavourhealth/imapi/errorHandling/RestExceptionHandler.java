@@ -39,13 +39,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         StringBuilder builder = new StringBuilder();
         ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
         String error = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
-        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, error, ex));
+        return buildResponseEntity(new ApiError(HttpStatus.METHOD_NOT_ALLOWED, error, ex));
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String error = "Required parameter: " + ex.getParameterName() + " is missing";
-        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, error, ex));
+        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
     }
 
     @Override
@@ -65,18 +65,24 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-        String error = "Unhandled server error occurred";
-        return buildResponseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, error, ex));
+        String message = "Unhandled server error occurred";
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex);
+        error.setCode(ErrorCodes.UNHANDLED_EXCEPTION);
+        return buildResponseEntity(error);
     }
 
     @ExceptionHandler(DataFormatException.class)
     protected ResponseEntity<Object> handleDataFormatException(DataFormatException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex));
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        error.setCode(ErrorCodes.DATA_FORMAT_EXCEPTION);
+        return buildResponseEntity(error);
     }
 
     @ExceptionHandler(UnknownFormatConversionException.class)
-    protected ResponseEntity<Object> handleDataFormatException(UnknownFormatConversionException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex));
+    protected ResponseEntity<Object> handleUnknownFormatConversionException(UnknownFormatConversionException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+        error.setCode(ErrorCodes.UNKNOWN_FORMAT_CONVERSION_EXCEPTION);
+        return buildResponseEntity(error);
     }
 
     private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {

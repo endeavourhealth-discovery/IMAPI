@@ -291,10 +291,6 @@ public class EntityController {
 	@PostMapping("/ecl")
 	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
 		LOG.debug("getEcl");
-//		try {
-			return entityService.getEcl(inferred);
-//		} catch (DataFormatException exception) {
-//			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
-//		}
+		return entityService.getEcl(inferred);
 	}
 }

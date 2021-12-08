@@ -8,11 +8,12 @@ import java.util.List;
 
 public class ApiError {
     private HttpStatus status;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyy hh:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     private LocalDateTime timestamp;
     private String message;
     private String debugMessage;
     private List<ApiSubError> subErrors;
+    private String code;
 
     private ApiError() {
         timestamp = LocalDateTime.now();
@@ -75,5 +76,14 @@ public class ApiError {
 
     public void setSubErrors(List<ApiSubError> subErrors) {
         this.subErrors = subErrors;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public ApiError setCode(ErrorCodes code) {
+        this.code = code.asString();
+        return this;
     }
 }

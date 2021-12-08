@@ -17,7 +17,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
@@ -46,7 +45,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         StringBuilder builder = new StringBuilder();
         Set<HttpMethod> methods = ex.getSupportedHttpMethods();
         if (methods != null) methods.forEach(t -> builder.append(t + " "));
-        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder.toString();
+        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
         ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex);
         error.setCode(ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
         return buildResponseEntity(error);

@@ -4,6 +4,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,6 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
@@ -41,8 +43,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         StringBuilder builder = new StringBuilder();
-        if (ex.getSupportedHttpMethods() != null) ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
-        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder.toString();
+        Set<HttpMethod> methods = ex.getSupportedHttpMethods();
+        if (methods != null) methods.forEach(t -> builder.append(t + " "));
+        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
         ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex);
         error.setCode(ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
         return buildResponseEntity(error);
@@ -59,7 +62,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String message = "Type mismatch. ";
-        if (ex.getRequiredType() != null) message += ex.getPropertyName() + " should be of type " + ex.getRequiredType().getName();
+        String type = null;
+        if (ex.getRequiredType() != null) type = ex.getRequiredType().getName();
+        if (type != null) message += ex.getPropertyName() + " should be of type " + type;
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
         error.setCode(ErrorCodes.TYPE_MISMATCH);
         return buildResponseEntity(error);
@@ -71,10 +76,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String message;
         builder.append(ex.getContentType());
         builder.append(" media type is not supported. Supported media types are ");
-        if (ex.getSupportedMediaTypes() != null) {
-            ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
-            message = builder.substring(0, builder.length() -2);
-        } else message = builder.toString() + "None";
+        ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
+        message = builder.substring(0, builder.length() -2);
         ApiError error = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message, ex);
         error.setCode(ErrorCodes.HTTP_MEDIA_TYPE_NOT_SUPPORTED);
         return buildResponseEntity(error);

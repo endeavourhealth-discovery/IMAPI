@@ -41,8 +41,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         StringBuilder builder = new StringBuilder();
-        ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
-        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
+        if (ex.getSupportedHttpMethods() != null) ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
+        String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder.toString();
         ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex);
         error.setCode(ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
         return buildResponseEntity(error);
@@ -58,7 +58,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        String message = ex.getPropertyName() + " should be of type " + ex.getRequiredType().getName();
+        String message = "Type mismatch. ";
+        if (ex.getRequiredType() != null) message += ex.getPropertyName() + " should be of type " + ex.getRequiredType().getName();
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
         error.setCode(ErrorCodes.TYPE_MISMATCH);
         return buildResponseEntity(error);
@@ -67,10 +68,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         StringBuilder builder = new StringBuilder();
+        String message;
         builder.append(ex.getContentType());
         builder.append(" media type is not supported. Supported media types are ");
-        ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
-        ApiError error = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, builder.substring(0, builder.length() -2), ex);
+        if (ex.getSupportedMediaTypes() != null) {
+            ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
+            message = builder.substring(0, builder.length() -2);
+        } else message = builder.toString() + "None";
+        ApiError error = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message, ex);
         error.setCode(ErrorCodes.HTTP_MEDIA_TYPE_NOT_SUPPORTED);
         return buildResponseEntity(error);
     }

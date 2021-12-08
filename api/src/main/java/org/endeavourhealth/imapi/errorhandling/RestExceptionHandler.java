@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.errorHandling;
+package org.endeavourhealth.imapi.errorhandling;
 
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.Ordered;
@@ -28,15 +28,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String message = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
-        ApiError error = new ApiError(HttpStatus.NOT_FOUND, message, ex);
-        error.setCode(ErrorCodes.NO_HANDLER_FOUND_EXCEPTION);
+        ApiError error = new ApiError(HttpStatus.NOT_FOUND, message, ex, ErrorCodes.NO_HANDLER_FOUND_EXCEPTION);
         return buildResponseEntity(error);
     }
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String message = "Request required input is missing or null";
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
-        error.setCode(ErrorCodes.HTTP_MESSAGE_NOT_READABLE);
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex, ErrorCodes.HTTP_MESSAGE_NOT_READABLE);
         return buildResponseEntity(error);
     }
 
@@ -46,16 +44,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Set<HttpMethod> methods = ex.getSupportedHttpMethods();
         if (methods != null) methods.forEach(t -> builder.append(t + " "));
         String message = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
-        ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex);
-        error.setCode(ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
+        ApiError error = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, message, ex, ErrorCodes.HTTP_REQUEST_METHOD_NOT_SUPPORTED);
         return buildResponseEntity(error);
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String message = "Required parameter: " + ex.getParameterName() + " is missing";
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
-        error.setCode(ErrorCodes.MISSING_SERVLET_REQUEST_PARAMETER);
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex, ErrorCodes.MISSING_SERVLET_REQUEST_PARAMETER);
         return buildResponseEntity(error);
     }
 
@@ -65,8 +61,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String type = null;
         if (ex.getRequiredType() != null) type = ex.getRequiredType().getName();
         if (type != null) message += ex.getPropertyName() + " should be of type " + type;
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex);
-        error.setCode(ErrorCodes.TYPE_MISMATCH);
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex, ErrorCodes.TYPE_MISMATCH);
         return buildResponseEntity(error);
     }
 
@@ -78,30 +73,26 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         builder.append(" media type is not supported. Supported media types are ");
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
         message = builder.substring(0, builder.length() -2);
-        ApiError error = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message, ex);
-        error.setCode(ErrorCodes.HTTP_MEDIA_TYPE_NOT_SUPPORTED);
+        ApiError error = new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, message, ex, ErrorCodes.HTTP_MEDIA_TYPE_NOT_SUPPORTED);
         return buildResponseEntity(error);
     }
 
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
         String message = "Unhandled server error occurred";
-        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex);
-        error.setCode(ErrorCodes.UNHANDLED_EXCEPTION);
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex, ErrorCodes.UNHANDLED_EXCEPTION);
         return buildResponseEntity(error);
     }
 
     @ExceptionHandler(DataFormatException.class)
     protected ResponseEntity<Object> handleDataFormatException(DataFormatException ex) {
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
-        error.setCode(ErrorCodes.DATA_FORMAT_EXCEPTION);
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.DATA_FORMAT_EXCEPTION);
         return buildResponseEntity(error);
     }
 
     @ExceptionHandler(UnknownFormatConversionException.class)
     protected ResponseEntity<Object> handleUnknownFormatConversionException(UnknownFormatConversionException ex) {
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
-        error.setCode(ErrorCodes.UNKNOWN_FORMAT_CONVERSION_EXCEPTION);
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.UNKNOWN_FORMAT_CONVERSION_EXCEPTION);
         return buildResponseEntity(error);
     }
 

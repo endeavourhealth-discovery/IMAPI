@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.errorHandling;
+package org.endeavourhealth.imapi.errorhandling;
 
 public enum ErrorCodes {
     DATA_FORMAT_EXCEPTION ("DataFormatException"),

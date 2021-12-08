@@ -1,11 +1,9 @@
-package org.endeavourhealth.imapi.errorHandling;
+package org.endeavourhealth.imapi.errorhandling;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-abstract class ApiSubError {
-}
 @Data
 @EqualsAndHashCode
 @AllArgsConstructor

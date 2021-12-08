@@ -108,14 +108,14 @@ public class TTToString {
                 result += getObjectName(key, iriMap, pad, prefix);
                 result += "\n";
                 result += ttValueToString(value, "object", iriMap, indent + 1, withHyperlinks, blockedIris);
-                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
                 else if (group && last) result += " )\n";
             }
         } else if (value.isNode()) {
             result += getObjectName(key, iriMap, pad, prefix);
             result += "\n";
             result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
-            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
             else if (group && last) result += " )\n";
         } else {
             result += getObjectName(key, iriMap, pad, prefix);

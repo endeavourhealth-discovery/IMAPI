@@ -39,13 +39,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         StringBuilder builder = new StringBuilder();
         ex.getSupportedHttpMethods().forEach(t -> builder.append(t + " "));
         String error = "Method: " + ex.getMethod() + " is not supported for this API. Supported methods are " + builder;
-        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, error, ex));
+        return buildResponseEntity(new ApiError(HttpStatus.METHOD_NOT_ALLOWED, error, ex));
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String error = "Required parameter: " + ex.getParameterName() + " is missing";
-        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, error, ex));
+        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UnknownFormatConversionException.class)
-    protected ResponseEntity<Object> handleDataFormatException(UnknownFormatConversionException ex) {
+    protected ResponseEntity<Object> handleUnknownFormatConversionException(UnknownFormatConversionException ex) {
         return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex));
     }
 

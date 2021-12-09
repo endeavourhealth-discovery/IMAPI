@@ -125,7 +125,7 @@ public class EntityController {
 		String filename = entity.getName() + " " + LocalDate.now();
 		HttpHeaders headers = new HttpHeaders();
 		TTDocument document = entityService.getConcept(iri);
-		if("text/turtle".equals(format)){
+		if("turtle".equals(format)){
 
 			TTToTurtle ttToTurtle = new TTToTurtle();
 			String turtle = ttToTurtle.transformDocument(document);

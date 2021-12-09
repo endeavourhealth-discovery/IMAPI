@@ -14,7 +14,10 @@ export function getFunctions() {
 }
 
 export function transformByInstruction(instruction: TransformInstruction, instances: any[], input: any) {
-  const newValue = setValueWithJpath(instances, instruction.destinationPath, getValue(input, instances, instruction));
+  const newValue = getValue(input, instances, instruction);
+  instruction.destinationPaths.forEach(path => {
+    setValueWithJpath(instances, path, newValue);
+  });
   instruction.exampleTransformed = newValue;
   return { instruction, instances };
 }

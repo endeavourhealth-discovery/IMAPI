@@ -26,7 +26,7 @@ export interface JpathData {
 }
 
 export interface TransformInstruction {
-  destinationPath: string;
+  destinationPaths: string[];
   transformType: string;
   transformValue: string;
   transformFunctions: string[];

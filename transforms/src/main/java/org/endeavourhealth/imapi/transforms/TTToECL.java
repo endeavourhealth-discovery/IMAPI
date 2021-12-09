@@ -36,6 +36,7 @@ public class TTToECL {
 				subExpression(exp.asNode().get(IM.DEFINITION), ecl, includeName);
 			}
 			else {
+				ecl.append("*");
 				addRefined(exp.asNode(), ecl, includeName);
 			}
 		} else {

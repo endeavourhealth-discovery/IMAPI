@@ -44,6 +44,7 @@ public class IM {
     public static final TTIriRef MEMBER_OF_GROUP = iri(NAMESPACE + "memberOfGroup");
     public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubsets");
     public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");
+    public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");

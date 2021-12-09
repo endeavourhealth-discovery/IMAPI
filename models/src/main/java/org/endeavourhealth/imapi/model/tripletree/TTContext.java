@@ -59,13 +59,15 @@ public class TTContext implements Serializable {
     }
 
     public String expand(String iri) {
-        int colonPos = iri.indexOf(":");
-        String prefix = iri.substring(0, colonPos);
-        String path = byPrefix.get(prefix);
-        if (path == null)
-            return iri;
-        else
-            return path + iri.substring(colonPos + 1);
+            int colonPos = iri.indexOf(":");
+            if (colonPos==-1)
+                return iri;
+            String prefix = iri.substring(0, colonPos);
+            String path = byPrefix.get(prefix);
+            if (path == null)
+                return iri;
+            else
+                return path + iri.substring(colonPos + 1);
     }
     public String getPrefix(String ns){
         return byIri.get(ns);

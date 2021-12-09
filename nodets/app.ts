@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction, response } from "express";
 import cors from "cors";
 import { join } from "./controllers/JoinController";
-import { getJpathTreeOptions, getJsonPathOptions } from "./controllers/JsonPathController";
+import { getInputFromJpath, getJpathTreeOptions, getJsonPathOptions } from "./controllers/JsonPathController";
 import { getJsonFromFile } from "./controllers/ParseController";
 import { generateDataModel, getDataModelInstanceDisplay } from "./controllers/DataModelController";
 import { getFunctions, getTransformTypes, transformByInstruction } from "./controllers/TransformController";
@@ -52,4 +52,9 @@ app.get("/api/transform/functions", (request: Request, response: Response, next:
 app.post("/api/transform/rowTransformation", (request: Request, response: Response, next: NextFunction) => {
   const { instruction, instances, input } = request.body;
   response.status(200).json(transformByInstruction(instruction, instances, input));
+});
+
+app.post("/api/transform/inputFromJpath", (request: Request, response: Response, next: NextFunction) => {
+  const { input, jpath } = request.body;
+  response.status(200).json(getInputFromJpath(input, jpath));
 });

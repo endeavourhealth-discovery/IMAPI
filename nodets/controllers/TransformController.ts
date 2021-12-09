@@ -1,6 +1,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "../helpers/DataTypeCheckers";
 import { TransformInstruction, TransfromType } from "../models";
 import { FunctionWrapper } from "../transformFunctions/FunctionWrapper";
+import { queryWithJpath, setValueWithJpath } from "./JsonPathController";
 
 export function getTransformTypes() {
   return Object.keys(TransfromType).map(functionName => functionName.toLowerCase());
@@ -13,9 +14,7 @@ export function getFunctions() {
 }
 
 export function transformByInstruction(instruction: TransformInstruction, instances: any[], input: any) {
-  const destinationPath = Object.keys(instruction.destinationPath)[0];
-  const newValue = getValue(input, instances, instruction);
-  instances[destinationPath] = newValue;
+  const newValue = setValueWithJpath(instances, instruction.destinationPath, getValue(input, instances, instruction));
   instruction.exampleTransformed = newValue;
   return { instruction, instances };
 }
@@ -27,7 +26,7 @@ function getValue(input: any[], instance: any, instruction: TransformInstruction
     case "template":
       return getValueFromTemplate(input, instruction);
     case "reference":
-      return input[0][instruction.transformValue as string];
+      return getValueFromReference(input, instruction.transformValue);
     case "constant":
       return instruction.transformValue as string;
     default:
@@ -35,20 +34,24 @@ function getValue(input: any[], instance: any, instruction: TransformInstruction
   }
 }
 
+function getValueFromReference(input: any[], transformValue: string) {
+  const referenceValues = queryWithJpath(input[0], transformValue);
+  if (!isArrayHasLength(referenceValues)) {
+    return undefined;
+  }
+  return referenceValues[0];
+}
+
 function getValueFromFunctions(instance: any, input: any[], instruction: TransformInstruction): string {
-  const value = input[0][instruction.transformValue as string];
+  const value = getValueFromReference(input, instruction.transformValue);
   const transformations: string[] = [];
   transformations.push(value);
   let index = 0;
-  if (isArrayHasLength(instruction.transformValue)) {
-    instruction.transformFunctions.forEach(transformFunction => {
-      transformations.push(getValueFromFunction(instance, transformations[index], transformFunction));
-      index++;
-    });
-    return transformations[transformations.length - 1];
-  }
-
-  return getValueFromFunction(instance, value, instruction.transformValue as string);
+  instruction.transformFunctions.forEach(transformFunction => {
+    transformations.push(getValueFromFunction(instance, transformations[index], transformFunction));
+    index++;
+  });
+  return transformations[transformations.length - 1];
 }
 
 function getValueFromFunction(dataModel: any, value: string, transformValue: string): string {
@@ -66,9 +69,23 @@ function functionExists(functionName: string) {
 }
 
 function getValueFromTemplate(input: any, instruction: TransformInstruction): string {
-  const openingIndex = instruction.transformValue.indexOf("{");
-  const closingIndex = instruction.transformValue.indexOf("}");
-  const enclosedString = (instruction.transformValue as string).substring(openingIndex, closingIndex + 1);
-  const value = input[0][enclosedString.substring(1, enclosedString.length - 1)];
-  return (instruction.transformValue as string).replace(new RegExp(enclosedString), value);
+  let newValue = instruction.transformValue;
+  const templateValues = [];
+  const referenceValues = [];
+  const regex = /{([^}]+)}/g;
+  let curMatch;
+
+  while ((curMatch = regex.exec(instruction.transformValue))) {
+    templateValues.push(curMatch[1]);
+  }
+
+  templateValues.forEach(value => {
+    referenceValues.push(getValueFromReference(input, value));
+  });
+
+  for (var i = 0; i < templateValues.length; i++) {
+    newValue = newValue.replace(new RegExp("{" + templateValues[i] + "}", "gi"), referenceValues[i]);
+  }
+
+  return newValue;
 }

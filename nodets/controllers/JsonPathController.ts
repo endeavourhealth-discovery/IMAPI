@@ -18,6 +18,14 @@ export function getInputFromJpath(input: TransformInputUpload, jsonPath: string)
   return inputAfter;
 }
 
+export function setValueWithJpath(json: any, jsonPath: string, newValue: string) {
+  return jp.value(json, jsonPath, newValue);
+}
+
+export function queryWithJpath(json, jsonPath) {
+  return jp.query(json, jsonPath);
+}
+
 export function getJsonPathOptions(input: any) {
   return jp.paths(input, "$..*");
 }

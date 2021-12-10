@@ -35,7 +35,6 @@ export interface TransformInstruction {
 }
 
 export enum TransfromType {
-  FUNCTION = "function",
   TEMPLATE = "template",
   REFERENCE = "reference",
   CONSTANT = "constant"

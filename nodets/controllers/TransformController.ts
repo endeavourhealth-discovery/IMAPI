@@ -23,18 +23,26 @@ export function transformByInstruction(instruction: TransformInstruction, instan
 }
 
 function getValue(input: any[], instance: any, instruction: TransformInstruction): string {
+  let value;
   switch (instruction.transformType) {
-    case "function":
-      return getValueFromFunctions(instance, input, instruction);
     case "template":
-      return getValueFromTemplate(input, instruction);
+      value = getValueFromTemplate(input, instruction);
+      break;
     case "reference":
-      return getValueFromReference(input, instruction.transformValue);
+      value = getValueFromReference(input, instruction.transformValue);
+      break;
     case "constant":
-      return instruction.transformValue as string;
+      value = instruction.transformValue as string;
+      break;
     default:
-      return instruction.transformValue as string;
+      value = instruction.transformValue as string;
+      break;
   }
+  if (isArrayHasLength(instruction.transformFunctions)) {
+    return getValueFromFunctions(value, instruction);
+  }
+
+  return value;
 }
 
 function getValueFromReference(input: any[], transformValue: string) {
@@ -45,24 +53,23 @@ function getValueFromReference(input: any[], transformValue: string) {
   return referenceValues[0];
 }
 
-function getValueFromFunctions(instance: any, input: any[], instruction: TransformInstruction): string {
-  const value = getValueFromReference(input, instruction.transformValue);
+function getValueFromFunctions(value: string, instruction: TransformInstruction): string {
   const transformations: string[] = [];
   transformations.push(value);
   let index = 0;
   instruction.transformFunctions.forEach(transformFunction => {
-    transformations.push(getValueFromFunction(instance, transformations[index], transformFunction));
+    transformations.push(getValueFromFunction(transformations[index], transformFunction));
     index++;
   });
   return transformations[transformations.length - 1];
 }
 
-function getValueFromFunction(dataModel: any, value: string, transformValue: string): string {
+function getValueFromFunction(value: string, transformValue: string): string {
   if (functionExists(transformValue)) {
     const functionWrapper = new FunctionWrapper();
     return functionWrapper[transformValue](value);
   } else {
-    return "";
+    return value;
   }
 }
 

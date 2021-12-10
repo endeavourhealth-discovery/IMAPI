@@ -4,3 +4,4 @@ target
 .classpath
 .project
 nodets/node_modules
+nodets/dist

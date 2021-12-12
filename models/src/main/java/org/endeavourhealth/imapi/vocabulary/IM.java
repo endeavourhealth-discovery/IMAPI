@@ -114,7 +114,7 @@ public class IM {
     public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(DOMAIN +"prsb#");
     public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN +"kpax#");
     public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kwp#");
-    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vision#");
+    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vis#");
     public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
     public static final TTIriRef GRAPH_CEG16= TTIriRef.iri(DOMAIN +"ceg16#");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");

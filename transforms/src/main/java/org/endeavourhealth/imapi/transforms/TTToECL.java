@@ -23,13 +23,18 @@ public class TTToECL {
 		return ecl.toString();
 	}
 
+    public static String getExpressionConstraint(TTValue exp, Boolean includeName) throws DataFormatException {
+        StringBuilder ecl = new StringBuilder();
+
+        subExpression(exp,ecl,includeName);
+        return ecl.toString();
+    }
+
     private static void subExpression(TTArray exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
         for (TTValue subExp:exp.iterator()){
             subExpression(subExp,ecl,includeName);
         }
     }
-
-
 
 	private static void subExpression(TTValue exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
 		if (exp.isIriRef()){
@@ -95,7 +100,7 @@ public class TTToECL {
 	private static void addConjunction(TTNode exp, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		boolean first = true;
 
-		for (TTValue member : exp.asNode().get(SHACL.AND).asArray().getElements()) {
+		for (TTValue member : exp.asNode().get(SHACL.AND).getElements()) {
 			if (member.isIriRef()) {
 				if (!first)
 					ecl.append(" AND ");
@@ -104,7 +109,7 @@ public class TTToECL {
 			}
 		}
 		first=true;
-		for (TTValue member : exp.asNode().get(SHACL.AND).asArray().getElements()) {
+		for (TTValue member : exp.asNode().get(SHACL.AND).getElements()) {
 			if (!member.isIriRef()) {
 				if (member.asNode().get(SHACL.NOT) != null) {
 					ecl.append(" MINUS ");

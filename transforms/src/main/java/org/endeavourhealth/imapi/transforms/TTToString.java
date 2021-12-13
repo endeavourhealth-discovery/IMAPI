@@ -32,8 +32,8 @@ public class TTToString {
         return result.toString();
     }
 
-    public static String ttValueToString(TTArray node, String previousType, Map<String, String> iriMap, int indent, List<String> blockedIris) {
-        return ttArrayToString(node, indent, iriMap, blockedIris);
+    public static String ttValueToString(TTArray node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
+        return ttArrayToString(node, indent, withHyperlinks, iriMap, blockedIris);
     }
 
     public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
@@ -92,42 +92,30 @@ public class TTToString {
         return result;
     }
 
-    private static String processNode(String key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
-        if (value.isIriRef()) {
-            result += getObjectName(key, iriMap, pad, prefix);
-            result += ttIriToString(value.asIriRef(), "object", indent, withHyperlinks, true, blockedIris);
-            result += suffix;
-        } else if (value.isList()) {
-            if (value.asArray().size() == 1 && value.asArray().getElements().get(0).isIriRef()) {
+        private static String processNode(String key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, Boolean group, Boolean last, boolean withHyperlinks, List<String> blockedIris) {
+            if (value.isIriRef()) {
                 result += getObjectName(key, iriMap, pad, prefix);
-                result += ttIriToString(value.asArray().getElements().get(0).asIriRef(), "object", indent, withHyperlinks, true, blockedIris);
+                result += ttIriToString(value.asIriRef(), "object", indent, withHyperlinks, true, blockedIris);
                 result += suffix;
-            } else if (value.asArray().size() == 1 && value.asArray().getElements().get(0).isLiteral()) {
+            } else if (value.isNode()) {
                 result += getObjectName(key, iriMap, pad, prefix);
-                result += value.asArray().getElements().get(0).asLiteral().toString();
-                result += suffix;
+                result += "\n";
+                result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
+                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+                else if (group && last) result += " )\n";
+            } else if (value.isLiteral()) {
+                result += getObjectName(key, iriMap, pad, prefix);
+                result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
+                result += "\n";
             } else {
-            result += getObjectName(key, iriMap, pad, prefix);
-            result += "\n";
-            result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
-            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
-            else if (group && last) result += " )\n";
-        } else if (value.isLiteral()) {
-            result += getObjectName(key, iriMap, pad, prefix);
-            result += "\n";
-            result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
-            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
-            else if (group && last) result += " )\n";
-        } else {
-            result += getObjectName(key, iriMap, pad, prefix);
-            result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
-            result += "\n";
-            result += ttValueToString(value, "object", iriMap, indent + 1, blockedIris);
-            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
-            else if (group && last) result += " )\n";
+                result += getObjectName(key, iriMap, pad, prefix);
+                result += "\n";
+                result += ttValueToString(value, "object", iriMap, indent + 1, withHyperlinks, blockedIris);
+                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+                else if (group && last) result += " )\n";
+            }
+            return result;
         }
-        return result;
-    }
 
     private static String getObjectName(String key, Map<String, String> iriMap, String pad, String prefix) {
         if (iriMap != null && iriMap.containsKey(key)) return pad + prefix + removeEndBrackets(iriMap.get(key)) + " : ";

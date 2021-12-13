@@ -198,13 +198,13 @@ public class EntityRepositoryImpl2 {
 			simpleSuperClass(definition.asIriRef());
 		}
 		else if (definition.get(SHACL.OR)!=null) {
-			orClause(definition.get(SHACL.OR).asArray());
+			orClause(definition.get(SHACL.OR));
 
 		}
 		else if (definition.get(SHACL.AND)!=null) {
-			Boolean hasRoles= andClause(definition.get(SHACL.AND).asArray(),true);
+			Boolean hasRoles= andClause(definition.get(SHACL.AND),true);
 			if (hasRoles) {
-				andClause(definition.get(SHACL.AND).asArray(), false);
+				andClause(definition.get(SHACL.AND), false);
 			}
 		}
 	}
@@ -257,11 +257,11 @@ public class EntityRepositoryImpl2 {
 
 		if (union.get(SHACL.AND)!=null){
 			spql.add("UNION {");
-			Boolean hasRoles= andClause(union.get(SHACL.AND).asArray(),true);
+			Boolean hasRoles= andClause(union.get(SHACL.AND),true);
 			spql.add("}");
 			if (hasRoles) {
 				spql.add("UNION {");
-				andClause(union.get(SHACL.AND).asArray(), false);
+				andClause(union.get(SHACL.AND), false);
 				spql.add("}");
 			}
 		}
@@ -278,7 +278,7 @@ public class EntityRepositoryImpl2 {
 
 	private void roles(TTNode node,boolean group) {
 		int count = 1;
-		for (Map.Entry<TTIriRef, TTValue> entry:node.getPredicateMap().entrySet()) {
+		for (Map.Entry<TTIriRef, TTArray> entry:node.getPredicateMap().entrySet()) {
 			count++;
 			String obj = "?o_" + count;
 			String pred = "?p_" + count;
@@ -332,7 +332,7 @@ public class EntityRepositoryImpl2 {
 		for (TTValue inter:and.getElements()){
 			if (inter.isNode())
 				if (inter.asNode().get(SHACL.NOT)!=null)
-					notClause(inter.asNode().get(SHACL.NOT));
+					notClause(inter.asNode().get(SHACL.NOT).asValue());
 		}
 		return hasRoles;
 	}
@@ -348,12 +348,12 @@ public class EntityRepositoryImpl2 {
 			simpleSuperClass(not.asIriRef());
 		else if (not.isNode()){
 			if (not.asNode().get(SHACL.OR)!=null){
-				orClause(not.asNode().get(SHACL.OR).asArray());
+				orClause(not.asNode().get(SHACL.OR));
 			}
 			else if (not.asNode().get(SHACL.AND)!=null){
-				Boolean hasRoles= andClause(not.asNode().get(SHACL.AND).asArray(),true);
+				Boolean hasRoles= andClause(not.asNode().get(SHACL.AND),true);
 				if (hasRoles) {
-					andClause(not.asNode().get(SHACL.AND).asArray(), false);
+					andClause(not.asNode().get(SHACL.AND), false);
 				}
 			}
 		}

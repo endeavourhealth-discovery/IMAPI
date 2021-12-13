@@ -9,7 +9,9 @@ import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
@@ -19,7 +21,8 @@ public class ExcelSetExporter {
 
 
 	public static XSSFWorkbook getSetAsExcel(String setIri) throws DataFormatException {
-		TTEntity entity= repo.getEntity(setIri,null);
+		Set<String> predicates= Set.of(RDFS.LABEL.getIri(),IM.DEFINITION.getIri());
+		TTEntity entity= repo.getEntity(setIri,predicates);
 		String ecl= TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION),true);
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFFont font = workbook.createFont();
@@ -35,22 +38,28 @@ public class ExcelSetExporter {
 
 	private static void addLegacyExpansionToWorkBook(TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
 		Sheet sheet = workbook.createSheet("Full expansion");
-		addHeaders(sheet, headerStyle, "core code","core term","London extension","legacy code","Legacy term","Legacy scheme");
+		addHeaders(sheet, headerStyle, "core code","core term","extension","legacy code","Legacy term","Legacy scheme");
+		sheet.setColumnWidth(0,5000);
+		sheet.setColumnWidth(1,20000);
+		sheet.setColumnWidth(2,2500);
+		sheet.setColumnWidth(4,20000);
+
 		Set<CoreLegacyCode> expansion= repo.getSetExpansion(entity,true);
 		for (CoreLegacyCode cl:expansion){
 			Row row=addRow(sheet);
 			String isLondon= cl.getScheme().getIri().contains("sct#") ?"N" :"Y";
 			addCells(row,cl.getCode(),cl.getTerm(),isLondon,cl.getLegacyCode(),cl.getLegacyTerm(),cl.getLegacySchemeName());
 		}
-		// Auto size the column widths
-		for(int columnIndex = 0; columnIndex < 6; columnIndex++) {
-			sheet.autoSizeColumn(columnIndex);
-		}
+		sheet.autoSizeColumn(3);
+
 	}
 
 	private static void addCoreExpansionToWorkBook(TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
 		Sheet sheet = workbook.createSheet("Core expansion");
-		addHeaders(sheet, headerStyle, "code","term","London extension");
+		addHeaders(sheet, headerStyle, "code","term","extension");
+		sheet.setColumnWidth(0,5000);
+		sheet.setColumnWidth(1,20000);
+		sheet.setColumnWidth(2,2500);
 
 		Set<CoreLegacyCode> expansion= repo.getSetExpansion(entity,false);
 		for (CoreLegacyCode cl:expansion){
@@ -58,10 +67,7 @@ public class ExcelSetExporter {
 			String isLondon= cl.getScheme().getIri().contains("sct#") ?"N" :"Y";
 			addCells(row,cl.getCode(),cl.getTerm(),isLondon);
 		}
-		// Auto size the column widths
-		for(int columnIndex = 0; columnIndex < 3; columnIndex++) {
-			sheet.autoSizeColumn(columnIndex);
-		}
+
 	}
 
 
@@ -96,14 +102,18 @@ public class ExcelSetExporter {
 		for (String value : values) {
 			Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
 			if (value!=null) {
+
 				if (value.contains("\n")) {
 					iriCell.getRow()
 						.setHeightInPoints(iriCell.getSheet().getDefaultRowHeightInPoints() * value.split("\n").length);
-					CellStyle cellStyle = iriCell.getSheet().getWorkbook().createCellStyle();
-					cellStyle.setWrapText(true);
-					iriCell.setCellStyle(cellStyle);
+					//CellStyle cellStyle = iriCell.getSheet().getWorkbook().createCellStyle();
+					//cellStyle.setWrapText(true);
+					//iriCell.setCellStyle(cellStyle);
 				}
 				iriCell.setCellValue(value);
+				CellStyle cellStyle = iriCell.getSheet().getWorkbook().createCellStyle();
+				cellStyle.setWrapText(true);
+				iriCell.setCellStyle(cellStyle);
 			}
 		}
 	}

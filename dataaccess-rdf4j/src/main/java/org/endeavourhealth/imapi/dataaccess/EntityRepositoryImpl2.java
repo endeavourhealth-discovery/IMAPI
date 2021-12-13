@@ -68,10 +68,12 @@ public class EntityRepositoryImpl2 {
 			.add("  ?entity ?1predicate ?1Level.");
 		if (predicates!=null){
 			StringBuilder inPredicates= new StringBuilder();
+			int i=0;
 			for (String pred:predicates) {
-				inPredicates.append("<").append(pred).append("> ");
+				inPredicates.append(i>0 ? "," : "").append("<").append(pred).append("> ");
+				i++;
 			}
-			sql.add("   FILTER ?1 predicate IN ("+inPredicates+")");
+			sql.add("   FILTER (?1predicate IN ("+inPredicates+"))");
 		}
 		sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.")
 			.add("    FILTER (!isBlank(?1Level))}");

@@ -85,6 +85,7 @@ public class IM {
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
     public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE +"alternativeCode");
     public static final TTIriRef DESCRIPTION_ID= iri(NAMESPACE+"descriptionId");
+    public static final TTIriRef CODE_ID= iri(NAMESPACE+"codeId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
     public static final TTIriRef MAPPED_TO = iri(NAMESPACE +"mappedTo");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");

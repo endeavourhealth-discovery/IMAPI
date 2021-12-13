@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.EntitySummary;
+import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
@@ -86,16 +86,15 @@ public class SetController {
         value="ECL search",
         notes="Search entities using ECL string"
     )
-    public ResponseEntity<?> eclSearch(
+    public SearchResponse eclSearch(
             @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
             @RequestParam(name="limit", required = false) Integer limit,
             @RequestBody String ecl
     ) throws DataFormatException {
         try {
-            return new ResponseEntity<>(setService.eclSearch(includeLegacy,limit,ecl) , HttpStatus.OK);
+            return setService.eclSearch(includeLegacy,limit,ecl);
         } catch (UnknownFormatConversionException e) {
-            return new ResponseEntity<>("Invalid ECL format", HttpStatus.BAD_REQUEST);
+            throw new DataFormatException("Invalid ECL format");
         }
-
     }
 }

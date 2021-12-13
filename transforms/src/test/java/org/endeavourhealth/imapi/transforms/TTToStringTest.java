@@ -157,7 +157,7 @@ class TTToStringTest {
                 "          type : <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
                 "      On property : <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fendhealth.info%2Fim%23roleGroup\">role group</a>\n" +
                 "      type : <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n";
-        assertEquals(expected, TTToString.getBundleAsString(getTestBundle(), getTestDefaultPredicates(), 0, getTestBlockedIris()));
+        assertEquals(expected, TTToString.getBundleAsString(getTestBundle(), getTestDefaultPredicates(), 0, true, getTestBlockedIris()));
     }
 
     @Test
@@ -166,6 +166,6 @@ class TTToStringTest {
                 "  <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001\">Duane's syndrome, type 3</a>\n" +
                 "  <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23298382003\">Scoliosis deformity of spine</a>\n" +
                 "  <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%2382354003\">Multiple system malformation syndrome</a>\n";
-        assertEquals(expected, TTToString.ttNodeToString(getTestNode(), "array", 0, getTestDefaultPredicates(), getTestBlockedIris()));
+        assertEquals(expected, TTToString.ttNodeToString(getTestNode(), "array", 0, true, getTestDefaultPredicates(), getTestBlockedIris()));
     }
 }

@@ -22,12 +22,12 @@ public class TTToString {
         return predicates;
     }
 
-    public static String getBundleAsString(TTBundle bundle, Map<String, String> defaultPredicates, int indent, List<String> blockedIris) {
+    public static String getBundleAsString(TTBundle bundle, Map<String, String> defaultPredicates, int indent, boolean withHyperlinks, List<String> blockedIris) {
         Map<String, String> predicates = bundle.getPredicates();
         predicates = setPredicateDefaults(predicates, defaultPredicates);
         StringBuilder result = new StringBuilder();
         for (Map.Entry<TTIriRef, TTArray> element : bundle.getEntity().getPredicateMap().entrySet()) {
-            result.append(ttValueToString(new TTNode().set(element.getKey(), element.getValue()), "object", predicates, indent, blockedIris));
+            result.append(ttValueToString(new TTNode().set(element.getKey(), element.getValue()), "object", predicates, indent, withHyperlinks, blockedIris));
         }
         return result.toString();
     }
@@ -36,33 +36,33 @@ public class TTToString {
         return ttArrayToString(node, indent, iriMap, blockedIris);
     }
 
-    public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent, List<String> blockedIris) {
+    public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
         if (node.isIriRef()) {
-            return ttIriToString(node.asIriRef(), previousType, indent, false, blockedIris);
+            return ttIriToString(node.asIriRef(), previousType, indent, withHyperlinks, false, blockedIris);
         } else if (node.isNode()) {
-            return ttNodeToString(node.asNode(), previousType, indent, iriMap, blockedIris);
+            return ttNodeToString(node.asNode(), previousType, indent, withHyperlinks, iriMap, blockedIris);
         } else {
             return node.toString();
         }
     }
 
-    public static String ttIriToString(TTIriRef iri, String previous, int indent, boolean inline, List<String> blockedIris) {
+    public static String ttIriToString(TTIriRef iri, String previous, int indent, boolean withHyperlinks, boolean inline, List<String> blockedIris) {
         String pad = new String(new char[indent]).replace("\0", indentSize);
         String result = "";
         if (!inline) result += pad;
-        if (!blockedIris.contains(iri.getIri())) {
+        if (withHyperlinks && !blockedIris.contains(iri.getIri())) {
             String escapedUrl = iri.getIri().replaceAll("/","%2F").replaceAll("#", "%23");
             String rootUrl = System.getenv("API_URL");
             result += "<a href=\"" + rootUrl + "/#/concept/" + escapedUrl + "\">";
         }
         if (iri.getName() != null) result += removeEndBrackets(iri.getName());
         else result += iri.getIri();
-        if (!blockedIris.contains(iri.getIri())) result += "</a>";
+        if (withHyperlinks && !blockedIris.contains(iri.getIri())) result += "</a>";
         if ("array".equals(previous)) result += "\n";
         return result;
     }
 
-    public static String ttNodeToString(TTNode node, String previousType, int indent, Map<String, String> iriMap, List<String> blockedIris) {
+    public static String ttNodeToString(TTNode node, String previousType, int indent, boolean withHyperlinks, Map<String, String> iriMap, List<String> blockedIris) {
         String pad = new String(new char[indent]).replace("\0", indentSize);
         String result = "";
         boolean first = true;
@@ -86,29 +86,41 @@ public class TTToString {
                 }
                 if (last) suffix = " )\n";
             }
-            result = processNode(element.getKey().getIri(), element.getValue(), result, nodeIndent, iriMap, pad, prefix, suffix, group, last, blockedIris);
+            result = processNode(element.getKey().getIri(), element.getValue(), result, nodeIndent, iriMap, pad, prefix, suffix, group, last, withHyperlinks, blockedIris);
             count ++;
         }
         return result;
     }
 
-    private static String processNode(String key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, Boolean group, Boolean last, List<String> blockedIris) {
+    private static String processNode(String key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
         if (value.isIriRef()) {
             result += getObjectName(key, iriMap, pad, prefix);
-            result += ttIriToString(value.asIriRef(), "object", indent, true, blockedIris);
+            result += ttIriToString(value.asIriRef(), "object", indent, withHyperlinks, true, blockedIris);
             result += suffix;
-        } else if (value.isNode()) {
+        } else if (value.isList()) {
+            if (value.asArray().size() == 1 && value.asArray().getElements().get(0).isIriRef()) {
+                result += getObjectName(key, iriMap, pad, prefix);
+                result += ttIriToString(value.asArray().getElements().get(0).asIriRef(), "object", indent, withHyperlinks, true, blockedIris);
+                result += suffix;
+            } else if (value.asArray().size() == 1 && value.asArray().getElements().get(0).isLiteral()) {
+                result += getObjectName(key, iriMap, pad, prefix);
+                result += value.asArray().getElements().get(0).asLiteral().toString();
+                result += suffix;
+            } else {
             result += getObjectName(key, iriMap, pad, prefix);
             result += "\n";
-            result += ttValueToString(value, "object", iriMap, indent, blockedIris);
-            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+            result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
+            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
             else if (group && last) result += " )\n";
         } else if (value.isLiteral()) {
             result += getObjectName(key, iriMap, pad, prefix);
-            result += ttValueToString(value, "object", iriMap, indent, blockedIris);
             result += "\n";
+            result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
+            if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
+            else if (group && last) result += " )\n";
         } else {
             result += getObjectName(key, iriMap, pad, prefix);
+            result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
             result += "\n";
             result += ttValueToString(value, "object", iriMap, indent + 1, blockedIris);
             if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
@@ -126,10 +138,10 @@ public class TTToString {
         return str.replaceAll(regex, "");
     }
 
-    public static String ttArrayToString(TTArray arr, int indent, Map<String, String> iriMap, List<String> blockedIris) {
+    public static String ttArrayToString(TTArray arr, int indent, boolean withHyperlinks, Map<String, String> iriMap, List<String> blockedIris) {
         String result = "";
         for (TTValue item : arr.iterator()) {
-            result += ttValueToString(item, "array", iriMap, indent, blockedIris);
+            result += ttValueToString(item, "array", iriMap, indent, withHyperlinks, blockedIris);
         }
         return result;
     }

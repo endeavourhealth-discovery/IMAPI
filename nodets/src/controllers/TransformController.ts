@@ -3,6 +3,23 @@ import { TransformInstruction, TransfromType } from "../models";
 import { FunctionWrapper } from "../transformFunctions/FunctionWrapper";
 import { queryWithJpath, setValueWithJpath } from "./JsonPathController";
 
+export function getTransformed(inputJson: any[], dataModelJson: any[], instructions: TransformInstruction[]) {
+  const transformed = [];
+  inputJson.forEach(row => {
+    let instances = [];
+    dataModelJson.forEach(dataModel => {
+      const instance = JSON.parse(JSON.stringify(dataModel));
+      instances.push(instance);
+    });
+    instructions.forEach(instruction => {
+      instances = transformByInstruction(instruction, instances, row).instances;
+    });
+    transformed.push(...instances);
+  });
+
+  return transformed;
+}
+
 export function getTransformTypes() {
   return Object.keys(TransfromType).map(functionName => functionName.toLowerCase());
 }
@@ -46,7 +63,7 @@ function getValue(input: any[], instance: any, instruction: TransformInstruction
 }
 
 function getValueFromReference(input: any[], transformValue: string) {
-  const referenceValues = queryWithJpath(input[0], transformValue);
+  const referenceValues = queryWithJpath(input[0] ? input[0] : input, transformValue);
   if (!isArrayHasLength(referenceValues)) {
     return undefined;
   }

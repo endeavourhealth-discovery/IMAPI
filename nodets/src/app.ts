@@ -4,7 +4,7 @@ import { join } from "./controllers/JoinController";
 import { getInputFromJpath, getJpathTreeOptions, getJsonPathOptions } from "./controllers/JsonPathController";
 import { getJsonFromFile } from "./controllers/ParseController";
 import { generateDataModel, getDataModelInstanceDisplay } from "./controllers/DataModelController";
-import { getFunctions, getTransformTypes, transformByInstruction } from "./controllers/TransformController";
+import { getFunctions, getTransformed, getTransformTypes, transformByInstruction } from "./controllers/TransformController";
 
 const app = express();
 const port = 3000;
@@ -57,4 +57,9 @@ app.post("/api/transform/rowTransformation", (request: Request, response: Respon
 app.post("/api/transform/inputFromJpath", (request: Request, response: Response, next: NextFunction) => {
   const { input, jpath } = request.body;
   response.status(200).json(getInputFromJpath(input, jpath));
+});
+
+app.post("/api/transform/transformed", (request: Request, response: Response, next: NextFunction) => {
+  const { inputJson, dataModelJson, instructions } = request.body;
+  response.status(200).json(getTransformed(inputJson, dataModelJson, instructions));
 });

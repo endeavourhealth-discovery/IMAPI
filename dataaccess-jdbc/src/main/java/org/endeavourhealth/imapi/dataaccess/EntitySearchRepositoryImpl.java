@@ -103,32 +103,6 @@ public class EntitySearchRepositoryImpl implements EntitySearchRepository {
             .setStatus(TTIriRef.iri(rs.getString("status"), rs.getString("status_name")));
     }
 
-//    @Override
-//    public SearchResultSummary getSummary(String iri) throws DALException {
-//        SearchResultSummary summary = new SearchResultSummary();
-//        StringJoiner sql = new StringJoiner("\n")
-//                .add("SELECT DISTINCT c.dbid, c.iri, c.name, c.description, c.code, c.scheme, c.status, cs.term, n.name AS scheme_name, t.name AS status_name")
-//                .add("FROM entity_search cs")
-//                .add("JOIN entity c ON cs.entity_dbid = c.dbid")
-//                .add("JOIN entity_type ct ON cs.entity_dbid = ct.entity")
-//                .add("JOIN entity t ON t.iri = c.status")
-//                .add("LEFT JOIN namespace n ON n.iri = c.scheme")
-//                .add("WHERE c.iri=? ");
-//        try (Connection conn = ConnectionPool.get();
-//             PreparedStatement statement = conn.prepareStatement(sql.toString())) {
-//            statement.setString(1, iri);
-//            try (ResultSet rs = statement.executeQuery()) {
-//                while (rs.next()) {
-//                    summary = getEntitySummary(rs);
-//                    summary.setEntityType(typeRepo.getEntityTypes(summary.getIri()));
-//                }
-//            }
-//        } catch (SQLException e) {
-//            throw new DALException("Failed to get summary", e);
-//        }
-//        return summary;
-//    }
-
     private String toFreeTextTerms(String termFilter) {
         return Arrays.stream(termFilter
                 .replace("-", " ")

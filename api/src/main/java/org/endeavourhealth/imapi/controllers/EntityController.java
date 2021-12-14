@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,6 +58,8 @@ public class EntityController {
 
     private final EntityService entityService = new EntityService();
 	private final ConfigService configService = new ConfigService();
+
+	private final static String attachmentFile = "attachment;filename=\"";
 
 	@PostMapping(value = "/search")
     @ApiOperation(
@@ -143,7 +146,7 @@ public class EntityController {
 			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
 
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".json\"");
 
 			return new HttpEntity<>(json, headers);
 		}
@@ -182,7 +185,7 @@ public class EntityController {
                 xls.getWorkbook().write(outputStream);
                 xls.getWorkbook().close();
                 headers.setContentType(new MediaType("application", "force-download"));
-                headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".xlsx\"");
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".xlsx\"");
 
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
@@ -190,7 +193,7 @@ public class EntityController {
             DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers, expandSubsets, terms, isChildOf, hasChildren, inactive);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".json\"");
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".json\"");
 
             return new HttpEntity<>(json, headers);
         }
@@ -294,4 +297,9 @@ public class EntityController {
 		return entityService.getNamespaces();
 	}
 
+	@PostMapping("/ecl")
+	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
+		LOG.debug("getEcl");
+		return entityService.getEcl(inferred);
+	}
 }

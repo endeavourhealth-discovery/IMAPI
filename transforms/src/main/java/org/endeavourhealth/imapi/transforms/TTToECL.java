@@ -32,8 +32,11 @@ public class TTToECL {
 				subExpression(exp.asNode().get(SHACL.NOT),ecl,includeName);
 				if (!exp.asNode().get(SHACL.NOT).isIriRef())
 				ecl.append(")");
+			} else if (exp.asNode().get(IM.DEFINITION) != null) {
+				subExpression(exp.asNode().get(IM.DEFINITION), ecl, includeName);
 			}
 			else {
+				ecl.append("*");
 				addRefined(exp.asNode(), ecl, includeName);
 			}
 		} else {
@@ -50,20 +53,20 @@ public class TTToECL {
 		for (TTValue member : exp.asNode().get(junction).asArray().getElements()) {
 			if (member.isIriRef()) {
 				if (!first)
-					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
+					ecl.append((junction.equals(SHACL.OR) ? (" OR\n") : " AND\n"));
 				addClass(member.asIriRef(), ecl, includeName);
 			} else if (member.asNode().get(SHACL.NOT) != null) {
 				ecl.append(" MINUS ");
 				subExpression(member.asNode().get(SHACL.NOT), ecl, includeName);
 			} else if (member.asNode().get(SHACL.AND)!=null){
 				if (!first)
-					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
+					ecl.append((junction.equals(SHACL.OR) ? (" OR\n") : " AND\n"));
 				ecl.append("(");
 				subExpression(member.asNode().get(SHACL.AND), ecl, includeName);
 				ecl.append(")");
 			}  else if (member.asNode().get(SHACL.OR)!=null) {
 				if (!first)
-					ecl.append((junction.equals(SHACL.OR) ? (" OR ") : " AND "));
+					ecl.append((junction.equals(SHACL.OR) ? (" OR\n") : " AND\n"));
 				ecl.append("(");
 				subExpression(member.asNode().get(SHACL.OR), ecl, includeName);
 				ecl.append(")");
@@ -96,7 +99,7 @@ public class TTToECL {
 						addRefined(entry.getValue().asNode(),ecl,includeName);
 						ecl.append("}");
 				} else
-					throw new DataFormatException("Unknown epression constraint format. Expecting role group");
+					throw new DataFormatException("Unknown expression constraint format. Expecting role group");
 			}
 		}
 	}
@@ -104,7 +107,7 @@ public class TTToECL {
 	private static void addClass(TTIriRef exp,StringBuilder ecl,boolean includeName) throws DataFormatException {
 		String iri=checkMember(exp.asIriRef().getIri());
 		if(includeName){
-			ecl.append("<< " + iri + " |" + exp.asIriRef().getName()+" |");
+			ecl.append("<< " + iri + " | " + exp.asIriRef().getName()+" |");
 		} else {
 			ecl.append("<< " + iri);
 		}

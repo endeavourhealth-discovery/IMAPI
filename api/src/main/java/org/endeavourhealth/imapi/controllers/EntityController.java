@@ -31,6 +31,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -119,7 +120,7 @@ public class EntityController {
 	}
 
 	@GetMapping("/exportConcept")
-	public HttpEntity<Object> exportConcept(@RequestParam String iri) throws JsonProcessingException {
+	public HttpEntity<Object> exportConcept(@RequestParam String iri, @RequestParam String format) throws JsonProcessingException {
 		LOG.debug("exportConcept");
 		if (iri == null || iri.isEmpty())
 			return null;
@@ -128,19 +129,29 @@ public class EntityController {
 
 		String filename = entity.getName() + " " + LocalDate.now();
 		HttpHeaders headers = new HttpHeaders();
-
 		TTDocument document = entityService.getConcept(iri);
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+		if("turtle".equals(format)){
 
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".json\"");
+			TTToTurtle ttToTurtle = new TTToTurtle();
+			String turtle = ttToTurtle.transformDocument(document);
 
-		return new HttpEntity<>(json, headers);
+			headers.setContentType(MediaType.TEXT_PLAIN);
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
 
+			return new HttpEntity<>(turtle, headers);
+
+		}else{
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".json\"");
+
+			return new HttpEntity<>(json, headers);
+		}
 	}
 
 	@GetMapping(value = "/download")

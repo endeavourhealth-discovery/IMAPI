@@ -48,8 +48,8 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "    \"size\": \"50%\",\n" +
                 "    \"type\": \"TextWithLabel\",\n" +
                 "    \"label\": \"Iri\",\n" +
+                "    \"predicate\": \"@id\",\n" +
                 "    \"order\": 102\n" +
-//                 "    \"predicate\": \"@id\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"size\": \"50%\",\n" +
@@ -60,7 +60,7 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 "  },\n" +
                 "  {\n" +
                 "    \"size\": \"50%\",\n" +
-                "    \"type\": \"ObjectNameTagWithLabel\",\n" +
+                "    \"type\": \"ArrayObjectNameTagWithLabel\",\n" +
                 "    \"label\": \"Status\",\n" +
                 "    \"order\": 103,\n" +
                 "    \"predicate\": \"http://endhealth.info/im#status\"\n" +

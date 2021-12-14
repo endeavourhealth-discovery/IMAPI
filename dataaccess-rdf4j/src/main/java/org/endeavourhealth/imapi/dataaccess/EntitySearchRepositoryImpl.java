@@ -12,8 +12,4 @@ public class EntitySearchRepositoryImpl implements EntitySearchRepository {
         return Collections.emptyList();
     }
 
-    @Override
-    public SearchResultSummary getSummary(String iri) {
-        return null;
-    }
 }

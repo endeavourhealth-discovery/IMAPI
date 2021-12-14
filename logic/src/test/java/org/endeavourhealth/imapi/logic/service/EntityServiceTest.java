@@ -1285,7 +1285,7 @@ class EntityServiceTest {
     @Test
     void getSummary_NotNullIri() {
         SearchResultSummary summary = new SearchResultSummary();
-        when(entitySearchRepository.getSummary(any())).thenReturn(summary);
+        when(entityRepository.getEntitySummaryByIri(any())).thenReturn(summary);
         SearchResultSummary actual = entityService.getSummary(null);
         assertNotNull(actual);
     }

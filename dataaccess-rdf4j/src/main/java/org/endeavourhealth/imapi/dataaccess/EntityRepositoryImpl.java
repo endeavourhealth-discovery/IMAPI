@@ -45,8 +45,8 @@ public class EntityRepositoryImpl implements EntityRepository {
             .add("SELECT ?sname ?scode ?g ?gname")
             .add("WHERE {")
             .add("  GRAPH ?g {")
-            .add("    ?s rdfs:label ?sname ;")
-            .add("       im:code    ?scode .")
+            .add("    ?s rdfs:label ?sname .")
+            .add("  OPTIONAL { ?s im:code    ?scode . }")
             .add("  }")
             .add("  OPTIONAL { ?g rdfs:label ?gname } .")
             .add("}");
@@ -60,7 +60,7 @@ public class EntityRepositoryImpl implements EntityRepository {
                     result
                         .setIri(iri)
                         .setName(bs.getValue("sname").stringValue())
-                        .setCode(bs.getValue("scode").stringValue())
+                        .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
                         .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())));
                 }
             }

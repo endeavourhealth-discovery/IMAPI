@@ -79,6 +79,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+        ex.printStackTrace();
         String message = "Unhandled server error occurred";
         ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex, ErrorCodes.UNHANDLED_EXCEPTION);
         return buildResponseEntity(error);

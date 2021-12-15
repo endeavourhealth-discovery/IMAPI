@@ -36,7 +36,7 @@ public class IM {
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
     public static final TTIriRef QUERY= iri(NAMESPACE+"Query");
-
+    public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
@@ -61,7 +61,9 @@ public class IM {
     public static final TTIriRef IS_A= iri(NAMESPACE +"isA");
     public static final TTIriRef IS_CHILD_OF= iri(NAMESPACE +"isChildOf");
 
-    //
+
+    // Config predicate
+    public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");
 
     //Inferred grouping predicates
     public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
@@ -121,6 +123,7 @@ public class IM {
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
     public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1Maps#");
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
+    public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
 
 
     //Source graphs

@@ -642,7 +642,7 @@ public class EntityService {
 	}
 
 	public SearchResultSummary getSummary(String iri) {
-		return entitySearchRepository.getSummary(iri);
+		return entityRepository.getEntitySummaryByIri(iri);
 	}
 
 	public TTEntity getConceptShape(String iri) {

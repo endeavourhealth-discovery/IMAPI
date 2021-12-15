@@ -36,12 +36,12 @@ public class SetService {
 
     private final SetRepository setRepository;
     private final EntityTripleRepository entityTripleRepository;
-    private final EntitySearchRepository entitySearchRepository;
+    private final EntityRepository entityRepository;
 
     public SetService() {
         setRepository = new SetRepositoryImpl();
         entityTripleRepository = new EntityTripleRepositoryImpl();
-        entitySearchRepository = new EntitySearchRepositoryImpl();
+        entityRepository= new EntityRepositoryImpl();
     }
 
 
@@ -426,7 +426,7 @@ public class SetService {
         Set<EntitySummary> evaluated = evaluateDefinition(ecl, includeLegacy);
         List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
             try {
-                return entitySearchRepository.getSummary(ttIriRef.getIri());
+                return entityRepository.getEntitySummaryByIri(ttIriRef.getIri());
             } catch (DALException e) {
                 return new SearchResultSummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
             }

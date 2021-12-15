@@ -8,6 +8,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 
+import org.eclipse.rdf4j.repository.dataset.DatasetRepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
@@ -567,6 +568,35 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     @Override
     public List<SimpleMap> findSimpleMapsByIri(String iri,List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add(" SELECT ?o ?oname ?ocode ?osch WHERE{")
+                .add(" ?s rdfs:subClassOf ?o .")
+                .add(" ?o rdfs:label ?oname ; ")
+                .add("    im:code ?ocode ; ")
+                .add("    im:scheme ?osch . ");
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql.add("FILTER ( ?osch IN " + inListParams("osch", schemeIris.size()) + " )");
+        }
+        sql.add("}");
+
+        try( RepositoryConnection conn = ConnectionManager.getConnection()){
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+
+            qry.setBinding("s", iri(iri));
+            if(schemeIris != null && !schemeIris.isEmpty()){
+                int i = 0;
+                for(String scheme : schemeIris){
+                    qry.setBinding("osch" + i++, iri(scheme));
+                }
+            }
+
+            try(TupleQueryResult rs = qry.evaluate()){
+                while (rs.hasNext()){
+                    BindingSet bs = rs.next();
+                    simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs,"oname"), getString(bs, "ocode"), getString(bs, "osch")));
+                }
+            }
+        }
         return simpleMaps;
     }
 }

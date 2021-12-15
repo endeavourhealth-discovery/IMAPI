@@ -694,8 +694,8 @@ public class EntityService {
 		if (iri == null || iri.equals("")) return new ArrayList<>();
 		String scheme = iri.substring(0,iri.indexOf("#") + 1);
 		List<Namespace> namespaces = getNamespaces();
-		List<String> schemes = namespaces.stream().map(namespace -> namespace.getIri()).collect(Collectors.toList());
-		if (schemes.contains(scheme)) schemes.remove(schemes.indexOf(scheme));
+		List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
+		schemes.remove(scheme);
 		return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
 	}
 

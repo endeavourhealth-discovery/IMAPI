@@ -11,11 +11,14 @@ import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
 public class ExcelSetExporter {
+
+	private ExcelSetExporter() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	private static final EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
 

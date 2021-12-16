@@ -1,13 +1,14 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 public class TTToHTML {
+	private TTToHTML() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	public static String getExpressionText(TTNode expression) {
 		StringBuilder html = new StringBuilder();

@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
 
-public class QueryBuilderTest {
+class QueryBuilderTest {
 	@Test
 	void buildQuery() throws JsonProcessingException {
 		TTEntity entity= new TTEntity()

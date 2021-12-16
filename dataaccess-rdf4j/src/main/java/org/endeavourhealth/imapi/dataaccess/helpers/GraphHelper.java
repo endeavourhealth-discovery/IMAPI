@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GraphHelper {
+    private GraphHelper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String inListParams(String param, int size) {
         List<String> q = new ArrayList<>(size);
         for(int i=0; i<size; i++){

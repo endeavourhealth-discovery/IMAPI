@@ -100,7 +100,7 @@ public class TTToOWLEL {
 
 
    private void processEntities(List<TTEntity> entities) {
-      if (entities == null || entities.size() == 0)
+      if (entities == null || entities.isEmpty())
          return;
       int classno = 0;
 
@@ -197,7 +197,7 @@ public class TTToOWLEL {
              owlOpe,
              getOWLClassExpression(exp.get(OWL.ALLVALUESFROM).asValue())
          );
-      } if (exp.get(OWL.SOMEVALUESFROM)!=null){
+      } else if (exp.get(OWL.SOMEVALUESFROM)!=null){
          return dataFactory.getOWLObjectAllValuesFrom(
              owlOpe,
              getOWLClassExpression(exp.get(OWL.SOMEVALUESFROM).asValue())
@@ -327,7 +327,7 @@ public class TTToOWLEL {
    private void addDeclaration(TTEntity ttEntity){
 
       IRI iri = getIri(ttEntity.getIri());
-      OWLEntity entity;;
+      OWLEntity entity;
       if (ttEntity.isType(OWL.CLASS))
             entity = dataFactory.getOWLEntity(EntityType.CLASS, iri);
       else  if (ttEntity.isType(IM.CONCEPT))

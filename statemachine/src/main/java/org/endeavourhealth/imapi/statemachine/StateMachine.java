@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.statemachine;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +33,7 @@ public class StateMachine {
         this.taskDAL = taskDAL;
     }
 
-    public StateMachine loadConfig(String name) throws Exception {
+    public StateMachine loadConfig(String name) throws SQLException, JsonProcessingException {
         this.config = configDAL.loadConfig(name);
         return this;
     }

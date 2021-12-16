@@ -25,7 +25,7 @@ public class WhereClause {
 	}
 
 
-	public QueryTriple addTriple(boolean optional, String subject, String predicate, String object) throws DataFormatException {
+	public QueryTriple addTriple(boolean optional, String subject, String predicate, String object) {
 		QueryTriple tpl = new QueryTriple()
 			.setS(subject)
 			.setP(predicate)

@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.statemachine;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StateMachineTaskDALTest implements StateMachineTaskDAL {
+public class StateMachineTaskDALMock implements StateMachineTaskDAL {
     private Map<String, String> db = new HashMap<>();
 
     @Override

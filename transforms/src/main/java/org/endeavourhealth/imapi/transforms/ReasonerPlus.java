@@ -55,10 +55,11 @@ public class ReasonerPlus {
          if (c.isType(OWL.DATATYPEPROPERTY))
             c.setType(new TTArray().add(RDF.PROPERTY));
          if (c.get(IM.IS_A)!=null)
-            if (c.isType(RDF.PROPERTY))
-               c.set(RDFS.SUBPROPERTYOF,c.get(IM.IS_A));
-            else
-               c.set(RDFS.SUBCLASSOF,c.get(IM.IS_A));
+            if (c.isType(RDF.PROPERTY)) {
+               c.set(RDFS.SUBPROPERTYOF, c.get(IM.IS_A));
+            } else {
+               c.set(RDFS.SUBCLASSOF, c.get(IM.IS_A));
+            }
             c.getPredicateMap().remove(IM.IS_A);
          c.getPredicateMap().remove(OWL.EQUIVALENTCLASS);
          c.getPredicateMap().remove(OWL.PROPERTYCHAIN);
@@ -92,13 +93,13 @@ public class ReasonerPlus {
             for (TTValue oldDomain: entity.get(RDFS.DOMAIN).iterator()){
                if (oldDomain.isIriRef()) {
                   newDomains.add(oldDomain);
-               } else if (oldDomain.isNode()){
-                  if (oldDomain.asNode().get(OWL.UNIONOF)!=null)
-                     for (TTValue subDomain: oldDomain.asNode().get(OWL.UNIONOF).iterator()){
-                        if (!subDomain.isIriRef())
-                           System.err.println("Sub domains and ranges must be iris");
-                        else
+               } else if (oldDomain.isNode() && oldDomain.asNode().get(OWL.UNIONOF) != null){
+                  for (TTValue subDomain: oldDomain.asNode().get(OWL.UNIONOF).iterator()){
+                     if (!subDomain.isIriRef()) {
+                        System.err.println("Sub domains and ranges must be iris");
+                     } else {
                         newDomains.add(subDomain);
+                     }
                   }
                }
             }
@@ -112,8 +113,6 @@ public class ReasonerPlus {
          return;
       for (TTEntity entity:inferred.getEntities()) {
          addEntityRoles(entity);
-
-
       }
    }
 
@@ -152,10 +151,8 @@ public class ReasonerPlus {
                            addRole(node, subExp.asNode());
                        } else
                            addExpression(node, subExp);
-                   } else if (subExp.isIriRef()) {
-                       if (!node.get(IM.IS_A).contains(subExp))
-                           if (!(node instanceof TTEntity))
-                               node.addObject(IM.IS_A, subExp);
+                   } else if (subExp.isIriRef() && !node.get(IM.IS_A).contains(subExp) && !(node instanceof  TTEntity)) {
+                      node.addObject(IM.IS_A, subExp);
                    }
                }
            } else if (expression.asNode().get(OWL.UNIONOF) != null) {
@@ -266,12 +263,11 @@ public class ReasonerPlus {
                                .getRepresentativeElement().asOWLObjectProperty()
                                .getIRI()
                                .toString()));
-                        } else
-                           addIsa(c,RDF.PROPERTY);
-                  }
-                  );
-
-               };
+                        } else {
+                           addIsa(c, RDF.PROPERTY);
+                        }
+                  });
+               }
             }
             else if (c.isType(RDF.PROPERTY) || (c.isType(OWL.DATATYPEPROPERTY))) {
                OWLDataProperty dpe = dataFactory.getOWLDataProperty(IRI.create(c.getIri()));
@@ -287,11 +283,11 @@ public class ReasonerPlus {
                                .getRepresentativeElement().asOWLDataProperty()
                                .getIRI()
                                .toString()));
-                        } else
-                           addIsa(c,RDF.PROPERTY);
-                  }
-                  );
-               };
+                        } else {
+                           addIsa(c, RDF.PROPERTY);
+                        }
+                  });
+               }
             } else {
                   OWLClassExpression owlClass = dataFactory.getOWLClass(IRI.create(c.getIri()));
                   NodeSet<OWLClass> superClasses = owlReasoner.getSuperClasses(owlClass, true);
@@ -310,7 +306,7 @@ public class ReasonerPlus {
                         TTIriRef superIri= TTIriRef.iri(sup.getIRI().toString());
                         if (!superIri.equals(TTIriRef.iri(c.getIri())))
                            addIsa(c,superIri);}
-                           ;});
+                     });
                   }
 
                }

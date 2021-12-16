@@ -16,7 +16,7 @@ import java.util.*;
 @JsonPropertyOrder({"prefixes","mainEntity","clauses"})
 public class Query {
 	private final Map<String,String> prefixes = new HashMap<>();
-	private final transient Map<String,String> prefixMap= new HashMap<>();
+	private final Map<String,String> prefixMap= new HashMap<>();
 	private String mainEntity;
 	private List<QueryClause> clauses = new ArrayList<>();
 
@@ -65,8 +65,7 @@ public class Query {
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-		return json;
+		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
 	}
 
 	public Map<String, String> getPrefixes() {

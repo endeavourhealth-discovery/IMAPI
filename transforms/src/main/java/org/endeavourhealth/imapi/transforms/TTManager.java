@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -12,7 +11,6 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -241,7 +239,7 @@ public class TTManager {
    }
 
 
-   public void saveTurtleDocument(File outputFile) throws JsonProcessingException {
+   public void saveTurtleDocument(File outputFile) {
       TTToTurtle converter= new TTToTurtle();
      String ttl= converter.transformDocument(getDocument());
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
@@ -264,8 +262,7 @@ public class TTManager {
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-      return json;
+      return objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
    }
    /**
     * Returns a string of JSON from a TTEntity instance
@@ -279,9 +276,8 @@ public class TTManager {
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
+      return objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
         .writeValueAsString(entity);
-      return json;
    }
 
    public TTDocument replaceIri(TTDocument document, TTIriRef from, TTIriRef to) {

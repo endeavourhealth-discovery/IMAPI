@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class TTToECL {
+	private TTToECL() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	/**
 	 * Takes a TTNode description logic definition of a set and returns in ECL language
@@ -50,7 +53,7 @@ public class TTToECL {
 					ecl.append("(");
 				subExpression(exp.asNode().get(SHACL.NOT),ecl,includeName);
 				if (!exp.asNode().get(SHACL.NOT).isIriRef())
-				ecl.append(")");
+					ecl.append(")");
 			} else if (exp.asNode().get(IM.DEFINITION) != null) {
 				subExpression(exp.asNode().get(IM.DEFINITION), ecl, includeName);
 			}
@@ -72,7 +75,7 @@ public class TTToECL {
 
 		for (TTValue member : exp.asNode().get(SHACL.OR).iterator()) {
 			if (!first)
-				ecl.append(or).append("\n");;
+				ecl.append(or).append("\n");
 			if (member.isIriRef()) {
 				addClass(member.asIriRef(), ecl, includeName);
 			} else if (member.asNode().get(SHACL.NOT) != null) {

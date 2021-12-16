@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model;
 
-public class TermCode {
+import java.io.Serializable;
+
+public class TermCode implements Serializable {
     private String name;
     private String code;
     private String scheme;

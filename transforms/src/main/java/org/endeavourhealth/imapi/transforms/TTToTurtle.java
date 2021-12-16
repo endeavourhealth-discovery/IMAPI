@@ -1,14 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-
-import org.endeavourhealth.imapi.vocabulary.RDF;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.endeavourhealth.imapi.query.Query;
-import org.endeavourhealth.imapi.vocabulary.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -154,7 +146,7 @@ public class TTToTurtle {
 					append("\""+value.asLiteral().getValue().replace("\"","")+"\"^^"+ getShort(value.asLiteral().getType().getIri()));
 
 				}
-			} else{ ;
+			} else {
 				append("[");
 				setPredicateObjects(value.asNode());
 				append("]");

@@ -12,7 +12,7 @@ class UPRNStateMachineTest {
 
     @Test
     void manualConfig() throws Exception {
-        StateMachine sm = new StateMachine(new StateMachineConfigDALTest(), new StateMachineTaskDALTest())
+        StateMachine sm = new StateMachine(new StateMachineConfigDALMock(), new StateMachineTaskDALMock())
             .config(
             "UPRN",
             Set.of("uploading", "processing", "complete", "downloaded", "failed"),
@@ -31,7 +31,7 @@ class UPRNStateMachineTest {
 
     @Test
     void loadConfig() throws Exception {
-        new StateMachine(new StateMachineConfigDALTest(), new StateMachineTaskDALTest())
+        new StateMachine(new StateMachineConfigDALMock(), new StateMachineTaskDALMock())
             .config(
             "UPRN",
             Set.of("uploading", "processing", "complete", "downloaded", "failed"),
@@ -45,7 +45,7 @@ class UPRNStateMachineTest {
             )
         );
 
-        StateMachine sm = new StateMachine(new StateMachineConfigDALTest(), new StateMachineTaskDALTest())
+        StateMachine sm = new StateMachine(new StateMachineConfigDALMock(), new StateMachineTaskDALMock())
             .loadConfig("UPRN");
 
         testStateMachine(sm);

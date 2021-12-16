@@ -121,7 +121,7 @@ class TTToStringTest {
     }
 
     @Test
-    public void bundleToString() throws Exception {
+    void bundleToString() throws Exception {
         String expected = "subClassOf : \n" +
                 "  Combination of : \n" +
                 "    <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001\">Duane's syndrome, type 3</a>\n" +
@@ -161,11 +161,11 @@ class TTToStringTest {
     }
 
     @Test
-    public void ttNodeToString() throws Exception {
+    void ttNodeToString() throws Exception {
         String expected = "Combination of : \n" +
                 "  <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23128084001\">Duane's syndrome, type 3</a>\n" +
                 "  <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%23298382003\">Scoliosis deformity of spine</a>\n" +
                 "  <a href=\"" + rootUrl + "/#/concept/http:%2F%2Fsnomed.info%2Fsct%2382354003\">Multiple system malformation syndrome</a>\n";
-        assertEquals(expected, TTToString.ttNodeToString(getTestNode(), "array", 0, true, getTestDefaultPredicates(), getTestBlockedIris()));
+        assertEquals(expected, TTToString.ttNodeToString(getTestNode(), 0, true, getTestDefaultPredicates(), getTestBlockedIris()));
     }
 }

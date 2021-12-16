@@ -5,8 +5,6 @@ import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.query.QueryClause;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.Map;
-
 /**
  *Utility methods to help build a query
  */
@@ -14,15 +12,14 @@ public class QueryBuilder {
 	private Query query;
 
 	public Query createQuery(){
-		Query query= new Query();
+		Query newQuery = new Query();
 		addPrefix("im",IM.NAMESPACE);
-
-		return query;
+		return newQuery;
 	}
 
 	private void addPrefix(String im, String namespace) {
-		query.getPrefixes().put("im",IM.NAMESPACE);
-		query.getPrefixMap().put(IM.NAMESPACE,"im");
+		query.getPrefixes().put(im, namespace);
+		query.getPrefixMap().put(namespace, im);
 	}
 
 	public Query setMainEntity(TTIriRef mainEntity){

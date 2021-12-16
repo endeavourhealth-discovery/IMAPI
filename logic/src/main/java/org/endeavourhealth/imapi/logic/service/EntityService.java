@@ -397,13 +397,13 @@ public class EntityService {
 
         downloadDto.setSummary(getSummaryFromConfig(iri, configs));
 
-        if (params.includeHasSubtypes()) downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));
-        if (params.includeInferred()) downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());
-        if (params.includeProperties()) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-        if (params.includeMembers()) downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));
-        if (params.includeTerms()) downloadDto.setTerms(getEntityTermCodes(iri));
-        if (params.includeIsChildOf()) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));
-		if (params.includeHasChildren()) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));
+        if (params.includeHasSubtypes()) { downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
+        if (params.includeInferred()) { downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());}
+        if (params.includeProperties()) { downloadDto.setDataModelProperties(getDataModelProperties(iri));}
+        if (params.includeMembers()) { downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+        if (params.includeTerms()) { downloadDto.setTerms(getEntityTermCodes(iri));}
+        if (params.includeIsChildOf()) { downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));}
+		if (params.includeHasChildren()) { downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));}
 
         return downloadDto;
     }
@@ -416,17 +416,17 @@ public class EntityService {
 
         xls.addSummary(getSummaryFromConfig(iri, configs));
 
-        if (params.includeHasSubtypes()) xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));
-        if (params.includeInferred()) xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));
-        if (params.includeProperties()) xls.addDataModelProperties(getDataModelProperties(iri));
-        if (params.includeMembers()) xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));
-		if (params.includeTerms()) xls.addTerms(getEntityTermCodes(iri));
+        if (params.includeHasSubtypes()) { xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
+        if (params.includeInferred()) { xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));}
+        if (params.includeProperties()) { xls.addDataModelProperties(getDataModelProperties(iri));}
+        if (params.includeMembers()) { xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+		if (params.includeTerms()) { xls.addTerms(getEntityTermCodes(iri));}
 		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
-		if (params.includeIsChildOf() && isChildOfData != null) xls.addIsChildOf(isChildOfData.getElements());
+		if (params.includeIsChildOf() && isChildOfData != null) { xls.addIsChildOf(isChildOfData.getElements());}
 		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
         TTArray hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
-		if (params.includeHasChildren() && hasChildrenData != null) xls.addHasChildren(hasChildrenData.getElements());
+		if (params.includeHasChildren() && hasChildrenData != null) { xls.addHasChildren(hasChildrenData.getElements());}
 
         return xls;
     }
@@ -689,7 +689,7 @@ public class EntityService {
 		if (iri == null || iri.equals("")) return new ArrayList<>();
 		String scheme = iri.substring(0,iri.indexOf("#") + 1);
 		List<Namespace> namespaces = getNamespaces();
-		List<String> schemes = namespaces.stream().map(namespace -> namespace.getIri()).collect(Collectors.toList());
+		List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
 		if (schemes.contains(scheme)) schemes.remove(schemes.indexOf(scheme));
 		return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
 	}

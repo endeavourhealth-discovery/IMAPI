@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -11,7 +10,7 @@ import java.util.zip.DataFormatException;
 
 public class TTToSCG {
 	boolean refinedSet;
-	public TTIriRef[] corePredicates= {RDF.TYPE,IM.IS_A,IM.HAS_SCHEME,IM.IS_CONTAINED_IN,
+	private static final TTIriRef[] corePredicates= {RDF.TYPE,IM.IS_A,IM.HAS_SCHEME,IM.IS_CONTAINED_IN,
 	IM.HAS_STATUS,IM.DEFINITIONAL_STATUS};
 
 
@@ -55,8 +54,7 @@ public class TTToSCG {
 		boolean first= true;
 		for (Map.Entry<TTIriRef, TTArray> entry:node.getPredicateMap().entrySet()){
 			if (!excludeCorePredicates(entry.getKey())){
-				if (!entry.getValue().isLiteral())
-				if (!refinedSet) {
+				if (!entry.getValue().isLiteral() && !refinedSet) {
 					scg.append(": ");
 					refinedSet=true;
 				}
@@ -73,20 +71,13 @@ public class TTToSCG {
 					refined(entry.getValue().asNode(),scg,includeName);
 					scg.append(")");
 				}
-
-
 			}
-
-
 		}
 	}
 
 	private boolean excludeCorePredicates(TTIriRef predicate){
-		if (Arrays.asList(corePredicates).contains(predicate))
-			return true;
-		return false;
+		return (Arrays.asList(corePredicates).contains(predicate));
 	}
-
 
 	private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) throws DataFormatException {
 		String iri=checkMember(exp.asIriRef().getIri());
@@ -97,14 +88,10 @@ public class TTToSCG {
 		}
 	}
 
-	private static String checkMember(String iri) throws DataFormatException {
+	private static String checkMember(String iri) {
 		if (iri.contains("/sct#") || (iri.contains("/im#")))
 			return iri.split("#")[1];
 		else
 			return iri;
-
 	}
-	
-
-
 }

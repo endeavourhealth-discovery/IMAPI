@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.DownloadParams;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -1367,16 +1368,16 @@ class EntityServiceTest {
     @Test
     void getJsonDownload_NullIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        DownloadDto actual = entityService.getJsonDownload(null, configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        DownloadDto actual = entityService.getJsonDownload(null, configs, params);
         assertNull(actual);
     }
 
     @Test
     void getJsonDownload_EmptyIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        DownloadDto actual = entityService.getJsonDownload("", configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        DownloadDto actual = entityService.getJsonDownload("", configs, params);
         assertNull(actual);
     }
 
@@ -1385,9 +1386,9 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, false, false, false,
-                false, false, false, false, false, false, false);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
     }
 
@@ -1396,17 +1397,28 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
+        params
+                .setIncludeInactive(true)
+                .setIncludeTerms(true)
+                .setIncludeIsChildOf(true)
+                .setIncludeHasChildren(true)
+                .setIncludeInferred(true)
+                .setIncludeMembers(true)
+                .setExpandMembers(true)
+                .setExpandSubsets(true)
+                .setIncludeHasSubtypes(true)
+                .setIncludeProperties(true);
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, true, true, true,
-                true, true, true, true, true, true, true);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
     }
 
     @Test
     void getExcelDownload_NullIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        XlsHelper actual = entityService.getExcelDownload(null, configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        XlsHelper actual = entityService.getExcelDownload(null, configs, params);
         assertNull(actual);
 
     }
@@ -1414,8 +1426,8 @@ class EntityServiceTest {
     @Test
     void getExcelDownload_EmptyIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        XlsHelper actual = entityService.getExcelDownload("", configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        XlsHelper actual = entityService.getExcelDownload("", configs, params);
         assertNull(actual);
 
     }
@@ -1425,9 +1437,9 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, false, false, false, false,
-                false, false, false, false, false, false);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
 
     }
@@ -1437,9 +1449,20 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
+        params
+                .setIncludeInactive(true)
+                .setIncludeTerms(true)
+                .setIncludeIsChildOf(true)
+                .setIncludeHasChildren(true)
+                .setIncludeInferred(true)
+                .setIncludeMembers(true)
+                .setExpandMembers(true)
+                .setExpandSubsets(true)
+                .setIncludeHasSubtypes(true)
+                .setIncludeProperties(true);
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, true, true, true,
-                true, true, true, true, true, true, true);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
     }
 

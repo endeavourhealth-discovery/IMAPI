@@ -191,7 +191,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                         .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                     );
                 }
-                LOG.debug("Finished (" + result.size() + " rows)");
+                LOG.debug(String.format("Finished (%d rows)", result.size()));
             }
         }
 
@@ -235,7 +235,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                         .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                     );
                 }
-                LOG.debug("Finished (" + result.size() + " rows)");
+                LOG.debug(String.format("Finished (%d rows)", result.size()));
             }
         }
 
@@ -338,7 +338,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
                     result.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
                 }
-                LOG.debug("Finished (" + result.size() + " rows)");
+                LOG.debug(String.format("Finished (%d rows)", result.size()));
             }
         }
 
@@ -368,7 +368,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
                     result.add(new TTIriRef(bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
                 }
-                LOG.debug("Finished (" + result.size() + " rows)");
+                LOG.debug(String.format("Finished (%d rows)", result.size()));
             }
         }
 

@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class TTToString {
     private static final String regex = "\\s\\(([^)]*)\\)[^(]*$";
@@ -101,7 +100,7 @@ public class TTToString {
                 result += getObjectName(key, iriMap, pad, prefix);
                 result += "\n";
                 result += ttValueToString(value, "object", iriMap, indent, withHyperlinks, blockedIris);
-                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
                 else if (group && last) result += " )\n";
             } else if (value.isLiteral()) {
                 result += getObjectName(key, iriMap, pad, prefix);
@@ -111,7 +110,7 @@ public class TTToString {
                 result += getObjectName(key, iriMap, pad, prefix);
                 result += "\n";
                 result += ttValueToString(value, "object", iriMap, indent + 1, withHyperlinks, blockedIris);
-                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length());
+                if (group && last && result.endsWith("\n")) result = result.substring(0, result.length() - 1) + " )" + result.substring(result.length() - 1);
                 else if (group && last) result += " )\n";
             }
             return result;

@@ -4,16 +4,16 @@ package org.endeavourhealth.imapi.query;
  * A Select clause for a query consisting of an array of expressions which may be variables, variables with aliases or exprerssions
  */
 public class Select {
-	private String variable;
+	private String var;
 	private String expression;
 	private String alias;
 
-	public String getVariable() {
-		return variable;
+	public String getVar() {
+		return var;
 	}
 
-	public Select setVariable(String variable) {
-		this.variable = variable;
+	public Select setVar(String var) {
+		this.var = var;
 		return this;
 	}
 

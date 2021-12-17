@@ -5,6 +5,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.*;
 
@@ -14,49 +19,15 @@ import java.util.*;
 	*/
 
 @JsonPropertyOrder({"prefixes","mainEntity","clauses"})
-public class Query {
-	private final Map<String,String> prefixes = new HashMap<>();
-	private final Map<String,String> prefixMap= new HashMap<>();
-	private String mainEntity;
-	private List<QueryClause> clauses = new ArrayList<>();
+public class Query  extends TTEntity {
+	public static String dataModelGraph= "http://endhealth.info/im#";
 
 
-
-	/** Returns the list of clauses that are logically sequential
-	 *
-	 * @return List of clauses
-	 */
-	public List<QueryClause> getClauses() {
-		return clauses;
+	public Query(){
 	}
 
-	/** Adds a list of clauses to the query
-	 * @param clauses The list of clauses, list order indicating the logical sequence
-	 * @return the modified query
-	 */
-	public Query setClauses(List<QueryClause> clauses) {
-		this.clauses = clauses;
-		return this;
-	}
 
-	/**
-	 * Adds a clause to the query
-	 * @param clause the clause to be added
-	 * @return the updated query
-	 */
-	public Query addClause(QueryClause clause){
-		this.clauses.add(clause);
-		return this;
-	}
 
-	public String getMainEntity() {
-		return mainEntity;
-	}
-
-	public Query setMainEntity(String mainEntity) {
-		this.mainEntity = mainEntity;
-		return this;
-	}
 
 
 	@JsonIgnore
@@ -65,15 +36,34 @@ public class Query {
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+		String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+		return json;
 	}
 
-	public Map<String, String> getPrefixes() {
-		return prefixes;
+	/**
+	 * gets the query definition i.e. set of steps associated with this query
+	 * @return Query definition with a main entity and steps
+	 */
+	public QueryDefinition getQueryDefinition() {
+		return (QueryDefinition) get(IM.DEFINITION).asNode();
 	}
 
-	@JsonIgnore
-	public Map<String, String> getPrefixMap() {
-		return prefixMap;
+	/**
+	 * Assignes  a previously created query definition to this query
+	 * @param queryDefinition the previously created query definition
+	 * @return the Query definition containing the query steps
+	 */
+	public Query setQueryDefinition(QueryDefinition queryDefinition) {
+		this.set(IM.DEFINITION,queryDefinition);
+		return this;
+	}
+
+	/** Creates and assigns a new query definition for this query
+	 * The query definition contains the main entity and steps
+	 * @return the Query definition
+	 */
+	public QueryDefinition setQueryDefinition() {
+		this.set(IM.DEFINITION,new QueryDefinition());
+		return (QueryDefinition) get(IM.DEFINITION).asNode();
 	}
 }

@@ -158,7 +158,20 @@ public class IM {
 
     //Query
     public static final TTIriRef LATEST_EVENT = iri(NAMESPACE + "latestEvent");
+    public static final TTIriRef MAIN_ENTITY = iri(NAMESPACE + "mainEntity");
+    public static final TTIriRef SEQUENCE_NUMBER= iri(NAMESPACE + "sequenceNumber");
+    public static final TTIriRef QUERY_STEP= iri(NAMESPACE + "queryStep");
+    public static final TTIriRef INCLUSION= iri(NAMESPACE + "inclusionAction");
+    public static final TTIriRef INCLUDE_EXCLUDE= iri(NAMESPACE + "SelectExclude");
+    public static final TTIriRef INCLUDE_CONTINUE= iri(NAMESPACE + "SelectContinue");
+    public static final TTIriRef EXCLUDE = iri(NAMESPACE + "Exclude");
 
+
+  //Authors and agents
+  public static final TTIriRef HAS_AUTHOR = iri(NAMESPACE +"hasAuthor");
+  public static final TTIriRef VERSION = iri(NAMESPACE +"version");
+  public static final TTIriRef HAS_ROLE_IN = iri(NAMESPACE +"hasRoleInOrganisation");
+  public static final TTIriRef IS_PERSON = iri(NAMESPACE +"isPerson");
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

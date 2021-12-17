@@ -52,8 +52,7 @@ public class TTToString {
         if (!inline) result += pad;
         if (withHyperlinks && !blockedIris.contains(iri.getIri())) {
             String escapedUrl = iri.getIri().replaceAll("/","%2F").replaceAll("#", "%23");
-            String rootUrl = System.getenv("API_URL");
-            result += "<a href=\"" + rootUrl + "/#/concept/" + escapedUrl + "\">";
+            result += "<a href=\"/#/concept/" + escapedUrl + "\">";
         }
         if (iri.getName() != null) result += removeEndBrackets(iri.getName());
         else result += iri.getIri();

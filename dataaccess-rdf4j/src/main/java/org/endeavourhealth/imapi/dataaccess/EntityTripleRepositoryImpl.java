@@ -278,8 +278,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?c ?cname")
             .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p ;")
-            .add("     rdfs:label ?cname .")
+            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if(schemeIris != null && !schemeIris.isEmpty()){
@@ -323,7 +322,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("SELECT ?p ?pname")
             .add("WHERE {")
             .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
-            .add("  ?p rdfs:label ?pname .")
             .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if(schemeIris != null && !schemeIris.isEmpty()){
@@ -587,8 +585,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add(" SELECT ?o ?oname ?ocode ?osch WHERE{")
                 .add(" ?s rdfs:subClassOf ?o .")
-                .add(" ?o rdfs:label ?oname ; ")
-                .add("    im:code ?ocode ; ")
+                .add(" ?o im:code ?ocode ; ")
                 .add("    im:scheme ?osch . ")
                 .add("GRAPH ?g { ?o rdfs:label ?oname } .");
 

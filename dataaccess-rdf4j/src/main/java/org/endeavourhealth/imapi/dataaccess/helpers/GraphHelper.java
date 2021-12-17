@@ -20,4 +20,13 @@ public class GraphHelper {
         else
             return null;
     }
+
+    public static String valueList(List<String> schemeIri)
+    {
+        List<String> q = new ArrayList<>();
+        for(String scheme : schemeIri){
+            q.add("<" + scheme + ">");
+        }
+        return "{" + String.join(" ", q) + "}";
+    }
 }

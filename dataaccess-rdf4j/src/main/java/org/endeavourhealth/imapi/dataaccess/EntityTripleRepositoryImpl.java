@@ -8,7 +8,6 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 
-import org.eclipse.rdf4j.repository.dataset.DatasetRepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
@@ -27,8 +26,7 @@ import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.getString;
-import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.inListParams;
+import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.*;
 
 public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepositoryImpl.class);
@@ -248,7 +246,13 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?c")
             .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .");
+            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+            .add("GRAPH ?g { ?c rdfs:label ?name } .");
+
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql
+                    .add("VALUES ?g " + valueList(schemeIris));
+        }
 
         if (!inactive)
             sql
@@ -275,7 +279,13 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("SELECT ?c ?cname")
             .add("WHERE {")
             .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p ;")
-            .add("     rdfs:label ?cname .");
+            .add("     rdfs:label ?cname .")
+            .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql
+                .add("VALUES ?g " + valueList(schemeIris));
+        }
 
         if (!inactive)
             sql
@@ -313,11 +323,17 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("SELECT ?p ?pname")
             .add("WHERE {")
             .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
-            .add("  ?p rdfs:label ?pname .");
+            .add("  ?p rdfs:label ?pname .")
+            .add("GRAPH ?g { ?p rdfs:label ?pname } .");
+
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql
+                    .add("VALUES ?g " + valueList(schemeIris));
+        }
 
         if (!inactive)
             sql
-                .add("  OPTIONAL { ?c im:status  ?s}")
+                .add("  OPTIONAL { ?p im:status  ?s}")
                 .add("  FILTER (?s != im:Inactive) .");
 
         sql.add("}");
@@ -573,9 +589,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add(" ?s rdfs:subClassOf ?o .")
                 .add(" ?o rdfs:label ?oname ; ")
                 .add("    im:code ?ocode ; ")
-                .add("    im:scheme ?osch . ");
+                .add("    im:scheme ?osch . ")
+                .add("GRAPH ?g { ?o rdfs:label ?oname } .");
+
         if(schemeIris != null && !schemeIris.isEmpty()){
-            sql.add("FILTER ( ?osch IN " + inListParams("osch", schemeIris.size()) + " )");
+            sql
+                    .add("VALUES ?g " + valueList(schemeIris));
         }
         sql.add("}");
 
@@ -583,13 +602,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", iri(iri));
-            if(schemeIris != null && !schemeIris.isEmpty()){
-                int i = 0;
-                for(String scheme : schemeIris){
-                    qry.setBinding("osch" + i++, iri(scheme));
-                }
-            }
-
             try(TupleQueryResult rs = qry.evaluate()){
                 while (rs.hasNext()){
                     BindingSet bs = rs.next();

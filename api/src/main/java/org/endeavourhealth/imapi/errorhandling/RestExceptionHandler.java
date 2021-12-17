@@ -59,7 +59,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String message = "Type mismatch. ";
         String type = null;
-        if (ex.getRequiredType() != null) type = ex.getRequiredType().getName();
+        Class<?> requiredType = ex.getRequiredType();
+        if (requiredType != null) type = requiredType.getName();
         if (type != null) message += ex.getPropertyName() + " should be of type " + type;
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, message, ex, ErrorCodes.TYPE_MISMATCH);
         return buildResponseEntity(error);

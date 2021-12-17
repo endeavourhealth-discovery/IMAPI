@@ -11,7 +11,7 @@ import java.util.List;
 @JsonPropertyOrder ({"function","match","select","resultGraph","alias"})
 public class QueryClause {
 	private FunctionClause function;
-	private MatchClause match;
+	private MatchTriple match;
 	private List<Select> select;
 	private List<Triple> graph;
 	private String alias;
@@ -25,11 +25,11 @@ public class QueryClause {
 		return this;
 	}
 
-	public MatchClause getMatch() {
+	public MatchTriple getMatch() {
 		return match;
 	}
 
-	public QueryClause setMatch(MatchClause match) {
+	public QueryClause setMatch(MatchTriple match) {
 		this.match = match;
 		return this;
 	}

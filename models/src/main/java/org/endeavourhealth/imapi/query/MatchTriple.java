@@ -2,11 +2,12 @@ package org.endeavourhealth.imapi.query;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
 import java.util.List;
 
 @JsonPropertyOrder({"operator","fromGraphs","where","resultVariable","resultType"})
-public class MatchClause {
+public class MatchTriple extends TTNode {
 	private QueryOperator operator =QueryOperator.AND;
 	private WhereClause where;
 	private List<TTIriRef> fromGraphs;
@@ -19,7 +20,7 @@ public class MatchClause {
 		return fromGraphs;
 	}
 
-	public MatchClause setFromGraphs(List<TTIriRef> fromGraphs) {
+	public MatchTriple setFromGraphs(List<TTIriRef> fromGraphs) {
 		this.fromGraphs = fromGraphs;
 		return this;
 	}
@@ -28,7 +29,7 @@ public class MatchClause {
 		return resultVariable;
 	}
 
-	public MatchClause setResultVariable(String resultVariable) {
+	public MatchTriple setResultVariable(String resultVariable) {
 		this.resultVariable = resultVariable;
 		return this;
 	}
@@ -37,7 +38,7 @@ public class MatchClause {
 		return resultType;
 	}
 
-	public MatchClause setResultType(ResultType resultType) {
+	public MatchTriple setResultType(ResultType resultType) {
 		this.resultType = resultType;
 		return this;
 	}
@@ -46,7 +47,7 @@ public class MatchClause {
 		return where;
 	}
 
-	public MatchClause setWhere(WhereClause where) {
+	public MatchTriple setWhere(WhereClause where) {
 		this.where = where;
 		return this;
 	}
@@ -55,7 +56,7 @@ public class MatchClause {
 		return operator;
 	}
 
-	public MatchClause setOperator(QueryOperator operator) {
+	public MatchTriple setOperator(QueryOperator operator) {
 		this.operator = operator;
 		return this;
 	}

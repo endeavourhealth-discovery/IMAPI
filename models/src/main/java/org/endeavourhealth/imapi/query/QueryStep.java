@@ -11,73 +11,33 @@ import java.util.List;
 /**
  * A specialised TTNode containing the model of a single feature for a query
  */
-@JsonPropertyOrder ({"function","match","select","resultGraph","alias"})
+
 public class QueryStep extends TTNode {
-	private FunctionClause function;
-	private MatchClause match;
-	private List<Select> select;
-	private List<Triple> graph;
-	private String alias;
 
-	public FunctionClause getFunction() {
-		return function;
-	}
-
-	public QueryStep setFunction(FunctionClause function) {
-		this.function = function;
+	/**
+	 * What happens to the matches if matched or not matched
+	 * @param action action if matched or not matched
+	 */
+	public QueryStep setInclusionAction(TTIriRef action){
+		this.set(IM.INCLUSION_ACTION,action);
 		return this;
 	}
 
-	public MatchClause getMatch() {
-		return match;
+	/**
+	 * Gets the result set inclusion action when matches are found or not found
+	 * @return
+	 */
+	public TTIriRef getInclusionAction(){
+		return this.get(IM.INCLUSION_ACTION).asIriRef();
 	}
 
-	public QueryStep setMatch(MatchClause match) {
-		this.match = match;
-		return this;
-	}
-
-
-
-
-	public List<Select> getSelect() {
-		return select;
-	}
-
-	public QueryStep setSelect(List<Select> select) {
-		this.select = select;
-		return this;
-	}
-
-	public QueryStep addSelect(Select select) {
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		this.select.add(select);
-		return this;
-	}
-
-	public List<Triple> getGraph() {
-		return graph;
-	}
-
-	public QueryStep setGraph(List<Triple> graph) {
-		this.graph = graph;
-		return this;
-	}
-
-	public QueryStep addTriple(Triple triple){
-		if (this.graph==null)
-			this.graph= new ArrayList<>();
-		this.graph.add(triple);
-		return this;
-	}
-
-	public String getAlias() {
-		return alias;
-	}
-
-	public QueryStep setAlias(String alias) {
-		this.alias = alias;
+	/**Adds one match pattern to the step
+	 *
+	 * @param match the match pattern with filter and optional setting
+	 * @return Query step for chaining purposes
+	 */
+	public QueryStep addMatch(MatchTriple match){
+		this.addObject(IM.MATCH,match);
 		return this;
 	}
 

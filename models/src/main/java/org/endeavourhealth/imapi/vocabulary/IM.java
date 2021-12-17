@@ -161,10 +161,12 @@ public class IM {
     public static final TTIriRef MAIN_ENTITY = iri(NAMESPACE + "mainEntity");
     public static final TTIriRef SEQUENCE_NUMBER= iri(NAMESPACE + "sequenceNumber");
     public static final TTIriRef QUERY_STEP= iri(NAMESPACE + "queryStep");
-    public static final TTIriRef INCLUSION= iri(NAMESPACE + "inclusionAction");
+    public static final TTIriRef INCLUSION_ACTION= iri(NAMESPACE + "inclusionAction");
     public static final TTIriRef INCLUDE_EXCLUDE= iri(NAMESPACE + "SelectExclude");
     public static final TTIriRef INCLUDE_CONTINUE= iri(NAMESPACE + "SelectContinue");
     public static final TTIriRef EXCLUDE = iri(NAMESPACE + "Exclude");
+    public static final TTIriRef MATCH = iri(NAMESPACE + "match");
+    public static final TTIriRef NOT = iri(NAMESPACE+"not");
 
 
   //Authors and agents

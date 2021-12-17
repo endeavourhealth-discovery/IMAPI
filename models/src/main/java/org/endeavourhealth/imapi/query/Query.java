@@ -17,8 +17,6 @@ import java.util.*;
 	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.
 	* <p> In effect a high level process model taylored to the health query ues cases</p>
 	*/
-
-@JsonPropertyOrder({"prefixes","mainEntity","clauses"})
 public class Query  extends TTEntity {
 	public static String dataModelGraph= "http://endhealth.info/im#";
 

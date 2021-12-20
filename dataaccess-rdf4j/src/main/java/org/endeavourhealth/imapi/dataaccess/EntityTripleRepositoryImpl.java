@@ -607,16 +607,22 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("    im:scheme ?osch . ")
                 .add("GRAPH ?g { ?o rdfs:label ?oname } .");
 
-//        if(schemeIris != null && !schemeIris.isEmpty()){
-//            sql
-//                    .add("VALUES ?g " + valueList(schemeIris));
-//        }
+        if(schemeIris != null && !schemeIris.isEmpty()){
+            sql
+                    .add(valueList("g", schemeIris.size()));
+        }
         sql.add("}");
 
         try( RepositoryConnection conn = ConnectionManager.getConnection()){
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", iri(iri));
+            if (schemeIris != null && !schemeIris.isEmpty()) {
+                int i = 0;
+                for (String scheme : schemeIris) {
+                    qry.setBinding("g" + i++, iri(scheme));
+                }
+            }
             try(TupleQueryResult rs = qry.evaluate()){
                 while (rs.hasNext()){
                     BindingSet bs = rs.next();

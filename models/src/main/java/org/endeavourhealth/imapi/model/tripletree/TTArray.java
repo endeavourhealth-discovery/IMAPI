@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTArrayDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTArraySerializer;
+import org.endeavourhealth.imapi.query.MatchClause;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @JsonSerialize(using = TTArraySerializer.class)
@@ -76,4 +80,14 @@ public class TTArray implements Serializable {
     public Stream<TTValue> stream() {
         return elements.stream();
     }
+
+    public List<TTValue> getAsOrdered(){
+        if (elements==null)
+            return null;
+        return getElements()
+          .stream().sorted(Comparator.comparing(TTValue::getOrder))
+          .collect(Collectors.toList());
+    }
+
+
 }

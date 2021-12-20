@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.Serializable;
 import java.util.*;
@@ -94,6 +95,16 @@ public class TTNode implements TTValue, Serializable {
     @JsonIgnore
     public TTNode setPredicateTemplate(TTIriRef[] predicateTemplate) {
         this.predicateTemplate = predicateTemplate;
+        return this;
+    }
+
+    public Integer getOrder(){
+        if (get(IM.HAS_ORDER)==null)
+            return null;
+        return get(IM.HAS_ORDER).asLiteral().intValue();
+    }
+    public TTNode setOrder(Integer order){
+        set(IM.HAS_ORDER,TTLiteral.literal(order));
         return this;
     }
 }

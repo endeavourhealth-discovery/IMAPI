@@ -2,16 +2,15 @@ package org.endeavourhealth.imapi.query;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.
@@ -22,6 +21,7 @@ public class Query  extends TTEntity {
 
 
 	public Query(){
+		this.addType(IM.QUERY);
 	}
 
 
@@ -42,17 +42,19 @@ public class Query  extends TTEntity {
 	 * gets the query definition i.e. set of steps associated with this query
 	 * @return Query definition with a main entity and steps
 	 */
-	public QueryDefinition getQueryDefinition() {
-		return (QueryDefinition) get(IM.DEFINITION).asNode();
+	public List<QueryClause> getClauses() {
+		return get(IM.CLAUSE)==null ?null :
+		get(IM.CLAUSE).getAsOrdered().stream()
+			.map(e-> (QueryClause) e)
+			.collect(Collectors.toList());
 	}
 
 	/**
-	 * Assignes  a previously created query definition to this query
-	 * @param queryDefinition the previously created query definition
+	 * Assigns  a previously created query definition to this query
 	 * @return the Query definition containing the query steps
 	 */
-	public Query setQueryDefinition(QueryDefinition queryDefinition) {
-		this.set(IM.DEFINITION,queryDefinition);
+	public Query setClauses(TTArray clauses) {
+		this.set(IM.DEFINITION,clauses);
 		return this;
 	}
 
@@ -60,8 +62,10 @@ public class Query  extends TTEntity {
 	 * The query definition contains the main entity and steps
 	 * @return the Query definition
 	 */
-	public QueryDefinition setQueryDefinition() {
-		this.set(IM.DEFINITION,new QueryDefinition());
-		return (QueryDefinition) get(IM.DEFINITION).asNode();
+	public QueryClause addClause() {
+		QueryClause clause= new QueryClause();
+		clause.set(IM.HAS_ORDER, TTLiteral.literal(get(IM.HAS_ORDER)==null ?0: get(IM.HAS_ORDER).size()));
+		this.addObject(IM.CLAUSE,clause);
+		return clause;
 	}
 }

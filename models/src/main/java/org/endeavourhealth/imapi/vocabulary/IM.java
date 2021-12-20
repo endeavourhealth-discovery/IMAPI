@@ -158,15 +158,20 @@ public class IM {
 
     //Query
     public static final TTIriRef LATEST_EVENT = iri(NAMESPACE + "latestEvent");
-    public static final TTIriRef MAIN_ENTITY = iri(NAMESPACE + "mainEntity");
-    public static final TTIriRef SEQUENCE_NUMBER= iri(NAMESPACE + "sequenceNumber");
-    public static final TTIriRef QUERY_STEP= iri(NAMESPACE + "queryStep");
-    public static final TTIriRef INCLUSION_ACTION= iri(NAMESPACE + "inclusionAction");
     public static final TTIriRef INCLUDE_EXCLUDE= iri(NAMESPACE + "SelectExclude");
     public static final TTIriRef INCLUDE_CONTINUE= iri(NAMESPACE + "SelectContinue");
     public static final TTIriRef EXCLUDE = iri(NAMESPACE + "Exclude");
     public static final TTIriRef MATCH = iri(NAMESPACE + "match");
     public static final TTIriRef NOT = iri(NAMESPACE+"not");
+    public static final TTIriRef OR = iri(NAMESPACE+"or");
+    public static final TTIriRef DEFAULT_ENTITY = iri(NAMESPACE+"rootEntity");
+    public static final TTIriRef HAS_STEP = iri(NAMESPACE+"hasStep");
+    public static final TTIriRef INCLUSION_ACTION = iri(NAMESPACE+"inclusionAction");
+    public static final TTIriRef OPERATOR = iri(NAMESPACE+"operator");
+    public static final TTIriRef VARIABLE = iri(NAMESPACE+"variable");
+    public static final TTIriRef HAS_ORDER = iri(NAMESPACE+"hasOrder");
+    public static final TTIriRef CLAUSE = iri(NAMESPACE + "clause");
+
 
 
   //Authors and agents

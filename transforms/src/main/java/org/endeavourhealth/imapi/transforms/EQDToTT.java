@@ -4,11 +4,9 @@ import org.apache.commons.text.CaseUtils;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.query.Query;
-import org.endeavourhealth.imapi.query.QueryDefinition;
+import org.endeavourhealth.imapi.query.QueryClause;
 import org.endeavourhealth.imapi.query.QueryStep;
-import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,7 +20,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -97,30 +94,34 @@ public class EQDToTT {
 	}
 
 	private void convertDefinition(Node xmlReport,Query query) throws DataFormatException {
-		QueryDefinition def = query.setQueryDefinition();
+		QueryClause def = query.addClause();
 		String mainEntity = dataMap.getProperty(getData(xmlReport, "populationType"));
-		def.setMainEntity(TTIriRef.iri(mainEntity));
+		def.setSubject(TTIriRef.iri(mainEntity));
 		Node population= getNode(xmlReport, "population");
 		if (population!=null){
 			Integer xmlGroupCount= ((Element) population).getElementsByTagName("criteriaGroup").getLength();
 			for (Node xmlGroup : getAsList(xmlReport, "population/criteriaGroup")) {
 				Node xmlDef = getNode(xmlGroup, "definition");
-				convertSteps(xmlDef, def,xmlGroupCount);
+			//	convertSteps(xmlDef, def,xmlGroupCount);
 			}
 		}
 
 	}
 
-	private void convertSteps(Node xmlDef, QueryDefinition def,Integer groupCount) throws DataFormatException {
+	/*
+	private void convertSteps(Node xmlDef, QueryClause def, Integer groupCount) throws DataFormatException {
 		String memberOperator= getData(xmlDef,"memberOperator");
 		String actionTrue= getData(xmlDef,"actionIfTrue");
 		String actionFalse= getData(xmlDef,"actionIfFalse");
 		String table= getData(xmlDef,"table");
 		String negation = getData(xmlDef,"negation");
-		QueryStep step= def.addStep();
+		QueryStep step= new QueryStep();
+		def.addStep(step);
 
 
 	}
+
+	 */
 
 	private void convertFolders(Iterable<Node> reportFolders) throws DataFormatException {
 		if (reportFolders!=null){

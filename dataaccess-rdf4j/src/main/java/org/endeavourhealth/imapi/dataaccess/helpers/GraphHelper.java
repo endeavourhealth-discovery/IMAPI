@@ -6,13 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GraphHelper {
-    public static String inListParams(String param, int size) {
-        List<String> q = new ArrayList<>(size);
-        for(int i=0; i<size; i++){
-            q.add("?" + param + i);
-        }
-        return "(" + String.join(",", q) + ")";
-    }
 
     public static String getString(BindingSet bs, String s) {
         if (bs.hasBinding(s) && bs.getValue(s)!=null)
@@ -21,12 +14,20 @@ public class GraphHelper {
             return null;
     }
 
-    public static String valueList(List<String> schemeIri)
+    public static String valueList(String param, int size)
     {
-        List<String> q = new ArrayList<>();
-        for(String scheme : schemeIri){
-            q.add("<" + scheme + ">");
+        List<String> binding = new ArrayList<>();
+        for(int i=0; i<size; i++){
+            binding.add("{ BIND(?" + param + i + " AS ?" + param + ") }");
         }
-        return "{" + String.join(" ", q) + "}";
+        return String.join(" UNION ", binding);
+    }
+
+    public static String inList(String param, int size){
+        List<String> q = new ArrayList<>(size);
+        for(int i=0; i<size; i++){
+            q.add("?" + param + i);
+        }
+        return "(" + String.join(",", q) + ")";
     }
 }

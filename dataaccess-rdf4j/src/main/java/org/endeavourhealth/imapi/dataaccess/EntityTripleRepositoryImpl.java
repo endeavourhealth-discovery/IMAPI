@@ -251,7 +251,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                    .add("VALUES ?g " + valueList(schemeIris));
+                    .add(valueList("g", schemeIris.size()) );
         }
 
         if (!inactive)
@@ -265,6 +265,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", iri(parentIri));
+            if (schemeIris != null && !schemeIris.isEmpty()) {
+                int i = 0;
+                for (String scheme : schemeIris) {
+                    qry.setBinding("g" + i++, iri(scheme));
+                }
+            }
             try (TupleQueryResult rs = qry.evaluate()) {
                 return rs.hasNext();
             }
@@ -283,7 +289,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                .add("VALUES ?g " + valueList(schemeIris));
+                .add( valueList("g", schemeIris.size()) );
         }
 
         if (!inactive)
@@ -302,6 +308,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", iri(parentIri));
+            if (schemeIris != null && !schemeIris.isEmpty()) {
+                int i = 0;
+                for (String scheme : schemeIris) {
+                    qry.setBinding("g" + i++, iri(scheme));
+                }
+            }
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -326,7 +338,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                    .add("VALUES ?g " + valueList(schemeIris));
+                    .add(valueList("g", schemeIris.size()) );
         }
 
         if (!inactive)
@@ -345,6 +357,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("c", iri(childIri));
+            if (schemeIris != null && !schemeIris.isEmpty()) {
+                int i = 0;
+                for (String scheme : schemeIris) {
+                    qry.setBinding("g" + i++, iri(scheme));
+                }
+            }
             LOG.debug("Executing...");
             try (TupleQueryResult rs = qry.evaluate()) {
                 LOG.debug("Retrieving...");
@@ -483,7 +501,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("    OPTIONAL { ?o rdfs:label ?oname }");
 
         if (predicates != null && !predicates.isEmpty()) {
-            sql.add("    FILTER ( ?p IN " + inListParams("p", predicates.size()) + " )");
+            sql.add("    FILTER ( ?p IN " + inList("p", predicates.size()) + " )");
         }
 
         sql.add("}");
@@ -536,7 +554,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             .add("    OPTIONAL { ?o rdfs:label ?oname }");
 
         if (excludePredicates != null && !excludePredicates.isEmpty()) {
-            sql.add("    FILTER ( ?p NOT IN " + inListParams("p", excludePredicates.size()) + " )");
+            sql.add("    FILTER ( ?p NOT IN " + inList("p", excludePredicates.size()) + " )");
         }
 
         sql.add("}");
@@ -589,10 +607,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("    im:scheme ?osch . ")
                 .add("GRAPH ?g { ?o rdfs:label ?oname } .");
 
-        if(schemeIris != null && !schemeIris.isEmpty()){
-            sql
-                    .add("VALUES ?g " + valueList(schemeIris));
-        }
+//        if(schemeIris != null && !schemeIris.isEmpty()){
+//            sql
+//                    .add("VALUES ?g " + valueList(schemeIris));
+//        }
         sql.add("}");
 
         try( RepositoryConnection conn = ConnectionManager.getConnection()){

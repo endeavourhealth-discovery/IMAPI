@@ -21,6 +21,7 @@ class EQDToTTTest {
 
 	@Test
 	void convert() throws IOException, DataFormatException, XPathExpressionException, ParserConfigurationException, SAXException {
+		/*
 		currentReg();
 		EQDToTT converter= new EQDToTT();
 		String xml="G:\\Shared drives\\Discovery Data Service\\InformationModel\\ImportData\\CEG\\UCLP-CEG SMI EMIS v5.xml";
@@ -31,7 +32,7 @@ class EQDToTTTest {
 				dataMap,"http://qmul/ceg/query","http://org.endhealth.info/im#QMUL/CEG");
 		new TTManager().setDocument(document).saveDocument(new File("c:/temp/Query.json"));
 
-
+		 */
 	}
 
 	private void currentReg() throws JsonProcessingException {

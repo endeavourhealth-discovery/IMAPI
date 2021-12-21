@@ -60,7 +60,7 @@ public class EntityController {
 
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
-	@PostMapping(value = "/search")
+	@PostMapping(value = "/public/search")
     @ApiOperation(
         value = "Advanced entity search",
         notes = "Performs an advanced entity search with multiple filter options",
@@ -71,7 +71,7 @@ public class EntityController {
         return new SearchResponse().setEntities(entityService.advancedSearch(request));
 	}
 
-    @GetMapping(value = "/partial", produces = "application/json")
+    @GetMapping(value = "/public/partial", produces = "application/json")
     public TTEntity getPartialEntity(@RequestParam(name = "iri") String iri,
                                      @RequestParam(name = "predicate") Set<String> predicates,
                                      @RequestParam(name = "limit", required = false) Integer limit) {
@@ -81,13 +81,13 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
-	@GetMapping(value = "/simpleMaps", produces = "application/json")
+	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getSimpleMaps");
 		return entityService.getSimpleMaps(iri);
 	}
 
-    @GetMapping(value = "/partialBundle", produces = "application/json")
+    @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri,
                                      @RequestParam(name = "predicate") Set<String> predicates,
                                      @RequestParam(name = "limit", required = false) Integer limit) {
@@ -97,13 +97,14 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit);
     }
 
-    @GetMapping(value = "/inferredBundle", produces = "application/json")
+    @GetMapping(value = "/public/inferredBundle", produces = "application/json")
+	@PreAuthorize("isAuthenticated()")
     public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) {
         LOG.debug("getInferredBundle");
         return entityService.getInferredBundle(iri);
     }
 
-	@GetMapping(value = "/children")
+	@GetMapping(value = "/public/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
 			@RequestParam(name = "page", required = false) Integer page,
@@ -116,7 +117,7 @@ public class EntityController {
         return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
 	}
 
-	@GetMapping("/exportConcept")
+	@GetMapping("/public/exportConcept")
 	public HttpEntity<Object> exportConcept(@RequestParam String iri, @RequestParam String format) throws JsonProcessingException {
 		LOG.debug("exportConcept");
 		if (iri == null || iri.isEmpty())
@@ -151,7 +152,7 @@ public class EntityController {
 		}
 	}
 
-	@GetMapping(value = "/download")
+	@GetMapping(value = "/public/download")
 	public HttpEntity<Object> download(
 	    @RequestParam String iri,
         @RequestParam String format,
@@ -201,7 +202,7 @@ public class EntityController {
         }
     }
 
-	@GetMapping(value = "/parents")
+	@GetMapping(value = "/public/parents")
 	public List<EntityReferenceNode> getEntityParents(
             @RequestParam(name = "iri") String iri,
             @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
@@ -212,7 +213,7 @@ public class EntityController {
         return entityService.getImmediateParents(iri, schemeIris, page, size, false);
 	}
 
-	@GetMapping(value = "/usages")
+	@GetMapping(value = "/public/usages")
 	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) throws JsonProcessingException {
@@ -221,13 +222,13 @@ public class EntityController {
         return entityService.usages(iri,page,size);
 	}
 
-	@GetMapping("/usagesTotalRecords")
+	@GetMapping("/public/usagesTotalRecords")
 	public Integer totalRecords(@RequestParam(name = "iri") String iri) throws JsonProcessingException {
 		LOG.debug("totalRecords");
 		return entityService.totalRecords(iri);
 	}
 
-	@GetMapping(value = "/members")
+	@GetMapping(value = "/public/members")
 	public ExportValueSet valueSetMembersJson(
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
@@ -238,7 +239,7 @@ public class EntityController {
         return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
 	}
 
-	@GetMapping(value = "/members", produces = { "text/csv" })
+	@GetMapping(value = "/public/members", produces = { "text/csv" })
 	public String valueSetMembersCSV(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "expandedMember", required = false) boolean expandedMember,
 			@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset) {
@@ -246,7 +247,7 @@ public class EntityController {
         return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
 	}
 
-	@GetMapping(value = "/referenceSuggestions")
+	@GetMapping(value = "/public/referenceSuggestions")
 	public List<TTIriRef> getSuggestions(@RequestParam String keyword, @RequestParam String word) {
 	    LOG.debug("getSuggestions");
 //    	TODO generate and return suggestions
@@ -263,43 +264,43 @@ public class EntityController {
 		return new TTEntity();
 	}
 
-	@GetMapping(value = "/graph")
+	@GetMapping(value = "/public/graph")
 	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getGraphData");
 		return entityService.getGraphData(iri);
 	}
 
-	@GetMapping("/termCode")
+	@GetMapping("/public/termCode")
 	public List<TermCode> getTermCodes(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getTermCodes");
 		return entityService.getEntityTermCodes(iri);
 	}
 
-	@GetMapping("/dataModelProperties")
+	@GetMapping("/public/dataModelProperties")
 	public List<DataModelProperty> getDataModelProperties(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getDataModelProperties");
 		return entityService.getDataModelProperties(iri);
 	}
 	
-	@GetMapping("/definition")
+	@GetMapping("/public/definition")
 	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getEntityDefinitionDto");
 		return entityService.getEntityDefinitionDto(iri);
 	}
 
-	@GetMapping("/summary")
+	@GetMapping("/public/summary")
 	public SearchResultSummary getSummary(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getSummary");
 		return entityService.getSummary(iri);
 	}
 
-	@GetMapping("/namespaces")
+	@GetMapping("/public/namespaces")
 	public List<Namespace> getNamespaces() {
 		LOG.debug("getNamespaces");
 		return entityService.getNamespaces();
 	}
 
-	@PostMapping("/ecl")
+	@PostMapping("/public/ecl")
 	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
 		LOG.debug("getEcl");
 		return entityService.getEcl(inferred);

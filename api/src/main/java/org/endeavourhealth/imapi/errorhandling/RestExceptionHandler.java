@@ -17,11 +17,13 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.nio.file.AccessDeniedException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+//@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -80,9 +82,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+        System.out.println(ex.getMessage());
         ex.printStackTrace();
         String message = "Unhandled server error occurred";
         ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex, ErrorCodes.UNHANDLED_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        ApiError error = new ApiError(HttpStatus.FORBIDDEN, ex.getMessage(), ex, ErrorCodes.ACCESS_DENIED_EXCEPTION);
         return buildResponseEntity(error);
     }
 

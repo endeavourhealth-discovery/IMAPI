@@ -44,6 +44,16 @@ public class TTManager {
       document.setGraph(TTIriRef.iri(graph));
       return document;
    }
+   public TTDocument createDocument() {
+      TTContext context= new TTContext();
+      context.add(IM.NAMESPACE,"im");
+      context.add(RDF.NAMESPACE, "rdf","RDF namespace");
+      context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
+      document = new TTDocument();
+      document.setContext(context);
+      document.setGraph(TTIriRef.iri(IM.GRAPH_DISCOVERY.getIri()));
+      return document;
+   }
 
    /**
     * Gets a entity from an iri or null if not found

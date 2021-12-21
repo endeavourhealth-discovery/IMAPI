@@ -98,13 +98,4 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
-    public Integer getOrder(){
-        if (get(IM.HAS_ORDER)==null)
-            return null;
-        return get(IM.HAS_ORDER).asLiteral().intValue();
-    }
-    public TTNode setOrder(Integer order){
-        set(IM.HAS_ORDER,TTLiteral.literal(order));
-        return this;
-    }
 }

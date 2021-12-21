@@ -36,7 +36,8 @@ public class EntityRepositoryImpl2 {
 					BindingSet bs = rs.next();
 					CoreLegacyCode cl= new CoreLegacyCode();
 					result.add(cl);
-					cl.setTerm(bs.getValue("name").stringValue())
+					cl.setIri(bs.getValue("concept").stringValue())
+					 .setTerm(bs.getValue("name").stringValue())
 						.setCode(bs.getValue("code").stringValue())
 						.setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue()));
 					if (includeLegacy){

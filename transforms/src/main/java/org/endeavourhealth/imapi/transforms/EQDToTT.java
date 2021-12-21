@@ -4,9 +4,9 @@ import org.apache.commons.text.CaseUtils;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.query.QueryClause;
-import org.endeavourhealth.imapi.query.QueryStep;
+import org.endeavourhealth.imapi.query.WhereClause;
+import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -94,9 +94,10 @@ public class EQDToTT {
 	}
 
 	private void convertDefinition(Node xmlReport,Query query) throws DataFormatException {
-		QueryClause def = query.addClause();
+		QueryClause def = query.setDefinition();
 		String mainEntity = dataMap.getProperty(getData(xmlReport, "populationType"));
-		def.setSubject(TTIriRef.iri(mainEntity));
+		WhereClause where= def.addWhere();
+		where.setSubject(TTIriRef.iri(mainEntity));
 		Node population= getNode(xmlReport, "population");
 		if (population!=null){
 			Integer xmlGroupCount= ((Element) population).getElementsByTagName("criteriaGroup").getLength();

@@ -12,5 +12,6 @@ public class RDF {
     public static final TTIriRef LIST = iri(NAMESPACE + "List");
     public static final TTIriRef PREDICATE = iri(NAMESPACE + "predicate");
     public static final TTIriRef SUBJECT = iri(NAMESPACE + "subject");
+    public static final TTIriRef OBJECT = iri(NAMESPACE + "object");
     private RDF() {}
 }

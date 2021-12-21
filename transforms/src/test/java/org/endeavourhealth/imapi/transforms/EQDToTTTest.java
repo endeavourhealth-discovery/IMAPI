@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -13,7 +14,6 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
 
@@ -34,34 +34,38 @@ class EQDToTTTest {
 
 	}
 
-	private void currentReg() {
-		Query reg= new Query();
-		reg.setIri(IM.NAMESPACE+"Q_RegisteredGMS");
-		reg.setName("Patients registered for GMS services on the reference date");
-		reg.setDescription("For any registration period,a registration start date before the reference date and no end date,"+
+	private void currentReg() throws JsonProcessingException {
+		Query qry= new Query();
+		qry.setIri(IM.NAMESPACE+"Q_RegisteredGMS");
+		qry.setName("Patients registered for GMS services on the reference date");
+		qry.setDescription("For any registration period,a registration start date before the reference date and no end date,"+
 			"or an end date after the reference date.");
-		QueryClause def= reg.addClause();
-		QueryClause wrong= reg.addClause();
-		def.set(IM.HAS_ORDER, TTLiteral.literal(5));
-		wrong.set(IM.HAS_ORDER,TTLiteral.literal(1));
-		def.setSubject(TTIriRef.iri(IM.NAMESPACE+"Patient"));
-		List<QueryClause> clauses =reg.getClauses();
-		for (QueryClause clause:clauses)
-			System.out.println(clause.get(IM.HAS_ORDER).asLiteral().getValue());
-		/*
-		Q ueryStep step= new QueryStep();
-		def.addStep(step);
-		step.setInclusionAction(IM.INCLUDE_EXCLUDE);
-		step.setOperator(IM.OR);
-		MatchClause match= step.addMatch();
-		MatchPath path = match.addPath();
-		path.setProperty(TTIriRef.iri(IM.NAMESPACE+"isSubjectOf"));
-		MatchValue matchValue=path.setMatchValue(new MatchValue());
-		matchValue.setType(TTIriRef.iri(IM.NAMESPACE+"GPRegistration"));
-		matchValue.setMatch(new MatchClause());
-
-		 */
-
+		QueryClause clause= qry.setDefinition();
+		WhereClause hasReg= clause.addWhere();
+		hasReg.setSubject(TTIriRef.iri(IM.NAMESPACE+"Patient"))
+		.setPredicate(IM.NAMESPACE+"isSubjectOf")
+			.setObjectType(IM.NAMESPACE+"GPRegistration");
+		WhereClause gpRegType= clause.addWhere();
+		gpRegType.setSubject(hasReg.getObjectVar())
+			.setPredicate(IM.NAMESPACE+"patientType");
+		gpRegType.setFilter()
+				.setCompareTo(IM.EQUAL,IM.GMS_PATIENT);
+		WhereClause gpRegDate= clause.addWhere()
+			.setSubject(hasReg.getObjectVar())
+				.setPredicate(IM.NAMESPACE+"effectiveDate");
+		gpRegDate.setFilter()
+			.setCompareTo(IM.LESS_THAN_EQUAL, TTLiteral.literal("$ReferenceDate"));
+		WhereClause noEnd= clause.addOr()
+			.setNot()
+			.setPredicate(IM.NAMESPACE+"endDate");
+		WhereClause endAfter= clause.addOr()
+			.setPredicate(TTIriRef.iri(IM.NAMESPACE+"endDate"));
+			endAfter.setFilter()
+			.setCompareTo(IM.GREATER_THAN,TTLiteral.literal("$ReferenceDate"));
+		TTManager manager= new TTManager();
+		TTDocument document= manager.createDocument();
+		document.addEntity(qry);
+		System.out.println(manager.getJson(document));
 
 	}
 }

@@ -20,6 +20,12 @@ public class EntityRepositoryImpl2 {
 	private Map<String,String> prefixMap;
 	private StringJoiner spql;
 
+	/**
+	 * Gets the expansion set for a concept set
+	 * @param set iri of the concept set
+	 * @param includeLegacy flag whether to include legacy codes
+	 * @return A set of Core codes and their legacy codes
+	 */
 	public Set<CoreLegacyCode> getSetExpansion(TTEntity set,boolean includeLegacy){
 		String sql= getExpansionAsSelect(set,includeLegacy);
 		Set<CoreLegacyCode> result= new HashSet<>();
@@ -30,7 +36,8 @@ public class EntityRepositoryImpl2 {
 					BindingSet bs = rs.next();
 					CoreLegacyCode cl= new CoreLegacyCode();
 					result.add(cl);
-					cl.setTerm(bs.getValue("name").stringValue())
+					cl.setIri(bs.getValue("concept").stringValue())
+					 .setTerm(bs.getValue("name").stringValue())
 						.setCode(bs.getValue("code").stringValue())
 						.setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue()));
 					if (includeLegacy){
@@ -51,6 +58,13 @@ public class EntityRepositoryImpl2 {
 		return result;
 
 	}
+
+	/**
+	 * An alternative method of getting an entity definition
+	 * @param iri of the entity
+	 * @param predicates List of predicates to include
+	 * @return
+	 */
 	public TTEntity getEntity(String iri, Set<String> predicates){
 		StringJoiner sql= new StringJoiner("\n");
 		sql.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");

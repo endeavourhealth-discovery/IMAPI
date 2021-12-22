@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 @JsonDeserialize(using = TTArrayDeserializer.class)
 public class TTArray implements Serializable {
     private LinkedHashSet<TTValue> elements = new LinkedHashSet<>();
+    private Boolean isList;
 
     public TTArray add(TTValue value) {
         if (elements != null && elements.contains(value))
@@ -25,6 +26,7 @@ public class TTArray implements Serializable {
 
         return this;
     }
+
 
     public int size() {
         return elements.size();
@@ -75,5 +77,14 @@ public class TTArray implements Serializable {
 
     public Stream<TTValue> stream() {
         return elements.stream();
+    }
+
+    public Boolean getList() {
+        return isList;
+    }
+
+    public TTArray setList(Boolean list) {
+        isList = list;
+        return this;
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.Serializable;
 import java.util.*;
@@ -96,4 +97,5 @@ public class TTNode implements TTValue, Serializable {
         this.predicateTemplate = predicateTemplate;
         return this;
     }
+
 }

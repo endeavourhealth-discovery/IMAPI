@@ -2,30 +2,27 @@ package org.endeavourhealth.imapi.query;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.
 	* <p> In effect a high level process model taylored to the health query ues cases</p>
 	*/
 public class Query  extends TTEntity {
-	public static String dataModelGraph= "http://endhealth.info/im#";
 
 
 	public Query(){
+		this.addType(IM.QUERY);
 	}
 
-
-
+	public static int varCount;
 
 
 	@JsonIgnore
@@ -38,30 +35,26 @@ public class Query  extends TTEntity {
 		return json;
 	}
 
+
+
 	/**
 	 * gets the query definition i.e. set of steps associated with this query
 	 * @return Query definition with a main entity and steps
 	 */
-	public QueryDefinition getQueryDefinition() {
-		return (QueryDefinition) get(IM.DEFINITION).asNode();
+	public QueryClause getDefinition() {
+		return (QueryClause) get(IM.DEFINITION).asNode();
 	}
 
-	/**
-	 * Assignes  a previously created query definition to this query
-	 * @param queryDefinition the previously created query definition
-	 * @return the Query definition containing the query steps
-	 */
-	public Query setQueryDefinition(QueryDefinition queryDefinition) {
-		this.set(IM.DEFINITION,queryDefinition);
-		return this;
-	}
+
 
 	/** Creates and assigns a new query definition for this query
 	 * The query definition contains the main entity and steps
 	 * @return the Query definition
 	 */
-	public QueryDefinition setQueryDefinition() {
-		this.set(IM.DEFINITION,new QueryDefinition());
-		return (QueryDefinition) get(IM.DEFINITION).asNode();
+	public QueryClause setDefinition() {
+		QueryClause clause= new QueryClause();
+		this.set(IM.DEFINITION,clause);
+		return clause;
 	}
+
 }

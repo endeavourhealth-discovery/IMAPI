@@ -157,16 +157,31 @@ public class IM {
     public static final TTIriRef relativeDate = TTIriRef.iri(NAMESPACE +"relativeDate");
 
     //Query
-    public static final TTIriRef LATEST_EVENT = iri(NAMESPACE + "latestEvent");
-    public static final TTIriRef MAIN_ENTITY = iri(NAMESPACE + "mainEntity");
-    public static final TTIriRef SEQUENCE_NUMBER= iri(NAMESPACE + "sequenceNumber");
-    public static final TTIriRef QUERY_STEP= iri(NAMESPACE + "queryStep");
-    public static final TTIriRef INCLUSION_ACTION= iri(NAMESPACE + "inclusionAction");
-    public static final TTIriRef INCLUDE_EXCLUDE= iri(NAMESPACE + "SelectExclude");
-    public static final TTIriRef INCLUDE_CONTINUE= iri(NAMESPACE + "SelectContinue");
-    public static final TTIriRef EXCLUDE = iri(NAMESPACE + "Exclude");
-    public static final TTIriRef MATCH = iri(NAMESPACE + "match");
-    public static final TTIriRef NOT = iri(NAMESPACE+"not");
+
+  public static final TTIriRef NOT = iri(NAMESPACE+"not");
+  public static final TTIriRef OR = iri(NAMESPACE+"or");
+  public static final TTIriRef AND= iri(NAMESPACE+"and");
+  public static final TTIriRef OPERATOR = iri(NAMESPACE+"operator");
+  public static final TTIriRef VARIABLE = iri(NAMESPACE+"variable");
+  public static final TTIriRef OPTIONAL = iri(NAMESPACE + "isOptional");
+  public static final TTIriRef IRI_VALUE = iri(NAMESPACE + "iriValue");
+  public static final TTIriRef LESS_THAN = iri(NAMESPACE + "lessThan");
+  public static final TTIriRef LESS_THAN_EQUAL = iri(NAMESPACE + "lessThanOrEqual");
+  public static final TTIriRef EQUAL = iri(NAMESPACE + "equalTo");
+  public static final TTIriRef GREATER_THAN = iri(NAMESPACE + "greaterThan");
+  public static final TTIriRef GREATER_THAN_EQUAL = iri(NAMESPACE + "greaterThanOrEqual");
+  public static final TTIriRef LATEST = iri(NAMESPACE + "latest");
+  public static final TTIriRef EARLIEST = iri(NAMESPACE + "earliest");
+  public static final TTIriRef FILTER = iri(NAMESPACE + "filter");
+  public static final TTIriRef PATH = iri(NAMESPACE + "path");
+  public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
+
+
+
+
+
+
+
 
 
   //Authors and agents

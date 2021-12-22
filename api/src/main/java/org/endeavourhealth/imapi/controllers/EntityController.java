@@ -98,7 +98,6 @@ public class EntityController {
     }
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
-	@PreAuthorize("isAuthenticated()")
     public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) {
         LOG.debug("getInferredBundle");
         return entityService.getInferredBundle(iri);

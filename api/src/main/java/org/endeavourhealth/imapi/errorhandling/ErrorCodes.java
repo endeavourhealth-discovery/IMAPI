@@ -9,7 +9,9 @@ public enum ErrorCodes {
     HTTP_REQUEST_METHOD_NOT_SUPPORTED("HttpRequestMethodNotSupported"),
     MISSING_SERVLET_REQUEST_PARAMETER("MissingServletRequestParameter"),
     TYPE_MISMATCH("TypeMismatch"),
-    HTTP_MEDIA_TYPE_NOT_SUPPORTED("HttpMediaTypeNotSupported");
+    HTTP_MEDIA_TYPE_NOT_SUPPORTED("HttpMediaTypeNotSupported"),
+    ACCESS_DENIED_EXCEPTION("AccessDeniedException"),
+    AUTHENTICATION_EXCEPTION("AuthenticationException");
 
     private String code;
 

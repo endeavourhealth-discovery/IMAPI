@@ -32,7 +32,7 @@ public class ConfigController {
     @Autowired
     ConfigService configService;
 
-    @GetMapping(value = "/componentLayout")
+    @GetMapping(value = "/public/componentLayout")
     public List<ComponentLayoutItem> getComponentLayout(
             @RequestParam(name="name") String name
     ) throws JsonProcessingException {
@@ -40,13 +40,13 @@ public class ConfigController {
         return configService.getConfig(name, new TypeReference<List<ComponentLayoutItem>>(){});
     }
 
-    @GetMapping(value="/filterDefaults")
+    @GetMapping(value="/public/filterDefaults")
     public FilterDefault getFilterDefaults() throws JsonProcessingException {
         LOG.debug("getFilterDefaults");
         return configService.getConfig("filterDefaults", new TypeReference<FilterDefault>(){});
     }
 
-    @GetMapping(value="/dashboardLayout")
+    @GetMapping(value="/public/dashboardLayout")
     public List<DashboardLayout> getDashboardLayout(
             @RequestParam(name ="name") String name
     ) throws JsonProcessingException {
@@ -54,13 +54,13 @@ public class ConfigController {
         return configService.getConfig(name, new TypeReference<List<DashboardLayout>>(){});
     }
 
-    @GetMapping(value="/defaultPredicateNames")
+    @GetMapping(value="/public/defaultPredicateNames")
     public Map<String, String> getDefaultPredicateNames() throws JsonProcessingException {
         LOG.debug("getDefaultPredicateNames");
         return configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {});
     }
 
-    @GetMapping(value="/xmlSchemaDataTypes")
+    @GetMapping(value="/public/xmlSchemaDataTypes")
     public List<String> getXMLSchemaDataTypes() throws JsonProcessingException {
         LOG.debug("getXMLSchemaDataTypes");
         return configService.getConfig("xmlSchemaDataTypes", new TypeReference<List<String>>() {});

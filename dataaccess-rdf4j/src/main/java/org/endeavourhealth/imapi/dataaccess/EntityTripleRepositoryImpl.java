@@ -251,7 +251,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                    .add(valueList("g", schemeIris.size()) );
+                    .add(valueList("g", schemeIris));
         }
 
         if (!inactive)
@@ -265,12 +265,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", iri(parentIri));
-            if (schemeIris != null && !schemeIris.isEmpty()) {
-                int i = 0;
-                for (String scheme : schemeIris) {
-                    qry.setBinding("g" + i++, iri(scheme));
-                }
-            }
             try (TupleQueryResult rs = qry.evaluate()) {
                 return rs.hasNext();
             }
@@ -289,7 +283,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                .add( valueList("g", schemeIris.size()) );
+                .add( valueList("g", schemeIris) );
         }
 
         if (!inactive)
@@ -308,12 +302,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", iri(parentIri));
-            if (schemeIris != null && !schemeIris.isEmpty()) {
-                int i = 0;
-                for (String scheme : schemeIris) {
-                    qry.setBinding("g" + i++, iri(scheme));
-                }
-            }
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -338,7 +326,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                    .add(valueList("g", schemeIris.size()) );
+                    .add(valueList("g", schemeIris) );
         }
 
         if (!inactive)
@@ -357,12 +345,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("c", iri(childIri));
-            if (schemeIris != null && !schemeIris.isEmpty()) {
-                int i = 0;
-                for (String scheme : schemeIris) {
-                    qry.setBinding("g" + i++, iri(scheme));
-                }
-            }
+
             LOG.debug("Executing...");
             try (TupleQueryResult rs = qry.evaluate()) {
                 LOG.debug("Retrieving...");
@@ -401,7 +384,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
                     result.add(new TTIriRef(bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
                 }
-                LOG.debug(String.format("Finished (%d rows)", result.size()));
+                LOG.debug("Finished ({} rows)", result.size());
             }
         }
 
@@ -609,7 +592,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if(schemeIris != null && !schemeIris.isEmpty()){
             sql
-                    .add(valueList("g", schemeIris.size()));
+                    .add(valueList("g", schemeIris));
         }
         sql.add("}");
 
@@ -617,12 +600,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", iri(iri));
-            if (schemeIris != null && !schemeIris.isEmpty()) {
-                int i = 0;
-                for (String scheme : schemeIris) {
-                    qry.setBinding("g" + i++, iri(scheme));
-                }
-            }
+
             try(TupleQueryResult rs = qry.evaluate()){
                 while (rs.hasNext()){
                     BindingSet bs = rs.next();

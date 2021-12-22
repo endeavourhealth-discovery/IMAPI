@@ -1,9 +1,13 @@
 package org.endeavourhealth.imapi.dataaccess.helpers;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import static org.eclipse.rdf4j.model.util.Values.iri;
 
 public class GraphHelper {
     private GraphHelper() {
@@ -17,13 +21,20 @@ public class GraphHelper {
             return null;
     }
 
-    public static String valueList(String param, int size)
+    public static String valueList(String param, Collection<String> iris)
     {
-        List<String> binding = new ArrayList<>();
-        for(int i=0; i<size; i++){
-            binding.add("{ BIND(?" + param + i + " AS ?" + param + ") }");
+        if (iris == null || iris.isEmpty())
+            return "";
+
+        StringBuilder value = new StringBuilder();
+        value.append("    VALUES ?").append(param).append(" {");
+        for (String iri : iris) {
+            IRI i = iri(iri);
+            value.append(" <").append(i.stringValue()).append(">");
         }
-        return String.join(" UNION ", binding);
+        value.append("}");
+
+        return value.toString();
     }
 
     public static String inList(String param, int size){

@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.statemachine;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StateMachineConfigDALTest implements StateMachineConfigDAL {
+public class StateMachineConfigDALMock implements StateMachineConfigDAL {
     private static Map<String, StateMachineConfig> db = new HashMap<>();
 
     public void saveConfig(String name, StateMachineConfig config) {

@@ -11,15 +11,30 @@ import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
+
+/**
+ * Manages the Exports concept set data in excel workboook format
+ */
 public class ExcelSetExporter {
+
+	private ExcelSetExporter() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	private static final EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
 
-
+	/**
+	 * Exports  3 excel sheets from the data store
+	 * <p>Sheet 1 = the definition in ECL</p>
+	 * <p>Sheet 2 = the expanded core concept set</p>
+	 * <p>Sheet 3 = the expanded core and legacy code set</p>
+	 * @param setIri
+	 * @return
+	 * @throws DataFormatException
+	 */
 	public static XSSFWorkbook getSetAsExcel(String setIri) throws DataFormatException {
 		Set<String> predicates= Set.of(RDFS.LABEL.getIri(),IM.DEFINITION.getIri());
 		TTEntity entity= repo.getEntity(setIri,predicates);

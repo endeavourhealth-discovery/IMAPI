@@ -8,6 +8,9 @@ import org.endeavourhealth.imapi.vocabulary.*;
  * static utilities to handle templated display orders of RDF nodes
  */
 public class TTDisplay {
+	private TTDisplay() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	private static TTIriRef[] entity = {RDF.TYPE,RDFS.LABEL,IM.DEFINITION,IM.NOT_MEMBER};
 

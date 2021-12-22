@@ -64,10 +64,8 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
       }
    }
    private boolean isWildCard(ECLParser.RefinedexpressionconstraintContext refined){
-      if (refined.subexpressionconstraint()!= null)
-         if (refined.subexpressionconstraint().eclfocusconcept()!=null)
-            if (refined.subexpressionconstraint().eclfocusconcept().wildcard() != null)
-               return true;
+      if (refined.subexpressionconstraint()!= null && refined.subexpressionconstraint().eclfocusconcept() != null && refined.subexpressionconstraint().eclfocusconcept().wildcard() != null)
+         return true;
       return false;
    }
 

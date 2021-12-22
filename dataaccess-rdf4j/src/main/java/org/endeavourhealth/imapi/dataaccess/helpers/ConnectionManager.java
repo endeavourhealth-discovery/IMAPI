@@ -6,14 +6,14 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
-
-import java.io.File;
 import java.util.StringJoiner;
 
 public class ConnectionManager {
     private static Repository repo;
+
+    private ConnectionManager() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static RepositoryConnection getConnection() {
         return getRepository().getConnection();

@@ -148,9 +148,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
 
    private boolean isGCI(OWLFSParser.SubClassOfContext ctx) {
-      if (ctx.subClass().classExpression().objectIntersectionOf()!=null)
-         return true;
-      else return false;
+      return (ctx.subClass().classExpression().objectIntersectionOf()!=null);
    }
 
    private String expand(String iri) {

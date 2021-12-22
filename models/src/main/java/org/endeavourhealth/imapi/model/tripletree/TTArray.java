@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 @JsonDeserialize(using = TTArrayDeserializer.class)
 public class TTArray implements Serializable {
     private LinkedHashSet<TTValue> elements = new LinkedHashSet<>();
+    private Boolean isList;
 
     public TTArray add(TTValue value) {
         if (elements != null && elements.contains(value))
@@ -26,6 +27,7 @@ public class TTArray implements Serializable {
         return this;
     }
 
+
     public int size() {
         return elements.size();
     }
@@ -34,13 +36,25 @@ public class TTArray implements Serializable {
     }
 
     // Single element helpers
-    public boolean isLiteral() { return elements.size() == 1 && elements.stream().findFirst().get().isLiteral(); }
+    public boolean isLiteral() {
+        if (elements.stream().findFirst().isPresent())
+            return elements.size() == 1 && elements.stream().findFirst().get().isLiteral();
+        else return false;
+    }
     public TTLiteral asLiteral() { return (TTLiteral) elements.stream().findFirst().orElse(null); }
 
-    public boolean isIriRef() { return elements.size() == 1 && elements.stream().findFirst().get().isIriRef(); }
+    public boolean isIriRef() {
+        if (elements.stream().findFirst().isPresent())
+            return elements.size() == 1 && elements.stream().findFirst().get().isIriRef();
+        else return false;
+    }
     public TTIriRef asIriRef() { return (TTIriRef) elements.stream().findFirst().orElse(null); }
 
-    public boolean isNode() { return elements.size() == 1 && elements.stream().findFirst().get().isNode(); }
+    public boolean isNode() {
+        if (elements.stream().findFirst().isPresent())
+            return elements.size() == 1 && elements.stream().findFirst().get().isNode();
+        else return false;
+    }
     public TTNode asNode() { return (TTNode) elements.stream().findFirst().orElse(null); }
 
     public TTValue asValue() { return elements.stream().findFirst().orElse(null); }
@@ -63,5 +77,14 @@ public class TTArray implements Serializable {
 
     public Stream<TTValue> stream() {
         return elements.stream();
+    }
+
+    public Boolean getList() {
+        return isList;
+    }
+
+    public TTArray setList(Boolean list) {
+        isList = list;
+        return this;
     }
 }

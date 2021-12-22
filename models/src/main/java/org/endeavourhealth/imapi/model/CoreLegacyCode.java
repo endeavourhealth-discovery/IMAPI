@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class CoreLegacyCode {
+	private String iri;
 	private String code;
 	private String term;
 	private TTIriRef scheme;
@@ -71,6 +72,15 @@ public class CoreLegacyCode {
 
 	public CoreLegacyCode setLegacySchemeName(String legacySchemeName) {
 		this.legacySchemeName = legacySchemeName;
+		return this;
+	}
+
+	public String getIri() {
+		return iri;
+	}
+
+	public CoreLegacyCode setIri(String iri) {
+		this.iri = iri;
 		return this;
 	}
 }

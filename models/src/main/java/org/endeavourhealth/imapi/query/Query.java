@@ -2,61 +2,27 @@ package org.endeavourhealth.imapi.query;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.
 	* <p> In effect a high level process model taylored to the health query ues cases</p>
 	*/
-
-@JsonPropertyOrder({"prefixes","mainEntity","clauses"})
-public class Query {
-	private final Map<String,String> prefixes = new HashMap<>();
-	private final transient Map<String,String> prefixMap= new HashMap<>();
-	private String mainEntity;
-	private List<QueryClause> clauses = new ArrayList<>();
+public class Query  extends TTEntity {
 
 
-
-	/** Returns the list of clauses that are logically sequential
-	 *
-	 * @return List of clauses
-	 */
-	public List<QueryClause> getClauses() {
-		return clauses;
+	public Query(){
+		this.addType(IM.QUERY);
 	}
 
-	/** Adds a list of clauses to the query
-	 * @param clauses The list of clauses, list order indicating the logical sequence
-	 * @return the modified query
-	 */
-	public Query setClauses(List<QueryClause> clauses) {
-		this.clauses = clauses;
-		return this;
-	}
-
-	/**
-	 * Adds a clause to the query
-	 * @param clause the clause to be added
-	 * @return the updated query
-	 */
-	public Query addClause(QueryClause clause){
-		this.clauses.add(clause);
-		return this;
-	}
-
-	public String getMainEntity() {
-		return mainEntity;
-	}
-
-	public Query setMainEntity(String mainEntity) {
-		this.mainEntity = mainEntity;
-		return this;
-	}
+	public static int varCount;
 
 
 	@JsonIgnore
@@ -69,12 +35,26 @@ public class Query {
 		return json;
 	}
 
-	public Map<String, String> getPrefixes() {
-		return prefixes;
+
+
+	/**
+	 * gets the query definition i.e. set of steps associated with this query
+	 * @return Query definition with a main entity and steps
+	 */
+	public QueryClause getDefinition() {
+		return (QueryClause) get(IM.DEFINITION).asNode();
 	}
 
-	@JsonIgnore
-	public Map<String, String> getPrefixMap() {
-		return prefixMap;
+
+
+	/** Creates and assigns a new query definition for this query
+	 * The query definition contains the main entity and steps
+	 * @return the Query definition
+	 */
+	public QueryClause setDefinition() {
+		QueryClause clause= new QueryClause();
+		this.set(IM.DEFINITION,clause);
+		return clause;
 	}
+
 }

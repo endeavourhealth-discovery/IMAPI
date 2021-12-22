@@ -69,14 +69,10 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    }
 
    private void setPredicateOrder() {
-      predicateTemplate = new ArrayList<>();
-      predicateTemplate.add(RDF.TYPE);
-      predicateTemplate.add(RDFS.LABEL);
-      predicateTemplate.add(RDFS.COMMENT);
-      predicateTemplate.add(IM.CODE);
-      predicateTemplate.add(IM.HAS_SCHEME);
-      predicateTemplate.add(IM.HAS_STATUS);
-      predicateTemplate.add(RDFS.SUBCLASSOF);
+      predicateTemplate = List.of(RDF.TYPE,RDFS.LABEL,
+        RDFS.COMMENT,IM.CODE,IM.HAS_SCHEME,IM.HAS_STATUS,
+        RDFS.SUBCLASSOF,RDF.SUBJECT,RDF.PREDICATE,RDF.OBJECT,
+        IM.VARIABLE,IM.FILTER);
    }
 
 }

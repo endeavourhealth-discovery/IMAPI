@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.io.Serializable;
 import java.util.*;
 
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
-public class TTNode implements TTValue {
+public class TTNode implements TTValue, Serializable {
     private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
     private TTIriRef[] predicateTemplate;
 
@@ -95,4 +97,5 @@ public class TTNode implements TTValue {
         this.predicateTemplate = predicateTemplate;
         return this;
     }
+
 }

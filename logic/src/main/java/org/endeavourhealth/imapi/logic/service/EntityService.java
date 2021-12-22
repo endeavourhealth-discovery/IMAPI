@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -392,8 +389,7 @@ public class EntityService {
 		return getEntityPredicates(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
 	}
 
-    public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean inferred, boolean dataModelProperties,
-									   boolean members, boolean expandMembers,boolean expandSubsets, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) {
+    public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -401,19 +397,18 @@ public class EntityService {
 
         downloadDto.setSummary(getSummaryFromConfig(iri, configs));
 
-        if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, inactive));
-        if (inferred) downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());
-        if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
-        if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
-        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));
-		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));
+        if (params.includeHasSubtypes()) { downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
+        if (params.includeInferred()) { downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());}
+        if (params.includeProperties()) { downloadDto.setDataModelProperties(getDataModelProperties(iri));}
+        if (params.includeMembers()) { downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+        if (params.includeTerms()) { downloadDto.setTerms(getEntityTermCodes(iri));}
+        if (params.includeIsChildOf()) { downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));}
+		if (params.includeHasChildren()) { downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));}
 
         return downloadDto;
     }
 
-    public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean inferred, boolean dataModelProperties,
-									  boolean members, boolean expandMembers, boolean expandSubsets, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) {
+    public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -421,17 +416,17 @@ public class EntityService {
 
         xls.addSummary(getSummaryFromConfig(iri, configs));
 
-        if (children) xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, inactive));
-        if (inferred) xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));
-        if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
-        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
-		if (terms) xls.addTerms(getEntityTermCodes(iri));
+        if (params.includeHasSubtypes()) { xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
+        if (params.includeInferred()) { xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));}
+        if (params.includeProperties()) { xls.addDataModelProperties(getDataModelProperties(iri));}
+        if (params.includeMembers()) { xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+		if (params.includeTerms()) { xls.addTerms(getEntityTermCodes(iri));}
 		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
-		if (isChildOf && isChildOfData != null) xls.addIsChildOf(isChildOfData.getElements());
+		if (params.includeIsChildOf() && isChildOfData != null) { xls.addIsChildOf(isChildOfData.getElements());}
 		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
         TTArray hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
-		if (hasChildren && hasChildrenData != null) xls.addHasChildren(hasChildrenData.getElements());
+		if (params.includeHasChildren() && hasChildrenData != null) { xls.addHasChildren(hasChildrenData.getElements());}
 
         return xls;
     }

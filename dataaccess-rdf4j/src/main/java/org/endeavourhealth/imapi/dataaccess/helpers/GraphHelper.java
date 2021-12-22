@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GraphHelper {
+    private GraphHelper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static String getString(BindingSet bs, String s) {
         if (bs.hasBinding(s) && bs.getValue(s)!=null)

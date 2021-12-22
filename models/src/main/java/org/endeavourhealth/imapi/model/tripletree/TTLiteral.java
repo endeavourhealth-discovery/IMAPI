@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -16,7 +17,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonSerialize(using = TTLiteralSerializer.class)
 @JsonDeserialize(using = TTLiteralDeserializer.class)
-public class TTLiteral implements TTValue {
+public class TTLiteral implements TTValue, Serializable {
     // Static helpers
     public static TTLiteral literal(String value, TTIriRef type) {
         return new TTLiteral(value, type);

@@ -20,7 +20,13 @@ public class EntityRepositoryImpl2 {
 	private Map<String,String> prefixMap;
 	private StringJoiner spql;
 
-	public Set<CoreLegacyCode> getSetExpansion(TTEntity set,Boolean includeLegacy){
+	/**
+	 * Gets the expansion set for a concept set
+	 * @param set iri of the concept set
+	 * @param includeLegacy flag whether to include legacy codes
+	 * @return A set of Core codes and their legacy codes
+	 */
+	public Set<CoreLegacyCode> getSetExpansion(TTEntity set,boolean includeLegacy){
 		String sql= getExpansionAsSelect(set,includeLegacy);
 		Set<CoreLegacyCode> result= new HashSet<>();
 		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
@@ -30,7 +36,8 @@ public class EntityRepositoryImpl2 {
 					BindingSet bs = rs.next();
 					CoreLegacyCode cl= new CoreLegacyCode();
 					result.add(cl);
-					cl.setTerm(bs.getValue("name").stringValue())
+					cl.setIri(bs.getValue("concept").stringValue())
+					 .setTerm(bs.getValue("name").stringValue())
 						.setCode(bs.getValue("code").stringValue())
 						.setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue()));
 					if (includeLegacy){
@@ -51,6 +58,13 @@ public class EntityRepositoryImpl2 {
 		return result;
 
 	}
+
+	/**
+	 * An alternative method of getting an entity definition
+	 * @param iri of the entity
+	 * @param predicates List of predicates to include
+	 * @return
+	 */
 	public TTEntity getEntity(String iri, Set<String> predicates){
 		StringJoiner sql= new StringJoiner("\n");
 		sql.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
@@ -84,61 +98,65 @@ public class EntityRepositoryImpl2 {
 				.add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name")
 				.add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
 		}
-			sql.add("}}}}}");
+		sql.add("}}}}}");
 		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
 			GraphQuery qry=conn.prepareGraphQuery(sql.toString());
 			qry.setBinding("entity",iri(iri));
 			try (GraphQueryResult gs = qry.evaluate()) {
 				TTEntity entity = null;
-				TTNode node;
-				Map<Value, TTValue> valueMap = new HashMap<>();
-				Resource entityIri = null;
 				for (org.eclipse.rdf4j.model.Statement st :gs) {
-					Resource subject = st.getSubject();
-					TTIriRef predicate= TTIriRef.iri(st.getPredicate().stringValue());
-					valueMap.put(st.getPredicate(),predicate);
-					if (entity == null) {
-						entity = new TTEntity();
-						entity.setIri(subject.stringValue());
-						valueMap.put(subject, entity);
-						entityIri = subject;
-					}
-					if (subject.isIRI() & (!subject.equals(entityIri))) {
-						TTIriRef subjectIri = valueMap.get(subject).asIriRef();
-						subjectIri.setName(st.getObject().stringValue());
-					}
-					else {
-						node = valueMap.get(subject).asNode();
-						Value value = st.getObject();
-						if (value.isLiteral()) {
-							node.set(TTIriRef.iri(st.getPredicate().stringValue()), literal(value.stringValue()));
-						}
-						else if (value.isIRI()) {
-							TTIriRef objectIri=null;
-							if (valueMap.get(value)!=null)
-								objectIri=valueMap.get(value).asIriRef();
-							if (objectIri==null)
-								objectIri = TTIriRef.iri(value.stringValue());
-							if (node.get(predicate)==null)
-								node.set(predicate, objectIri);
-							else
-								node.addObject(predicate,objectIri);
-							valueMap.putIfAbsent(value, objectIri);
-						}
-						else if (value.isBNode()) {
-							TTNode ob = new TTNode();
-							if (node.get(predicate)==null)
-								node.set(predicate, ob);
-							else
-								node.addObject(predicate,ob);
-							valueMap.put(value, ob);
-						}
-					}
+					processEntity(st, entity);
 				}
 				return entity;
-				}
 			}
 		}
+	}
+	
+	private void processEntity(org.eclipse.rdf4j.model.Statement st, TTEntity entity) {
+		TTNode node = null;
+		Map<Value, TTValue> valueMap = new HashMap<>();
+		Resource entityIri = null;
+		Resource subject = st.getSubject();
+		TTIriRef predicate= TTIriRef.iri(st.getPredicate().stringValue());
+		valueMap.put(st.getPredicate(),predicate);
+		if (entity == null) {
+			entity = new TTEntity();
+			entity.setIri(subject.stringValue());
+			valueMap.put(subject, entity);
+			entityIri = subject;
+		}
+		if (subject.isIRI() && !subject.equals(entityIri)) {
+			TTIriRef subjectIri = valueMap.get(subject).asIriRef();
+			subjectIri.setName(st.getObject().stringValue());
+		}
+		else {
+			node = valueMap.get(subject).asNode();
+			Value value = st.getObject();
+			if (value.isLiteral()) {
+				node.set(TTIriRef.iri(st.getPredicate().stringValue()), literal(value.stringValue()));
+			}
+			else if (value.isIRI()) {
+				TTIriRef objectIri=null;
+				if (valueMap.get(value)!=null)
+					objectIri=valueMap.get(value).asIriRef();
+				if (objectIri==null)
+					objectIri = TTIriRef.iri(value.stringValue());
+				if (node.get(predicate)==null)
+					node.set(predicate, objectIri);
+				else
+					node.addObject(predicate,objectIri);
+				valueMap.putIfAbsent(value, objectIri);
+			}
+			else if (value.isBNode()) {
+				TTNode ob = new TTNode();
+				if (node.get(predicate)==null)
+					node.set(predicate, ob);
+				else
+					node.addObject(predicate,ob);
+				valueMap.put(value, ob);
+			}
+		}
+	}
 
 	/**
 	 * Generates sparql from a concept set entity
@@ -146,7 +164,7 @@ public class EntityRepositoryImpl2 {
 	 * @param includeLegacy whether or not legacy codes should be included
 	 * @return A string of SPARQL
 	 */
-	public String getExpansionAsGraph(TTEntity setEntity, Boolean includeLegacy){
+	public String getExpansionAsGraph(TTEntity setEntity, boolean includeLegacy){
 		initialiseBuilders();
 		spql.add("CONSTRUCT {?concept rdfs:label ?name.")
 			.add("?concept im:code ?code.")
@@ -174,7 +192,7 @@ public class EntityRepositoryImpl2 {
 	 * @param includeLegacy whether to include simple legacy maps
 	 * @return String containing the sparql query
 	 */
-	public String getExpansionAsSelect(TTEntity setEntity,Boolean includeLegacy){
+	public String getExpansionAsSelect(TTEntity setEntity, boolean includeLegacy){
 		initialiseBuilders();
 		spql.add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
 		if (includeLegacy)
@@ -204,7 +222,7 @@ public class EntityRepositoryImpl2 {
 
 		}
 		else if (definition.get(SHACL.AND)!=null) {
-			Boolean hasRoles= andClause(definition.get(SHACL.AND),true);
+			boolean hasRoles = andClause(definition.get(SHACL.AND),true);
 			if (hasRoles) {
 				andClause(definition.get(SHACL.AND), false);
 			}
@@ -259,7 +277,7 @@ public class EntityRepositoryImpl2 {
 
 		if (union.get(SHACL.AND)!=null){
 			spql.add("UNION {");
-			Boolean hasRoles= andClause(union.get(SHACL.AND),true);
+			boolean hasRoles= andClause(union.get(SHACL.AND),true);
 			spql.add("}");
 			if (hasRoles) {
 				spql.add("UNION {");
@@ -319,11 +337,9 @@ public class EntityRepositoryImpl2 {
 	private Boolean andClause(TTArray and,boolean group) {
 		Boolean hasRoles=false;
 		for (TTValue inter:and.getElements()) {
-			if (inter.isNode()) {
-				if (inter.asNode().get(SHACL.NOT) == null) {
-					roles(inter.asNode(),group);
-					hasRoles= true;
-				}
+			if (inter.isNode() && inter.asNode().get(SHACL.NOT) == null) {
+				roles(inter.asNode(),group);
+				hasRoles= true;
 			}
 		}
 		for (TTValue inter:and.getElements()){
@@ -332,9 +348,8 @@ public class EntityRepositoryImpl2 {
 			}
 		}
 		for (TTValue inter:and.getElements()){
-			if (inter.isNode())
-				if (inter.asNode().get(SHACL.NOT)!=null)
-					notClause(inter.asNode().get(SHACL.NOT).asValue());
+			if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
+				notClause(inter.asNode().get(SHACL.NOT).asValue());
 		}
 		return hasRoles;
 	}
@@ -353,7 +368,7 @@ public class EntityRepositoryImpl2 {
 				orClause(not.asNode().get(SHACL.OR));
 			}
 			else if (not.asNode().get(SHACL.AND)!=null){
-				Boolean hasRoles= andClause(not.asNode().get(SHACL.AND),true);
+				boolean hasRoles= andClause(not.asNode().get(SHACL.AND),true);
 				if (hasRoles) {
 					andClause(not.asNode().get(SHACL.AND), false);
 				}

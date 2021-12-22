@@ -16,16 +16,13 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.logic.service.ConfigService;
-import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -61,7 +58,7 @@ public class EntityController {
     private final EntityService entityService = new EntityService();
 	private final ConfigService configService = new ConfigService();
 
-	private final static String attachmentFile = "attachment;filename=\"";
+	private static final String ATTACHMENT = "attachment;filename=\"";
 
 	@PostMapping(value = "/search")
     @ApiOperation(
@@ -136,7 +133,7 @@ public class EntityController {
 			String turtle = ttToTurtle.transformDocument(document);
 
 			headers.setContentType(MediaType.TEXT_PLAIN);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".txt\"");
 
 			return new HttpEntity<>(turtle, headers);
 
@@ -148,7 +145,7 @@ public class EntityController {
 			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
 
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".json\"");
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
 
 			return new HttpEntity<>(json, headers);
 		}
@@ -180,22 +177,25 @@ public class EntityController {
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();
 
+		DownloadParams params = new DownloadParams();
+		params.setIncludeHasSubtypes(hasSubTypes).setIncludeInferred(inferred).setIncludeProperties(dataModelProperties).setIncludeMembers(members).setExpandMembers(expandMembers).setExpandSubsets(expandSubsets).setIncludeTerms(terms).setIncludeIsChildOf(isChildOf).setIncludeHasChildren(hasChildren).setIncludeInactive(inactive);
+
         if ("excel".equals(format)) {
-            XlsHelper xls = entityService.getExcelDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers, expandSubsets, terms, isChildOf, hasChildren, inactive);
+            XlsHelper xls = entityService.getExcelDownload(iri, configs, params);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 xls.getWorkbook().write(outputStream);
                 xls.getWorkbook().close();
                 headers.setContentType(new MediaType("application", "force-download"));
-                headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".xlsx\"");
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".xlsx\"");
 
                 return new HttpEntity<>(outputStream.toByteArray(), headers);
             }
         } else {
-            DownloadDto json = entityService.getJsonDownload(iri, configs, hasSubTypes, inferred, dataModelProperties, members, expandMembers, expandSubsets, terms, isChildOf, hasChildren, inactive);
+            DownloadDto json = entityService.getJsonDownload(iri, configs, params);
 
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, attachmentFile + filename + ".json\"");
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
 
             return new HttpEntity<>(json, headers);
         }

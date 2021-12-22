@@ -49,12 +49,12 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 		document= new TTDocument();
 		manager.setDocument(document);
 		document.setContext(new TTContext());
-		ConvertDoc(tdoc);
+		convertDoc(tdoc);
 
 		return document;
 	}
 
-	private TTDocument ConvertDoc(TurtliteParser.TurtleDocContext tdoc) throws DataFormatException {
+	private TTDocument convertDoc(TurtliteParser.TurtleDocContext tdoc) throws DataFormatException {
 		if (tdoc.statement()!=null)
 			for (TurtliteParser.StatementContext statement:tdoc.statement()){
 				if (statement.directive()!=null){
@@ -85,8 +85,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 				}
 			} else if (triples.subject().BlankNode()!=null){
 				String text= triples.subject().BlankNode().getText();
-				if (blankNodes.get(text)==null)
-					blankNodes.put(text,new TTNode());
+				blankNodes.computeIfAbsent(text, t -> blankNodes.put(t, new TTNode()));
 				convertPredicates(blankNodes.get(text),triples.predicateObjectList());
 			}
 		}
@@ -176,7 +175,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 
 	private String getIri(String iri){
 		if (iri.startsWith("<"))
-		iri= iri.substring(1, iri.length() - 1);
+			iri= iri.substring(1, iri.length() - 1);
 		return document.getContext().expand(iri);
 	}
 

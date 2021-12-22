@@ -1,91 +1,53 @@
 package org.endeavourhealth.imapi.query;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.ArrayList;
-import java.util.List;
+public class QueryClause extends TTNode {
 
-/**
- * A specialised TTNode containing the model of a single feature for a query
- */
-@JsonPropertyOrder ({"function","match","select","resultGraph","alias"})
-public class QueryClause {
-	private FunctionClause function;
-	private MatchClause match;
-	private List<Select> select;
-	private List<Triple> graph;
-	private String alias;
-
-	public FunctionClause getFunction() {
-		return function;
+	public WhereClause addWhere(){
+		WhereClause where = new WhereClause();
+		if (this.get(IM.AND)==null)
+			this.set(IM.AND,new TTArray().setList(true));
+		this.addObject(IM.AND,where);
+		return where;
 	}
 
-	public QueryClause setFunction(FunctionClause function) {
-		this.function = function;
-		return this;
-	}
-
-	public MatchClause getMatch() {
+	public WhereClause addOr(){
+		if (this.get(IM.OR)==null)
+			this.set(IM.OR,new TTArray().setList(true));
+		WhereClause match= new WhereClause();
+		this.get(IM.OR).add(match);
 		return match;
 	}
 
-	public QueryClause setMatch(MatchClause match) {
-		this.match = match;
+	public WhereClause addNot(){
+		if (this.get(IM.NOT)==null)
+			this.set(IM.NOT,new TTArray().setList(true));
+		WhereClause match= new WhereClause();
+		this.get(IM.NOT).add(match);
+		return match;
+	}
+
+
+	public QueryClause setLatest(){
+		set(IM.LATEST, TTLiteral.literal(1));
 		return this;
 	}
 
-
-
-
-	public List<Select> getSelect() {
-		return select;
+	public QueryClause setLatest(Integer count){
+		set(IM.LATEST,TTLiteral.literal(count));
+		return this;
 	}
-
-	public QueryClause setSelect(List<Select> select) {
-		this.select = select;
+	public QueryClause setEarliest(){
+		set(IM.EARLIEST,TTLiteral.literal(1));
 		return this;
 	}
 
-	public QueryClause addSelect(Select select) {
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		this.select.add(select);
-		return this;
-	}
-
-	public List<Triple> getGraph() {
-		return graph;
-	}
-
-	public QueryClause setGraph(List<Triple> graph) {
-		this.graph = graph;
-		return this;
-	}
-
-	public QueryClause addTriple(Triple triple){
-		if (this.graph==null)
-			this.graph= new ArrayList<>();
-		this.graph.add(triple);
-		return this;
-	}
-
-	public String getAlias() {
-		return alias;
-	}
-
-	public QueryClause setAlias(String alias) {
-		this.alias = alias;
+	public QueryClause setEarliest(Integer count) {
+		set(IM.EARLIEST, TTLiteral.literal(count));
 		return this;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -2,9 +2,11 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -699,4 +701,8 @@ public class EntityService {
 		if (inferred.getEntity() == null || inferred.getEntity().asNode().getPredicateMap().isEmpty()) throw new DataFormatException("Missing entity bundle definition for ECL conversion");
 		return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
 	}
+
+    public XSSFWorkbook getSetExport(String iri) throws DataFormatException {
+        return ExcelSetExporter.getSetAsExcel(iri);
+    }
 }

@@ -14,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.*;
@@ -303,5 +304,21 @@ public class EntityController {
 	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
 		LOG.debug("getEcl");
 		return entityService.getEcl(inferred);
+	}
+
+	@GetMapping("/setExport")
+	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
+		LOG.debug("getSetExport");
+		XSSFWorkbook workbook = entityService.getSetExport(iri);
+		HttpHeaders headers = new HttpHeaders();
+
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			workbook.write(outputStream);
+			workbook.close();
+			headers.setContentType(new MediaType("application", "force-download"));
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport.xlsx\"");
+
+			return new HttpEntity<>(outputStream.toByteArray(), headers);
+		}
 	}
 }

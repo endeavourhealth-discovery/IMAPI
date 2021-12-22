@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepositoryImpl2;
+import org.endeavourhealth.imapi.dataaccess.EntityTripleRepositoryImpl;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTToECL;
@@ -25,6 +26,7 @@ public class ExcelSetExporter {
 	}
 
 	private static final EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
+    private static final EntityTripleRepositoryImpl tripleRepository = new EntityTripleRepositoryImpl();
 
 	/**
 	 * Exports  3 excel sheets from the data store
@@ -37,7 +39,7 @@ public class ExcelSetExporter {
 	 */
 	public static XSSFWorkbook getSetAsExcel(String setIri) throws DataFormatException {
 		Set<String> predicates= Set.of(RDFS.LABEL.getIri(),IM.DEFINITION.getIri());
-		TTEntity entity= repo.getEntity(setIri,predicates);
+		TTEntity entity = tripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
 		String ecl= TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION),true);
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFFont font = workbook.createFont();

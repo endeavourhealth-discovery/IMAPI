@@ -124,6 +124,8 @@ public class IM {
     public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1Maps#");
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
+  public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
+
 
 
     //Source graphs
@@ -158,11 +160,19 @@ public class IM {
 
     //Query
 
+  public static final TTIriRef CREATION_TIME = iri(NAMESPACE+"step");
+  public static final TTIriRef STEP = iri(NAMESPACE+"step");
+  public static final TTIriRef FROM = iri(NAMESPACE+"fromGraph");
+  public static final TTIriRef INCLUSION = iri(NAMESPACE+"inclusion");
+  public static final TTIriRef MUST = iri(NAMESPACE+"MustHave");
+  public static final TTIriRef MUST_NOT = iri(NAMESPACE+"MustNotHave");
+  public static final TTIriRef MAY_HAVE = iri(NAMESPACE+"MayHave");
+  public static final TTIriRef SUBJECT_VAR = iri(NAMESPACE+"subjectVar");
+  public static final TTIriRef AND= iri(NAMESPACE+"and");
   public static final TTIriRef NOT = iri(NAMESPACE+"not");
   public static final TTIriRef OR = iri(NAMESPACE+"or");
-  public static final TTIriRef AND= iri(NAMESPACE+"and");
   public static final TTIriRef OPERATOR = iri(NAMESPACE+"operator");
-  public static final TTIriRef VARIABLE = iri(NAMESPACE+"variable");
+  public static final TTIriRef OBJECT_VAR = iri(NAMESPACE+"objectVar");
   public static final TTIriRef OPTIONAL = iri(NAMESPACE + "isOptional");
   public static final TTIriRef IRI_VALUE = iri(NAMESPACE + "iriValue");
   public static final TTIriRef LESS_THAN = iri(NAMESPACE + "lessThan");
@@ -175,10 +185,8 @@ public class IM {
   public static final TTIriRef FILTER = iri(NAMESPACE + "filter");
   public static final TTIriRef PATH = iri(NAMESPACE + "path");
   public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
-
-
-
-
+  public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
+  public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
 
 
 

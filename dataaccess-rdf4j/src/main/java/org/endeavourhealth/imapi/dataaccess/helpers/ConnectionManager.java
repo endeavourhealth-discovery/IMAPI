@@ -1,15 +1,13 @@
 package org.endeavourhealth.imapi.dataaccess.helpers;
 
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepositoryImpl;
+import org.endeavourhealth.imapi.dataaccess.ConfigRepositoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +17,7 @@ import java.util.StringJoiner;
 public class ConnectionManager {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionManager.class);
     private static Repository repo;
+    private static String prefixes;
 
     private ConnectionManager() {
         throw new IllegalStateException("Utility class");
@@ -29,14 +28,12 @@ public class ConnectionManager {
     }
 
     public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
-        StringJoiner sj = new StringJoiner(System.lineSeparator());
-
         try {
-            RepositoryResult<Namespace> namespaces = conn.getNamespaces();
-            while (namespaces.hasNext()) {
-                Namespace ns = namespaces.next();
-                sj.add("PREFIX " + ns.getPrefix() + ": <" + ns.getName() + ">");
-            }
+            if (prefixes == null)
+                prefixes = new ConfigRepositoryImpl().findByName("defaultPrefixes").getData();
+
+            StringJoiner sj = new StringJoiner(System.lineSeparator());
+            sj.add(prefixes);
             sj.add(sparql);
 
             return conn.prepareTupleQuery(sj.toString());

@@ -35,22 +35,26 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 return getConfig(CONFIG.DEFAULT_PREDICATE_NAMES);
             case "xmlSchemaDataTypes":
                 return getConfig(CONFIG.XML_SCHEMA_DATATYPES);
+            case "defaultPrefixes":
+                return getConfig(CONFIG.DEFAULT_PREFIXES);
             default:
                 throw new DALException("Unhandled config");
         }
     }
 
     private Config getConfig(TTIriRef iri) {
+        // NOTE - DONT USE PREFIXES OR 'prepareSparql' HERE
+        //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?name ?data WHERE {")
-            .add("    GRAPH cfg: {")
+            .add("    GRAPH <http://endhealth.info/config#> {")
             .add("      ?s ?label   ?name ;")
             .add("         ?config  ?data .")
             .add("    }")
             .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("s", iri(iri.getIri()));
             qry.setBinding("label", iri(RDFS.LABEL.getIri()));
             qry.setBinding("config", iri(IM.HAS_CONFIG.getIri()));

@@ -17,6 +17,7 @@ public class CONFIG {
     public static final TTIriRef CONCEPT_DASHBOARD = iri(NAMESPACE + "conceptDashboard");
     public static final TTIriRef DEFAULT_PREDICATE_NAMES = iri(NAMESPACE + "defaultPredicateNames");
     public static final TTIriRef XML_SCHEMA_DATATYPES = iri(NAMESPACE + "xmlSchemaDataTypes");
+    public static final TTIriRef DEFAULT_PREFIXES = iri(NAMESPACE + "defaultPrefixes");
 
     private CONFIG() {}
 }

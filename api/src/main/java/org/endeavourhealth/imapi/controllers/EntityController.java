@@ -306,7 +306,7 @@ public class EntityController {
 		return entityService.getEcl(inferred);
 	}
 
-	@GetMapping("/setExport")
+	@GetMapping("/public/setExport")
 	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
 		LOG.debug("getSetExport");
 		XSSFWorkbook workbook = entityService.getSetExport(iri);

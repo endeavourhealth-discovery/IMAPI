@@ -37,7 +37,7 @@ public class SetController {
     private final EntityService entityService = new EntityService();
     private final SetService setService = new SetService();
 
-	@GetMapping(value = "/download")
+	@GetMapping(value = "/public/download")
     @ApiOperation(
         value = "Download set",
         notes = "Returns a download for a set"
@@ -63,7 +63,7 @@ public class SetController {
         }
     }
 
-    @GetMapping(value = "/evaluate")
+    @GetMapping(value = "/public/evaluate")
     @ApiOperation(
         value = "Evaluate set",
         notes = "Evaluates a given set"
@@ -72,7 +72,7 @@ public class SetController {
 	    return setService.evaluateConceptSet(iri, includeLegacy);
     }
 
-    @PostMapping(value = "/evaluateEcl", consumes = "text/plain", produces = "application/json")
+    @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
     @ApiOperation(
         value = "Evaluate ECL",
         notes = "Evaluates an query"
@@ -81,7 +81,7 @@ public class SetController {
         return setService.evaluateDefinition(ecl, includeLegacy);
     }
 
-    @PostMapping(value="/eclSearch", consumes="text/plain", produces="application/json")
+    @PostMapping(value="/public/eclSearch", consumes="text/plain", produces="application/json")
     @ApiOperation(
         value="ECL search",
         notes="Search entities using ECL string"

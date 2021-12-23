@@ -1,13 +1,12 @@
 package org.endeavourhealth.imapi.errorhandling;
 
 import org.springframework.beans.TypeMismatchException;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -21,7 +20,7 @@ import java.util.Set;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+//@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -78,12 +77,17 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(error);
     }
 
-    @ExceptionHandler({Exception.class})
+    @ExceptionHandler(Throwable.class)
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
         ex.printStackTrace();
         String message = "Unhandled server error occurred";
         ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex, ErrorCodes.UNHANDLED_EXCEPTION);
         return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        throw ex;
     }
 
     @ExceptionHandler(DataFormatException.class)

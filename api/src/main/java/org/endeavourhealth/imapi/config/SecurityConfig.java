@@ -53,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
                     List<String> list = (List<String>) jwt.getClaims().getOrDefault("cognito:groups", new ArrayList<String>());
-                    return list.stream().map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList());
+                    return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
                 }
         );
         return jwtAuthenticationConverter;

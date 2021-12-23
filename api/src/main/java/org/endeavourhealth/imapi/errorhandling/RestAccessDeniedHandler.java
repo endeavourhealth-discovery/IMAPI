@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.errorhandling;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;

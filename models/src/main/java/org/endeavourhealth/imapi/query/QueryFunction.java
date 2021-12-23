@@ -4,9 +4,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A clause which applies a function to a set of supplied arguments to produce a result
  */

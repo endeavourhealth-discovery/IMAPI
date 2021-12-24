@@ -17,7 +17,6 @@ import java.util.*;
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    private List<TTIriRef> predicateTemplate;
-   private transient TTNodeSerializer helper;
 
    public TTDocumentSerializer() {
       this(null);
@@ -34,7 +33,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         usePrefixes = (usePrefixes != null && usePrefixes);
 
       setPredicateOrder();
-      helper= new TTNodeSerializer(document.getContext(), predicateTemplate, usePrefixes);
+      TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), predicateTemplate, usePrefixes);
       gen.writeStartObject();
       helper.serializeContexts(document.getPrefixes(), gen);
       if (document.getGraph()!=null) {
@@ -56,7 +55,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          gen.writeArrayFieldStart("entities");
          for (TTEntity entity: document.getEntities()){
             gen.writeStartObject();
-            gen.writeStringField("@id",helper.prefix(entity.getIri()));
+            gen.writeStringField("@id", helper.prefix(entity.getIri()));
             helper.serializeNode(entity, gen);
             gen.writeEndObject();
          }

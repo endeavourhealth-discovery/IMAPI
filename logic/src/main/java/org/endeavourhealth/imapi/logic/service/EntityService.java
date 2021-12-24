@@ -37,6 +37,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+	private static final String XML_SCHEME_DATA_TYPES = "xmlSchemaDataTypes";
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
@@ -130,7 +131,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		List<String> xmlDataTypes = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>() {});
+		List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
@@ -147,7 +148,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return 0;
 
-		List<String> xmlDataTypes = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>() {});
+		List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return 0;
 

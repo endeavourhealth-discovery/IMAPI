@@ -64,9 +64,7 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
       }
    }
    private boolean isWildCard(ECLParser.RefinedexpressionconstraintContext refined){
-      if (refined.subexpressionconstraint()!= null && refined.subexpressionconstraint().eclfocusconcept() != null && refined.subexpressionconstraint().eclfocusconcept().wildcard() != null)
-         return true;
-      return false;
+      return refined.subexpressionconstraint() != null && refined.subexpressionconstraint().eclfocusconcept() != null && refined.subexpressionconstraint().eclfocusconcept().wildcard() != null;
    }
 
    private TTValue convertRefined(ECLParser.RefinedexpressionconstraintContext refined) throws DataFormatException {
@@ -104,10 +102,9 @@ public class ECLToTT extends ECLBaseVisitor<TTValue> {
             exp.get(IM.ROLE_GROUP).add(group);
             convertAttributeGroup(group, subref2.eclattributegroup());
          }
-         return exp;
 
-      } else
-         return exp;
+      }
+      return exp;
    }
 
    private TTNode convertAttributeSet(TTNode pv,ECLParser.EclattributesetContext eclAtSet) throws DataFormatException {

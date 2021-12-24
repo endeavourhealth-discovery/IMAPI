@@ -119,18 +119,11 @@ public class ExcelSetExporter {
 		for (String value : values) {
 			Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
 			if (value!=null) {
-
 				if (value.contains("\n")) {
 					iriCell.getRow()
 						.setHeightInPoints(iriCell.getSheet().getDefaultRowHeightInPoints() * value.split("\n").length);
-					//CellStyle cellStyle = iriCell.getSheet().getWorkbook().createCellStyle();
-					//cellStyle.setWrapText(true);
-					//iriCell.setCellStyle(cellStyle);
 				}
 				iriCell.setCellValue(value);
-				CellStyle cellStyle = iriCell.getSheet().getWorkbook().createCellStyle();
-				cellStyle.setWrapText(true);
-				iriCell.setCellStyle(cellStyle);
 			}
 		}
 	}

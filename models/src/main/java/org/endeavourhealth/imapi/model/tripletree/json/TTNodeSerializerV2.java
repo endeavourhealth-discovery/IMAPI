@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.query.Query;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
 import java.util.*;
@@ -58,7 +60,7 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
             Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
             for (Map.Entry<TTIriRef, TTArray> entry : entries) {
                 if (!predicateTemplate.contains(entry.getKey())) {
-                    prov.defaultSerializeField(prefix(entry.getKey().getIri()), entry.getValue(), gen);
+                  prov.defaultSerializeField(prefix(entry.getKey().getIri()), entry.getValue(), gen);
                 }
             }
         }

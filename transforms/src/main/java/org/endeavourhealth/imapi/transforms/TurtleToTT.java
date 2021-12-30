@@ -70,6 +70,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 	private void convertTriples(TurtliteParser.TriplesContext triples) throws DataFormatException {
 		if (triples.subject()!=null){
 			if (triples.subject().iri()!=null){
+				System.out.println(triples.subject().iri().getText());
 				if (triples.predicateObjectList()!=null) {
 					TTEntity entity;
 					if (iriMap.get(triples.subject().iri().getText())!=null)

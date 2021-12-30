@@ -362,7 +362,7 @@ public class SetRepositoryImpl implements SetRepository {
 	}
 
 	private void buildIntersectionSQL(TTNode member, StringJoiner sql, StringJoiner from, StringJoiner where) {
-		// Sort expressions into role groups followed  by superclass iris
+		// SortBy expressions into role groups followed  by superclass iris
 		List<TTIriRef> superClasses = new ArrayList<>();
 		List<TTNode> roles = new ArrayList<>();
 		for (TTValue ob : member.asNode().get(OWL.INTERSECTIONOF).iterator()) {

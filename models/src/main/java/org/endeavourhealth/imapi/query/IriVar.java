@@ -1,29 +1,21 @@
 package org.endeavourhealth.imapi.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class IriVar extends TTIriRef{
+public class IriVar extends TTIriRef {
 	private String var;
+
 	public IriVar(){}
-	public IriVar(String iri){
-		this.setIri(iri);
-	}
-	public IriVar(String iri, String name){
-		this.setIri(iri);
-		this.setName(name);
+
+	public IriVar(TTIriRef iri){
+		this.setIri(iri.getIri());
+		this.setName(iri.getName());
 	}
 
-	public static IriVar iri(String iri) {
-		return new IriVar(iri);
-	}
-	public static IriVar iri(String iri, String name) {
-		return new IriVar(iri, name);
-	}
-
-	@JsonProperty("@id")
-	public String getIri() {
-		return Query.getShort(this.getIri());
+	public IriVar(TTIriRef iri,String var){
+		this.setIri(iri.getIri());
+		this.setName(iri.getName());
+		this.setVar(var);
 	}
 
 	public String getVar() {

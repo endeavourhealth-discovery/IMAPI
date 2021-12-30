@@ -29,7 +29,7 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
         helper.serializeContexts(entity.getPrefixes(), gen);
         gen.writeStringField("@id", helper.prefix(entity.getIri()));
         TTNodeSerializer nodeSerializer = new TTNodeSerializer(entity.getContext(), usePrefixes);
-        nodeSerializer.serializeNode(entity, gen);
+        nodeSerializer.serializeNode(entity, gen,prov);
         gen.writeEndObject();
     }
 }

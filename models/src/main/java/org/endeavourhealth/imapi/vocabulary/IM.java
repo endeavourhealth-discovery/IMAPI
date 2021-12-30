@@ -36,6 +36,7 @@ public class IM {
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
     public static final TTIriRef QUERY= iri(NAMESPACE+"Query");
+    public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE+"queryDefinition");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
 
     //Collection predicates
@@ -159,41 +160,17 @@ public class IM {
     public static final TTIriRef relativeDate = TTIriRef.iri(NAMESPACE +"relativeDate");
 
     //Query
-
-  public static final TTIriRef CREATION_TIME = iri(NAMESPACE+"step");
-  public static final TTIriRef STEP = iri(NAMESPACE+"step");
-  public static final TTIriRef FROM = iri(NAMESPACE+"fromGraph");
-  public static final TTIriRef INCLUSION = iri(NAMESPACE+"inclusion");
-  public static final TTIriRef MUST = iri(NAMESPACE+"MustHave");
-  public static final TTIriRef MUST_NOT = iri(NAMESPACE+"MustNotHave");
-  public static final TTIriRef MAY_HAVE = iri(NAMESPACE+"MayHave");
-  public static final TTIriRef SUBJECT_VAR = iri(NAMESPACE+"subjectVar");
-  public static final TTIriRef AND= iri(NAMESPACE+"and");
-  public static final TTIriRef NOT = iri(NAMESPACE+"not");
-  public static final TTIriRef OR = iri(NAMESPACE+"or");
-  public static final TTIriRef OPERATOR = iri(NAMESPACE+"operator");
-  public static final TTIriRef OBJECT_VAR = iri(NAMESPACE+"objectVar");
-  public static final TTIriRef OPTIONAL = iri(NAMESPACE + "isOptional");
-  public static final TTIriRef IRI_VALUE = iri(NAMESPACE + "iriValue");
-  public static final TTIriRef LESS_THAN = iri(NAMESPACE + "lessThan");
-  public static final TTIriRef LESS_THAN_EQUAL = iri(NAMESPACE + "lessThanOrEqual");
-  public static final TTIriRef EQUAL = iri(NAMESPACE + "equalTo");
-  public static final TTIriRef GREATER_THAN = iri(NAMESPACE + "greaterThan");
-  public static final TTIriRef GREATER_THAN_EQUAL = iri(NAMESPACE + "greaterThanOrEqual");
-  public static final TTIriRef LATEST = iri(NAMESPACE + "latest");
-  public static final TTIriRef EARLIEST = iri(NAMESPACE + "earliest");
-  public static final TTIriRef FILTER = iri(NAMESPACE + "filter");
-  public static final TTIriRef PATH = iri(NAMESPACE + "path");
-  public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
-  public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
-  public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
+    public static final TTIriRef IN_DATASET = iri(NAMESPACE+"inDataset");
+    public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
+    public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
+    public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
 
 
 
 
 
   //Authors and agents
-  public static final TTIriRef HAS_AUTHOR = iri(NAMESPACE +"hasAuthor");
+  public static final TTIriRef WAS_AUTHORED_BY = iri(NAMESPACE +"wasAuthoredBy");
   public static final TTIriRef VERSION = iri(NAMESPACE +"version");
   public static final TTIriRef HAS_ROLE_IN = iri(NAMESPACE +"hasRoleInOrganisation");
   public static final TTIriRef IS_PERSON = iri(NAMESPACE +"isPerson");

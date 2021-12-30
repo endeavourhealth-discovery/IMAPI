@@ -1,8 +1,11 @@
 package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,6 +20,7 @@ public class TTNodeSerializer {
    private final TTContext contextMap;
    private List<TTIriRef> predicateTemplate;
    private boolean usePrefixes = false;
+   private SerializerProvider prov;
    /**
     *
     * @param contextMap the context object for the JSON-LD document
@@ -38,8 +42,9 @@ public class TTNodeSerializer {
         this.usePrefixes = usePrefixes;
     }
 
-    public void serializeNode(TTNode node, JsonGenerator gen) throws IOException {
-       if (node.getPredicateTemplate()!=null)
+    public void serializeNode(TTNode node, JsonGenerator gen,SerializerProvider prov) throws IOException {
+     this.prov=prov;
+     if (node.getPredicateTemplate()!=null)
           serializeOrdered(node, Arrays.asList(node.getPredicateTemplate()),gen);
       else if (predicateTemplate!=null)
          serializeOrdered(node,predicateTemplate,gen);
@@ -48,6 +53,7 @@ public class TTNodeSerializer {
          if (predicates != null && !predicates.isEmpty()) {
             Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
             for (Map.Entry<TTIriRef, TTArray> entry : entries) {
+
                serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
             }
          }
@@ -63,8 +69,10 @@ public class TTNodeSerializer {
       if (predicates != null && !predicates.isEmpty()) {
          Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
          for (Map.Entry<TTIriRef, TTArray> entry : entries) {
-            if (!predicateTemplate.contains(entry.getKey()))
-               serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
+            if (!predicateTemplate.contains(entry.getKey())) {
+                serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
+            }
+
          }
       }
 
@@ -107,8 +115,11 @@ public class TTNodeSerializer {
          serializeLiteral(value.asLiteral(), gen);
       } else if (value.isNode()) {
          gen.writeStartObject();
-         serializeNode((TTNode)value, gen);
+         serializeNode((TTNode)value, gen,prov);
          gen.writeEndObject();
+      }
+      else {
+        prov.defaultSerializeValue(value, gen);
       }
    }
 

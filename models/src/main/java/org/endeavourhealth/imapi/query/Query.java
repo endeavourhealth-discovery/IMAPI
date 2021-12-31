@@ -1,17 +1,12 @@
 package org.endeavourhealth.imapi.query;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -22,8 +17,9 @@ import java.util.Map;
 	* <p> In effect a high level process model taylored to the health query ues cases</p>
 	*/
 
-@JsonPropertyOrder({"prefix","operator","where","clause"})
+@JsonPropertyOrder({"iri","name","description","type","prefix","operator","where","clause"})
 public class Query  extends Clause implements TTValue, Serializable {
+	private TTIriRef type;
 	private static final Map<String,String> nsPrefix= new HashMap<>();
 	private static final Map<String,String> prefix= new HashMap<>();
 
@@ -31,6 +27,7 @@ public class Query  extends Clause implements TTValue, Serializable {
 		addPrefix(IM.NAMESPACE,"im");
 		addPrefix(RDFS.NAMESPACE,"rdfs");
 		addPrefix(RDF.NAMESPACE,"rdf");
+		addPrefix(SNOMED.NAMESPACE,"sn");
 	}
 
 	public static void addPrefix(String ns,String px){
@@ -62,4 +59,12 @@ public class Query  extends Clause implements TTValue, Serializable {
 
 	}
 
+	public TTIriRef getType() {
+		return type;
+	}
+
+	public Query setType(TTIriRef type) {
+		this.type = type;
+		return this;
+	}
 }

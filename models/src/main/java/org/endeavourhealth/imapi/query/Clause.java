@@ -7,10 +7,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"label","description","select","operator","subQuery","where","clause","groupSort"})
+@JsonPropertyOrder({"iri","name","description","select","operator","subQuery","where","clause","groupSort"})
 public class Clause {
-	private String label;
+	private String name;
 	private String description;
+	private String iri;
 	private Operator operator;
 	private List<Where> where;
 	private List<Clause> clause;
@@ -36,12 +37,12 @@ public class Clause {
 		return this;
 	}
 
-	public String getLabel() {
-		return label;
+	public String getName() {
+		return name;
 	}
 
-	public Clause setLabel(String label) {
-		this.label = label;
+	public Clause setName(String name) {
+		this.name = name;
 		return this;
 	}
 
@@ -124,6 +125,15 @@ public class Clause {
 		if (this.subQuery==null)
 			this.subQuery= new ArrayList<>();
 		this.subQuery.add(subQuery);
+		return this;
+	}
+
+	public String getIri() {
+		return iri;
+	}
+
+	public Clause setIri(String iri) {
+		this.iri = iri;
 		return this;
 	}
 }

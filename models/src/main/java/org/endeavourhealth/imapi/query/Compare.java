@@ -31,10 +31,15 @@ public class Compare {
 		return this;
 	}
 
+
 	public TTIriRef getFunction() {
 		return function;
 	}
 
+	public Compare setFunction(String function) {
+		this.function = TTIriRef.iri(function);
+		return this;
+	}
 	public Compare setFunction(TTIriRef function) {
 		this.function = function;
 		return this;

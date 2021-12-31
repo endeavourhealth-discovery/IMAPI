@@ -69,6 +69,8 @@ public class Filter{
 		return this;
 	}
 
+
+
 	public List<String> getArgument() {
 		return argument;
 	}

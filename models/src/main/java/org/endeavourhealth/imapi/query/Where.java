@@ -10,7 +10,7 @@ import java.util.List;
 @JsonPropertyOrder({"not","entity","property","function","valueVar","filter"})
 public class Where {
 	private List<IriVar> entity;
-	private TTIriRef property;
+	private List<TTIriRef> property;
 	private Boolean not;
 	private String valueVar;
 	private List<Filter> filter;
@@ -43,18 +43,32 @@ public class Where {
 
 
 
-	public TTIriRef getProperty() {
+	public List<TTIriRef> getProperty() {
 		return property;
 	}
 
 
 	public Where setProperty(String property) {
-		this.property = new TTIriRef(property);
+		this.property = new ArrayList<>();
+		this.property.add(TTIriRef.iri(property));
 		return this;
 	}
 
 	public Where setProperty(TTIriRef property) {
+		this.property = new ArrayList<>();
+		this.property.add(property);
+		return this;
+	}
+
+	public Where setProperty(List<TTIriRef> property) {
 		this.property = property;
+		return this;
+	}
+
+	public Where addProperty(TTIriRef property) {
+		if (this.property==null)
+			this.property= new ArrayList<>();
+		this.property.add(property);
 		return this;
 	}
 

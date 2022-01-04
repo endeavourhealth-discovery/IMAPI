@@ -1,5 +1,5 @@
 package org.endeavourhealth.imapi.query;
 
 public enum Operator {
-	AND, OR,NOT
+	AND, OR, NOTOR, NOTAND
 }

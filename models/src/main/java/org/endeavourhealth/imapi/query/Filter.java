@@ -13,8 +13,7 @@ public class Filter{
 	private List<TTIriRef> notIn;
 	private Comparison comparison;
 	private String value;
-	private TTIriRef function;
-	private List<String> argument;
+	private Function function;
 	private Range range;
 
 	public Filter setValueTest(Comparison comp, String value){
@@ -43,7 +42,7 @@ public class Filter{
 
 
 
-	public Filter setFunction(TTIriRef function) {
+	public Filter setFunction(Function function) {
 		this.function = function;
 		return this;
 	}
@@ -60,31 +59,12 @@ public class Filter{
 
 
 
-	public TTIriRef getFunction() {
+	public Function getFunction() {
 		return function;
 	}
 
-	public Filter setFunction(String function) {
-		this.function = TTIriRef.iri(function);
-		return this;
-	}
 
 
-
-	public List<String> getArgument() {
-		return argument;
-	}
-
-	public Filter setArgument(List<String> argument) {
-		this.argument = argument;
-		return this;
-	}
-	public Filter addArgument(String argument){
-		if (this.argument==null)
-			this.argument= new ArrayList<>();
-		this.argument.add(argument);
-		return this;
-	}
 
 
 	public Range getRange() {

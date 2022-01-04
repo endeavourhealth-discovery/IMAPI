@@ -125,7 +125,7 @@ public class IM {
     public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1Maps#");
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
-  public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
+    public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
 
 
 

@@ -11,7 +11,6 @@ import java.util.List;
 public class Where {
 	private List<IriVar> entity;
 	private List<TTIriRef> property;
-	private Boolean not;
 	private String valueVar;
 	private List<Filter> filter;
 
@@ -69,16 +68,6 @@ public class Where {
 		if (this.property==null)
 			this.property= new ArrayList<>();
 		this.property.add(property);
-		return this;
-	}
-
-
-	public Boolean getNot() {
-		return not;
-	}
-
-	public Where setNot(Boolean not) {
-		this.not = not;
 		return this;
 	}
 

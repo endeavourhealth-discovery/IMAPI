@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"iri","name","description","select","operator","subQuery","where","clause","groupSort"})
+@JsonPropertyOrder({"iri","name","description","notExist","select","operator","clause","where","groupSort"})
 public class Clause {
 	private String name;
 	private String description;
@@ -15,9 +15,9 @@ public class Clause {
 	private Operator operator;
 	private List<Where> where;
 	private List<Clause> clause;
-	private List<Clause> subQuery;
 	private List<GroupSort> groupSort;
 	private List<Select> select;
+	private boolean notExist;
 
 	
 	public List<Select> getSelect() {
@@ -112,28 +112,21 @@ public class Clause {
 		return this;
 	}
 
-	public List<Clause> getSubQuery() {
-		return subQuery;
-	}
-
-	public Clause setSubQuery(List<Clause> subQuery) {
-		this.subQuery = subQuery;
-		return this;
-	}
-
-	public Clause addSubQuery(Clause subQuery){
-		if (this.subQuery==null)
-			this.subQuery= new ArrayList<>();
-		this.subQuery.add(subQuery);
-		return this;
-	}
-
 	public String getIri() {
 		return iri;
 	}
 
 	public Clause setIri(String iri) {
 		this.iri = iri;
+		return this;
+	}
+
+	public boolean isNotExist() {
+		return notExist;
+	}
+
+	public Clause setNotExist(boolean notExist) {
+		this.notExist = notExist;
 		return this;
 	}
 }

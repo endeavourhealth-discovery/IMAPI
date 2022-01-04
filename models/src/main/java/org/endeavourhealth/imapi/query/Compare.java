@@ -9,8 +9,7 @@ import java.util.List;
 @JsonPropertyOrder ({"comparison","value","function","argument"})
 public class Compare {
 	private Comparison comparison;
-	private TTIriRef function;
-	private List<String> argument;
+	private Function function;
 	private String value;
 
 	public Comparison getComparison() {
@@ -32,31 +31,15 @@ public class Compare {
 	}
 
 
-	public TTIriRef getFunction() {
+	public Function getFunction() {
 		return function;
 	}
 
-	public Compare setFunction(String function) {
-		this.function = TTIriRef.iri(function);
-		return this;
-	}
-	public Compare setFunction(TTIriRef function) {
+	public Compare setFunction(Function function) {
 		this.function = function;
 		return this;
 	}
 
-	public List<String> getArgument() {
-		return argument;
-	}
 
-	public Compare setArgument(List<String> argument) {
-		this.argument = argument;
-		return this;
-	}
-	public Compare addArgument(String argument){
-		if (this.argument==null)
-			this.argument= new ArrayList<>();
-		this.argument.add(argument);
-		return this;
-	}
+
 }

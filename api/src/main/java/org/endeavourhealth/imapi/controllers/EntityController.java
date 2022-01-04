@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.zip.DataFormatException;
@@ -67,8 +68,9 @@ public class EntityController {
         notes = "Performs an advanced entity search with multiple filter options",
         response = SearchResponse.class
     )
-	public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
+	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws URISyntaxException, IOException, InterruptedException {
 	    LOG.debug("advancedSearch");
+
         return new SearchResponse().setEntities(entityService.advancedSearch(request));
 	}
 

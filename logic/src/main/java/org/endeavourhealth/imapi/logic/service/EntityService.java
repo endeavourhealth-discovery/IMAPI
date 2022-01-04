@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
@@ -14,6 +16,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.openSearch.*;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -27,7 +30,16 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.opensearch.client.Response;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
@@ -155,16 +167,55 @@ public class EntityService {
 		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
-	public List<SearchResultSummary> advancedSearch(SearchRequest request) {
+	public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException {
+
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
 
-		List<SearchResultSummary> matchingEntity = entitySearchRepository.advancedSearch(request);
+		Query osQuery = new Query();
+		Request osRequest = new Request(request.getSize());
+		for (String term : request.getTermFilter().split(" ")) {
+			osQuery.addMust(term);
+		}
+		for (String scheme : request.getSchemeFilter()) {
+			Filter schemeFilter = new Filter(1).addShould(new SchemeId(scheme));
+			osQuery.addFilter(schemeFilter);
+		}
+		for (String status : request.getStatusFilter()) {
+			Filter statusFilter = new Filter(1).addShould(new StatusId(status));
+			osQuery.addFilter(statusFilter);
+		}
+		for (String type : request.getTypeFilter()) {
+			Filter typeFilter = new Filter(1).addShould(new TypeId(type));
+			osQuery.addFilter(typeFilter);
+		}
+		osRequest.setQuery(osQuery);
+		ObjectMapper mapper = new ObjectMapper();
+//		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+		String osRequestAsString = mapper.writeValueAsString(osRequest);
 
-		return matchingEntity.stream()
-            .map(e -> e.setWeighting(Levenshtein.calculate(request.getTermFilter(), e.getMatch())))
-            .sorted(Comparator.comparingInt(SearchResultSummary::getWeighting))
-			.collect(Collectors.toList());
+		HttpRequest httpRequest = HttpRequest.newBuilder()
+				.uri(new URI(System.getenv("OPENSEARCH_URL")))
+//				.timeout(Duration.of(10, ChronoUnit.SECONDS))
+				.header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
+				.POST(HttpRequest.BodyPublishers.ofString(osRequestAsString))
+				.build();
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+		if (299 < response.statusCode()) return new ArrayList<>();
+//
+		ObjectMapper resultMapper = new ObjectMapper();
+		Response result = resultMapper.readValue(response.body(), Response.class);
+
+
+//		List<SearchResultSummary> matchingEntity = entitySearchRepository.advancedSearch(request);
+//
+//		return matchingEntity.stream()
+//            .map(e -> e.setWeighting(Levenshtein.calculate(request.getTermFilter(), e.getMatch())))
+//            .sorted(Comparator.comparingInt(SearchResultSummary::getWeighting))
+//			.collect(Collectors.toList());
 	}
 
 	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit) {

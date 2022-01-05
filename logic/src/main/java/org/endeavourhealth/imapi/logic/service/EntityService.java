@@ -177,18 +177,25 @@ public class EntityService {
 		for (String term : request.getTermFilter().split(" ")) {
 			osQuery.addMust(term);
 		}
+
+		Filter schemeFilter = new Filter(1);
 		for (String scheme : request.getSchemeFilter()) {
-			Filter schemeFilter = new Filter(1).addShould(new SchemeId(scheme));
-			osQuery.addFilter(schemeFilter);
+			schemeFilter.addShould(new SchemeId(scheme));
 		}
+		osQuery.addFilter(schemeFilter);
+
+		Filter statusFilter = new Filter(1);
 		for (String status : request.getStatusFilter()) {
-			Filter statusFilter = new Filter(1).addShould(new StatusId(status));
-			osQuery.addFilter(statusFilter);
+			statusFilter.addShould(new StatusId(status));
 		}
+		osQuery.addFilter(statusFilter);
+
+		Filter typeFilter = new Filter(1);
 		for (String type : request.getTypeFilter()) {
-			Filter typeFilter = new Filter(1).addShould(new TypeId(type));
-			osQuery.addFilter(typeFilter);
+			typeFilter.addShould(new TypeId(type));
 		}
+		osQuery.addFilter(typeFilter);
+
 		osRequest.setQuery(osQuery);
 		ObjectMapper mapper = new ObjectMapper();
 //		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
@@ -208,7 +215,10 @@ public class EntityService {
 				.thenApply(res -> res)
 				.get();
 
-		if (299 < response.statusCode()) throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
+		if (299 < response.statusCode()) {
+			System.out.println(response.statusCode());
+			throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
+		};
 
 		ObjectMapper resultMapper = new ObjectMapper();
 		SearchResponse<SearchResultSummary> result = resultMapper.readValue(response.body(), SearchResponse.class);

@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.model.openSearch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JsonRootName(value = "match_phrase")
 public class TypeId implements MatchPhraseId {
     private String id;
 

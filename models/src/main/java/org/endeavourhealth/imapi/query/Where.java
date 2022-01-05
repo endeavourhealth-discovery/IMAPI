@@ -7,74 +7,74 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"not","entity","property","function","valueVar","filter"})
+@JsonPropertyOrder({"not","entityVar","entity","property","function","valueVar","valueEntity","filter"})
 public class Where {
-	private List<IriVar> entity;
-	private List<TTIriRef> property;
+	private TTIriRef entity;
+	private String entityVar;
+	private TTIriRef property;
+	private TTIriRef valueEntity;
+	private String propertyVar;
 	private String valueVar;
 	private List<Filter> filter;
 
-	public List<IriVar> getEntity() {
+	public TTIriRef getEntity() {
 		return entity;
 	}
 
-	public Where setEntity(List<IriVar> entity) {
+	public Where setEntity(TTIriRef entity) {
 		this.entity = entity;
 		return this;
 	}
 
-	public Where addEntity(IriVar entity){
-		if (this.entity==null)
-			this.entity= new ArrayList<>();
-		this.entity.add(entity);
-		return this;
-	}
-	public Where addEntity(TTIriRef iri, String var){
-		if (this.entity==null)
-			this.entity= new ArrayList<>();
-		this.entity.add(new IriVar(iri).setVar(var));
-		return this;
-	}
-
-	public Where addEntityVar(String var){
-		return addEntity(new IriVar().setVar(var));
-	}
 
 
-
-	public List<TTIriRef> getProperty() {
+	public TTIriRef getProperty() {
 		return property;
 	}
 
 
 	public Where setProperty(String property) {
-		this.property = new ArrayList<>();
-		this.property.add(TTIriRef.iri(property));
+		this.property = TTIriRef.iri(property);
 		return this;
 	}
+
 
 	public Where setProperty(TTIriRef property) {
-		this.property = new ArrayList<>();
-		this.property.add(property);
+		this.property =property;
 		return this;
 	}
 
-	public Where setProperty(List<TTIriRef> property) {
-		this.property = property;
+	public String getEntityVar() {
+		return entityVar;
+	}
+
+	public Where setEntityVar(String entityVar) {
+		this.entityVar = entityVar;
 		return this;
 	}
 
-	public Where addProperty(TTIriRef property) {
-		if (this.property==null)
-			this.property= new ArrayList<>();
-		this.property.add(property);
+	public String getPropertyVar() {
+		return propertyVar;
+	}
+
+	public Where setPropertyVar(String propertyVar) {
+		this.propertyVar = propertyVar;
 		return this;
 	}
 
+	public TTIriRef getValueEntity() {
+		return valueEntity;
+	}
+
+	public Where setValueEntity(TTIriRef valueEntity) {
+		this.valueEntity = valueEntity;
+		return this;
+	}
 
 	public List<Filter> getFilter() {
 		return filter;
 	}
+
 
 
 	public Where addFilter(Filter fr){

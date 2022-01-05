@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
@@ -38,9 +38,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -167,7 +166,7 @@ public class EntityService {
 		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
-	public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException {
+	public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException {
 
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
@@ -202,12 +201,19 @@ public class EntityService {
 				.build();
 
 		HttpClient client = HttpClient.newHttpClient();
-		HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+		List<SearchResultSummary> searchResult = new ArrayList<>();
+		HttpResponse<String> response = client
+				.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+				.thenApply(res -> res)
+				.get();
 
-		if (299 < response.statusCode()) return new ArrayList<>();
-//
+		if (299 < response.statusCode()) throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
+
 		ObjectMapper resultMapper = new ObjectMapper();
 		Response result = resultMapper.readValue(response.body(), Response.class);
+		//convert result to class and add to searchResult
+
+		return searchResult;
 
 
 //		List<SearchResultSummary> matchingEntity = entitySearchRepository.advancedSearch(request);

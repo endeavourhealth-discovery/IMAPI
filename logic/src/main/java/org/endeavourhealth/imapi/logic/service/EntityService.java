@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.opensearch.client.Response;
+import org.opensearch.client.opensearch._global.SearchResponse;
 
 import java.io.IOException;
 import java.net.URI;
@@ -210,7 +211,8 @@ public class EntityService {
 		if (299 < response.statusCode()) throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
 
 		ObjectMapper resultMapper = new ObjectMapper();
-		Response result = resultMapper.readValue(response.body(), Response.class);
+		SearchResponse<SearchResultSummary> result = resultMapper.readValue(response.body(), SearchResponse.class);
+		searchResult = result.hits().hits().stream().map(hit -> hit.source()).collect(Collectors.toList());
 		//convert result to class and add to searchResult
 
 		return searchResult;

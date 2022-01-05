@@ -205,24 +205,24 @@ public class EntityService {
 				.uri(new URI(System.getenv("OPENSEARCH_URL")))
 //				.timeout(Duration.of(10, ChronoUnit.SECONDS))
 				.header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
+				.header("Content-Type", "application/json")
 				.POST(HttpRequest.BodyPublishers.ofString(osRequestAsString))
 				.build();
 
 		HttpClient client = HttpClient.newHttpClient();
-		List<SearchResultSummary> searchResult = new ArrayList<>();
 		HttpResponse<String> response = client
 				.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
 				.thenApply(res -> res)
 				.get();
 
 		if (299 < response.statusCode()) {
-			System.out.println(response.statusCode());
+			System.out.println("Open search request failed with code: " + response.statusCode());
 			throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
 		};
 
 		ObjectMapper resultMapper = new ObjectMapper();
 		SearchResponse<SearchResultSummary> result = resultMapper.readValue(response.body(), SearchResponse.class);
-		searchResult = result.hits().hits().stream().map(hit -> hit.source()).collect(Collectors.toList());
+		List<SearchResultSummary> searchResult = result.hits().hits().stream().map(hit -> hit.source()).collect(Collectors.toList());
 		//convert result to class and add to searchResult
 
 		return searchResult;

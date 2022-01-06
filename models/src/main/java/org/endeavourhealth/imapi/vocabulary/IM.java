@@ -36,6 +36,7 @@ public class IM {
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
     public static final TTIriRef QUERY= iri(NAMESPACE+"Query");
+    public static final TTIriRef QUERY_CLAUSE= iri(NAMESPACE+"QueryClause");
     public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE+"queryDefinition");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
 

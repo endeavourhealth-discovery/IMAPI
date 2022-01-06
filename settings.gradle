@@ -4,7 +4,6 @@
 
 rootProject.name = 'IMAPI'
 include(':workflow')
-include(':dataaccess-jdbc')
 include(':api')
 include(':dataaccess-base')
 include(':dataaccess-rdf4j')

@@ -1,0 +1,42 @@
+plugins {
+    // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    // Use the plugin portal to apply community plugins in convention plugins.
+    gradlePluginPortal()
+}
+
+apply from: "gradle/dependencies.gradle"
+
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    group = 'org.endeavourhealth.imapi'
+    version = '1.0-SNAPSHOT'
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from(components.java)
+            }
+        }
+    }
+}

@@ -20,6 +20,8 @@ import java.util.Map;
 @JsonPropertyOrder({"iri","name","description","type","prefix","operator","where","clause"})
 public class Query  extends Clause implements TTValue, Serializable {
 	private TTIriRef type;
+	private TTIriRef mainEntityType;
+	private String mainEntityVar;
 	private static final Map<String,String> nsPrefix= new HashMap<>();
 	private static final Map<String,String> prefix= new HashMap<>();
 
@@ -65,6 +67,24 @@ public class Query  extends Clause implements TTValue, Serializable {
 
 	public Query setType(TTIriRef type) {
 		this.type = type;
+		return this;
+	}
+
+	public TTIriRef getMainEntityType() {
+		return mainEntityType;
+	}
+
+	public Query setMainEntityType(TTIriRef mainEntityType) {
+		this.mainEntityType = mainEntityType;
+		return this;
+	}
+
+	public String getMainEntityVar() {
+		return mainEntityVar;
+	}
+
+	public Query setMainEntityVar(String mainEntityVar) {
+		this.mainEntityVar = mainEntityVar;
 		return this;
 	}
 }

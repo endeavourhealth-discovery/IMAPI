@@ -11,7 +11,7 @@ class ConceptStateMachineTest {
 
     @Test
     void manualConfig() throws Exception {
-        StateMachine sm = new StateMachine(new StateMachineConfigDALTest(), new StateMachineTaskDALTest())
+        StateMachine sm = new StateMachine(new StateMachineConfigDALMock(), new StateMachineTaskDALMock())
             .config(
             "Concept",
             Set.of("Editing", "Draft", "Released"),

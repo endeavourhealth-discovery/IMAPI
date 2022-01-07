@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.DownloadParams;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -22,6 +23,10 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,8 +34,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -500,6 +507,15 @@ class EntityServiceTest {
 
     }
 
+    private static Stream<Arguments> provideGetValueSetMembers() {
+        return Stream.of(
+                Arguments.of(false, true, null),
+                Arguments.of(false, false, "parent"),
+                Arguments.of(true, true, "parent"),
+                Arguments.of(false, false, null)
+        );
+    }
+
     @Test
     void getValueSetMembers_ExpandMemberTrue() {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
@@ -547,8 +563,9 @@ class EntityServiceTest {
 
     }
 
-    @Test
-    void getValueSetMembers_ExpandSubsetTrue() {
+    @ParameterizedTest
+    @MethodSource("provideGetValueSetMembers")
+    void getValueSetMembers_ExpandSubsetTrue(boolean expandMembers, boolean expandSubsets, String parentSetName) {
         TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
         when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
 
@@ -582,130 +599,7 @@ class EntityServiceTest {
         when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, valueSetIri.getIri());
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    void getValueSetMembers_ExpandFalse() {
-        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-
-        List<Tpl> included = new ArrayList<>();
-        included.add(new Tpl()
-                .setDbid(2)
-                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-        included.add(new Tpl()
-                .setDbid(1)
-                .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
-
-
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-                .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
-
-
-        ValueSetMember includedSet = new ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
-
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, "Parent", valueSetIri.getIri());
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    void getValueSetMembers_ExpandTrue() {
-        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-
-        List<Tpl> included = new ArrayList<>();
-        included.add(new Tpl()
-                .setDbid(2)
-                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-        included.add(new Tpl()
-                .setDbid(1)
-                .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
-
-
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-                .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
-
-
-        ValueSetMember includedSet = new ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
-
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, true, 0, "Parent", valueSetIri.getIri());
-
-        assertNotNull(actual);
-
-    }
-
-    @Test
-    void getValueSetMembers_NullParentSetName() {
-        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-
-        List<Tpl> included = new ArrayList<>();
-        included.add(new Tpl()
-                .setDbid(2)
-                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-        included.add(new Tpl()
-                .setDbid(1)
-                .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
-
-
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-                .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
-
-
-        ValueSetMember includedSet = new ValueSetMember()
-                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
-
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, null, valueSetIri.getIri());
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), expandMembers, expandSubsets, 0, parentSetName, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -1168,6 +1062,10 @@ class EntityServiceTest {
 
         List<Tpl> tplList= new ArrayList<>();
         tplList.add(new Tpl()
+            .setDbid(1)
+            .setPredicate(RDFS.LABEL)
+            .setLiteral("TestConcept"));
+        tplList.add(new Tpl()
                 .setDbid(2)
                 .setPredicate(IM.IS_A).setFunctional(false)
                 .setObject(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
@@ -1280,7 +1178,7 @@ class EntityServiceTest {
     @Test
     void getSummary_NotNullIri() {
         SearchResultSummary summary = new SearchResultSummary();
-        when(entitySearchRepository.getSummary(any())).thenReturn(summary);
+        when(entityRepository.getEntitySummaryByIri(any())).thenReturn(summary);
         SearchResultSummary actual = entityService.getSummary(null);
         assertNotNull(actual);
     }
@@ -1362,16 +1260,16 @@ class EntityServiceTest {
     @Test
     void getJsonDownload_NullIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        DownloadDto actual = entityService.getJsonDownload(null, configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        DownloadDto actual = entityService.getJsonDownload(null, configs, params);
         assertNull(actual);
     }
 
     @Test
     void getJsonDownload_EmptyIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        DownloadDto actual = entityService.getJsonDownload("", configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        DownloadDto actual = entityService.getJsonDownload("", configs, params);
         assertNull(actual);
     }
 
@@ -1380,9 +1278,9 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, false, false, false,
-                false, false, false, false, false, false, false);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
     }
 
@@ -1391,17 +1289,28 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
+        params
+                .setIncludeInactive(true)
+                .setIncludeTerms(true)
+                .setIncludeIsChildOf(true)
+                .setIncludeHasChildren(true)
+                .setIncludeInferred(true)
+                .setIncludeMembers(true)
+                .setExpandMembers(true)
+                .setExpandSubsets(true)
+                .setIncludeHasSubtypes(true)
+                .setIncludeProperties(true);
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, true, true, true,
-                true, true, true, true, true, true, true);
+        DownloadDto actual = entityService.getJsonDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
     }
 
     @Test
     void getExcelDownload_NullIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        XlsHelper actual = entityService.getExcelDownload(null, configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        XlsHelper actual = entityService.getExcelDownload(null, configs, params);
         assertNull(actual);
 
     }
@@ -1409,8 +1318,8 @@ class EntityServiceTest {
     @Test
     void getExcelDownload_EmptyIri() {
         List<ComponentLayoutItem> configs = new ArrayList<>();
-        XlsHelper actual = entityService.getExcelDownload("", configs, false, false, false, false,
-                false, false, false, false, false, false);
+        DownloadParams params = new DownloadParams();
+        XlsHelper actual = entityService.getExcelDownload("", configs, params);
         assertNull(actual);
 
     }
@@ -1420,9 +1329,9 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, false, false, false, false,
-                false, false, false, false, false, false);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
 
     }
@@ -1432,9 +1341,20 @@ class EntityServiceTest {
         List<ComponentLayoutItem> configs = new ArrayList<>();
         configs.add(new ComponentLayoutItem().setPredicate(IM.IS_CHILD_OF.getIri()));
         List<Tpl> tpl = new ArrayList<>();
+        DownloadParams params = new DownloadParams();
+        params
+                .setIncludeInactive(true)
+                .setIncludeTerms(true)
+                .setIncludeIsChildOf(true)
+                .setIncludeHasChildren(true)
+                .setIncludeInferred(true)
+                .setIncludeMembers(true)
+                .setExpandMembers(true)
+                .setExpandSubsets(true)
+                .setIncludeHasSubtypes(true)
+                .setIncludeProperties(true);
         when(entityTripleRepository.getTriplesRecursive(any(),anySet(),anyInt())).thenReturn(tpl);
-        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, true, true, true,
-                true, true, true, true, true, true, true);
+        XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
     }
 
@@ -1481,14 +1401,14 @@ class EntityServiceTest {
     }
 
     @Test
-    void getMatchedFrom_NullIri() {
-        Collection<SimpleMap> actual = entityService.getMatchedFrom(null);
+    void getSimpleMaps_NullIri() {
+        List<SimpleMap> actual = entityService.getSimpleMaps(null);
         assertNotNull(actual);
     }
 
     @Test
-    void getMatchedFrom_EmptyIri() {
-        Collection<SimpleMap> actual = entityService.getMatchedFrom("");
+    void getSimpleMaps_EmptyIri() {
+        Collection<SimpleMap> actual = entityService.getSimpleMaps("");
         assertNotNull(actual);
     }
 

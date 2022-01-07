@@ -6,23 +6,29 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
 
+import java.io.Serializable;
 import java.util.*;
 
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
-public class TTNode implements TTValue {
-    private Map<TTIriRef, TTValue> predicateValues = new HashMap<>();
+public class TTNode implements TTValue, Serializable {
+    private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
     private TTIriRef[] predicateTemplate;
 
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)
             predicateValues.remove(predicate);
         else
-            predicateValues.put(predicate, value);
+            predicateValues.put(predicate, new TTArray().add(value));
         return this;
     }
 
-    public TTValue get(TTIriRef predicate) {
+    public TTNode set(TTIriRef predicate, TTArray value) {
+        predicateValues.put(predicate, value);
+        return this;
+    }
+
+    public TTArray get(TTIriRef predicate) {
         return predicateValues.get(predicate);
     }
 
@@ -30,11 +36,11 @@ public class TTNode implements TTValue {
         return predicateValues.containsKey(predicate);
     }
 
-    public Map<TTIriRef, TTValue> getPredicateMap() {
+    public Map<TTIriRef, TTArray> getPredicateMap() {
         return this.predicateValues;
     }
 
-    public TTNode setPredicateMap(Map<TTIriRef,TTValue> predicateMap) {
+    public TTNode setPredicateMap(Map<TTIriRef, TTArray> predicateMap) {
         this.predicateValues= predicateMap;
         return this;
     }
@@ -51,38 +57,20 @@ public class TTNode implements TTValue {
     }
 
     public TTLiteral getAsLiteral(TTIriRef predicate) {
-        return (TTLiteral) predicateValues.get(predicate);
+        TTArray vals = get(predicate);
+        return (vals == null) ? null : vals.asLiteral();
     }
 
     public TTIriRef getAsIriRef(TTIriRef predicate) {
-        return (TTIriRef) predicateValues.get(predicate);
+        TTArray vals = get(predicate);
+        return (vals == null) ? null : vals.asIriRef();
     }
-
-    public TTArray getAsArray(TTIriRef predicate) {
-        if (!predicateValues.containsKey(predicate)) {
-            return new TTArray();
-        }
-        return predicateValues.get(predicate).asArray();
-    }
-
-    @Override
-    public TTArray asArray(){
-        return new TTArray().add(this);
-    }
-
-    @Override
-    public List<TTValue> getElements(){
-        return new ArrayList<>(Collections.singletonList(this));
-    }
-
-    public List<TTValue> getAsArrayElements(TTIriRef predicate) {
-        return predicateValues.get(predicate).getElements();
-    }
-
 
     public TTNode getAsNode(TTIriRef predicate) {
-        return (TTNode) predicateValues.get(predicate);
+        TTArray vals = get(predicate);
+        return (vals == null) ? null : vals.asNode();
     }
+
 
     /**
      * Adds an object to a predicate if necessary converting to an array if not already an array
@@ -92,12 +80,9 @@ public class TTNode implements TTValue {
 
     public TTNode addObject(TTIriRef predicate, TTValue object){
         if (this.get(predicate)==null)
-            this.set(predicate,new TTArray().add(object));
-        else if (!this.get(predicate).isList()){
-            TTValue oldObject= this.get(predicate);
-            this.set(predicate,new TTArray().add(oldObject).add(object));
-        } else
-            this.get(predicate).asArray().add(object);
+            this.set(predicate, new TTArray().add(object));
+        else
+            this.get(predicate).add(object);
         return this;
     }
 
@@ -111,4 +96,5 @@ public class TTNode implements TTValue {
         this.predicateTemplate = predicateTemplate;
         return this;
     }
+
 }

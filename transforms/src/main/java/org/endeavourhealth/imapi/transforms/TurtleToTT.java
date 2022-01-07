@@ -49,12 +49,12 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 		document= new TTDocument();
 		manager.setDocument(document);
 		document.setContext(new TTContext());
-		ConvertDoc(tdoc);
+		convertDoc(tdoc);
 
 		return document;
 	}
 
-	private TTDocument ConvertDoc(TurtliteParser.TurtleDocContext tdoc) throws DataFormatException {
+	private TTDocument convertDoc(TurtliteParser.TurtleDocContext tdoc) throws DataFormatException {
 		if (tdoc.statement()!=null)
 			for (TurtliteParser.StatementContext statement:tdoc.statement()){
 				if (statement.directive()!=null){
@@ -70,6 +70,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 	private void convertTriples(TurtliteParser.TriplesContext triples) throws DataFormatException {
 		if (triples.subject()!=null){
 			if (triples.subject().iri()!=null){
+				System.out.println(triples.subject().iri().getText());
 				if (triples.predicateObjectList()!=null) {
 					TTEntity entity;
 					if (iriMap.get(triples.subject().iri().getText())!=null)
@@ -85,8 +86,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 				}
 			} else if (triples.subject().BlankNode()!=null){
 				String text= triples.subject().BlankNode().getText();
-				if (blankNodes.get(text)==null)
-					blankNodes.put(text,new TTNode());
+				blankNodes.computeIfAbsent(text, t -> blankNodes.put(t, new TTNode()));
 				convertPredicates(blankNodes.get(text),triples.predicateObjectList());
 			}
 		}
@@ -111,14 +111,20 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 	private void convertObjects(TTNode node, TTIriRef predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
 		boolean functional= objectList.object().size()>1;
 		for (TurtliteParser.ObjectContext object: objectList.object()) {
-			TTValue value= getObjectValue(object);
-			if (functional)
-				node.set(predicate, value);
-			else {
-				if (node.get(predicate) == null)
-					node.set(predicate, new TTArray());
-				node.get(predicate).asArray().add(value);
-			}
+		    if (object.collection() != null) {
+                TTArray value= new TTArray();
+                convertCollection(value,object.collection());
+                node.set(predicate, value);
+            } else {
+                TTValue value = getObjectValue(object);
+                if (functional)
+                    node.set(predicate, value);
+                else {
+                    if (node.get(predicate) == null)
+                        node.set(predicate, new TTArray());
+                    node.get(predicate).add(value);
+                }
+            }
 		}
 	}
 
@@ -138,9 +144,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 			convertBlankNodePropertyList(value.asNode(),object.blankNodePropertyList());
 			return value;
 		} else if (object.collection()!=null){
-			value= new TTArray();
-			convertCollection(value.asArray(),object.collection());
-			return value;
+            throw new DataFormatException("Unhandled collection");
 		}
 		else
 			throw new DataFormatException("Unknown object type " + object.getText());
@@ -172,7 +176,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 
 	private String getIri(String iri){
 		if (iri.startsWith("<"))
-		iri= iri.substring(1, iri.length() - 1);
+			iri= iri.substring(1, iri.length() - 1);
 		return document.getContext().expand(iri);
 	}
 

@@ -1,12 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -14,7 +10,7 @@ import java.util.zip.DataFormatException;
 
 public class TTToSCG {
 	boolean refinedSet;
-	public TTIriRef[] corePredicates= {RDF.TYPE,IM.IS_A,IM.HAS_SCHEME,IM.IS_CONTAINED_IN,
+	private static final TTIriRef[] corePredicates= {RDF.TYPE,IM.IS_A,IM.HAS_SCHEME,IM.IS_CONTAINED_IN,
 	IM.HAS_STATUS,IM.DEFINITIONAL_STATUS};
 
 
@@ -22,7 +18,7 @@ public class TTToSCG {
 		StringBuilder scg = new StringBuilder();
 		if (entity.get(IM.IS_A) != null) {
 			boolean first = true;
-			for (TTValue parent : entity.get(IM.IS_A).asArray().getElements()) {
+			for (TTValue parent : entity.get(IM.IS_A).iterator()) {
 				if (parent.isIriRef()) {
 					if (!first)
 						scg.append(" +");
@@ -40,7 +36,7 @@ public class TTToSCG {
 			scg.append(":");
 			this.refinedSet=true;
 			boolean first=true;
-			for (TTValue group:node.get(IM.ROLE_GROUP).asArray().getElements()){
+			for (TTValue group:node.get(IM.ROLE_GROUP).iterator()){
 				if (!first)
 					scg.append(" ,");
 				scg.append("{");
@@ -56,10 +52,9 @@ public class TTToSCG {
 
 	private void refined(TTNode node, StringBuilder scg, Boolean includeName) throws DataFormatException {
 		boolean first= true;
-		for (Map.Entry<TTIriRef,TTValue> entry:node.getPredicateMap().entrySet()){
+		for (Map.Entry<TTIriRef, TTArray> entry:node.getPredicateMap().entrySet()){
 			if (!excludeCorePredicates(entry.getKey())){
-				if (!entry.getValue().isLiteral())
-				if (!refinedSet) {
+				if (!entry.getValue().isLiteral() && !refinedSet) {
 					scg.append(": ");
 					refinedSet=true;
 				}
@@ -76,20 +71,13 @@ public class TTToSCG {
 					refined(entry.getValue().asNode(),scg,includeName);
 					scg.append(")");
 				}
-
-
 			}
-
-
 		}
 	}
 
 	private boolean excludeCorePredicates(TTIriRef predicate){
-		if (Arrays.asList(corePredicates).contains(predicate))
-			return true;
-		return false;
+		return (Arrays.asList(corePredicates).contains(predicate));
 	}
-
 
 	private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) throws DataFormatException {
 		String iri=checkMember(exp.asIriRef().getIri());
@@ -100,14 +88,10 @@ public class TTToSCG {
 		}
 	}
 
-	private static String checkMember(String iri) throws DataFormatException {
+	private static String checkMember(String iri) {
 		if (iri.contains("/sct#") || (iri.contains("/im#")))
 			return iri.split("#")[1];
 		else
 			return iri;
-
 	}
-	
-
-
 }

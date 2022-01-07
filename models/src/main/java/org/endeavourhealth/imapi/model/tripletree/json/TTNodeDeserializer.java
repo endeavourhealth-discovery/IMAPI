@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -78,6 +79,10 @@ public class TTNodeDeserializer {
       return result;
    }
 
+   public TTArray getJsonNodeArrayAsValue(JsonNode node) throws IOException {
+       return  getArrayNodeAsTripleTreeArray((ArrayNode) node);
+   }
+
    public TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
       if (node.isValueNode())
          return literal(node);
@@ -97,7 +102,7 @@ public class TTNodeDeserializer {
             }
          }
       } else if (node.isArray()) {
-         return  getArrayNodeAsTripleTreeArray((ArrayNode) node);
+         throw new IOException("Failed to deserialize node array");
       } else {
           LOG.warn("TTNode deserializer - Unhandled node type, reverting to String");
          return literal(node.asText());

@@ -92,7 +92,7 @@ public class InstanceRepositoryImpl implements InstanceRepository {
             }
             try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
-                    result.add(new TTIriRef(rs.getString("iri"), rs.getString("name"), rs.getString("type")));
+                    result.add(new TTIriRef(rs.getString("iri"), rs.getString("name")));
                 }
             }
         } catch (SQLException e) {

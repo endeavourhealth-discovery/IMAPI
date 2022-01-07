@@ -51,18 +51,18 @@ public class TestHelper {
             .add("  \"http://endhealth.info/im#code\" : \"787213005\",")
             .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"Partial amputation of toe of left foot (procedure)\",")
             .add("  \"http://endhealth.info/im#roleGroup\" : [ {")
-            .add("    \"http://snomed.info/sct#260686004\" : {")
+            .add("    \"http://snomed.info/sct#260686004\" : [ {")
             .add("      \"@id\" : \"http://snomed.info/sct#129309007\",")
             .add("      \"name\" : \"Amputation - action\"")
-            .add("    },")
-            .add("    \"http://snomed.info/sct#405813007\" : {")
+            .add("    } ],")
+            .add("    \"http://snomed.info/sct#405813007\" : [ {")
             .add("      \"@id\" : \"http://snomed.info/sct#732939008\",")
             .add("      \"name\" : \"Part of toe of left foot\"")
-            .add("    }")
+            .add("    } ]")
             .add("  } ],")
-            .add("  \"http://endhealth.info/im#scheme\" : {")
+            .add("  \"http://endhealth.info/im#scheme\" : [ {")
             .add("    \"@id\" : \"http://snomed.info/sct#\"")
-            .add("  },")
+            .add("  } ],")
             .add("  \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\" : [ {")
             .add("    \"@id\" : \"http://endhealth.info/im#Concept\"")
             .add("  } ],")
@@ -80,27 +80,27 @@ public class TestHelper {
         );
 
         // Type(s)
-        assertEquals(1, entity.getAsArray(RDF.TYPE).size());
-        assertTrue(entity.getAsArray(RDF.TYPE).get(0).isIriRef());
-        assertEquals(IM.CONCEPT, entity.getAsArray(RDF.TYPE).get(0).asIriRef());
+        assertEquals(1, entity.get(RDF.TYPE).size());
+        assertTrue(entity.get(RDF.TYPE).get(0).isIriRef());
+        assertEquals(IM.CONCEPT, entity.get(RDF.TYPE).get(0).asIriRef());
 
         // Is A(s)
-        assertEquals(2, entity.getAsArray(IM.IS_A).size());
-        assertEquals(iri("http://snomed.info/sct#371186005","Amputation of toe (procedure)"), entity.getAsArray(IM.IS_A).get(0).asIriRef());
-        assertEquals(iri("http://snomed.info/sct#732214009","Amputation of left lower limb"), entity.getAsArray(IM.IS_A).get(1).asIriRef());
+        assertEquals(2, entity.get(IM.IS_A).size());
+        assertEquals(iri("http://snomed.info/sct#371186005","Amputation of toe (procedure)"), entity.get(IM.IS_A).get(0).asIriRef());
+        assertEquals(iri("http://snomed.info/sct#732214009","Amputation of left lower limb"), entity.get(IM.IS_A).get(1).asIriRef());
 
         // Role Group(s)
-        assertEquals(1, entity.getAsArray(IM.ROLE_GROUP).size());
-        assertTrue(entity.getAsArray(IM.ROLE_GROUP).get(0).isNode());
+        assertEquals(1, entity.get(IM.ROLE_GROUP).size());
+        assertTrue(entity.get(IM.ROLE_GROUP).get(0).isNode());
 
-        TTNode roleGroup = entity.getAsArray(IM.ROLE_GROUP).get(0).asNode();
+        TTNode roleGroup = entity.get(IM.ROLE_GROUP).get(0).asNode();
 
         assertTrue(roleGroup.has(iri("http://snomed.info/sct#260686004","Method")));
         assertTrue(roleGroup.get(iri("http://snomed.info/sct#260686004","Method")).isIriRef());
-        assertEquals(iri("http://snomed.info/sct#129309007","Amputation - action"), roleGroup.get(iri("http://snomed.info/sct#260686004","Method")));
+        assertEquals(iri("http://snomed.info/sct#129309007","Amputation - action"), roleGroup.get(iri("http://snomed.info/sct#260686004","Method")).asIriRef());
 
         assertTrue(roleGroup.has(iri("http://snomed.info/sct#405813007","Procedure site - Direct")));
         assertTrue(roleGroup.get(iri("http://snomed.info/sct#405813007","Procedure site - Direct")).isIriRef());
-        assertEquals(iri("http://snomed.info/sct#732939008","Part of toe of left foot"), roleGroup.get(iri("http://snomed.info/sct#405813007","Procedure site - Direct")));
+        assertEquals(iri("http://snomed.info/sct#732939008","Part of toe of left foot"), roleGroup.get(iri("http://snomed.info/sct#405813007","Procedure site - Direct")).asIriRef());
     }
 }

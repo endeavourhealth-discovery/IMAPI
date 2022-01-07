@@ -17,7 +17,6 @@ import java.util.*;
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    private List<TTIriRef> predicateTemplate;
-   private transient TTNodeSerializer helper;
 
    public TTDocumentSerializer() {
       this(null);
@@ -34,7 +33,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         usePrefixes = (usePrefixes != null && usePrefixes);
 
       setPredicateOrder();
-      helper= new TTNodeSerializer(document.getContext(), predicateTemplate, usePrefixes);
+      TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), predicateTemplate, usePrefixes);
       gen.writeStartObject();
       helper.serializeContexts(document.getPrefixes(), gen);
       if (document.getGraph()!=null) {
@@ -56,8 +55,8 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          gen.writeArrayFieldStart("entities");
          for (TTEntity entity: document.getEntities()){
             gen.writeStartObject();
-            gen.writeStringField("@id",helper.prefix(entity.getIri()));
-            helper.serializeNode(entity, gen);
+            gen.writeStringField("@id", helper.prefix(entity.getIri()));
+            helper.serializeNode(entity, gen,prov);
             gen.writeEndObject();
          }
          gen.writeEndArray();
@@ -69,14 +68,9 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    }
 
    private void setPredicateOrder() {
-      predicateTemplate = new ArrayList<>();
-      predicateTemplate.add(RDF.TYPE);
-      predicateTemplate.add(RDFS.LABEL);
-      predicateTemplate.add(RDFS.COMMENT);
-      predicateTemplate.add(IM.CODE);
-      predicateTemplate.add(IM.HAS_SCHEME);
-      predicateTemplate.add(IM.HAS_STATUS);
-      predicateTemplate.add(RDFS.SUBCLASSOF);
+      predicateTemplate = List.of(RDF.TYPE,RDFS.LABEL,
+        RDFS.COMMENT,IM.CODE,IM.HAS_SCHEME,IM.HAS_STATUS,
+        RDFS.SUBCLASSOF);
    }
 
 }

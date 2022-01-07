@@ -9,8 +9,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import java.io.IOException;
 
 public class TTEntitySerializer extends StdSerializer<TTEntity> {
-    private transient TTContextHelper helper;
-    private transient TTNodeSerializer nodeSerializer;
 
     public TTEntitySerializer() {
         this(null);
@@ -25,16 +23,13 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
         Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
         usePrefixes = (usePrefixes != null && usePrefixes);
 
-        helper = new TTContextHelper(entity.getContext(), usePrefixes);
+        TTContextHelper helper = new TTContextHelper(entity.getContext(), usePrefixes);
 
         gen.writeStartObject();
         helper.serializeContexts(entity.getPrefixes(), gen);
         gen.writeStringField("@id", helper.prefix(entity.getIri()));
-        nodeSerializer = new TTNodeSerializer(entity.getContext(), usePrefixes);
-        nodeSerializer.serializeNode(entity, gen);
+        TTNodeSerializer nodeSerializer = new TTNodeSerializer(entity.getContext(), usePrefixes);
+        nodeSerializer.serializeNode(entity, gen,prov);
         gen.writeEndObject();
     }
-
-
-
 }

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.List;
 import java.util.Map;
@@ -24,13 +25,14 @@ import java.util.Map;
 @SwaggerDefinition(tags = {
     @Tag(name = "Config Controller", description = "IM application configuration endpoint")
 })
+@RequestScope
 public class ConfigController {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigController.class);
 
     @Autowired
     ConfigService configService;
 
-    @GetMapping(value = "/componentLayout")
+    @GetMapping(value = "/public/componentLayout")
     public List<ComponentLayoutItem> getComponentLayout(
             @RequestParam(name="name") String name
     ) throws JsonProcessingException {
@@ -38,13 +40,13 @@ public class ConfigController {
         return configService.getConfig(name, new TypeReference<List<ComponentLayoutItem>>(){});
     }
 
-    @GetMapping(value="/filterDefaults")
+    @GetMapping(value="/public/filterDefaults")
     public FilterDefault getFilterDefaults() throws JsonProcessingException {
         LOG.debug("getFilterDefaults");
         return configService.getConfig("filterDefaults", new TypeReference<FilterDefault>(){});
     }
 
-    @GetMapping(value="/dashboardLayout")
+    @GetMapping(value="/public/dashboardLayout")
     public List<DashboardLayout> getDashboardLayout(
             @RequestParam(name ="name") String name
     ) throws JsonProcessingException {
@@ -52,15 +54,21 @@ public class ConfigController {
         return configService.getConfig(name, new TypeReference<List<DashboardLayout>>(){});
     }
 
-    @GetMapping(value="/defaultPredicateNames")
+    @GetMapping(value="/public/defaultPredicateNames")
     public Map<String, String> getDefaultPredicateNames() throws JsonProcessingException {
         LOG.debug("getDefaultPredicateNames");
         return configService.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {});
     }
 
-    @GetMapping(value="/xmlSchemaDataTypes")
+    @GetMapping(value="/public/xmlSchemaDataTypes")
     public List<String> getXMLSchemaDataTypes() throws JsonProcessingException {
         LOG.debug("getXMLSchemaDataTypes");
         return configService.getConfig("xmlSchemaDataTypes", new TypeReference<List<String>>() {});
+    }
+
+    @GetMapping(value="/public/graphExcludePredicates")
+    public List<String> getGraphExcludePredicates() throws JsonProcessingException {
+        LOG.debug("getGraphExcludePredicates");
+        return configService.getConfig("graphExcludePredicates", new TypeReference<List<String>>() {});
     }
 }

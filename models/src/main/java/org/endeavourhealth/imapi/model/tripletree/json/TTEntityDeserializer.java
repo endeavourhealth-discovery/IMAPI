@@ -51,8 +51,12 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
             JsonNode value = field.getValue();
             if ("@id".equals(key))
                 result.setIri(helper.expand(value.textValue()));
-            else if (!"@context".equals(key))
-                result.set(iri(helper.expand(key)),helper.getJsonNodeAsValue(value));
+            else if (!"@context".equals(key)) {
+                if (value.isArray())
+                    result.set(iri(helper.expand(key)), helper.getJsonNodeArrayAsValue(value));
+                else
+                    result.set(iri(helper.expand(key)), helper.getJsonNodeAsValue(value));
+            }
         }
     }
 

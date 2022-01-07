@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.dataaccess.entity.Tpl.getValue;
-
 @Component
 public class InstanceService {
 
@@ -34,7 +32,7 @@ public class InstanceService {
         HashMap<Integer, TTNode> nodeMap = new HashMap<>();
 
         for (Tpl triple : triples) {
-            TTValue v = getValue(nodeMap, triple);
+            TTValue v = Tpl.getValue(nodeMap, triple);
             pre.add(triple.getPredicate());
 
             addTripleValueToEntity(ttEntity, nodeMap, triple, v);

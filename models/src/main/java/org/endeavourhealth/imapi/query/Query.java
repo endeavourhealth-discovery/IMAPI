@@ -1,80 +1,70 @@
 package org.endeavourhealth.imapi.query;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
 	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.
 	* <p> In effect a high level process model taylored to the health query ues cases</p>
 	*/
 
-@JsonPropertyOrder({"prefixes","mainEntity","clauses"})
-public class Query {
-	private final Map<String,String> prefixes = new HashMap<>();
-	private final transient Map<String,String> prefixMap= new HashMap<>();
-	private String mainEntity;
-	private List<QueryClause> clauses = new ArrayList<>();
+@JsonPropertyOrder({"iri","name","description","type","prefix","operator","where","clause"})
+public class Query  extends Clause implements TTValue, Serializable {
+	private TTIriRef type;
+	private static final Map<String,String> nsPrefix= new HashMap<>();
+	private static final Map<String,String> prefix= new HashMap<>();
 
-
-
-	/** Returns the list of clauses that are logically sequential
-	 *
-	 * @return List of clauses
-	 */
-	public List<QueryClause> getClauses() {
-		return clauses;
+	public Query(){
+		addPrefix(IM.NAMESPACE,"im");
+		addPrefix(RDFS.NAMESPACE,"rdfs");
+		addPrefix(RDF.NAMESPACE,"rdf");
+		addPrefix(SNOMED.NAMESPACE,"sn");
 	}
 
-	/** Adds a list of clauses to the query
-	 * @param clauses The list of clauses, list order indicating the logical sequence
-	 * @return the modified query
-	 */
-	public Query setClauses(List<QueryClause> clauses) {
-		this.clauses = clauses;
+	public static void addPrefix(String ns,String px){
+		nsPrefix.put(ns,px);
+		prefix.put(px,ns);
+	}
+
+
+
+	public Map<String,String> getPrefix(){
+		return prefix;
+	}
+
+
+	public static String getShort(String iri) {
+		if (iri==null)
+			return null;
+		int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
+		String path = iri.substring(0, end + 1);
+		String prefix = nsPrefix.get(path);
+		if (prefix == null)
+			return iri;
+		else
+		if (end<iri.length()-1)
+			return prefix + ":" + iri.substring(end + 1);
+		else if(end == iri.length()-1)
+			return prefix + ":";
+		else return iri;
+
+	}
+
+	public TTIriRef getType() {
+		return type;
+	}
+
+	public Query setType(TTIriRef type) {
+		this.type = type;
 		return this;
-	}
-
-	/**
-	 * Adds a clause to the query
-	 * @param clause the clause to be added
-	 * @return the updated query
-	 */
-	public Query addClause(QueryClause clause){
-		this.clauses.add(clause);
-		return this;
-	}
-
-	public String getMainEntity() {
-		return mainEntity;
-	}
-
-	public Query setMainEntity(String mainEntity) {
-		this.mainEntity = mainEntity;
-		return this;
-	}
-
-
-	@JsonIgnore
-	public String toJson() throws JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-		return json;
-	}
-
-	public Map<String, String> getPrefixes() {
-		return prefixes;
-	}
-
-	@JsonIgnore
-	public Map<String, String> getPrefixMap() {
-		return prefixMap;
 	}
 }

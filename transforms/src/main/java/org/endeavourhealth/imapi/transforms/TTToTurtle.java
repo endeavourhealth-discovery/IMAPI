@@ -1,14 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-
-import org.endeavourhealth.imapi.vocabulary.RDF;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.endeavourhealth.imapi.query.Query;
-import org.endeavourhealth.imapi.vocabulary.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,15 +84,28 @@ public class TTToTurtle {
 
 	private void setPredicateObjects(TTNode node) {
 		int nodeCount = 1;
-		Map<TTIriRef, TTValue> predicateObjectList = node.getPredicateMap();
+		Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
 		if (predicateObjectList != null) {
-			for (Map.Entry<TTIriRef, TTValue> entry : predicateObjectList.entrySet()) {
+			for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
 				TTIriRef predicate = entry.getKey();
 				outputPredicateObject(predicate, entry.getValue(), nodeCount);
 				nodeCount++;
 					}
 			}
 	}
+
+	private void outputPredicateObject(TTIriRef predicate,TTArray object,int nodeCount) {
+        if (nodeCount > 1) {
+            append(";");
+            nl();
+        }
+        String pred = getShort(predicate.getIri()) + " ";
+        append(pred);
+        int olevel=level;
+        setObject(object);
+        level = olevel;
+    }
+
 	private void outputPredicateObject(TTIriRef predicate,TTValue object,int nodeCount) {
 		if (nodeCount > 1) {
 			append(";");
@@ -115,6 +120,21 @@ public class TTToTurtle {
 
 
 
+    private void setObject(TTArray value){
+        int firstIn=1;
+        if (value.size()>1){
+            level=level+6;
+            nl();
+        }
+        for (TTValue entry:value.iterator()){
+            if (firstIn>1){
+                append(" , ");
+                nl();
+            }
+            firstIn++;
+            setObject(entry);
+        }
+    }
 
 	private void setObject(TTValue value){
 			if (value.isIriRef())
@@ -126,22 +146,7 @@ public class TTToTurtle {
 					append("\""+value.asLiteral().getValue().replace("\"","")+"\"^^"+ getShort(value.asLiteral().getType().getIri()));
 
 				}
-			} else if (value.isList()){
-				int firstIn=1;
-				if (value.asArray().size()>1){
-					level=level+6;
-					nl();
-				}
-				for (TTValue entry:value.asArray().getElements()){
-					if (firstIn>1){
-						append(" , ");
-						nl();
-					}
-					firstIn++;
-					setObject(entry);
-				}
-
-			} else{ ;
+			} else {
 				append("[");
 				setPredicateObjects(value.asNode());
 				append("]");

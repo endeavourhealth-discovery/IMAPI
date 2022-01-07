@@ -36,12 +36,12 @@ public class SetService {
 
     private final SetRepository setRepository;
     private final EntityTripleRepository entityTripleRepository;
-    private final EntitySearchRepository entitySearchRepository;
+    private final EntityRepository entityRepository;
 
     public SetService() {
         setRepository = new SetRepositoryImpl();
         entityTripleRepository = new EntityTripleRepositoryImpl();
-        entitySearchRepository = new EntitySearchRepositoryImpl();
+        entityRepository= new EntityRepositoryImpl();
     }
 
 
@@ -54,7 +54,7 @@ public class SetService {
         LOG.debug("Load definition");
         TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
-        return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION), includeLegacy);
+        return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION).asValue(), includeLegacy);
     }
 
     public Set<EntitySummary> evaluateDefinition(String ecl, boolean includeLegacy) throws DataFormatException {
@@ -87,7 +87,7 @@ public class SetService {
     private EditSet evaluateConceptSetNode(TTValue ttValue) throws DALException {
         EditSet result = new EditSet();
         if (ttValue.isNode()) {
-            for (Map.Entry<TTIriRef, TTValue> predicateValue : ttValue.asNode().getPredicateMap().entrySet()) {
+            for (Map.Entry<TTIriRef, TTArray> predicateValue : ttValue.asNode().getPredicateMap().entrySet()) {
                 if (SHACL.AND.equals(predicateValue.getKey())) {
                     processAND(result, predicateValue);
                 } else if (SHACL.OR.equals(predicateValue.getKey())) {
@@ -112,10 +112,9 @@ public class SetService {
         return result;
     }
 
-    private void processAND(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) throws DALException {
-        TTArray ands = predicateValue.getValue().asArray();
-        for (int i = 0; i < ands.size(); i++) {
-            EditSet andNode = evaluateConceptSetNode(ands.get(i));
+    private void processAND(EditSet result, Map.Entry<TTIriRef, TTArray> ands) throws DALException {
+        for (TTValue and : ands.getValue().iterator()) {
+            EditSet andNode = evaluateConceptSetNode(and);
 
             if (andNode.getIncs() != null) {
                 if (result.getIncs() == null) {
@@ -131,10 +130,9 @@ public class SetService {
         }
     }
 
-    private void processOR(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) {
-        TTArray ors = predicateValue.getValue().asArray();
-        for (int i = 0; i < ors.size(); i++) {
-            EditSet orNode = evaluateConceptSetNode(ors.get(i));
+    private void processOR(EditSet result, Map.Entry<TTIriRef, TTArray> ors) {
+        for (TTValue or : ors.getValue().iterator()) {
+            EditSet orNode = evaluateConceptSetNode(or);
 
             if (orNode.getIncs() != null)
                 result.addAllIncs(orNode.getIncs());
@@ -144,13 +142,12 @@ public class SetService {
         }
     }
 
-    private void processNOT(EditSet result, Map.Entry<TTIriRef, TTValue> predicateValue) {
-        if (predicateValue.getValue().isIriRef()) {
-            result.addAllExcs(evaluateConceptSetNode(predicateValue.getValue()).getIncs());
+    private void processNOT(EditSet result, Map.Entry<TTIriRef, TTArray> nots) {
+        if (nots.getValue().isIriRef()) {
+            result.addAllExcs(evaluateConceptSetNode(nots.getValue().asIriRef()).getIncs());
         } else {
-            TTArray nots = predicateValue.getValue().asArray();
-            for (int i = 0; i < nots.size(); i++) {
-                EditSet notNode = evaluateConceptSetNode(nots.get(i));
+            for (TTValue not : nots.getValue().iterator()) {
+                EditSet notNode = evaluateConceptSetNode(not);
 
                 if (notNode.getIncs() != null)
                     result.addAllExcs(notNode.getIncs());
@@ -240,7 +237,7 @@ public class SetService {
 
     private void exportExpansion(FileWriter expansions, TTEntity conceptSet) throws IOException {
         TTEntity expanded = setRepository.getExpansion(conceptSet);
-        for (TTValue value : expanded.get(IM.DEFINITION).asArray().getElements()) {
+        for (TTValue value : expanded.get(IM.DEFINITION).iterator()) {
             TTEntity member = (TTEntity) value.asNode();
             String code = member.getCode();
             String scheme = member.getScheme().getIri();
@@ -252,7 +249,7 @@ public class SetService {
     private void exportLegacy(FileWriter legacies, TTEntity conceptSet) throws IOException {
         TTEntity legacy = setRepository.getLegacyExpansion(conceptSet);
         if (legacy.get(IM.DEFINITION)!=null) {
-            for (TTValue value : legacy.get(IM.DEFINITION).asArray().getElements()) {
+            for (TTValue value : legacy.get(IM.DEFINITION).iterator()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
@@ -265,7 +262,7 @@ public class SetService {
     private void exportIMv1(FileWriter im1maps, TTEntity conceptSet) throws IOException {
         TTEntity im1 = setRepository.getIM1Expansion(conceptSet);
         if (im1.get(IM.DEFINITION)!=null){
-            for (TTValue value : im1.get(IM.DEFINITION).asArray().getElements()) {
+            for (TTValue value : im1.get(IM.DEFINITION).iterator()) {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
@@ -296,7 +293,7 @@ public class SetService {
     private void exportSubsets(FileWriter subsets, TTEntity conceptSet, String setIri) throws IOException {
         LOG.debug("Exporting subset {}...", setIri);
 
-        for (TTValue value : conceptSet.get(IM.HAS_SUBSET).asArray().getElements()) {
+        for (TTValue value : conceptSet.get(IM.HAS_SUBSET).iterator()) {
             subsets.write(conceptSet.getIri() + "\t" + conceptSet.getName()+"\t"+
                 value.asIriRef().getIri()+ "\t"+ value.asIriRef().getName()+"\n");
         }
@@ -306,7 +303,7 @@ public class SetService {
     private void exportSubsetWithExpansion(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps, TTEntity conceptSet, String setIri) throws IOException {
         LOG.debug("Exporting subset {}...", setIri);
 
-        for (TTValue value : conceptSet.get(IM.HAS_SUBSET).asArray().getElements()) {
+        for (TTValue value : conceptSet.get(IM.HAS_SUBSET).iterator()) {
             subsets.write(conceptSet.getIri() + "\t" + conceptSet.getName()+"\t"+
                 value.asIriRef().getIri()+ "\t"+ value.asIriRef().getName()+"\n");
 
@@ -328,7 +325,7 @@ public class SetService {
         addDefinitionsToWorkbook(set, workbook, headerStyle);
 
         if (expand) {
-            Set<EntitySummary> members = evaluateDefinition(set.get(IM.DEFINITION), true);
+            Set<EntitySummary> members = evaluateDefinition(set.get(IM.DEFINITION).asValue(), true);
             addExpandedToWorkbook(set, workbook, headerStyle, members);
 
             if (v1) {
@@ -429,7 +426,7 @@ public class SetService {
         Set<EntitySummary> evaluated = evaluateDefinition(ecl, includeLegacy);
         List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(ttIriRef -> {
             try {
-                return entitySearchRepository.getSummary(ttIriRef.getIri());
+                return entityRepository.getEntitySummaryByIri(ttIriRef.getIri());
             } catch (DALException e) {
                 return new SearchResultSummary().setIri(ttIriRef.getIri()).setName(ttIriRef.getName());
             }

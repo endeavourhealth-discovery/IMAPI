@@ -8,13 +8,14 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 @JsonSerialize(using = TTEntitySerializer.class)
 @JsonDeserialize(using = TTEntityDeserializer.class)
-public class TTEntity extends TTNode {
+public class TTEntity extends TTNode implements Serializable {
     private String iri;
     private TTContext context = new TTContext();
     private TTIriRef crud;
@@ -82,7 +83,7 @@ public class TTEntity extends TTNode {
     public TTEntity addType(TTIriRef type) {
         TTArray types;
         if (has(RDF.TYPE)) {
-            types = getAsArray(RDF.TYPE);
+            types = get(RDF.TYPE);
         } else {
             types = new TTArray();
             setType(types);
@@ -101,7 +102,7 @@ public class TTEntity extends TTNode {
         if (get(RDF.TYPE)==null)
             return null;
         else
-         return getAsArray(RDF.TYPE);
+         return get(RDF.TYPE);
     }
 
     public TTIriRef getStatus(){
@@ -129,6 +130,12 @@ public class TTEntity extends TTNode {
 
     @Override
     public TTEntity set(TTIriRef predicate, TTValue value) {
+        super.set(predicate, value);
+        return this;
+    }
+
+    @Override
+    public TTEntity set(TTIriRef predicate, TTArray value) {
         super.set(predicate, value);
         return this;
     }

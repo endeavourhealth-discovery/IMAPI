@@ -48,7 +48,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
          TTArray types= new TTArray();
          entity.set(RDF.TYPE,types);
       } else {
-         TTArray types = entity.get(RDF.TYPE).asArray();
+         TTArray types = entity.get(RDF.TYPE);
          types.add(type);
       }
    }
@@ -84,7 +84,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
          TTArray array= new TTArray();
          entity.set(predicate,array);
       }
-      return entity.get(predicate).asArray();
+      return entity.get(predicate);
    }
    @Override public Object visitEquivalentClasses(OWLFSParser.EquivalentClassesContext ctx) {
       TTArray equivalent= addArrayAxiom(OWL.EQUIVALENTCLASS);
@@ -109,7 +109,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
       return null;
    }
 
-   private TTValue convertPropertyChain(OWLFSParser.PropertyExpressionChainContext chainContext) {
+   private TTArray convertPropertyChain(OWLFSParser.PropertyExpressionChainContext chainContext) {
       TTArray chain = new TTArray();
       for (OWLFSParser.ObjectPropertyExpressionContext opcs:chainContext.objectPropertyExpression()){
          chain.add(new TTIriRef(expand(opcs.objectProperty().iri().getText())));
@@ -148,9 +148,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
 
    private boolean isGCI(OWLFSParser.SubClassOfContext ctx) {
-      if (ctx.subClass().classExpression().objectIntersectionOf()!=null)
-         return true;
-      else return false;
+      return (ctx.subClass().classExpression().objectIntersectionOf()!=null);
    }
 
    private String expand(String iri) {

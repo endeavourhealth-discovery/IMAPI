@@ -5,9 +5,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.parser.ecl.ECLLexer;
-import org.endeavourhealth.imapi.parser.ecl.ECLParser;
 import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -27,26 +24,23 @@ public class SCGToTT {
 		this.parser.removeErrorListeners();
 		this.parser.addErrorListener(new ECLErrorListener());
 	}
-	public TTEntity setDefinition(TTEntity entity,String scg) throws DataFormatException {
-		this.scg= scg;
-		this.entity= entity;
-		lexer.setInputStream(CharStreams.fromString(scg));
+	public TTEntity setDefinition(TTEntity entity,String scgInput) throws DataFormatException {
+		this.scg = scgInput;
+		this.entity = entity;
+		lexer.setInputStream(CharStreams.fromString(scgInput));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		parser.setTokenStream(tokens);
-		SCGParser.ExpressionContext ctx= parser.expression();
+		SCGParser.ExpressionContext ctx = parser.expression();
 		return convertECContext(ctx);
 	}
 
 	private TTEntity convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
-		if (ctx.definitionstatus()!=null) {
-			if (ctx.definitionstatus().equivalentto() != null) {
-				entity.set(IM.DEFINITIONAL_STATUS, IM.SUFFICIENTLY_DEFINED);
-			}
+		if (ctx.definitionstatus()!=null && ctx.definitionstatus().equivalentto() != null) {
+			entity.set(IM.DEFINITIONAL_STATUS, IM.SUFFICIENTLY_DEFINED);
 		}
 		if (ctx.subexpression()!=null)
 			convertSubexpression(ctx.subexpression());
 		return entity;
-
 	}
 
 	private void convertSubexpression(SCGParser.SubexpressionContext subexpression) throws DataFormatException {
@@ -55,9 +49,8 @@ public class SCGToTT {
 				entity.addObject(IM.IS_A, getConRef(concept.conceptid()));
 			}
 		}
-		if (subexpression.refinement()!=null){
-			if (subexpression.refinement().attributeset()!=null)
-				convertAttributeSet(entity,subexpression.refinement().attributeset());
+		if (subexpression.refinement()!=null && subexpression.refinement().attributeset()!=null){
+			convertAttributeSet(entity,subexpression.refinement().attributeset());
 		}
 	}
 
@@ -91,7 +84,4 @@ public class SCGToTT {
 		} else
 			throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
 	}
-
-
-
 }

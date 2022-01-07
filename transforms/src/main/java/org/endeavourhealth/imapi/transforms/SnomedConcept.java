@@ -5,7 +5,10 @@ package org.endeavourhealth.imapi.transforms;
  *
  */
 public class SnomedConcept {
-    private static final Integer namespace=1000252;
+    private SnomedConcept() {
+        throw new IllegalStateException("Utility class");
+    }
+    private static final Integer NAMESPACE=1000252;
 
     /**
      * Constructor for the entity creator which creates the entity on construction
@@ -15,7 +18,7 @@ public class SnomedConcept {
      * @return A string representation of a snomed entity which can be converted to long
      */
     public static String createConcept(Integer leadingNumber,boolean term) {
-        String rootEntity = leadingNumber.toString() + namespace + ((term) ? "11":"10");
+        String rootEntity = leadingNumber.toString() + NAMESPACE + ((term) ? "11":"10");
         String appendChk = VerhoeffCheck.getCheckDigit(rootEntity).toString();
         return (rootEntity+ appendChk);
     }
@@ -27,6 +30,9 @@ public class SnomedConcept {
      * Useful utility to create or validate Verhoeff Checksum integers
      */
     public static class VerhoeffCheck {
+        private VerhoeffCheck() {
+            throw new IllegalStateException("Utility class");
+        }
         /**
          * Creates the checksum digit from a string input
          * @param numStr  the string (which may be a number or a string) which requires the checksum
@@ -34,7 +40,7 @@ public class SnomedConcept {
          */
         public static Integer getCheckDigit(String numStr) {
             //Dihedral array
-            Integer di[][] = {
+            Integer[][] di = {
                     {0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
                     {1, 2, 3, 4, 0, 6, 7, 8, 9, 5},
                     {2, 3, 4, 0, 1, 7, 8, 9, 5, 6},
@@ -47,8 +53,8 @@ public class SnomedConcept {
                     {9, 8, 7, 6, 5, 4, 3, 2, 1, 0}};
 
             //Functional array
-            int f0[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-            int f1[] = {1, 5, 7, 6, 2, 8, 3, 0, 9, 4};
+            int[] f0 = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+            int[] f1 = {1, 5, 7, 6, 2, 8, 3, 0, 9, 4};
             int[][] fnf = new int[8][10];
             for (int i = 0; i < 10; i++) {
                 fnf[0][i] = f0[i];

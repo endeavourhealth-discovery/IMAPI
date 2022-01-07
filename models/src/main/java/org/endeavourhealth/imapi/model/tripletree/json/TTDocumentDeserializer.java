@@ -14,7 +14,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     private final TTContext context = new TTContext();
-    private transient TTNodeDeserializer helper;
 
     public TTDocumentDeserializer() {
         this(null);
@@ -29,7 +28,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         TTDocument result = new TTDocument();
-        helper = new TTNodeDeserializer(context);
+        TTNodeDeserializer helper = new TTNodeDeserializer(context);
 
         List<TTPrefix> prefixes = new ArrayList<>();
 
@@ -52,6 +51,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     private List<TTEntity> getEntities(ArrayNode arrayNode) throws IOException {
         List<TTEntity> result = new ArrayList<>();
         Iterator<JsonNode> iterator = arrayNode.elements();
+        TTNodeDeserializer helper = new TTNodeDeserializer(context);
         while (iterator.hasNext()) {
             JsonNode entityNode = iterator.next();
             TTEntity entity = new TTEntity();
@@ -61,8 +61,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                 Map.Entry<String, JsonNode> field = fields.next();
                 if (field.getKey().equals("@id")) {
                     entity.setIri(helper.expand(field.getValue().textValue()));
-                } else
-                    entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+                } else {
+                    if (field.getValue().isArray())
+                        entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
+                    else
+                        entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+                }
             }
         }
 

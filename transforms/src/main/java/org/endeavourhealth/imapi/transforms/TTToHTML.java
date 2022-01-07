@@ -1,20 +1,21 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 public class TTToHTML {
+	private TTToHTML() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	public static String getExpressionText(TTNode expression) {
 		StringBuilder html = new StringBuilder();
 		boolean first = true;
 		if (expression.get(OWL.INTERSECTIONOF) != null) {
 			html.append("<p class=\"intersection\">Intersection of</p>");
-			for (TTValue inter : expression.get(OWL.INTERSECTIONOF).asArray().getElements()) {
+			for (TTValue inter : expression.get(OWL.INTERSECTIONOF).iterator()) {
 				if (inter.isIriRef()) {
 					if (!first)
 						html.append("<p class=\"and\" style=\"margin-left: 40px;\">and</p> ");
@@ -35,7 +36,7 @@ public class TTToHTML {
 
 	public static void setRoleGroup(TTNode roleGroup, StringBuilder html,int tab){
 		boolean firstProp= true;
-		for (Map.Entry<TTIriRef, TTValue> entry : roleGroup.getPredicateMap().entrySet()) {
+		for (Map.Entry<TTIriRef, TTArray> entry : roleGroup.getPredicateMap().entrySet()) {
 				html.append("<p class=\"role-group\" style=\"margin-left: "+tab+"px\">");
 			firstProp=false;
 			html.append(entry.getKey().getName()+ "->");

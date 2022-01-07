@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ import java.util.List;
 @SwaggerDefinition(tags = {
         @Tag(name = "Workflow Controller", description = "Main Workflow endpoint")
 })
+@RequestScope
 public class WorkflowController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowController.class);

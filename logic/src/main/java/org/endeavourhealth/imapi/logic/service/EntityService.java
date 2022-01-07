@@ -2,13 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.TermCode;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
+import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -22,6 +21,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
@@ -30,12 +30,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+	private static final String XML_SCHEME_DATA_TYPES = "xmlSchemaDataTypes";
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
@@ -81,7 +83,7 @@ public class EntityService {
 		    EntityReferenceNode node = new EntityReferenceNode();
 		    node.setIri(c.getIri()).setName(c.getName());
 		    node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
-		    node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), inactive));
+		    node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
 		    result.add(node);
         }
 
@@ -129,7 +131,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
+		List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
@@ -146,7 +148,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return 0;
 
-		List<String> xmlDataTypes = configService.getConfig("xlmSchemaDataTypes", new TypeReference<>() {});
+		List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return 0;
 
@@ -270,7 +272,7 @@ public class EntityService {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
-		TTValue result = getEntityPredicates(iri, predicates, UNLIMITED)
+		TTArray result = getEntityPredicates(iri, predicates, UNLIMITED)
             .getEntity()
             .get(predicate.asIriRef());
 
@@ -278,9 +280,9 @@ public class EntityService {
             if (result.isIriRef())
                 members.add(getValueSetMemberFromIri(result.asIriRef().getIri()));
             else if (result.isNode())
-                members.add(getValueSetMemberFromNode(result));
-            else if (result.isList()) {
-                for (TTValue element : result.getElements()) {
+                members.add(getValueSetMemberFromNode(result.asNode()));
+            else {
+                for (TTValue element : result.iterator()) {
                     if (element.isNode()) {
                         members.add(getValueSetMemberFromNode(element));
                     } else if (element.isIriRef()) {
@@ -295,13 +297,19 @@ public class EntityService {
 	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
 		ValueSetMember member = new ValueSetMember();
 		Map<String, String> defaultPredicates = new HashMap<>();
+		List<String> blockedIris = new ArrayList<>();
 		try {
 			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
 		}
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0);
+		try {
+			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+		} catch (Exception e) {
+			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+		}
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, true, blockedIris);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}
@@ -384,8 +392,7 @@ public class EntityService {
 		return getEntityPredicates(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
 	}
 
-    public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean inferred, boolean dataModelProperties,
-									   boolean members, boolean expandMembers,boolean expandSubsets, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) {
+    public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -393,19 +400,18 @@ public class EntityService {
 
         downloadDto.setSummary(getSummaryFromConfig(iri, configs));
 
-        if (children) downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, inactive));
-        if (inferred) downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());
-        if (dataModelProperties) downloadDto.setDataModelProperties(getDataModelProperties(iri));
-        if (members) downloadDto.setMembers(getValueSetMembers(iri, expandMembers, expandSubsets, null));
-        if (terms) downloadDto.setTerms(getEntityTermCodes(iri));
-        if (isChildOf) downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));
-		if (hasChildren) downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));
+        if (params.includeHasSubtypes()) { downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
+        if (params.includeInferred()) { downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());}
+        if (params.includeProperties()) { downloadDto.setDataModelProperties(getDataModelProperties(iri));}
+        if (params.includeMembers()) { downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+        if (params.includeTerms()) { downloadDto.setTerms(getEntityTermCodes(iri));}
+        if (params.includeIsChildOf()) { downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));}
+		if (params.includeHasChildren()) { downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));}
 
         return downloadDto;
     }
 
-    public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, boolean children, boolean inferred, boolean dataModelProperties,
-									  boolean members, boolean expandMembers, boolean expandSubsets, boolean terms, boolean isChildOf, boolean hasChildren, boolean inactive) {
+    public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
         if (iri == null || iri.isEmpty())
             return null;
 
@@ -413,17 +419,17 @@ public class EntityService {
 
         xls.addSummary(getSummaryFromConfig(iri, configs));
 
-        if (children) xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, inactive));
-        if (inferred) xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));
-        if (dataModelProperties) xls.addDataModelProperties(getDataModelProperties(iri));
-        if (members) xls.addMembersSheet(getValueSetMembers(iri, expandMembers, expandSubsets, null));
-		if (terms) xls.addTerms(getEntityTermCodes(iri));
+        if (params.includeHasSubtypes()) { xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
+        if (params.includeInferred()) { xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));}
+        if (params.includeProperties()) { xls.addDataModelProperties(getDataModelProperties(iri));}
+        if (params.includeMembers()) { xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+		if (params.includeTerms()) { xls.addTerms(getEntityTermCodes(iri));}
 		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
-		TTValue isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
-		if (isChildOf && isChildOfData != null) xls.addIsChildOf(isChildOfData.getElements());
+        TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
+		if (params.includeIsChildOf() && isChildOfData != null) { xls.addIsChildOf(isChildOfData.getElements());}
 		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
-		TTValue hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
-		if (hasChildren && hasChildrenData != null) xls.addHasChildren(hasChildrenData.getElements());
+        TTArray hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
+		if (params.includeHasChildren() && hasChildrenData != null) { xls.addHasChildren(hasChildrenData.getElements());}
 
         return xls;
     }
@@ -444,7 +450,7 @@ public class EntityService {
 	}
 
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
-        for (TTValue propertyGroup : entity.getAsArray(SHACL.PROPERTY).getElements()) {
+        for (TTValue propertyGroup : entity.get(SHACL.PROPERTY).iterator()) {
             if (propertyGroup.isNode()) {
                 TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
                     ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
@@ -596,23 +602,16 @@ public class EntityService {
 	}
 
 	private List<GraphDto> getEntityDefinedParents(TTEntity entity) {
-		TTValue parent = entity.get(RDFS.SUBCLASSOF);
+        TTArray parent = entity.get(RDFS.SUBCLASSOF);
 		if (parent == null)
 			return Collections.emptyList();
 		List<GraphDto> result = new ArrayList<>();
-		if (parent.isList()) {
 			parent.getElements().forEach(item -> {
 				if (!OWL.THING.equals(item.asIriRef()))
 					result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName())
 							.setPropertyType(RDFS.SUBCLASSOF.getName()));
 			});
-		} else {
-			if (parent.asIriRef()!= null && !OWL.THING.equals(parent.asIriRef()))
-				result.add(new GraphDto()
-						.setIri(parent.asIriRef().getIri())
-						.setName(parent.asIriRef().getName())
-						.setPropertyType(RDFS.SUBCLASSOF.getName()));
-		}
+
 		return result;
 	}
 
@@ -641,14 +640,14 @@ public class EntityService {
 	}
 
 	public SearchResultSummary getSummary(String iri) {
-		return entitySearchRepository.getSummary(iri);
+		return entityRepository.getEntitySummaryByIri(iri);
 	}
 
 	public TTEntity getConceptShape(String iri) {
 		if(iri==null || iri.isEmpty())
 			return null;
 		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()), UNLIMITED).getEntity();
-		TTValue value = entity.get(RDF.TYPE);
+		TTArray value = entity.get(RDF.TYPE);
 		if(!value.getElements().contains(SHACL.NODESHAPE)){
 			return null;
 		}
@@ -689,7 +688,22 @@ public class EntityService {
 		return document;
 	}
 
-	public Collection<SimpleMap> getMatchedFrom(String iri) {
-		return entityTripleRepository.getSubjectFromObjectPredicate(iri, IM.MATCHED_TO);
+	public List<SimpleMap> getSimpleMaps(String iri) {
+		if (iri == null || iri.equals("")) return new ArrayList<>();
+		String scheme = iri.substring(0,iri.indexOf("#") + 1);
+		List<Namespace> namespaces = getNamespaces();
+		List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
+		schemes.remove(scheme);
+		return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
 	}
+
+	public String getEcl(TTBundle inferred) throws DataFormatException {
+		if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
+		if (inferred.getEntity() == null || inferred.getEntity().asNode().getPredicateMap().isEmpty()) throw new DataFormatException("Missing entity bundle definition for ECL conversion");
+		return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
+	}
+
+    public XSSFWorkbook getSetExport(String iri) throws DataFormatException {
+        return ExcelSetExporter.getSetAsExcel(iri);
+    }
 }

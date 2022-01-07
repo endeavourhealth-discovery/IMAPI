@@ -10,8 +10,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,8 +18,6 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class XlsHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(XlsHelper.class);
-
 	private final Workbook workbook;
 	private final CellStyle headerStyle;
 
@@ -57,18 +53,16 @@ public class XlsHelper {
 
 		for (TTIriRef predicate : predicates) {
 			Cell cell = row.createCell(row.getLastCellNum());
-			TTValue value = summary.get(iri(predicate.getIri(), predicate.getName()));
+			TTArray value = summary.get(iri(predicate.getIri(), predicate.getName()));
 			if (value.isIriRef()) {
 				cell.setCellValue(value.asIriRef().getName());
 			} else if (value.isLiteral()) {
 				cell.setCellValue(value.asLiteral().getValue());
-			} else if (value.isList()) {
+			} else {
 				String result;
-				List<String> names = value.asArray().getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
+				List<String> names = value.getElements().stream().map(item -> item.asIriRef().getName()).collect(Collectors.toList());
 				result = String.join(",", names);
 				cell.setCellValue(result);
-			} else {
-				LOG.warn("XLS helper encountered unexpected concept summary type while adding summaries to spreadsheet");
 			}
 		}
 	}
@@ -89,7 +83,11 @@ public class XlsHelper {
 	}
 
 	public void addIsChildOf(List<TTValue> childList) {
-		Sheet sheet = workbook.createSheet("Is child of");
+		addChild(childList, "Is child of");
+	}
+
+	private void addChild(List<TTValue> childList, String name) {
+		Sheet sheet = workbook.createSheet(name);
 		List<String> headers = Arrays.asList("Iri", "Name");
 		addHeaders(sheet, 10000, headers);
 
@@ -105,19 +103,7 @@ public class XlsHelper {
 	}
 
 	public void addHasChildren(List<TTValue> childList) {
-		Sheet sheet = workbook.createSheet("Has children");
-		List<String> headers = Arrays.asList("Iri", "Name");
-		addHeaders(sheet, 10000, headers);
-
-		for (TTValue child : childList) {
-			if (child.isIriRef()) {
-				Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-				Cell cell = row.createCell(0);
-				cell.setCellValue(child.asIriRef().getIri());
-				cell = row.createCell(1);
-				cell.setCellValue(child.asIriRef().getName());
-			}
-		}
+		addChild(childList, "Has children");
 	}
 
 	public void addMembersSheet(ExportValueSet exportValueSet) {

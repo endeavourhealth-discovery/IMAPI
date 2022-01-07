@@ -19,11 +19,15 @@ public class TTArraySerializer extends StdSerializer<TTArray> {
     }
 
     public void serialize(TTArray array, JsonGenerator gen, SerializerProvider prov) throws IOException {
-        gen.writeStartArray();
+        if (array.isLiteral()) {
+            prov.defaultSerializeValue(array.asLiteral(), gen);
+        } else {
+            gen.writeStartArray();
 
-        for(TTValue v: array.getElements()) {
-            prov.defaultSerializeValue(v, gen);
+            for (TTValue v : array.iterator()) {
+                prov.defaultSerializeValue(v, gen);
+            }
+            gen.writeEndArray();
         }
-        gen.writeEndArray();
     }
 }

@@ -40,6 +40,9 @@ public class ExcelSetExporter {
 	public static XSSFWorkbook getSetAsExcel(String setIri) throws DataFormatException {
 		Set<String> predicates= Set.of(RDFS.LABEL.getIri(),IM.DEFINITION.getIri());
 		TTEntity entity = tripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
+		if(entity.get(IM.DEFINITION) == null) {
+			return new XSSFWorkbook();
+		}
 		String ecl= TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION),true);
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFFont font = workbook.createFont();

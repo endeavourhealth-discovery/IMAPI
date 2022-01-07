@@ -36,6 +36,8 @@ public class ConfigRepositoryImpl implements ConfigRepository {
                 return getConfig(CONFIG.XML_SCHEMA_DATATYPES);
             case "defaultPrefixes":
                 return getConfig(CONFIG.DEFAULT_PREFIXES);
+            case "graphExcludePredicates":
+                return getConfig(CONFIG.GRAPH_EXCLUDE_PREDICATES);
             default:
                 throw new DALException("Unhandled config");
         }

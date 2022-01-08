@@ -29,7 +29,6 @@ dependencies {
     implementation libs.testContainersMySql
     implementation libs.imGrammar
     implementation libs.apachePoi
-    implementation libs.rdf4j
 
     testImplementation libs.springTest
     testImplementation libs.mockito

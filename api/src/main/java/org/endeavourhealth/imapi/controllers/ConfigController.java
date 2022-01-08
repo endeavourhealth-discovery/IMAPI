@@ -65,4 +65,10 @@ public class ConfigController {
         LOG.debug("getXMLSchemaDataTypes");
         return configService.getConfig("xmlSchemaDataTypes", new TypeReference<List<String>>() {});
     }
+
+    @GetMapping(value="/public/graphExcludePredicates")
+    public List<String> getGraphExcludePredicates() throws JsonProcessingException {
+        LOG.debug("getGraphExcludePredicates");
+        return configService.getConfig("graphExcludePredicates", new TypeReference<List<String>>() {});
+    }
 }

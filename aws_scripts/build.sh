@@ -1,13 +1,14 @@
 #!/bin/bash
 
+chmod +x ./gradlew
+
 mkdir badges
 
 # Artifact
-artifact=$( xmllint --xpath "/*[local-name() = 'project']/*[local-name() = 'artifactId']/text()" pom.xml )
+artifact='IMAPI'
 
 # Version
-version=$( xmllint --xpath "/*[local-name() = 'project']/*[local-name() = 'version']/text()" pom.xml )
-version=${version/-/--} # Hyphen escaping required by shields.io
+version='1.0.0'
 
 # Update badges pre-build
 echo "https://img.shields.io/badge/Build-In_progress-orange.svg"
@@ -24,7 +25,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 { #try
-    eval $* &&
+    ./gradlew $* &&
     buildresult=0
 } || { #catch
     buildresult=1
@@ -45,9 +46,14 @@ echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
 # Unit tests
-failures=$( xmllint --xpath 'string(//testsuite/@failures) + string(//testsuite/@errors)' api/target/surefire-reports/TEST-*.xml )
+{ #try
+    ./gradlew check &&
+    testresult=0
+} || { #catch
+    testresult=1
+}
 
-if [[ "$failures" -gt "0" ]] ; then
+if [[ "$testresult" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
 else

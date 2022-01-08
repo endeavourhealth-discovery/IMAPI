@@ -10,7 +10,7 @@ sonarqube {
 dependencies {
     api project(':dataaccess-base')
 
-    implementation libs.rdf4j
+    compileOnly libs.rdf4j
 }
 
 description = 'dataaccess-rdf4j'

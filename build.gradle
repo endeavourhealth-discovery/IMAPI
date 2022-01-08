@@ -54,6 +54,9 @@ allprojects {
         mavenLocal()
         mavenCentral()
         maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-release')
+        }
+        maven {
             url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
         }
     }

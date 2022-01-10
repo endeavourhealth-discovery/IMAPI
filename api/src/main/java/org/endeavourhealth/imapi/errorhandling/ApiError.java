@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.errorhandling;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.endeavourhealth.imapi.customexceptions.ErrorCodes;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;

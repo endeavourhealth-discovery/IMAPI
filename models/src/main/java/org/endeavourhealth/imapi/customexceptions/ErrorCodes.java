@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.errorhandling;
+package org.endeavourhealth.imapi.customexceptions;
 
 public enum ErrorCodes {
     DATA_FORMAT_EXCEPTION ("DataFormatException"),
@@ -11,7 +11,9 @@ public enum ErrorCodes {
     TYPE_MISMATCH("TypeMismatch"),
     HTTP_MEDIA_TYPE_NOT_SUPPORTED("HttpMediaTypeNotSupported"),
     ACCESS_DENIED_EXCEPTION("AccessDeniedException"),
-    AUTHENTICATION_EXCEPTION("AuthenticationException");
+    AUTHENTICATION_EXCEPTION("AuthenticationException"),
+    ECL_FORMAT_EXCEPTION("EclFormatException"),
+    OPEN_SEARCH_EXCEPTION("OpenSearchException");
 
     private String code;
 

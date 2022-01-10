@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.endeavourhealth.imapi.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.EntitySummary;
@@ -90,11 +91,11 @@ public class SetController {
             @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
             @RequestParam(name="limit", required = false) Integer limit,
             @RequestBody String ecl
-    ) throws DataFormatException {
+    ) throws DataFormatException, EclFormatException {
         try {
             return setService.eclSearch(includeLegacy,limit,ecl);
-        } catch (UnknownFormatConversionException e) {
-            throw new DataFormatException("Invalid ECL format");
+        } catch (UnknownFormatConversionException ex) {
+            throw new EclFormatException("Invalid ECL format", ex);
         }
     }
 }

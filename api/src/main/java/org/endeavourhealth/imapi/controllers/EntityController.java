@@ -2,20 +2,24 @@ package org.endeavourhealth.imapi.controllers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -67,9 +71,10 @@ public class EntityController {
         notes = "Performs an advanced entity search with multiple filter options",
         response = SearchResponse.class
     )
-	public SearchResponse advancedSearch(@RequestBody SearchRequest request) {
-	    LOG.debug("advancedSearch");
-        return new SearchResponse().setEntities(entityService.advancedSearch(request));
+	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+		LOG.debug("advancedSearch");
+			return entityService.advancedSearch(request);
+
 	}
 
     @GetMapping(value = "/public/partial", produces = "application/json")

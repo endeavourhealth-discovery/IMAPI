@@ -397,96 +397,96 @@ class EntityServiceTest {
         assertEquals(0, actual);
     }
 
-    @Test
-    void advancedSearch_NullRequest() {
-        List<SearchResultSummary> actual = entityService.advancedSearch(null);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void advancedSearch_NullTermFilter() {
-        SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
-
-        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void advancedSearch_EmptyTermFilter() {
-        SearchRequest searchRequest = new SearchRequest().setTermFilter("");
-
-        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void advancedSearch_NullSchemeFilter() {
-        SearchRequest searchRequest = new SearchRequest()
-                .setTermFilter("Encounter")
-                .setSchemeFilter(null);
-
-        SearchResultSummary entitySearch = new SearchResultSummary()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate")
-                .setDescription(null)
-                .setCode("25451000252115")
-                .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
-                .setStatus(iri("http://endhealth.info/im#Active", "Active"));
-        when(entitySearchRepository.advancedSearch(any()))
-                .thenReturn(Collections.singletonList(entitySearch));
-
-        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void advancedSearch_NotNullSchemeFilter() {
-        SearchRequest searchRequest = new SearchRequest()
-                .setTermFilter("Encounter")
-                .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
-        "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
-
-        SearchResultSummary entitySearch = new SearchResultSummary()
-            .setIri("http://endhealth.info/im#25451000252115")
-            .setName("Adverse reaction to Amlodipine Besilate")
-            .setDescription(null)
-            .setCode("25451000252115")
-            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
-            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
-        when(entitySearchRepository.advancedSearch(any()))
-            .thenReturn(Collections.singletonList(entitySearch));
-
-        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void advancedSearch_NotNullMarkIfDescendentOf() {
-        SearchRequest searchRequest = new SearchRequest()
-                .setTermFilter("Encounter")
-                .setMarkIfDescendentOf(Arrays.asList(":DiscoveryCommonDataModel", ":SemanticEntity", ":VSET_ValueSet"))
-                .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
-                        "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
-
-        SearchResultSummary entitySearch = new SearchResultSummary()
-            .setIri("http://endhealth.info/im#25451000252115")
-            .setName("Adverse reaction to Amlodipine Besilate")
-            .setDescription(null)
-            .setCode("25451000252115")
-            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
-            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
-        when(entitySearchRepository.advancedSearch(any()))
-            .thenReturn(Collections.singletonList(entitySearch));
-
-        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-
-        assertNotNull(actual);
-    }
+//    @Test
+//    void advancedSearch_NullRequest() {
+//        List<SearchResultSummary> actual = entityService.advancedSearch(null);
+//
+//        assertNotNull(actual);
+//    }
+//
+//    @Test
+//    void advancedSearch_NullTermFilter() {
+//        SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
+//
+//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
+//
+//        assertNotNull(actual);
+//    }
+//
+//    @Test
+//    void advancedSearch_EmptyTermFilter() {
+//        SearchRequest searchRequest = new SearchRequest().setTermFilter("");
+//
+//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
+//
+//        assertNotNull(actual);
+//    }
+//
+//    @Test
+//    void advancedSearch_NullSchemeFilter() {
+//        SearchRequest searchRequest = new SearchRequest()
+//                .setTermFilter("Encounter")
+//                .setSchemeFilter(null);
+//
+//        SearchResultSummary entitySearch = new SearchResultSummary()
+//                .setIri("http://endhealth.info/im#25451000252115")
+//                .setName("Adverse reaction to Amlodipine Besilate")
+//                .setDescription(null)
+//                .setCode("25451000252115")
+//                .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
+//                .setStatus(iri("http://endhealth.info/im#Active", "Active"));
+//        when(entitySearchRepository.advancedSearch(any()))
+//                .thenReturn(Collections.singletonList(entitySearch));
+//
+//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
+//
+//        assertNotNull(actual);
+//    }
+//
+//    @Test
+//    void advancedSearch_NotNullSchemeFilter() {
+//        SearchRequest searchRequest = new SearchRequest()
+//                .setTermFilter("Encounter")
+//                .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
+//        "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
+//
+//        SearchResultSummary entitySearch = new SearchResultSummary()
+//            .setIri("http://endhealth.info/im#25451000252115")
+//            .setName("Adverse reaction to Amlodipine Besilate")
+//            .setDescription(null)
+//            .setCode("25451000252115")
+//            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
+//            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
+//        when(entitySearchRepository.advancedSearch(any()))
+//            .thenReturn(Collections.singletonList(entitySearch));
+//
+//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
+//
+//        assertNotNull(actual);
+//    }
+//
+//    @Test
+//    void advancedSearch_NotNullMarkIfDescendentOf() {
+//        SearchRequest searchRequest = new SearchRequest()
+//                .setTermFilter("Encounter")
+//                .setMarkIfDescendentOf(Arrays.asList(":DiscoveryCommonDataModel", ":SemanticEntity", ":VSET_ValueSet"))
+//                .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
+//                        "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
+//
+//        SearchResultSummary entitySearch = new SearchResultSummary()
+//            .setIri("http://endhealth.info/im#25451000252115")
+//            .setName("Adverse reaction to Amlodipine Besilate")
+//            .setDescription(null)
+//            .setCode("25451000252115")
+//            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
+//            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
+//        when(entitySearchRepository.advancedSearch(any()))
+//            .thenReturn(Collections.singletonList(entitySearch));
+//
+//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
+//
+//        assertNotNull(actual);
+//    }
 
     @Test
     void getValueSetMembers_NullIri() {

@@ -2,7 +2,9 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -32,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.opensearch.client.Response;
 import org.opensearch.client.opensearch._global.SearchResponse;
+import org.opensearch.client.opensearch._global.IndexResponse;
+import org.opensearch.client.opensearch.indices.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -167,7 +171,7 @@ public class EntityService {
 		return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri,RDFS.SUBCLASSOF.getIri());
 	}
 
-	public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException {
+	public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException, InvalidDefinitionException {
 
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
@@ -198,7 +202,6 @@ public class EntityService {
 
 		osRequest.setQuery(osQuery);
 		ObjectMapper mapper = new ObjectMapper();
-//		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 		String osRequestAsString = mapper.writeValueAsString(osRequest);
 
 		HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -221,19 +224,13 @@ public class EntityService {
 		};
 
 		ObjectMapper resultMapper = new ObjectMapper();
-		SearchResponse<SearchResultSummary> result = resultMapper.readValue(response.body(), SearchResponse.class);
-		List<SearchResultSummary> searchResult = result.hits().hits().stream().map(hit -> hit.source()).collect(Collectors.toList());
-		//convert result to class and add to searchResult
+		JsonNode root = resultMapper.readTree(response.body());
+		List<SearchResultSummary> searchResults = new ArrayList<>();
+		for (JsonNode hit : root.get("hits").get("hits")) {
+			searchResults.add(resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class));
+		}
 
-		return searchResult;
-
-
-//		List<SearchResultSummary> matchingEntity = entitySearchRepository.advancedSearch(request);
-//
-//		return matchingEntity.stream()
-//            .map(e -> e.setWeighting(Levenshtein.calculate(request.getTermFilter(), e.getMatch())))
-//            .sorted(Comparator.comparingInt(SearchResultSummary::getWeighting))
-//			.collect(Collectors.toList());
+		return searchResults;
 	}
 
 	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit) {

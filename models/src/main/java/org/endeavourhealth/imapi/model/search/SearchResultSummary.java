@@ -1,11 +1,14 @@
 package org.endeavourhealth.imapi.model.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties({"id"})
 public class SearchResultSummary {
     private String name;
     private String iri;
@@ -17,6 +20,22 @@ public class SearchResultSummary {
     private List<TTIriRef> isDescendentOf = new ArrayList<>();
     private Integer weighting;
     private String match;
+
+    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, TTArray entityType, List<TTIriRef> isDescendentOf, Integer weighting, String match) {
+        this.name = name;
+        this.iri = iri;
+        this.code = code;
+        this.description = description;
+        this.status = status;
+        this.scheme = scheme;
+        this.entityType = entityType;
+        this.isDescendentOf = isDescendentOf;
+        this.weighting = weighting;
+        this.match = match;
+    }
+
+    public SearchResultSummary() {
+    }
 
     public String getName() {
         return name;

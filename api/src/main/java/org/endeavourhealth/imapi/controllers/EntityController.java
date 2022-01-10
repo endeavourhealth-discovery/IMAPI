@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -70,9 +71,10 @@ public class EntityController {
         notes = "Performs an advanced entity search with multiple filter options",
         response = SearchResponse.class
     )
-	public SearchResponse advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
 		LOG.debug("advancedSearch");
-		return new SearchResponse().setEntities(entityService.advancedSearch(request));
+			return entityService.advancedSearch(request);
+
 	}
 
     @GetMapping(value = "/public/partial", produces = "application/json")

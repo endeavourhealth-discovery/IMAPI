@@ -293,6 +293,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         sql.add("}");
 
+        sql.add("ORDER BY ?cname");
+
         if (rowNumber != null && pageSize != null) {
             sql
                 .add("LIMIT " + pageSize)
@@ -341,6 +343,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("LIMIT " + pageSize)
                 .add("OFFSET " + rowNumber);
         }
+
+        sql.add("ORDER BY ?pname");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());

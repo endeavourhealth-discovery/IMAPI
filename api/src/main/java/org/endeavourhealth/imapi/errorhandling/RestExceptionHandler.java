@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.errorhandling;
 
+import org.endeavourhealth.imapi.customexceptions.EclFormatException;
+import org.endeavourhealth.imapi.customexceptions.ErrorCodes;
+import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,7 +20,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Set;
-import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
 //@Order(Ordered.HIGHEST_PRECEDENCE)
@@ -96,9 +98,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(error);
     }
 
-    @ExceptionHandler(UnknownFormatConversionException.class)
-    protected ResponseEntity<Object> handleUnknownFormatConversionException(UnknownFormatConversionException ex) {
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.UNKNOWN_FORMAT_CONVERSION_EXCEPTION);
+    @ExceptionHandler(EclFormatException.class)
+    protected ResponseEntity<Object> handleEclFormatException(EclFormatException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.ECL_FORMAT_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(OpenSearchException.class)
+    protected ResponseEntity<Object> handleOpenSearchException(OpenSearchException ex) {
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex, ErrorCodes.OPEN_SEARCH_EXCEPTION);
         return buildResponseEntity(error);
     }
 

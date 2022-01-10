@@ -704,6 +704,9 @@ public class EntityService {
 	}
 
     public XSSFWorkbook getSetExport(String iri) throws DataFormatException {
+		if(iri == null || "".equals(iri)){
+			return null;
+		}
         return ExcelSetExporter.getSetAsExcel(iri);
     }
 }

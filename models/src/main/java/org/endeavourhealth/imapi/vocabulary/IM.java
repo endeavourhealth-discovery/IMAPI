@@ -199,7 +199,7 @@ public class IM {
 
 
   //Authors and agents
-  public static final TTIriRef WAS_AUTHORED_BY = iri(NAMESPACE +"wasAuthoredBy");
+  public static final TTIriRef AUTHOR_ROLE = iri(NAMESPACE+"1001911000252102");
   public static final TTIriRef VERSION = iri(NAMESPACE +"version");
   public static final TTIriRef HAS_ROLE_IN = iri(NAMESPACE +"hasRoleInOrganisation");
   public static final TTIriRef IS_PERSON = iri(NAMESPACE +"isPerson");

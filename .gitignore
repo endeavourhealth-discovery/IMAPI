@@ -3,5 +3,7 @@ target
 *.iml
 .classpath
 .project
+.gradle
+build
 nodets/node_modules
 nodets/dist

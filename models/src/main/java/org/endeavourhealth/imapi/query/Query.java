@@ -1,7 +1,12 @@
 package org.endeavourhealth.imapi.query;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -9,17 +14,23 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
-	* A serializable query object containing a sequence of clauses resulting in the definition of a  data set output.
-	* <p> In effect a high level process model taylored to the health query ues cases</p>
+	* A specialised query object containing a sequence of query clauses designed to map to SPARQL or SQL
+ * Query can be converted to and from TTEntity for graph storage using asEntity or from Entity methods
+	*
 	*/
 
-@JsonPropertyOrder({"iri","name","description","type","prefix","operator","where","clause"})
-public class Query  extends Clause implements TTValue, Serializable {
+@JsonPropertyOrder({"iri","name","description","type","mainEntityType","mainEntityVar","prefix","operator","where","clause"})
+public class Query  extends Clause {
 	private TTIriRef type;
+	private TTIriRef mainEntityType;
+	private String mainEntityVar;
+	private List<TTIriRef> folder;
 	private static final Map<String,String> nsPrefix= new HashMap<>();
 	private static final Map<String,String> prefix= new HashMap<>();
 
@@ -28,6 +39,53 @@ public class Query  extends Clause implements TTValue, Serializable {
 		addPrefix(RDFS.NAMESPACE,"rdfs");
 		addPrefix(RDF.NAMESPACE,"rdf");
 		addPrefix(SNOMED.NAMESPACE,"sn");
+	}
+
+	/**
+	 * Returns the query object as a TTEntity with the query clause definitions as json literal value
+	 * of the im:queryDefinition predicate
+	 * @return TTEntity representation of the query
+	 * @throws JsonProcessingException
+	 */
+	public TTEntity asEntity() throws JsonProcessingException {
+		TTEntity entity = new TTEntity()
+			.setIri(this.getIri())
+			.setName(this.getName())
+			.setDescription(this.getDescription())
+			.addType(IM.QUERY);
+		if (this.getFolder()!=null)
+			this.getFolder().stream().forEach(f-> entity.addObject(IM.IS_CONTAINED_IN,f));
+
+		ObjectMapper objectMapper= new ObjectMapper();
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+		String json=objectMapper.writeValueAsString(this);
+		entity.set(IM.QUERY_DEFINITION, TTLiteral.literal(json));
+		return entity;
+
+	}
+
+	/** Creates a query business object from a TTEntity query type
+	 * the main query is derived from the json literal of the im:queryDefinition predicate
+	 * @param entityQuery the qery in TTEntity form.
+	 * @return the query object.
+	 * @throws JsonProcessingException
+	 */
+	public Query fromEntity(TTEntity entityQuery) throws JsonProcessingException {
+		ObjectMapper om= new ObjectMapper();
+		TTValue definition= entityQuery.get(IM.QUERY_DEFINITION).getElements().get(0);
+		String json= definition.asLiteral().getValue();
+		Query qry=om.readValue(json,Query.class);
+		qry.setIri(entityQuery.getIri());
+		qry.setName(entityQuery.getName());
+		qry.setDescription(entityQuery.getDescription());
+		qry.setType(IM.QUERY);
+		if (entityQuery.get(IM.IS_CONTAINED_IN)!=null)
+			entityQuery.get(IM.IS_CONTAINED_IN).getElements().stream().forEach(
+				f-> qry.addFolder(f.asIriRef()));
+		return qry;
+
 	}
 
 	public static void addPrefix(String ns,String px){
@@ -65,6 +123,40 @@ public class Query  extends Clause implements TTValue, Serializable {
 
 	public Query setType(TTIriRef type) {
 		this.type = type;
+		return this;
+	}
+
+	public TTIriRef getMainEntityType() {
+		return mainEntityType;
+	}
+
+	public Query setMainEntityType(TTIriRef mainEntityType) {
+		this.mainEntityType = mainEntityType;
+		return this;
+	}
+
+	public String getMainEntityVar() {
+		return mainEntityVar;
+	}
+
+	public Query setMainEntityVar(String mainEntityVar) {
+		this.mainEntityVar = mainEntityVar;
+		return this;
+	}
+
+	public List<TTIriRef> getFolder() {
+		return folder;
+	}
+
+	public Query setFolder(List<TTIriRef> folder) {
+		this.folder = folder;
+		return this;
+	}
+
+	public Query addFolder(TTIriRef folder){
+		if (this.folder==null)
+			this.folder= new ArrayList<>();
+		this.folder.add(folder);
 		return this;
 	}
 }

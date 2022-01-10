@@ -2,12 +2,11 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.DownloadParams;
-import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -16,7 +15,6 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -26,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -35,9 +32,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -1410,6 +1407,39 @@ class EntityServiceTest {
     void getSimpleMaps_EmptyIri() {
         Collection<SimpleMap> actual = entityService.getSimpleMaps("");
         assertNotNull(actual);
+    }
+
+    @Test
+    void getSimpleMaps_NotNullIri() {
+        Collection<SimpleMap> actual = entityService.getSimpleMaps("http://endhealth.info/im#25451000252115");
+        assertNotNull(actual);
+    }
+
+    @Test
+    void getEcl_NotNullInferred() throws DataFormatException {
+        String actual = entityService.getEcl(new TTBundle()
+                .setEntity(new TTEntity()
+                        .setIri("http://endhealth.info/im#25451000252115")
+                        .setScheme(new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))));
+        assertNotNull(actual);
+    }
+
+    @Test
+    void getSetExport_NullIri() throws DataFormatException {
+        XSSFWorkbook actual = entityService.getSetExport(null);
+        assertNull(actual);
+    }
+
+    @Test
+    void getSetExport_EmptyIri() throws DataFormatException {
+        XSSFWorkbook actual = entityService.getSetExport("");
+        assertNull(actual);
+    }
+
+    @Test
+    void getSetExport_NotNullIri() throws DataFormatException {
+//        XSSFWorkbook actual = entityService.getSetExport("http://endhealth.info/im#25451000252115");
+//        assertNotNull(actual);
     }
 
 }

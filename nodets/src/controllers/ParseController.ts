@@ -1,6 +1,7 @@
 import { Request, Response, Application } from "express";
 import { IController } from "../models";
 import { getJsonFromFile } from "../services/ParsService";
+import { validateTransformInputUpload } from "../validators/ParseValidator";
 
 export default class ParseController implements IController {
   constructor(app: Application) {
@@ -8,7 +9,7 @@ export default class ParseController implements IController {
   }
 
   configureRoutes(app: Application) {
-    app.route("/api/transform/transformInputUpload").post(this.getJsonFromFile);
+    app.route("/api/transform/transformInputUpload").post(validateTransformInputUpload, this.getJsonFromFile);
   }
 
   getJsonFromFile(req: Request, res: Response) {

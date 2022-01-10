@@ -1,3 +1,9 @@
+import { Application } from "express";
+
+export interface IController {
+  configureRoutes: { (app: Application): void };
+}
+
 export interface JoinData {
   inputs: TransformInputUpload[];
   instructions: JoinInstruction[];

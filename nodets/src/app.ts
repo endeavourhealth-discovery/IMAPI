@@ -1,10 +1,10 @@
-import express, { Request, Response, NextFunction, response } from "express";
+import express from "express";
 import cors from "cors";
-import { join } from "./controllers/JoinController";
-import { getInputFromJpath, getJpathTreeOptions, getJsonPathOptions } from "./controllers/JsonPathController";
-import { getJsonFromFile } from "./controllers/ParseController";
-import { generateDataModel, getDataModelInstanceDisplay } from "./controllers/DataModelController";
-import { getFunctions, getTransformed, getTransformTypes, transformByInstruction } from "./controllers/TransformController";
+import TransformController from "./controllers/TransformController";
+import DataModelController from "./controllers/DataModelController";
+import ParseController from "./controllers/ParseController";
+import JoinController from "./controllers/JoinController";
+import JsonPathController from "./controllers/JsonPathController";
 
 const app = express();
 const port = 3000;
@@ -16,50 +16,8 @@ app.listen(port, () => {
   console.log(`Application is running on port ${port}.`);
 });
 
-app.post("/api/transform/join", (request: Request, response: Response, next: NextFunction) => {
-  const { inputs, instructions } = request.body;
-  response.status(200).json(join({ inputs, instructions }));
-});
-
-app.post("/api/transform/transformInputUpload", async (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(getJsonFromFile(request.body.fileString));
-});
-
-app.post("/api/transform/jpathsFromInput", (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(getJsonPathOptions(request.body));
-});
-
-app.post("/api/transform/jpathTreeOptions", (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(getJpathTreeOptions(request.body));
-});
-
-app.post("/api/transform/datamodel", (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(generateDataModel(request.body));
-});
-
-app.post("/api/transform/datamodel/instance", (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(getDataModelInstanceDisplay(request.body));
-});
-
-app.get("/api/transform/types", (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(getTransformTypes());
-});
-
-app.get("/api/transform/functions", (request: Request, response: Response, next: NextFunction) => {
-  response.status(200).json(getFunctions());
-});
-
-app.post("/api/transform/rowTransformation", (request: Request, response: Response, next: NextFunction) => {
-  const { instruction, instances, input } = request.body;
-  response.status(200).json(transformByInstruction(instruction, instances, input));
-});
-
-app.post("/api/transform/inputFromJpath", (request: Request, response: Response, next: NextFunction) => {
-  const { input, jpath } = request.body;
-  response.status(200).json(getInputFromJpath(input, jpath));
-});
-
-app.post("/api/transform/transformed", (request: Request, response: Response, next: NextFunction) => {
-  const { inputJson, dataModelJson, instructions } = request.body;
-  response.status(200).json(getTransformed(inputJson, dataModelJson, instructions));
-});
+new TransformController(app);
+new DataModelController(app);
+new ParseController(app);
+new JoinController(app);
+new JsonPathController(app);

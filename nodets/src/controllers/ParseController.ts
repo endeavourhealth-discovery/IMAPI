@@ -1,17 +1,17 @@
-export function getJsonFromFile(fileString: string): any[] {
-  const lines = fileString.split("\n");
-  const jsonArray = [] as any[];
-  const headers = lines[0].split(",").map(header => header.replace(/"+/g, "").trim());
+import { Request, Response, Application } from "express";
+import { IController } from "../models";
+import { getJsonFromFile } from "../services/ParsService";
 
-  for (var i = 1; i < lines.length; i++) {
-    const obj = {} as any;
-    const currentline = lines[i].split(",");
-
-    for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = currentline[j] ? currentline[j].replace(/"+/g, "").trim() : "";
-    }
-
-    jsonArray.push(obj);
+export default class ParseController implements IController {
+  constructor(app: Application) {
+    this.configureRoutes(app);
   }
-  return jsonArray;
+
+  configureRoutes(app: Application) {
+    app.route("/api/transform/transformInputUpload").post(this.getJsonFromFile);
+  }
+
+  getJsonFromFile(req: Request, res: Response) {
+    res.status(200).json(getJsonFromFile(req.body.fileString));
+  }
 }

@@ -14,8 +14,6 @@ export class FunctionWrapper {
   }
 
   generateIri(dataModel: any, value: string): string {
-    const shortcut = dataModel["@graph"]["@id"].split(":");
-    const firstPart = dataModel["@context"][shortcut[0]];
-    return firstPart + value;
+    return "http://endhealth.info/im#" + value;
   }
 }

@@ -11,4 +11,12 @@ dependencies {
     implementation libs.antlr
 }
 
+publishing {
+    repositories {
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+    }
+}
+
 description = 'parser'

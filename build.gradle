@@ -25,6 +25,7 @@ sonarqube {
     }
 }
 
+assemble.finalizedBy 'publish'
 check.finalizedBy 'sonarqube'
 
 allprojects {

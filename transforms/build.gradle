@@ -24,6 +24,14 @@ dependencies {
 
 }
 
+publishing {
+    repositories {
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+    }
+}
+
 test {
     useJUnitPlatform()
 }

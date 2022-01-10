@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.query;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -33,16 +34,14 @@ public class Where {
 	}
 
 
-	public Where setProperty(String property) {
-		this.property = TTIriRef.iri(property);
-		return this;
-	}
 
 
+	@JsonProperty("property")
 	public Where setProperty(TTIriRef property) {
 		this.property =property;
 		return this;
 	}
+
 
 	public String getEntityVar() {
 		return entityVar;

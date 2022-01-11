@@ -779,6 +779,6 @@ public class EntityService {
 		if(iri == null || "".equals(iri)){
 			return null;
 		}
-        return ExcelSetExporter.getSetAsExcel(iri);
+        return new ExcelSetExporter().getSetAsExcel(iri);
     }
 }

@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -53,9 +54,6 @@ class EntityServiceTest {
 
     @Mock
     EntityTctRepository entityTctRepository;
-
-    @Mock
-    EntitySearchRepository entitySearchRepository;
 
     @Mock
     SetRepository SetRepository;
@@ -1436,10 +1434,5 @@ class EntityServiceTest {
         assertNull(actual);
     }
 
-    @Test
-    void getSetExport_NotNullIri() throws DataFormatException {
-//        XSSFWorkbook actual = entityService.getSetExport("http://endhealth.info/im#25451000252115");
-//        assertNotNull(actual);
-    }
 
 }

@@ -47,6 +47,8 @@ ext {
             lombok              : "org.projectlombok:lombok:$versions.lombok",
             mockito             : "org.mockito:mockito-junit-jupiter:$versions.mockito",
             mysql               : "mysql:mysql-connector-java:$versions.mysql",
+            opensearchClient    : "org.opensearch.client:opensearch-rest-client:1.1.0",
+            opensearchJava      : "org.opensearch.client:opensearch-java:0.1.0",
             owlApi              : "net.sourceforge.owlapi:owlapi-distribution:$versions.owlApi",
             rdf4jQuery          : "org.eclipse.rdf4j:rdf4j-query:$versions.rdf4j",
             rdf4jRepoApi        : "org.eclipse.rdf4j:rdf4j-repository-api:$versions.rdf4j",

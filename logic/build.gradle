@@ -18,8 +18,8 @@ dependencies {
     implementation libs.jacksonDatabind
     implementation libs.slf4j
     implementation libs.springContext
-    implementation 'org.opensearch.client:opensearch-rest-client:1.1.0'
-    implementation 'org.opensearch.client:opensearch-java:0.1.0'
+    implementation libs.opensearchClient
+    implementation libs.opensearchJava
 
     testImplementation libs.junitRunner
     testImplementation libs.springTest

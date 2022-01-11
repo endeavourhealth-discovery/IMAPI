@@ -1,22 +1,23 @@
 package org.endeavourhealth.imapi.model.valuset;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.io.Serializable;
 
 public class ValueSetMember implements Serializable {
-    private TTIriRef entity;
+    private TTValue entity;
     private String code;
     private TTIriRef scheme;
     private String label;
     private MemberType type;
     private TTIriRef directParent;
 
-    public TTIriRef getEntity() {
+    public TTValue getEntity() {
         return entity;
     }
 
-    public ValueSetMember setEntity(TTIriRef entity) {
+    public ValueSetMember setEntity(TTValue entity) {
         this.entity = entity;
         return this;
     }

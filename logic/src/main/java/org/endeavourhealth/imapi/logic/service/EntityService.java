@@ -239,24 +239,24 @@ public class EntityService {
 		return searchResults;
 	}
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit) {
-        return getValueSetMembers(iri, expandMembers, expandSets,  limit, null, iri);
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean asString, boolean withHyperlinks) {
+        return getValueSetMembers(iri, expandMembers, expandSets,  limit, asString, withHyperlinks, null, iri);
     }
 
-	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, String parentSetName, String originalParentIri) {
+	public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean asString, boolean withHyperlinks, String parentSetName, String originalParentIri) {
 		if (iri == null || iri.isEmpty()) {
 			return null;
 		}
 		ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
 		int memberCount = 0;
 
-        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, parentSetName, originalParentIri);
+        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, asString, withHyperlinks, parentSetName, originalParentIri);
 
-        Set<ValueSetMember> definedMemberExclusions = getDefinedExclusions(iri, expandSets, parentSetName, originalParentIri);
+        Set<ValueSetMember> definedMemberExclusions = getDefinedExclusions(iri, expandSets, asString, withHyperlinks, parentSetName, originalParentIri);
 
 		Set<ValueSetMember> definedSetInclusions = entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(iri, IM.MEMBER_OF_GROUP.getIri());
 
-        memberCount = processExpansions(expandMembers, expandSets, limit, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
+        memberCount = processExpansions(expandMembers, expandSets, limit, asString, withHyperlinks, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
 
         Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
 		memberCount += evaluatedMemberInclusions.size();
@@ -278,21 +278,21 @@ public class EntityService {
 		return result;
 	}
 
-    private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) {
+    private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, boolean asString, boolean withHyperlinks, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) {
         if (expandSets || expandMembers) {
             for (ValueSetMember set : definedSetInclusions) {
-                ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, null, originalParentIri);
+                ExportValueSet individualResults = getValueSetMembers(set.getEntity().asIriRef().getIri(), expandMembers, expandSets, limit, asString, withHyperlinks, null, originalParentIri);
                 memberCount += individualResults.getMembers().size();
                 result.addAllMembers(individualResults.getMembers());
             }
         } else {
             for (ValueSetMember set : definedSetInclusions) {
                 if (parentSetName == null) {
-                    set.setLabel("Subset - " + set.getEntity().getName());
+                    set.setLabel("Subset - " + set.getEntity().asIriRef().getName());
                 } else {
                     set.setLabel("Subset - " + parentSetName);
                 }
-                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), false, false, limit, set.getEntity().getName(), originalParentIri);
+                ExportValueSet setMembers = getValueSetMembers(set.getEntity().asIriRef().getIri(), false, false, limit, asString, withHyperlinks, set.getEntity().asIriRef().getName(), originalParentIri);
                 memberCount += setMembers.getMembers().size();
                 result.addAllMembers(setMembers.getMembers());
             }
@@ -300,8 +300,8 @@ public class EntityService {
         return memberCount;
     }
 
-    private Set<ValueSetMember> getDefinedExclusions(String iri, boolean expandSets, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER);
+    private Set<ValueSetMember> getDefinedExclusions(String iri, boolean expandSets, boolean asString, boolean withHyperlinks, String parentSetName, String originalParentIri) {
+        Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER, asString, withHyperlinks);
         for (ValueSetMember excluded : definedMemberExclusions) {
             if (originalParentIri.equals(iri)) {
                 excluded.setLabel("b_MemberExcluded");
@@ -320,8 +320,8 @@ public class EntityService {
         return definedMemberExclusions;
     }
 
-    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION);
+    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean asString, boolean withHyperlinks, String parentSetName, String originalParentIri) {
+        Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION, asString, withHyperlinks);
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
@@ -340,7 +340,7 @@ public class EntityService {
         return definedMemberInclusions;
     }
 
-    private Set<ValueSetMember> getMember(String iri, TTIriRef predicate) {
+    private Set<ValueSetMember> getMember(String iri, TTIriRef predicate, boolean asString, boolean withHyperlinks) {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
@@ -352,11 +352,11 @@ public class EntityService {
             if (result.isIriRef())
                 members.add(getValueSetMemberFromIri(result.asIriRef().getIri()));
             else if (result.isNode())
-                members.add(getValueSetMemberFromNode(result.asNode()));
+                members.add(getValueSetMemberFromNode(result.asNode(), asString, withHyperlinks));
             else {
                 for (TTValue element : result.iterator()) {
                     if (element.isNode()) {
-                        members.add(getValueSetMemberFromNode(element));
+                        members.add(getValueSetMemberFromNode(element, asString, withHyperlinks));
                     } else if (element.isIriRef()) {
                         members.add(getValueSetMemberFromIri(element.asIriRef().getIri()));
                     }
@@ -366,23 +366,28 @@ public class EntityService {
 		return members;
 	}
 
-	private ValueSetMember getValueSetMemberFromNode(TTValue node) {
+	private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean asString, boolean withHyperlinks) {
 		ValueSetMember member = new ValueSetMember();
-		Map<String, String> defaultPredicates = new HashMap<>();
-		List<String> blockedIris = new ArrayList<>();
-		try {
-			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
-			});
-		} catch (Exception e) {
-			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
+		if (asString) {
+			Map<String, String> defaultPredicates = new HashMap<>();
+			List<String> blockedIris = new ArrayList<>();
+			try {
+				defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
+				});
+			} catch (Exception e) {
+				LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
+			}
+			try {
+				blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+			} catch (Exception e) {
+				LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+			}
+			String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
+			member.setEntity(iri("", nodeAsString));
+		} else {
+			member.setEntity(node);
 		}
-		try {
-			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
-		} catch (Exception e) {
-			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
-		}
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, true, blockedIris);
-		member.setEntity(iri("", nodeAsString));
+
 		return member;
 	}
 
@@ -403,16 +408,22 @@ public class EntityService {
             if (limit != null && (memberCount + memberHashMap.size()) > limit)
                 return memberHashMap;
 
-			memberHashMap.put(member.getEntity().getIri() + "/" + member.getCode(), member);
+			if (member.getEntity().isIriRef()) {
+				memberHashMap.put(member.getEntity().asIriRef().getIri() + "/" + member.getCode(), member);
 
-			if (expand) {
-                setRepository
-                    .expandMember(member.getEntity().getIri(), limit)
-                    .forEach(m -> {
-                    	m.setLabel("MemberExpanded");
-                    	m.setType(MemberType.EXPANDED);
-                    	memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
-                    });
+				if (expand) {
+					setRepository
+							.expandMember(member.getEntity().asIriRef().getIri(), limit)
+							.forEach(m -> {
+								m.setLabel("MemberExpanded");
+								m.setType(MemberType.EXPANDED);
+								memberHashMap.put(m.getEntity().asIriRef().getIri() + "/" + m.getCode(), m);
+							});
+				}
+			}
+
+			if (member.getEntity().isNode()) {
+				memberHashMap.put("node",member);
 			}
 		}
 		return memberHashMap;
@@ -426,7 +437,7 @@ public class EntityService {
 		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
 		for (TTIriRef m : included) {
 			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
-					.filter(em -> em.getEntity().getIri().equals(memberIri)).findFirst();
+					.filter(em -> em.getEntity().asIriRef().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setIncludedBy(m);
 				break;
@@ -434,7 +445,7 @@ public class EntityService {
 		}
 		for (TTIriRef m : excluded) {
 			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
-					.filter(em -> em.getEntity().getIri().equals(memberIri)).findFirst();
+					.filter(em -> em.getEntity().asIriRef().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setExcludedBy(m);
 				break;
@@ -475,7 +486,7 @@ public class EntityService {
         if (params.includeHasSubtypes()) { downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
         if (params.includeInferred()) { downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());}
         if (params.includeProperties()) { downloadDto.setDataModelProperties(getDataModelProperties(iri));}
-        if (params.includeMembers()) { downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+        if (params.includeMembers()) { downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, true, false));}
         if (params.includeTerms()) { downloadDto.setTerms(getEntityTermCodes(iri));}
         if (params.includeIsChildOf()) { downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));}
 		if (params.includeHasChildren()) { downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));}
@@ -494,7 +505,7 @@ public class EntityService {
         if (params.includeHasSubtypes()) { xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
         if (params.includeInferred()) { xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));}
         if (params.includeProperties()) { xls.addDataModelProperties(getDataModelProperties(iri));}
-        if (params.includeMembers()) { xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null));}
+        if (params.includeMembers()) { xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, true, false));}
 		if (params.includeTerms()) { xls.addTerms(getEntityTermCodes(iri));}
 		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
@@ -557,7 +568,7 @@ public class EntityService {
 	}
 
 	public String valueSetMembersCSV(String iri, boolean expandMember, boolean expandSubset) {
-		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset, null);
+		ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset, null, true, false);
 		StringBuilder valueSetMembers = new StringBuilder();
 		valueSetMembers.append("Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
 
@@ -573,8 +584,8 @@ public class EntityService {
 
 	private void appendValueSet(ExportValueSet exportValueSet, StringBuilder valueSetMembers, ValueSetMember setMember) {
 		valueSetMembers.append("Inc").append("\t").append(exportValueSet.getValueSet().getIri()).append("\t")
-				.append(exportValueSet.getValueSet().getName()).append("\t").append(setMember.getEntity().getIri())
-				.append("\t").append(setMember.getEntity().getName()).append("\t").append(setMember.getCode())
+				.append(exportValueSet.getValueSet().getName()).append("\t").append(setMember.getEntity().asIriRef().getIri())
+				.append("\t").append(setMember.getEntity().asIriRef().getName()).append("\t").append(setMember.getCode())
 				.append("\t");
 		if (setMember.getScheme() != null)
 			valueSetMembers.append(setMember.getScheme().getIri()).append("\t").append(setMember.getScheme().getName());

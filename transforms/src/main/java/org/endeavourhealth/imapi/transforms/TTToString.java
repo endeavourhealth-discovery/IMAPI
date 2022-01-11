@@ -88,13 +88,13 @@ public class TTToString {
                 }
                 if (last) suffix = " )\n";
             }
-            result = processNode(element.getKey().getIri(), element.getValue(), result, nodeIndent, iriMap, pad, prefix, suffix, group, last, withHyperlinks, blockedIris);
+            result = processNode(element.getKey(), element.getValue(), result, nodeIndent, iriMap, pad, prefix, suffix, group, last, withHyperlinks, blockedIris);
             count ++;
         }
         return result;
     }
 
-        private static String processNode(String key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
+        private static String processNode(TTIriRef key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
             if (value.isIriRef()) {
                 result += getObjectName(key, iriMap, pad, prefix);
                 result += ttIriToString(value.asIriRef(), OBJECT, indent, withHyperlinks, true, blockedIris);
@@ -119,8 +119,9 @@ public class TTToString {
             return result;
         }
 
-    private static String getObjectName(String key, Map<String, String> iriMap, String pad, String prefix) {
+    private static String getObjectName(TTIriRef key, Map<String, String> iriMap, String pad, String prefix) {
         if (iriMap != null && iriMap.containsKey(key)) return pad + prefix + removeEndBrackets(iriMap.get(key)) + " : ";
+        if (key.getName() != null && key.getName() != "") return pad + prefix + removeEndBrackets(key.getName()) + " : ";
         else return pad + prefix + key + " : ";
     }
 

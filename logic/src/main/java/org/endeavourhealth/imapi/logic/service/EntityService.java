@@ -227,7 +227,13 @@ public class EntityService {
 		JsonNode root = resultMapper.readTree(response.body());
 		List<SearchResultSummary> searchResults = new ArrayList<>();
 		for (JsonNode hit : root.get("hits").get("hits")) {
-			searchResults.add(resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class));
+			SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
+			TTArray types = new TTArray();
+			for (JsonNode type : hit.get("_source").get("entityType")) {
+				types.add(new TTIriRef(type.get("@id").asText(), type.get("name").asText()));
+			}
+			source.setEntityType(types);
+			searchResults.add(source);
 		}
 
 		return searchResults;

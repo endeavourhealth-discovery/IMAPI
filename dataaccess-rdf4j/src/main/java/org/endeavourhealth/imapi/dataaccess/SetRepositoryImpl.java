@@ -40,7 +40,7 @@ public class SetRepositoryImpl implements SetRepository {
                     BindingSet bs = rs.next();
                     String iri = bs.getValue("s").stringValue();
                     TTEntity set = getSetDefinition(iri);
-                    if (set.get(IM.DEFINITION) != null || (set.get(IM.HAS_SUBSET) != null))
+                    if (set.get(IM.DEFINITION) != null)
                         result.add(set);
                 }
             }

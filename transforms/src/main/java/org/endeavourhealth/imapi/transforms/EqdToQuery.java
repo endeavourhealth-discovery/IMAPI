@@ -176,7 +176,6 @@ public class EqdToQuery {
 
 
 
-
 	private void processCriteria(EQDOCCriteria eqCriteria,Clause clause) throws DataFormatException, JsonProcessingException {
 				if ((eqCriteria.getPopulationCriterion() != null)) {
 					EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();

@@ -42,11 +42,7 @@ public class IM {
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
-    public static final TTIriRef MEMBERS = iri(NAMESPACE + "members");
     public static final TTIriRef MEMBER_OF_GROUP = iri(NAMESPACE + "memberOfGroup");
-    public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubsets");
-    public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");
-    public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
     public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
     public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
@@ -150,11 +146,12 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_ENCOUNTERS = IM.GRAPH_ENCOUNTERS;
 
 
-    //Crud operations
+    //Crud and provenance operations
 
     public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
     public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
+    public static final TTIriRef CREATION = TTIriRef.iri(NAMESPACE +"2001000252109");
 
     //Predicate functions
 

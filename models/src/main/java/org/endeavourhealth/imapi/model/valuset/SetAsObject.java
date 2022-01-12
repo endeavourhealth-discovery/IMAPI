@@ -9,14 +9,12 @@ public class SetAsObject {
     private String iri;
     private String name;
     private TTArray included;
-    private TTArray excluded;
     private Set<TTIriRef> subsets;
 
-    public SetAsObject(String iri, String name, TTArray included, TTArray excluded, Set<TTIriRef> subsets) {
+    public SetAsObject(String iri, String name, TTArray included, Set<TTIriRef> subsets) {
         this.iri = iri;
         this.name = name;
         this.included = included;
-        this.excluded = excluded;
         this.subsets = subsets;
     }
 
@@ -28,15 +26,6 @@ public class SetAsObject {
 
     public SetAsObject setIncluded(TTArray included) {
         this.included = included;
-        return this;
-    }
-
-    public TTArray getExcluded() {
-        return excluded;
-    }
-
-    public SetAsObject setExcluded(TTArray excluded) {
-        this.excluded = excluded;
         return this;
     }
 

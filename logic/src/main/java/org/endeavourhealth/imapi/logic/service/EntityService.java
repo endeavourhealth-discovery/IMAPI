@@ -249,28 +249,17 @@ public class EntityService {
 
         Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri);
 
-        Set<ValueSetMember> definedMemberExclusions = getDefinedExclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri);
-
 		Set<ValueSetMember> definedSetInclusions = entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(iri, IM.MEMBER_OF_GROUP.getIri());
 
         memberCount = processExpansions(expandMembers, expandSets, limit, withHyperlinks, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
 
         Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
 		memberCount += evaluatedMemberInclusions.size();
-		Map<String, ValueSetMember> evaluatedMemberExclusions = processMembers(definedMemberExclusions, expandMembers, memberCount, limit);
-        memberCount += evaluatedMemberExclusions.size();
-
-		if (expandMembers) {
-			// Remove exclusions by key
-			evaluatedMemberExclusions.forEach((k, v) -> evaluatedMemberInclusions.remove(k));
-		}
 
 		if (limit != null && memberCount > limit)
 			return result.setLimited(true);
 
 		result.addAllMembers(evaluatedMemberInclusions.values());
-		if (!expandMembers)
-			result.addAllMembers(evaluatedMemberExclusions.values());
 
 		return result;
 	}
@@ -280,18 +269,12 @@ public class EntityService {
 		TTIriRef valueSet = entityRepository.getEntityReferenceByIri(iri);
 		Set<String> definition = new HashSet<>();
 		definition.add(IM.DEFINITION.getIri());
-		Set<String> notMember = new HashSet<>();
-		definition.add(IM.NOT_MEMBER.getIri());
 		TTArray included = getEntityPredicates(iri, definition, UNLIMITED)
 				.getEntity()
 				.get(IM.DEFINITION.asIriRef());
-		TTArray excluded = getEntityPredicates(iri, notMember, UNLIMITED)
-				.getEntity()
-				.get(IM.NOT_MEMBER.asIriRef());
 		Set<TTIriRef> subSets = entityTripleRepository.getSubjectByObjectAndPredicateAsTTIriRef(iri, IM.MEMBER_OF_GROUP.getIri());
 		result.setIri(valueSet.getIri());
 		result.setName(valueSet.getName());
-		result.setExcluded(excluded);
 		result.setIncluded(included);
 		result.setSubsets(subSets);
 		return result;
@@ -317,26 +300,6 @@ public class EntityService {
             }
         }
         return memberCount;
-    }
-
-    private Set<ValueSetMember> getDefinedExclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberExclusions = getMember(iri, IM.NOT_MEMBER, withHyperlinks);
-        for (ValueSetMember excluded : definedMemberExclusions) {
-            if (originalParentIri.equals(iri)) {
-                excluded.setLabel("b_MemberExcluded");
-                excluded.setType(MemberType.EXCLUDED);
-            } else {
-                if (expandSets) {
-                    excluded.setLabel("Subset - expanded");
-                    excluded.setType(MemberType.SUBSET);
-                } else if (excluded.getType() != MemberType.COMPLEX) {
-                    excluded.setLabel("Subset - " + parentSetName);
-                    excluded.setType(MemberType.SUBSET);
-                }
-            }
-            excluded.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
-        }
-        return definedMemberExclusions;
     }
 
     private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
@@ -369,7 +332,7 @@ public class EntityService {
 
 		if (result != null) {
             if (result.isIriRef())
-                members.add(getValueSetMemberFromIri(result.asIriRef().getIri()));
+                members.add(getValueSetMemberFromIri(result.asIriRef(), withHyperlinks));
             else if (result.isNode())
                 members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
             else {
@@ -377,7 +340,7 @@ public class EntityService {
                     if (element.isNode()) {
                         members.add(getValueSetMemberFromNode(element, withHyperlinks));
                     } else if (element.isIriRef()) {
-                        members.add(getValueSetMemberFromIri(element.asIriRef().getIri()));
+                        members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
                     }
                 }
             }
@@ -385,30 +348,42 @@ public class EntityService {
 		return members;
 	}
 
-	private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
-		ValueSetMember member = new ValueSetMember();
-		Map<String, String> defaultPredicates = new HashMap<>();
+	private List<String> getBlockedIris() {
 		List<String> blockedIris = new ArrayList<>();
+		try {
+			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+		} catch (Exception e) {
+			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+		}
+		return blockedIris;
+	}
+
+	private Map<String, String> getDefaultPredicateNames() {
+		Map<String, String> defaultPredicates = new HashMap<>();
 		try {
 			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
 		}
-		try {
-			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
-		} catch (Exception e) {
-			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
-		}
+		return defaultPredicates;
+	}
+
+	private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
+		ValueSetMember member = new ValueSetMember();
+		Map<String, String> defaultPredicates = getDefaultPredicateNames();
+		List<String> blockedIris = getBlockedIris();
 		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
 		member.setEntity(iri("", nodeAsString));
 		return member;
 	}
 
-	private ValueSetMember getValueSetMemberFromIri(String iri) {
+	private ValueSetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
 		ValueSetMember member = new ValueSetMember();
-        SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri);
-		member.setEntity(iri(summary.getIri(), summary.getName()));
+		List<String> blockedIris = getBlockedIris();
+        SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri.getIri());
+		String iriAsString = TTToString.ttIriToString(iri,"object", 0, withHyperlinks, false, blockedIris);
+		member.setEntity(iri(iri.getIri(), iriAsString));
 		member.setCode(summary.getCode());
 		member.setScheme(summary.getScheme());
 		return member;
@@ -440,20 +415,12 @@ public class EntityService {
 			return null;
 		ValueSetMembership result = new ValueSetMembership();
 		Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.DEFINITION);
-		Set<TTIriRef> excluded = getMemberIriRefs(valueSetIri, IM.NOT_MEMBER);
+
 		for (TTIriRef m : included) {
 			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
 					.filter(em -> em.getEntity().asIriRef().getIri().equals(memberIri)).findFirst();
 			if (match.isPresent()) {
 				result.setIncludedBy(m);
-				break;
-			}
-		}
-		for (TTIriRef m : excluded) {
-			Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
-					.filter(em -> em.getEntity().asIriRef().getIri().equals(memberIri)).findFirst();
-			if (match.isPresent()) {
-				result.setExcludedBy(m);
 				break;
 			}
 		}

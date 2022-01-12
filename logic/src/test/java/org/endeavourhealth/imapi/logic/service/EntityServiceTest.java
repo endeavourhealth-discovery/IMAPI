@@ -490,7 +490,7 @@ class EntityServiceTest {
 
     @Test
     void getValueSetMembers_NullIri() {
-        ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null);
+        ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null, true);
 
         assertNull(actual);
 
@@ -498,7 +498,7 @@ class EntityServiceTest {
 
     @Test
     void getValueSetMembers_EmptyIri() {
-        ExportValueSet actual = entityService.getValueSetMembers("", true,false, null);
+        ExportValueSet actual = entityService.getValueSetMembers("", true,false, null, true);
 
         assertNull(actual);
 
@@ -554,7 +554,7 @@ class EntityServiceTest {
                 .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
         when(SetRepository.expandMember(any(),anyInt())).thenReturn(valueSetMembers);
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, null, valueSetIri.getIri());
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, true, null, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -596,7 +596,7 @@ class EntityServiceTest {
         when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), expandMembers, expandSubsets, 0, parentSetName, valueSetIri.getIri());
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), expandMembers, expandSubsets, 0, true, parentSetName, valueSetIri.getIri());
 
         assertNotNull(actual);
 
@@ -637,7 +637,7 @@ class EntityServiceTest {
         when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, null, "http://endhealth.info/im#25451000252115");
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, true,null, "http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
 
@@ -678,7 +678,7 @@ class EntityServiceTest {
         when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
                 .thenReturn(Collections.singleton(includedSet));
 
-        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, null, "http://endhealth.info/im#25451000252115");
+        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, true, null, "http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
 

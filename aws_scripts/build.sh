@@ -67,4 +67,4 @@ curl -s "https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg
 # Sync with S3
 aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive --acl public-read --region eu-west-2
 
-exit ${buildresult}
+exit ${buildresult || testresult}

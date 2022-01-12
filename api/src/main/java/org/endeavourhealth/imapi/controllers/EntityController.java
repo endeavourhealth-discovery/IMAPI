@@ -88,6 +88,12 @@ public class EntityController {
         return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
     }
 
+	@GetMapping(value = "/fullEntity", produces = "application/json")
+	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getFullEntity");
+		return entityService.getEntityByPredicateExclusions(iri, null, EntityService.UNLIMITED).getEntity();
+	}
+
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getSimpleMaps");

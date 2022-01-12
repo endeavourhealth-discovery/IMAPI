@@ -430,7 +430,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 result.add(new Namespace(ns.getName(), ns.getPrefix(), ns.getName()));
             }
         }
-
+        Collections.sort(result, Comparator.comparing(Namespace::getName));
         return result;
     }
 

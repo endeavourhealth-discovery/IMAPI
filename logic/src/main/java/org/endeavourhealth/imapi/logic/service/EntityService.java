@@ -29,10 +29,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.opensearch.client.Response;
-import org.opensearch.client.opensearch._global.SearchResponse;
-import org.opensearch.client.opensearch._global.IndexResponse;
-import org.opensearch.client.opensearch.indices.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -60,7 +56,6 @@ public class EntityService {
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
     private SetRepository setRepository = new SetRepositoryImpl();
     private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
-    private EntitySearchRepository entitySearchRepository = new EntitySearchRepositoryImpl();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
     private ConfigService configService = new ConfigService();
 

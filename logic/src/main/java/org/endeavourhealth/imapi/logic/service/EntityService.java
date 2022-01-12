@@ -22,10 +22,7 @@ import org.endeavourhealth.imapi.model.openSearch.*;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.MemberType;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
+import org.endeavourhealth.imapi.model.valuset.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -278,13 +275,26 @@ public class EntityService {
 		return result;
 	}
 
-	public TTValue getValueSetMembersAsNode(String iri, boolean expandMembers, boolean expandSubsets, Integer limit) {
+	public SetAsObject getValueSetMembersAsNode(String iri, boolean expandMembers, boolean expandSubsets, Integer limit) {
+		SetAsObject result = new SetAsObject();
+		TTIriRef valueSet = entityRepository.getEntityReferenceByIri(iri);
 		Set<String> definition = new HashSet<>();
 		definition.add(IM.DEFINITION.getIri());
-		TTArray includeds = getEntityPredicates(iri, definition, UNLIMITED)
+		Set<String> notMember = new HashSet<>();
+		definition.add(IM.NOT_MEMBER.getIri());
+		TTArray included = getEntityPredicates(iri, definition, UNLIMITED)
 				.getEntity()
 				.get(IM.DEFINITION.asIriRef());
-		return new TTValue() {};
+		TTArray excluded = getEntityPredicates(iri, notMember, UNLIMITED)
+				.getEntity()
+				.get(IM.NOT_MEMBER.asIriRef());
+		Set<TTIriRef> subSets = entityTripleRepository.getSubjectByObjectAndPredicateAsTTIriRef(iri, IM.MEMBER_OF_GROUP.getIri());
+		result.setIri(valueSet.getIri());
+		result.setName(valueSet.getName());
+		result.setExcluded(excluded);
+		result.setIncluded(included);
+		result.setSubsets(subSets);
+		return result;
 	}
 
     private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) {

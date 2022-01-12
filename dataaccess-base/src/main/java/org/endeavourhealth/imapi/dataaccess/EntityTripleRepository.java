@@ -30,6 +30,8 @@ public interface EntityTripleRepository {
 
     Set<ValueSetMember> getSubjectByObjectAndPredicateAsValueSetMembers(String objectIri, String predicateIri);
 
+    Set<TTIriRef> getSubjectByObjectAndPredicateAsTTIriRef(String objectIri, String predicateIri);
+
     Set<TTIriRef> getObjectIriRefsBySubjectAndPredicate(String subjectIri, String predicateIri);
 
     List<Namespace> findNamespaces();

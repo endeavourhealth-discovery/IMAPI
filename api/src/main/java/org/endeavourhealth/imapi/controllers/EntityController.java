@@ -33,6 +33,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,7 +247,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/public/membersAsNode")
-	public TTValue valueSetMembersAsNode(
+	public SetAsObject valueSetMembersAsNode(
 			@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 			@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,

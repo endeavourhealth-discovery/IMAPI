@@ -159,6 +159,31 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
+    public Set<TTIriRef> getSubjectByObjectAndPredicateAsTTIriRef(String objectIri, String predicateIri) {
+        Set<TTIriRef> result = new HashSet<>();
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?s ?sname WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s rdfs:label ?sname .")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("o", iri(objectIri));
+            qry.setBinding("p", iri(predicateIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
         Set<EntitySummary> result = new HashSet<>();
         String isa= "(<"+ RDFS.SUBCLASSOF.getIri()+

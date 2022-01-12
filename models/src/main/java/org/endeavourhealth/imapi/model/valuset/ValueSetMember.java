@@ -6,18 +6,18 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import java.io.Serializable;
 
 public class ValueSetMember implements Serializable {
-    private TTValue entity;
+    private TTIriRef entity;
     private String code;
     private TTIriRef scheme;
     private String label;
     private MemberType type;
     private TTIriRef directParent;
 
-    public TTValue getEntity() {
+    public TTIriRef getEntity() {
         return entity;
     }
 
-    public ValueSetMember setEntity(TTValue entity) {
+    public ValueSetMember setEntity(TTIriRef entity) {
         this.entity = entity;
         return this;
     }

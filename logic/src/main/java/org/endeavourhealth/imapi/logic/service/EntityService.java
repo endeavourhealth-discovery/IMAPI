@@ -290,18 +290,18 @@ public class EntityService {
     private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) {
         if (expandSets || expandMembers) {
             for (ValueSetMember set : definedSetInclusions) {
-                ExportValueSet individualResults = getValueSetMembers(set.getEntity().asIriRef().getIri(), expandMembers, expandSets, limit, withHyperlinks, null, originalParentIri);
+                ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, withHyperlinks, null, originalParentIri);
                 memberCount += individualResults.getMembers().size();
                 result.addAllMembers(individualResults.getMembers());
             }
         } else {
             for (ValueSetMember set : definedSetInclusions) {
                 if (parentSetName == null) {
-                    set.setLabel("Subset - " + set.getEntity().asIriRef().getName());
+                    set.setLabel("Subset - " + set.getEntity().getName());
                 } else {
                     set.setLabel("Subset - " + parentSetName);
                 }
-                ExportValueSet setMembers = getValueSetMembers(set.getEntity().asIriRef().getIri(), false, false, limit, withHyperlinks, set.getEntity().asIriRef().getName(), originalParentIri);
+                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), false, false, limit, withHyperlinks, set.getEntity().asIriRef().getName(), originalParentIri);
                 memberCount += setMembers.getMembers().size();
                 result.addAllMembers(setMembers.getMembers());
             }
@@ -409,25 +409,17 @@ public class EntityService {
 		Map<String, ValueSetMember> memberHashMap = new HashMap<>();
 		for (ValueSetMember member : valueSetMembers) {
 
-            if (limit != null && (memberCount + memberHashMap.size()) > limit)
-                return memberHashMap;
+            if (limit != null && (memberCount + memberHashMap.size()) > limit) return memberHashMap;
 
-			if (member.getEntity().isIriRef()) {
-				memberHashMap.put(member.getEntity().asIriRef().getIri() + "/" + member.getCode(), member);
-
-				if (expand) {
-					setRepository
-							.expandMember(member.getEntity().asIriRef().getIri(), limit)
-							.forEach(m -> {
-								m.setLabel("MemberExpanded");
-								m.setType(MemberType.EXPANDED);
-								memberHashMap.put(m.getEntity().asIriRef().getIri() + "/" + m.getCode(), m);
-							});
-				}
-			}
-
-			if (member.getEntity().isNode()) {
-				memberHashMap.put("node",member);
+			memberHashMap.put(member.getEntity().getIri() + "/" + member.getCode(), member);
+			if (expand) {
+				setRepository
+						.expandMember(member.getEntity().getIri(), limit)
+						.forEach(m -> {
+							m.setLabel("MemberExpanded");
+							m.setType(MemberType.EXPANDED);
+							memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
+						});
 			}
 		}
 		return memberHashMap;

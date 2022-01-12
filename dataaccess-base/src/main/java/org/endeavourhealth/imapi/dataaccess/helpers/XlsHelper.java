@@ -121,9 +121,9 @@ public class XlsHelper {
             Cell cell = row.createCell(0);
 			cell.setCellValue(c.getType().name());
             cell = row.createCell(1);
-            cell.setCellValue(c.getEntity().getName());
+            cell.setCellValue(c.getEntity().asIriRef().getName());
             cell = row.createCell(2);
-            cell.setCellValue(c.getEntity().getIri());
+            cell.setCellValue(c.getEntity().asIriRef().getIri());
             cell = row.createCell(3);
             cell.setCellValue(c.getCode());
 

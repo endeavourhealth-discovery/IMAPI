@@ -238,10 +238,22 @@ public class EntityController {
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
-        @RequestParam(name = "limit", required = false) Integer limit
+        @RequestParam(name = "limit", required = false) Integer limit,
+		@RequestParam(name = "withHyperlinks", required = false) boolean withHyperlinks
     ) {
         LOG.debug("valueSetMembersJson");
-        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit);
+        return entityService.getValueSetMembers(iri, expandMembers,expandSubsets, limit, withHyperlinks);
+	}
+
+	@GetMapping(value = "/public/membersAsNode")
+	public TTValue valueSetMembersAsNode(
+			@RequestParam(name = "iri") String iri,
+			@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
+			@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
+			@RequestParam(name = "limit", required = false) Integer limit
+	){
+		LOG.debug("valueSetMembersNode");
+		return entityService.getValueSetMembersAsNode(iri, expandMembers, expandSubsets, limit);
 	}
 
 	@GetMapping(value = "/public/members", produces = { "text/csv" })

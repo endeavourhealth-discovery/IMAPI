@@ -34,6 +34,7 @@ public class TTToECL {
     }
 
     private static void subExpression(TTArray exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
+		if (null == exp) return;
         for (TTValue subExp:exp.iterator()){
             subExpression(subExp,ecl,includeName);
         }

@@ -26,7 +26,6 @@ sonarqube {
     }
 }
 
-war.finalizedBy 'publish'
 check.finalizedBy 'sonarqube'
 
 allprojects {
@@ -50,6 +49,7 @@ allprojects {
         }
     }
 
+    compileJava.finalizedBy 'publish'
     test.finalizedBy jacocoTestReport
 
     repositories {

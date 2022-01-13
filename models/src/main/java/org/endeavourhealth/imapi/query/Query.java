@@ -25,12 +25,17 @@ import java.util.Map;
 	*
 	*/
 
-@JsonPropertyOrder({"iri","name","description","type","mainEntityType","mainEntityVar","prefix","operator","where","clause"})
-public class Query  extends Clause {
+@JsonPropertyOrder({"iri","name","description","type","mainEntityType","mainEntityVar","prefix","select","step"})
+public class Query{
+	private String name;
+	private String description;
+	private String iri;
 	private TTIriRef type;
 	private TTIriRef mainEntityType;
 	private String mainEntityVar;
 	private List<TTIriRef> folder;
+	private List<Select> select;
+	private List<Step> step;
 	private static final Map<String,String> nsPrefix= new HashMap<>();
 	private static final Map<String,String> prefix= new HashMap<>();
 
@@ -159,4 +164,64 @@ public class Query  extends Clause {
 		this.folder.add(folder);
 		return this;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Query setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public Query setDescription(String description) {
+		this.description = description;
+		return this;
+	}
+
+	public String getIri() {
+		return iri;
+	}
+
+	public Query setIri(String iri) {
+		this.iri = iri;
+		return this;
+	}
+
+	public List<Step> getStep() {
+		return step;
+	}
+
+	public Query setStep(List<Step> step) {
+		this.step = step;
+		return this;
+	}
+
+	public Query addStep(Step step){
+		if (this.step==null)
+			this.step= new ArrayList<>();
+		this.step.add(step);
+		return this;
+	}
+	public List<Select> getSelect() {
+		return select;
+	}
+
+
+	public Query addSelect(Select sct){
+		if (this.select==null)
+			this.select= new ArrayList<>();
+		this.select.add(sct);
+		return this;
+	}
+
+	public Query setSelect(List<Select> select) {
+		this.select = select;
+		return this;
+	}
+
 }

@@ -50,18 +50,17 @@ public class EqdToQuery {
 		qry.setMainEntityType(TTIriRef.iri(IM.NAMESPACE+"Patient"));
 		qry.setMainEntityVar("?patient");
 		mainSubject="?patient";
-		qry.setOperator(Operator.AND);
 		Select select = new Select();
 		qry.addSelect(select);
 		select.setVar("?patient");
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
 			Clause parentClause = new Clause();
-			qry.addClause(parentClause);
+			qry.addStep(new Step().setMandate(Mandate.INCLUDE).addClause(parentClause));
 			setParent(parentClause, TTIriRef.iri("Q_RegisteredGMS"), "Registered with GP for GMS services on the reference date");
 		}
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
 			Clause parentClause = new Clause();
-			qry.addClause(parentClause);
+			qry.addStep(new Step().setMandate(Mandate.INCLUDE).addClause(parentClause));
 			String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 			setParent(parentClause, TTIriRef.iri("urn:uuid:" + id), "is in cohort : " + reportNames.get(id));
 		}
@@ -84,69 +83,88 @@ public class EqdToQuery {
 
 	private void convertPopulation(EQDOCPopulation population, Query qry) throws DataFormatException, JsonProcessingException {
 		Operator lastGroupOp = null;
+		Clause lastGroupClause=null;
+		Step negationStep=null;
+		Step step=null;
 		for (EQDOCCriteriaGroup eqGroup : population.getCriteriaGroup()) {
 			VocRuleAction ifTrue = eqGroup.getActionIfTrue();
 			VocRuleAction ifFalse = eqGroup.getActionIfFalse();
 			Clause groupClause;
 			Clause thisClause;
 			if (ifFalse == VocRuleAction.REJECT & lastGroupOp != Operator.OR){
+				step= new Step();
+				step.setMandate(Mandate.INCLUDE);
+				qry.addStep(step);
 				groupClause = new Clause();
+				step.setMandate(Mandate.INCLUDE).addClause(groupClause);
 				thisClause = groupClause;
-				qry.addClause(groupClause);
 			}
 			else if (ifFalse == VocRuleAction.REJECT & (lastGroupOp == Operator.OR)) {
-				groupClause = qry.getClause().get(qry.getClause().size() - 1);
+				groupClause = lastGroupClause;
 				thisClause = new Clause();
 				groupClause.addClause(thisClause);
-			}
-
-			else if (ifFalse == VocRuleAction.NEXT & ifTrue == VocRuleAction.REJECT) {
-				if (lastGroupOp==Operator.NOTOR){
-					groupClause = qry.getClause().get(qry.getClause().size() - 1);
-				}
-				else {
-					groupClause= new Clause();
-					qry.addClause(groupClause);
-					groupClause.setOperator(Operator.NOTOR);
-				}
-				thisClause = new Clause();
-				groupClause.addClause(thisClause);
-				lastGroupOp= Operator.NOTOR;
 			}
 			else if (ifFalse == VocRuleAction.NEXT & ifTrue == VocRuleAction.SELECT) {
 				if (lastGroupOp!= Operator.OR){
+					step= new Step().setMandate(Mandate.INCLUDE);
+					qry.addStep(step);
 					groupClause= new Clause();
-					qry.addClause(groupClause);
+					step.addClause(groupClause);
 					groupClause.setOperator(Operator.OR);
 				}
 				else {
-					groupClause = qry.getClause().get(qry.getClause().size() - 1);
+					groupClause = lastGroupClause;
 				}
 				thisClause= new Clause();
 				groupClause.addClause(thisClause);
 				lastGroupOp= Operator.OR;
 			}
-			else if (ifFalse == VocRuleAction.SELECT & ifTrue == VocRuleAction.REJECT) {
-				groupClause= new Clause();
-				groupClause.setOperator(Operator.NOTAND);
-				thisClause = new Clause();
-				groupClause.addClause(thisClause);
-			}
-			else if (ifFalse == VocRuleAction.SELECT & (ifTrue == VocRuleAction.NEXT)) {
-				if (lastGroupOp==Operator.NOTOR){
-					groupClause = qry.getClause().get(qry.getClause().size() - 1);
+
+
+			else if (ifFalse == VocRuleAction.NEXT & ifTrue == VocRuleAction.REJECT) {
+				if (negationStep!=null){
+					step= negationStep;
+					groupClause = new Clause();
+					step.addClause(groupClause);
+					thisClause= groupClause;
 				}
 				else {
+					step= new Step().setMandate(Mandate.EXCLUDE);
+					qry.addStep(step);
+					negationStep=step;
 					groupClause= new Clause();
-					qry.addClause(groupClause);
-					groupClause.setOperator(Operator.NOTOR);
+					step.addClause(groupClause);
+					thisClause= groupClause;
+				}
+			}
+
+			else if (ifFalse == VocRuleAction.SELECT & ifTrue == VocRuleAction.REJECT) {
+				if (negationStep==null){
+					step= new Step().setMandate(Mandate.EXCLUDE);
+					qry.addStep(step);
+					negationStep=step;
+				}
+
+				thisClause = new Clause();
+				negationStep.addClause(thisClause);
+				groupClause= thisClause;
+			}
+			else if (ifFalse == VocRuleAction.SELECT & (ifTrue == VocRuleAction.NEXT)) {
+				if (negationStep==null){
+					step= new Step().setMandate(Mandate.EXCLUDE);
+					qry.addStep(step);
+					negationStep=step;
+
 				}
 				thisClause = new Clause();
-				groupClause.addClause(thisClause);
-				lastGroupOp= Operator.NOTOR;
+				negationStep.addClause(thisClause);
+				groupClause= thisClause;
+				lastGroupOp=null;
 			}
+
 			else
 				throw new DataFormatException("unrecognised action rule combination : "+ activeReport);
+			lastGroupClause= groupClause;
 			VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 			int eqCount= eqGroup.getDefinition().getCriteria().size();
 			for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {

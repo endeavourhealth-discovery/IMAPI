@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.text.CaseUtils;
+import org.endeavourhealth.imapi.cdm.ProvActivity;
+import org.endeavourhealth.imapi.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -16,6 +18,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.PROV;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
@@ -59,24 +62,11 @@ public class EqdToTT {
 				EqdToQuery eqdToQuery = new EqdToQuery();
 				eqdToQuery.convertReport(eqReport,qry,document,dataMap,criteriaLabels,reportNames);
 				document.addEntity(qry.asEntity());
-
+				setProvenance(qry.getIri(),"CEG");
 
 			}
 
 		}
-	}
-
-	private void setProvenance(String iri,String creationTime,String userName){
-			TTEntity activity= new TTEntity()
-				.setIri(iri+"_prov")
-				.addType(PROV.ACTIVITY)
-					.setName("Authored")
-						.setDescription("Query authored");
-			if (creationTime!=null) {
-				activity.set(PROV.ENDED_AT_TIME, TTLiteral.literal(creationTime));
-			}
-			document.addEntity(activity);
-
 	}
 
 	private void convertFolders(TTIriRef mainFolder,EnquiryDocument eqd) throws DataFormatException {
@@ -96,38 +86,30 @@ public class EqdToTT {
 				document.addEntity(folder);
 				if (eqFolder.getAuthor()!=null)
 					if (eqFolder.getAuthor().getAuthorName()!=null)
-						setProvenance(iri,null,eqFolder.getAuthor().getAuthorName());
+						setProvenance(iri,eqFolder.getAuthor().getAuthorName());
 			}
 		}
 	}
 
-	private TTIriRef getPersonInRole(String name) {
-		UUID uuid= null;
-		try{
-			uuid = UUID.fromString(name);
+	private void setProvenance(String iri,String authorName) {
+		String uir= getPerson(authorName);
+		ProvAgent agent= new ProvAgent()
+			.setPersonInRole(TTIriRef.iri(uir))
+			.setParticipationType(IM.AUTHOR_ROLE);
+		agent.setName(authorName);
+		agent.setIri(uir.replace("uir.","agent."));
+		document.addEntity(agent);
+		ProvActivity activity= new ProvActivity()
+			.setIri("http://prov.endhealth.info/im#Q_RegisteredGMS")
+			.setActivityType(IM.CREATION)
+			.setEffectiveDate(LocalDateTime.now().toString())
+			.addAgent(TTIriRef.iri(agent.getIri()))
+			.setTargetEntity(TTIriRef.iri(iri));
+		document.addEntity(activity);
 
-		} catch (IllegalArgumentException ignored) {
-		}
-		String agentIri;
-		if (uuid!=null) {
-			agentIri = "urn:uuid:" + uuid;
-			name="Unknown user";
-		}
-		else
-			agentIri= getagentIri(name);
-		if (!users.contains(agentIri)){
-			users.add(agentIri);
-			TTEntity agent = new TTEntity()
-					.setIri(agentIri)
-					.addType(TTIriRef.iri(IM.NAMESPACE + "PersonInRole"))
-					.setName(name);
-			agent.addObject(IM.HAS_ROLE_IN, TTIriRef.iri(owner.getIri()));
-			document.addEntity(agent);
-		}
-		return TTIriRef.iri(agentIri);
 	}
 
-	private String getagentIri(String name) {
+	private String getPerson(String name) {
 		return owner.getIri().replace("org.","uir.")+"/personrole#"+
 			CaseUtils.toCamelCase(name
 					.replace(" ",""),true)

@@ -120,9 +120,9 @@ public class TTToString {
         }
 
     private static String getObjectName(TTIriRef key, Map<String, String> iriMap, String pad, String prefix) {
-        if (iriMap != null && iriMap.containsKey(key)) return pad + prefix + removeEndBrackets(iriMap.get(key)) + " : ";
+        if (iriMap != null && iriMap.containsKey(key.getIri())) return pad + prefix + removeEndBrackets(iriMap.get(key.getIri())) + " : ";
         if (key.getName() != null && key.getName() != "") return pad + prefix + removeEndBrackets(key.getName()) + " : ";
-        else return pad + prefix + key + " : ";
+        else return pad + prefix + key.getIri() + " : ";
     }
 
     private static String removeEndBrackets(String str) {

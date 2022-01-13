@@ -525,21 +525,10 @@ class EntityServiceTest {
         included.add(new Tpl()
                 .setDbid(1)
                 .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setLiteral("Excluded")
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
 
 
         when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
             .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-            .thenReturn(excluded);
 
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
@@ -572,20 +561,10 @@ class EntityServiceTest {
         included.add(new Tpl()
                 .setDbid(1)
                 .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
 
 
         when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
                 .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
 
 
         ValueSetMember includedSet = new ValueSetMember()
@@ -613,20 +592,10 @@ class EntityServiceTest {
         included.add(new Tpl()
                 .setDbid(1)
                 .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
 
 
         when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
                 .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
 
 
         ValueSetMember includedSet = new ValueSetMember()
@@ -654,20 +623,10 @@ class EntityServiceTest {
         included.add(new Tpl()
                 .setDbid(1)
                 .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
 
 
         when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
                 .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
 
 
         ValueSetMember includedSet = new ValueSetMember()
@@ -708,15 +667,10 @@ class EntityServiceTest {
                 .setName("Adverse reaction to Amlodipine Besilate");
         when(entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(any(),eq(IM.DEFINITION.getIri())))
                 .thenReturn(Collections.singleton(ttIriRef1));
-        when(entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(ttIriRef2));
 
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri(IM.DEFINITION.getIri()));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri(IM.NOT_MEMBER.getIri()));
         when(SetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
-        when(SetRepository.expandMember(ttIriRef2.getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
         ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.DEFINITION.getIri());
@@ -735,15 +689,10 @@ class EntityServiceTest {
                 .setName("Adverse reaction to Amlodipine Besilate");
         when(entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(any(),eq(IM.DEFINITION.getIri())))
                 .thenReturn(Collections.singleton(ttIriRef1));
-        when(entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(any(),eq(IM.NOT_MEMBER.getIri())))
-                .thenReturn(Collections.singleton(ttIriRef2));
 
         org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
                 .setEntity(iri(IM.DEFINITION.getIri()));
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember2 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri(IM.NOT_MEMBER.getIri()));
         when(SetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
-        when(SetRepository.expandMember(ttIriRef2.getIri())).thenReturn(Collections.singletonList(valueSetMember2));
 
         ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.NOT_MEMBER.getIri());
@@ -826,19 +775,10 @@ class EntityServiceTest {
                 .setDbid(1)
                 .setPredicate(iri("http://endhealth.info/im#definition")));
         List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
 
 
         when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
                 .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
 
 
         ValueSetMember includedSet = new ValueSetMember()
@@ -866,20 +806,10 @@ class EntityServiceTest {
         included.add(new Tpl()
                 .setDbid(1)
                 .setPredicate(iri("http://endhealth.info/im#definition")));
-        List<Tpl> excluded = new ArrayList<>();
-        excluded.add(new Tpl()
-                .setDbid(3)
-                .setObject(iri("http://endhealth.info/im#ExcludedMember","Excluded member"))
-                .setPredicate(iri("http://endhealth.info/im#891071000252105")));
-        excluded.add(new Tpl()
-                .setDbid(4)
-                .setPredicate(iri("http://endhealth.info/im#notMembers")));
 
 
         when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
                 .thenReturn(included);
-        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.NOT_MEMBER.getIri())),anyInt()))
-                .thenReturn(excluded);
 
 
         ValueSetMember includedSet = new ValueSetMember()

@@ -71,15 +71,15 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?name WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s rdfs:label ?name .")
-            .add("    ?s im:status ?status .")
-            .add("    FILTER (?p != ?e && ?status != im:Inactive)")
-            .add("}");
+                .add("SELECT DISTINCT ?s ?name WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s rdfs:label ?name .")
+                .add("    ?s im:status ?status .")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("}");
 
         if (rowNumber != null && pageSize != null) {
-            sql.add("LIMIT "+ pageSize + " OFFSET " + rowNumber );
+            sql.add("LIMIT " + pageSize + " OFFSET " + rowNumber);
         }
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
@@ -91,8 +91,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                     BindingSet bs = rs.next();
 
                     result.add(new TTIriRef()
-                        .setIri(bs.getValue("s").stringValue())
-                        .setName(bs.getValue("name").stringValue())
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("name").stringValue())
                     );
                 }
             }
@@ -104,11 +104,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     @Override
     public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String excludePredicateIri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT (COUNT(?s) AS ?cnt) WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s im:status ?status .")
-            .add("    FILTER (?p != ?e && ?status != im:Inactive)")
-            .add("}");
+                .add("SELECT (COUNT(?s) AS ?cnt) WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s im:status ?status .")
+                .add("    FILTER (?p != ?e && ?status != im:Inactive)")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -131,12 +131,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         Set<ValueSetMember> result = new HashSet<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s rdfs:label ?sname .")
-            .add("    GRAPH ?g { ?s im:code ?scode } .")
-            .add("    OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
+                .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s rdfs:label ?sname .")
+                .add("    GRAPH ?g { ?s im:code ?scode } .")
+                .add("    OPTIONAL { ?g rdfs:label ?gname } .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -147,9 +147,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                     BindingSet bs = rs.next();
 
                     result.add(new ValueSetMember()
-                        .setEntity(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue()))
-                        .setCode(bs.getValue("scode").stringValue())
-                        .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
+                            .setEntity(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue()))
+                            .setCode(bs.getValue("scode").stringValue())
+                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                     );
                 }
             }
@@ -186,18 +186,18 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     @Override
     public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
         Set<EntitySummary> result = new HashSet<>();
-        String isa= "(<"+ RDFS.SUBCLASSOF.getIri()+
-          ">|<"+RDFS.SUBPROPERTYOF.getIri()+
-          ">|<"+ SNOMED.REPLACED_BY.getIri()+">)*";
+        String isa = "(<" + RDFS.SUBCLASSOF.getIri() +
+                ">|<" + RDFS.SUBPROPERTYOF.getIri() +
+                ">|<" + SNOMED.REPLACED_BY.getIri() + ">)*";
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
-            .add("WHERE {")
-            .add("  ?s "+isa+" ?o .")
-            .add("  ?s rdfs:label ?sname .")
-            .add("  GRAPH ?g { ?s im:code ?scode } .")
-            .add("  OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
+                .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
+                .add("WHERE {")
+                .add("  ?s " + isa + " ?o .")
+                .add("  ?s rdfs:label ?sname .")
+                .add("  GRAPH ?g { ?s im:code ?scode } .")
+                .add("  OPTIONAL { ?g rdfs:label ?gname } .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -209,10 +209,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                     BindingSet bs = rs.next();
 
                     result.add(new EntitySummary()
-                        .setIri(bs.getValue("s").stringValue())
-                        .setName(bs.getValue("sname").stringValue())
-                        .setCode(bs.getValue("scode").stringValue())
-                        .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("sname").stringValue())
+                            .setCode(bs.getValue("scode").stringValue())
+                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                     );
                 }
                 LOG.debug(String.format("Finished (%d rows)", result.size()));
@@ -228,19 +228,19 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         Set<EntitySummary> result = new HashSet<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
-            .add("WHERE {")
-            .add("  ?p (rdfs:subClassOf)* ?bp .")
-            .add("  ?o (rdfs:subClassOf)* ?bo .")
-            .add("  ?bs ?p ?o .")
-            .add("  ?s (rdfs:subClassOf|sn:370124000)* ?bs .")
-            .add("  FILTER isUri(?s)")
-            .add("  GRAPH ?g {")
-            .add("    ?s im:code ?scode ;")
-            .add("       rdfs:label ?sname .")
-            .add("  }")
-            .add("  OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
+                .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
+                .add("WHERE {")
+                .add("  ?p (rdfs:subClassOf)* ?bp .")
+                .add("  ?o (rdfs:subClassOf)* ?bo .")
+                .add("  ?bs ?p ?o .")
+                .add("  ?s (rdfs:subClassOf|sn:370124000)* ?bs .")
+                .add("  FILTER isUri(?s)")
+                .add("  GRAPH ?g {")
+                .add("    ?s im:code ?scode ;")
+                .add("       rdfs:label ?sname .")
+                .add("  }")
+                .add("  OPTIONAL { ?g rdfs:label ?gname } .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -253,10 +253,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                     BindingSet bs = rs.next();
 
                     result.add(new EntitySummary()
-                        .setIri(bs.getValue("s").stringValue())
-                        .setName(bs.getValue("sname").stringValue())
-                        .setCode(bs.getValue("scode").stringValue())
-                        .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("sname").stringValue())
+                            .setCode(bs.getValue("scode").stringValue())
+                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                     );
                 }
                 LOG.debug(String.format("Finished (%d rows)", result.size()));
@@ -269,23 +269,23 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     @Override
     public boolean hasChildren(String parentIri, List<String> schemeIris, boolean inactive) throws DALException {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?c")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
-            .add("GRAPH ?g { ?c rdfs:label ?name } .");
+                .add("SELECT ?c")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("GRAPH ?g { ?c rdfs:label ?name } .");
 
-        if(schemeIris != null && !schemeIris.isEmpty()){
+        if (schemeIris != null && !schemeIris.isEmpty()) {
             sql
                     .add(valueList("g", schemeIris));
         }
 
         if (!inactive)
             sql
-                .add("  OPTIONAL { ?c im:status ?s}")
-                .add("  FILTER (?s != im:Inactive) .");
+                    .add("  OPTIONAL { ?c im:status ?s}")
+                    .add("  FILTER (?s != im:Inactive) .");
 
         sql.add("}")
-            .add("LIMIT 1");
+                .add("LIMIT 1");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -300,21 +300,21 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
-            StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?c ?cname")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
-            .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?c ?cname")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
-        if(schemeIris != null && !schemeIris.isEmpty()){
+        if (schemeIris != null && !schemeIris.isEmpty()) {
             sql
-                .add( valueList("g", schemeIris) );
+                    .add(valueList("g", schemeIris));
         }
 
         if (!inactive)
             sql
-                .add("  OPTIONAL { ?c im:status ?s}")
-                .add("  FILTER (?s != im:Inactive) .");
+                    .add("  OPTIONAL { ?c im:status ?s}")
+                    .add("  FILTER (?s != im:Inactive) .");
 
         sql.add("}");
 
@@ -322,8 +322,8 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         if (rowNumber != null && pageSize != null) {
             sql
-                .add("LIMIT " + pageSize)
-                .add("OFFSET " + rowNumber);
+                    .add("LIMIT " + pageSize)
+                    .add("OFFSET " + rowNumber);
         }
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
@@ -346,27 +346,27 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?p ?pname")
-            .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
-            .add("GRAPH ?g { ?p rdfs:label ?pname } .");
+                .add("SELECT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
-        if(schemeIris != null && !schemeIris.isEmpty()){
+        if (schemeIris != null && !schemeIris.isEmpty()) {
             sql
-                    .add(valueList("g", schemeIris) );
+                    .add(valueList("g", schemeIris));
         }
 
         if (!inactive)
             sql
-                .add("  OPTIONAL { ?p im:status  ?s}")
-                .add("  FILTER (?s != im:Inactive) .");
+                    .add("  OPTIONAL { ?p im:status  ?s}")
+                    .add("  FILTER (?s != im:Inactive) .");
 
         sql.add("}");
 
         if (rowNumber != null && pageSize != null) {
             sql
-                .add("LIMIT " + pageSize)
-                .add("OFFSET " + rowNumber);
+                    .add("LIMIT " + pageSize)
+                    .add("OFFSET " + rowNumber);
         }
 
         sql.add("ORDER BY ?pname");
@@ -395,11 +395,11 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         Set<TTIriRef> result = new HashSet<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?o ?oname")
-            .add("WHERE {")
-            .add("  ?s ?p ?o .")
-            .add("  ?o im:label ?oname .")
-            .add("}");
+                .add("SELECT ?o ?oname")
+                .add("WHERE {")
+                .add("  ?s ?p ?o .")
+                .add("  ?o im:label ?oname .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -439,12 +439,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         List<SimpleMap> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
-            .add("    ?s ?p ?o .")
-            .add("    ?s rdfs:label ?sname .")
-            .add("    GRAPH ?g { ?s im:code ?scode } .")
-            .add("    OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
+                .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
+                .add("    ?s ?p ?o .")
+                .add("    ?s rdfs:label ?sname .")
+                .add("    GRAPH ?g { ?s im:code ?scode } .")
+                .add("    OPTIONAL { ?g rdfs:label ?gname } .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -455,10 +455,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                     BindingSet bs = rs.next();
 
                     result.add(new SimpleMap()
-                        .setIri(bs.getValue("s").stringValue())
-                        .setName(bs.getValue("sname").stringValue())
-                        .setCode(bs.getValue("scode").stringValue())
-                        .setScheme((bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue()))
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("sname").stringValue())
+                            .setCode(bs.getValue("scode").stringValue())
+                            .setScheme((bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue()))
                     );
                 }
             }
@@ -473,12 +473,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         Set<EntitySummary> result = new HashSet<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
-            .add("    ?s im:matchedTo ?o .")
-            .add("    ?s rdfs:label ?sname .")
-            .add("    GRAPH ?g { ?s im:code ?scode } .")
-            .add("    OPTIONAL { ?g rdfs:label ?gname } .")
-            .add("}");
+                .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
+                .add("    ?s im:matchedTo ?o .")
+                .add("    ?s rdfs:label ?sname .")
+                .add("    GRAPH ?g { ?s im:code ?scode } .")
+                .add("    OPTIONAL { ?g rdfs:label ?gname } .")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
@@ -490,10 +490,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                         BindingSet bs = rs.next();
 
                         result.add(new EntitySummary()
-                            .setIri(bs.getValue("s").stringValue())
-                            .setName(bs.getValue("sname").stringValue())
-                            .setCode(bs.getValue("scode").stringValue())
-                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
+                                .setIri(bs.getValue("s").stringValue())
+                                .setName(bs.getValue("sname").stringValue())
+                                .setCode(bs.getValue("scode").stringValue())
+                                .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                         );
                     }
                 }
@@ -505,12 +505,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     private void addTriples(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?p ?pname ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s ?p ?o ;")
-            .add("    OPTIONAL { ?s rdfs:label ?sname }")
-            .add("    OPTIONAL { ?p rdfs:label ?pname }")
-            .add("    OPTIONAL { ?o rdfs:label ?oname }");
+                .add("SELECT ?sname ?p ?pname ?o ?oname")
+                .add("WHERE {")
+                .add("    ?s ?p ?o ;")
+                .add("    OPTIONAL { ?s rdfs:label ?sname }")
+                .add("    OPTIONAL { ?p rdfs:label ?pname }")
+                .add("    OPTIONAL { ?o rdfs:label ?oname }");
 
         if (predicates != null && !predicates.isEmpty()) {
             sql.add("    FILTER ( ?p IN " + inList("p", predicates.size()) + " )");
@@ -533,9 +533,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     Tpl tpl = new Tpl()
-                        .setDbid(row++)
-                        .setParent(parent)
-                        .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
+                            .setDbid(row++)
+                            .setParent(parent)
+                            .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
 
                     triples.add(tpl);
 
@@ -544,7 +544,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                         tpl.setObject(TTIriRef.iri(object.stringValue(), getString(bs, "oname")));
                     } else if (object.isLiteral()) {
                         tpl.setLiteral(object.stringValue())
-                            .setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
+                                .setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
                     } else if (object.isBNode()) {
                         bnodes.put(object.stringValue(), row - 1);
                         addTriples(triples, (BNode) object, row - 1, null);
@@ -558,12 +558,12 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     private void addTriplesExcluding(List<Tpl> triples, Resource subject, Integer parent, Set<String> excludePredicates) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?p ?pname ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s ?p ?o ;")
-            .add("    OPTIONAL { ?s rdfs:label ?sname }")
-            .add("    OPTIONAL { ?p rdfs:label ?pname }")
-            .add("    OPTIONAL { ?o rdfs:label ?oname }");
+                .add("SELECT ?sname ?p ?pname ?o ?oname")
+                .add("WHERE {")
+                .add("    ?s ?p ?o ;")
+                .add("    OPTIONAL { ?s rdfs:label ?sname }")
+                .add("    OPTIONAL { ?p rdfs:label ?pname }")
+                .add("    OPTIONAL { ?o rdfs:label ?oname }");
 
         if (excludePredicates != null && !excludePredicates.isEmpty()) {
             sql.add("    FILTER ( ?p NOT IN " + inList("p", excludePredicates.size()) + " )");
@@ -586,9 +586,9 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     Tpl tpl = new Tpl()
-                        .setDbid(row++)
-                        .setParent(parent)
-                        .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
+                            .setDbid(row++)
+                            .setParent(parent)
+                            .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
 
                     triples.add(tpl);
 
@@ -597,7 +597,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                         tpl.setObject(TTIriRef.iri(object.stringValue(), getString(bs, "oname")));
                     } else if (object.isLiteral()) {
                         tpl.setLiteral(object.stringValue())
-                            .setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
+                                .setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
                     } else if (object.isBNode()) {
                         bnodes.put(object.stringValue(), row - 1);
                         addTriples(triples, (BNode) object, row - 1, null);
@@ -610,7 +610,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     }
 
     @Override
-    public List<SimpleMap> findSimpleMapsByIri(String iri,List<String> schemeIris) {
+    public List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add(" SELECT ?o ?oname ?ocode ?osch WHERE{")
@@ -619,24 +619,46 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 .add("    im:scheme ?osch . ")
                 .add("GRAPH ?g { ?o rdfs:label ?oname } .");
 
-        if(schemeIris != null && !schemeIris.isEmpty()){
+        if (schemeIris != null && !schemeIris.isEmpty()) {
             sql
                     .add(valueList("g", schemeIris));
         }
         sql.add("}");
 
-        try( RepositoryConnection conn = ConnectionManager.getConnection()){
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", iri(iri));
 
-            try(TupleQueryResult rs = qry.evaluate()){
-                while (rs.hasNext()){
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs,"oname"), getString(bs, "ocode"), getString(bs, "osch")));
+                    simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "oname"), getString(bs, "ocode"), getString(bs, "osch")));
                 }
             }
         }
         return simpleMaps;
+    }
+
+    @Override
+    public List<String> findGroupMemberIris(String iri) {
+        List<String> groupMemberIris = new ArrayList<>();
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?s WHERE {")
+                .add("?s <http://endhealth.info/im#memberOfGroup> <http://endhealth.info/im#CSET_EthnicCategoryCEG16> .")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    groupMemberIris.add(getString(bs, "s"));
+                }
+            }
+        }
+
+        return groupMemberIris;
     }
 }

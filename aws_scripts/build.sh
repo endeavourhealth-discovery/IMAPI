@@ -10,7 +10,7 @@ artifact='IMAPI'
 # Version
 version='1.0.0'
 
-returncode = 0
+returncode=0
 
 # Update badges pre-build
 echo "https://img.shields.io/badge/Build-In_progress-orange.svg"
@@ -37,7 +37,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 if [[ "$buildresult" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
-        returncode = 1
+        returncode=1
 else
         badge_status=passing
         badge_colour=green
@@ -59,7 +59,7 @@ curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badg
 if [[ "$testresult" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
-        returncode = 1
+        returncode=1
 else
         badge_status=passing
         badge_colour=green

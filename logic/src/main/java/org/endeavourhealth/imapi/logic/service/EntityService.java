@@ -249,12 +249,8 @@ public class EntityService {
 
         Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri);
 
-		Set<ValueSetMember> definedSetInclusions = entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(iri, IM.MEMBER_OF_GROUP.getIri());
-
-        memberCount = processExpansions(expandMembers, expandSets, limit, withHyperlinks, parentSetName, originalParentIri, result, memberCount, definedSetInclusions);
 
         Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
-		memberCount += evaluatedMemberInclusions.size();
 
 		if (limit != null && memberCount > limit)
 			return result.setLimited(true);
@@ -272,11 +268,9 @@ public class EntityService {
 		TTArray included = getEntityPredicates(iri, definition, UNLIMITED)
 				.getEntity()
 				.get(IM.DEFINITION.asIriRef());
-		Set<TTIriRef> subSets = entityTripleRepository.getSubjectByObjectAndPredicateAsTTIriRef(iri, IM.MEMBER_OF_GROUP.getIri());
 		result.setIri(valueSet.getIri());
 		result.setName(valueSet.getName());
 		result.setIncluded(included);
-		result.setSubsets(subSets);
 		return result;
 	}
 
@@ -321,6 +315,8 @@ public class EntityService {
         }
         return definedMemberInclusions;
     }
+
+
 
     private Set<ValueSetMember> getMember(String iri, TTIriRef predicate, boolean withHyperlinks) {
 		Set<ValueSetMember> members = new HashSet<>();

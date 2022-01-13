@@ -27,7 +27,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 { #try
-    ./gradlew $* &&
+    ./gradlew build
     buildresult=0
 } || { #catch
     buildresult=1
@@ -49,12 +49,7 @@ echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
 # Unit tests
-{ #try
-    ./gradlew check &&
-    testresult=0
-} || { #catch
-    testresult=1
-}
+$testresult=$( xmllint --xpath 'string(//testsuite/@failures) + string(//testsuite/@errors)' */build/test-results/test/TEST-*.xml )
 
 if [[ "$testresult" -gt "0" ]] ; then
         badge_status=failing

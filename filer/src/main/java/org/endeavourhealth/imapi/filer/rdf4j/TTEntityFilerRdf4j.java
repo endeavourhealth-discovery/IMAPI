@@ -10,6 +10,7 @@ import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
@@ -55,6 +57,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           "                OPTIONAL {?o4 ?p5 ?o5" +
           "                    filter(isBlank(?o4))}}}\n" +
           "        }}}");
+    }
+
+    public TTEntityFilerRdf4j(){
+        this(ConnectionManager.getConnection(), new HashMap<>());
     }
 
     @Override

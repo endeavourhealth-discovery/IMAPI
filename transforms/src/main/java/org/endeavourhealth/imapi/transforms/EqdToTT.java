@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.zip.DataFormatException;
 
 public class EqdToTT {
+	public static QueryDocument qDocument= new QueryDocument();
 	private TTIriRef owner;
 	private Properties dataMap;
 	private Properties criteriaLabels;
@@ -51,6 +52,7 @@ public class EqdToTT {
 
 
 	private void convertReports(EnquiryDocument eqd,Map<String,String> reportNames) throws DataFormatException, JsonProcessingException {
+		qDocument = new QueryDocument();
 		for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
 			if (eqReport.getId() == null)
 				throw new DataFormatException("No report id");
@@ -62,6 +64,7 @@ public class EqdToTT {
 				EqdToQuery eqdToQuery = new EqdToQuery();
 				eqdToQuery.convertReport(eqReport,qry,document,dataMap,criteriaLabels,reportNames);
 				document.addEntity(qry.asEntity());
+				qDocument.addQuery(qry);
 				setProvenance(qry.getIri(),"CEG");
 
 			}

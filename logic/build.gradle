@@ -10,6 +10,7 @@ sonarqube {
 dependencies {
     api project(':dataaccess-rdf4j')
     api project(':transforms')
+    api project(':filer')
 
     implementation libs.antlr
     implementation libs.apachePoi

@@ -48,11 +48,6 @@ public class ExcelSetExporter {
         headerStyle.setFont(font);
         headerStyle.setWrapText(true);
         if (entity.get(IM.DEFINITION) == null) {
-            List<String> groupMemberIris = entityTripleRepository.findGroupMemberIris(setIri);
-            for (String iri : groupMemberIris) {
-                TTEntity groupMember = entityTripleRepository.getEntityPredicates(iri, predicates, 0).getEntity();
-                populateWorkbook(groupMember, workbook, headerStyle);
-            }
             return workbook;
         }
         populateWorkbook(entity, workbook, headerStyle);

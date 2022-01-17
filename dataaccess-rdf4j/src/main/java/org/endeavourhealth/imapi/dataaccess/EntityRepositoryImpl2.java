@@ -208,23 +208,23 @@ public class EntityRepositoryImpl2 {
 
 	private void whereClause(TTEntity setEntity) {
 		spql.add("WHERE {");
-		TTNode definition= setEntity.get(IM.DEFINITION).asNode();
+		TTArray definition= setEntity.get(IM.DEFINITION);
 		graphWherePattern(definition);
 		spql.add("}");
 	}
 
-	private void graphWherePattern(TTNode definition) {
+	private void graphWherePattern(TTArray definition) {
 		if (definition.isIriRef()) {
 			simpleSuperClass(definition.asIriRef());
 		}
-		else if (definition.get(SHACL.OR)!=null) {
-			orClause(definition.get(SHACL.OR));
+		else if (definition.asNode().get(SHACL.OR)!=null) {
+			orClause(definition.asNode().get(SHACL.OR));
 
 		}
-		else if (definition.get(SHACL.AND)!=null) {
-			boolean hasRoles = andClause(definition.get(SHACL.AND),true);
+		else if (definition.asNode().get(SHACL.AND)!=null) {
+			boolean hasRoles = andClause(definition.asNode().get(SHACL.AND),true);
 			if (hasRoles) {
-				andClause(definition.get(SHACL.AND), false);
+				andClause(definition.asNode().get(SHACL.AND), false);
 			}
 		}
 	}

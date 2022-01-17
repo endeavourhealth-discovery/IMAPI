@@ -234,8 +234,15 @@ public class EntityRepositoryImpl2 {
 		spql.add("{");
 		StringBuilder values= new StringBuilder();
 		for (TTValue superClass : ors.getElements()) {
-			if (superClass.isIriRef())
-				values.append(getShort(superClass.asIriRef().getIri())).append(" ");
+			if (superClass.isIriRef()) {
+				if(isSet(superClass.asIriRef().getIri())) {
+					for(String memberIri: getMemberIris(superClass.asIriRef().getIri())) {
+						values.append(getShort(memberIri)).append(" ");
+					}
+				} else {
+					values.append(getShort(superClass.asIriRef().getIri())).append(" ");
+				}
+			}
 		}
 		if (!values.toString().equals("")) {
 			spql.add("{");
@@ -395,6 +402,49 @@ public class EntityRepositoryImpl2 {
 		}
 		return sb.toString();
 	}
+
+    private boolean isSet(String iri) {
+        StringJoiner sql = new StringJoiner("\n");
+        sql.add("PREFIX im: <http://endhealth.info/im#>");
+        sql.add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>");
+        sql.add("SELECT * WHERE {");
+        sql.add("<" + iri + "> rdf:type ?o .");
+        sql.add("}");
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            try (TupleQueryResult gs = qry.evaluate()) {
+                if (gs.hasNext()) {
+                    BindingSet bs = gs.next();
+                    return bs.getValue("o").stringValue().equals(IM.CONCEPT_SET.getIri()) || bs.getValue("o").stringValue().equals(IM.VALUESET.getIri());
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private List<String> getMemberIris(String iri) {
+        List<String> result = new ArrayList<>();
+        StringJoiner sql = new StringJoiner("\n");
+        sql.add("PREFIX im: <http://endhealth.info/im#>");
+        sql.add("PREFIX sh: <http://www.w3.org/ns/shacl#>");
+        sql.add("SELECT ?o2 WHERE {");
+        sql.add("<" + iri + "> im:definition ?o .");
+        sql.add("?o (sh:or|sh:and) ?o2 .");
+        sql.add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            try (TupleQueryResult gs = qry.evaluate()) {
+                if (gs.hasNext()) {
+                    BindingSet bs = gs.next();
+                    result.add(bs.getValue("o2").stringValue());
+                }
+            }
+        }
+
+        return result;
+    }
 }
 
 

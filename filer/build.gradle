@@ -1,0 +1,33 @@
+
+group 'org.endeavourhealth.imapi'
+version '1.0-SNAPSHOT'
+
+dependencies {
+    api project(':models')
+    api project(':transforms')
+    api project(':dataaccess-rdf4j')
+
+    implementation libs.slf4j
+    implementation libs.rdf4jQuery
+    implementation libs.rdf4jRepoApi
+    implementation libs.rdf4jRepoHttp
+    implementation libs.rdf4jRepoSail
+    implementation libs.rdf4jSailNative
+
+    testImplementation libs.junitRunner
+    testImplementation libs.springTest
+}
+
+publishing {
+    repositories {
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+description = 'filer'

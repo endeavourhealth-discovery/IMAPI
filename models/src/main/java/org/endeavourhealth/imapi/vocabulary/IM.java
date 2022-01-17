@@ -29,7 +29,6 @@ public class IM {
     public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
     public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
-    public static final TTIriRef SET_GROUP = iri(NAMESPACE + "ConceptSetGroup");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
     public static final TTIriRef DATASET = iri(NAMESPACE +"DataSet");
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
@@ -42,13 +41,6 @@ public class IM {
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
-    public static final TTIriRef MEMBERS = iri(NAMESPACE + "members");
-    public static final TTIriRef MEMBER_OF_GROUP = iri(NAMESPACE + "memberOfGroup");
-    public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubsets");
-    public static final TTIriRef HAS_MEMBER_CODE = iri(NAMESPACE + "hasMemberCodes");
-    public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
-    public static final TTIriRef NOT_MEMBER = iri(NAMESPACE + "notMembers");
-    public static final TTIriRef HAS_EXPANSION = iri(NAMESPACE + "hasExpansion");
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE +"isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE +"oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE +"combinationOf");
@@ -150,11 +142,12 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_ENCOUNTERS = IM.GRAPH_ENCOUNTERS;
 
 
-    //Crud operations
+    //Crud and provenance operations
 
     public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
     public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
+    public static final TTIriRef CREATION = TTIriRef.iri(NAMESPACE +"2001000252109");
 
     //Predicate functions
 

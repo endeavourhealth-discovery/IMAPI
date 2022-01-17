@@ -30,6 +30,7 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.*;
 
 public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepositoryImpl.class);
+    private static final List<Namespace> namespaceCache = new ArrayList<>();
 
     private final Map<String, Integer> bnodes = new HashMap<>();
     private int row = 0;
@@ -422,16 +423,47 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public List<Namespace> findNamespaces() {
-        List<Namespace> result = new ArrayList<>();
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            RepositoryResult<org.eclipse.rdf4j.model.Namespace> namespaces = conn.getNamespaces();
-            while (namespaces.hasNext()) {
-                org.eclipse.rdf4j.model.Namespace ns = namespaces.next();
-                result.add(new Namespace(ns.getName(), ns.getPrefix(), ns.getName()));
+        synchronized (namespaceCache) {
+            if (namespaceCache.isEmpty()) {
+                Map<String, Namespace> result = new HashMap<>();
+                try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+                    RepositoryResult<org.eclipse.rdf4j.model.Namespace> namespaces = conn.getNamespaces();
+                    while (namespaces.hasNext()) {
+                        org.eclipse.rdf4j.model.Namespace ns = namespaces.next();
+                        result.put(ns.getName(), new Namespace(ns.getName(), ns.getPrefix(), ns.getName()));
+                    }
+                }
+
+                // Get/add schemes
+                StringJoiner sql = new StringJoiner(System.lineSeparator())
+                    .add("SELECT *")
+                    .add("WHERE {")
+                    .add("    GRAPH ?g {")
+                    .add("        ?g rdfs:label ?name")
+                    .add("    }")
+                    .add("}");
+
+                int i = 1;
+                try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+                    TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+                    try (TupleQueryResult rs = qry.evaluate()) {
+                        while (rs.hasNext()) {
+                            BindingSet bs = rs.next();
+                            Namespace ns = result.get(bs.getValue("g").stringValue());
+                            if (ns == null) {
+                                result.put(bs.getValue("g").stringValue(), new Namespace(bs.getValue("g").stringValue(), "PFX" + (i++), bs.getValue("name").stringValue()));
+                            } else {
+                                ns.setName(bs.getValue("name").stringValue());
+                            }
+                        }
+                    }
+                }
+
+                namespaceCache.addAll(result.values());
             }
+            Collections.sort(namespaceCache, Comparator.comparing(Namespace::getName));
+            return namespaceCache;
         }
-        Collections.sort(result, Comparator.comparing(Namespace::getName));
-        return result;
     }
 
     @Override

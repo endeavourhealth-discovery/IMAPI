@@ -189,8 +189,6 @@ public class SetService {
         if (conceptSet.get(IM.DEFINITION) != null)
             exportMembers(definitions, expansions, legacies, im1maps, conceptSet);
 
-        if (conceptSet.get(IM.HAS_SUBSET) != null)
-            exportSubsetWithExpansion(definitions, expansions, legacies, subsets, im1maps, conceptSet, setIri);
     }
 
      /**
@@ -220,9 +218,7 @@ public class SetService {
                 if (conceptSet.get(IM.DEFINITION) != null)
                     exportMembers(definitions, expansions, legacies, im1maps, conceptSet);
 
-                if (conceptSet.get(IM.HAS_SUBSET) != null) {
-                    exportSubsets(subsets, conceptSet, setIri);
-                }
+
             }
         }
     }
@@ -290,26 +286,9 @@ public class SetService {
         }
     }
 
-    private void exportSubsets(FileWriter subsets, TTEntity conceptSet, String setIri) throws IOException {
-        LOG.debug("Exporting subset {}...", setIri);
-
-        for (TTValue value : conceptSet.get(IM.HAS_SUBSET).iterator()) {
-            subsets.write(conceptSet.getIri() + "\t" + conceptSet.getName()+"\t"+
-                value.asIriRef().getIri()+ "\t"+ value.asIriRef().getName()+"\n");
-        }
-    }
 
 
-    private void exportSubsetWithExpansion(FileWriter definitions, FileWriter expansions, FileWriter legacies, FileWriter subsets, FileWriter im1maps, TTEntity conceptSet, String setIri) throws IOException {
-        LOG.debug("Exporting subset {}...", setIri);
 
-        for (TTValue value : conceptSet.get(IM.HAS_SUBSET).iterator()) {
-            subsets.write(conceptSet.getIri() + "\t" + conceptSet.getName()+"\t"+
-                value.asIriRef().getIri()+ "\t"+ value.asIriRef().getName()+"\n");
-
-            exportSingle(value.asIriRef().getIri(), definitions, expansions, legacies, subsets, im1maps);
-        }
-    }
 
     // Excel export
 

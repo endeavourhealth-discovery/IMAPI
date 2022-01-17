@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
@@ -53,9 +54,6 @@ class EntityServiceTest {
 
     @Mock
     EntityTctRepository entityTctRepository;
-
-    @Mock
-    EntitySearchRepository entitySearchRepository;
 
     @Mock
     SetRepository SetRepository;
@@ -535,8 +533,6 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-            .thenReturn(Collections.singleton(includedSet));
 
         List<ValueSetMember> valueSetMembers = new ArrayList<>();
         valueSetMembers.add(new ValueSetMember()
@@ -572,8 +568,6 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), expandMembers, expandSubsets, 0, true, parentSetName, valueSetIri.getIri());
 
@@ -603,9 +597,6 @@ class EntityServiceTest {
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
-
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, true,null, "http://endhealth.info/im#25451000252115");
 
         assertNotNull(actual);
@@ -633,9 +624,6 @@ class EntityServiceTest {
 
         ValueSetMember includedSet = new ValueSetMember()
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
 
         ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, true, null, "http://endhealth.info/im#25451000252115");
 
@@ -676,28 +664,6 @@ class EntityServiceTest {
 
         ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
                 IM.DEFINITION.getIri());
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void isValuesetMember_NotNullIriAndNotMember() {
-        TTIriRef ttIriRef1 = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-
-        TTIriRef ttIriRef2 = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-        when(entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(any(),eq(IM.DEFINITION.getIri())))
-                .thenReturn(Collections.singleton(ttIriRef1));
-
-        org.endeavourhealth.imapi.model.valuset.ValueSetMember valueSetMember1 = new org.endeavourhealth.imapi.model.valuset.ValueSetMember()
-                .setEntity(iri(IM.DEFINITION.getIri()));
-        when(SetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
-
-        ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
-                IM.NOT_MEMBER.getIri());
 
         assertNotNull(actual);
     }
@@ -788,9 +754,6 @@ class EntityServiceTest {
                 .setCode("25")
                 .setScheme(iri("http://endhealth.info/im#emis","Emis"));
 
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
-
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
         assertNotNull(actual);
     }
@@ -818,9 +781,6 @@ class EntityServiceTest {
                 .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"))
                 .setCode("25")
                 .setScheme(iri("http://endhealth.info/im#emis","Emis"));
-
-        when(entityTripleRepository.getSubjectByObjectAndPredicateAsValueSetMembers(valueSetIri.getIri(),IM.MEMBER_OF_GROUP.getIri()))
-                .thenReturn(Collections.singleton(includedSet));
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), false, false);
         assertNotNull(actual);
@@ -1366,10 +1326,5 @@ class EntityServiceTest {
         assertNull(actual);
     }
 
-    @Test
-    void getSetExport_NotNullIri() throws DataFormatException {
-//        XSSFWorkbook actual = entityService.getSetExport("http://endhealth.info/im#25451000252115");
-//        assertNotNull(actual);
-    }
 
 }

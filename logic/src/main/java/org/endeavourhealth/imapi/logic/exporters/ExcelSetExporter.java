@@ -30,6 +30,19 @@ public class ExcelSetExporter {
     private EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
 
+    public XSSFWorkbook workbook;
+    public XSSFFont font;
+    public CellStyle headerStyle;
+
+    public ExcelSetExporter() {
+        workbook = new XSSFWorkbook();
+        font = workbook.createFont();
+        headerStyle = workbook.createCellStyle();
+        font.setBold(true);
+        headerStyle.setFont(font);
+        headerStyle.setWrapText(true);
+    }
+
     /**
      * Exports  3 excel sheets from the data store
      * <p>Sheet 1 = the definition in ECL</p>
@@ -43,39 +56,36 @@ public class ExcelSetExporter {
     public XSSFWorkbook getSetAsExcel(String setIri) throws DataFormatException {
         Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFFont font = workbook.createFont();
-        CellStyle headerStyle = workbook.createCellStyle();
-        font.setBold(true);
-        headerStyle.setFont(font);
-        headerStyle.setWrapText(true);
+
         if (entity.get(IM.DEFINITION) == null) {
             return workbook;
         }
 
         String ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
-        addEclToWorkbook(ecl, workbook, headerStyle);
+        addEclToWorkbook(ecl);
         if (hasSubset(entity.getIri())) {
             Set<String> codesAddedToWorkbook = new HashSet<String>();
             Set<String> legacyCodesAddedToWorkbook = new HashSet<String>();
             List<String> memberList = new ArrayList<>();
+            Set<String> expandedSets = new HashSet<String>();
+            Set<String> legacyExpandedSets = new HashSet<String>();
             addAllMemberIris(memberList, setIri);
             memberList.remove(setIri);
             for (String memberIri : memberList) {
                 TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates, 0).getEntity();
-                addCoreExpansionToWorkBook(codesAddedToWorkbook, member, workbook, headerStyle);
-                addLegacyExpansionToWorkBook(legacyCodesAddedToWorkbook, member, workbook, headerStyle);
+                addCoreExpansionToWorkBook(expandedSets, codesAddedToWorkbook, member);
+                addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);
             }
         } else {
-            addCoreExpansionToWorkBook(new HashSet<String>(), entity, workbook, headerStyle);
-            addLegacyExpansionToWorkBook(new HashSet<String>(), entity, workbook, headerStyle);
+            addCoreExpansionToWorkBook(new HashSet<String>(), new HashSet<String>(), entity);
+            addLegacyExpansionToWorkBook(new HashSet<String>(), new HashSet<String>(), entity);
         }
 
 
         return workbook;
     }
 
-    private void addLegacyExpansionToWorkBook(Set<String> legacyCodesAddedToWorkbook, TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
+    private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyCodesAddedToWorkbook, TTEntity entity) {
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
@@ -84,20 +94,23 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(2, 2500);
         sheet.setColumnWidth(4, 20000);
 
-        Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, true);
-        for (CoreLegacyCode cl : expansion) {
-            if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
-                Row row = addRow(sheet);
-                String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                addCells(row, cl.getCode(), cl.getTerm(), isLondon, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
-                legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
+        if (!expandedSets.contains(entity.getIri())) {
+            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, true);
+            for (CoreLegacyCode cl : expansion) {
+                if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
+                    Row row = addRow(sheet);
+                    String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                    addCells(row, cl.getCode(), cl.getTerm(), isLondon, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
+                    legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
+                }
             }
+            sheet.autoSizeColumn(3);
+            expandedSets.add(entity.getIri());
         }
-        sheet.autoSizeColumn(3);
 
     }
 
-    private void addCoreExpansionToWorkBook(Set<String> codesAddedToWorkbook, TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
+    private void addCoreExpansionToWorkBook(Set<String> expandedSets, Set<String> codesAddedToWorkbook, TTEntity entity) {
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
         addHeaders(sheet, headerStyle, "code", "term", "extension");
@@ -105,20 +118,23 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(1, 20000);
         sheet.setColumnWidth(2, 2500);
 
-        Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, false);
-        for (CoreLegacyCode cl : expansion) {
-            if (!codesAddedToWorkbook.contains(cl.getCode())) {
-                Row row = addRow(sheet);
-                String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                addCells(row, cl.getCode(), cl.getTerm(), isLondon);
-                codesAddedToWorkbook.add(cl.getCode());
+        if (!expandedSets.contains(entity.getIri())) {
+            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, false);
+            for (CoreLegacyCode cl : expansion) {
+                if (!codesAddedToWorkbook.contains(cl.getCode())) {
+                    Row row = addRow(sheet);
+                    String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                    addCells(row, cl.getCode(), cl.getTerm(), isLondon);
+                    codesAddedToWorkbook.add(cl.getCode());
+                }
             }
+            expandedSets.add(entity.getIri());
         }
 
     }
 
 
-    private void addEclToWorkbook(String ecl, Workbook workbook, CellStyle headerStyle) {
+    private void addEclToWorkbook(String ecl) {
         Sheet sheet = workbook.getSheet("ECL set definition");
         if (null == sheet) sheet = workbook.createSheet("ECL set definition");
         addHeaders(sheet, headerStyle, "ECL");

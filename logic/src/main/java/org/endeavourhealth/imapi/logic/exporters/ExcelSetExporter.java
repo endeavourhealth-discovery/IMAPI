@@ -14,6 +14,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.DataFormatException;
@@ -50,19 +52,30 @@ public class ExcelSetExporter {
         if (entity.get(IM.DEFINITION) == null) {
             return workbook;
         }
-        populateWorkbook(entity, workbook, headerStyle);
+
+        String ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
+        addEclToWorkbook(ecl, workbook, headerStyle);
+        if (hasSubset(entity.getIri())) {
+            Set<String> codesAddedToWorkbook = new HashSet<String>();
+            Set<String> legacyCodesAddedToWorkbook = new HashSet<String>();
+            List<String> memberList = new ArrayList<>();
+            addAllMemberIris(memberList, setIri);
+            memberList.remove(setIri);
+            for (String memberIri : memberList) {
+                TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates, 0).getEntity();
+                addCoreExpansionToWorkBook(codesAddedToWorkbook, member, workbook, headerStyle);
+                addLegacyExpansionToWorkBook(legacyCodesAddedToWorkbook, member, workbook, headerStyle);
+            }
+        } else {
+            addCoreExpansionToWorkBook(new HashSet<String>(), entity, workbook, headerStyle);
+            addLegacyExpansionToWorkBook(new HashSet<String>(), entity, workbook, headerStyle);
+        }
+
 
         return workbook;
     }
 
-    private void populateWorkbook(TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) throws DataFormatException {
-        String ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
-        addEclToWorkbook(ecl, workbook, headerStyle);
-        addCoreExpansionToWorkBook(entity, workbook, headerStyle);
-        addLegacyExpansionToWorkBook(entity, workbook, headerStyle);
-    }
-
-    private void addLegacyExpansionToWorkBook(TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
+    private void addLegacyExpansionToWorkBook(Set<String> legacyCodesAddedToWorkbook, TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
@@ -73,15 +86,18 @@ public class ExcelSetExporter {
 
         Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, true);
         for (CoreLegacyCode cl : expansion) {
-            Row row = addRow(sheet);
-            String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-            addCells(row, cl.getCode(), cl.getTerm(), isLondon, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
+            if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
+                Row row = addRow(sheet);
+                String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                addCells(row, cl.getCode(), cl.getTerm(), isLondon, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
+                legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
+            }
         }
         sheet.autoSizeColumn(3);
 
     }
 
-    private void addCoreExpansionToWorkBook(TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
+    private void addCoreExpansionToWorkBook(Set<String> codesAddedToWorkbook, TTEntity entity, XSSFWorkbook workbook, CellStyle headerStyle) {
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
         addHeaders(sheet, headerStyle, "code", "term", "extension");
@@ -91,9 +107,12 @@ public class ExcelSetExporter {
 
         Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, false);
         for (CoreLegacyCode cl : expansion) {
-            Row row = addRow(sheet);
-            String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-            addCells(row, cl.getCode(), cl.getTerm(), isLondon);
+            if (!codesAddedToWorkbook.contains(cl.getCode())) {
+                Row row = addRow(sheet);
+                String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                addCells(row, cl.getCode(), cl.getTerm(), isLondon);
+                codesAddedToWorkbook.add(cl.getCode());
+            }
         }
 
     }
@@ -138,4 +157,20 @@ public class ExcelSetExporter {
             }
         }
     }
+
+    private void addAllMemberIris(List<String> allIris, String iri) {
+        if (repo.isSet(iri) && hasSubset(iri)) {
+            List<String> memberList = repo.getMemberIris(iri);
+            for (String subsetIri : memberList) {
+                addAllMemberIris(allIris, subsetIri);
+            }
+        }
+        allIris.add(iri);
+    }
+
+    private boolean hasSubset(String iri) {
+        List<String> memberList = repo.getMemberIris(iri);
+        return memberList.stream().anyMatch(member -> repo.isSet(member));
+    }
+
 }

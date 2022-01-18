@@ -17,7 +17,6 @@ public abstract class TTDocumentFiler implements AutoCloseable {
 
     private TTIriRef graph;
     protected Map<String, String> prefixMap = new HashMap<>();
-    protected TTNamespaceFiler namespaceFiler;
     protected TTEntityFiler conceptFiler;
     protected TTEntityFiler instanceFiler;
 
@@ -27,15 +26,10 @@ public abstract class TTDocumentFiler implements AutoCloseable {
 
     public void fileDocument(TTDocument document) throws TTFilerException {
 
-        //Sets the graph namesepace id for use in statements so they are owned by the namespace graph
+        //Sets the graph iri for use in statements, so they are owned by the graph
         this.graph = document.getGraph();
 
         LOG.info("Saving ontology - {}", new Date());
-        LOG.info("Processing namespaces");
-
-        // Ensure all namespaces exist (auto-create)
-        // Different prefixes for filing are not allowed in this version
-        namespaceFiler.fileNamespaces(document.getContext().getNameSpaces(), prefixMap);
 
         // Record document details, updating ontology and module
         LOG.info("Processing document-ontology-module");

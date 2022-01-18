@@ -18,7 +18,6 @@ public class TTDocumentFilerRdf4j extends TTDocumentFiler {
         conn = ConnectionManager.getConnection();
 
         LOG.info("Initializing");
-        namespaceFiler = new TTNamespaceFilerRdf4j(conn);
         conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap);
         instanceFiler = conceptFiler;   // Concepts & Instances filed in the same way
         LOG.info("Done");

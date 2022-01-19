@@ -17,7 +17,7 @@ class TTToStringTest {
     public Map<String, String> getTestDefaultPredicates() {
         Map<String, String> defaults = new HashMap<>();
         defaults.put("http://endhealth.info/im#isA", "Is a");
-        defaults.put("http://endhealth.info/im#roleGroup", "Where");
+        defaults.put("http://endhealth.info/im#roleGroup", "Match");
         defaults.put("http://www.w3.org/2002/07/owl#equivalentClass", "Is equivalent to");
         defaults.put("http://www.w3.org/2002/07/owl#intersectionOf", "Combination of");
         defaults.put("http://www.w3.org/2002/07/owl#someValuesFrom", "With a value");

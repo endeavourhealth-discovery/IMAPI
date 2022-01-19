@@ -54,12 +54,6 @@ public class TTContextHelper {
             gen.writeStringField("@id","http://envhealth.info/im#entities");
             gen.writeStringField("@container","@set");
             gen.writeEndObject();
-            gen.writeFieldName("individuals");
-            gen.writeStartObject();
-            gen.writeStringField("@id","http://envhealth.info/im#individuals");
-            gen.writeStringField("@container","@set");
-            gen.writeEndObject();
-
             gen.writeEndObject();
         }
     }

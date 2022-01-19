@@ -16,12 +16,12 @@ import java.util.List;
 
 
 /**
- * <p>Java class for EQDOC.Population complex type.
+ * <p>Java class for EQDOC.Clause complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="EQDOC.Population"&gt;
+ * &lt;complexType name="EQDOC.Clause"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
@@ -37,7 +37,7 @@ import java.util.List;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "EQDOC.Population", propOrder = {
+@XmlType(name = "EQDOC.Clause", propOrder = {
     "criteriaGroup",
     "dynamicColumn",
     "contractInformation"

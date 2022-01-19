@@ -38,7 +38,7 @@ import java.util.List;
  *         &lt;element name="searchDate" type="{http://www.e-mis.com/emisopen}voc.SearchDateType"/&gt;
  *         &lt;element name="VersionIndependentGUID" type="{http://www.e-mis.com/emisopen}dt.uid" minOccurs="0"/&gt;
  *         &lt;choice&gt;
- *           &lt;element name="population" type="{http://www.e-mis.com/emisopen}EQDOC.Population"/&gt;
+ *           &lt;element name="population" type="{http://www.e-mis.com/emisopen}EQDOC.Clause"/&gt;
  *           &lt;element name="listReport" type="{http://www.e-mis.com/emisopen}EQDOC.ListReport"/&gt;
  *           &lt;element name="aggregateReport" type="{http://www.e-mis.com/emisopen}EQDOC.AggregateReport"/&gt;
  *           &lt;element name="listOfItems" type="{http://www.e-mis.com/emisopen}EQDOC.ListOfItems"/&gt;

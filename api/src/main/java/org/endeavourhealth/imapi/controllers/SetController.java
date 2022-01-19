@@ -78,8 +78,12 @@ public class SetController {
         value = "Evaluate ECL",
         notes = "Evaluates an query"
     )
-    public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException {
-        return setService.evaluateDefinition(ecl, includeLegacy);
+    public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
+        try {
+            return setService.evaluateDefinition(ecl, includeLegacy);
+        } catch (UnknownFormatConversionException ex) {
+            throw new EclFormatException("Invalid ECL format", ex);
+        }
     }
 
     @PostMapping(value="/public/eclSearch", consumes="text/plain", produces="application/json")

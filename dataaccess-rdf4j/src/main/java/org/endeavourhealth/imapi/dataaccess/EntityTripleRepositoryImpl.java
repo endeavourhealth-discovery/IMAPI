@@ -670,26 +670,4 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         }
         return simpleMaps;
     }
-
-    @Override
-    public List<String> findGroupMemberIris(String iri) {
-        List<String> groupMemberIris = new ArrayList<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?s WHERE {")
-                .add("?s <http://endhealth.info/im#memberOfGroup> <http://endhealth.info/im#CSET_EthnicCategoryCEG16> .")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    groupMemberIris.add(getString(bs, "s"));
-                }
-            }
-        }
-
-        return groupMemberIris;
-    }
 }

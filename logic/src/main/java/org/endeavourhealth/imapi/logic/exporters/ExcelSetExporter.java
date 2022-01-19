@@ -99,8 +99,8 @@ public class ExcelSetExporter {
             for (CoreLegacyCode cl : expansion) {
                 if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
                     Row row = addRow(sheet);
-                    String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                    addCells(row, cl.getCode(), cl.getTerm(), isLondon, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
+                    String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                    addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
                     legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
                 }
             }
@@ -123,8 +123,8 @@ public class ExcelSetExporter {
             for (CoreLegacyCode cl : expansion) {
                 if (!codesAddedToWorkbook.contains(cl.getCode())) {
                     Row row = addRow(sheet);
-                    String isLondon = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                    addCells(row, cl.getCode(), cl.getTerm(), isLondon);
+                    String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                    addCells(row, cl.getCode(), cl.getTerm(), isExtension);
                     codesAddedToWorkbook.add(cl.getCode());
                 }
             }

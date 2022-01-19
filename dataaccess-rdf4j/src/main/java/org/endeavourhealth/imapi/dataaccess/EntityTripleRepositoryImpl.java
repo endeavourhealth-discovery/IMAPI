@@ -670,4 +670,27 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         }
         return simpleMaps;
     }
+
+    @Override
+    public List<String> getConceptIrisByGraph(String iri) {
+        List<String> iris = new ArrayList<>();
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add(" SELECT DISTINCT ?s WHERE{")
+                .add(" GRAPH ?g { ?s ?p ?o } .")
+                .add("}")
+                .add(" LIMIT 20 ");
+        try( RepositoryConnection conn = ConnectionManager.getConnection()){
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+
+            qry.setBinding("g", iri(iri));
+            try(TupleQueryResult rs = qry.evaluate()){
+                while (rs.hasNext()){
+                    BindingSet bs = rs.next();
+                    iris.add(getString(bs, "s"));
+                }
+            }
+        }
+
+        return iris;
+    }
 }

@@ -48,5 +48,7 @@ public interface EntityTripleRepository {
 
     List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris);
 
+    List<String> getConceptIrisByGraph(String iri);
+
 
 }

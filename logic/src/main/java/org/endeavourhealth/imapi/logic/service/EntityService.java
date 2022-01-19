@@ -740,6 +740,29 @@ public class EntityService {
 		return document;
 	}
 
+	public TTDocument getConceptList(List<String> iris){
+		if(iris == null || iris.isEmpty()){
+			return null;
+		}
+		TTDocument document = new TTDocument();
+		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+		TTContext context = new TTContext();
+		for(Namespace namespace : namespaces){
+			context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+		}
+		document.setContext(context);
+		for(String iri: iris){
+			TTBundle bundle = getEntityPredicates(iri, null, 0);
+			document.addEntity(bundle.getEntity());
+		}
+		return document;
+	}
+
+	public TTDocument getConceptListByGraph(String iri){
+		List<String> conceptIris = entityTripleRepository.getConceptIrisByGraph(iri);
+		return getConceptList(conceptIris);
+	}
+
 	public List<SimpleMap> getSimpleMaps(String iri) {
 		if (iri == null || iri.equals("")) return new ArrayList<>();
 		String scheme = iri.substring(0,iri.indexOf("#") + 1);

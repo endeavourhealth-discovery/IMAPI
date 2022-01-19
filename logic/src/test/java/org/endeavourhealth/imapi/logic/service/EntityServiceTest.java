@@ -1288,6 +1288,49 @@ class EntityServiceTest {
     }
 
     @Test
+    void getConceptList_NullIri() {
+        TTDocument actual = entityService.getConceptList(null);
+        assertNull(actual);
+    }
+
+    @Test
+    void getConceptList_EmptyIri() {
+        TTDocument actual = entityService.getConceptList(Collections.singletonList(""));
+        assertNotNull(actual);
+    }
+
+    @Test
+    void getConceptList_NotNullIri() {
+        List<Namespace> namespaces = new ArrayList<>();
+        namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
+        when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
+        TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"));
+        assertNotNull(actual);
+    }
+
+    @Test
+    void getConceptListByGraph_NullIri() {
+        TTDocument actual = entityService.getConceptListByGraph(null);
+        assertNull(actual);
+    }
+
+    @Test
+    void getConceptListByGraph_EmptyIri() {
+        TTDocument actual = entityService.getConceptListByGraph("");
+        assertNull(actual);
+    }
+
+    @Test
+    void getConceptListByGraph_NotNullIri() {
+        when(entityTripleRepository.getConceptIrisByGraph(any())).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
+        List<Namespace> namespaces = new ArrayList<>();
+        namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
+        when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
+        TTDocument actual = entityService.getConceptListByGraph("http://endhealth.info/tpp#");
+        assertNotNull(actual);
+    }
+
+    @Test
     void getSimpleMaps_NullIri() {
         List<SimpleMap> actual = entityService.getSimpleMaps(null);
         assertNotNull(actual);

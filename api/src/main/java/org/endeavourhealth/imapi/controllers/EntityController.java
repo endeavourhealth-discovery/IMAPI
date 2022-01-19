@@ -35,6 +35,7 @@ import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -134,6 +135,30 @@ public class EntityController {
 		String filename = entity.getName() + " " + LocalDate.now();
 		HttpHeaders headers = new HttpHeaders();
 		TTDocument document = entityService.getConcept(iri);
+		return getObjectHttpEntity(format, filename, headers, document);
+	}
+
+	@GetMapping("/public/exportList")
+	public HttpEntity<Object> exportList(@RequestParam List<String> iris, @RequestParam String format) throws JsonProcessingException {
+		LOG.debug("exportList");
+		String filename = "Concept List "+ LocalDate.now();
+		HttpHeaders headers = new HttpHeaders();
+		TTDocument document = entityService.getConceptList(iris);
+		return getObjectHttpEntity(format, filename, headers, document);
+	}
+
+	@GetMapping("/public/exportGraph")
+	public HttpEntity<Object> exportGraph(@RequestParam String iri, @RequestParam String format) throws JsonProcessingException {
+		LOG.debug("exportGraph");
+		TTIriRef entity = entityService.getEntityReference(iri);
+		String filename = entity.getName() + " concept list "+ LocalDate.now();
+		HttpHeaders headers = new HttpHeaders();
+		TTDocument document = entityService.getConceptListByGraph(iri);
+		return getObjectHttpEntity(format, filename, headers, document);
+	}
+
+	@NotNull
+	private HttpEntity<Object> getObjectHttpEntity(@RequestParam String format, String filename, HttpHeaders headers, TTDocument document) throws JsonProcessingException {
 		if("turtle".equals(format)){
 
 			TTToTurtle ttToTurtle = new TTToTurtle();

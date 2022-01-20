@@ -14,8 +14,7 @@ public class Match extends TTEntity{
 	public Match(){
 		setPredicateTemplate(new TTIriRef[]{RDF.TYPE, RDFS.LABEL,RDFS.COMMENT,
 			IM.PATH_TO,IM.ENTITY_TYPE,IM.NOT_EXIST,IM.LATEST,IM.EARLIEST,IM.SORT_FIELD,IM.PROPERTY,
-			IM.VAR,
-			IM.VALUE_DATA,IM.VALUE_IN,IM.VALUE_NOTIN,IM.VALUE_RANGE,IM.VALUE_FUNCTION,
+			IM.VALUE_DATA,IM.VALUE_IN,IM.VALUE_NOTIN,IM.VALUE_RANGE,IM.VALUE_FUNCTION,IM.VALUE_VAR,
 			IM.AND,IM.OR,IM.NOT});
 	}
 
@@ -127,6 +126,8 @@ public class Match extends TTEntity{
 		return this;
 	}
 
+
+
 	public Match addValueNotIn(TTIriRef notIn){
 		TTUtil.add(this,IM.VALUE_NOTIN,notIn);
 		return this;
@@ -175,11 +176,11 @@ public class Match extends TTEntity{
 	}
 
 	public String getValueVar(){
-		return (String) TTUtil.get(this,IM.VAR,String.class);
+		return (String) TTUtil.get(this,IM.VALUE_VAR,String.class);
 	}
 
 	public Match setValueVar(String var){
-		set(IM.VAR, TTLiteral.literal(var));
+		set(IM.VALUE_VAR, TTLiteral.literal(var));
 		return this;
 	}
 

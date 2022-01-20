@@ -286,18 +286,20 @@ public class EqdToTT {
 		if (eqCriterion.getFilterAttribute().getRestriction() != null) {
 			setRestriction(eqCriterion, match);
 			if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
+				Match testMatch= new Match();
+				match.setTest(testMatch);
 				List<EQDOCColumnValue> cvs = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute().getColumnValue();
 				if (cvs.size() == 1&&linkField==null) {
-					setMainCriterion(eqTable, cvs.get(0), match);
+					setMainCriterion(eqTable, cvs.get(0), testMatch);
 				} else {
 					for (EQDOCColumnValue cv : cvs) {
 						Match subMatch = new Match();
-						match.addAnd(subMatch);
+						testMatch.addAnd(subMatch);
 						setMainCriterion(eqTable, cv, subMatch);
 					}
 					if (linkField!=null&dateMatch==null){
 						Match subMatch= new Match();
-						match.addAnd(subMatch);
+						testMatch.addAnd(subMatch);
 						addDateMatch(subMatch,eqTable,linkField);
 					}
 				}

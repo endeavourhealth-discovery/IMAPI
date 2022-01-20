@@ -36,6 +36,7 @@ public class IM {
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
     public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
+    public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
@@ -117,10 +118,12 @@ public class IM {
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
+    public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
 
 
 
-    //Source graphs
+
+  //Source graphs
    public static final TTIriRef SOURCE_TRUD_ODS= iri(IM.DOMAIN+"trudods#");
 
     // redant code schemes are now the same as graphs
@@ -181,7 +184,7 @@ public class IM {
   public static final TTIriRef LIMIT = iri(NAMESPACE + "limit");
   public static final TTIriRef SORT_FIELD = iri(NAMESPACE + "sortField");
   public static final TTIriRef TEST = iri(NAMESPACE + "test");
-  public static final TTIriRef VAR = iri(NAMESPACE + "var");
+  public static final TTIriRef VALUE_VAR = iri(NAMESPACE + "valueVar");
   public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
 
   public static final TTIriRef HAS_PROFILE = iri(NAMESPACE+"hasProfile");

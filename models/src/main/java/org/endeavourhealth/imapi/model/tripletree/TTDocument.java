@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTDocumentDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTDocumentSerializer;
-import org.endeavourhealth.imapi.query.Query;
-import org.endeavourhealth.imapi.vocabulary.IM;
+
 
 import java.util.ArrayList;
 import java.util.List;

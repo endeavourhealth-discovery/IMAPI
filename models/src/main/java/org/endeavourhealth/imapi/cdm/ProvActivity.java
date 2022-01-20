@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.cdm;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.List;
@@ -12,8 +9,9 @@ import java.util.List;
  * Class which sets and gets Provenance activity entry
  */
 public class ProvActivity extends Entry {
+
 	public ProvActivity(){
-		this.addType(TTIriRef.iri(IM.NAMESPACE+"ProvenanceActivity"));
+		this.addType(IM.PROV_ACIVITY);
 	}
 
 	public ProvActivity setIri(String iri){
@@ -21,66 +19,70 @@ public class ProvActivity extends Entry {
 		return this;
 	}
 	public TTIriRef getTargetEntity() {
-		return Utils.getIriValue(this,"provenanceTarget");
+		return get(IM.PROV_TARGET)==null ?null :
+			get(IM.PROV_TARGET).asIriRef();
 	}
 
 	public ProvActivity setTargetEntity(TTIriRef targetEntity) {
-		Utils.setTriple(this,"provenanceTarget",targetEntity);
+		set(IM.PROV_TARGET,targetEntity);
 		return this;
 	}
 
 	public TTIriRef getActivityType() {
-		return Utils.getIriValue(this,"activityType");
+		return get(IM.PROVE_ACIVITY_TYPE)==null ? null :
+			get(IM.PROVE_ACIVITY_TYPE).asIriRef();
 	}
 
 	public ProvActivity setActivityType(TTIriRef activityType) {
-		Utils.setTriple(this,"activityType",activityType);
+		set(IM.PROVE_ACIVITY_TYPE,activityType);
 		return this;
 	}
 
 	public String getEffectiveDate() {
-		return Utils.getStringValue(this,"effectiveDate");
+		return get(IM.EFFECTIVE_DATE)==null ? null:
+			get(IM.EFFECTIVE_DATE).asLiteral().getValue();
+
 	}
 
 	public ProvActivity setEffectiveDate(String effectiveDate) {
-		Utils.setTriple(this,"effectiveDate",TTLiteral.literal(effectiveDate));
+		set(IM.EFFECTIVE_DATE,TTLiteral.literal(effectiveDate));
 		return this;
 	}
 
 	public String getStartTime() {
-		return Utils.getStringValue(this,"startTime");
+		return (String) TTUtil.get(this,IM.START_TIME,String.class);
 	}
 
 	public ProvActivity setStartTime(String startTime) {
-		Utils.setTriple(this,"startTime",TTLiteral.literal(startTime));
+		set(IM.START_TIME,TTLiteral.literal(startTime));
 		return this;
 	}
 
 	public List<TTIriRef> getAgent() {
-		return Utils.getIriList(this,"provenanceAgent");
+		return TTUtil.getList(this,IM.PROV_AGENT,TTIriRef.class);
 	}
 
-	public ProvActivity setAgent(List<TTValue> agent) {
-		Utils.setTriple(this,"provenanceAgent",agent);
+	public ProvActivity setAgent(TTArray agent) {
+		set(IM.PROV_AGENT,agent);
 		return this;
 	}
 
 	public ProvActivity addAgent(TTValue agent){
-		Utils.addValue(this,"provenanceAgent",agent);
+		TTUtil.add(this,IM.PROV_AGENT,agent);
 		return this;
 	}
 
 	public List<TTIriRef> getUsed() {
-		return Utils.getIriList(this,"usedEntity");
+		return TTUtil.getList(this,IM.PROV_USED,TTIriRef.class);
 	}
 
-	public ProvActivity setUsed(List<TTValue> used) {
-		Utils.setTriple(this,"usedEntity",used);
+	public ProvActivity setUsed(TTArray used) {
+		set(IM.PROV_USED,used);
 		return this;
 	}
 
-	public ProvActivity addUsed(TTValue used){
-		Utils.addValue(this,"usedEntity",used);
+	public ProvActivity addUsed(TTIriRef used){
+		TTUtil.add(this,IM.PROV_USED,used);
 		return this;
 	}
 }

@@ -187,10 +187,14 @@ public class IM {
   public static final TTIriRef HAS_PROFILE = iri(NAMESPACE+"hasProfile");
   public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
 
-
-
-
-
+  //Provenance
+  public static final TTIriRef PROV_ACIVITY = iri(NAMESPACE+"provenanceActivity");
+  public static final TTIriRef PROV_TARGET = iri(NAMESPACE+"provenanceTarget");
+  public static final TTIriRef PROVE_ACIVITY_TYPE= iri(NAMESPACE+"provenanceActivityType");
+  public static final TTIriRef PROV_AGENT = iri(NAMESPACE+"provenanceAgent");
+  public static final TTIriRef START_TIME = iri(NAMESPACE+"startTime");
+  public static final TTIriRef EFFECTIVE_DATE = iri(NAMESPACE+"effectiveDate");
+  public static final TTIriRef PROV_USED = iri(NAMESPACE+"usedEntity");
 
 
 
@@ -199,6 +203,7 @@ public class IM {
   public static final TTIriRef VERSION = iri(NAMESPACE +"version");
   public static final TTIriRef HAS_ROLE_IN = iri(NAMESPACE +"hasRoleInOrganisation");
   public static final TTIriRef IS_PERSON = iri(NAMESPACE +"isPerson");
+
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

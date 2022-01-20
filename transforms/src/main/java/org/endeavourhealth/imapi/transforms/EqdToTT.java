@@ -18,6 +18,8 @@ import java.util.zip.DataFormatException;
 
 public class EqdToTT {
 	public static  Map<String,String> reportNames;
+	public final static Set<TTEntity> valueSets = new HashSet<>();
+	private final static Set<String> roles= new HashSet<>();
 	private TTIriRef owner;
 	private Properties dataMap;
 	private Properties criteriaLabels;
@@ -94,7 +96,7 @@ public class EqdToTT {
 
 	private void setProvenance(String iri,String authorName) {
 		ProvActivity activity= new ProvActivity()
-			.setIri("http://prov.endhealth.info/im#"+iri.substring(iri.lastIndexOf("#")+1))
+			.setIri("urn:uuid:"+ UUID.randomUUID())
 			.setActivityType(IM.CREATION)
 			.setEffectiveDate(LocalDateTime.now().toString());
 		document.addEntity(activity);
@@ -107,9 +109,12 @@ public class EqdToTT {
 			agent.setIri(uir.replace("uir.", "agent."));
 			activity.addAgent(TTIriRef.iri(agent.getIri()))
 				.setTargetEntity(TTIriRef.iri(iri));
-			document.addEntity(agent);
-		}
+			if (!roles.contains(agent.getIri())) {
+				document.addEntity(agent);
+				roles.add(agent.getIri());
+			}
 
+		}
 	}
 
 	private String getPerson(String name) {
@@ -131,7 +136,7 @@ public class EqdToTT {
 		if (eqReport.getFolder()!=null)
 			entity.addObject(IM.IS_CONTAINED_IN,TTIriRef.iri("urn:uuid:"+ eqReport.getFolder()));
 		if (eqReport.getCreationTime()!=null)
-			setProvenance(entity.getIri(), eqReport.getCreationTime().toString());
+			setProvenance(entity.getIri(), null);
 
 		if (eqReport.getPopulation() != null) {
 			Match mainClause= new Match();
@@ -666,6 +671,14 @@ public class EqdToTT {
 		return TTIriRef.iri(iri);
 	}
 
+	private TTEntity getDuplicateSet(TTEntity candidate){
+		for (TTEntity test: valueSets){
+			if (TTCompare.equals(candidate,test))
+				return test;
+		}
+		return null;
+	}
+
 	private TTIriRef getValueSet(EQDOCValueSet vs) throws DataFormatException {
 		TTEntity valueSet = new TTEntity();
 		TTIriRef iri = TTIriRef.iri("urn:uuid:" + UUID.randomUUID());
@@ -674,18 +687,23 @@ public class EqdToTT {
 			vsetName= vs.getDescription();
 		valueSet.setIri(iri.getIri());
 		valueSet.addType(IM.CONCEPT_SET);
-		document.addEntity(valueSet);
 		VocCodeSystemEx scheme = vs.getCodeSystem();
 		if (vs.getValues().size() == 1) {
 			if (vsetName==null)
-				vsetName= vs.getValues().get(0).getDisplayName()+ " ....";
+				vsetName= vs.getValues().get(0).getDisplayName();
 			valueSet.addObject(IM.DEFINITION, getValue(scheme, vs.getValues().get(0)));
 		} else {
 			TTNode orSet = new TTNode();
 			valueSet.addObject(IM.DEFINITION, orSet);
+			int i=0;
 			for (EQDOCValueSetValue ev : vs.getValues()) {
-				if (vsetName==null)
-					vsetName= ev.getDisplayName()+ " ....";
+				i++;
+				if (i<10) {
+					vsetName = vsetName == null ? ev.getDisplayName() :
+						vsetName + ", " + ev.getDisplayName();
+				}
+				else
+					vsetName= vsetName+"..more";
 				orSet.addObject(SHACL.OR, getValue(scheme, ev));
 			}
 		}
@@ -693,6 +711,14 @@ public class EqdToTT {
 			iri.setName(vsetName);
 			valueSet.setName(iri.getName());
 		}
+		TTEntity duplicateOf = getDuplicateSet(valueSet);
+		if (duplicateOf!=null){
+			iri= TTIriRef.iri(duplicateOf.getIri());
+			iri.setName(duplicateOf.getName());
+			return iri;
+		}
+		document.addEntity(valueSet);
+		valueSets.add(valueSet);
 		return iri;
 	}
 	private TTIriRef getValue(VocCodeSystemEx scheme,EQDOCValueSetValue ev) throws DataFormatException {

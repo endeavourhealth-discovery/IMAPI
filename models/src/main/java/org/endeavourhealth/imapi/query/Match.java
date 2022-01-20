@@ -128,7 +128,7 @@ public class Match extends TTEntity{
 	}
 
 	public Match addValueNotIn(TTIriRef notIn){
-		TTUtil.add(this,IM.VALUE_IN,notIn);
+		TTUtil.add(this,IM.VALUE_NOTIN,notIn);
 		return this;
 	}
 
@@ -162,6 +162,7 @@ public class Match extends TTEntity{
 
 	public Match setValueTest(Comparison comp, String value) {
 		setValue(new Compare().setComparison(comp).setValue(value));
+
 		return this;
 	}
 

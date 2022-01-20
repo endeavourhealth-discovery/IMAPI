@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.errorhandling;
 
+import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.customexceptions.ErrorCodes;
 import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
@@ -19,6 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
@@ -85,6 +87,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String message = "Unhandled server error occurred";
         ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, message, ex, ErrorCodes.UNHANDLED_EXCEPTION);
         return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    protected ResponseEntity<Object> handleClientAbortException(ClientAbortException ex, HttpServletRequest req, WebRequest request){
+        if("/api/entity/public/search".equals(req.getRequestURI())){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return handleAll(ex,request);
+        }
     }
 
     @ExceptionHandler(AccessDeniedException.class)

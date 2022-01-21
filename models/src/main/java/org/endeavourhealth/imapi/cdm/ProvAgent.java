@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.cdm;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 public class ProvAgent extends Entry {
@@ -12,20 +13,22 @@ public class ProvAgent extends Entry {
 
 
 	public TTIriRef getParticipationType() {
-		return Utils.getIriValue(this,"participationType");
+
+		return (TTIriRef) TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE+"participationType"),TTIriRef.class);
 	}
 
 	public ProvAgent setParticipationType(TTIriRef participationType) {
-		Utils.setTriple(this,"participationType",participationType);
+		set(TTIriRef.iri(IM.NAMESPACE+"participationType"),participationType);
 		return this;
 	}
 
 	public TTIriRef getPersonInRole() {
-		return Utils.getIriValue(this,"personInRole");
+		return
+			(TTIriRef) TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE+"personInRole"),TTIriRef.class);
 	}
 
 	public ProvAgent setPersonInRole(TTIriRef personInRole) {
-		Utils.setTriple(this,"personInRole",personInRole);
+		set(TTIriRef.iri(IM.NAMESPACE+"personInRole"),personInRole);
 		return this;
 	}
 }

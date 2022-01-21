@@ -13,7 +13,7 @@ public class Match extends TTEntity{
 
 	public Match(){
 		setPredicateTemplate(new TTIriRef[]{RDF.TYPE, RDFS.LABEL,RDFS.COMMENT,
-			IM.PATH_TO,IM.ENTITY_TYPE,IM.NOT_EXIST,IM.LATEST,IM.EARLIEST,IM.SORT_FIELD,IM.PROPERTY,
+			IM.PATH_TO,IM.ENTITY_TYPE,IM.NOT_EXIST,IM.FUNCTION,IM.PROPERTY,
 			IM.VALUE_DATA,IM.VALUE_IN,IM.VALUE_NOTIN,IM.VALUE_RANGE,IM.VALUE_FUNCTION,IM.VALUE_VAR,
 			IM.AND,IM.OR,IM.NOT});
 	}
@@ -194,26 +194,11 @@ public class Match extends TTEntity{
 	}
 
 
-	public Match getFromLatest(){
-		return (Match) TTUtil.get(this,IM.LATEST,Match.class);
+	public Function getFunction(){
+		return (Function) TTUtil.get(this,IM.FUNCTION,Function.class);
 	}
-	public Match setFromLatest(Match latest){
-		this.set(IM.LATEST,latest);
-		return this;
-	}
-	public Match getFromEarliest(){
-		return (Match) TTUtil.get(this,IM.EARLIEST,Match.class);
-	}
-	public Match setFromEarliest(Match earliest){
-		this.set(IM.EARLIEST,earliest);
-		return this;
-	}
-	public TTIriRef getSortField() {
-		return (TTIriRef) TTUtil.get(this,IM.SORT_FIELD,TTIriRef.class);
-	}
-
-	public Match setSortField(TTIriRef field) {
-		set(IM.SORT_FIELD,field);
+	public Match setFunction(Function function){
+		this.set(IM.FUNCTION,function);
 		return this;
 	}
 

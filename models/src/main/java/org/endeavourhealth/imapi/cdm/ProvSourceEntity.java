@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.cdm;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 public class ProvSourceEntity extends Entry {
@@ -11,20 +12,22 @@ public class ProvSourceEntity extends Entry {
 	}
 
 	public TTIriRef getDerivationType() {
-		return Utils.getIriValue(this,"derivationType");
+		return
+			(TTIriRef) TTUtil.get(this,TTIriRef.iri("derivationType"),TTIriRef.class);
 	}
 
 	public ProvSourceEntity setDerivationType(TTIriRef derivationType) {
-		Utils.setTriple(this,"derivationType",derivationType);
+		set(TTIriRef.iri(IM.NAMESPACE+"derivationType"),derivationType);
 		return this;
 	}
 
 	public TTIriRef getEntityIdentifier() {
-		return Utils.getIriValue(this,"entityIdentifier");
+		return (TTIriRef)
+			TTUtil.get(this,TTIriRef.iri(IM.NAMESPACE+"entityIdentifier"),TTIriRef.class);
 	}
 
 	public ProvSourceEntity setEntityIdentifier(TTIriRef entityIdentifier) {
-		Utils.setTriple(this,"entityIdentifier",entityIdentifier);
+		set(TTIriRef.iri(IM.NAMESPACE+"entityIdentifier"),entityIdentifier);
 		return this;
 	}
 }

@@ -243,8 +243,9 @@ public class TTManager {
         .setIri(iri)
         .addType(RDFS.RESOURCE)
         .setName(name)
-        .setDescription(description);
-      graph.addObject(RDFS.SUBCLASSOF,RDFS.RESOURCE);
+        .setDescription(description)
+        .addType(IM.GRAPH);
+      graph.addObject(RDFS.SUBCLASSOF,IM.GRAPH);
       return graph;
    }
 

@@ -119,11 +119,13 @@ public class EqdToTT {
 	}
 
 	private String getPerson(String name) {
-		return owner.getIri().replace("org.","uir.")+"/personrole#"+
-			CaseUtils.toCamelCase(name
-					.replace(" ",""),true)
-				.replace("(","_")
-				.replace(")","_");
+		StringBuilder uri= new StringBuilder();
+		name.chars().forEach(c-> {if (Character.isLetterOrDigit(c))
+			uri.append(Character.toString(c));});
+		String root= owner.getIri();
+		root= root.substring(0,root.lastIndexOf("#")-1);
+		return root.replace("org.","uir.")+"/personrole#"+
+			uri;
 	}
 	public TTEntity convertReport(EQDOCReport eqReport) throws DataFormatException, InvalidClassException {
 

@@ -37,7 +37,6 @@ public class Match extends TTEntity{
 
 	}
 
-
 	public List<Match> getAnds(){
 		return TTUtil.getOrderedList(this,IM.AND,Match.class);
 	}
@@ -126,8 +125,6 @@ public class Match extends TTEntity{
 		return this;
 	}
 
-
-
 	public Match addValueNotIn(TTIriRef notIn){
 		TTUtil.add(this,IM.VALUE_NOTIN,notIn);
 		return this;
@@ -142,7 +139,6 @@ public class Match extends TTEntity{
 		return this;
 	}
 
-
 	public Function getValueFunction() {
 		return (Function) TTUtil.get(this,IM.VALUE_FUNCTION,Function.class);
 	}
@@ -152,18 +148,8 @@ public class Match extends TTEntity{
 		return this;
 	}
 
-	public Match getMatch() {
-		return (Match) TTUtil.get(this,IM.MATCH,Match.class);
-	}
-
-	public Match setMatch(Match match){
-		set(IM.MATCH,match);
-		return this;
-	}
-
 	public Match setValueTest(Comparison comp, String value) {
 		setValue(new Compare().setComparison(comp).setValue(value));
-
 		return this;
 	}
 

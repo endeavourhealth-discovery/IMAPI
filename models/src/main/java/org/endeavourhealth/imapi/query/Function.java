@@ -15,7 +15,7 @@ import java.util.List;
 public class Function extends TTNode {
 
 	public Function(){
-		setPredicateTemplate(new TTIriRef[]{RDFS.LABEL,IM.ARGUMENT});
+		setPredicateTemplate(new TTIriRef[]{IM.FUNCTION_NAME,IM.ARGUMENT});
 	}
 
 	public TTIriRef getName() throws InvalidClassException {

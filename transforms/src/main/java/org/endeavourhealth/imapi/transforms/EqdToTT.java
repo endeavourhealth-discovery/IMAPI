@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
+import javax.swing.*;
 import java.io.InvalidClassException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -118,11 +119,13 @@ public class EqdToTT {
 	}
 
 	private String getPerson(String name) {
-		return owner.getIri().replace("org.","uir.")+"/personrole#"+
-			CaseUtils.toCamelCase(name
-					.replace(" ",""),true)
-				.replace("(","_")
-				.replace(")","_");
+		StringBuilder uri= new StringBuilder();
+		name.chars().forEach(c-> {if (Character.isLetterOrDigit(c))
+			uri.append(Character.toString(c));});
+		String root= owner.getIri();
+		root= root.substring(0,root.lastIndexOf("#")-1);
+		return root.replace("org.","uir.")+"/personrole#"+
+			uri;
 	}
 	public TTEntity convertReport(EQDOCReport eqReport) throws DataFormatException, InvalidClassException {
 
@@ -381,15 +384,30 @@ public class EqdToTT {
 		match.setPathTo(firstMatch.getPathTo());
 		match.setEntityType(firstMatch.getEntityType());
 		EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
-		Match subMatch = new Match();
+		Function function= new Function();
+		match.setFunction(function);
+		function.setName(IM.ORDER_LIMIT);
 		if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC)
-			match.setFromEarliest(subMatch);
+			function.addArgument(new Argument()
+				.setParameter(IM.SORT_ORDER)
+				.setValue(IM.ASCENDING));
 		else
-			match.setFromLatest(subMatch);
+			function.addArgument(new Argument()
+				.setParameter(IM.SORT_ORDER)
+				.setValue(IM.DESCENDING));
 		String eqColumn = restrict.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String fieldPath = getMap(eqTable + "/" + eqColumn);
 		String field=fieldPath.substring(fieldPath.lastIndexOf("/")+1);
-		subMatch.setSortField(TTIriRef.iri(IM.NAMESPACE + field));
+		function.addArgument(new Argument()
+			.setParameter(IM.SORT_FIELD)
+			.setValue(TTIriRef.iri(IM.NAMESPACE + field)));
+		function.addArgument(new Argument()
+			.setParameter(IM.ORDER_LIMIT)
+			.setValue(TTLiteral.literal(restrict.getColumnOrder().getRecordCount())));
+		Match subMatch= new Match();
+		function.addArgument(new Argument()
+			.setParameter(IM.MATCH)
+			.setValue(subMatch));
 		processColumns(eqCriterion.getFilterAttribute(), eqTable, subMatch,true,linkColumn);
 	}
 
@@ -765,9 +783,8 @@ public class EqdToTT {
 		vocabMap.put(VocRangeFromOperator.GT, Comparison.greaterThan);
 		vocabMap.put(VocRangeToOperator.LT, Comparison.lessThan);
 		vocabMap.put(VocRangeToOperator.LTEQ, Comparison.lessThanOrEqual);
-		vocabMap.put(VocOrderDirection.DESC, SortBy.LATEST);
-		vocabMap.put(VocOrderDirection.ASC, SortBy.EARLIEST);
+		vocabMap.put(VocOrderDirection.DESC, SortOrder.DESCENDING);
+		vocabMap.put(VocOrderDirection.ASC, SortOrder.ASCENDING);
 	}
-
 
 }

@@ -4,9 +4,6 @@ chmod +x ./gradlew
 
 mkdir badges
 
-# Exit code
-exitcode=0
-
 # Artifact
 artifact='IMAPI'
 
@@ -29,21 +26,16 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 # Build
 { #try
     ./gradlew build &&
-    echo "******************** try ********************" &&
     buildresult=0
 } || { #catch
-    echo "******************** catch ********************" &&
     buildresult=1
 }
 
 # Build
 if [[ $buildresult -gt 0 ]] ; then
-  echo "******************** BUILD FAILED ********************"
         badge_status=failing
         badge_colour=red
-        exitcode=1
 else
-  echo "******************** BUILD SUCCEEDED ********************"
         badge_status=passing
         badge_colour=green
 fi
@@ -53,24 +45,10 @@ curl -s "https://img.shields.io/badge/Build-$badge_status-$badge_colour.svg" > b
 echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
-# Unit tests
-grep "</failure>" */build/test-results/test/TEST-*.xml
-
-if [[ $? -gt 0 ]] ; then
-  echo "******************** TESTS FAILED ********************"
-        badge_status=failing
-        badge_colour=red
-        exitcode=1
-else
-    echo "******************** TESTS PASSED ********************"
-        badge_status=passing
-        badge_colour=green
-fi
-
 echo "Generating badge 'https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg'"
 curl -s "https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg" > badges/unit-test.svg
 
 # Sync with S3
 aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive --acl public-read --region eu-west-2
 
-exit $exitcode
+exit $buildresult

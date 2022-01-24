@@ -36,12 +36,12 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 if [[ "$buildresult" -gt "0" ]] ; then
-  echo ******************** BUILD FAILED ********************
+  echo "******************** BUILD FAILED ********************"
         badge_status=failing
         badge_colour=red
         exitcode=1
 else
-  echo ******************** BUILD SUCCEEDED ********************
+  echo "******************** BUILD SUCCEEDED ********************"
         badge_status=passing
         badge_colour=green
 fi
@@ -55,12 +55,12 @@ curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badg
 grep -q "</failure>" */build/test-results/test/TEST-*.xml
 
 if [[ "$?" -gt "0" ]] ; then
-  echo ******************** TESTS FAILED ********************
+  echo "******************** TESTS FAILED ********************"
         badge_status=failing
         badge_colour=red
         exitcode=1
 else
-    echo ******************** TESTS PASSED ********************
+    echo "******************** TESTS PASSED ********************"
         badge_status=passing
         badge_colour=green
 fi

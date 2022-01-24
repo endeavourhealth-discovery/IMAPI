@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -86,7 +85,7 @@ public class EntityController {
         LOG.debug("getPartialEntity");
         if (limit == null)
             limit = EntityService.UNLIMITED;
-        return entityService.getEntityPredicates(iri, predicates, limit).getEntity();
+        return entityService.getBundle(iri, predicates, limit).getEntity();
     }
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
@@ -102,7 +101,7 @@ public class EntityController {
         LOG.debug("getPartialEntityBundle");
         if (limit == null)
             limit = EntityService.UNLIMITED;
-        return entityService.getEntityPredicates(iri, predicates, limit);
+        return entityService.getBundle(iri, predicates, limit);
     }
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")

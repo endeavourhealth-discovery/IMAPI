@@ -29,10 +29,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.opensearch.client.Response;
-import org.opensearch.client.opensearch._global.SearchResponse;
-import org.opensearch.client.opensearch._global.IndexResponse;
-import org.opensearch.client.opensearch.indices.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -63,16 +59,14 @@ public class EntityService {
     private EntitySearchRepository entitySearchRepository = new EntitySearchRepositoryImpl();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
     private ConfigService configService = new ConfigService();
+    private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
 
-	public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
-        List<Tpl> triples = entityTripleRepository.getTriplesRecursive(iri, predicates, limit);
-        LOG.debug("Found {} triples for {}", triples.size(), iri);
-        return Tpl.toBundle(iri, triples);
+	public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
+        return entityRepositoryImpl2.getBundle(iri, predicates);
     }
 
 	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
-		List<Tpl> triples = entityTripleRepository.getTriplesRecursiveByExclusions(iri, excludePredicates, limit);
-		return Tpl.toBundle(iri, triples);
+        return entityRepositoryImpl2.getBundle(iri, excludePredicates, true);
 	}
 
     public TTIriRef getEntityReference(String iri) {
@@ -265,7 +259,7 @@ public class EntityService {
 		TTIriRef valueSet = entityRepository.getEntityReferenceByIri(iri);
 		Set<String> definition = new HashSet<>();
 		definition.add(IM.DEFINITION.getIri());
-		TTArray included = getEntityPredicates(iri, definition, UNLIMITED)
+		TTArray included = getBundle(iri, definition, UNLIMITED)
 				.getEntity()
 				.get(IM.DEFINITION.asIriRef());
 		result.setIri(valueSet.getIri());
@@ -322,7 +316,7 @@ public class EntityService {
 		Set<ValueSetMember> members = new HashSet<>();
 		Set<String> predicates = new HashSet<>();
 		predicates.add(predicate.getIri());
-		TTArray result = getEntityPredicates(iri, predicates, UNLIMITED)
+		TTArray result = getBundle(iri, predicates, UNLIMITED)
             .getEntity()
             .get(predicate.asIriRef());
 
@@ -441,7 +435,7 @@ public class EntityService {
 		List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASSOF.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
 		List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
 		List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).collect(Collectors.toList());
-		return getEntityPredicates(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
+		return getBundle(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
 	}
 
     public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
@@ -453,12 +447,12 @@ public class EntityService {
         downloadDto.setSummary(getSummaryFromConfig(iri, configs));
 
         if (params.includeHasSubtypes()) { downloadDto.setHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
-        if (params.includeInferred()) { downloadDto.setInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());}
+        if (params.includeInferred()) { downloadDto.setInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());}
         if (params.includeProperties()) { downloadDto.setDataModelProperties(getDataModelProperties(iri));}
         if (params.includeMembers()) { downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));}
         if (params.includeTerms()) { downloadDto.setTerms(getEntityTermCodes(iri));}
-        if (params.includeIsChildOf()) { downloadDto.setIsChildOf(getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));}
-		if (params.includeHasChildren()) { downloadDto.setHasChildren(getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));}
+        if (params.includeIsChildOf()) { downloadDto.setIsChildOf(getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));}
+		if (params.includeHasChildren()) { downloadDto.setHasChildren(getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));}
 
         return downloadDto;
     }
@@ -472,14 +466,14 @@ public class EntityService {
         xls.addSummary(getSummaryFromConfig(iri, configs));
 
         if (params.includeHasSubtypes()) { xls.addHasSubTypes(getImmediateChildren(iri,null, null, null, params.includeInactive()));}
-        if (params.includeInferred()) { xls.addInferred(getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));}
+        if (params.includeInferred()) { xls.addInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));}
         if (params.includeProperties()) { xls.addDataModelProperties(getDataModelProperties(iri));}
         if (params.includeMembers()) { xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));}
 		if (params.includeTerms()) { xls.addTerms(getEntityTermCodes(iri));}
-		TTEntity isChildOfEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
+		TTEntity isChildOfEntity = getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
 		if (params.includeIsChildOf() && isChildOfData != null) { xls.addIsChildOf(isChildOfData.getElements());}
-		TTEntity hasChildrenEntity = getEntityPredicates(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
+		TTEntity hasChildrenEntity = getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
         TTArray hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
 		if (params.includeHasChildren() && hasChildrenData != null) { xls.addHasChildren(hasChildrenData.getElements());}
 
@@ -487,7 +481,7 @@ public class EntityService {
     }
 
     public List<DataModelProperty> getDataModelProperties(String iri) {
-		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), RDFS.LABEL.getIri()),UNLIMITED).getEntity();
+		TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.getIri(), RDFS.LABEL.getIri()),UNLIMITED).getEntity();
 		return getDataModelProperties(entity);
 	}
 
@@ -563,13 +557,13 @@ public class EntityService {
 	}
 
 	public GraphDto getGraphData(String iri) {
-		TTEntity entity = getEntityPredicates(iri, Set.of(RDFS.SUBCLASSOF.getIri(), RDFS.LABEL.getIri()), UNLIMITED).getEntity();
+		TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.getIri(), RDFS.LABEL.getIri()), UNLIMITED).getEntity();
 
 		GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
 		GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
 		GraphDto graphChildren = new GraphDto().setKey("0_1").setName("Subtypes");
 
-		TTBundle axioms = getEntityPredicates(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED);
+		TTBundle axioms = getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED);
 		List<GraphDto> axiomGraph = bundleToGraphDtos(axioms);
 
 		List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
@@ -674,7 +668,7 @@ public class EntityService {
 	}
 
 	public EntityDefinitionDto getEntityDefinitionDto(String iri) {
-		TTEntity entity = getEntityPredicates(iri,Set.of(RDFS.SUBCLASSOF.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.HAS_STATUS.getIri()), UNLIMITED).getEntity();
+		TTEntity entity = getBundle(iri,Set.of(RDFS.SUBCLASSOF.getIri(), RDF.TYPE.getIri(),RDFS.LABEL.getIri(),RDFS.COMMENT.getIri(),IM.HAS_STATUS.getIri()), UNLIMITED).getEntity();
 		List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
 				: entity.getType().getElements().stream()
 						.map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
@@ -698,7 +692,7 @@ public class EntityService {
 	public TTEntity getConceptShape(String iri) {
 		if(iri==null || iri.isEmpty())
 			return null;
-		TTEntity entity = getEntityPredicates(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()), UNLIMITED).getEntity();
+		TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()), UNLIMITED).getEntity();
 		TTArray value = entity.get(RDF.TYPE);
 		if(!value.getElements().contains(SHACL.NODESHAPE)){
 			return null;
@@ -728,7 +722,7 @@ public class EntityService {
     }
 
     public TTDocument getConcept(String iri) {
-		TTBundle bundle = getEntityPredicates(iri, null, 0);
+		TTBundle bundle = getBundle(iri, null, 0);
 		TTDocument document = new TTDocument();
 		List<Namespace> namespaces = entityTripleRepository.findNamespaces();
 		TTContext context = new TTContext();
@@ -752,7 +746,7 @@ public class EntityService {
 		}
 		document.setContext(context);
 		for(String iri: iris){
-			TTBundle bundle = getEntityPredicates(iri, null, 0);
+			TTBundle bundle = getBundle(iri, null, 0);
 			document.addEntity(bundle.getEntity());
 		}
 		return document;

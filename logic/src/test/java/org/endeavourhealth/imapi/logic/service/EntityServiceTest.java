@@ -1091,12 +1091,16 @@ class EntityServiceTest {
 
     @Test
     void getInferredBundle_NullIri() {
+        TTEntity entity = new TTEntity();
+        when(entityRepositoryImpl2.getBundle(isNull(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
         TTBundle actual = entityService.getInferredBundle(null);
         assertNotNull(actual);
     }
 
     @Test
     void getInferredBundle_EmptyIri() {
+        TTEntity entity = new TTEntity();
+        when(entityRepositoryImpl2.getBundle(any(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
         TTBundle actual = entityService.getInferredBundle("");
         assertNotNull(actual);
     }
@@ -1150,12 +1154,17 @@ class EntityServiceTest {
 
     @Test
     void getConceptList_EmptyIri() {
+        TTEntity entity = new TTEntity();
+        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+
         TTDocument actual = entityService.getConceptList(Collections.singletonList(""));
         assertNotNull(actual);
     }
 
     @Test
     void getConceptList_NotNullIri() {
+        TTEntity entity = new TTEntity();
+        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
         List<Namespace> namespaces = new ArrayList<>();
         namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
         when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
@@ -1177,6 +1186,8 @@ class EntityServiceTest {
 
     @Test
     void getConceptListByGraph_NotNullIri() {
+        TTEntity entity = new TTEntity();
+        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
         when(entityTripleRepository.getConceptIrisByGraph(any())).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
         List<Namespace> namespaces = new ArrayList<>();
         namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));

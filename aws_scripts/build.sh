@@ -51,6 +51,9 @@ curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badg
 # Unit tests
 $testresult=$( xmllint --xpath 'string(//testsuite/@failures) + string(//testsuite/@errors)' */build/test-results/test/TEST-*.xml )
 
+echo TestResult
+echo $testresult
+
 if [[ "$testresult" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red

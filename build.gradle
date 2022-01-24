@@ -48,7 +48,7 @@ allprojects {
         }
     }
 
-    compileJava.finalizedBy 'publish'
+    build.finalizedBy 'publish'
     test.finalizedBy jacocoTestReport
 
     repositories {

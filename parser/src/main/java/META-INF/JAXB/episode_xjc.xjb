@@ -117,7 +117,7 @@ Generated on: 2021.12.22 at 03:33:29 PM GMT
     <bindings scd="~tns:EQDOC.PopulationDefinition">
       <class ref="org.endeavourhealth.imapi.parser.eqd.EQDOCPopulationDefinition"/>
     </bindings>
-    <bindings scd="~tns:EQDOC.Population">
+    <bindings scd="~tns:EQDOC.Clause">
       <class ref="org.endeavourhealth.imapi.parser.eqd.EQDOCPopulation"/>
     </bindings>
     <bindings scd="~tns:EQDOC.Author">

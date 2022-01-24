@@ -3,9 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.query.Query;
 import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -165,11 +163,6 @@ public class TTNodeSerializer {
          gen.writeFieldName("entities");
          gen.writeStartObject();
          gen.writeStringField("@id","http://envhealth.info/im#entities");
-         gen.writeStringField("@container","@set");
-         gen.writeEndObject();
-         gen.writeFieldName("individuals");
-         gen.writeStartObject();
-         gen.writeStringField("@id","http://envhealth.info/im#individuals");
          gen.writeStringField("@container","@set");
          gen.writeEndObject();
 

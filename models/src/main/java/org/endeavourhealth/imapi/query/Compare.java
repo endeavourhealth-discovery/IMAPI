@@ -2,44 +2,58 @@ package org.endeavourhealth.imapi.query;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTUtil;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder ({"comparison","value","function","argument"})
-public class Compare {
-	private Comparison comparison;
-	private Function function;
-	private String value;
+public class Compare extends TTNode {
+
+	public Compare(){
+		setPredicateTemplate(new TTIriRef[]{IM.COMPARISON,IM.FUNCTION,
+		IM.VALUE_DATA});
+	}
 
 	public Comparison getComparison() {
-		return comparison;
+		if (get(IM.COMPARISON)==null)
+			return null;
+		else
+			return Comparison.valueOf(get(IM.COMPARISON).asLiteral().getValue());
 	}
 
 	public Compare setComparison(Comparison comparison) {
-		this.comparison = comparison;
+		set(IM.COMPARISON, TTLiteral.literal(comparison.name()));
 		return this;
 	}
 
-	public String getValue() {
-		return value;
+	public String getValue() throws InvalidClassException {
+		return (String) TTUtil.get(this,IM.VALUE_DATA,String.class);
 	}
 
+
 	public Compare setValue(String value) {
-		this.value = value;
+		 setValue(TTLiteral.literal(value));
+		return this;
+	}
+
+	public Compare setValue(TTLiteral value){
+		set(IM.VALUE_DATA,value);
 		return this;
 	}
 
 
 	public Function getFunction() {
-		return function;
+		return (Function) TTUtil.get(this,IM.FUNCTION,Function.class);
 	}
 
 	public Compare setFunction(Function function) {
-		this.function = function;
+		set(IM.FUNCTION,function);
 		return this;
 	}
-
 
 
 }

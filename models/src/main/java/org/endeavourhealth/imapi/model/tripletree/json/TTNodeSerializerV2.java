@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.query.Query;
-import org.endeavourhealth.imapi.vocabulary.IM;
-
 import java.io.IOException;
 import java.util.*;
 

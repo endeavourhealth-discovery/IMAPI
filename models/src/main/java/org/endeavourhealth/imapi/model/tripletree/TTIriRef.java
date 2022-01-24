@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -16,17 +18,19 @@ public class TTIriRef implements TTValue, Serializable {
         return new TTIriRef(iri, name);
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(TTIriRef.class);
+
     private String iri;
     private String name;
 
     public TTIriRef() {
     }
     public TTIriRef(String iri) {
-        this.iri = iri;
+        setIri(iri);
     }
     public TTIriRef(String iri, String name) {
-        this.iri = iri;
-        this.name = name;
+        setIri(iri);
+        setName(name);
     }
 
     @JsonProperty("@id")
@@ -36,6 +40,10 @@ public class TTIriRef implements TTValue, Serializable {
 
     public TTIriRef setIri(String iri) {
         this.iri = iri;
+        if (iri != null && !iri.isEmpty() && !iri.toLowerCase().startsWith("http")&&!iri.startsWith("urn:uuid")) {
+            LOG.error("Prefixed IRI [{}]", iri);
+            Thread.dumpStack();
+        }
         return this;
     }
 

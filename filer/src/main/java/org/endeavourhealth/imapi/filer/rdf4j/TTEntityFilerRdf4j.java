@@ -105,7 +105,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             deleteTriples.setBinding("concept", valueFactory.createIRI(entity.getIri()));
             deleteTriples.setBinding("graph", valueFactory.createIRI(graph.getIri()));
             deleteTriples.execute();
-        } catch (RepositoryException e){
+        } catch (Exception e){
             throw new TTFilerException("Failed to delete triples");
         }
 
@@ -161,23 +161,27 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
+      //  try {
 
-        if (value.isLiteral()) {
-            builder.add(subject, predicate, value.asLiteral().getType() == null
-                ? literal(value.asLiteral().getValue())
-                : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
-        } else if (value.isIriRef()) {
-            builder.add(subject, predicate, toIri(value.asIriRef().getIri()));
-        } else if (value.isNode()) {
-            TTNode node = value.asNode();
-            BNode bNode = bnode();
-            builder.add(subject, predicate, bNode);
-            for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
-                addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
+            if (value.isLiteral()) {
+                builder.add(subject, predicate, value.asLiteral().getType() == null
+                  ? literal(value.asLiteral().getValue())
+                  : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
+            } else if (value.isIriRef()) {
+                builder.add(subject, predicate, toIri(value.asIriRef().getIri()));
+            } else if (value.isNode()) {
+                TTNode node = value.asNode();
+                BNode bNode = bnode();
+                builder.add(subject, predicate, bNode);
+                for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+                    addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
+                }
+            } else {
+                throw new TTFilerException("Arrays of arrays not allowed ");
             }
-        } else {
-            throw new TTFilerException("Arrays of arrays not allowed ");
-        }
+//        }catch (Exception e) {
+//            System.out.println("invalid value");
+//        }
     }
 
     private IRI toIri(TTIriRef iriRef) throws TTFilerException {

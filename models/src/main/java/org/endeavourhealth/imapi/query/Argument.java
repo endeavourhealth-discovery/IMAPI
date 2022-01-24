@@ -1,24 +1,37 @@
 package org.endeavourhealth.imapi.query;
 
-public class Argument {
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+
+import java.io.InvalidClassException;
+
+public class Argument extends TTNode {
 	private String parameter;
 	private String value;
 
-	public String getParameter() {
-		return parameter;
+	public TTValue getParameter() throws InvalidClassException {
+		return (TTValue) TTUtil.get(this, IM.PARAMETER,TTValue.class);
 	}
 
 	public Argument setParameter(String parameter) {
-		this.parameter = parameter;
+		set(IM.PARAMETER, TTLiteral.literal(parameter));
+		return this;
+	}
+	public Argument setParameter(TTIriRef parameter) {
+		set(IM.PARAMETER, parameter);
 		return this;
 	}
 
-	public String getValue() {
-		return value;
+	public TTValue getValue() throws InvalidClassException {
+		return (TTValue) TTUtil.get(this,IM.VALUE_DATA,TTValue.class);
 	}
 
 	public Argument setValue(String value) {
-		this.value = value;
+		set(IM.VALUE_DATA,TTLiteral.literal(value));
+		return this;
+	}
+	public Argument setValue(TTValue value) {
+		set(IM.VALUE_DATA,value);
 		return this;
 	}
 }

@@ -34,10 +34,10 @@ public class IM {
     public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
-    public static final TTIriRef QUERY= iri(NAMESPACE+"Query");
-    public static final TTIriRef QUERY_CLAUSE= iri(NAMESPACE+"QueryClause");
-    public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE+"queryDefinition");
+    public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
+    public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
+    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
@@ -113,16 +113,17 @@ public class IM {
     public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kwp#");
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vis#");
     public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
-    public static final TTIriRef GRAPH_CEG16= TTIriRef.iri(DOMAIN +"ceg16#");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
     public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1Maps#");
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
+    public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
 
 
 
-    //Source graphs
+
+  //Source graphs
    public static final TTIriRef SOURCE_TRUD_ODS= iri(IM.DOMAIN+"trudods#");
 
     // redant code schemes are now the same as graphs
@@ -133,7 +134,6 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_OPCS4 = IM.GRAPH_OPCS4;
     public static final TTIriRef CODE_SCHEME_TPP = IM.GRAPH_TPP;
     public static final TTIriRef CODE_SCHEME_ODS = IM.GRAPH_ODS;
-    public static final TTIriRef CODE_SCHEME_CEG16= IM.GRAPH_CEG16;
     public static final TTIriRef CODE_SCHEME_VISION= IM.GRAPH_VISION;
     public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001= IM.GRAPH_NHSDD_ETHNIC_2001;
     public static final TTIriRef CODE_SCHEME_KINGS_APEX = IM.GRAPH_KINGS_APEX;
@@ -154,40 +154,50 @@ public class IM {
     public static final TTIriRef relativeDate = TTIriRef.iri(NAMESPACE +"relativeDate");
 
     //Query
-    public static final TTIriRef IN_DATASET = iri(NAMESPACE+"inDataset");
-    public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
-    public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
-    public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
-    public static final TTIriRef CLAUSE = iri(NAMESPACE + "clause");
-    public static final TTIriRef OPERATOR = iri(NAMESPACE + "operator");
-    public static final TTIriRef WHERE = iri(NAMESPACE + "where");
-    public static final TTIriRef ENTITY = iri(NAMESPACE + "entity");
-    public static final TTIriRef PROPERTY = iri(NAMESPACE + "property");
-    public static final TTIriRef FILTER = iri(NAMESPACE + "filter");
-    public static final TTIriRef VALUE_VAR = iri(NAMESPACE + "valueVar");
-    public static final TTIriRef NOT = iri(NAMESPACE + "not");
-    public static final TTIriRef SUBQUERY = iri(NAMESPACE + "subQuery");
-    public static final TTIriRef GROUP_SORT = iri(NAMESPACE + "groupSort");
-    public static final TTIriRef SELECT = iri(NAMESPACE + "select");
-    public static final TTIriRef VAR = iri(NAMESPACE + "var");
-    public static final TTIriRef COMPARISON = iri(NAMESPACE + "comparison");
-    public static final TTIriRef RANGE= iri(NAMESPACE + "range");
-    public static final TTIriRef FROM = iri(NAMESPACE + "from");
-    public static final TTIriRef TO = iri(NAMESPACE + "to");
-    public static final TTIriRef VALUE_DATA = iri(NAMESPACE + "value");
-    public static final TTIriRef IN = iri(NAMESPACE + "in");
-    public static final TTIriRef NOTIN = iri(NAMESPACE + "notIn");
-    public static final TTIriRef COUNT = iri(NAMESPACE + "count");
-    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
-    public static final TTIriRef SORT_FIELD = iri(NAMESPACE + "sortField");
-    public static final TTIriRef SORT_BY = iri(NAMESPACE + "sortBy");
-    public static final TTIriRef GROUP_BY = iri(NAMESPACE + "groupBy");
+  public static final TTIriRef ORDER_LIMIT= iri(NAMESPACE + "orderLimit");
+  public static final TTIriRef AND= iri(NAMESPACE + "and");
+  public static final TTIriRef OR= iri(NAMESPACE + "or");
+  public static final TTIriRef NOT= iri(NAMESPACE + "not");;
+  public static final TTIriRef MATCH = iri(NAMESPACE + "match");
+  public static final TTIriRef ORDER = iri(NAMESPACE + "order");
+  public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
+  public static final TTIriRef ENTITY_TYPE = iri(NAMESPACE + "entityType");
+  public static final TTIriRef PROPERTY_VALUE = iri(NAMESPACE + "propertyValue");
+  public static final TTIriRef PROPERTY = iri(NAMESPACE + "property");
+  public static final TTIriRef VALUE_DATA = iri(NAMESPACE + "value");
+  public static final TTIriRef NOT_EXIST = iri(NAMESPACE+ "notExist");
+  public static final TTIriRef VALUE_IN = iri(NAMESPACE + "valueIn");
+  public static final TTIriRef VALUE_NOTIN = iri(NAMESPACE + "valueNotIn");
+  public static final TTIriRef FROM = iri(NAMESPACE + "from");
+  public static final TTIriRef TO = iri(NAMESPACE + "to");
+  public static final TTIriRef VALUE_RANGE  = iri(NAMESPACE+ "valueRange");
+  public static final TTIriRef VALUE_FUNCTION = iri(NAMESPACE + "valueFunction");
+  public static final TTIriRef COMPARISON = iri(NAMESPACE + "comparison");
+  public static final TTIriRef FUNCTION_NAME = iri(NAMESPACE + "functionName");
+  public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
+  public static final TTIriRef PARAMETER = iri(NAMESPACE + "parameter");
+  public static final TTIriRef SORT_BY = iri(NAMESPACE + "sortBy");
+  public static final TTIriRef LIMIT = iri(NAMESPACE + "limit");
+  public static final TTIriRef SORT_FIELD = iri(NAMESPACE + "sortField");
+  public static final TTIriRef TEST = iri(NAMESPACE + "test");
+  public static final TTIriRef VALUE_VAR = iri(NAMESPACE + "valueVar");
+  public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
+  public static final TTIriRef ASCENDING = iri(NAMESPACE +"ASCENDING");
+  public static final TTIriRef DESCENDING = iri(NAMESPACE +"DESCENDING");
+  public static final TTIriRef SORT_ORDER = iri(NAMESPACE +"sortOrder");
 
 
+  public static final TTIriRef HAS_PROFILE = iri(NAMESPACE+"hasProfile");
+  public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
 
-
-
-
+  //Provenance
+  public static final TTIriRef PROV_ACIVITY = iri(NAMESPACE+"provenanceActivity");
+  public static final TTIriRef PROV_TARGET = iri(NAMESPACE+"provenanceTarget");
+  public static final TTIriRef PROVE_ACIVITY_TYPE= iri(NAMESPACE+"provenanceActivityType");
+  public static final TTIriRef PROV_AGENT = iri(NAMESPACE+"provenanceAgent");
+  public static final TTIriRef START_TIME = iri(NAMESPACE+"startTime");
+  public static final TTIriRef EFFECTIVE_DATE = iri(NAMESPACE+"effectiveDate");
+  public static final TTIriRef PROV_USED = iri(NAMESPACE+"usedEntity");
 
 
 
@@ -196,6 +206,7 @@ public class IM {
   public static final TTIriRef VERSION = iri(NAMESPACE +"version");
   public static final TTIriRef HAS_ROLE_IN = iri(NAMESPACE +"hasRoleInOrganisation");
   public static final TTIriRef IS_PERSON = iri(NAMESPACE +"isPerson");
+
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE +"counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");

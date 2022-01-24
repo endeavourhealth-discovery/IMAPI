@@ -54,6 +54,8 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
       if (document.getEntities()!=null&&!document.getEntities().isEmpty()) {
          gen.writeArrayFieldStart("entities");
          for (TTEntity entity: document.getEntities()){
+            //if (entity.getName()!=null)
+              // System.out.println(entity.getName());
             gen.writeStartObject();
             gen.writeStringField("@id", helper.prefix(entity.getIri()));
             helper.serializeNode(entity, gen,prov);

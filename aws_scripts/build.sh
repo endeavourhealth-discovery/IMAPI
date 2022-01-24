@@ -4,6 +4,9 @@ chmod +x ./gradlew
 
 mkdir badges
 
+# Exit code
+exitcode=0
+
 # Artifact
 artifact='IMAPI'
 
@@ -35,6 +38,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 if [[ "$buildresult" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
+        exitcode=1
 else
         badge_status=passing
         badge_colour=green
@@ -51,6 +55,7 @@ grep -q "</failure>" */build/test-results/test/TEST-*.xml
 if [[ "$?" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
+        exitcode=1
 else
         badge_status=passing
         badge_colour=green
@@ -62,4 +67,4 @@ curl -s "https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg
 # Sync with S3
 aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive --acl public-read --region eu-west-2
 
-exit ${buildresult}
+exit ${exitcode}

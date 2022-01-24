@@ -10,8 +10,6 @@ artifact='IMAPI'
 # Version
 version='1.0.0'
 
-returncode=0
-
 # Update badges pre-build
 echo "https://img.shields.io/badge/Build-In_progress-orange.svg"
 curl -s "https://img.shields.io/badge/Build-In_progress-orange.svg" > badges/build.svg
@@ -37,7 +35,6 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 if [[ "$buildresult" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
-        returncode=1
 else
         badge_status=passing
         badge_colour=green
@@ -49,15 +46,11 @@ echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
 # Unit tests
-$testresult=$( xmllint --xpath 'string(//testsuite/@failures) + string(//testsuite/@errors)' */build/test-results/test/TEST-*.xml )
+grep -q "</failure>" */build/test-results/test/TEST-*.xml
 
-echo TestResult
-echo $testresult
-
-if [[ "$testresult" -gt "0" ]] ; then
+if [[ "$?" -gt "0" ]] ; then
         badge_status=failing
         badge_colour=red
-        returncode=1
 else
         badge_status=passing
         badge_colour=green
@@ -69,4 +62,4 @@ curl -s "https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg
 # Sync with S3
 aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive --acl public-read --region eu-west-2
 
-exit ${returncode}
+exit ${buildresult}

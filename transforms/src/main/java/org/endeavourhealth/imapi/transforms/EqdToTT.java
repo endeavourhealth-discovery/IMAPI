@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.text.CaseUtils;
 import org.endeavourhealth.imapi.cdm.ProvActivity;
 import org.endeavourhealth.imapi.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -27,6 +26,7 @@ public class EqdToTT {
 	private int varCounter;
 	private String activeReport;
 	private TTDocument document;
+	private String slash = "/";
 
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
@@ -359,7 +359,7 @@ public class EqdToTT {
 	}
 
 	private void addDateMatch(Match subMatch,String eqTable,String linkField) throws DataFormatException {
-		String fieldPath= getMap(eqTable+"/"+ linkField);
+		String fieldPath= getMap(eqTable+slash+ linkField);
 		String date= fieldPath.substring(fieldPath.lastIndexOf("/")+1);
 		subMatch.setProperty(TTIriRef.iri(IM.NAMESPACE+date));
 		varCounter++;
@@ -396,7 +396,7 @@ public class EqdToTT {
 				.setParameter(IM.SORT_ORDER)
 				.setValue(IM.DESCENDING));
 		String eqColumn = restrict.getColumnOrder().getColumns().get(0).getColumn().get(0);
-		String fieldPath = getMap(eqTable + "/" + eqColumn);
+		String fieldPath = getMap(eqTable + slash + eqColumn);
 		String field=fieldPath.substring(fieldPath.lastIndexOf("/")+1);
 		function.addArgument(new Argument()
 			.setParameter(IM.SORT_FIELD)
@@ -418,16 +418,16 @@ public class EqdToTT {
 		Match match= new Match();
 		for (EQDOCColumnValue cv : eqAtt.getColumnValue()) {
 			for (String eqColumn : cv.getColumn()) {
-				String entityPath = getEntityPath(eqTable + "/" + eqColumn);
+				String entityPath = getEntityPath(eqTable + slash + eqColumn);
 				if (!entityPath.equals(lastPath)) {
 					match = new Match();
-					String thisPath= getMap(eqTable+"/"+ eqColumn);
+					String thisPath= getMap(eqTable+ slash + eqColumn);
 					String[] pathMap= thisPath.split("/");
 					match.setPathTo(TTIriRef.iri(IM.NAMESPACE+pathMap[0]));
 					match.setEntityType(TTIriRef.iri(IM.NAMESPACE+pathMap[1]));
 					columnMap.put(match, new ArrayList<>());
 					columnMap.get(match).add(cv);
-					lastPath= pathMap[0]+"/"+ pathMap[1];
+					lastPath= pathMap[0]+ slash + pathMap[1];
 				} else
 					columnMap.get(match).add(cv);
 
@@ -454,7 +454,7 @@ public class EqdToTT {
 
 	private void setPropertyValue(EQDOCColumnValue cv,String eqTable,String eqColumn,
 																Match match) throws DataFormatException, InvalidClassException {
-		String predPath= getMap(eqTable + "/" + eqColumn);
+		String predPath= getMap(eqTable + slash + eqColumn);
 		String predicate= predPath.substring(predPath.lastIndexOf("/")+1);
 		match.setProperty(TTIriRef.iri(IM.NAMESPACE+ predicate));
 		VocColumnValueInNotIn in= cv.getInNotIn();

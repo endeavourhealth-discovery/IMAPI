@@ -7,7 +7,7 @@ public class FilterDefault {
     private List<String> statusOptions;
     private List<String> typeOptions;
 
-    public FilterDefault() {};
+    public FilterDefault() {}
 
     public FilterDefault(List<String> schemeOptions, List<String> statusOptions, List<String> typeOptions) {
         this.schemeOptions = schemeOptions;

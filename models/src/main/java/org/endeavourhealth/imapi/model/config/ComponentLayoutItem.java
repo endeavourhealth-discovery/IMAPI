@@ -7,7 +7,7 @@ public class ComponentLayoutItem {
     private String size;
     private int order;
 
-    public ComponentLayoutItem(){};
+    public ComponentLayoutItem(){}
 
     public ComponentLayoutItem(String label, String predicate, String type, String size, int order) {
         this.label = label;

@@ -5,11 +5,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.io.InvalidClassException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Function extends TTNode {
@@ -18,7 +14,7 @@ public class Function extends TTNode {
 		setPredicateTemplate(new TTIriRef[]{IM.FUNCTION_NAME,IM.ARGUMENT});
 	}
 
-	public TTIriRef getName() throws InvalidClassException {
+	public TTIriRef getName(){
 		return (TTIriRef) TTUtil.get(this, IM.FUNCTION_NAME,TTIriRef.class);
 	}
 

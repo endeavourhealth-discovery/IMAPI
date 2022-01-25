@@ -5,12 +5,10 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
-import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Static methods for casting TT classes to business objects for use in builders
@@ -77,5 +75,9 @@ public class TTUtil {
 		ctx.add(RDF.NAMESPACE,"rdf");
 		ctx.add(SNOMED.NAMESPACE,"sn");
 		return ctx;
+	}
+
+	public static void populate (TTNode source, TTNode target){
+
 	}
 }

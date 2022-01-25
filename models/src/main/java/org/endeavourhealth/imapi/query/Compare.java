@@ -1,15 +1,10 @@
 package org.endeavourhealth.imapi.query;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
-
-import java.io.InvalidClassException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Compare extends TTNode {
 
@@ -30,7 +25,7 @@ public class Compare extends TTNode {
 		return this;
 	}
 
-	public String getValue() throws InvalidClassException {
+	public String getValue(){
 		return (String) TTUtil.get(this,IM.VALUE_DATA,String.class);
 	}
 

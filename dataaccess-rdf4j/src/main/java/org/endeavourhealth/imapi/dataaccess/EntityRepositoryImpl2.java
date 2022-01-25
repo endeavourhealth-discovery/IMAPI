@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
@@ -11,6 +9,8 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -18,6 +18,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class EntityRepositoryImpl2 {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepositoryImpl2.class);
+
     private Map<String, String> prefixMap;
     private StringJoiner spql;
 
@@ -63,26 +65,67 @@ public class EntityRepositoryImpl2 {
 
     /**
      * An alternative method of getting an entity definition
-     *
-     * @param iri        of the entity
-     * @param predicates List of predicates to include
+     * @param iri of the entity
+     * @param predicates List of predicates to `include`
      * @return
      */
-    public TTEntity getEntity(String iri, Set<String> predicates) {
+    public TTBundle getBundle(String iri, Set<String> predicates){
+        return getBundle(iri, predicates, false);
+    }
+
+    /**
+     * An alternative method of getting an entity definition
+     * @param iri of the entity
+     * @param predicates List of predicates
+     * @param excludePredicates Flag denoting if predicate list is inclusion or exclusion
+     * @return
+     */
+    public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates){
+        TTBundle bundle = new TTBundle().setEntity(new TTEntity());
+
+        StringJoiner sql = getBundleSparql(predicates, excludePredicates);
+
+        Map<String, String> predNames = bundle.getPredicates();
+
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            GraphQuery qry=conn.prepareGraphQuery(sql.toString());
+            qry.setBinding("entity",iri(iri));
+            try (GraphQueryResult gs = qry.evaluate()) {
+                Map<Value, TTValue> valueMap = new HashMap<>();
+                Resource entityIri = null;
+                for (org.eclipse.rdf4j.model.Statement st :gs) {
+                    entityIri = processStatement(bundle, predNames, valueMap, entityIri, st);
+                }
+
+                // Sanity check
+                for(Map.Entry<String, String> p : predNames.entrySet()) {
+                    if (p.getValue().isEmpty())
+                        LOG.warn("Unnamed predicate {}", p.getKey());
+                }
+
+                return bundle;
+            }
+        }
+    }
+
+    private StringJoiner getBundleSparql(Set<String> predicates, boolean excludePredicates) {
+        int depth = 5;
+
         StringJoiner sql = new StringJoiner("\n");
         sql.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
         sql.add("CONSTRUCT {")
-                .add("  ?entity ?1predicate ?1Level.")
-                .add("  ?1Level rdfs:label ?1Name.");
-        for (int i = 1; i < 5; i++) {
+            .add("  ?entity ?1predicate ?1Level.")
+            .add("  ?1Level rdfs:label ?1Name.");
+        for (int i = 1; i < depth; i++) {
             sql.add("  ?" + i + "Level ?" + (i + 1) + "predicate ?" + (i + 1) + "Level.")
-                    .add("  ?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName.")
-                    .add("  ?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name.");
+                .add("  ?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName.")
+                .add("  ?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name.");
         }
         sql.add("}");
 
         sql.add("WHERE {")
-                .add("  ?entity ?1predicate ?1Level.");
+            .add("  ?entity ?1predicate ?1Level.")
+            .add("  ?1predicate rdfs:label ?1pName.");
         if (predicates != null) {
             StringBuilder inPredicates = new StringBuilder();
             int i = 0;
@@ -90,73 +133,82 @@ public class EntityRepositoryImpl2 {
                 inPredicates.append(i > 0 ? "," : "").append("<").append(pred).append("> ");
                 i++;
             }
-            sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
+            if (excludePredicates)
+                sql.add("   FILTER (?1predicate NOT IN (" + inPredicates + "))");
+            else
+                sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
         }
         sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.")
-                .add("    FILTER (!isBlank(?1Level))}");
-        for (int i = 1; i < 5; i++) {
+            .add("    FILTER (!isBlank(?1Level))}");
+        for (int i = 1; i < depth; i++) {
             sql.add("  OPTIONAL {?" + (i) + "Level ?" + (i + 1) + "predicate ?" + (i + 1) + "Level.")
-                    .add("    FILTER (isBlank(?" + i + "Level))")
-                    .add("  OPTIONAL {?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName}")
-                    .add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name")
-                    .add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
+                .add("    FILTER (isBlank(?" + i + "Level))")
+                .add("  OPTIONAL {?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName}")
+                .add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name")
+                .add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
         }
         sql.add("}}}}}");
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            GraphQuery qry = conn.prepareGraphQuery(sql.toString());
-            qry.setBinding("entity", iri(iri));
-            try (GraphQueryResult gs = qry.evaluate()) {
-                TTEntity entity = null;
-                for (org.eclipse.rdf4j.model.Statement st : gs) {
-                    processEntity(st, entity);
-                }
-                return entity;
-            }
-        }
+        return sql;
     }
 
-    private void processEntity(org.eclipse.rdf4j.model.Statement st, TTEntity entity) {
-        TTNode node = null;
-        Map<Value, TTValue> valueMap = new HashMap<>();
-        Resource entityIri = null;
+    private Resource processStatement(TTBundle bundle, Map<String, String> predNames, Map<Value, TTValue> valueMap, Resource entityIri, Statement st) {
+        TTEntity entity = bundle.getEntity();
+
+        // Process predicates
+        String p = st.getPredicate().stringValue();
+
+        if (p.equals(RDFS.LABEL.getIri())) {
+            if (predNames.containsKey(st.getSubject().stringValue()))
+                predNames.put(p, st.getObject().stringValue());
+        } else if (!predNames.containsKey(p)) {
+            predNames.put(p, "");
+        }
+
+        // Add to entity
         Resource subject = st.getSubject();
-        TTIriRef predicate = TTIriRef.iri(st.getPredicate().stringValue());
-        valueMap.put(st.getPredicate(), predicate);
-        if (entity == null) {
-            entity = new TTEntity();
+        TTIriRef predicate= TTIriRef.iri(st.getPredicate().stringValue());
+        valueMap.put(st.getPredicate(),predicate);
+        if (entity.getIri() == null) {
             entity.setIri(subject.stringValue());
             valueMap.put(subject, entity);
             entityIri = subject;
+            bundle.setEntity(entity);
         }
         if (subject.isIRI() && !subject.equals(entityIri)) {
             TTIriRef subjectIri = valueMap.get(subject).asIriRef();
             subjectIri.setName(st.getObject().stringValue());
-        } else {
-            node = valueMap.get(subject).asNode();
+        }
+        else {
+            TTNode node = valueMap.get(subject).asNode();
             Value value = st.getObject();
             if (value.isLiteral()) {
-                node.set(TTIriRef.iri(st.getPredicate().stringValue()), literal(value.stringValue()));
-            } else if (value.isIRI()) {
-                TTIriRef objectIri = null;
-                if (valueMap.get(value) != null)
-                    objectIri = valueMap.get(value).asIriRef();
-                if (objectIri == null)
+                Literal l = (Literal) value;
+                node.set(TTIriRef.iri(st.getPredicate().stringValue()), literal(l.stringValue(), l.getDatatype().stringValue()));
+            }
+            else if (value.isIRI()) {
+                TTIriRef objectIri=null;
+                if (valueMap.get(value)!=null)
+                    objectIri= valueMap.get(value).asIriRef();
+                if (objectIri==null)
                     objectIri = TTIriRef.iri(value.stringValue());
-                if (node.get(predicate) == null)
+                if (node.get(predicate)==null)
                     node.set(predicate, objectIri);
                 else
-                    node.addObject(predicate, objectIri);
+                    node.addObject(predicate,objectIri);
                 valueMap.putIfAbsent(value, objectIri);
-            } else if (value.isBNode()) {
+            }
+            else if (value.isBNode()) {
                 TTNode ob = new TTNode();
-                if (node.get(predicate) == null)
+                if (node.get(predicate)==null)
                     node.set(predicate, ob);
                 else
-                    node.addObject(predicate, ob);
+                    node.addObject(predicate,ob);
                 valueMap.put(value, ob);
             }
         }
+        return entityIri;
     }
+
 
     /**
      * Generates sparql from a concept set entity

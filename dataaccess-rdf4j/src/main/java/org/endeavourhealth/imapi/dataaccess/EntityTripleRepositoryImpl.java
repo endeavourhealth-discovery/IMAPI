@@ -5,7 +5,6 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
@@ -16,7 +15,6 @@ import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
@@ -32,39 +30,13 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepositoryImpl.class);
     private static final List<Namespace> namespaceCache = new ArrayList<>();
 
+    private final EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
     private final Map<String, Integer> bnodes = new HashMap<>();
     private int row = 0;
 
     @Override
     public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
-        List<Tpl> triples = getTriplesRecursive(iri, predicates, limit);
-        LOG.debug("Entity triples : {}", triples.size());
-        return Tpl.toBundle(iri, triples);
-    }
-
-    @Override
-    public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates, int limit) throws DALException {
-        row = 0;
-        List<Tpl> result = new ArrayList<>();
-        try {
-            addTriples(result, iri(iri), null, predicates);
-        } catch (RepositoryException e) {
-            throw new DALException("Failed to recursive triples");
-        }
-        return result;
-    }
-
-    @Override
-    public List<Tpl> getTriplesRecursiveByExclusions(String iri, Set<String> exclusionPredicates, int limit) {
-        row = 0;
-        List<Tpl> result = new ArrayList<>();
-        try {
-            addTriplesExcluding(result, iri(iri), null, exclusionPredicates);
-
-        } catch (RepositoryException e) {
-            throw new DALException("Failed to recursive triples");
-        }
-        return result;
+        return entityRepositoryImpl2.getBundle(iri, predicates);
     }
 
     @Override
@@ -124,64 +96,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 }
             }
         }
-    }
-
-
-    @Override
-    public Set<ValueSetMember> getSubjectByObjectAndPredicateAsValueSetMembers(String objectIri, String predicateIri) {
-        Set<ValueSetMember> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
-                .add("    ?s ?p ?o .")
-                .add("    ?s rdfs:label ?sname .")
-                .add("    GRAPH ?g { ?s im:code ?scode } .")
-                .add("    OPTIONAL { ?g rdfs:label ?gname } .")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", iri(objectIri));
-            qry.setBinding("p", iri(predicateIri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-
-                    result.add(new ValueSetMember()
-                            .setEntity(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue()))
-                            .setCode(bs.getValue("scode").stringValue())
-                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
-                    );
-                }
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public Set<TTIriRef> getSubjectByObjectAndPredicateAsTTIriRef(String objectIri, String predicateIri) {
-        Set<TTIriRef> result = new HashSet<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?s ?sname WHERE {")
-                .add("    ?s ?p ?o .")
-                .add("    ?s rdfs:label ?sname .")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", iri(objectIri));
-            qry.setBinding("p", iri(predicateIri));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue()));
-                }
-            }
-        }
-
-        return result;
     }
 
     @Override
@@ -272,7 +186,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -304,7 +218,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c ?cname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -349,7 +263,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
                 .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -465,40 +379,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             return namespaceCache;
         }
     }
-
-    @Override
-    public List<SimpleMap> getSubjectFromObjectPredicate(String objectIri, TTIriRef predicate) {
-        List<SimpleMap> result = new ArrayList<>();
-
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?s ?sname ?scode ?g ?gname WHERE {")
-                .add("    ?s ?p ?o .")
-                .add("    ?s rdfs:label ?sname .")
-                .add("    GRAPH ?g { ?s im:code ?scode } .")
-                .add("    OPTIONAL { ?g rdfs:label ?gname } .")
-                .add("}");
-
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", iri(objectIri));
-            qry.setBinding("p", iri(predicate.getIri()));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-
-                    result.add(new SimpleMap()
-                            .setIri(bs.getValue("s").stringValue())
-                            .setName(bs.getValue("sname").stringValue())
-                            .setCode(bs.getValue("scode").stringValue())
-                            .setScheme((bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue()))
-                    );
-                }
-            }
-        }
-
-        return result;
-    }
-
 
     @Override
     public Set<EntitySummary> getLegacyConceptSummaries(Set<EntitySummary> coreEntities) {
@@ -670,5 +550,28 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             }
         }
         return simpleMaps;
+    }
+
+    @Override
+    public List<String> getConceptIrisByGraph(String iri) {
+        List<String> iris = new ArrayList<>();
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add(" SELECT DISTINCT ?s WHERE{")
+                .add(" GRAPH ?g { ?s ?p ?o } .")
+                .add("}")
+                .add(" LIMIT 20 ");
+        try( RepositoryConnection conn = ConnectionManager.getConnection()){
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+
+            qry.setBinding("g", iri(iri));
+            try(TupleQueryResult rs = qry.evaluate()){
+                while (rs.hasNext()){
+                    BindingSet bs = rs.next();
+                    iris.add(getString(bs, "s"));
+                }
+            }
+        }
+
+        return iris;
     }
 }

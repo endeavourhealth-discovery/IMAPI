@@ -114,7 +114,7 @@ public class EntityRepositoryImpl implements EntityRepository {
         //To replace with the typ specific sub predicste cache
         Set<TTIriRef> subPredicates = Stream.of(IM.AND, IM.OR, IM.NOT, IM.VALUE_FUNCTION,
           IM.ARGUMENT, IM.FUNCTION, IM.TEST, IM.VALUE_RANGE, IM.FROM,IM.MATCH,
-          IM.TO).collect(Collectors.toCollection(HashSet::new));
+          IM.TO,IM.VALUE_MATCH,IM.VALUE_COMPARE).collect(Collectors.toCollection(HashSet::new));
 
         TTEntity entity = getEntityWithSubPredicates(iri, null, subPredicates);
         return entity;
@@ -130,7 +130,6 @@ public class EntityRepositoryImpl implements EntityRepository {
      */
     private static TTEntity getEntityWithSubPredicates(String iri, Set<TTIriRef> mainPredicates,Set<TTIriRef> subPredicates){
         RepositoryConnection conn =  ConnectionManager.getConnection();
-        StringJoiner sql = new StringJoiner("\n");
         String mainPredVar=null;
         String subPredVar="?p2";
         if (mainPredicates!=null){
@@ -152,42 +151,47 @@ public class EntityRepositoryImpl implements EntityRepository {
             subPredVar= subPredVar+")+ ";
         }
 
-        sql.add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-          .add("PREFIX im: <http://endhealth.info/im#>")
-          .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-          .add("CONSTRUCT {")
-          .add("     ?entity ?p1 ?o1.")
-          .add("     ?o1 rdfs:label ?iriLabel1.")
-          .add("    ?s2 ?p2 ?o2.")
-          .add("    ?o2 rdfs:label ?iriLabel2.")
-          .add("    ?o2 ?p3 ?o3.")
-          .add("    ?o3 rdfs:label ?iriLabel3.")
-          .add("}")
-          .add("where {")
-          .add("    ?entity ?p1 ?o1.");
-        if (mainPredVar!=null)
-            sql.add("   FILTER (?1predicate IN (" + mainPredVar + "))");
-        sql.add("    optional {");
-        sql.add("    ?o1 "+subPredVar+ "?o2.");
-        sql.add("   ?s2 ?p2 ?o2.")
-          .add("        filter(isBlank(?o1))")
-          .add("        Optional { ?o1 rdfs:label ?iriLabel1.")
-          .add("            filter(isIri(?o1))}")
-          .add("    Optional {?o2 ?p3 ?o3")
-          .add("            filter(isBlank(?o2))}")
-          .add("        Optional {?o2 rdfs:label ?iriLabel2.")
-          .add("            filter(isIri(?o2))}    ")
-          .add("        Optional {?o3 rdfs:label ?iriLabel3.")
-          .add("            filter (isIri(?o3))}}}");
-        GraphQuery qry = conn.prepareGraphQuery(sql.toString());
+        String sql="PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+          "PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "CONSTRUCT {\n" +
+          "   ?entity ?p1 ?o1.\n" +
+          "  ?o1 rdfs:label ?iriLabel1.\n" +
+          "   ?s2 ?p2 ?o2.\n" +
+          "   ?o2 ?p3 ?o3.\n" +
+          "    ?o3 rdfs:label ?iriLabel3.\n" +
+          "}\n" +
+          "\n" +
+          "where {\n" +
+          "    ?entity ?p1 ?o1.\n" +
+          "     Optional { ?o1 rdfs:label ?iriLabel1.\n" +
+          "            filter(isIri(?o1))}\n" +
+          "    optional {\n" +
+          "    ?o1 "+subPredVar+" ?o2.\n"+
+          "   ?s2 ?p2 ?o2.\n" +
+          "        filter(isBlank(?o1))\n" +
+          "       Optional {?o2 ?p3 ?o3.\n" +
+          "            filter(isBlank(?o2))}\n" +
+          "       \n" +
+          "        Optional {?o3 rdfs:label ?iriLabel3.\n" +
+          "            filter (isIri(?o3))}\n" +
+          "   }\n" +
+          "}\n";
+        GraphQuery qry = conn.prepareGraphQuery(sql);
         qry.setBinding("entity",
           iri((String) Objects.requireNonNull(iri,
             "iri may not be null")));
+
         GraphQueryResult gs = qry.evaluate();
         Map<Value, TTValue> valueMap = new HashMap<>();
         TTEntity entity = new TTEntity().setIri(iri);
+        int i=0;
         for (org.eclipse.rdf4j.model.Statement st : gs) {
-            populateEntity(st, entity,valueMap);
+            i++;
+            if (i%100==0) {
+                System.out.println(i+ " "+st.getSubject().stringValue()+" " + st.getPredicate().stringValue()+" "+st.getObject().stringValue());
+            }
+           populateEntity(st, entity,valueMap);
         }
         return entity;
     }

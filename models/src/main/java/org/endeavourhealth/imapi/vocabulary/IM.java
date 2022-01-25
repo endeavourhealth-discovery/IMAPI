@@ -143,13 +143,13 @@ public class IM {
   public static final TTIriRef ORDER_LIMIT= iri(NAMESPACE + "OrderLimit");
   public static final TTIriRef AND= iri(NAMESPACE + "and");
   public static final TTIriRef OR= iri(NAMESPACE + "or");
-  public static final TTIriRef NOT= iri(NAMESPACE + "not");
+  public static final TTIriRef NOT= iri(NAMESPACE + "not");;
   public static final TTIriRef MATCH = iri(NAMESPACE + "match");
   public static final TTIriRef ORDER = iri(NAMESPACE + "order");
   public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
   public static final TTIriRef ENTITY_TYPE = iri(NAMESPACE + "entityType");
   public static final TTIriRef PROPERTY = iri(NAMESPACE + "property");
-  public static final TTIriRef VALUE_DATA = iri(NAMESPACE + "value");
+  public static final TTIriRef VALUE_COMPARE = iri(NAMESPACE + "valueCompare");
   public static final TTIriRef NOT_EXIST = iri(NAMESPACE+ "notExist");
   public static final TTIriRef VALUE_IN = iri(NAMESPACE + "valueIn");
   public static final TTIriRef VALUE_NOTIN = iri(NAMESPACE + "valueNotIn");
@@ -169,6 +169,10 @@ public class IM {
   public static final TTIriRef ASCENDING = iri(NAMESPACE +"ASCENDING");
   public static final TTIriRef DESCENDING = iri(NAMESPACE +"DESCENDING");
   public static final TTIriRef SORT_ORDER = iri(NAMESPACE +"sortOrder");
+  public static final TTIriRef VALUE_MATCH = iri(NAMESPACE +"valueMatch");
+  public static final TTIriRef VALUE_IRI = iri(NAMESPACE +"valueIrI");
+  public static final TTIriRef VALUE_DATA = iri(NAMESPACE +"valueData");
+
 
 
   public static final TTIriRef HAS_PROFILE = iri(NAMESPACE+"hasProfile");
@@ -196,6 +200,7 @@ public class IM {
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
     public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE+"displayOrder");
+  public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE+"usageTotal");
    // public static final TTIriRef HAS= iri(NAMESPACE+"has");
     private IM() {}
 }

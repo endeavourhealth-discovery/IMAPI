@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.text.CaseUtils;
 import org.endeavourhealth.imapi.cdm.ProvActivity;
 import org.endeavourhealth.imapi.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -26,7 +27,6 @@ public class EqdToTT {
 	private int varCounter;
 	private String activeReport;
 	private TTDocument document;
-	private String slash = "/";
 
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
@@ -359,7 +359,7 @@ public class EqdToTT {
 	}
 
 	private void addDateMatch(Match subMatch,String eqTable,String linkField) throws DataFormatException {
-		String fieldPath= getMap(eqTable+slash+ linkField);
+		String fieldPath= getMap(eqTable+"/"+ linkField);
 		String date= fieldPath.substring(fieldPath.lastIndexOf("/")+1);
 		subMatch.setProperty(TTIriRef.iri(IM.NAMESPACE+date));
 		varCounter++;
@@ -390,24 +390,24 @@ public class EqdToTT {
 		if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC)
 			function.addArgument(new Argument()
 				.setParameter(IM.SORT_ORDER)
-				.setValue(IM.ASCENDING));
+				.setValueIri(IM.ASCENDING));
 		else
 			function.addArgument(new Argument()
 				.setParameter(IM.SORT_ORDER)
-				.setValue(IM.DESCENDING));
+				.setValueIri(IM.DESCENDING));
 		String eqColumn = restrict.getColumnOrder().getColumns().get(0).getColumn().get(0);
-		String fieldPath = getMap(eqTable + slash + eqColumn);
+		String fieldPath = getMap(eqTable + "/" + eqColumn);
 		String field=fieldPath.substring(fieldPath.lastIndexOf("/")+1);
 		function.addArgument(new Argument()
 			.setParameter(IM.SORT_FIELD)
-			.setValue(TTIriRef.iri(IM.NAMESPACE + field)));
+			.setValueIri(TTIriRef.iri(IM.NAMESPACE + field)));
 		function.addArgument(new Argument()
 			.setParameter(IM.LIMIT)
-			.setValue(TTLiteral.literal(restrict.getColumnOrder().getRecordCount())));
+			.setValue(String.valueOf(restrict.getColumnOrder().getRecordCount())));
 		Match subMatch= new Match();
 		function.addArgument(new Argument()
 			.setParameter(IM.MATCH)
-			.setValue(subMatch));
+			.setValueMatch(subMatch));
 		processColumns(eqCriterion.getFilterAttribute(), eqTable, subMatch,true,linkColumn);
 	}
 
@@ -418,16 +418,16 @@ public class EqdToTT {
 		Match match= new Match();
 		for (EQDOCColumnValue cv : eqAtt.getColumnValue()) {
 			for (String eqColumn : cv.getColumn()) {
-				String entityPath = getEntityPath(eqTable + slash + eqColumn);
+				String entityPath = getEntityPath(eqTable + "/" + eqColumn);
 				if (!entityPath.equals(lastPath)) {
 					match = new Match();
-					String thisPath= getMap(eqTable+ slash + eqColumn);
+					String thisPath= getMap(eqTable+"/"+ eqColumn);
 					String[] pathMap= thisPath.split("/");
 					match.setPathTo(TTIriRef.iri(IM.NAMESPACE+pathMap[0]));
 					match.setEntityType(TTIriRef.iri(IM.NAMESPACE+pathMap[1]));
 					columnMap.put(match, new ArrayList<>());
 					columnMap.get(match).add(cv);
-					lastPath= pathMap[0]+ slash + pathMap[1];
+					lastPath= pathMap[0]+"/"+ pathMap[1];
 				} else
 					columnMap.get(match).add(cv);
 
@@ -454,7 +454,7 @@ public class EqdToTT {
 
 	private void setPropertyValue(EQDOCColumnValue cv,String eqTable,String eqColumn,
 																Match match) throws DataFormatException, InvalidClassException {
-		String predPath= getMap(eqTable + slash + eqColumn);
+		String predPath= getMap(eqTable + "/" + eqColumn);
 		String predicate= predPath.substring(predPath.lastIndexOf("/")+1);
 		match.setProperty(TTIriRef.iri(IM.NAMESPACE+ predicate));
 		VocColumnValueInNotIn in= cv.getInNotIn();
@@ -723,7 +723,8 @@ public class EqdToTT {
 						vsetName + ", " + ev.getDisplayName();
 				}
 				else
-					vsetName= vsetName+"..more";
+					if (i==10)
+					  vsetName= vsetName+"..more";
 				orSet.addObject(SHACL.OR, getValue(scheme, ev));
 			}
 		}

@@ -1,15 +1,15 @@
-package org.endeavourhealth.imapi.model.openSearch;
+package org.endeavourhealth.imapi.model.opensearch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TypeId implements MatchPhraseId {
+public class StatusId implements MatchPhraseId {
     private String id;
 
-    public TypeId(String id) {
+    public StatusId(String id) {
         this.id = id;
     }
 
-    @JsonProperty("entityType.@id")
+    @JsonProperty("status.@id")
     public String getId() {
         return id;
     }

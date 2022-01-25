@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.query;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 public class Select {
 	private String var;
 

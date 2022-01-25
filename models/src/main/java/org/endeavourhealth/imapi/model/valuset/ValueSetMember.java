@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.valuset;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.io.Serializable;
 

@@ -3,13 +3,11 @@ package org.endeavourhealth.imapi.query;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.io.InvalidClassException;
-
 public class Argument extends TTNode {
 	private String parameter;
 	private String value;
 
-	public TTValue getParameter() throws InvalidClassException {
+	public TTValue getParameter(){
 		return (TTValue) TTUtil.get(this, IM.PARAMETER,TTValue.class);
 	}
 
@@ -22,7 +20,7 @@ public class Argument extends TTNode {
 		return this;
 	}
 
-	public TTValue getValue() throws InvalidClassException {
+	public TTValue getValue(){
 		return (TTValue) TTUtil.get(this,IM.VALUE_DATA,TTValue.class);
 	}
 

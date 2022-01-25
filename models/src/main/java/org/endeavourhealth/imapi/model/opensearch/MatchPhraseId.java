@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.openSearch;
+package org.endeavourhealth.imapi.model.opensearch;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;

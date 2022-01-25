@@ -10,10 +10,12 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 @RestController
+@PreAuthorize("hasAuthority('CONCEPT_WRITE')")
 @RequestMapping("api/filer")
 @CrossOrigin(origins = "*")
 @Api(value="FilerController")

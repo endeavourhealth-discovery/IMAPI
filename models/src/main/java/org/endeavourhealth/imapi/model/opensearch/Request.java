@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.openSearch;
+package org.endeavourhealth.imapi.model.opensearch;
 
 public class Request {
     private int size;

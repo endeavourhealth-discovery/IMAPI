@@ -18,7 +18,7 @@ public class SetAsObject {
         this.subsets = subsets;
     }
 
-    public SetAsObject(){};
+    public SetAsObject(){}
 
     public TTArray getIncluded() {
         return included;

@@ -6,7 +6,7 @@ public class DashboardLayout {
     private Number order;
     private String iri;
 
-    public DashboardLayout(){};
+    public DashboardLayout(){}
 
     public DashboardLayout(String size, String type, Number order, String iri) {
         this.size = size;

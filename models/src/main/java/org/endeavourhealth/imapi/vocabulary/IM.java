@@ -143,7 +143,7 @@ public class IM {
   public static final TTIriRef ORDER_LIMIT= iri(NAMESPACE + "OrderLimit");
   public static final TTIriRef AND= iri(NAMESPACE + "and");
   public static final TTIriRef OR= iri(NAMESPACE + "or");
-  public static final TTIriRef NOT= iri(NAMESPACE + "not");;
+  public static final TTIriRef NOT= iri(NAMESPACE + "not");
   public static final TTIriRef MATCH = iri(NAMESPACE + "match");
   public static final TTIriRef ORDER = iri(NAMESPACE + "order");
   public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");

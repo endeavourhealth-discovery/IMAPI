@@ -79,7 +79,7 @@ public class TTToSCG {
 		return (Arrays.asList(corePredicates).contains(predicate));
 	}
 
-	private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) throws DataFormatException {
+	private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
 		String iri=checkMember(exp.asIriRef().getIri());
 		if(includeName){
 			scg.append(iri + " |" + exp.asIriRef().getName() +" |");

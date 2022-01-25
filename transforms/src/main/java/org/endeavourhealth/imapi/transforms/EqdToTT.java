@@ -132,7 +132,7 @@ public class EqdToTT {
 		setVocabMaps();
 		activeReport = eqReport.getId();
 		TTEntity entity= new TTEntity().addType(IM.PROFILE);
-		entity.set(IM.ENTITY_TYPE,TTIriRef.iri(IM.NAMESPACE+"Patient"));
+		entity.set(IM.ENTITY_TYPE,TTIriRef.iri(IM.NAMESPACE+"Person"));
 		entity.setIri("urn:uuid:" + eqReport.getId());
 		entity.setName(eqReport.getName());
 		entity.setDescription(eqReport.getDescription());
@@ -402,7 +402,7 @@ public class EqdToTT {
 			.setParameter(IM.SORT_FIELD)
 			.setValue(TTIriRef.iri(IM.NAMESPACE + field)));
 		function.addArgument(new Argument()
-			.setParameter(IM.ORDER_LIMIT)
+			.setParameter(IM.LIMIT)
 			.setValue(TTLiteral.literal(restrict.getColumnOrder().getRecordCount())));
 		Match subMatch= new Match();
 		function.addArgument(new Argument()

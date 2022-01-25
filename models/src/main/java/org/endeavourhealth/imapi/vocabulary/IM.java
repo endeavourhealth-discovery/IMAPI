@@ -19,25 +19,27 @@ public class IM {
     //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
     public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");
-    public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
+    //public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
 
     //Entity top level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
 
 
     //Core model types
-    public static final TTIriRef RECORD = iri(NAMESPACE + "RecordType");
     public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
-    public static final TTIriRef DATASET = iri(NAMESPACE +"DataSet");
-    public static final TTIriRef INDIVIDUAL = iri(NAMESPACE +"Individual");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
     public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef CLAUSE_MATCH = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef CLAUSE_COMPARE = iri(NAMESPACE + "CompareClause");
+    public static final TTIriRef CLAUSE_ARGUMENT = iri(NAMESPACE + "ArgumentClause");
+    public static final TTIriRef CLAUSE_RANGE = iri(NAMESPACE + "RangeClause");
+    public static final TTIriRef CLAUSE_FUNCTION = iri(NAMESPACE + "FunctionClause");
+
 
     //Collection predicates
     public static final TTIriRef DEFINITION= iri(NAMESPACE + "definition");
@@ -48,8 +50,7 @@ public class IM {
     public static final TTIriRef SOME_OF= iri(NAMESPACE+"someOf");
     public static final TTIriRef HAS_CHILDREN = iri(NAMESPACE + "hasChildren");
 
-    //Document collection predicates
-    public static final TTIriRef INDIVIDUAL_SET = iri(NAMESPACE +"individuals");
+
 
     //Transitive  isa predicates
     public static final TTIriRef IS_A= iri(NAMESPACE +"isA");
@@ -57,7 +58,7 @@ public class IM {
 
 
     // Config predicate
-    public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");
+  public static final TTIriRef HAS_CONFIG = iri(NAMESPACE + "hasConfig");
 
     //Inferred grouping predicates
     public static final TTIriRef PROPERTY_GROUP = iri(NAMESPACE +"propertyGroup");
@@ -70,12 +71,13 @@ public class IM {
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE +"Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE +"Inactive");
-    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE+"definitionalStatus");
+    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE+"1261000252108");
     public static final TTIriRef SUFFICIENTLY_DEFINED = iri(NAMESPACE+"1251000252106");
     public static final TTIriRef NECESSARY_NOT_SUFFICIENT = iri(NAMESPACE+"2771000252102");
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
+    public static final TTIriRef MAPPED_TO = iri(NAMESPACE +"mappedTo");
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
     public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE +"hasTermCode");
@@ -83,23 +85,14 @@ public class IM {
     public static final TTIriRef DESCRIPTION_ID= iri(NAMESPACE+"descriptionId");
     public static final TTIriRef CODE_ID= iri(NAMESPACE+"codeId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE +"matchedTo");
-    public static final TTIriRef MAPPED_TO = iri(NAMESPACE +"mappedTo");
     public static final TTIriRef SIMILAR = iri(NAMESPACE +"similarTo");
     public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
     public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
     public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
     public static final TTIriRef SUPPLIER_ASSURED = iri(NAMESPACE + "SupplierAssured");
-    public static final TTIriRef DBID = iri(NAMESPACE + "dbid");
 
 
-
-
-
-
-
-    //DataTypes
-    public static final TTIriRef JSON = TTIriRef.iri(NAMESPACE +"Json");
 
     //Graphs
     public static final TTIriRef GRAPH_DISCOVERY= iri(IM.DOMAIN+"im#");
@@ -120,11 +113,6 @@ public class IM {
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
     public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
 
-
-
-
-  //Source graphs
-   public static final TTIriRef SOURCE_TRUD_ODS= iri(IM.DOMAIN+"trudods#");
 
     // redant code schemes are now the same as graphs
 
@@ -149,12 +137,10 @@ public class IM {
     public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
     public static final TTIriRef CREATION = TTIriRef.iri(NAMESPACE +"2001000252109");
 
-    //Predicate functions
 
-    public static final TTIriRef relativeDate = TTIriRef.iri(NAMESPACE +"relativeDate");
 
     //Query
-  public static final TTIriRef ORDER_LIMIT= iri(NAMESPACE + "orderLimit");
+  public static final TTIriRef ORDER_LIMIT= iri(NAMESPACE + "OrderLimit");
   public static final TTIriRef AND= iri(NAMESPACE + "and");
   public static final TTIriRef OR= iri(NAMESPACE + "or");
   public static final TTIriRef NOT= iri(NAMESPACE + "not");;
@@ -162,7 +148,6 @@ public class IM {
   public static final TTIriRef ORDER = iri(NAMESPACE + "order");
   public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
   public static final TTIriRef ENTITY_TYPE = iri(NAMESPACE + "entityType");
-  public static final TTIriRef PROPERTY_VALUE = iri(NAMESPACE + "propertyValue");
   public static final TTIriRef PROPERTY = iri(NAMESPACE + "property");
   public static final TTIriRef VALUE_DATA = iri(NAMESPACE + "value");
   public static final TTIriRef NOT_EXIST = iri(NAMESPACE+ "notExist");
@@ -176,7 +161,6 @@ public class IM {
   public static final TTIriRef FUNCTION_NAME = iri(NAMESPACE + "functionName");
   public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
   public static final TTIriRef PARAMETER = iri(NAMESPACE + "parameter");
-  public static final TTIriRef SORT_BY = iri(NAMESPACE + "sortBy");
   public static final TTIriRef LIMIT = iri(NAMESPACE + "limit");
   public static final TTIriRef SORT_FIELD = iri(NAMESPACE + "sortField");
   public static final TTIriRef TEST = iri(NAMESPACE + "test");
@@ -191,9 +175,9 @@ public class IM {
   public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
 
   //Provenance
-  public static final TTIriRef PROV_ACIVITY = iri(NAMESPACE+"provenanceActivity");
+  public static final TTIriRef PROV_ACIVITY = iri(NAMESPACE+"ProvenanceActivity");
   public static final TTIriRef PROV_TARGET = iri(NAMESPACE+"provenanceTarget");
-  public static final TTIriRef PROVE_ACIVITY_TYPE= iri(NAMESPACE+"provenanceActivityType");
+  public static final TTIriRef PROV_ACIVITY_TYPE= iri(NAMESPACE+"provenanceActivityType");
   public static final TTIriRef PROV_AGENT = iri(NAMESPACE+"provenanceAgent");
   public static final TTIriRef START_TIME = iri(NAMESPACE+"startTime");
   public static final TTIriRef EFFECTIVE_DATE = iri(NAMESPACE+"effectiveDate");
@@ -212,7 +196,7 @@ public class IM {
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE +"hasContext");
     public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE+"displayOrder");
-    public static final TTIriRef HAS= iri(NAMESPACE+"has");
+   // public static final TTIriRef HAS= iri(NAMESPACE+"has");
     private IM() {}
 }
 

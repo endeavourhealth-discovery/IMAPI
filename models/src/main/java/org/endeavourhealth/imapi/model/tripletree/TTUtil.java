@@ -78,4 +78,8 @@ public class TTUtil {
 		ctx.add(SNOMED.NAMESPACE,"sn");
 		return ctx;
 	}
+
+	public static void populate (TTNode source, TTNode target){
+
+	}
 }

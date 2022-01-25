@@ -761,4 +761,10 @@ public class EntityService {
 		}
         return new ExcelSetExporter().getSetAsExcel(iri);
     }
+		public TTEntity getEntityByType(String iri,TTIriRef type){
+		 return entityRepository.getEntityByType(iri,type);
+
+		}
+
+
 }

@@ -29,12 +29,12 @@ public class ProvActivity extends Entry {
 	}
 
 	public TTIriRef getActivityType() {
-		return get(IM.PROVE_ACIVITY_TYPE)==null ? null :
-			get(IM.PROVE_ACIVITY_TYPE).asIriRef();
+		return get(IM.PROV_ACIVITY_TYPE)==null ? null :
+			get(IM.PROV_ACIVITY_TYPE).asIriRef();
 	}
 
 	public ProvActivity setActivityType(TTIriRef activityType) {
-		set(IM.PROVE_ACIVITY_TYPE,activityType);
+		set(IM.PROV_ACIVITY_TYPE,activityType);
 		return this;
 	}
 

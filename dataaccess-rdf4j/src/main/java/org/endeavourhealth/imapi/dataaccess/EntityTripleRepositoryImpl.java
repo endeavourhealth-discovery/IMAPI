@@ -272,7 +272,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -304,7 +304,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c ?cname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -349,7 +349,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
                 .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {

@@ -9,13 +9,30 @@ import java.io.InvalidClassException;
 import java.util.List;
 
 
-public class Match extends TTEntity{
+public class Match extends TTNode{
 
 	public Match(){
 		setPredicateTemplate(new TTIriRef[]{RDF.TYPE, RDFS.LABEL,RDFS.COMMENT,
 			IM.PATH_TO,IM.ENTITY_TYPE,IM.NOT_EXIST,IM.FUNCTION,IM.PROPERTY,
 			IM.VALUE_COMPARE,IM.VALUE_IN,IM.VALUE_NOTIN,IM.VALUE_RANGE,IM.VALUE_FUNCTION,IM.VALUE_VAR,
 			IM.AND,IM.OR,IM.NOT});
+	}
+
+	public String getName(){
+		return (String) TTUtil.get(this,RDFS.LABEL,String.class);
+	}
+
+	public Match setName(String name){
+		set(RDFS.LABEL,TTLiteral.literal(name));
+		return this;
+	}
+	public String getDescription(){
+		return (String) TTUtil.get(this,RDFS.COMMENT,String.class);
+	}
+
+	public Match setDescription(String description){
+		set(RDFS.COMMENT,TTLiteral.literal(description));
+		return this;
 	}
 
 	public TTIriRef getPathTo() {

@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.opensearch.*;
+import org.endeavourhealth.imapi.model.schema.Shapes;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -783,7 +784,7 @@ public class EntityService {
 	 * @return a bundle containing an entity and predicate iri to name map.
 	 * @throws IOException from unrapping json literal
 	 */
-		public TTBundle getFullEntity(String iri) throws IOException {
+	public TTBundle getFullEntity(String iri) throws IOException {
 		TTBundle bundle= entityRepositoryImpl2.getBundle(iri);
 		TTEntity entity= bundle.getEntity();
 		if (entity.get(IM.DEFINITION)!=null)
@@ -797,7 +798,7 @@ public class EntityService {
 				bundle.getPredicates().putAll(names);
 			}
 		return bundle;
-		}
+	}
 
 	/**
 	 * Gets the properties of a shape and all of the shapes that the properties point to
@@ -805,13 +806,24 @@ public class EntityService {
 	 * @return a set of entities with the property iri the rdf range iri and the type of the range
 	 */
 	public Set<TTEntity> getLinkedShapes(String iri){
-			return null;
-
+		if (Shapes.shapes.get(iri)==null){
+			Set<TTEntity> shapes= linkShapes(iri);
+			for (TTEntity shape:shapes){
+				Shapes.shapes.put(shape.getIri(),shape);
+			}
+			return shapes;
 		}
+		else {
+			return null;
+		}
+	}
 
-	private void linkShapes(TTEntity parent, Set<TTEntity> shapes){
+	private Set<TTEntity> linkShapes(String iri){
+		Set<TTEntity> shapes= entityRepositoryImpl2.getLinkedShapes(iri);
+		return shapes;
 
 	}
+
 
 
 }

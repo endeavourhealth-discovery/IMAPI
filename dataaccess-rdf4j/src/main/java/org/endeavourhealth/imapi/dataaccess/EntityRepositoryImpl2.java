@@ -523,49 +523,84 @@ public class EntityRepositoryImpl2 {
        return names;
    }
 
-   public Set<TTEntity> getShapePropertyRanges(String iri){
-        String sql = getSPRSQL();
-       Set<TTEntity> predicateSet = new HashSet<>();
+    public Set<TTEntity> getLinkedShapes(String iri){
+        String sql = getLinkedShapeSql();
+        Set<TTEntity> shapes = new HashSet<>();
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            GraphQuery qry = conn.prepareGraphQuery(sql);
+            qry.setBinding("shape", iri(iri));
+            try (GraphQueryResult gs = qry.evaluate()) {
+                Map<String, TTValue> valueMap = new HashMap<>();
+                Map<String, TTNode> subjectMap = new HashMap<>();
+                for (org.eclipse.rdf4j.model.Statement st : gs) {
+                    processTripleLinkShape(shapes, valueMap, subjectMap, st);
+                }
+            }
+            return shapes;
+        }
 
-       try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-           TupleQuery qry = conn.prepareTupleQuery(sql);
-           qry.setBinding("s", iri(iri));
-           try (TupleQueryResult rs = qry.evaluate()) {
-               while (rs.hasNext()) {
-                   BindingSet bs = rs.next();
-                   TTEntity pred = new TTEntity();
-                   pred.setIri(bs.getValue("predicate").stringValue());
-                   if (bs.getValue("range")!=null) {
-                       TTEntity range = new TTEntity();
-                       pred.set(RDFS.RANGE, range);
-                       range.setIri(bs.getValue("range").stringValue());
-                       range.set(RDF.TYPE, TTIriRef.iri(bs.getValue("type").stringValue()));
-                   }
-                   predicateSet.add(pred);
-               }
-               return predicateSet;
-           }
-       }
-   }
+    }
 
-    private String getSPRSQL() {
+    private void processTripleLinkShape(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String,TTNode> subjectMap,Statement st) {
+        Resource subject = st.getSubject();
+        TTIriRef predicate = TTIriRef.iri(st.getPredicate().stringValue());
+        Value object = st.getObject();
+        TTNode node = subjectMap.get(subject.stringValue());
+        if (node == null) {
+            if (subject.isIRI()) {
+                TTEntity entity = new TTEntity().setIri(subject.stringValue());
+                subjectMap.put(subject.stringValue(), entity);
+                entities.add(entity);
+            }
+            else
+                subjectMap.put(subject.stringValue(), new TTNode());
+        }
+        node= subjectMap.get(subject.stringValue());
+        if (object.isLiteral()) {
+            Literal l = (Literal) object;
+            node.set(predicate, literal(l.stringValue(), l.getDatatype().stringValue()));
+        }
+        else if (object.isIRI()) {
+            node.addObject(predicate, TTIriRef.iri(object.stringValue()));
+        }
+        else {
+            if (valueMap.get(object.stringValue()) == null)
+                if (subjectMap.get(object.stringValue())!=null)
+                    valueMap.put(object.stringValue(),subjectMap.get(object.stringValue()));
+                else {
+                    valueMap.put(object.stringValue(), new TTNode());
+                    subjectMap.put(object.stringValue(), valueMap.get(object.stringValue()).asNode());
+                }
+            subjectMap.put(object.stringValue(), valueMap.get(object.stringValue()).asNode());
+            node.addObject(predicate,valueMap.get(object.stringValue()).asNode());
+        }
+    }
+
+
+
+
+
+    private String getLinkedShapeSql() {
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
           "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
           "PREFIX im: <http://endhealth.info/im#>\n" +
           "PREFIX sh: <http://www.w3.org/ns/shacl#>\n" +
-          "\n" +
-          "\n" +
-          "Select ?predicate ?range ?type\n" +
-          "\n" +
-          "where { ?s rdf:type sh:NodeShape.\n" +
+          "Construct {\n" +
+          "    ?s ?p ?o.\n" +
+          "    ?sub ?p2 ?o2.\n" +
+          "    ?o2 ?p3 ?o3.\n" +
+          "}\n" +
+          "where { ?s ?p ?o.\n" +
+          "    filter (?s= ?shape)\n" +
           "    ?s (sh:property|sh:node)+ ?sub.\n" +
-          "    ?sub sh:property ?prop.\n" +
-          "    ?sub rdf:type ?type.\n" +
-          "    ?prop sh:path ?predicate.\n" +
-          "    Optional { ?predicate rdfs:range ?range}\n" +
-          " \n" +
+          "    ?sub ?p2 ?o2.\n" +
+          "    Optional { ?o2 ?p3 ?o3\n" +
+          "        filter (isBlank(?o2))}\n" +
           "}";
+
     }
+
+
 
 
 }

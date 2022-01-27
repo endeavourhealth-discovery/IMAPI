@@ -12,7 +12,6 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.DataFormatException;
 
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -538,8 +537,7 @@ public class TTManager {
     */
    public static TTNode unwrapRDFfromJson(TTNode node, TTIriRef predicate) throws IOException {
       ObjectMapper objectMapper = new ObjectMapper();
-      TTNode result = objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
-      return result;
+      return objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
    }
 
    /**

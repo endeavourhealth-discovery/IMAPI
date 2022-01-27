@@ -94,7 +94,7 @@ public class Match extends TTNode{
 		return this;
 	}
 
-	public TTIriRef getProperty() throws InvalidClassException {
+	public TTIriRef getProperty() {
 		return (TTIriRef) TTUtil.get(this, IM.PROPERTY,TTIriRef.class);
 	}
 
@@ -207,10 +207,7 @@ public class Match extends TTNode{
 	}
 
 	public boolean getNotExist(){
-		if (get(IM.NOT_EXIST)==null)
-			return false;
-		else
-			return true;
+		return get(IM.NOT_EXIST) != null;
 	}
 
 	public Match setNotExist(boolean notExist) {

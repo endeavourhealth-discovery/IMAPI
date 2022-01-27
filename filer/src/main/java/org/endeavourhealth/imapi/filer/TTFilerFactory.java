@@ -8,7 +8,7 @@ public class TTFilerFactory {
     public static boolean skipDeletes=false;
     private TTFilerFactory() {}
 
-    public static TTDocumentFiler getDocumentFiler() throws TTFilerException {
+    public static TTDocumentFiler getDocumentFiler() {
         return new TTDocumentFilerRdf4j();
     }
 

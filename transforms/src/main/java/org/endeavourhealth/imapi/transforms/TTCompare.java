@@ -50,7 +50,7 @@ public class TTCompare {
 		if (from.isLiteral())
 			return from.asLiteral().getValue().equals(to.asLiteral().getValue());
 		else
-			if (from.isNode()&to.isNode())
+			if (from.isNode() && to.isNode())
 				return equals((TTNode) from,(TTNode) to);
 			else
 				return false;

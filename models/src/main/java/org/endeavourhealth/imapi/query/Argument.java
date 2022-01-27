@@ -12,7 +12,7 @@ public class Argument extends TTNode {
 		set(RDF.TYPE,IM.ARGUMENT_CLAUSE);
 	}
 
-	public TTValue getParameter() throws InvalidClassException {
+	public TTValue getParameter() {
 		return (TTValue) TTUtil.get(this, IM.PARAMETER,TTValue.class);
 	}
 
@@ -25,7 +25,7 @@ public class Argument extends TTNode {
 		return this;
 	}
 
-	public String getValue() throws InvalidClassException {
+	public String getValue() {
 		return (String) TTUtil.get(this,IM.VALUE_DATA,String.class);
 	}
 

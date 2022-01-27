@@ -1,8 +1,5 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -28,25 +25,21 @@ public class TTUtil {
 	}
 
 	public static void add(TTNode node, TTIriRef predicate, TTValue value){
-		if (value.isIriRef()| value.isLiteral())
-			node.addObject(predicate,value);
-		else {
+		if (!value.isIriRef() && !value.isLiteral()) {
 			int order=0;
 			if (node.get(predicate)!=null)
 				order= node.get(predicate).size();
 			value.asNode().set(IM.ORDER,TTLiteral.literal(order));
-			node.addObject(predicate,value);
 
 		}
+		node.addObject(predicate,value);
 
 	}
-
 
 	public static <T> List<T> getList(TTNode node, TTIriRef predicate,Class clazz){
 		if (node.get(predicate)==null)
 			return null;
 		List<T> result= new ArrayList();
-		boolean areNodes=false;
 		for (TTValue v:node.get(predicate).getElements()){
 			if (v.isIriRef())
 				result.add((T) v);

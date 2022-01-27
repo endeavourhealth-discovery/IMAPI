@@ -27,8 +27,8 @@ import java.util.zip.DataFormatException;
 @Component
 public class ExcelSetExporter {
 
-    private EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
+    private final EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
+    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
 
     public XSSFWorkbook workbook;
     public XSSFFont font;
@@ -64,11 +64,11 @@ public class ExcelSetExporter {
         String ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
         addEclToWorkbook(ecl);
         if (hasSubset(entity.getIri())) {
-            Set<String> codesAddedToWorkbook = new HashSet<String>();
-            Set<String> legacyCodesAddedToWorkbook = new HashSet<String>();
+            Set<String> codesAddedToWorkbook = new HashSet<>();
+            Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
             List<String> memberList = new ArrayList<>();
-            Set<String> expandedSets = new HashSet<String>();
-            Set<String> legacyExpandedSets = new HashSet<String>();
+            Set<String> expandedSets = new HashSet<>();
+            Set<String> legacyExpandedSets = new HashSet<>();
             addAllMemberIris(memberList, setIri);
             memberList.remove(setIri);
             for (String memberIri : memberList) {
@@ -77,8 +77,8 @@ public class ExcelSetExporter {
                 addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);
             }
         } else {
-            addCoreExpansionToWorkBook(new HashSet<String>(), new HashSet<String>(), entity);
-            addLegacyExpansionToWorkBook(new HashSet<String>(), new HashSet<String>(), entity);
+            addCoreExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
+            addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
         }
 
 

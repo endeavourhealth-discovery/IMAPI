@@ -18,14 +18,15 @@ import java.util.zip.DataFormatException;
 
 public class EqdToTT {
 	public static  Map<String,String> reportNames;
-	public final static Set<TTEntity> valueSets = new HashSet<>();
-	private final static Set<String> roles= new HashSet<>();
+	public static final Set<TTEntity> valueSets = new HashSet<>();
+	private static final Set<String> roles= new HashSet<>();
 	private TTIriRef owner;
 	private Properties dataMap;
 	private Properties criteriaLabels;
 	private int varCounter;
 	private String activeReport;
 	private TTDocument document;
+	private final String slash = "/";
 
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
@@ -157,7 +158,7 @@ public class EqdToTT {
 			Match thisMatch;
 			Operator groupOp;
 
-			if (ifTrue == VocRuleAction.SELECT & ifFalse == VocRuleAction.NEXT) {
+			if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
 				thisMatch = new Match();
 				if (parentOr==null) {
 					parentOr = new Match();
@@ -166,8 +167,8 @@ public class EqdToTT {
 				parentOr.addOr(thisMatch);
 				groupOp= Operator.OR;
 			}
-			else if (ifTrue== VocRuleAction.SELECT & ifFalse == VocRuleAction.REJECT){
-				if (getLastActionIfFalse(population,eqGroup)==VocRuleAction.NEXT &&parentOr!=null){
+			else if (ifTrue== VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT){
+				if (getLastActionIfFalse(population,eqGroup)==VocRuleAction.NEXT && parentOr!=null){
 					thisMatch= new Match();
 					parentOr.addOr(thisMatch);
 					groupOp= Operator.OR;
@@ -179,13 +180,13 @@ public class EqdToTT {
 					parentOr=null;
 				}
 			}
-			else if (ifTrue== VocRuleAction.NEXT & ifFalse == VocRuleAction.REJECT){
+			else if (ifTrue== VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT){
 				thisMatch = new Match();
 				main.addAnd(thisMatch);
 				groupOp= Operator.AND;
 				parentOr=null;
 			}
-			else if ((ifTrue == VocRuleAction.REJECT & ifFalse == VocRuleAction.NEXT) || (ifTrue == VocRuleAction.REJECT & ifFalse == VocRuleAction.SELECT)) {
+			else if ((ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT) || (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT)) {
 				thisMatch= new Match();
 				main.addAnd(new Match().addNot(thisMatch));
 				groupOp= Operator.NOT;
@@ -281,7 +282,7 @@ public class EqdToTT {
 						testMatch.addAnd(subMatch);
 						setMainCriterion(eqTable, cv, subMatch);
 					}
-					if (linkField!=null&dateMatch==null){
+					if (linkField!=null && dateMatch==null){
 						Match subMatch= new Match();
 						testMatch.addAnd(subMatch);
 						addDateMatch(subMatch,eqTable,linkField);
@@ -307,7 +308,7 @@ public class EqdToTT {
 						match.setEntityType(key.getEntityType());
 					}
 					Match subMatch = match;
-					if (entry.getValue().size() > 1 | (linkField != null)) {
+					if (entry.getValue().size() > 1 || (linkField != null)) {
 						subMatch = new Match();
 						match.addAnd(subMatch);
 					}
@@ -324,7 +325,7 @@ public class EqdToTT {
 				match.addAnd(entry.getKey());
 				for (EQDOCColumnValue cv : entry.getValue()) {
 					Match subMatch = entry.getKey();
-					if (entry.getValue().size() > 1 | (linkField != null)) {
+					if (entry.getValue().size() > 1 || (linkField != null)) {
 						subMatch = new Match();
 						entry.getKey().addAnd(subMatch);
 					}
@@ -340,7 +341,7 @@ public class EqdToTT {
 	}
 
 	private void addDateMatch(Match subMatch,String eqTable,String linkField) throws DataFormatException {
-		String fieldPath= getMap(eqTable+"/"+ linkField);
+		String fieldPath= getMap(eqTable + slash + linkField);
 		String date= fieldPath.substring(fieldPath.lastIndexOf("/")+1);
 		subMatch.setProperty(TTIriRef.iri(IM.NAMESPACE+date));
 		varCounter++;
@@ -377,7 +378,7 @@ public class EqdToTT {
 				.setParameter(IM.SORT_ORDER)
 				.setValueIri(IM.DESCENDING));
 		String eqColumn = restrict.getColumnOrder().getColumns().get(0).getColumn().get(0);
-		String fieldPath = getMap(eqTable + "/" + eqColumn);
+		String fieldPath = getMap(eqTable + slash + eqColumn);
 		String field=fieldPath.substring(fieldPath.lastIndexOf("/")+1);
 		function.addArgument(new Argument()
 			.setParameter(IM.SORT_FIELD)
@@ -399,16 +400,16 @@ public class EqdToTT {
 		Match match= new Match();
 		for (EQDOCColumnValue cv : eqAtt.getColumnValue()) {
 			for (String eqColumn : cv.getColumn()) {
-				String entityPath = getEntityPath(eqTable + "/" + eqColumn);
+				String entityPath = getEntityPath(eqTable + slash + eqColumn);
 				if (!entityPath.equals(lastPath)) {
 					match = new Match();
-					String thisPath= getMap(eqTable+"/"+ eqColumn);
+					String thisPath= getMap(eqTable+ slash + eqColumn);
 					String[] pathMap= thisPath.split("/");
 					match.setPathTo(TTIriRef.iri(IM.NAMESPACE+pathMap[0]));
 					match.setEntityType(TTIriRef.iri(IM.NAMESPACE+pathMap[1]));
 					columnMap.put(match, new ArrayList<>());
 					columnMap.get(match).add(cv);
-					lastPath= pathMap[0]+"/"+ pathMap[1];
+					lastPath= pathMap[0]+ slash + pathMap[1];
 				} else
 					columnMap.get(match).add(cv);
 
@@ -432,7 +433,7 @@ public class EqdToTT {
 
 	private void setPropertyValue(EQDOCColumnValue cv,String eqTable,String eqColumn,
 																Match match) throws DataFormatException, InvalidClassException {
-		String predPath= getMap(eqTable + "/" + eqColumn);
+		String predPath= getMap(eqTable + slash + eqColumn);
 		String predicate= predPath.substring(predPath.lastIndexOf("/")+1);
 		match.setProperty(TTIriRef.iri(IM.NAMESPACE+ predicate));
 		VocColumnValueInNotIn in= cv.getInNotIn();
@@ -653,15 +654,15 @@ public class EqdToTT {
 	private TTIriRef getValueSet(EQDOCValueSet vs) throws DataFormatException {
 		TTEntity valueSet = new TTEntity();
 		TTIriRef iri = TTIriRef.iri("urn:uuid:" + UUID.randomUUID());
-		String vsetName=null;
+		StringBuilder vsetName= null;
 		if (vs.getDescription()!=null)
-			vsetName= vs.getDescription();
+			vsetName = new StringBuilder(vs.getDescription());
 		valueSet.setIri(iri.getIri());
 		valueSet.addType(IM.CONCEPT_SET);
 		VocCodeSystemEx scheme = vs.getCodeSystem();
 		if (vs.getValues().size() == 1) {
 			if (vsetName==null)
-				vsetName= vs.getValues().get(0).getDisplayName();
+				vsetName = new StringBuilder(vs.getValues().get(0).getDisplayName());
 			valueSet.addObject(IM.DEFINITION, getValue(scheme, vs.getValues().get(0)));
 		} else {
 			TTNode orSet = new TTNode();
@@ -670,17 +671,17 @@ public class EqdToTT {
 			for (EQDOCValueSetValue ev : vs.getValues()) {
 				i++;
 				if (i<10) {
-					vsetName = vsetName == null ? ev.getDisplayName() :
-						vsetName + ", " + ev.getDisplayName();
+					vsetName = new StringBuilder(vsetName == null ? ev.getDisplayName() :
+							vsetName + ", " + ev.getDisplayName());
 				}
 				else
 					if (i==10)
-					  vsetName= vsetName+"..more";
+					  vsetName.append("..more");
 				orSet.addObject(SHACL.OR, getValue(scheme, ev));
 			}
 		}
 		if (vsetName!=null) {
-			iri.setName(vsetName);
+			iri.setName(vsetName.toString());
 			valueSet.setName(iri.getName());
 		}
 		TTEntity duplicateOf = getDuplicateSet(valueSet);
@@ -707,7 +708,7 @@ public class EqdToTT {
 			else
 				throw new DataFormatException("unmapped emis internal code : "+key);
 		}
-		else if (scheme==VocCodeSystemEx.SNOMED_CONCEPT| scheme.value().contains("SCT")){
+		else if (scheme==VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")){
 			return TTIriRef.iri(SNOMED.NAMESPACE+originalCode);
 		}
 		else

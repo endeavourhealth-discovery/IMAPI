@@ -2,12 +2,15 @@ package org.endeavourhealth.imapi.query;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.io.InvalidClassException;
 
 public class Argument extends TTNode {
-	private String parameter;
-	private String value;
+
+	public Argument(){
+		set(RDF.TYPE,IM.ARGUMENT_CLAUSE);
+	}
 
 	public TTValue getParameter() throws InvalidClassException {
 		return (TTValue) TTUtil.get(this, IM.PARAMETER,TTValue.class);

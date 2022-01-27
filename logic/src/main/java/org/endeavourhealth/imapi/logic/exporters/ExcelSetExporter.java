@@ -27,8 +27,8 @@ import java.util.zip.DataFormatException;
 @Component
 public class ExcelSetExporter {
 
-    private final EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
+    private EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
 
     public XSSFWorkbook workbook;
     public XSSFFont font;

@@ -131,10 +131,9 @@ public class EntityRepositoryImpl2 {
                 .add("  ?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName.")
                 .add("  ?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name.");
         }
-        sql.add("}");
+        sql.add("} WHERE {");
 
-        sql.add("WHERE {")
-            .add("  ?entity ?1predicate ?1Level.")
+        sql.add("  ?entity ?1predicate ?1Level.")
             .add("  ?1predicate rdfs:label ?1pName.");
         if (predicates != null) {
             StringBuilder inPredicates = new StringBuilder();
@@ -300,8 +299,7 @@ public class EntityRepositoryImpl2 {
                 values.append(getShort(superClass.asIriRef().getIri())).append(" ");
         }
         if (!values.toString().equals("")) {
-            spql.add("{");
-            spql.add("?concept " + isa() + " ?superClass.");
+            spql.add("{ ?concept" + isa() + " ?superClass.");
             values = new StringBuilder("VALUES ?superClass {" + values + "}");
             spql.add(values.toString());
 
@@ -494,7 +492,7 @@ public class EntityRepositoryImpl2 {
                         iri(iriValue);
                         result.add(bs.getValue("o2").stringValue());
                     } catch (IllegalArgumentException ignored) {
-
+                        //Do nothing
                     }
                 }
             }

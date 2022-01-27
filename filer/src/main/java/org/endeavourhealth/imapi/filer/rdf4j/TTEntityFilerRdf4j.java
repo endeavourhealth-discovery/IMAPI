@@ -222,7 +222,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             else
                 return path + iri.substring(colonPos + 1);
         } catch (StringIndexOutOfBoundsException e) {
-            System.err.println("invalid iri " + iri);
+            LOG.debug("invalid iri " + iri);
             return null;
         }
     }

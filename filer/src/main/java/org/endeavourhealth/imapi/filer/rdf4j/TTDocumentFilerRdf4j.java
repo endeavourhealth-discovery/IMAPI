@@ -13,7 +13,7 @@ public class TTDocumentFilerRdf4j extends TTDocumentFiler {
 
     private RepositoryConnection conn;
 
-    public TTDocumentFilerRdf4j() throws TTFilerException {
+    public TTDocumentFilerRdf4j() {
         LOG.info("Connecting");
         conn = ConnectionManager.getConnection();
 
@@ -51,7 +51,7 @@ public class TTDocumentFilerRdf4j extends TTDocumentFiler {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         LOG.info("Disconnecting");
         conn.close();
         LOG.info("Disconnected");

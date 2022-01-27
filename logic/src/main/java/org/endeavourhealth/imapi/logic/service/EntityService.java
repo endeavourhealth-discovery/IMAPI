@@ -55,7 +55,6 @@ public class EntityService {
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
     private SetRepository setRepository = new SetRepositoryImpl();
     private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
-    private EntitySearchRepository entitySearchRepository = new EntitySearchRepositoryImpl();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
     private ConfigService configService = new ConfigService();
     private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
@@ -209,7 +208,7 @@ public class EntityService {
 				.get();
 
 		if (299 < response.statusCode()) {
-			System.out.println("Open search request failed with code: " + response.statusCode());
+			LOG.debug("Open search request failed with code: " + response.statusCode());
 			throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
 		}
 

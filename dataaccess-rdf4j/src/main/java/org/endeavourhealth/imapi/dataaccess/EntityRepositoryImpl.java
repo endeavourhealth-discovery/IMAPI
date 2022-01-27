@@ -10,6 +10,8 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,13 +22,13 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.pre
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class EntityRepositoryImpl implements EntityRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepositoryImpl.class);
 
     @Override
     public TTIriRef getEntityReferenceByIri(String iri) {
         TTIriRef result = new TTIriRef();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname")
-            .add("WHERE {")
+            .add("SELECT ?sname WHERE {")
             .add("  ?s rdfs:label ?sname")
             .add("}");
 
@@ -47,8 +49,7 @@ public class EntityRepositoryImpl implements EntityRepository {
         TTArray result = new TTArray();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?o ?oname")
-                .add("WHERE {")
+                .add("SELECT ?o ?oname WHERE {")
                 .add("?s rdf:type ?o .")
                 .add("?o rdfs:label ?oname .")
                 .add("}");
@@ -71,8 +72,7 @@ public class EntityRepositoryImpl implements EntityRepository {
         SearchResultSummary result = new SearchResultSummary();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?scode ?sstatus ?sstatusname ?g ?gname")
-            .add("WHERE {")
+            .add("SELECT ?sname ?scode ?sstatus ?sstatusname ?g ?gname WHERE {")
             .add("  GRAPH ?g {")
             .add("    ?s rdfs:label ?sname .")
             .add("  }")
@@ -114,25 +114,25 @@ public class EntityRepositoryImpl implements EntityRepository {
      */
     private static TTEntity getEntityWithSubPredicates(String iri, Set<TTIriRef> mainPredicates,Set<TTIriRef> subPredicates){
         RepositoryConnection conn =  ConnectionManager.getConnection();
-        String mainPredVar=null;
-        String subPredVar="?p2";
+        StringBuilder mainPredVar;
+        StringBuilder subPredVar= new StringBuilder("?p2");
         if (mainPredicates!=null){
             int i = 0;
-            mainPredVar="(";
+            mainPredVar = new StringBuilder("(");
             for (TTIriRef pred : mainPredicates) {
-                mainPredVar= mainPredVar + (i>0 ? "," :"")+ "<"+pred.getIri()+"> ";
+                mainPredVar.append(i > 0 ? "," : "").append("<").append(pred.getIri()).append("> ");
                 i++;
             }
-            mainPredVar=mainPredVar+")";
+            mainPredVar.append(")");
         }
         if (subPredicates!=null){
             int i = 0;
-            subPredVar="(";
+            subPredVar = new StringBuilder("(");
             for (TTIriRef pred : subPredicates) {
-                subPredVar= subPredVar+ (i>0 ? "|" :"")+ "<"+pred.getIri()+"> ";
+                subPredVar.append(i > 0 ? "|" : "").append("<").append(pred.getIri()).append("> ");
                 i++;
             }
-            subPredVar= subPredVar+")+ ";
+            subPredVar.append(")+ ");
         }
 
         String sql="PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
@@ -163,7 +163,7 @@ public class EntityRepositoryImpl implements EntityRepository {
           "}\n";
         GraphQuery qry = conn.prepareGraphQuery(sql);
         qry.setBinding("entity",
-          iri((String) Objects.requireNonNull(iri,
+          iri(Objects.requireNonNull(iri,
             "iri may not be null")));
 
         GraphQueryResult gs = qry.evaluate();
@@ -173,7 +173,7 @@ public class EntityRepositoryImpl implements EntityRepository {
         for (org.eclipse.rdf4j.model.Statement st : gs) {
             i++;
             if (i%100==0) {
-                System.out.println(i+ " "+st.getSubject().stringValue()+" " + st.getPredicate().stringValue()+" "+st.getObject().stringValue());
+                LOG.debug(i+ " "+st.getSubject().stringValue()+" " + st.getPredicate().stringValue()+" "+st.getObject().stringValue());
             }
            populateEntity(st, entity,valueMap);
         }

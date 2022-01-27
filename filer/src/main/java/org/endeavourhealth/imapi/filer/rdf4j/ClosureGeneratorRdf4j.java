@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class ClosureGeneratorRdf4j implements TCGenerator {
-	private static final Logger LOG = LoggerFactory.getLogger(TTDocumentFilerRdf4j.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ClosureGeneratorRdf4j.class);
 
 	private Repository repo;
 	private RepositoryConnection conn;
@@ -55,7 +55,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	}
 
 	@Override
-	public void generateClosure(String outpath, boolean secure) throws TTFilerException, IOException {
+	public void generateClosure(String outpath, boolean secure) throws IOException {
 		List<TTIriRef> relationships = Arrays.asList(
 			RDFS.SUBCLASSOF,
 			RDFS.SUBPROPERTYOF,
@@ -93,14 +93,12 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 
 	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
-		System.out.println("Extracting " + relationship.getIri());
-		String sql;
+		LOG.debug("Extracting " + relationship.getIri());
 		TupleQuery stmt;
 		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelect ?child ?parent\n" +
 				"where {?child <" + relationship.getIri() + "> ?parent }\n");
 
 		try (TupleQueryResult rs = stmt.evaluate()) {
-			int c = 0;
 			while (rs.hasNext()) {
 				BindingSet bs = rs.next();
 				String child = bs.getValue("child").stringValue();
@@ -113,12 +111,12 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 				}
 			}
 		}
-		System.out.println("Relationships loaded for " + relationship.getIri() + " " + parentMap.size() + " entities");
+		LOG.debug("Relationships loaded for " + relationship.getIri() + " " + parentMap.size() + " entities");
 	}
 
 	private void buildClosure() {
 		closureMap = new HashMap<>(10000000);
-		System.out.println("Generating closure map");
+		LOG.debug("Generating closure map");
 		int c = 0;
 		counter=0;
 		for (Map.Entry<String, Set<String>> row : parentMap.entrySet()) {
@@ -126,11 +124,11 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 			String child = row.getKey();
 			if (closureMap.get(child)==null) {
 				if (c % 100000 == 0)
-					System.out.println("Processed " + c + " entities");
+					LOG.debug("Processed " + c + " entities");
 				generateClosure(child);
 			}
 		}
-		System.out.println("Closure built with  "+counter+" triples with  "+closureMap.size()+" keys");
+		LOG.debug("Closure built with  "+counter+" triples with  "+closureMap.size()+" keys");
 	}
 
 	private String getDefaultPrefixes() {
@@ -144,12 +142,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	}
 
 	private Set<String> generateClosure(String child) {
-		Set<String> closures= closureMap.get(child);
-		if (closures==null) {
-			closures = new HashSet<>();
-			closureMap.put(child, closures);
-		}
-
+		Set<String> closures = closureMap.computeIfAbsent(child, k -> new HashSet<>());
 
 		// Add self
 		closures.add(child);
@@ -176,9 +169,8 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	}
 
 	private void writeClosureData(FileWriter fw) throws IOException {
-		int c = 0;
 		counter=0;
-		System.out.println("Writing closure data");
+		LOG.info("Writing closure data");
 		for (Map.Entry<String, Set<String>> entry : closureMap.entrySet()) {
 			for (String closure : entry.getValue()) {
 				counter++;
@@ -186,11 +178,11 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 			}
 		}
 		fw.close();
-		System.out.println(counter + " Closure triples written");
+		LOG.debug(counter + " Closure triples written");
 	}
 
-	private void importClosure(String outpath, boolean secure) throws IOException, TTFilerException {
-		System.out.println("Importing closure ...");
+	private void importClosure(String outpath, boolean secure) throws IOException {
+		LOG.debug("Importing closure ...");
 
 		StringJoiner sql = new StringJoiner("\n");
 			sql.add("INSERT DATA {");
@@ -202,7 +194,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 					lineCount++;
 					sql.add(triple);
 					if (lineCount % 200000 == 0) {
-						System.out.println("Importing " + lineCount + " of " + counter + " triples :" + triple);
+						LOG.debug("Importing " + lineCount + " of " + counter + " triples :" + triple);
 						sql.add("}");
 						Update upd = conn.prepareUpdate(sql.toString());
 						conn.begin();
@@ -214,7 +206,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 				}
 				triple = reader.readLine();
 			}
-		  System.out.println("Importing " + lineCount + " of " + counter + " triples :");
+		  LOG.debug("Importing " + lineCount + " of " + counter + " triples :");
 			if (sql.length()>20) {
 				sql.add("}");
 				Update upd = conn.prepareUpdate(sql.toString());

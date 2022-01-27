@@ -106,8 +106,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
                 ">|<" + SNOMED.REPLACED_BY.getIri() + ">)*";
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname")
-                .add("WHERE {")
+                .add("SELECT DISTINCT ?s ?sname ?scode ?g ?gname WHERE {")
                 .add("  ?s " + isa + " ?o .")
                 .add("  ?s rdfs:label ?sname .")
                 .add("  GRAPH ?g { ?s im:code ?scode } .")
@@ -117,21 +116,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", iri(iri));
-            LOG.debug("Executing...");
-            try (TupleQueryResult rs = qry.evaluate()) {
-                LOG.debug("Retrieving...");
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-
-                    result.add(new EntitySummary()
-                            .setIri(bs.getValue("s").stringValue())
-                            .setName(bs.getValue("sname").stringValue())
-                            .setCode(bs.getValue("scode").stringValue())
-                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
-                    );
-                }
-                LOG.debug(String.format("Finished (%d rows)", result.size()));
-            }
+            execute(result, qry);
         }
 
         return result;
@@ -161,24 +146,28 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("bp", iri(predicate));
             qry.setBinding("bo", iri(object));
-            LOG.debug("Executing...");
-            try (TupleQueryResult rs = qry.evaluate()) {
-                LOG.debug("Retrieving...");
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-
-                    result.add(new EntitySummary()
-                            .setIri(bs.getValue("s").stringValue())
-                            .setName(bs.getValue("sname").stringValue())
-                            .setCode(bs.getValue("scode").stringValue())
-                            .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
-                    );
-                }
-                LOG.debug(String.format("Finished (%d rows)", result.size()));
-            }
+            execute(result, qry);
         }
 
         return result;
+    }
+
+    private void execute(Set<EntitySummary> result, TupleQuery qry) {
+        LOG.debug("Executing...");
+        try (TupleQueryResult rs = qry.evaluate()) {
+            LOG.debug("Retrieving...");
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+
+                result.add(new EntitySummary()
+                        .setIri(bs.getValue("s").stringValue())
+                        .setName(bs.getValue("sname").stringValue())
+                        .setCode(bs.getValue("scode").stringValue())
+                        .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
+                );
+            }
+            LOG.debug(String.format("Finished (%d rows)", result.size()));
+        }
     }
 
     @Override
@@ -396,18 +385,21 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
             for (EntitySummary core : coreEntities) {
                 qry.setBinding("o", iri(core.getIri()));
-                try (TupleQueryResult rs = qry.evaluate()) {
-                    while (rs.hasNext()) {
-                        BindingSet bs = rs.next();
-
-                        result.add(new EntitySummary()
-                                .setIri(bs.getValue("s").stringValue())
-                                .setName(bs.getValue("sname").stringValue())
-                                .setCode(bs.getValue("scode").stringValue())
-                                .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
-                        );
-                    }
-                }
+                execute(result, qry);
+//                LOG.debug("Executing...");
+//                try (TupleQueryResult rs = qry.evaluate()) {
+//                    LOG.debug("Retrieving...");
+//                    while (rs.hasNext()) {
+//                        BindingSet bs = rs.next();
+//
+//                        result.add(new EntitySummary()
+//                                .setIri(bs.getValue("s").stringValue())
+//                                .setName(bs.getValue("sname").stringValue())
+//                                .setCode(bs.getValue("scode").stringValue())
+//                                .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
+//                        );
+//                    }
+//                }
             }
         }
 
@@ -429,6 +421,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         sql.add("}");
 
+        setAndEvaluate(triples, subject, parent, predicates, sql);
+    }
+
+    private void setAndEvaluate(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates, StringJoiner sql) {
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
@@ -482,42 +478,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
         sql.add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-            TupleQuery qry = prepareSparql(conn, sql.toString());
-
-            qry.setBinding("s", subject);
-            if (excludePredicates != null && !excludePredicates.isEmpty()) {
-                int i = 0;
-                for (String predicate : excludePredicates) {
-                    qry.setBinding("p" + i++, iri(predicate));
-                }
-            }
-
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    Tpl tpl = new Tpl()
-                            .setDbid(row++)
-                            .setParent(parent)
-                            .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
-
-                    triples.add(tpl);
-
-                    Value object = bs.getValue("o");
-                    if (object.isIRI()) {
-                        tpl.setObject(TTIriRef.iri(object.stringValue(), getString(bs, "oname")));
-                    } else if (object.isLiteral()) {
-                        tpl.setLiteral(object.stringValue())
-                                .setObject(TTIriRef.iri(((Literal) object).getDatatype().stringValue()));
-                    } else if (object.isBNode()) {
-                        bnodes.put(object.stringValue(), row - 1);
-                        addTriples(triples, (BNode) object, row - 1, null);
-                    } else {
-                        throw new DALException("ARRAY!");
-                    }
-                }
-            }
-        }
+        setAndEvaluate(triples, subject, parent, excludePredicates, sql);
     }
 
     @Override

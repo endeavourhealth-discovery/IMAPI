@@ -34,7 +34,9 @@ public class TTToECL {
     }
 
     private static void subExpression(TTArray exp,StringBuilder ecl,Boolean includeName) throws DataFormatException {
-		if (null == exp) return;
+		if (null == exp)
+			return;
+
         for (TTValue subExp:exp.iterator()){
             subExpression(subExp,ecl,includeName);
         }
@@ -138,8 +140,6 @@ public class TTToECL {
 		}
 	}
 
-
-
 	private static void addRefined(TTNode exp, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 
 		if (exp.getPredicateMap()!=null){
@@ -150,9 +150,9 @@ public class TTToECL {
 					ecl.append(" , ");
 				first=false;
 				if (entry.getValue().isIriRef()) {
-					addProperty(entry.getKey(),ecl,includeName);
+					addConcept(entry.getKey(),ecl,includeName);
 					ecl.append(" = ");
-					addValue(entry.getValue().asIriRef(),ecl,includeName);
+					addConcept(entry.getValue().asIriRef(),ecl,includeName);
 				} else if (entry.getKey().equals(IM.ROLE_GROUP)){
 						ecl.append(" {");
 						addRefined(entry.getValue().asNode(),ecl,includeName);
@@ -174,15 +174,7 @@ public class TTToECL {
 		}
 	}
 
-	private static void addProperty(TTIriRef exp,StringBuilder ecl,boolean includeName)  {
-		String iri=checkMember(exp.asIriRef().getIri());
-		if(includeName){
-			ecl.append("<<").append(iri).append(" | ").append(exp.asIriRef().getName()).append(" | ");
-		} else {
-			ecl.append("<<").append(iri);
-		}
-	}
-	private static void addValue(TTIriRef exp,StringBuilder ecl,boolean includeName) {
+	private static void addConcept(TTIriRef exp,StringBuilder ecl,boolean includeName) {
 		String iri=checkMember(exp.asIriRef().getIri());
 		if(includeName){
 			ecl.append("<<").append(iri).append(" | ").append(exp.asIriRef().getName()).append(" | ");

@@ -54,13 +54,14 @@ public class ReasonerPlus {
             c.setType(new TTArray().add(RDF.PROPERTY));
          if (c.isType(OWL.DATATYPEPROPERTY))
             c.setType(new TTArray().add(RDF.PROPERTY));
-         if (c.get(IM.IS_A)!=null)
+         if (c.get(IM.IS_A)!=null) {
             if (c.isType(RDF.PROPERTY)) {
                c.set(RDFS.SUBPROPERTYOF, c.get(IM.IS_A));
             } else {
                c.set(RDFS.SUBCLASSOF, c.get(IM.IS_A));
             }
             c.getPredicateMap().remove(IM.IS_A);
+         }
          c.getPredicateMap().remove(OWL.EQUIVALENTCLASS);
          c.getPredicateMap().remove(OWL.PROPERTYCHAIN);
       }
@@ -254,18 +255,19 @@ public class ReasonerPlus {
                NodeSet<OWLObjectPropertyExpression> superOb = owlReasoner.getSuperObjectProperties(ope, true);
                if (superOb != null) {
                   superOb.forEach(sob -> {
-                     if (!sob.getRepresentativeElement().isAnonymous())
+                     if (!sob.getRepresentativeElement().isAnonymous()) {
                         if (!sob.getRepresentativeElement().asOWLObjectProperty()
-                          .getIRI()
-                          .toString().equals(OWL.NAMESPACE+"topObjectProperty")) {
-                           addIsa(c,TTIriRef
-                             .iri(sob
-                               .getRepresentativeElement().asOWLObjectProperty()
-                               .getIRI()
-                               .toString()));
+                                .getIRI()
+                                .toString().equals(OWL.NAMESPACE + "topObjectProperty")) {
+                           addIsa(c, TTIriRef
+                                   .iri(sob
+                                           .getRepresentativeElement().asOWLObjectProperty()
+                                           .getIRI()
+                                           .toString()));
                         } else {
                            addIsa(c, RDF.PROPERTY);
                         }
+                     }
                   });
                }
             }
@@ -274,18 +276,19 @@ public class ReasonerPlus {
                NodeSet<OWLDataProperty> superP = owlReasoner.getSuperDataProperties(dpe, true);
                if (superP != null) {
                   superP.forEach(sob -> {
-                     if (!sob.getRepresentativeElement().isAnonymous())
+                     if (!sob.getRepresentativeElement().isAnonymous()) {
                         if (!sob.getRepresentativeElement().asOWLDataProperty()
-                           .getIRI()
-                          .toString().equals(OWL.NAMESPACE+"topDataProperty")) {
-                           addIsa(c,TTIriRef
-                             .iri(sob
-                               .getRepresentativeElement().asOWLDataProperty()
-                               .getIRI()
-                               .toString()));
+                                .getIRI()
+                                .toString().equals(OWL.NAMESPACE + "topDataProperty")) {
+                           addIsa(c, TTIriRef
+                                   .iri(sob
+                                           .getRepresentativeElement().asOWLDataProperty()
+                                           .getIRI()
+                                           .toString()));
                         } else {
                            addIsa(c, RDF.PROPERTY);
                         }
+                     }
                   });
                }
             } else {

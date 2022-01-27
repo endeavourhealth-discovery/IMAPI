@@ -14,6 +14,7 @@ public class ProvActivity extends Entry {
 		this.addType(IM.PROV_ACIVITY);
 	}
 
+	@Override
 	public ProvActivity setIri(String iri){
 		super.setIri(iri);
 		return this;

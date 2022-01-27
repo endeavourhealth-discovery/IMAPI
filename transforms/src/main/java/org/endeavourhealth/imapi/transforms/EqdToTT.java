@@ -30,13 +30,8 @@ public class EqdToTT {
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
 
-
-
-	public void convertDoc(TTDocument document,
-												 TTIriRef mainFolder, EnquiryDocument eqd,
-												 TTIriRef owner,
-												 Properties dataMap,
-												 Properties criteriaLabels) throws DataFormatException, InvalidClassException {
+	public void convertDoc(TTDocument document, TTIriRef mainFolder, EnquiryDocument eqd, TTIriRef owner, Properties dataMap,
+						   Properties criteriaLabels) throws DataFormatException, InvalidClassException {
 		this.owner = owner;
 		this.dataMap = dataMap;
 		this.document= document;
@@ -55,7 +50,6 @@ public class EqdToTT {
 		}
 
 	}
-
 
 	private void convertReports(EnquiryDocument eqd) throws DataFormatException, InvalidClassException {
 		for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
@@ -87,9 +81,8 @@ public class EqdToTT {
 							.setName(eqFolder.getName())
 					.set(IM.IS_CONTAINED_IN,mainFolder);
 				document.addEntity(folder);
-				if (eqFolder.getAuthor()!=null)
-					if (eqFolder.getAuthor().getAuthorName()!=null)
-						setProvenance(iri,eqFolder.getAuthor().getAuthorName());
+				if (eqFolder.getAuthor()!=null && eqFolder.getAuthor().getAuthorName()!=null)
+					setProvenance(iri,eqFolder.getAuthor().getAuthorName());
 			}
 		}
 	}
@@ -126,6 +119,7 @@ public class EqdToTT {
 		return root.replace("org.","uir.")+"/personrole#"+
 			uri;
 	}
+
 	public TTEntity convertReport(EQDOCReport eqReport) throws DataFormatException, InvalidClassException {
 
 		setVocabMaps();
@@ -155,8 +149,7 @@ public class EqdToTT {
 		return entity;
 	}
 
-	private void convertPopulation(EQDOCPopulation population,
-																 Match main) throws DataFormatException, InvalidClassException {
+	private void convertPopulation(EQDOCPopulation population, Match main) throws DataFormatException, InvalidClassException {
 		Match parentOr=null;
 		for (EQDOCCriteriaGroup eqGroup : population.getCriteriaGroup()) {
 			VocRuleAction ifTrue = eqGroup.getActionIfTrue();
@@ -192,16 +185,8 @@ public class EqdToTT {
 				groupOp= Operator.AND;
 				parentOr=null;
 			}
-
-			else if (ifTrue == VocRuleAction.REJECT & ifFalse == VocRuleAction.NEXT) {
+			else if ((ifTrue == VocRuleAction.REJECT & ifFalse == VocRuleAction.NEXT) || (ifTrue == VocRuleAction.REJECT & ifFalse == VocRuleAction.SELECT)) {
 				thisMatch= new Match();
-				main.addAnd(new Match()
-					.addNot(thisMatch));
-				groupOp= Operator.NOT;
-				parentOr=null;
-			}
-			else if (ifTrue == VocRuleAction.REJECT & ifFalse == VocRuleAction.SELECT) {
-				thisMatch = new Match();
 				main.addAnd(new Match().addNot(thisMatch));
 				groupOp= Operator.NOT;
 				parentOr=null;
@@ -246,7 +231,6 @@ public class EqdToTT {
 			return population.getCriteriaGroup().get(index-1).getActionIfFalse();
 	}
 
-
 	private void setCriteria(EQDOCCriteria eqCriteria,
 													 Match match) throws DataFormatException, InvalidClassException {
 		if ((eqCriteria.getPopulationCriterion() != null)) {
@@ -273,9 +257,7 @@ public class EqdToTT {
 		}
 	}
 
-
-	private Match convertCriterion(EQDOCCriterion eqCriterion,
-																 Match match,String linkField) throws DataFormatException, InvalidClassException {
+	private Match convertCriterion(EQDOCCriterion eqCriterion, Match match,String linkField) throws DataFormatException, InvalidClassException {
 		String eqTable = eqCriterion.getTable();
 		if (criteriaLabels.get(eqCriterion.getId()) != null) {
 			match.setName(criteriaLabels.get(eqCriterion.getId()).toString());
@@ -314,7 +296,7 @@ public class EqdToTT {
 	}
 
 	private void processColumns(EQDOCFilterAttribute filterAttribute, String eqTable,Match match,
-															boolean noSubject,String linkField) throws DataFormatException, InvalidClassException {
+								boolean noSubject,String linkField) throws DataFormatException, InvalidClassException {
 		Map<Match, List<EQDOCColumnValue>> columnMap = getColumnMap(filterAttribute, eqTable);
 		if (columnMap.entrySet().size() == 1) {
 			for (Map.Entry<Match, List<EQDOCColumnValue>> entry : columnMap.entrySet()) {
@@ -434,6 +416,7 @@ public class EqdToTT {
 		}
 		return columnMap;
 	}
+
 	private void setMainCriterion(String eqTable,EQDOCColumnValue cv,Match match) throws DataFormatException, InvalidClassException {
 		for (String eqColumn : cv.getColumn()) {
 			setPropertyValue(cv, eqTable, eqColumn, match);
@@ -442,14 +425,10 @@ public class EqdToTT {
 		}
 	}
 
-
-
 	private String getEntityPath(String eqPath) throws DataFormatException {
 		String fullPath= getMap(eqPath);
 		return fullPath.substring(0,fullPath.lastIndexOf("/"));
 	}
-
-
 
 	private void setPropertyValue(EQDOCColumnValue cv,String eqTable,String eqColumn,
 																Match match) throws DataFormatException, InvalidClassException {
@@ -500,25 +479,21 @@ public class EqdToTT {
 				setRangeCompare(match,rFrom,rTo,compareAgainst);
 			}
 		}
-		if (rTo != null) {
-			if (rFrom == null) {
-				setCompareTo(match, rTo,compareAgainst);
-			}
+		if (rTo != null && rFrom == null) {
+			setCompareTo(match, rTo,compareAgainst);
 		}
 
 	}
+
 	private void setCompareFrom(Match match, EQDOCRangeFrom rFrom,String compareAgainst) throws InvalidClassException {
 		Comparison comp;
 		if (rFrom.getOperator() != null)
 			comp = (Comparison) vocabMap.get(rFrom.getOperator());
 		else
-			comp = Comparison.equal;
+			comp = Comparison.EQUAL;
 		String value = rFrom.getValue().getValue();
-		if (rFrom.getValue().getRelation() != null) {
-			if (rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
-				if (compareAgainst == null)
-					compareAgainst = "$referenceDate";
-			}
+		if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE && compareAgainst == null) {
+			compareAgainst = "$referenceDate";
 		}
 		String units=null;
 		if (rFrom.getValue().getUnit()!=null)
@@ -526,19 +501,15 @@ public class EqdToTT {
 		setCompare(match, comp, value,units,compareAgainst);
 	}
 
-
 	private void setCompareTo(Match match,EQDOCRangeTo rTo,String compareAgainst) throws InvalidClassException {
 		Comparison comp;
 		if (rTo.getOperator()!=null)
 			comp= (Comparison) vocabMap.get(rTo.getOperator());
 		else
-			comp= Comparison.equal;
+			comp= Comparison.EQUAL;
 		String value= rTo.getValue().getValue();
-		if (rTo.getValue().getRelation()!=null) {
-			if (rTo.getValue().getRelation() == VocRelation.RELATIVE) {
-				if (compareAgainst == null)
-					compareAgainst = "$referenceDate";
-			}
+		if (rTo.getValue().getRelation()!=null && rTo.getValue().getRelation() == VocRelation.RELATIVE && compareAgainst == null) {
+			compareAgainst = "$referenceDate";
 		}
 		String units=null;
 		if (rTo.getValue().getUnit()!=null)
@@ -546,15 +517,14 @@ public class EqdToTT {
 		setCompare(match, comp, value,units,compareAgainst);
 	}
 
-
 	private void setCompare(Match match, Comparison comp,String value,String units,String compareAgainst) throws InvalidClassException {
 			match.setValueTest(comp,value);
 			if (compareAgainst!=null){
-			Function function = getTimeDiff(units, compareAgainst, match.getValueVar());
-			if (function != null) {
-				match.setValueFunction(function);
+				Function function = getTimeDiff(units, compareAgainst, match.getValueVar());
+				if (function != null) {
+					match.setValueFunction(function);
+				}
 			}
-		}
 			if (match.getProperty().equals(TTIriRef.iri(IM.NAMESPACE+"age"))){
 				Function function = new Function();
 				match.setValueFunction(function);
@@ -562,8 +532,6 @@ public class EqdToTT {
 				function.addArgument(new Argument().setParameter("units").setValue(units));
 			}
 	}
-
-
 
 	private Function getTimeDiff(String units,String firstDate,String compareAgainst){
 		Function function=null;
@@ -579,22 +547,15 @@ public class EqdToTT {
 		return function;
 	}
 
-
-
-	private void setRangeCompare(Match match,
-															 EQDOCRangeFrom rFrom,EQDOCRangeTo rTo,String compareAgainst) {
-
+	private void setRangeCompare(Match match, EQDOCRangeFrom rFrom,EQDOCRangeTo rTo,String compareAgainst) {
 		Comparison fromComp;
 		if (rFrom.getOperator() != null)
 			fromComp = (Comparison) vocabMap.get(rFrom.getOperator());
 		else
-			fromComp = Comparison.equal;
+			fromComp = Comparison.EQUAL;
 		String fromValue= rFrom.getValue().getValue();
-		if (rFrom.getValue().getRelation()!=null) {
-			if (rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
-				if (compareAgainst == null)
-					compareAgainst = "$referenceDate";
-			}
+		if (rFrom.getValue().getRelation()!=null && rFrom.getValue().getRelation() == VocRelation.RELATIVE && compareAgainst == null) {
+			compareAgainst = "$referenceDate";
 		}
 		String units= null;
 		if (rFrom.getValue().getUnit()!=null)
@@ -606,7 +567,7 @@ public class EqdToTT {
 		if (rTo.getOperator()!=null)
 			toComp= (Comparison) vocabMap.get(rTo.getOperator());
 		else
-			toComp= Comparison.equal;
+			toComp= Comparison.EQUAL;
 		String toValue= rTo.getValue().getValue();
 		if (rTo.getValue().getRelation()!=null) {
 			if (rTo.getValue().getRelation() == VocRelation.RELATIVE) {
@@ -625,11 +586,8 @@ public class EqdToTT {
 
 
 	}
-	private void setRangeCompareFilter (Match match,
-																			Comparison fromComp, String fromValue,
-																			Function fromFunction,
-																			Comparison toComp, String toValue,
-																			Function toFunction){
+
+	private void setRangeCompareFilter (Match match, Comparison fromComp, String fromValue, Function fromFunction, Comparison toComp, String toValue, Function toFunction){
 
 		match
 			.setValueRange(new Range()
@@ -641,8 +599,6 @@ public class EqdToTT {
 				.setFunction(toFunction)));
 	}
 
-
-
 	private String getMap(String from) throws DataFormatException {
 		Object target = dataMap.get(from);
 		if (target == null)
@@ -650,8 +606,7 @@ public class EqdToTT {
 		return (String) target;
 	}
 
-	private void convertLinkedCriterion(EQDOCLinkedCriterion eqLinked,
-																			Match match,String linkField) throws DataFormatException, InvalidClassException {
+	private void convertLinkedCriterion(EQDOCLinkedCriterion eqLinked, Match match,String linkField) throws DataFormatException, InvalidClassException {
 
 		Match subMatch= new Match();
 		match.addAnd(subMatch);
@@ -673,9 +628,6 @@ public class EqdToTT {
 		subMatch.setValue(new Compare().setComparison((Comparison) vocabMap.get(eqOp))
 			.setValue(value));
 	}
-
-
-
 
 	private TTIriRef getExceptionSet(EQDOCException set) throws DataFormatException {
 		TTEntity valueSet = new TTEntity();
@@ -763,9 +715,6 @@ public class EqdToTT {
 
 	}
 
-
-
-
 	private void setParent(Match mainClause, TTIriRef parent, String parentName) {
 		Match parentPop= new Match();
 		if (parentName!=null)
@@ -775,14 +724,11 @@ public class EqdToTT {
 			.setValueIn(parent);
 	}
 
-
-
-
 	private void setVocabMaps() {
-		vocabMap.put(VocRangeFromOperator.GTEQ, Comparison.greaterThanOrEqual);
-		vocabMap.put(VocRangeFromOperator.GT, Comparison.greaterThan);
-		vocabMap.put(VocRangeToOperator.LT, Comparison.lessThan);
-		vocabMap.put(VocRangeToOperator.LTEQ, Comparison.lessThanOrEqual);
+		vocabMap.put(VocRangeFromOperator.GTEQ, Comparison.GREATER_THAN_OR_EQUAL);
+		vocabMap.put(VocRangeFromOperator.GT, Comparison.GREATER_THAN);
+		vocabMap.put(VocRangeToOperator.LT, Comparison.LESS_THAN);
+		vocabMap.put(VocRangeToOperator.LTEQ, Comparison.LESS_THAN_OR_EQUAL);
 		vocabMap.put(VocOrderDirection.DESC, SortOrder.DESCENDING);
 		vocabMap.put(VocOrderDirection.ASC, SortOrder.ASCENDING);
 	}

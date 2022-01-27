@@ -9,10 +9,12 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -62,12 +64,20 @@ public class EntityRepositoryImpl2 {
         return result;
 
     }
+    /**
+     * An alternative method of getting an entity definition assuming all predicates inclided
+     * @param iri of the entity
+     * @return a bundle including the entity and the predicate names
+     */
+    public TTBundle getBundle(String iri){
+        return getBundle(iri, null, false);
+    }
 
     /**
      * An alternative method of getting an entity definition
      * @param iri of the entity
      * @param predicates List of predicates to `include`
-     * @return
+     * @return bundle with entity and map of predicate names
      */
     public TTBundle getBundle(String iri, Set<String> predicates){
         return getBundle(iri, predicates, false);
@@ -385,7 +395,7 @@ public class EntityRepositoryImpl2 {
     }
 
     private Boolean andClause(TTArray and, boolean group) {
-        Boolean hasRoles = false;
+        boolean hasRoles = false;
         for (TTValue inter : and.getElements()) {
             if (inter.isNode() && inter.asNode().get(SHACL.NOT) == null) {
                 roles(inter.asNode(), group);
@@ -492,6 +502,74 @@ public class EntityRepositoryImpl2 {
 
         return result;
     }
+
+   public Map<String,String> getIriNames(Set<TTIriRef> iris){
+       String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));
+       StringJoiner sql = new StringJoiner("\n");
+       sql.add("SELECT ?iri ?label")
+         .add("WHERE {")
+         .add("?iri rdfs:label ?label")
+         .add(" filter (?iri in (")
+         .add(iriTokens+"))")
+         .add("}");
+       Map<String,String> names= new HashMap<>();
+       try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+           TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+           TupleQueryResult rs = qry.evaluate();
+           while (rs.hasNext()) {
+                   BindingSet bs = rs.next();
+                   names.put(bs.getValue("iri").stringValue(),
+                     bs.getValue("label").stringValue());
+               }
+       }
+       return names;
+   }
+
+   public Set<TTEntity> getShapePropertyRanges(String iri){
+        String sql = getSPRSQL();
+       Set<TTEntity> predicateSet = new HashSet<>();
+
+       try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+           TupleQuery qry = conn.prepareTupleQuery(sql);
+           qry.setBinding("s", iri(iri));
+           try (TupleQueryResult rs = qry.evaluate()) {
+               while (rs.hasNext()) {
+                   BindingSet bs = rs.next();
+                   TTEntity pred = new TTEntity();
+                   pred.setIri(bs.getValue("predicate").stringValue());
+                   if (bs.getValue("range")!=null) {
+                       TTEntity range = new TTEntity();
+                       pred.set(RDFS.RANGE, range);
+                       range.setIri(bs.getValue("range").stringValue());
+                       range.set(RDF.TYPE, TTIriRef.iri(bs.getValue("type").stringValue()));
+                   }
+                   predicateSet.add(pred);
+               }
+               return predicateSet;
+           }
+       }
+   }
+
+    private String getSPRSQL() {
+        return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX sh: <http://www.w3.org/ns/shacl#>\n" +
+          "\n" +
+          "\n" +
+          "Select ?predicate ?range ?type\n" +
+          "\n" +
+          "where { ?s rdf:type sh:NodeShape.\n" +
+          "    ?s (sh:property|sh:node)+ ?sub.\n" +
+          "    ?sub sh:property ?prop.\n" +
+          "    ?sub rdf:type ?type.\n" +
+          "    ?prop sh:path ?predicate.\n" +
+          "    Optional { ?predicate rdfs:range ?range}\n" +
+          " \n" +
+          "}";
+    }
+
+
 }
 
 

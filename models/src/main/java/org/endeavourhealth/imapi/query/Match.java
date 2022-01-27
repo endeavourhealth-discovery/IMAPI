@@ -103,7 +103,7 @@ public class Match extends TTNode{
 	}
 
 	public Compare getValue() {
-		return (Compare) TTUtil.get(this,IM.VALUE_COMPARE,Compare.class);
+		return (Compare) TTUtil.get(this,IM.VALUE_COMPARE, Compare.class);
 	}
 
 	public Match setValue(Compare value){
@@ -148,7 +148,7 @@ public class Match extends TTNode{
 	}
 
 	public Range getValueRange() {
-		return (Range) TTUtil.get(this,IM.VALUE_RANGE,Range.class);
+		return (Range) TTUtil.get(this,IM.VALUE_RANGE, Range.class);
 	}
 
 	public Match setValueRange(Range range) {
@@ -157,7 +157,7 @@ public class Match extends TTNode{
 	}
 
 	public Function getValueFunction() {
-		return (Function) TTUtil.get(this,IM.VALUE_FUNCTION,Function.class);
+		return (Function) TTUtil.get(this,IM.VALUE_FUNCTION, Function.class);
 	}
 
 	public Match setValueFunction(Function function){
@@ -171,7 +171,7 @@ public class Match extends TTNode{
 	}
 
 	public Match setRangeValueTest(Comparison fromComp, String fromValue,
-																				 Comparison toComp,String toValue){
+																 Comparison toComp, String toValue){
 		setValueRange(new Range()
 			.setFrom(new Compare().setComparison(fromComp).setValue(fromValue))
 			.setTo(new Compare().setComparison(toComp).setValue(toValue)));
@@ -198,7 +198,7 @@ public class Match extends TTNode{
 
 
 	public Function getFunction(){
-		return (Function) TTUtil.get(this,IM.FUNCTION,Function.class);
+		return (Function) TTUtil.get(this,IM.FUNCTION, Function.class);
 	}
 	public Match setFunction(Function function){
 		this.set(IM.FUNCTION,function);

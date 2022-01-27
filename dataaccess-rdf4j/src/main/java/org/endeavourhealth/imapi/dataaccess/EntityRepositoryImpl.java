@@ -101,24 +101,8 @@ public class EntityRepositoryImpl implements EntityRepository {
         return result;
     }
 
-    /**
-     * returns the full definition of an entity of a certain type using the shape type information
-     * @param iri iri of the entity
-     * @param type rdf:type of thr entity
-     * @return the entity
-     */
-    @Override
-    public TTEntity getEntityByType(String iri, TTIriRef type) {
-        if (!type.equals(IM.PROFILE))
-            return null;
-        //To replace with the typ specific sub predicste cache
-        Set<TTIriRef> subPredicates = Stream.of(IM.AND, IM.OR, IM.NOT, IM.VALUE_FUNCTION,
-          IM.ARGUMENT, IM.FUNCTION, IM.TEST, IM.VALUE_RANGE, IM.FROM,IM.MATCH,
-          IM.TO,IM.VALUE_MATCH,IM.VALUE_COMPARE).collect(Collectors.toCollection(HashSet::new));
 
-        TTEntity entity = getEntityWithSubPredicates(iri, null, subPredicates);
-        return entity;
-    }
+
 
     /**
      * returns and entity from a recursive SPARQL query with property paths based on the

@@ -11,6 +11,7 @@ sonarqube {
 dependencies {
     api project(':models')
     api project(':parser')
+    api project(':query')
 
     implementation libs.woodstox
     implementation libs.apacheText

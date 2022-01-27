@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.text.CaseUtils;
 import org.endeavourhealth.imapi.cdm.ProvActivity;
 import org.endeavourhealth.imapi.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.*;

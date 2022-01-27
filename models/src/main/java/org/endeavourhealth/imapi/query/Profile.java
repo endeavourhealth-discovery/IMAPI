@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 
 public class Profile extends TTEntity {
 	public Match getMatch(){
-		return (Match) TTUtil.get(this,IM.DEFINITION,Match.class);
+		return (Match) TTUtil.get(this,IM.DEFINITION, Match.class);
 	}
 	public Profile setMatch(Match match){
 		set(IM.DEFINITION,match);

@@ -8,10 +8,7 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Static methods for casting TT classes to business objects for use in builders
@@ -80,29 +77,4 @@ public class TTUtil {
 		return ctx;
 	}
 
-	/**
-	 * Wraps a predicates object node into a json literal
-	 * @param node the node whose predicate needs wrapping
-	 * @param predicate the predicate whose object needs wrapping
-	 * @return the node wrapped
-	 * @throws JsonProcessingException
-	 */
-	public static TTNode wrapRDFAsJson(TTNode node,TTIriRef predicate) throws JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json = objectMapper.writeValueAsString(node.get(predicate).asNode());
-		node.set(predicate, TTLiteral.literal(json));
-		return node;
-	}
-
-	public static TTNode unwrapRDFfromJson(TTNode node, TTIriRef predicate) throws JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		TTNode result = objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTDocument.class);
-		return result;
-	}
-	public static void populate (TTNode source, TTNode target){
-
-	}
 }

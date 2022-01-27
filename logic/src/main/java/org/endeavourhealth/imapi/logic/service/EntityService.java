@@ -21,6 +21,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -776,10 +777,42 @@ public class EntityService {
 		}
         return new ExcelSetExporter().getSetAsExcel(iri);
     }
-		public TTEntity getEntityByType(String iri,TTIriRef type){
-		 return entityRepository.getEntityByType(iri,type);
+
+	/**
+	 * Returns an entity and predicate names from an iri including all predicates and blank nodes recursively to a depth of 5
+	 * @param iri the string representation of the absolute iri
+	 * @return a bundle containing an entity and predicate iri to name map.
+	 * @throws IOException from unrapping json literal
+	 */
+		public TTBundle getFullEntity(String iri) throws IOException {
+		TTBundle bundle= entityRepositoryImpl2.getBundle(iri);
+		TTEntity entity= bundle.getEntity();
+		if (entity.get(IM.DEFINITION)!=null)
+			if (entity.get(IM.DEFINITION).isLiteral()) {
+				TTNode definition = TTManager.unwrapRDFfromJson(entity, IM.DEFINITION);
+				entity.set(IM.DEFINITION, definition);
+				Set<TTIriRef> iris= TTManager.getIrisFromTT(definition);
+				Map<String,String> names= entityRepositoryImpl2.getIriNames(iris);
+				for (TTIriRef unnamed:iris)
+					unnamed.setName(names.get(unnamed.getIri()));
+				bundle.getPredicates().putAll(names);
+			}
+		return bundle;
+		}
+
+	/**
+	 * Gets the properties of a shape and all of the shapes that the properties point to
+	 * @param iri the string iri of the shape
+	 * @return a set of entities with the property iri the rdf range iri and the type of the range
+	 */
+	public Set<TTEntity> getLinkedShapes(String iri){
+			return null;
 
 		}
+
+	private void linkShapes(TTEntity parent, Set<TTEntity> shapes){
+
+	}
 
 
 }

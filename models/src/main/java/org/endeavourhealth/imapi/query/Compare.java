@@ -42,7 +42,7 @@ public class Compare extends TTNode {
 
 
 	public Function getFunction() {
-		return (Function) TTUtil.get(this,IM.FUNCTION,Function.class);
+		return (Function) TTUtil.get(this,IM.FUNCTION, Function.class);
 	}
 
 	public Compare setFunction(Function function) {

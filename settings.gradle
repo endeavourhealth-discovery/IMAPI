@@ -13,4 +13,5 @@ include(':statemachine')
 include(':models')
 include(':transforms')
 include(':filer')
+include 'query'
 

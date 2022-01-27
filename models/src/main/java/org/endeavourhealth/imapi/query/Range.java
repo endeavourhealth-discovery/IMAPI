@@ -12,7 +12,7 @@ public class Range extends TTNode {
 	}
 
 	public Compare getFrom() {
-		return (Compare) TTUtil.get(this,IM.FROM,Compare.class);
+		return (Compare) TTUtil.get(this,IM.FROM, Compare.class);
 	}
 
 	public Range setFrom(Compare from) {
@@ -23,7 +23,7 @@ public class Range extends TTNode {
 
 	public Compare getTo() {
 
-		return (Compare) TTUtil.get(this,IM.TO,Compare.class);
+		return (Compare) TTUtil.get(this,IM.TO, Compare.class);
 	}
 
 	public Range setTo(Compare to) {

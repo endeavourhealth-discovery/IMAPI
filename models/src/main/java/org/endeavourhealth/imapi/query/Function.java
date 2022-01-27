@@ -11,20 +11,20 @@ import java.util.List;
 public class Function extends TTNode {
 
 	public Function(){
-		setPredicateTemplate(new TTIriRef[]{IM.FUNCTION_NAME,IM.ARGUMENT});
+		setPredicateTemplate(new TTIriRef[]{IM.FUNCTION_IRI,IM.ARGUMENT});
 	}
 
 	public TTIriRef getName(){
-		return (TTIriRef) TTUtil.get(this, IM.FUNCTION_NAME,TTIriRef.class);
+		return (TTIriRef) TTUtil.get(this, IM.FUNCTION_IRI,TTIriRef.class);
 	}
 
 	public Function setName(TTIriRef name) {
-		set(IM.FUNCTION_NAME,name);
+		set(IM.FUNCTION_IRI,name);
 		return this;
 	}
 
 	public List<Argument> getArgument() {
-		return TTUtil.getOrderedList(this,IM.ARGUMENT,Argument.class);
+		return TTUtil.getOrderedList(this,IM.ARGUMENT, Argument.class);
 	}
 
 	public Function setArgument(TTArray argument) {

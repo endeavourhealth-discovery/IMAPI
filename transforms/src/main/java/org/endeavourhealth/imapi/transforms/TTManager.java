@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
+import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -136,18 +138,14 @@ public class TTManager {
     * @throws IOException in the event of an IO file creation failure
     */
 
-   public void saveOWLOntology(OWLOntologyManager manager, File outputFile) throws IOException {
-      manager.getOntologies().forEach(o -> {
-         try {
-            OWLDocumentFormat format = manager.getOntologyFormat(o);
+   public void saveOWLOntology(OWLOntologyManager manager, File outputFile) throws FileNotFoundException, OWLOntologyStorageException {
+      for (OWLOntology ont:manager.getOntologies()) {
+         OWLDocumentFormat format = manager.getOntologyFormat(ont);
+         if (format != null) {
             format.setAddMissingTypes(false);
-            o.saveOntology(format, new FileOutputStream(outputFile));
-
-         } catch (IOException | OWLOntologyStorageException e) {
-            e.printStackTrace();
+            ont.saveOntology(format, new FileOutputStream(outputFile));
          }
-
-      });
+      }
    }
 
 
@@ -512,5 +510,88 @@ public class TTManager {
 
    public TTContext getContext() {
       return context;
+   }
+
+   /**
+    * Wraps a predicates object node into a json literal
+    * @param node the node whose predicate needs wrapping
+    * @param predicate the predicate whose object needs wrapping
+    * @return the node wrapped
+    * @throws JsonProcessingException when serialization problem with the ttnode
+    */
+   public static TTNode wrapRDFAsJson(TTNode node,TTIriRef predicate) throws JsonProcessingException {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+      String json = objectMapper.writeValueAsString(node.get(predicate).asNode());
+      node.set(predicate, TTLiteral.literal(json));
+      return node;
+   }
+
+   /**
+    * Converts the object value literal representation of a node into a TTNode
+    * @param node the node or entity containing the predicate with the json data
+    * @param predicate the predicate to look for
+    * @return the updated entity or node as full RDF
+    * @throws IOException when problem with json literal
+    */
+   public static TTNode unwrapRDFfromJson(TTNode node, TTIriRef predicate) throws IOException {
+      ObjectMapper objectMapper = new ObjectMapper();
+      TTNode result = objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
+      return result;
+   }
+
+   /**
+    * Retrieves a set of IRIs from a node or array, including nested nodes
+    * @param node to retrieve the IRIs from
+    * @return a set of iris
+    */
+   public static Set<TTIriRef> getIrisFromTT(TTNode node){
+      Set<TTIriRef> iris = new HashSet<>();
+      return addToIrisFromTT(node,iris);
+   }
+
+   private static Set<TTIriRef> addToIrisFromTT(TTValue subject,Set<TTIriRef> iris){
+      if (subject.isIriRef())
+         iris.add(subject.asIriRef());
+      else if (subject.isNode()){
+         if (subject.asNode().getPredicateMap()!=null){
+            for (Map.Entry<TTIriRef,TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
+               iris.add(entry.getKey());
+               for (TTValue v:entry.getValue().getElements()){
+                  if (v.isIriRef())
+                     iris.add(v.asIriRef());
+                  else if (v.isNode())
+                     addToIrisFromTT(v,iris);
+               }
+            }
+         }
+      }
+      return iris;
+   }
+
+   /**
+    * Populates a business object from an entity or node, the business object being a subclass of
+    * a TTnode. Uses ontological properties and ranges to calculate the classes of the target
+    * objects to populate
+    * @param source node containing the data
+    * @param target node being the object to be populated
+    * @param ranges A set of entities representing the properties and ranges used to calculate t target objects
+    */
+   public static void populateFromNode (TTNode source,TTNode target,Set<TTEntity> ranges){
+      Class<? extends TTNode> clazz= target.getClass();
+      target.setPredicateMap(source.getPredicateMap());
+      for (Map.Entry<TTIriRef,TTArray> statement:source.getPredicateMap().entrySet()){
+
+      }
+   }
+   public static TTContext getDefaultContext(){
+      TTContext ctx=new TTContext();
+      ctx.add(IM.NAMESPACE,"");
+      ctx.add(RDFS.NAMESPACE,"rdfs");
+      ctx.add(RDF.NAMESPACE,"rdf");
+      ctx.add(SNOMED.NAMESPACE,"sn");
+      return ctx;
    }
 }

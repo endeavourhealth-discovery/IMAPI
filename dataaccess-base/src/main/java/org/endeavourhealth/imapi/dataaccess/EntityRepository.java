@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -9,5 +10,4 @@ public interface EntityRepository {
 
     SearchResultSummary getEntitySummaryByIri(String iri);
 
-    TTEntity getEntityByType(String iri, TTIriRef type);
 }

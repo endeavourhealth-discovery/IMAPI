@@ -34,11 +34,11 @@ public class IM {
     public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef CLAUSE_MATCH = iri(NAMESPACE + "MatchClause");
-    public static final TTIriRef CLAUSE_COMPARE = iri(NAMESPACE + "CompareClause");
-    public static final TTIriRef CLAUSE_ARGUMENT = iri(NAMESPACE + "ArgumentClause");
-    public static final TTIriRef CLAUSE_RANGE = iri(NAMESPACE + "RangeClause");
-    public static final TTIriRef CLAUSE_FUNCTION = iri(NAMESPACE + "FunctionClause");
+    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef COMPARE_CLAUSE = iri(NAMESPACE + "CompareClause");
+    public static final TTIriRef ARGUMENT_CLAUSE = iri(NAMESPACE + "ArgumentClause");
+    public static final TTIriRef RANGE_CLAUSE = iri(NAMESPACE + "RangeClause");
+    public static final TTIriRef FUNCTION_CLAUSE = iri(NAMESPACE + "FunctionClause");
 
 
     //Collection predicates
@@ -158,7 +158,7 @@ public class IM {
   public static final TTIriRef VALUE_RANGE  = iri(NAMESPACE+ "valueRange");
   public static final TTIriRef VALUE_FUNCTION = iri(NAMESPACE + "valueFunction");
   public static final TTIriRef COMPARISON = iri(NAMESPACE + "comparison");
-  public static final TTIriRef FUNCTION_NAME = iri(NAMESPACE + "functionName");
+  public static final TTIriRef FUNCTION_IRI = iri(NAMESPACE + "functionIri");
   public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
   public static final TTIriRef PARAMETER = iri(NAMESPACE + "parameter");
   public static final TTIriRef LIMIT = iri(NAMESPACE + "limit");

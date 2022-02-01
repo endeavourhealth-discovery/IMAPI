@@ -13,7 +13,6 @@ import java.util.zip.DataFormatException;
 /**
  * Classifies an ontology using an owl reasoner, generating ISA relationships from a Discovery ontology document.
  * Generates inferred role groups (Snomed pattern) from the existential quntifiers and propogates them to subclasses
- * Generatesi inferred Property groups from the SHACL property definitions and propogates them to subclasses
  */
 public class ReasonerPlus {
    private TTDocument document;
@@ -70,7 +69,6 @@ public class ReasonerPlus {
    }
 
 
-
    private void reformChains(TTEntity entity) {
          if (entity.get(OWL.PROPERTYCHAIN)!=null){
             int i=1;
@@ -116,8 +114,6 @@ public class ReasonerPlus {
          addEntityRoles(entity);
       }
    }
-
-
 
    private void addEntityRoles(TTEntity entity) throws DataFormatException {
       if (entity.get(RDFS.SUBCLASSOF) != null) {
@@ -212,8 +208,7 @@ public class ReasonerPlus {
 
 
    /**
-    * Classifies an ontology using an OWL Reasoner
-    *
+    * Classifies an ontology using an OWL Reasoner from concepts help in a TTDocument
     * @return set of child -  parent "isa" nodes
     * @param document The TTDocument to classify
     * @throws  OWLOntologyCreationException for invalid owl formats leading to inability to create ontology

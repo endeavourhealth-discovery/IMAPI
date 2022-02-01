@@ -17,12 +17,10 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.opensearch.*;
-import org.endeavourhealth.imapi.model.schema.Shapes;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
-import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -787,42 +785,29 @@ public class EntityService {
 	public TTBundle getFullEntity(String iri) throws IOException {
 		TTBundle bundle= entityRepositoryImpl2.getBundle(iri);
 		TTEntity entity= bundle.getEntity();
-		if (entity.get(IM.DEFINITION)!=null)
-			if (entity.get(IM.DEFINITION).isLiteral()) {
-				TTNode definition = TTManager.unwrapRDFfromJson(entity, IM.DEFINITION);
-				entity.set(IM.DEFINITION, definition);
-				Set<TTIriRef> iris= TTManager.getIrisFromTT(definition);
-				Map<String,String> names= entityRepositoryImpl2.getIriNames(iris);
-				for (TTIriRef unnamed:iris)
-					unnamed.setName(names.get(unnamed.getIri()));
-				bundle.getPredicates().putAll(names);
-			}
+		unwrapRDFfromJson(entity);
 		return bundle;
 	}
-
 	/**
-	 * Gets the properties of a shape and all of the shapes that the properties point to
-	 * @param iri the string iri of the shape
-	 * @return a set of entities with the property iri the rdf range iri and the type of the range
+	 * Converts the object value literal representation of a node into a TTNode
+	 * @param node the node or entity containing the predicate with the json data
+	 * @throws IOException when problem with json literal
 	 */
-	public Set<TTEntity> getLinkedShapes(String iri){
-		if (Shapes.shapes.get(iri)==null){
-			Set<TTEntity> shapes= linkShapes(iri);
-			for (TTEntity shape:shapes){
-				Shapes.shapes.put(shape.getIri(),shape);
+	public void unwrapRDFfromJson(TTNode node) throws IOException {
+		unwrap(node, IM.DEFINITION);
+	}
+
+	private void unwrap(TTNode node, TTIriRef predicate) throws JsonProcessingException {
+		if (node.get(predicate) != null)
+			if (node.get(predicate).isLiteral()) {
+				ObjectMapper objectMapper = new ObjectMapper();
+				TTNode qry= objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
+				node.set(predicate,qry);
 			}
-			return shapes;
-		}
-		else {
-			return null;
-		}
 	}
 
-	private Set<TTEntity> linkShapes(String iri){
-		Set<TTEntity> shapes= entityRepositoryImpl2.getLinkedShapes(iri);
-		return shapes;
 
-	}
+
 
 
 

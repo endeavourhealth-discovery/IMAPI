@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,7 +15,6 @@ import java.util.Set;
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeSerializer {
-  public static Map<String,List<TTIriRef>> predicateOrder;
    private final TTContext contextMap;
    private List<TTIriRef> predicateTemplate;
    private boolean usePrefixes = false;
@@ -43,47 +41,24 @@ public class TTNodeSerializer {
     }
 
     public void serializeNode(TTNode node, JsonGenerator gen,SerializerProvider prov) throws IOException {
-      this.prov = prov;
-      serializePredicates(node, gen, prov);
-    }
-
-  private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-     boolean serialized=false;
-     if (predicateOrder!=null) {
-       if (node.get(RDF.TYPE) != null) {
-         String type = node.get(RDF.TYPE).asIriRef().getIri();
-         if (predicateOrder.get(type) != null) {
-           serializeOnlyOrdered(node, predicateOrder.get(type), gen);
-           serialized = true;
-         }
-       }
-     }
-     if (!serialized) {
-       if (node.getPredicateTemplate() != null)
-         serializeOrdered(node, Arrays.asList(node.getPredicateTemplate()), gen);
-       else if (this.predicateTemplate != null)
-         serializeOrdered(node, predicateTemplate, gen);
-       else {
+     this.prov=prov;
+     if (node.getPredicateTemplate()!=null)
+          serializeOrdered(node, Arrays.asList(node.getPredicateTemplate()),gen);
+      else if (predicateTemplate!=null)
+         serializeOrdered(node,predicateTemplate,gen);
+      else {
          Map<TTIriRef, TTArray> predicates = node.getPredicateMap();
          if (predicates != null && !predicates.isEmpty()) {
-           Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
-           for (Map.Entry<TTIriRef, TTArray> entry : entries) {
+            Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
+            for (Map.Entry<TTIriRef, TTArray> entry : entries) {
 
-             serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
-           }
+               serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
+            }
          }
-       }
-     }
+      }
    }
 
-  private void serializeOnlyOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
-    for (TTIriRef predicate:predicates){
-      if (node.get(predicate)!=null)
-        serializeFieldValue(predicate.getIri(),node.get(predicate),gen);
-    }
-  }
-
-  private void serializeOrdered(TTNode node, List<TTIriRef> predicateTemplate,JsonGenerator gen) throws IOException {
+   private void serializeOrdered(TTNode node, List<TTIriRef> predicateTemplate,JsonGenerator gen) throws IOException {
       for (TTIriRef predicate:predicateTemplate){
          if (node.get(predicate)!=null)
             serializeFieldValue(predicate.getIri(),node.get(predicate),gen);

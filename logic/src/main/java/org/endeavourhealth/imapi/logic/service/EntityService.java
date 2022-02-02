@@ -785,7 +785,7 @@ public class EntityService {
 	 *
 	 */
 	public TTBundle getFullEntity(String iri){
-		return entityRepositoryImpl2.getBundle(iri,UNLIMITED);
+		return entityRepositoryImpl2.getBundle(iri);
 	}
 
 

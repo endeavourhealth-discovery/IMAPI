@@ -71,8 +71,8 @@ public class EntityRepositoryImpl2 {
      * @param iri of the entity
      * @return a bundle including the entity and the predicate names
      */
-    public TTBundle getBundle(String iri,int limit) {
-        return getBundle(iri, null, false,limit);
+    public TTBundle getBundle(String iri) {
+        return getBundle(iri, null, false);
     }
 
     /**
@@ -81,8 +81,18 @@ public class EntityRepositoryImpl2 {
      * @param predicates List of predicates to `include`
      * @return bundle with entity and map of predicate names
      */
-    public TTBundle getBundle(String iri, Set<String> predicates,int limit) {
-        return getBundle(iri, predicates, false,limit);
+    public TTBundle getBundle(String iri, Set<String> predicates) {
+        return getBundle(iri, predicates, false);
+    }
+
+    public TTBundle getBundle(String iri,Set<String> predicates,
+                              boolean exludePredicates){
+        return getBundle(iri,predicates,exludePredicates,0);
+    }
+
+    public TTBundle getBundle(String iri,Set<String> predicates,
+                              int limit){
+        return getBundle(iri,predicates,false,0);
     }
 
     /**
@@ -93,7 +103,7 @@ public class EntityRepositoryImpl2 {
      * @return
      */
     public TTBundle getBundle(String iri, Set<String> predicates,
-                              boolean excludePredicates, int limit) {
+                              boolean excludePredicates,int limit) {
 
         TTBundle bundle = new TTBundle()
           .setEntity(new TTEntity().setIri(iri))

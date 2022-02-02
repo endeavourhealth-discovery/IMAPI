@@ -36,7 +36,7 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
 
     @Override
     public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, predicates,limit);
+        return entityRepositoryImpl2.getBundle(iri, predicates);
     }
 
     @Override

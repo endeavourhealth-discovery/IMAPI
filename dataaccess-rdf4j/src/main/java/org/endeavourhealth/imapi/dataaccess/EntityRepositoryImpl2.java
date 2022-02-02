@@ -1,15 +1,17 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +71,8 @@ public class EntityRepositoryImpl2 {
      * @param iri of the entity
      * @return a bundle including the entity and the predicate names
      */
-    public TTBundle getBundle(String iri){
-        return getBundle(iri, null, false);
+    public TTBundle getBundle(String iri,int limit) {
+        return getBundle(iri, null, false,limit);
     }
 
     /**
@@ -79,8 +81,8 @@ public class EntityRepositoryImpl2 {
      * @param predicates List of predicates to `include`
      * @return bundle with entity and map of predicate names
      */
-    public TTBundle getBundle(String iri, Set<String> predicates){
-        return getBundle(iri, predicates, false);
+    public TTBundle getBundle(String iri, Set<String> predicates,int limit) {
+        return getBundle(iri, predicates, false,limit);
     }
 
     /**
@@ -90,37 +92,53 @@ public class EntityRepositoryImpl2 {
      * @param excludePredicates Flag denoting if predicate list is inclusion or exclusion
      * @return
      */
-    public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates){
-        TTBundle bundle = new TTBundle().setEntity(new TTEntity());
+    public TTBundle getBundle(String iri, Set<String> predicates,
+                              boolean excludePredicates, int limit) {
 
-        StringJoiner sql = getBundleSparql(predicates, excludePredicates);
+        TTBundle bundle = new TTBundle()
+          .setEntity(new TTEntity().setIri(iri))
+          .setPredicates(new HashMap<>());
 
-        Map<String, String> predNames = bundle.getPredicates();
+        StringJoiner sql = getBundleSparql(predicates, excludePredicates,limit);
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
             qry.setBinding("entity",iri(iri));
             try (GraphQueryResult gs = qry.evaluate()) {
-                Map<Value, TTValue> valueMap = new HashMap<>();
-                Resource entityIri = null;
-                for (org.eclipse.rdf4j.model.Statement st :gs) {
-                    entityIri = processStatement(bundle, predNames, valueMap, entityIri, st);
+                Map<String, TTValue> valueMap = new HashMap<>();
+                for (org.eclipse.rdf4j.model.Statement st : gs) {
+                    processStatement(bundle, valueMap, iri, st);
                 }
-
-                // Sanity check
-                for(Map.Entry<String, String> p : predNames.entrySet()) {
-                    if (p.getValue().isEmpty())
-                        LOG.warn("Unnamed predicate {}", p.getKey());
+                TTNode unwrapped = unwrap(bundle.getEntity(), IM.DEFINITION);
+                if (unwrapped != null) {
+                    Set<TTIriRef> iris = GraphHelper.getIrisFromNode(unwrapped);
+                    getIriNames(conn,iris);
+                    iris.forEach(bundle::addPredicate);
                 }
-
-                return bundle;
             }
+            return bundle;
         }
     }
 
-    private StringJoiner getBundleSparql(Set<String> predicates, boolean excludePredicates) {
-        int depth = 5;
+    private TTNode unwrap(TTNode node, TTIriRef predicate){
+        if (node.get(predicate) != null)
+            if (node.get(predicate).isLiteral()) {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    TTNode unwrapped = objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
+                    node.set(predicate, unwrapped);
+                    return unwrapped;
+                } catch (JsonProcessingException e) {
+                    return null;
+                }
+            }
+        return null;
+    }
 
+    private StringJoiner getBundleSparql(Set<String> predicates,
+                                         boolean excludePredicates,int depth) {
+        if (depth ==0)
+            depth= 5;
         StringJoiner sql = new StringJoiner("\n");
         sql.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
         sql.add("CONSTRUCT {")
@@ -160,62 +178,60 @@ public class EntityRepositoryImpl2 {
         return sql;
     }
 
-    private Resource processStatement(TTBundle bundle, Map<String, String> predNames, Map<Value, TTValue> valueMap, Resource entityIri, Statement st) {
+    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st) {
         TTEntity entity = bundle.getEntity();
-
-        // Process predicates
-        String p = st.getPredicate().stringValue();
-
-        if (p.equals(RDFS.LABEL.getIri())) {
-            if (predNames.containsKey(st.getSubject().stringValue()))
-                predNames.put(p, st.getObject().stringValue());
-        } else if (!predNames.containsKey(p)) {
-            predNames.put(p, "");
+        Resource s= st.getSubject();
+        IRI p= st.getPredicate();
+        Value o =  st.getObject();
+        String subject= s.stringValue();
+        String predicate= p.stringValue();
+        String value = o.stringValue();
+        Map<String,String> predNames= bundle.getPredicates();
+        if (tripleMap.get(predicate)!=null) {
+            if (tripleMap.get(predicate).asIriRef().getName() != null) {
+                predNames.put(predicate, tripleMap.get(predicate).asIriRef().getName());
+            }
+            else
+                predNames.put(predicate,predicate);
+        } else {
+            tripleMap.putIfAbsent(predicate, TTIriRef.iri(predicate));
+            predNames.put(predicate,predicate);
         }
-
-        // Add to entity
-        Resource subject = st.getSubject();
-        TTIriRef predicate= TTIriRef.iri(st.getPredicate().stringValue());
-        valueMap.put(st.getPredicate(),predicate);
-        if (entity.getIri() == null) {
-            entity.setIri(subject.stringValue());
-            valueMap.put(subject, entity);
-            entityIri = subject;
-            bundle.setEntity(entity);
-        }
-        if (subject.isIRI() && !subject.equals(entityIri)) {
-            TTIriRef subjectIri = valueMap.get(subject).asIriRef();
-            subjectIri.setName(st.getObject().stringValue());
+        TTNode node;
+        if (predicate.equals(RDFS.LABEL.getIri())) {
+            if (s.isIRI()) {
+                if (!subject.equals(entityIri)) {
+                    tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
+                    tripleMap.get(subject).asIriRef().setName(value);
+                    if (predNames.get(subject)!=null)
+                        predNames.put(subject,value);
+                }
+            } else {
+                tripleMap.putIfAbsent(subject, new TTNode());
+                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value));
+            }
         }
         else {
-            TTNode node = valueMap.get(subject).asNode();
-            Value value = st.getObject();
-            if (value.isLiteral()) {
-                Literal l = (Literal) value;
-                node.set(TTIriRef.iri(st.getPredicate().stringValue()), literal(l.stringValue(), l.getDatatype().stringValue()));
+            if (s.isIRI()) {
+                node = entity;
             }
-            else if (value.isIRI()) {
-                TTIriRef objectIri=null;
-                if (valueMap.get(value)!=null)
-                    objectIri= valueMap.get(value).asIriRef();
-                if (objectIri==null)
-                    objectIri = TTIriRef.iri(value.stringValue());
-                if (node.get(predicate)==null)
-                    node.set(predicate, objectIri);
-                else
-                    node.addObject(predicate,objectIri);
-                valueMap.putIfAbsent(value, objectIri);
+            else {
+                tripleMap.putIfAbsent(subject,new TTNode());
+                node= tripleMap.get(subject).asNode();
             }
-            else if (value.isBNode()) {
-                TTNode ob = new TTNode();
-                if (node.get(predicate)==null)
-                    node.set(predicate, ob);
-                else
-                    node.addObject(predicate,ob);
-                valueMap.put(value, ob);
+            if (o.isBNode()){
+                tripleMap.putIfAbsent(value,new TTNode());
+                node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
+            }
+            else if (o.isIRI()){
+                tripleMap.putIfAbsent(value,TTIriRef.iri(value));
+                node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
+            }
+            else {
+                tripleMap.putIfAbsent(value,TTLiteral.literal(value));
+                node.set(tripleMap.get(predicate).asIriRef(),tripleMap.get(value).asLiteral());
             }
         }
-        return entityIri;
     }
 
 
@@ -501,7 +517,7 @@ public class EntityRepositoryImpl2 {
         return result;
     }
 
-   public Map<String,String> getIriNames(Set<TTIriRef> iris){
+   public static Map<String,String> getIriNames(RepositoryConnection conn,Set<TTIriRef> iris){
        String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));
        StringJoiner sql = new StringJoiner("\n");
        sql.add("SELECT ?iri ?label")
@@ -511,14 +527,14 @@ public class EntityRepositoryImpl2 {
          .add(iriTokens+"))")
          .add("}");
        Map<String,String> names= new HashMap<>();
-       try (RepositoryConnection conn = ConnectionManager.getConnection()) {
-           TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-           TupleQueryResult rs = qry.evaluate();
+       TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+       try (TupleQueryResult rs = qry.evaluate()){
            while (rs.hasNext()) {
-                   BindingSet bs = rs.next();
-                   names.put(bs.getValue("iri").stringValue(),
-                     bs.getValue("label").stringValue());
-               }
+               BindingSet bs = rs.next();
+               TTIriRef iri= TTIriRef.iri(bs.getValue("iri").stringValue());
+               iris.stream().filter(i-> i.equals(iri))
+                 .findFirst().ifPresent(i-> i.setName(bs.getValue("label").stringValue()));
+           }
        }
        return names;
    }

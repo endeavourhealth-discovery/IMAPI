@@ -1,65 +1,58 @@
-package org.endeavourhealh.imapi.cache;
+package org.endeavourhealth.imapi.logic.cache;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.CacheRepositoryImpl;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public class CacheLoader implements Runnable{
 
 	private static final CacheRepositoryImpl cacheRepository= new CacheRepositoryImpl();
-	private static Set<TTIriRef> iris;
 
-	public static void refreshShape(String iri){
-		Cache.shapes.putAll(cacheRepository.getShapeAndSupers(iri));
-		Set<TTEntity> inferred= new HashSet<>();
-		setPredicateOrder(Cache.shapes.get(iri));
-		inheritProperties(Cache.shapes.get(iri),inferred);
-	}
+
 
 	/**
 	 * Refreshes the node shape cache, predicate orders and domains and ranges
 	 */
-	public static void refreshShapes(){
-		Set<TTEntity> schema= cacheRepository.getSchema();
-		iris= new HashSet<>();
-
-		schema.forEach(CacheLoader::setPredicateOrder);
-		Set<TTEntity> inferred= new HashSet<>();
-		for (TTEntity shape:schema){
-			if (!inferred.contains(shape))
-				inheritProperties(shape,inferred);
+	public static void refreshCache(){
+		synchronized (EntityCache.shapes) {
+			Set<TTBundle> schema = cacheRepository.getSchema();
+			schema.forEach(EntityCache::addShape);
+			schema.forEach(b-> setPredicateOrder(b.getEntity()));
+			Set<TTEntity> inferred = new HashSet<>();
+			for (TTBundle shape : schema) {
+				if (!inferred.contains(shape.getEntity()))
+					inheritProperties(shape.getEntity(), inferred);
+			}
+			TTNodeSerializer.predicateOrder = EntityCache.predicateOrder;
 		}
-		TTNodeSerializer.predicateOrder= Cache.predicateOrder;
 	}
 
 
 	private static void setPredicateOrder(TTEntity shape) {
-		if (Cache.predicateOrder.get(shape.getIri())==null) {
+		if (EntityCache.predicateOrder.get(shape.getIri())==null) {
 			if (shape.get(RDFS.SUBCLASSOF) != null) {
 				boolean hasSuperShape = false;
 				for (TTValue superClass : shape.get(RDFS.SUBCLASSOF).getElements()) {
-					TTEntity superEntity = Cache.shapes.get(superClass.asIriRef().getIri());
-					if (superEntity != null) {
+					TTBundle superBundle= EntityCache.shapes.get(superClass.asIriRef().getIri());
+					if (superBundle != null) {
 						hasSuperShape = true;
+						TTEntity superEntity= superBundle.getEntity();
 						setPredicateOrder(superEntity);
-						if (Cache.predicateOrder.get(superEntity.getIri())!=null){
+						if (EntityCache.predicateOrder.get(superEntity.getIri())!=null){
 							int index=0;
-							for (TTIriRef pred: Cache.predicateOrder.get(superEntity.getIri())){
+							for (TTIriRef pred: EntityCache.predicateOrder.get(superEntity.getIri())){
 								index++;
-								Cache.addPredicateOrder(shape.getIri(),pred,index-1);
+								addPredicateOrder(shape.getIri(),pred,index);
 							}
 						}
-						int offset = Cache.predicateOrder.get(superEntity.getIri()).size();
+						int offset = EntityCache.predicateOrder.get(superEntity.getIri()).size();
 						addOrder(shape, offset);
 					}
 				}
@@ -74,8 +67,9 @@ public class CacheLoader implements Runnable{
 																				Set<TTEntity> inferred) {
 		if (shape.get(RDFS.SUBCLASSOF)!=null) {
 			for (TTValue superClass : shape.get(RDFS.SUBCLASSOF).getElements()) {
-				TTEntity superEntity = Cache.shapes.get(superClass.asIriRef().getIri());
-				if (superEntity != null) {
+				TTBundle superBundle = EntityCache.shapes.get(superClass.asIriRef().getIri());
+				if (superBundle != null) {
+					TTEntity superEntity= superBundle.getEntity();
 					if (!inferred.contains(superEntity))
 						inheritProperties(superEntity,inferred);
 					inferred.add(shape);
@@ -109,25 +103,29 @@ public class CacheLoader implements Runnable{
 				order++;
 				TTNode property=value.asNode();
 				TTIriRef path= property.get(SHACL.PATH).asIriRef();
-				iris.add(path);
 				int insertAt= property.get(SHACL.ORDER)==null ?order :
 									property.get(SHACL.ORDER).asLiteral().intValue();
-				Cache.addPredicateOrder(shape.getIri(),path,insertAt+offset-1);
-				if (property.get(SHACL.CLASS)!=null)
-					iris.add(property.get(SHACL.CLASS).asIriRef());
-				else if (property.get(SHACL.DATATYPE)!=null)
-					iris.add(property.get(SHACL.DATATYPE).asIriRef());
+				addPredicateOrder(shape.getIri(),path,insertAt+offset);
 
 			}
 		}
+	}
+
+	private static void addPredicateOrder(String iri,TTIriRef predicate, int order){
+		EntityCache.predicateOrder.putIfAbsent(iri,new ArrayList<>());
+		List<TTIriRef> ordered= EntityCache.predicateOrder.get(iri);
+		if (order>ordered.size())
+			ordered.add(predicate);
+		else
+			ordered.add(order-1,predicate);
 	}
 
 
 
 		@Override
 	public void run() {
-		synchronized (Cache.shapes) {
-			CacheLoader.refreshShapes();
+		synchronized (EntityCache.shapes) {
+			CacheLoader.refreshCache();
 		}
 	}
 

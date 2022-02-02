@@ -47,6 +47,8 @@ public class TTManager {
    }
    public TTDocument createDocument() {
       TTContext context= new TTContext();
+      context.add(XSD.NAMESPACE,"xsd");
+      context.add(SHACL.NAMESPACE,"sh");
       context.add(IM.NAMESPACE,"im");
       context.add(RDF.NAMESPACE, "rdf","RDF namespace");
       context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");

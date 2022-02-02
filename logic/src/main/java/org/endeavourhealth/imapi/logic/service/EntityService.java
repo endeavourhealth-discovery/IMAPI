@@ -49,23 +49,23 @@ public class EntityService {
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
 
-	private EntityRepository entityRepository = new EntityRepositoryImpl();
-    private EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
-    private SetRepository setRepository = new SetRepositoryImpl();
-    private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
-    private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
-    private ConfigService configService = new ConfigService();
-    private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
+	private final EntityRepository entityRepository = new EntityRepositoryImpl();
+    private final EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
+    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
+    private final SetRepository setRepository = new SetRepositoryImpl();
+    private final TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
+    private final EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
+    private final ConfigService configService = new ConfigService();
+    private final EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
 
 
 
 	public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, predicates);
+        return entityRepositoryImpl2.getBundle(iri, predicates,limit);
     }
 
 	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, excludePredicates, true);
+        return entityRepositoryImpl2.getBundle(iri,excludePredicates, true,limit);
 	}
 
     public TTIriRef getEntityReference(String iri) {
@@ -782,31 +782,11 @@ public class EntityService {
 	 * Returns an entity and predicate names from an iri including all predicates and blank nodes recursively to a depth of 5
 	 * @param iri the string representation of the absolute iri
 	 * @return a bundle containing an entity and predicate iri to name map.
-	 * @throws IOException from unrapping json literal
+	 *
 	 */
-	public TTEntity getFullEntity(String iri) throws IOException {
-		TTEntity entity= new EntityRepositoryImpl3().getFullEntity(iri);
-		unwrapRDFfromJson(entity);
-		return entity;
+	public TTBundle getFullEntity(String iri){
+		return entityRepositoryImpl2.getBundle(iri,UNLIMITED);
 	}
-	/**
-	 * Converts the object value literal representation of a node into a TTNode
-	 * @param node the node or entity containing the predicate with the json data
-	 * @throws IOException when problem with json literal
-	 */
-	public void unwrapRDFfromJson(TTNode node) throws IOException {
-		unwrap(node, IM.DEFINITION);
-	}
-
-	private void unwrap(TTNode node, TTIriRef predicate) throws JsonProcessingException {
-		if (node.get(predicate) != null)
-			if (node.get(predicate).isLiteral()) {
-				ObjectMapper objectMapper = new ObjectMapper();
-				TTNode qry= objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
-				node.set(predicate,qry);
-			}
-	}
-
 
 
 

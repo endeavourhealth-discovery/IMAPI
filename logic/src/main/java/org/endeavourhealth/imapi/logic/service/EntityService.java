@@ -58,6 +58,8 @@ public class EntityService {
     private ConfigService configService = new ConfigService();
     private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
 
+
+
 	public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
         return entityRepositoryImpl2.getBundle(iri, predicates);
     }
@@ -782,11 +784,10 @@ public class EntityService {
 	 * @return a bundle containing an entity and predicate iri to name map.
 	 * @throws IOException from unrapping json literal
 	 */
-	public TTBundle getFullEntity(String iri) throws IOException {
-		TTBundle bundle= entityRepositoryImpl2.getBundle(iri);
-		TTEntity entity= bundle.getEntity();
+	public TTEntity getFullEntity(String iri) throws IOException {
+		TTEntity entity= new EntityRepositoryImpl3().getFullEntity(iri);
 		unwrapRDFfromJson(entity);
-		return bundle;
+		return entity;
 	}
 	/**
 	 * Converts the object value literal representation of a node into a TTNode

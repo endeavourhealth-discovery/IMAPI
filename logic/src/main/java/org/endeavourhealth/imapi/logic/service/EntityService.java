@@ -49,14 +49,14 @@ public class EntityService {
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
 
-	private final EntityRepository entityRepository = new EntityRepositoryImpl();
-    private final EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
-    private final SetRepository setRepository = new SetRepositoryImpl();
-    private final TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
-    private final EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
-    private final ConfigService configService = new ConfigService();
-    private final EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
+	private EntityRepository entityRepository = new EntityRepositoryImpl();
+    private EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
+    private SetRepository setRepository = new SetRepositoryImpl();
+    private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
+    private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
+    private ConfigService configService = new ConfigService();
+    private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
 
 
 

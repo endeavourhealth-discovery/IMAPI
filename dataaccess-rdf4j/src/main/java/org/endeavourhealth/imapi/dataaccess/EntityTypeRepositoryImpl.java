@@ -13,9 +13,7 @@ import java.util.StringJoiner;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
-public class EntityTypeRepositoryImpl implements EntityTypeRepository {
-
-    @Override
+public class EntityTypeRepositoryImpl {
     public TTArray getEntityTypes(String iri) {
         TTArray result = new TTArray();
 

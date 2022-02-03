@@ -8,13 +8,18 @@ sonarqube {
 }
 
 dependencies {
-    api project(':dataaccess-base')
+    api project(':models')
+    api project(':statemachine')
 
+    implementation libs.apachePoi
     implementation libs.rdf4jQuery
     implementation libs.rdf4jRepoApi
     implementation libs.rdf4jRepoHttp
     implementation libs.rdf4jRepoSail
     implementation libs.rdf4jSailNative
+
+    compileOnly libs.jacksonAnnotations
+    annotationProcessor libs.jacksonAnnotations
 }
 
 description = 'dataaccess-rdf4j'

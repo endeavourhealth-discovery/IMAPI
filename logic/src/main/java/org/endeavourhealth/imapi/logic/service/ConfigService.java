@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.ConfigRepositoryImpl;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.dataaccess.ConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,7 +16,7 @@ public class ConfigService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigService.class);
 
     private final ObjectMapper om = new ObjectMapper();
-    private final ConfigRepository configRepository = new ConfigRepositoryImpl();
+    private final ConfigRepositoryImpl configRepository = new ConfigRepositoryImpl();
 
     public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException {
         LOG.debug("getConfig<Class>");

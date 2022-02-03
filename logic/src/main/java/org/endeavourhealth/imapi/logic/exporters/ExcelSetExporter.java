@@ -5,7 +5,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepositoryImpl2;
-import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepositoryImpl;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -28,7 +27,7 @@ import java.util.zip.DataFormatException;
 public class ExcelSetExporter {
 
     private EntityRepositoryImpl2 repo = new EntityRepositoryImpl2();
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
+    private EntityTripleRepositoryImpl entityTripleRepository = new EntityTripleRepositoryImpl();
 
     public XSSFWorkbook workbook;
     public XSSFFont font;

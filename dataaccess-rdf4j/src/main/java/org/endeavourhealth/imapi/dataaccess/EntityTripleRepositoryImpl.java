@@ -26,7 +26,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.*;
 
-public class EntityTripleRepositoryImpl implements EntityTripleRepository {
+public class EntityTripleRepositoryImpl {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepositoryImpl.class);
     private static final List<Namespace> namespaceCache = new ArrayList<>();
 
@@ -34,12 +34,10 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
     private final Map<String, Integer> bnodes = new HashMap<>();
     private int row = 0;
 
-    @Override
     public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
         return entityRepositoryImpl2.getBundle(iri, predicates);
     }
 
-    @Override
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String excludePredicateIri) {
         List<TTIriRef> result = new ArrayList<>();
 
@@ -74,7 +72,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return result;
     }
 
-    @Override
     public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String excludePredicateIri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT (COUNT(?s) AS ?cnt) WHERE {")
@@ -98,7 +95,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         }
     }
 
-    @Override
     public Set<EntitySummary> getSubclassesAndReplacements(String iri) {
         Set<EntitySummary> result = new HashSet<>();
         String isa = "(<" + RDFS.SUBCLASSOF.getIri() +
@@ -122,8 +118,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return result;
     }
 
-
-    @Override
     public Collection<EntitySummary> getSubjectAndDescendantSummariesByPredicateObjectRelType(String predicate, String object) {
         Set<EntitySummary> result = new HashSet<>();
 
@@ -170,7 +164,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         }
     }
 
-    @Override
     public boolean hasChildren(String parentIri, List<String> schemeIris, boolean inactive) throws DALException {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c")
@@ -200,7 +193,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         }
     }
 
-    @Override
     public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
@@ -245,7 +237,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return result;
     }
 
-    @Override
     public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
@@ -294,7 +285,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return result;
     }
 
-    @Override
     public Set<TTIriRef> getObjectIriRefsBySubjectAndPredicate(String subjectIri, String predicateIri) {
         Set<TTIriRef> result = new HashSet<>();
 
@@ -324,7 +314,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return result;
     }
 
-    @Override
     public List<Namespace> findNamespaces() {
         synchronized (namespaceCache) {
             if (namespaceCache.isEmpty()) {
@@ -368,7 +357,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         }
     }
 
-    @Override
     public Set<EntitySummary> getLegacyConceptSummaries(Set<EntitySummary> coreEntities) {
         Set<EntitySummary> result = new HashSet<>();
 
@@ -481,7 +469,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         setAndEvaluate(triples, subject, parent, excludePredicates, sql);
     }
 
-    @Override
     public List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -512,7 +499,6 @@ public class EntityTripleRepositoryImpl implements EntityTripleRepository {
         return simpleMaps;
     }
 
-    @Override
     public List<String> getConceptIrisByGraph(String iri) {
         List<String> iris = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())

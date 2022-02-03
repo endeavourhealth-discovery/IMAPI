@@ -14,9 +14,7 @@ import java.util.StringJoiner;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
-public class EntityTctRepositoryImpl implements EntityTctRepository {
-
-    @Override
+public class EntityTctRepositoryImpl {
     public List<TTIriRef> findAncestorsByType(String childIri, String relationshipIri, List<String> candidateAncestorIris) {
         List<TTIriRef> result = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())

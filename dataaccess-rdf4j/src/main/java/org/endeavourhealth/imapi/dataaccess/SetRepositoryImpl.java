@@ -20,10 +20,9 @@ import java.util.*;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
-public class SetRepositoryImpl implements SetRepository {
+public class SetRepositoryImpl {
     private EntityTripleRepositoryImpl entityTripleRepository = new EntityTripleRepositoryImpl();
 
-    @Override
     public Set<TTEntity> getAllConceptSets(TTIriRef type) {
         Set<TTEntity> result = new HashSet<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -48,7 +47,6 @@ public class SetRepositoryImpl implements SetRepository {
         return result;
     }
 
-    @Override
     public TTEntity getSetDefinition(String setIri) {
         Set<String> predicates= new HashSet<>();
         predicates.add(IM.DEFINITION.getIri());
@@ -59,22 +57,18 @@ public class SetRepositoryImpl implements SetRepository {
         return entityPredicates.getEntity();
     }
 
-    @Override
     public TTEntity getExpansion(TTEntity conceptSet) {
         return null;
     }
 
-    @Override
     public TTEntity getLegacyExpansion(TTEntity conceptSet) {
         return null;
     }
 
-    @Override
     public TTEntity getIM1Expansion(TTEntity conceptSet) {
         return null;
     }
 
-    @Override
     public Set<IMv2v1Map> getIMv2v1Maps(Set<EntitySummary> members) {
         Set<IMv2v1Map> result = new HashSet<>();
 
@@ -83,12 +77,10 @@ public class SetRepositoryImpl implements SetRepository {
         return result;
     }
 
-    @Override
     public List<ValueSetMember> expandMember(String iri) {
         return expandMember(iri, null);
     }
 
-    @Override
     public List<ValueSetMember> expandMember(String iri, Integer limit) throws DALException {
         return Collections.emptyList();
     }

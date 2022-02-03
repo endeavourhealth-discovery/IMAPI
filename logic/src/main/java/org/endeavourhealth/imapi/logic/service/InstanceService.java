@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.dataaccess.InstanceRepository;
 import org.endeavourhealth.imapi.dataaccess.InstanceRepositoryImpl;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.model.dto.InstanceDTO;
@@ -16,7 +15,7 @@ import java.util.Set;
 @Component
 public class InstanceService {
 
-    private final InstanceRepository instanceRepository = new InstanceRepositoryImpl();
+    private final InstanceRepositoryImpl instanceRepository = new InstanceRepositoryImpl();
 
     public InstanceDTO getInstancePredicates(String iri, Set<String> predicates) {
         if(iri==null)

@@ -26,16 +26,16 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.*;
 
-public class EntityTripleRepositoryImpl {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepositoryImpl.class);
+public class EntityTripleRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepository.class);
     private static final List<Namespace> namespaceCache = new ArrayList<>();
 
-    private final EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
+    private final EntityRepository2 entityRepository2 = new EntityRepository2();
     private final Map<String, Integer> bnodes = new HashMap<>();
     private int row = 0;
 
     public TTBundle getEntityPredicates(String iri, Set<String> predicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, predicates);
+        return entityRepository2.getBundle(iri, predicates);
     }
 
     public List<TTIriRef> getActiveSubjectByObjectExcludeByPredicate(String objectIri, Integer rowNumber, Integer pageSize, String excludePredicateIri) {

@@ -18,8 +18,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
-public class EntityRepositoryImpl {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityRepositoryImpl.class);
+public class EntityRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
 
     public TTIriRef getEntityReferenceByIri(String iri) {
         TTIriRef result = new TTIriRef();

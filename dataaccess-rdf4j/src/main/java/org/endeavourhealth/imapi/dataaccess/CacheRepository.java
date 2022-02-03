@@ -6,11 +6,8 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
@@ -18,7 +15,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 /**
  * A data access class with methods for extracting entities for the caching mechanism
  */
-public class CacheRepositoryImpl {
+public class CacheRepository {
 
 
 	public Set<TTBundle> getSchema(){
@@ -35,7 +32,7 @@ public class CacheRepositoryImpl {
 			}
 			Set<TTIriRef> iris= new HashSet<>();
 			shapes.forEach(e-> iris.addAll(GraphHelper.getIrisFromNode(e)));
-			Map<String,String> iriNames= EntityRepositoryImpl2.getIriNames(conn,iris);
+			Map<String,String> iriNames= EntityRepository2.getIriNames(conn,iris);
 			Set<TTBundle> result= new HashSet<>();
 			for (TTEntity shape:shapes){
 				TTBundle bundle= new TTBundle();

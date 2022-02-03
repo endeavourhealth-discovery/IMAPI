@@ -34,14 +34,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SetService {
     private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
 
-    private final SetRepositoryImpl setRepository;
-    private final EntityTripleRepositoryImpl entityTripleRepository;
-    private final EntityRepositoryImpl entityRepository;
+    private final SetRepository setRepository;
+    private final EntityTripleRepository entityTripleRepository;
+    private final EntityRepository entityRepository;
 
     public SetService() {
-        setRepository = new SetRepositoryImpl();
-        entityTripleRepository = new EntityTripleRepositoryImpl();
-        entityRepository= new EntityRepositoryImpl();
+        setRepository = new SetRepository();
+        entityTripleRepository = new EntityTripleRepository();
+        entityRepository= new EntityRepository();
     }
 
 

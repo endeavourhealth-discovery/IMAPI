@@ -20,8 +20,8 @@ import java.util.*;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
-public class SetRepositoryImpl {
-    private EntityTripleRepositoryImpl entityTripleRepository = new EntityTripleRepositoryImpl();
+public class SetRepository {
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
     public Set<TTEntity> getAllConceptSets(TTIriRef type) {
         Set<TTEntity> result = new HashSet<>();

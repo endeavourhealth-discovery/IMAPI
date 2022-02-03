@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.statemachine.StateMachineConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkflowRepositoryImpl {
+public class WorkflowRepository {
     public List<StateMachineConfig> getWorkflows() {
         List<StateMachineConfig> result = new ArrayList<>();
 

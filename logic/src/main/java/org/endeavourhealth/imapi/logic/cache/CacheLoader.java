@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.cache;
 
-import org.endeavourhealth.imapi.dataaccess.CacheRepositoryImpl;
+import org.endeavourhealth.imapi.dataaccess.CacheRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class CacheLoader implements Runnable{
 
-	private static final CacheRepositoryImpl cacheRepository= new CacheRepositoryImpl();
+	private static final CacheRepository cacheRepository= new CacheRepository();
 
 
 

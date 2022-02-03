@@ -49,23 +49,23 @@ public class EntityService {
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
 
-	private EntityRepositoryImpl entityRepository = new EntityRepositoryImpl();
-    private EntityTctRepositoryImpl entityTctRepository = new EntityTctRepositoryImpl();
-    private EntityTripleRepositoryImpl entityTripleRepository = new EntityTripleRepositoryImpl();
-    private SetRepositoryImpl setRepository = new SetRepositoryImpl();
-    private TermCodeRepositoryImpl termCodeRepository = new TermCodeRepositoryImpl();
-    private EntityTypeRepositoryImpl entityTypeRepository = new EntityTypeRepositoryImpl();
+	private EntityRepository entityRepository = new EntityRepository();
+    private EntityTctRepository entityTctRepository = new EntityTctRepository();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetRepository setRepository = new SetRepository();
+    private TermCodeRepository termCodeRepository = new TermCodeRepository();
+    private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigService configService = new ConfigService();
-    private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
+    private EntityRepository2 entityRepository2 = new EntityRepository2();
 
 
 
 	public TTBundle getBundle(String iri, Set<String> predicates,int limit) {
-        return entityRepositoryImpl2.getBundle(iri, predicates);
+        return entityRepository2.getBundle(iri, predicates);
     }
 
 	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates,int limit) {
-        return entityRepositoryImpl2.getBundle(iri,excludePredicates, true);
+        return entityRepository2.getBundle(iri,excludePredicates, true);
 	}
 
     public TTIriRef getEntityReference(String iri) {
@@ -785,7 +785,7 @@ public class EntityService {
 	 *
 	 */
 	public TTBundle getFullEntity(String iri){
-		return entityRepositoryImpl2.getBundle(iri);
+		return entityRepository2.getBundle(iri);
 	}
 
 

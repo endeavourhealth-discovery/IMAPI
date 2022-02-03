@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
-public class EntityRepositoryImpl2 {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityRepositoryImpl2.class);
+public class EntityRepository2 {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private Map<String, String> prefixMap;
     private StringJoiner spql;

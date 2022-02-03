@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class InstanceRepositoryImpl {
+public class InstanceRepository {
 
     public List<Tpl> getTriplesRecursive(String iri, Set<String> predicates) {
         return Collections.emptyList();

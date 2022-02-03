@@ -16,7 +16,7 @@ import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
-public class ConfigRepositoryImpl {
+public class ConfigRepository {
     public Config findByName(String name) {
         switch (name) {
             case "definition":

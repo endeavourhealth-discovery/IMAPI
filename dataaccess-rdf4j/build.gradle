@@ -10,6 +10,7 @@ sonarqube {
 dependencies {
     api project(':models')
     api project(':statemachine')
+    api project(':transforms')
 
     implementation libs.apachePoi
     implementation libs.rdf4jQuery

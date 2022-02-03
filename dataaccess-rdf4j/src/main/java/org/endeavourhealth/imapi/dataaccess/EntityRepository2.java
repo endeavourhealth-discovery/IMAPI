@@ -9,12 +9,14 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,31 +113,20 @@ public class EntityRepository2 {
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
                     processStatement(bundle, valueMap, iri, st);
                 }
-                TTNode unwrapped = unwrap(bundle.getEntity(), IM.DEFINITION);
-                if (unwrapped != null) {
-                    Set<TTIriRef> iris = GraphHelper.getIrisFromNode(unwrapped);
+                boolean unwrapped = TTManager.unwrapRDFfromJson(bundle.getEntity());
+                if (unwrapped) {
+                    Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                     getIriNames(conn,iris);
                     iris.forEach(bundle::addPredicate);
                 }
+            } catch (IOException ignored) {
+
             }
             return bundle;
         }
     }
 
-    private TTNode unwrap(TTNode node, TTIriRef predicate){
-        if (node.get(predicate) != null)
-            if (node.get(predicate).isLiteral()) {
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    TTNode unwrapped = objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
-                    node.set(predicate, unwrapped);
-                    return unwrapped;
-                } catch (JsonProcessingException e) {
-                    return null;
-                }
-            }
-        return null;
-    }
+
 
     private StringJoiner getBundleSparql(Set<String> predicates,
                                          boolean excludePredicates) {

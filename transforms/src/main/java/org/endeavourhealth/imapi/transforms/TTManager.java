@@ -26,6 +26,7 @@ public class TTManager {
    private TTDocument document;
    private TTContext context;
    private Set<TTIriRef> templatedPredicates;
+   private static final TTIriRef[] jsonPredicates= {IM.DEFINITION,IM.HAS_MAP};
 
    public enum Grammar {JSON,TURTLE}
 
@@ -516,43 +517,63 @@ public class TTManager {
    /**
     * Wraps a predicates object node into a json literal
     * @param node the node whose predicate needs wrapping
-    * @param predicate the predicate whose object needs wrapping
     * @return the node wrapped
     * @throws JsonProcessingException when serialization problem with the ttnode
     */
-   public static TTNode wrapRDFAsJson(TTNode node,TTIriRef predicate) throws JsonProcessingException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writeValueAsString(node.get(predicate).asNode());
-      node.set(predicate, TTLiteral.literal(json));
+   public static TTNode wrapRDFAsJson(TTNode node) throws JsonProcessingException {
+      for (TTIriRef predicate : jsonPredicates) {
+         if (node.get(predicate) != null) {
+            TTArray jsons = new TTArray();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+            for (TTValue value : node.get(predicate).getElements()) {
+               String json = objectMapper.writeValueAsString(value.asNode());
+               jsons.add(TTLiteral.literal(json));
+            }
+            node.set(predicate, jsons);
+         }
+      }
       return node;
    }
 
-   /**
-    * Converts the object value literal representation of a node into a TTNode
-    * @param node the node or entity containing the predicate with the json data
-    * @param predicate the predicate to look for
-    * @return the updated entity or node as full RDF
-    * @throws IOException when problem with json literal
-    */
-   public static TTNode unwrapRDFfromJson(TTNode node, TTIriRef predicate) throws IOException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(node.get(predicate).asLiteral().getValue(), TTNode.class);
-   }
+      /**
+       * Converts the object value literal representation of a node into a TTNode
+       * @param node the node or entity containing the predicate with the json data
+       * @return the updated entity or node as full RDF
+       * @throws IOException when problem with json literal
+       */
+      public static boolean unwrapRDFfromJson(TTNode node) throws IOException {
+         boolean unwrapped= false;
+         for (TTIriRef predicate:jsonPredicates) {
+            if (node.get(predicate) != null) {
+               if (node.get(predicate).isLiteral()) {
+                  TTArray rdfNodes = new TTArray();
+                  ObjectMapper objectMapper = new ObjectMapper();
+                  for (TTValue value : node.get(predicate).getElements()) {
+                     rdfNodes.add(objectMapper.readValue(value.asLiteral().getValue(), TTNode.class));
+                  }
+                  node.set(predicate, rdfNodes);
+                  unwrapped = true;
+               }
+            }
+         }
+         return unwrapped;
+      }
 
-   /**
-    * Retrieves a set of IRIs from a node or array, including nested nodes
-    * @param node to retrieve the IRIs from
-    * @return a set of iris
-    */
-   public static Set<TTIriRef> getIrisFromTT(TTNode node){
+
+         /**
+					* Retrieves a set of IRIs from a node or array, including nested nodes
+					* @param node to retrieve the IRIs from
+					* @return a set of iris
+					*/
+   public static Set<TTIriRef> getIrisFromNode(TTNode node){
       Set<TTIriRef> iris = new HashSet<>();
-      return addToIrisFromTT(node,iris);
+      return addToIrisFromNode(node,iris);
    }
 
-   private static Set<TTIriRef> addToIrisFromTT(TTValue subject,Set<TTIriRef> iris){
+   private static Set<TTIriRef> addToIrisFromNode(TTValue subject,Set<TTIriRef> iris){
       if (subject.isIriRef())
          iris.add(subject.asIriRef());
       else if (subject.isNode()){
@@ -563,7 +584,7 @@ public class TTManager {
                   if (v.isIriRef())
                      iris.add(v.asIriRef());
                   else if (v.isNode())
-                     addToIrisFromTT(v,iris);
+                     addToIrisFromNode(v,iris);
                }
             }
          }

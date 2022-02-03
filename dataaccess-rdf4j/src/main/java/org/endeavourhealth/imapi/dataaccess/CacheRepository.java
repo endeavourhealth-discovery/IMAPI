@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.*;
 
@@ -31,14 +32,14 @@ public class CacheRepository {
 				}
 			}
 			Set<TTIriRef> iris= new HashSet<>();
-			shapes.forEach(e-> iris.addAll(GraphHelper.getIrisFromNode(e)));
+			shapes.forEach(e-> iris.addAll(TTManager.getIrisFromNode(e)));
 			Map<String,String> iriNames= EntityRepository2.getIriNames(conn,iris);
 			Set<TTBundle> result= new HashSet<>();
 			for (TTEntity shape:shapes){
 				TTBundle bundle= new TTBundle();
 				bundle.setEntity(shape);
 				result.add(bundle);
-				Set<TTIriRef> shapeIris= GraphHelper.getIrisFromNode(shape);
+				Set<TTIriRef> shapeIris= TTManager.getIrisFromNode(shape);
 				for (TTIriRef iri:shapeIris){
 					iri.setName(iriNames.get(iri.getIri()));
 					bundle.addPredicate(iri);

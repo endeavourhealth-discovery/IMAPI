@@ -46,33 +46,6 @@ public class GraphHelper {
         }
         return "(" + String.join(",", q) + ")";
     }
-    /**
-     * Retrieves a set of IRIs from a node or array, including nested nodes
-     * @param node to retrieve the IRIs from
-     * @return a set of iris
-     */
-    public static Set<TTIriRef> getIrisFromNode(TTNode node){
-        Set<TTIriRef> iris = new HashSet<>();
-        return addToIrisFromNode(node,iris);
-    }
 
-    private static Set<TTIriRef> addToIrisFromNode(TTValue subject, Set<TTIriRef> iris){
-        if (subject.isIriRef())
-            iris.add(subject.asIriRef());
-        else if (subject.isNode()){
-            if (subject.asNode().getPredicateMap()!=null){
-                for (Map.Entry<TTIriRef, TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
-                    iris.add(entry.getKey());
-                    for (TTValue v:entry.getValue().getElements()){
-                        if (v.isIriRef())
-                            iris.add(v.asIriRef());
-                        else if (v.isNode())
-                            addToIrisFromNode(v,iris);
-                    }
-                }
-            }
-        }
-        return iris;
-    }
 
 }

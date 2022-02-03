@@ -60,12 +60,12 @@ public class EntityService {
 
 
 
-	public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, predicates,limit);
+	public TTBundle getBundle(String iri, Set<String> predicates,int limit) {
+        return entityRepositoryImpl2.getBundle(iri, predicates);
     }
 
-	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri,excludePredicates, true,limit);
+	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates,int limit) {
+        return entityRepositoryImpl2.getBundle(iri,excludePredicates, true);
 	}
 
     public TTIriRef getEntityReference(String iri) {

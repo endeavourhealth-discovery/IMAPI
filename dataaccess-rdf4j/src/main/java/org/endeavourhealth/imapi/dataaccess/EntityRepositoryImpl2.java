@@ -85,15 +85,7 @@ public class EntityRepositoryImpl2 {
         return getBundle(iri, predicates, false);
     }
 
-    public TTBundle getBundle(String iri,Set<String> predicates,
-                              boolean exludePredicates){
-        return getBundle(iri,predicates,exludePredicates,0);
-    }
 
-    public TTBundle getBundle(String iri,Set<String> predicates,
-                              int limit){
-        return getBundle(iri,predicates,false,0);
-    }
 
     /**
      * An alternative method of getting an entity definition
@@ -103,13 +95,13 @@ public class EntityRepositoryImpl2 {
      * @return
      */
     public TTBundle getBundle(String iri, Set<String> predicates,
-                              boolean excludePredicates,int limit) {
+                              boolean excludePredicates) {
 
         TTBundle bundle = new TTBundle()
           .setEntity(new TTEntity().setIri(iri))
           .setPredicates(new HashMap<>());
 
-        StringJoiner sql = getBundleSparql(predicates, excludePredicates,limit);
+        StringJoiner sql = getBundleSparql(predicates, excludePredicates);
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
@@ -146,9 +138,8 @@ public class EntityRepositoryImpl2 {
     }
 
     private StringJoiner getBundleSparql(Set<String> predicates,
-                                         boolean excludePredicates,int depth) {
-        if (depth ==0)
-            depth= 5;
+                                         boolean excludePredicates) {
+        int  depth= 5;
         StringJoiner sql = new StringJoiner("\n");
         sql.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
         sql.add("CONSTRUCT {")

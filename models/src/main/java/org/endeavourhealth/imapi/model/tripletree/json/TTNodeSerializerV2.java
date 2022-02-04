@@ -13,6 +13,7 @@ import java.util.*;
 public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     private TTContext contextMap;
     private List<TTIriRef> predicateTemplate;
+    Boolean simpleProperties;
 
     public TTNodeSerializerV2() {
         this(null);
@@ -33,11 +34,10 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
       this.contextMap = contextMap;
       this.predicateTemplate= predicateTemplate;
    }
-
     public void serialize(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+        simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
         if (predicateTemplate == null)
             predicateTemplate = new ArrayList<>();
-
         gen.writeStartObject();
         serializeTemplatedPredicates(node, gen, prov);
         serializeRemainingPredicates(node, gen, prov);
@@ -47,17 +47,21 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     private void serializeTemplatedPredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
         for (TTIriRef predicate : predicateTemplate) {
             if (node.get(predicate) != null)
-                prov.defaultSerializeField(prefix(predicate.getIri()), node.get(predicate), gen);
+                prov.defaultSerializeField(prefix(simpleProperties ? predicate.getIri().substring(predicate.getIri().indexOf("#"))
+                        : predicate.getIri()), node.get(predicate), gen);
         }
     }
 
     private void serializeRemainingPredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+
         Map<TTIriRef, TTArray> predicates = node.getPredicateMap();
         if (predicates != null && !predicates.isEmpty()) {
             Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
             for (Map.Entry<TTIriRef, TTArray> entry : entries) {
                 if (!predicateTemplate.contains(entry.getKey())) {
-                  prov.defaultSerializeField(prefix(entry.getKey().getIri()), entry.getValue(), gen);
+
+                  prov.defaultSerializeField(prefix(simpleProperties ? entry.getKey().getIri().substring(entry.getKey().getIri().indexOf("#"))
+                          : entry.getKey().getIri()), entry.getValue() , gen);
                 }
             }
         }

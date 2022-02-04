@@ -15,10 +15,12 @@ import java.util.Set;
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeSerializer {
+   public static final String SIMPLE_PROPERTIES = "SIMPLE_PROPERTIES" ;
    private final TTContext contextMap;
    private List<TTIriRef> predicateTemplate;
    private boolean usePrefixes = false;
    private SerializerProvider prov;
+   private Boolean simpleProperties;
    /**
     *
     * @param contextMap the context object for the JSON-LD document
@@ -40,8 +42,9 @@ public class TTNodeSerializer {
         this.usePrefixes = usePrefixes;
     }
 
-    public void serializeNode(TTNode node, JsonGenerator gen,SerializerProvider prov) throws IOException {
+    public void serializeNode(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
      this.prov=prov;
+     simpleProperties =  (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
      if (node.getPredicateTemplate()!=null)
           serializeOrdered(node, Arrays.asList(node.getPredicateTemplate()),gen);
       else if (predicateTemplate!=null)
@@ -77,6 +80,9 @@ public class TTNodeSerializer {
    }
 
     public void serializeFieldValue(String field, TTArray value, JsonGenerator gen) throws IOException {
+        if(simpleProperties){
+            field = field.substring(field.indexOf("#")+1);
+        }
         if (value.isLiteral()) {
             gen.writeFieldName(prefix(field));
             serializeValue(value.asLiteral(), gen);

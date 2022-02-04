@@ -31,7 +31,6 @@ class TTNodeJsonTest {
         ObjectMapper om = new ObjectMapper();
         String json = om
                 .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES,false)
                 .writeValueAsString(node);
 
         System.out.println(json);
@@ -48,7 +47,6 @@ class TTNodeJsonTest {
         ObjectMapper om = new ObjectMapper();
         String json = om
                 .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES,false)
                 .withAttribute(TTContext.OUTPUT_CONTEXT,true)
                 .writeValueAsString(node);
 
@@ -109,7 +107,6 @@ class TTNodeJsonTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(mod);
         String json = mapper .writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false)
                 .writeValueAsString(entity);
 
 

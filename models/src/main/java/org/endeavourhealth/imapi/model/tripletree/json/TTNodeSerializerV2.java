@@ -13,7 +13,7 @@ import java.util.*;
 public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     private TTContext contextMap;
     private List<TTIriRef> predicateTemplate;
-    Boolean simpleProperties;
+    private Boolean simpleProperties;
 
     public TTNodeSerializerV2() {
         this(null);
@@ -35,7 +35,8 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
       this.predicateTemplate= predicateTemplate;
    }
     public void serialize(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-        simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
+        simpleProperties = (Boolean)prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
+        simpleProperties = (simpleProperties != null && simpleProperties);
         if (predicateTemplate == null)
             predicateTemplate = new ArrayList<>();
         gen.writeStartObject();

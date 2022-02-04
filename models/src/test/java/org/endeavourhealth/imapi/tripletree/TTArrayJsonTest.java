@@ -23,7 +23,6 @@ class TTArrayJsonTest {
         // Serialize
         ObjectMapper om = new ObjectMapper();
         String json = om.writerWithDefaultPrettyPrinter()
-                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false)
                 .writeValueAsString(node);
 
         System.out.println(json);

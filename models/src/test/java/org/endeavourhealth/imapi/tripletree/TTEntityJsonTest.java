@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         TTEntity adverseReaction = TestHelper.getTestEntity();
 
         ObjectMapper om = new ObjectMapper();
-        String actual = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
+        String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
         String expected = TestHelper.getTestEntityJson();
 
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         // Serialize
         ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
         // Deserialize
         adverseReaction = om.readValue(json, TTEntity.class);
@@ -44,13 +44,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         // Serialize
         ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
         // Deserialize
         adverseReaction = om.readValue(json, TTEntity.class);
 
         // Reserialize
-        String out = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
+        String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
         System.out.println("================= IN ==================");
         System.out.println(json);

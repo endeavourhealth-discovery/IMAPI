@@ -18,7 +18,7 @@ class TTDocumentTest {
        TTDocument document = getTestDocument();
 
        ObjectMapper om = new ObjectMapper();
-       String actual = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(document);
+       String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(document);
        String expected = new StringJoiner(System.lineSeparator())
            .add("{")
            .add("  \"@graph\" : {")
@@ -65,7 +65,7 @@ class TTDocumentTest {
 
       // Serialize
       ObjectMapper om = new ObjectMapper();
-      String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(first);
+      String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(first);
 
       // Deserialize
       TTDocument second = om.readValue(json, TTDocument.class);

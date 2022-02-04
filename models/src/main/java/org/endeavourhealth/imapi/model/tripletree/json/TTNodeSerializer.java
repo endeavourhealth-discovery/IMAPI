@@ -46,7 +46,8 @@ public class TTNodeSerializer {
 
     public void serializeNode(TTNode node, JsonGenerator gen,SerializerProvider prov) throws IOException {
       this.prov = prov;
-        simpleProperties =  (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
+      simpleProperties = (Boolean)prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
+      simpleProperties = (simpleProperties != null && simpleProperties);
       serializePredicates(node, gen, prov);
     }
 

@@ -39,9 +39,9 @@ public class SetService {
     private final EntityRepository entityRepository;
 
     public SetService() {
-        setRepository = new SetRepositoryImpl();
-        entityTripleRepository = new EntityTripleRepositoryImpl();
-        entityRepository= new EntityRepositoryImpl();
+        setRepository = new SetRepository();
+        entityTripleRepository = new EntityTripleRepository();
+        entityRepository= new EntityRepository();
     }
 
 

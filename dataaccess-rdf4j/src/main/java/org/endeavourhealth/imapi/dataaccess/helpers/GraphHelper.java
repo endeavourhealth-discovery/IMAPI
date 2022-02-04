@@ -2,10 +2,12 @@ package org.endeavourhealth.imapi.dataaccess.helpers;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
@@ -44,4 +46,6 @@ public class GraphHelper {
         }
         return "(" + String.join(",", q) + ")";
     }
+
+
 }

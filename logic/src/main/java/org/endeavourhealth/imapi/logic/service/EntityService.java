@@ -17,12 +17,10 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.opensearch.*;
-import org.endeavourhealth.imapi.model.schema.Shapes;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
-import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -51,21 +49,23 @@ public class EntityService {
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
 
-	private EntityRepository entityRepository = new EntityRepositoryImpl();
-    private EntityTctRepository entityTctRepository = new EntityTctRepositoryImpl();
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepositoryImpl();
-    private SetRepository setRepository = new SetRepositoryImpl();
-    private TermCodeRepository termCodeRepository = new TermCodeRepositoryImpl();
-    private EntityTypeRepository entityTypeRepository = new EntityTypeRepositoryImpl();
+	private EntityRepository entityRepository = new EntityRepository();
+    private EntityTctRepository entityTctRepository = new EntityTctRepository();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetRepository setRepository = new SetRepository();
+    private TermCodeRepository termCodeRepository = new TermCodeRepository();
+    private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigService configService = new ConfigService();
-    private EntityRepositoryImpl2 entityRepositoryImpl2 = new EntityRepositoryImpl2();
+    private EntityRepository2 entityRepository2 = new EntityRepository2();
 
-	public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, predicates);
+
+
+	public TTBundle getBundle(String iri, Set<String> predicates,int limit) {
+        return entityRepository2.getBundle(iri, predicates);
     }
 
-	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
-        return entityRepositoryImpl2.getBundle(iri, excludePredicates, true);
+	public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates,int limit) {
+        return entityRepository2.getBundle(iri,excludePredicates, true);
 	}
 
     public TTIriRef getEntityReference(String iri) {
@@ -782,47 +782,13 @@ public class EntityService {
 	 * Returns an entity and predicate names from an iri including all predicates and blank nodes recursively to a depth of 5
 	 * @param iri the string representation of the absolute iri
 	 * @return a bundle containing an entity and predicate iri to name map.
-	 * @throws IOException from unrapping json literal
+	 *
 	 */
-	public TTBundle getFullEntity(String iri) throws IOException {
-		TTBundle bundle= entityRepositoryImpl2.getBundle(iri);
-		TTEntity entity= bundle.getEntity();
-		if (entity.get(IM.DEFINITION)!=null)
-			if (entity.get(IM.DEFINITION).isLiteral()) {
-				TTNode definition = TTManager.unwrapRDFfromJson(entity, IM.DEFINITION);
-				entity.set(IM.DEFINITION, definition);
-				Set<TTIriRef> iris= TTManager.getIrisFromTT(definition);
-				Map<String,String> names= entityRepositoryImpl2.getIriNames(iris);
-				for (TTIriRef unnamed:iris)
-					unnamed.setName(names.get(unnamed.getIri()));
-				bundle.getPredicates().putAll(names);
-			}
-		return bundle;
+	public TTBundle getFullEntity(String iri){
+		return entityRepository2.getBundle(iri);
 	}
 
-	/**
-	 * Gets the properties of a shape and all of the shapes that the properties point to
-	 * @param iri the string iri of the shape
-	 * @return a set of entities with the property iri the rdf range iri and the type of the range
-	 */
-	public Set<TTEntity> getLinkedShapes(String iri){
-		if (Shapes.shapes.get(iri)==null){
-			Set<TTEntity> shapes= linkShapes(iri);
-			for (TTEntity shape:shapes){
-				Shapes.shapes.put(shape.getIri(),shape);
-			}
-			return shapes;
-		}
-		else {
-			return null;
-		}
-	}
 
-	private Set<TTEntity> linkShapes(String iri){
-		Set<TTEntity> shapes= entityRepositoryImpl2.getLinkedShapes(iri);
-		return shapes;
-
-	}
 
 
 

@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.EntityRepositoryImpl2;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -38,7 +38,7 @@ public class ExcelSetExporterTest {
     EntityTripleRepository entityTripleRepository;
 
     @Mock
-    EntityRepositoryImpl2 entityRepositoryImpl2;
+    EntityRepository2 entityRepository2;
 
     @Test
     void getSetExport_NotNullIriNoConcept() throws DataFormatException {
@@ -50,7 +50,7 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet(), anyInt())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-        when(entityRepositoryImpl2.getSetExpansion(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(entityRepository2.getSetExpansion(any(), anyBoolean())).thenReturn(new HashSet<>());
         XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());

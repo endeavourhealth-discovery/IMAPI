@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.*;
-import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -13,7 +12,6 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
@@ -46,7 +44,7 @@ class EntityServiceTest {
     EntityRepository entityRepository;
 
     @Mock
-    EntityRepositoryImpl2 entityRepositoryImpl2;
+    EntityRepository2 entityRepository2;
 
     @Mock
     EntityTripleRepository entityTripleRepository;
@@ -69,7 +67,7 @@ class EntityServiceTest {
     @Test
     void getEntityPredicates_nullIriPredicates() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
         TTBundle actual = entityService.getBundle(null,null, 0);
         assertNotNull(actual);
@@ -79,7 +77,7 @@ class EntityServiceTest {
     @Test
     void getEntityPredicates_EmptyIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
         TTBundle actual = entityService.getBundle("", null, 0);
         assertNotNull(actual);
@@ -743,7 +741,7 @@ class EntityServiceTest {
                     .add(iri("http://endhealth.info/im#member2", "Member 2"))
                 )
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
         assertNotNull(actual);
@@ -761,7 +759,7 @@ class EntityServiceTest {
                     .add(iri("http://endhealth.info/im#member2", "Member 2"))
                 )
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), false, false);
         assertNotNull(actual);
@@ -769,7 +767,7 @@ class EntityServiceTest {
 
     @Test
     void getGraphData_NullIri() {
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
 
         GraphDto actual = entityService.getGraphData(null);
         assertNotNull(actual);
@@ -778,7 +776,7 @@ class EntityServiceTest {
     @Test
     void getGraphData_NotNullEntity() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -786,7 +784,7 @@ class EntityServiceTest {
     @Test
     void getGraphData_RoleGroup() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
@@ -795,7 +793,7 @@ class EntityServiceTest {
     @Test
     void getGraphData_LeafNodes() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
@@ -807,7 +805,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         GraphDto actual = entityService.getGraphData("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
@@ -821,7 +819,7 @@ class EntityServiceTest {
             .set(RDF.TYPE, new TTArray()
                 .add(IM.CONCEPT)
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
@@ -836,7 +834,7 @@ class EntityServiceTest {
             .set(RDF.TYPE, new TTArray()
                 .add(IM.CONCEPT)
             );
-        when(entityRepositoryImpl2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
@@ -846,7 +844,7 @@ class EntityServiceTest {
     @Test
     void getEntityDefinitionDto_GetTypeNull() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
@@ -862,7 +860,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(isNull(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         EntityDefinitionDto actual = entityService.getEntityDefinitionDto(null);
         assertNotNull(actual);
@@ -895,7 +893,7 @@ class EntityServiceTest {
             .set(RDF.TYPE, new TTArray()
                 .add(IM.CONCEPT)
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNull(actual);
@@ -907,7 +905,7 @@ class EntityServiceTest {
             .set(RDF.TYPE, new TTArray()
                 .add(SHACL.NODESHAPE)
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
@@ -943,7 +941,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", configs);
         assertNotNull(actual);
@@ -975,7 +973,7 @@ class EntityServiceTest {
                     .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                     .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         DownloadParams params = new DownloadParams();
 
@@ -995,7 +993,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         DownloadParams params = new DownloadParams();
         params
@@ -1044,7 +1042,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
@@ -1074,7 +1072,7 @@ class EntityServiceTest {
                     .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                     .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
         XlsHelper actual = entityService.getExcelDownload("http://endhealth.info/im#25451000252115", configs, params);
         assertNotNull(actual);
@@ -1092,7 +1090,7 @@ class EntityServiceTest {
     @Test
     void getInferredBundle_NullIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(isNull(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(isNull(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
         TTBundle actual = entityService.getInferredBundle(null);
         assertNotNull(actual);
     }
@@ -1100,7 +1098,7 @@ class EntityServiceTest {
     @Test
     void getInferredBundle_EmptyIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), anySet(), anyBoolean())).thenReturn(new TTBundle().setEntity(entity));
         TTBundle actual = entityService.getInferredBundle("");
         assertNotNull(actual);
     }
@@ -1114,7 +1112,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
         TTDocument actual = entityService.getConcept(null);
         assertNotNull(actual);
@@ -1123,7 +1121,7 @@ class EntityServiceTest {
     @Test
     void getConcept_EmptyIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
         TTDocument actual = entityService.getConcept("");
         assertNotNull(actual);
@@ -1140,7 +1138,7 @@ class EntityServiceTest {
                 .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
                 .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
             );
-        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
         TTDocument actual = entityService.getConcept("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
@@ -1155,7 +1153,7 @@ class EntityServiceTest {
     @Test
     void getConceptList_EmptyIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
         TTDocument actual = entityService.getConceptList(Collections.singletonList(""));
         assertNotNull(actual);
@@ -1164,7 +1162,7 @@ class EntityServiceTest {
     @Test
     void getConceptList_NotNullIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
         List<Namespace> namespaces = new ArrayList<>();
         namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));
         when(entityTripleRepository.findNamespaces()).thenReturn(namespaces);
@@ -1187,7 +1185,7 @@ class EntityServiceTest {
     @Test
     void getConceptListByGraph_NotNullIri() {
         TTEntity entity = new TTEntity();
-        when(entityRepositoryImpl2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+        when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
         when(entityTripleRepository.getConceptIrisByGraph(any())).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
         List<Namespace> namespaces = new ArrayList<>();
         namespaces.add(new Namespace("http://endhealth.info/im#25451000252115","",""));

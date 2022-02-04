@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
+import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.StringJoiner;
@@ -21,7 +22,9 @@ class TTArrayJsonTest {
 
         // Serialize
         ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+        String json = om.writerWithDefaultPrettyPrinter()
+                .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false)
+                .writeValueAsString(node);
 
         System.out.println(json);
 

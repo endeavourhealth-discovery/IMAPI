@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.tripletree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.StringJoiner;
@@ -17,7 +18,7 @@ class TTDocumentTest {
        TTDocument document = getTestDocument();
 
        ObjectMapper om = new ObjectMapper();
-       String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(document);
+       String actual = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(document);
        String expected = new StringJoiner(System.lineSeparator())
            .add("{")
            .add("  \"@graph\" : {")
@@ -64,7 +65,7 @@ class TTDocumentTest {
 
       // Serialize
       ObjectMapper om = new ObjectMapper();
-      String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(first);
+      String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(first);
 
       // Deserialize
       TTDocument second = om.readValue(json, TTDocument.class);

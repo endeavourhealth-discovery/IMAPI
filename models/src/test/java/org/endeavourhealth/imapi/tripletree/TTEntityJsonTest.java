@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.tripletree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         TTEntity adverseReaction = TestHelper.getTestEntity();
 
         ObjectMapper om = new ObjectMapper();
-        String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+        String actual = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
 
         String expected = TestHelper.getTestEntityJson();
 
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         // Serialize
         ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+        String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
 
         // Deserialize
         adverseReaction = om.readValue(json, TTEntity.class);
@@ -43,13 +44,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
         // Serialize
         ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+        String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
 
         // Deserialize
         adverseReaction = om.readValue(json, TTEntity.class);
 
         // Reserialize
-        String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
+        String out = om.writerWithDefaultPrettyPrinter().withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, false).writeValueAsString(adverseReaction);
 
         System.out.println("================= IN ==================");
         System.out.println(json);

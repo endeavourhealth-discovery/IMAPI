@@ -1,9 +1,9 @@
 package org.endeavourhealth.imapi.errorhandling;
 
 import org.apache.catalina.connector.ClientAbortException;
-import org.endeavourhealth.imapi.customexceptions.EclFormatException;
-import org.endeavourhealth.imapi.customexceptions.ErrorCodes;
-import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
+import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

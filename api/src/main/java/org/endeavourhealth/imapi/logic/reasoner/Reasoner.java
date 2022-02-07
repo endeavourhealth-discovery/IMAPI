@@ -76,6 +76,7 @@ public class Reasoner {
 			shape.set(SHACL.PROPERTY, newValue);
 			shape.set(IM.HAS_INHERITED_PROPERTIES,TTLiteral.literal(true));
 		}
+		
 	}
 
 

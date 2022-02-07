@@ -190,11 +190,13 @@ public class EntityRepository2 {
         TTNode node;
         if (predicate.equals(RDFS.LABEL.getIri())) {
             if (s.isIRI()) {
-                if (!subject.equals(entityIri)) {
+                if (subject.equals(entityIri)) {
+                    entity.setName(value);
+                } else {
                     tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
                     tripleMap.get(subject).asIriRef().setName(value);
-                    if (predNames.get(subject)!=null)
-                        predNames.put(subject,value);
+                    if (predNames.get(subject) != null)
+                        predNames.put(subject, value);
                 }
             } else {
                 tripleMap.putIfAbsent(subject, new TTNode());

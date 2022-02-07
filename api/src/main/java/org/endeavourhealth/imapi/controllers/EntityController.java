@@ -18,19 +18,19 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
-import org.endeavourhealth.imapi.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.*;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
@@ -104,8 +104,8 @@ public class EntityController {
 
     @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(@RequestParam(name = "iri") String iri,
-                                     @RequestParam(name = "predicate") Set<String> predicates,
-                                     @RequestParam(name = "limit", required = false) Integer limit) {
+                                           @RequestParam(name = "predicate") Set<String> predicates,
+                                           @RequestParam(name = "limit", required = false) Integer limit) {
         LOG.debug("getPartialEntityBundle");
         if (limit == null)
             limit = EntityService.UNLIMITED;
@@ -120,9 +120,9 @@ public class EntityController {
 
 	@GetMapping(value = "/public/children")
 	public List<EntityReferenceNode> getEntityChildren(@RequestParam(name = "iri") String iri,
-			@RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-			@RequestParam(name = "page", required = false) Integer page,
-			@RequestParam(name = "size", required = false) Integer size) {
+                                                       @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+                                                       @RequestParam(name = "page", required = false) Integer page,
+                                                       @RequestParam(name = "size", required = false) Integer size) {
         LOG.debug("getEntityChildren");
         if (page == null && size == null) {
             page = 1;

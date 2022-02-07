@@ -16,29 +16,61 @@ war {
 }
 
 dependencies {
-    api project(':logic')
+    implementation libs.imGrammar
 
-    implementation libs.springWeb
-    implementation libs.springfoxSwagger
-    implementation libs.springfoxSwaggerUi
-    implementation libs.validation
+    implementation libs.antlr
+    implementation libs.apacheCollections4
+    implementation libs.apachePoi
+    implementation libs.apacheText
+    implementation libs.factPlusPlus
+    implementation libs.jacksonDatabind
+    implementation libs.javaxxmlbind
+    implementation libs.logbackCore
+    implementation libs.logbackClassic
+    implementation libs.opensearchClient
+    implementation libs.opensearchJava
+    implementation libs.owlApi
+    implementation libs.reactorCore
+    implementation libs.rdf4jQuery
+    implementation libs.rdf4jRepoApi
+    implementation libs.rdf4jRepoHttp
+    implementation libs.rdf4jRepoSail
+    implementation libs.rdf4jSailNative
+    implementation libs.slf4j
+    implementation libs.springContext
     implementation libs.springDataJpa
     implementation libs.springOauthServer
     implementation libs.springSecurity
+    implementation libs.springStatemachine
+    implementation libs.springWeb
+    implementation libs.springfoxSwagger
+    implementation libs.springfoxSwaggerUi
+    implementation libs.swagger
     implementation libs.testContainers
     implementation libs.testContainersMySql
-    implementation libs.imGrammar
-    implementation libs.apachePoi
+    implementation libs.validation
+    implementation libs.woodstox
 
-    testImplementation libs.springTest
+    runtimeOnly libs.h2database
+    runtimeOnly libs.springDevTools
+
+    testImplementation libs.junitRunner
     testImplementation libs.mockito
+    testImplementation libs.springTest
     testImplementation libs.springTestSecurity
 
-    providedCompile libs.springTomcat
     providedCompile libs.mysql
+    providedCompile libs.springTomcat
 
+    compileOnly libs.jacksonAnnotations
     compileOnly libs.lombok
-    annotationProcessor  libs.lombok
+
+    annotationProcessor libs.jacksonAnnotations
+    annotationProcessor libs.lombok
+}
+
+test {
+    useJUnitPlatform()
 }
 
 description = 'Information Model API'

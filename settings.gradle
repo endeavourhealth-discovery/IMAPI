@@ -3,14 +3,4 @@
  */
 
 rootProject.name = 'IMAPI'
-include(':workflow')
 include(':api')
-include(':dataaccess-base')
-include(':dataaccess-rdf4j')
-include(':parser')
-include(':logic')
-include(':statemachine')
-include(':models')
-include(':transforms')
-include(':filer')
-

@@ -521,4 +521,31 @@ public class EntityTripleRepository {
 
         return iris;
     }
+
+    public TTIriRef findParentFolderRef(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c (im:isContainedIn) ?p .")
+                .add("GRAPH ?g { ?p rdfs:label ?pname } .")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("c", iri(iri));
+
+            LOG.debug("Executing...");
+            try (TupleQueryResult rs = qry.evaluate()) {
+                LOG.debug("Retrieving...");
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+
+                    return new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

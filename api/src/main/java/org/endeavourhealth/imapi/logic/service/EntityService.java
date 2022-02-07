@@ -789,7 +789,20 @@ public class EntityService {
 	}
 
 
+	public List<TTIriRef> getParentPath(String iri) {
+		List<TTIriRef> parents = new ArrayList<TTIriRef>();
+		getParentPathRecursive(iri, parents);
+		Collections.reverse(parents);
+		return parents;
+	}
 
+	private void getParentPathRecursive(String iri, List<TTIriRef> parents) {
+		TTIriRef parent = entityTripleRepository.findParentFolderRef(iri);
+		if (parent != null) {
+			parents.add(parent);
+			getParentPathRecursive(parent.getIri(), parents);
+		}
+	}
 
 
 }

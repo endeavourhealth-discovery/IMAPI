@@ -363,4 +363,10 @@ public class EntityController {
 			return new HttpEntity<>(outputStream.toByteArray(), headers);
 		}
 	}
+
+	@GetMapping("/public/folderPath")
+	public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getFolderPath");
+		return entityService.getParentPath(iri);
+	}
 }

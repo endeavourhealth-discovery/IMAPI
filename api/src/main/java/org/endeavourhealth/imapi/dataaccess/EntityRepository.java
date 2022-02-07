@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
@@ -202,7 +203,7 @@ public class EntityRepository {
         } else {
             TTNode node = valueMap.get(subject).asNode();
             if (value.isLiteral()) {
-                node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue()));
+                node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue(), ((Literal)value).getDatatype().stringValue()));
             } else if (value.isIRI()) {
                 TTIriRef objectIri = null;
                 if (valueMap.get(value) != null)

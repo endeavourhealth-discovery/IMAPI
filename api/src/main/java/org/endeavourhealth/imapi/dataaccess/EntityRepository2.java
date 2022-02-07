@@ -200,7 +200,7 @@ public class EntityRepository2 {
                 }
             } else {
                 tripleMap.putIfAbsent(subject, new TTNode());
-                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value));
+                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value, ((Literal)o).getDatatype().stringValue()));
             }
         }
         else {
@@ -220,7 +220,7 @@ public class EntityRepository2 {
                 node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
             }
             else {
-                tripleMap.putIfAbsent(value,TTLiteral.literal(value));
+                tripleMap.putIfAbsent(value,TTLiteral.literal(value, ((Literal)o).getDatatype().stringValue()));
                 node.set(tripleMap.get(predicate).asIriRef(),tripleMap.get(value).asLiteral());
             }
         }

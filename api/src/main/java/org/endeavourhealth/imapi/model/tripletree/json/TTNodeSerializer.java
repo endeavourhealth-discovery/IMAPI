@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -14,9 +15,7 @@ import java.util.*;
  */
 public class TTNodeSerializer {
     public static final String SIMPLE_PROPERTIES = "SIMPLE_PROPERTIES" ;
-    public static Map<String,List<TTIriRef>> predicateOrder;
    private final TTContext contextMap;
-   private List<TTIriRef> predicateTemplate;
    private boolean usePrefixes = false;
    private SerializerProvider prov;
    private Boolean simpleProperties;
@@ -27,19 +26,12 @@ public class TTNodeSerializer {
    public TTNodeSerializer(TTContext contextMap){
       this.contextMap = contextMap;
    }
-   public TTNodeSerializer(TTContext contextMap,List<TTIriRef> predicateTemplate){
-      this.contextMap = contextMap;
-      this.predicateTemplate= predicateTemplate;
-   }
+
     public TTNodeSerializer(TTContext contextMap, boolean usePrefixes){
         this.contextMap = contextMap;
         this.usePrefixes = usePrefixes;
     }
-    public TTNodeSerializer(TTContext contextMap,List<TTIriRef> predicateTemplate, boolean usePrefixes){
-        this.contextMap= contextMap;
-        this.predicateTemplate= predicateTemplate;
-        this.usePrefixes = usePrefixes;
-    }
+
 
     public void serializeNode(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
       this.prov = prov;
@@ -50,31 +42,23 @@ public class TTNodeSerializer {
 
   private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
      boolean serialized=false;
-     if (predicateOrder!=null) {
        if (node.get(RDF.TYPE) != null) {
          String type = node.get(RDF.TYPE).asIriRef().getIri();
-         if (predicateOrder.get(type) != null) {
-           serializeOnlyOrdered(node, predicateOrder.get(type), gen);
+         List<TTIriRef> orderedPredicates= EntityCache.getPredicateOrder(type);
+         if (orderedPredicates!=null){
+           serializeOnlyOrdered(node, orderedPredicates, gen);
            serialized = true;
          }
        }
-     }
      if (!serialized) {
-       if (node.getPredicateTemplate() != null)
-         serializeOrdered(node, Arrays.asList(node.getPredicateTemplate()), gen);
-       else if (this.predicateTemplate != null)
-         serializeOrdered(node, predicateTemplate, gen);
-       else {
          Map<TTIriRef, TTArray> predicates = node.getPredicateMap();
          if (predicates != null && !predicates.isEmpty()) {
            Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
            for (Map.Entry<TTIriRef, TTArray> entry : entries) {
-
              serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
            }
          }
        }
-     }
    }
 
   private void serializeOnlyOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
@@ -84,23 +68,6 @@ public class TTNodeSerializer {
     }
   }
 
-  private void serializeOrdered(TTNode node, List<TTIriRef> predicateTemplate,JsonGenerator gen) throws IOException {
-      for (TTIriRef predicate:predicateTemplate){
-         if (node.get(predicate)!=null)
-            serializeFieldValue(predicate.getIri(),node.get(predicate),gen);
-      }
-      Map<TTIriRef, TTArray> predicates = node.getPredicateMap();
-      if (predicates != null && !predicates.isEmpty()) {
-         Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
-         for (Map.Entry<TTIriRef, TTArray> entry : entries) {
-            if (!predicateTemplate.contains(entry.getKey())) {
-                serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
-            }
-
-         }
-      }
-
-   }
 
     public void serializeFieldValue(String field, TTArray value, JsonGenerator gen) throws IOException {
         if(simpleProperties){
@@ -198,14 +165,6 @@ public class TTNodeSerializer {
          gen.writeEndObject();
       }
    }
-  public static void setPredicateOrder(Map<String, List<TTIriRef>> predicateOrder) {
-    TTNodeSerializer.predicateOrder = predicateOrder;
-  }
-  public static void addPredicateOrder(String iri, List<TTIriRef> shapePredicates) {
-    if (TTNodeSerializer.predicateOrder==null)
-      TTNodeSerializer.predicateOrder= new HashMap<>();
-    TTNodeSerializer.predicateOrder.put(iri,shapePredicates);
-  }
 
 
 }

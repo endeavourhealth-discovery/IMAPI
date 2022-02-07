@@ -11,9 +11,8 @@ public class Compare extends TTNode {
 
 	public Compare(){
 		set(RDF.TYPE,IM.COMPARE_CLAUSE);
-		setPredicateTemplate(new TTIriRef[]{IM.COMPARISON,IM.FUNCTION,
-		IM.VALUE_DATA});
 	}
+
 
 	public Comparison getComparison() {
 		if (get(IM.COMPARISON)==null)

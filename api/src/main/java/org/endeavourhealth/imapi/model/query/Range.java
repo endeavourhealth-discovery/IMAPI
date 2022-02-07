@@ -11,7 +11,6 @@ public class Range extends TTNode {
 	public Range(){
 
 		set(RDF.TYPE,IM.RANGE_CLAUSE);
-		setPredicateTemplate(new TTIriRef[]{IM.FROM, IM.TO});
 	}
 
 	public Compare getFrom() {

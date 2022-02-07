@@ -25,7 +25,7 @@ import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper.*;
+import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
 
 public class EntityTripleRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityTripleRepository.class);

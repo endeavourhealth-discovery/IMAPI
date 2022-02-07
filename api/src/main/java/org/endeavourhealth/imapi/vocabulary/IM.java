@@ -66,6 +66,7 @@ public class IM {
     public static final TTIriRef GROUP_NUMBER = iri(NAMESPACE +"groupNumber");
     public static final TTIriRef ROLE_GROUP = iri(NAMESPACE +"roleGroup");
     public static final TTIriRef ROLE = iri(NAMESPACE +"role");
+  public static final TTIriRef HAS_INHERITED_PROPERTIES = iri(NAMESPACE +"hasInheritedProperties");
 
     //Entity status values
     public static final TTIriRef DRAFT = iri(NAMESPACE +"Draft");
@@ -201,7 +202,8 @@ public class IM {
     public static final TTIriRef HAS_REPLACED = iri(NAMESPACE+"hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE+"displayOrder");
   public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE+"usageTotal");
-   // public static final TTIriRef HAS= iri(NAMESPACE+"has");
+  public static final TTIriRef PLABEL= iri(NAMESPACE+"pLabel");
+  public static final TTIriRef OLABEL= iri(NAMESPACE+"oLabel");
     private IM() {}
 }
 

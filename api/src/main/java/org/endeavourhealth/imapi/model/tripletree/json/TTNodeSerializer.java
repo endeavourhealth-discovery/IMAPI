@@ -7,17 +7,14 @@ import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeSerializer {
     public static final String SIMPLE_PROPERTIES = "SIMPLE_PROPERTIES" ;
-  public static Map<String,List<TTIriRef>> predicateOrder;
+    public static Map<String,List<TTIriRef>> predicateOrder;
    private final TTContext contextMap;
    private List<TTIriRef> predicateTemplate;
    private boolean usePrefixes = false;
@@ -201,6 +198,14 @@ public class TTNodeSerializer {
          gen.writeEndObject();
       }
    }
+  public static void setPredicateOrder(Map<String, List<TTIriRef>> predicateOrder) {
+    TTNodeSerializer.predicateOrder = predicateOrder;
+  }
+  public static void addPredicateOrder(String iri, List<TTIriRef> shapePredicates) {
+    if (TTNodeSerializer.predicateOrder==null)
+      TTNodeSerializer.predicateOrder= new HashMap<>();
+    TTNodeSerializer.predicateOrder.put(iri,shapePredicates);
+  }
 
 
 }

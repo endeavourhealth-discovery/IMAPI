@@ -143,7 +143,7 @@ public class EntityRepository2 {
 
         sql.add("  ?entity ?1predicate ?1Level.")
             .add("  ?1predicate rdfs:label ?1pName.");
-        if (predicates != null) {
+        if (predicates != null && !predicates.isEmpty()) {
             StringBuilder inPredicates = new StringBuilder();
             int i = 0;
             for (String pred : predicates) {

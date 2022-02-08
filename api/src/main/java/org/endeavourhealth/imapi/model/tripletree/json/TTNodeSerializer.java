@@ -4,67 +4,71 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
 public class TTNodeSerializer {
-    public static final String SIMPLE_PROPERTIES = "SIMPLE_PROPERTIES" ;
-   private final TTContext contextMap;
-   private boolean usePrefixes = false;
-   private SerializerProvider prov;
-   private Boolean simpleProperties;
-   /**
-    *
-    * @param contextMap the context object for the JSON-LD document
-    */
-   public TTNodeSerializer(TTContext contextMap){
-      this.contextMap = contextMap;
-   }
+  public static final String SIMPLE_PROPERTIES = "SIMPLE_PROPERTIES";
+  private final TTContext contextMap;
+  private boolean usePrefixes = false;
+  private SerializerProvider prov;
+  private Boolean simpleProperties;
 
-    public TTNodeSerializer(TTContext contextMap, boolean usePrefixes){
-        this.contextMap = contextMap;
-        this.usePrefixes = usePrefixes;
-    }
+  /**
+   * @param contextMap the context object for the JSON-LD document
+   */
+  public TTNodeSerializer(TTContext contextMap) {
+    this.contextMap = contextMap;
+  }
+
+  public TTNodeSerializer(TTContext contextMap, boolean usePrefixes) {
+    this.contextMap = contextMap;
+    this.usePrefixes = usePrefixes;
+  }
 
 
-    public void serializeNode(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-      this.prov = prov;
-      simpleProperties = (Boolean)prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
-      simpleProperties = (simpleProperties != null && simpleProperties);
-      serializePredicates(node, gen, prov);
-    }
+  public void serializeNode(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+    this.prov = prov;
+    simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
+    simpleProperties = (simpleProperties != null && simpleProperties);
+    serializePredicates(node, gen, prov);
+  }
 
   private void serializePredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
-     boolean serialized=false;
-       if (node.get(RDF.TYPE) != null) {
-         String type = node.get(RDF.TYPE).asIriRef().getIri();
-         List<TTIriRef> orderedPredicates= EntityCache.getPredicateOrder(type);
-         if (orderedPredicates!=null){
-           serializeOnlyOrdered(node, orderedPredicates, gen);
-           serialized = true;
-         }
-       }
-     if (!serialized) {
-         Map<TTIriRef, TTArray> predicates = node.getPredicateMap();
-         if (predicates != null && !predicates.isEmpty()) {
-           Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
-           for (Map.Entry<TTIriRef, TTArray> entry : entries) {
-             serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
-           }
-         }
-       }
-   }
+    List<TTIriRef> orderedPredicates = Stream.of(RDF.TYPE,RDFS.LABEL,RDFS.COMMENT,IM.HAS_STATUS).collect(Collectors.toList());
+    if (node.get(RDF.TYPE) != null) {
+      for (TTValue type : node.get(RDF.TYPE).getElements()) {
+        List<TTIriRef> orderForType= EntityCache.getPredicateOrder(type.asIriRef().getIri());
+        if (orderForType!=null)
+          orderedPredicates= orderForType;
+      }
+    }
+    serializeOrdered(node, orderedPredicates, gen);
+  }
 
-  private void serializeOnlyOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
+
+  private void serializeOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
     for (TTIriRef predicate:predicates){
-      if (node.get(predicate)!=null)
-        serializeFieldValue(predicate.getIri(),node.get(predicate),gen);
+      if (node.get(predicate)!=null) {
+        serializeFieldValue(predicate.getIri(), node.get(predicate), gen);
+      }
+    }
+    Map<TTIriRef, TTArray> nodePredicates = node.getPredicateMap();
+    if (nodePredicates != null && !nodePredicates.isEmpty()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+        if (!predicates.contains(entry.getKey()))
+          serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
+      }
     }
   }
 

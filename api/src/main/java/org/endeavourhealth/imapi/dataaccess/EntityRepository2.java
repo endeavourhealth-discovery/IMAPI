@@ -307,7 +307,7 @@ public class EntityRepository2 {
                 values.append(getShort(superClass.asIriRef().getIri())).append(" ");
         }
         if (!values.toString().equals("")) {
-            spql.add("{ ?concept" + isa() + " ?superClass.");
+            spql.add("{ ?concept " + isa() + " ?superClass.");
             values = new StringBuilder("VALUES ?superClass {" + values + "}");
             spql.add(values.toString());
 

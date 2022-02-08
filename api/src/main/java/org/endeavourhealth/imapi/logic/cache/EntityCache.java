@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.cache;
 
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Reasoner;
@@ -18,8 +19,10 @@ public class EntityCache implements Runnable{
 
 	public static final Object shapeLock= new Object();
 	public static final Object propertyLock= new Object();
+	public static final Object entityLock= new Object();
 	static final Map<String, TTEntity> shapes = new HashMap<>();
 	static final Map<String, TTEntity> properties = new HashMap<>();
+	static final Map<String, TTEntity> entities = new HashMap<>();
 	static final Map<String, List<TTIriRef>> predicateOrder= new HashMap<>();
 	static final Map<String,String> predicateNames= new HashMap<>();
 
@@ -93,6 +96,30 @@ public class EntityCache implements Runnable{
 	}
 
 
+	/**
+	 * Gets an entity definition from the cache or from the information model repository
+	 * @param iri the iri of the entity
+	 * @return a bundle consisting of the entity and a predicate name map
+	 */
+	public static TTBundle getEntity(String iri){
+		TTEntity entity= entities.get(iri);
+		if (entity==null){
+			synchronized (entityLock){
+				EntityRepository2 repo= new EntityRepository2();
+				TTBundle bundle= repo.getBundle(iri);
+				if (bundle!=null){
+					entities.put(iri,bundle.getEntity());
+					predicateNames.putAll(bundle.getPredicates());
+					return bundle;
+				}
+			}
+		}
+		Set<TTIriRef> predicates= getPredicatesFromNode(entity);
+		TTBundle bundle= new TTBundle().setEntity(entity);
+		predicates.forEach(i-> bundle.getPredicates().put(i.getIri(),predicateNames.get(i.getIri())));
+		return bundle;
+
+	}
 
 	/** Gets a shape from the cache. If not present gets shape from IM and places in cache.
 	 * @param iri the iri of the shape

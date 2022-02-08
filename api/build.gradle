@@ -46,8 +46,6 @@ dependencies {
     implementation libs.springfoxSwagger
     implementation libs.springfoxSwaggerUi
     implementation libs.swagger
-    implementation libs.testContainers
-    implementation libs.testContainersMySql
     implementation libs.validation
     implementation libs.woodstox
 
@@ -59,7 +57,6 @@ dependencies {
     testImplementation libs.springTest
     testImplementation libs.springTestSecurity
 
-    providedCompile libs.mysql
     providedCompile libs.springTomcat
 
     compileOnly libs.jacksonAnnotations

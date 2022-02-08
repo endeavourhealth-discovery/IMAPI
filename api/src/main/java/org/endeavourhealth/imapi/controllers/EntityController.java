@@ -34,7 +34,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -156,7 +155,6 @@ public class EntityController {
 		return getObjectHttpEntity(format, filename, headers, document);
 	}
 
-	@NotNull
 	private HttpEntity<Object> getObjectHttpEntity(@RequestParam String format, String filename, HttpHeaders headers, TTDocument document) throws JsonProcessingException {
 		if("turtle".equals(format)){
 

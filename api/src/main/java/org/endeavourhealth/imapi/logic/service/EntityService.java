@@ -850,16 +850,17 @@ public class EntityService {
             for (EntityReferenceNode parent : child.getParents()) {
                 TTEntity parentEntity = getBundle(parent.getIri(), new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri())), 0).getEntity();
                 EntityReferenceNode parentNode = new EntityReferenceNode(parentEntity.getIri(), parentEntity.getName(), parentEntity.getType());
+                EntityReferenceNode parentNodeRef = child.getParents().stream().filter(childParent -> childParent.getIri().equals(parentNode.getIri())).findFirst().orElse(null);
+                if (parentNodeRef != null) {
+                    parentNodeRef.setType(parentNode.getType()).setParents(parentNode.getParents()).setName(parentNode.getName());
+                } else {
+                    child.addParent(parentNode);
+                }
                 if (parentEntity.get(IM.IS_CONTAINED_IN) != null) {
                     for (TTValue ttvalue : parentEntity.get(IM.IS_CONTAINED_IN).getElements()) {
                         parentNode.addParent(new EntityReferenceNode(ttvalue.asIriRef().getIri()));
                     }
-                    EntityReferenceNode parentNodeRef = child.getParents().stream().filter(childParent -> childParent.getIri().equals(parentNode.getIri())).findFirst().orElse(null);
-                    if (parentNodeRef != null) {
-                        parentNodeRef.setType(parentNode.getType()).setParents(parentNode.getParents()).setName(parentNode.getName());
-                    } else {
-                        child.addParent(parentNode);
-                    }
+
                     getParentHierarchyRecursive(parentNode);
                 }
             }

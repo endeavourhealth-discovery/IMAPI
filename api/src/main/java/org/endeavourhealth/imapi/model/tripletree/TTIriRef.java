@@ -41,7 +41,7 @@ public class TTIriRef implements TTValue, Serializable {
     public TTIriRef setIri(String iri) {
         this.iri = iri;
         if (iri != null && !iri.isEmpty() && !iri.toLowerCase().startsWith("http")&&!iri.startsWith("urn:uuid")) {
-            LOG.error("Prefixed IRI [{}]", iri);
+            LOG.error("Invalid IRI");
             Thread.dumpStack();
         }
         return this;

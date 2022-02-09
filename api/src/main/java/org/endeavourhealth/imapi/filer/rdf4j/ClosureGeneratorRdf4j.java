@@ -182,40 +182,39 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	}
 
 	private void importClosure(String outpath, boolean secure) throws IOException {
-		LOG.debug("Importing closure ...");
+        LOG.debug("Importing closure ...");
 
-		StringJoiner sql = new StringJoiner("\n");
-			sql.add("INSERT DATA {");
-			int lineCount = 0;
-			BufferedReader reader = new BufferedReader(new FileReader(outpath + "/closure.ttl"));
-			String triple = reader.readLine();
-			while (triple != null) {
-				if (!triple.isEmpty()) {
-					lineCount++;
-					sql.add(triple);
-					if (lineCount % 200000 == 0) {
-						LOG.debug("Importing " + lineCount + " of " + counter + " triples :" + triple);
-						sql.add("}");
-						Update upd = conn.prepareUpdate(sql.toString());
-						conn.begin();
-						upd.execute();
-						conn.commit();
-						sql = new StringJoiner("\n");
-						sql.add("INSERT DATA {");
-					}
-				}
-				triple = reader.readLine();
-			}
-		  LOG.debug("Importing " + lineCount + " of " + counter + " triples :");
-			if (sql.length()>20) {
-				sql.add("}");
-				Update upd = conn.prepareUpdate(sql.toString());
-				conn.begin();
-				upd.execute();
-				conn.commit();
-			}
-			conn.close();
-		}
-
-
+        StringJoiner sql = new StringJoiner("\n");
+        sql.add("INSERT DATA {");
+        int lineCount = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(outpath + "/closure.ttl"))) {
+            String triple = reader.readLine();
+            while (triple != null) {
+                if (!triple.isEmpty()) {
+                    lineCount++;
+                    sql.add(triple);
+                    if (lineCount % 200000 == 0) {
+                        LOG.debug("Importing " + lineCount + " of " + counter + " triples :" + triple);
+                        sql.add("}");
+                        Update upd = conn.prepareUpdate(sql.toString());
+                        conn.begin();
+                        upd.execute();
+                        conn.commit();
+                        sql = new StringJoiner("\n");
+                        sql.add("INSERT DATA {");
+                    }
+                }
+                triple = reader.readLine();
+            }
+        }
+        LOG.debug("Importing " + lineCount + " of " + counter + " triples :");
+        if (sql.length() > 20) {
+            sql.add("}");
+            Update upd = conn.prepareUpdate(sql.toString());
+            conn.begin();
+            upd.execute();
+            conn.commit();
+        }
+        conn.close();
+    }
 }

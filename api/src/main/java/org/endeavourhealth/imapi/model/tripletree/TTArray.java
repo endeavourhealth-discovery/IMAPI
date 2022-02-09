@@ -27,7 +27,6 @@ public class TTArray implements Serializable {
         return this;
     }
 
-
     public int size() {
         return elements.size();
     }
@@ -37,23 +36,17 @@ public class TTArray implements Serializable {
 
     // Single element helpers
     public boolean isLiteral() {
-        if (elements.stream().findFirst().isPresent())
-            return elements.size() == 1 && elements.stream().findFirst().get().isLiteral();
-        else return false;
+        return elements.size() == 1 && elements.stream().findFirst().map(TTValue::isLiteral).orElse(false);
     }
     public TTLiteral asLiteral() { return (TTLiteral) elements.stream().findFirst().orElse(null); }
 
     public boolean isIriRef() {
-        if (elements.stream().findFirst().isPresent())
-            return elements.size() == 1 && elements.stream().findFirst().get().isIriRef();
-        else return false;
+        return elements.size() == 1 && elements.stream().findFirst().map(TTValue::isIriRef).orElse(false);
     }
     public TTIriRef asIriRef() { return (TTIriRef) elements.stream().findFirst().orElse(null); }
 
     public boolean isNode() {
-        if (elements.stream().findFirst().isPresent())
-            return elements.size() == 1 && elements.stream().findFirst().get().isNode();
-        else return false;
+        return elements.size() == 1 && elements.stream().findFirst().map(TTValue::isNode).orElse(false);
     }
     public TTNode asNode() { return (TTNode) elements.stream().findFirst().orElse(null); }
 

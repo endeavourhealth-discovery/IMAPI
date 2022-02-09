@@ -15,8 +15,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.StringJoiner;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-
 public class ConfigRepository {
     public Config findByName(String name) {
         switch (name) {

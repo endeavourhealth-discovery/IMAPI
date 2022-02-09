@@ -8,6 +8,7 @@ plugins {
 sonarqube {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
+        property 'sonar.exclusions', '**/parser/**, **/transforms/**/eqd/**'
     }
 }
 

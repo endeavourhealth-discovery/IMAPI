@@ -18,7 +18,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class SetRepository {

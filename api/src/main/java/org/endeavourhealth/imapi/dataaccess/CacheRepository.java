@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.*;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**

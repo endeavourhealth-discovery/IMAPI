@@ -18,9 +18,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-
 public class EntityRepository2 {
     private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 

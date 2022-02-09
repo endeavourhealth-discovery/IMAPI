@@ -7,8 +7,6 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.GraphHelper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-
 public class ShapeRepository {
 
 	/**

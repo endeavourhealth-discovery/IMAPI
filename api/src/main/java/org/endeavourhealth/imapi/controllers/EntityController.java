@@ -369,4 +369,10 @@ public class EntityController {
 		LOG.debug("getFolderPath");
 		return entityService.getParentPath(iri);
 	}
+
+	@GetMapping("/public/parentHierarchy")
+	public EntityReferenceNode getParentHierarchy(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getParentHierarchy");
+		return entityService.getParentHierarchy(iri);
+	}
 }

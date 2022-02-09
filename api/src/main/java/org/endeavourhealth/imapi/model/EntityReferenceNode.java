@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class EntityReferenceNode extends TTIriRef implements Serializable {
-    private List<EntityReferenceNode> parents;
+    private List<EntityReferenceNode> parents = new ArrayList<>();
     private List<EntityReferenceNode> children;
     private String moduleId;
     private boolean hasChildren;
@@ -20,6 +20,11 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
 
     public EntityReferenceNode(String iri) {
         super(iri);
+    }
+
+    public EntityReferenceNode(String iri, String name, TTArray types) {
+        super(iri, name);
+        setType(types);
     }
 
     public EntityReferenceNode(String iri, String name) {

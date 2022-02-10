@@ -60,7 +60,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     public TTEntityFilerRdf4j(){
-        this(ConnectionManager.getConnection(), new HashMap<>());
+        this(ConnectionManager.getIMConnection(), new HashMap<>());
     }
 
     @Override

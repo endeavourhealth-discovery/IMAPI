@@ -20,7 +20,7 @@ public class CacheRepository {
 	public Set<TTBundle> getSchema(){
 		String sql= getSchemaSql();
 		Set<TTEntity> shapes = new HashSet<>();
-		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			GraphQuery qry = conn.prepareGraphQuery(sql);
 			try (GraphQueryResult gs = qry.evaluate()) {
 				Map<String, TTValue> valueMap = new HashMap<>();

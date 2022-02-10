@@ -11,8 +11,6 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,7 +31,7 @@ public class EntityRepository2 {
     public Set<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
         String sql = getExpansionAsSelect(definition, includeLegacy);
         Set<CoreLegacyCode> result = new HashSet<>();
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -99,7 +97,7 @@ public class EntityRepository2 {
 
         StringJoiner sql = getBundleSparql(predicates, excludePredicates);
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
             qry.setBinding("entity", Values.iri(iri));
             try (GraphQueryResult gs = qry.evaluate()) {
@@ -458,7 +456,7 @@ public class EntityRepository2 {
         sql.add("SELECT * WHERE {");
         sql.add("?s rdf:type ?o .");
         sql.add("}");
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -483,7 +481,7 @@ public class EntityRepository2 {
         sql.add("?o (sh:or|sh:and) ?o2 .");
         sql.add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -528,7 +526,7 @@ public class EntityRepository2 {
     public Set<TTEntity> getLinkedShapes(String iri){
         String sql = getLinkedShapeSql();
         Set<TTEntity> shapes = new HashSet<>();
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry = conn.prepareGraphQuery(sql);
             qry.setBinding("shape", Values.iri(iri));
             try (GraphQueryResult gs = qry.evaluate()) {

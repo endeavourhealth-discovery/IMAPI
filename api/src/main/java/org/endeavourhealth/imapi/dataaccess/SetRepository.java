@@ -31,7 +31,7 @@ public class SetRepository {
             .add("  ?s rdf:type ?o")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", Values.iri(type.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {

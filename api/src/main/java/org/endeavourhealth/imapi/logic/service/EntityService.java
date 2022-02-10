@@ -45,7 +45,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
-	private static final String XML_SCHEME_DATA_TYPES = "xmlSchemaDataTypes";
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
@@ -138,7 +137,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		List<String> xmlDataTypes = configManager.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
+		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
@@ -155,7 +154,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return 0;
 
-		List<String> xmlDataTypes = configManager.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
+		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return 0;
 
@@ -341,7 +340,7 @@ public class EntityService {
 	private List<String> getBlockedIris() {
 		List<String> blockedIris = new ArrayList<>();
 		try {
-			blockedIris = configManager.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+			blockedIris = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>(){});
 		} catch (Exception e) {
 			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
 		}
@@ -351,7 +350,7 @@ public class EntityService {
 	private Map<String, String> getDefaultPredicateNames() {
 		Map<String, String> defaultPredicates = new HashMap<>();
 		try {
-			defaultPredicates = configManager.getConfig("defaultPredicateNames", new TypeReference<>() {
+			defaultPredicates = configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
@@ -707,7 +706,7 @@ public class EntityService {
     public TTBundle getInferredBundle(String iri) {
         Set<String> predicates = null;
         try {
-            predicates = configManager.getConfig("inferredExcludePredicates", new TypeReference<>() {
+            predicates = configManager.getConfig(CONFIG.INFERRED_EXCLUDE_PREDICATES, new TypeReference<>() {
             });
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);

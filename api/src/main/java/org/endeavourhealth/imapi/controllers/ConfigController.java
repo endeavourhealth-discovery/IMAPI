@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.config.DashboardLayout;
 import org.endeavourhealth.imapi.model.config.FilterDefault;
+import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +38,16 @@ public class ConfigController {
             @RequestParam(name="name") String name
     ) throws JsonProcessingException {
         LOG.debug("getComponentLayout");
-        return configManager.getConfig(name, new TypeReference<List<ComponentLayoutItem>>(){});
+        if ("definition".equals(name))
+            return configManager.getConfig(CONFIG.DEFINITION, new TypeReference<>(){});
+        else
+            throw new IllegalArgumentException("Unknown component layout config");
     }
 
     @GetMapping(value="/public/filterDefaults")
     public FilterDefault getFilterDefaults() throws JsonProcessingException {
         LOG.debug("getFilterDefaults");
-        return configManager.getConfig("filterDefaults", new TypeReference<FilterDefault>(){});
+        return configManager.getConfig(CONFIG.FILTER_DEFAULTS, new TypeReference<>(){});
     }
 
     @GetMapping(value="/public/dashboardLayout")
@@ -51,24 +55,27 @@ public class ConfigController {
             @RequestParam(name ="name") String name
     ) throws JsonProcessingException {
         LOG.debug("getDashboardLayout");
-        return configManager.getConfig(name, new TypeReference<List<DashboardLayout>>(){});
+        if ("conceptDashboard".equals(name))
+            return configManager.getConfig(CONFIG.CONCEPT_DASHBOARD, new TypeReference<>(){});
+        else
+            throw new IllegalArgumentException("Unknown dashboard layout config");
     }
 
     @GetMapping(value="/public/defaultPredicateNames")
     public Map<String, String> getDefaultPredicateNames() throws JsonProcessingException {
         LOG.debug("getDefaultPredicateNames");
-        return configManager.getConfig("defaultPredicateNames", new TypeReference<Map<String, String>>() {});
+        return configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {});
     }
 
     @GetMapping(value="/public/xmlSchemaDataTypes")
     public List<String> getXMLSchemaDataTypes() throws JsonProcessingException {
         LOG.debug("getXMLSchemaDataTypes");
-        return configManager.getConfig("xmlSchemaDataTypes", new TypeReference<List<String>>() {});
+        return configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
     }
 
     @GetMapping(value="/public/graphExcludePredicates")
     public List<String> getGraphExcludePredicates() throws JsonProcessingException {
         LOG.debug("getGraphExcludePredicates");
-        return configManager.getConfig("graphExcludePredicates", new TypeReference<List<String>>() {});
+        return configManager.getConfig(CONFIG.GRAPH_EXCLUDE_PREDICATES, new TypeReference<>() {});
     }
 }

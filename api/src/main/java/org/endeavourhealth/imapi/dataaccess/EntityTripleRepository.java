@@ -53,7 +53,7 @@ public class EntityTripleRepository {
             sql.add("LIMIT " + pageSize + " OFFSET " + rowNumber);
         }
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", Values.iri(objectIri));
             qry.setBinding("e", Values.iri(excludePredicateIri));
@@ -80,7 +80,7 @@ public class EntityTripleRepository {
                 .add("    FILTER (?p != ?e && ?status != im:Inactive)")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", Values.iri(objectIri));
             qry.setBinding("e", Values.iri(excludePredicateIri));
@@ -109,7 +109,7 @@ public class EntityTripleRepository {
                 .add("  OPTIONAL { ?g rdfs:label ?gname } .")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", Values.iri(iri));
             execute(result, qry);
@@ -136,7 +136,7 @@ public class EntityTripleRepository {
                 .add("  OPTIONAL { ?g rdfs:label ?gname } .")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("bp", Values.iri(predicate));
             qry.setBinding("bo", Values.iri(object));
@@ -184,7 +184,7 @@ public class EntityTripleRepository {
         sql.add("}")
                 .add("LIMIT 1");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", Values.iri(parentIri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -222,7 +222,7 @@ public class EntityTripleRepository {
                     .add("OFFSET " + rowNumber);
         }
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", Values.iri(parentIri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -266,7 +266,7 @@ public class EntityTripleRepository {
 
         sql.add("ORDER BY ?pname");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("c", Values.iri(childIri));
 
@@ -295,7 +295,7 @@ public class EntityTripleRepository {
                 .add("  ?o im:label ?oname .")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(subjectIri));
             qry.setBinding("p", Values.iri(predicateIri));
@@ -318,7 +318,7 @@ public class EntityTripleRepository {
         synchronized (namespaceCache) {
             if (namespaceCache.isEmpty()) {
                 Map<String, Namespace> result = new HashMap<>();
-                try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+                try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
                     RepositoryResult<org.eclipse.rdf4j.model.Namespace> namespaces = conn.getNamespaces();
                     while (namespaces.hasNext()) {
                         org.eclipse.rdf4j.model.Namespace ns = namespaces.next();
@@ -336,7 +336,7 @@ public class EntityTripleRepository {
                     .add("}");
 
                 int i = 1;
-                try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+                try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
                     TupleQuery qry = conn.prepareTupleQuery(sql.toString());
                     try (TupleQueryResult rs = qry.evaluate()) {
                         while (rs.hasNext()) {
@@ -368,7 +368,7 @@ public class EntityTripleRepository {
                 .add("    OPTIONAL { ?g rdfs:label ?gname } .")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             for (EntitySummary core : coreEntities) {
@@ -399,7 +399,7 @@ public class EntityTripleRepository {
     }
 
     private void setAndEvaluate(List<Tpl> triples, Resource subject, Integer parent, Set<String> predicates, StringJoiner sql) {
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", subject);
@@ -470,7 +470,7 @@ public class EntityTripleRepository {
         }
         sql.add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", Values.iri(iri));
@@ -492,7 +492,7 @@ public class EntityTripleRepository {
                 .add(" GRAPH ?g { ?s ?p ?o } .")
                 .add("}")
                 .add(" LIMIT 20 ");
-        try( RepositoryConnection conn = ConnectionManager.getConnection()){
+        try( RepositoryConnection conn = ConnectionManager.getIMConnection()){
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("g", Values.iri(iri));

@@ -14,7 +14,7 @@ public class PropertyRepository {
 
 	public static TTEntityMap getProperty(String focusIri){
 		String sql = getPropertiesSql();
-		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			GraphQuery qry = conn.prepareGraphQuery(sql);
 			qry.setBinding("entity", Values.iri(focusIri));
 			return GraphHelper.getEntityMap(qry);
@@ -27,7 +27,7 @@ public class PropertyRepository {
 	 */
 	public static TTEntityMap getProperties(){
 		String sql = getAllPropertiesSql();
-		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			GraphQuery qry = conn.prepareGraphQuery(sql);
 			return GraphHelper.getEntityMap(qry);
 		}

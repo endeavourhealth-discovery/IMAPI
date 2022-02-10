@@ -34,6 +34,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
+import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -201,7 +202,7 @@ public class EntityController {
 
         TTIriRef entity = entityService.getEntityReference(iri);
 
-        List<ComponentLayoutItem> configs = configManager.getConfig("definition", new TypeReference<>(){});
+        List<ComponentLayoutItem> configs = configManager.getConfig(CONFIG.DEFINITION, new TypeReference<>(){});
 
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();

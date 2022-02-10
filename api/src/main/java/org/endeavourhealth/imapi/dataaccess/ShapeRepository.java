@@ -16,7 +16,7 @@ public class ShapeRepository {
 	 */
 	public static TTEntityMap getShapes(){
 		String sql = getAllShapesSql();
-		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			GraphQuery qry = conn.prepareGraphQuery(sql);
 			return GraphHelper.getEntityMap(qry);
 		}
@@ -34,7 +34,7 @@ public class ShapeRepository {
 	public static TTEntityMap getShapeAndAncestors(String focusIri) {
 
 		String sql = getShapesSql();
-		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			GraphQuery qry = conn.prepareGraphQuery(sql);
 			qry.setBinding("entity", Values.iri(focusIri));
 			return GraphHelper.getEntityMap(qry);

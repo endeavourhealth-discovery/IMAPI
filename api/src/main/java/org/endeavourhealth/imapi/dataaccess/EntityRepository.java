@@ -28,7 +28,7 @@ public class EntityRepository {
             .add("  ?s rdfs:label ?sname")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -50,7 +50,7 @@ public class EntityRepository {
                 .add("?o rdfs:label ?oname .")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -76,7 +76,7 @@ public class EntityRepository {
             .add("  OPTIONAL { ?g rdfs:label ?gname } .")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -108,7 +108,7 @@ public class EntityRepository {
      * @return the entity populated
      */
     private static TTEntity getEntityWithSubPredicates(String iri, Set<TTIriRef> mainPredicates, Set<TTIriRef> subPredicates){
-        RepositoryConnection conn =  ConnectionManager.getConnection();
+        RepositoryConnection conn =  ConnectionManager.getIMConnection();
         StringBuilder mainPredVar;
         StringBuilder subPredVar= new StringBuilder("?p2");
         if (mainPredicates!=null){

@@ -24,7 +24,7 @@ public class EntityTypeRepository {
             .add("    ?o rdfs:label ?oname .")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", Values.iri(iri));

@@ -819,9 +819,11 @@ public class EntityService {
 
 
     public List<TTIriRef> getParentPath(String iri) {
+        TTEntity entity = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri())), 0).getEntity();
         List<TTIriRef> parents = new ArrayList<TTIriRef>();
         getParentPathRecursive(iri, parents);
         Collections.reverse(parents);
+        parents.add(new TTIriRef(iri, entity.getName()));
         return parents;
     }
 

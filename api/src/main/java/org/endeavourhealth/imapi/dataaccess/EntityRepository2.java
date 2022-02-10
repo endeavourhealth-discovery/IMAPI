@@ -26,12 +26,12 @@ public class EntityRepository2 {
     /**
      * Gets the expansion set for a concept set
      *
-     * @param set           iri of the concept set
+     * @param definition    definition of the set
      * @param includeLegacy flag whether to include legacy codes
      * @return A set of Core codes and their legacy codes
      */
-    public Set<CoreLegacyCode> getSetExpansion(TTEntity set, boolean includeLegacy) {
-        String sql = getExpansionAsSelect(set, includeLegacy);
+    public Set<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
+        String sql = getExpansionAsSelect(definition, includeLegacy);
         Set<CoreLegacyCode> result = new HashSet<>();
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
@@ -225,11 +225,11 @@ public class EntityRepository2 {
     /**
      * Generates sparql from a concept set entity
      *
-     * @param setEntity     the TT entity that holds the set definition
+     * @param definition    definition of set
      * @param includeLegacy whether or not legacy codes should be included
      * @return A string of SPARQL
      */
-    public String getExpansionAsGraph(TTEntity setEntity, boolean includeLegacy) {
+    public String getExpansionAsGraph(TTArray definition, boolean includeLegacy) {
         initialiseBuilders();
         spql.add("CONSTRUCT {?concept rdfs:label ?name.")
                 .add("?concept im:code ?code.")
@@ -245,7 +245,7 @@ public class EntityRepository2 {
         spql.add("WHERE {");
         addNames(includeLegacy);
         spql.add("{SELECT distinct ?concept");
-        whereClause(setEntity);
+        whereClause(definition);
         spql.add("}");
         return insertPrefixes() + spql.toString();
     }
@@ -254,11 +254,11 @@ public class EntityRepository2 {
     /**
      * Returns a set expansion as a select query. Note that if legacy is included the result will be a denormalised list.
      *
-     * @param setEntity     iri of set
+     * @param definition    definition of set
      * @param includeLegacy whether to include simple legacy maps
      * @return String containing the sparql query
      */
-    public String getExpansionAsSelect(TTEntity setEntity, boolean includeLegacy) {
+    public String getExpansionAsSelect(TTArray definition, boolean includeLegacy) {
         initialiseBuilders();
         spql.add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
         if (includeLegacy)
@@ -266,15 +266,14 @@ public class EntityRepository2 {
         spql.add("WHERE {");
         addNames(includeLegacy);
         spql.add("{SELECT distinct ?concept");
-        whereClause(setEntity);
+        whereClause(definition);
         spql.add("}");
         spql.add("}");
         return insertPrefixes() + spql.toString();
     }
 
-    private void whereClause(TTEntity setEntity) {
+    private void whereClause(TTArray definition) {
         spql.add("WHERE {");
-        TTArray definition = setEntity.get(IM.DEFINITION);
         graphWherePattern(definition);
         spql.add("}");
     }

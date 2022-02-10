@@ -27,6 +27,7 @@ public class TTArray implements Serializable {
         return this;
     }
 
+    public boolean isEmpty() { return elements.isEmpty(); }
     public int size() {
         return elements.size();
     }

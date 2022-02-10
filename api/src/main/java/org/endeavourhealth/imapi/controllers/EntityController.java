@@ -17,10 +17,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
@@ -61,7 +61,7 @@ public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
 
     private final EntityService entityService = new EntityService();
-	private final ConfigService configService = new ConfigService();
+	private final ConfigManager configManager = new ConfigManager();
 
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
@@ -201,7 +201,7 @@ public class EntityController {
 
         TTIriRef entity = entityService.getEntityReference(iri);
 
-        List<ComponentLayoutItem> configs = configService.getConfig("definition", new TypeReference<>(){});
+        List<ComponentLayoutItem> configs = configManager.getConfig("definition", new TypeReference<>(){});
 
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();

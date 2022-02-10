@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.*;

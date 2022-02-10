@@ -7,7 +7,7 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
-import org.endeavourhealth.imapi.dataaccess.ConfigRepository;
+import org.endeavourhealth.imapi.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class ConnectionManager {
     public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
         try {
             if (prefixes == null)
-                prefixes = new ConfigRepository().findByName("defaultPrefixes").getData();
+                prefixes = new ConfigManager().findByName("defaultPrefixes").getData();
 
             StringJoiner sj = new StringJoiner(System.lineSeparator());
             sj.add(prefixes);

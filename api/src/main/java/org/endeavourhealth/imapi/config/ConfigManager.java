@@ -1,5 +1,8 @@
-package org.endeavourhealth.imapi.dataaccess;
+package org.endeavourhealth.imapi.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -12,10 +15,37 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.StringJoiner;
 
-public class ConfigRepository {
+@Configuration
+public class ConfigManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
+
+    private final ObjectMapper om = new ObjectMapper();
+
+    public <T> T getConfig(String name, Class<T> resultType) throws JsonProcessingException {
+        LOG.debug("getConfig<Class>");
+
+        Config config = findByName(name);
+        if(config==null)
+            return null;
+        return om.readValue(config.getData(), resultType);
+    }
+
+    public <T> T getConfig(String name, TypeReference<T> resultType) throws JsonProcessingException {
+        LOG.debug("getConfig<TypeReference>");
+
+        Config config = findByName(name);
+        if(config==null)
+            return null;
+        return om.readValue(config.getData(), resultType);
+    }
+
     public Config findByName(String name) {
         switch (name) {
             case "definition":
@@ -45,12 +75,12 @@ public class ConfigRepository {
         // NOTE - DONT USE PREFIXES OR 'prepareSparql' HERE
         //        OR CYCLIC LOOP FETCHING DEFAULT PREFIXES
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?name ?data WHERE {")
-            .add("    GRAPH <http://endhealth.info/config#> {")
-            .add("      ?s ?label   ?name ;")
-            .add("         ?config  ?data .")
-            .add("    }")
-            .add("}");
+                .add("SELECT ?name ?data WHERE {")
+                .add("    GRAPH <http://endhealth.info/config#> {")
+                .add("      ?s ?label   ?name ;")
+                .add("         ?config  ?data .")
+                .add("    }")
+                .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -61,13 +91,14 @@ public class ConfigRepository {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     return new Config()
-                        .setName(bs.getValue("name").stringValue())
-                        .setData(bs.getValue("data").stringValue());
+                            .setName(bs.getValue("name").stringValue())
+                            .setData(bs.getValue("data").stringValue());
                 } else {
                     return null;
                 }
             }
         }
     }
-}
 
+
+}

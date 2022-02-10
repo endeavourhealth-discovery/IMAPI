@@ -49,6 +49,7 @@ dependencies {
     implementation libs.swagger
     implementation libs.validation
     implementation libs.woodstox
+    implementation libs.awsS3
 
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools

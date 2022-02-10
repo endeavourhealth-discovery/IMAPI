@@ -39,7 +39,6 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 	public ClosureGeneratorRdf4j() throws TTFilerException {
 		LOG.info("Connecting");
-		//repo = new SailRepository(new NativeStore(new File("Z:\\rdf4j")));
 		repo = new HTTPRepository("http://localhost:7200/", "im");
 
 		try {
@@ -93,7 +92,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 
 	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
-		LOG.debug("Extracting " + relationship.getIri());
+		LOG.debug(String.format("Extracting %s ", relationship.getIri()));
 		TupleQuery stmt;
 		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelect ?child ?parent\n" +
 				"where {?child <" + relationship.getIri() + "> ?parent }\n");
@@ -111,7 +110,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 				}
 			}
 		}
-		LOG.debug("Relationships loaded for " + relationship.getIri() + " " + parentMap.size() + " entities");
+		LOG.debug(String.format("Relationships loaded for %s %d entities", relationship.getIri(), parentMap.size()));
 	}
 
 	private void buildClosure() {
@@ -124,11 +123,11 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 			String child = row.getKey();
 			if (closureMap.get(child)==null) {
 				if (c % 100000 == 0)
-					LOG.debug("Processed " + c + " entities");
+					LOG.debug(String.format("Processed %d entities", c));
 				generateClosure(child);
 			}
 		}
-		LOG.debug("Closure built with  "+counter+" triples with  "+closureMap.size()+" keys");
+		LOG.debug(String.format("Closure built with  %d triples with  %d keys", counter, closureMap.size()));
 	}
 
 	private String getDefaultPrefixes() {

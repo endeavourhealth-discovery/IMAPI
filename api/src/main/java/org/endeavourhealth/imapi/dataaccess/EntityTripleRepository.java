@@ -374,20 +374,6 @@ public class EntityTripleRepository {
             for (EntitySummary core : coreEntities) {
                 qry.setBinding("o", Values.iri(core.getIri()));
                 execute(result, qry);
-//                LOG.debug("Executing...");
-//                try (TupleQueryResult rs = qry.evaluate()) {
-//                    LOG.debug("Retrieving...");
-//                    while (rs.hasNext()) {
-//                        BindingSet bs = rs.next();
-//
-//                        result.add(new EntitySummary()
-//                                .setIri(bs.getValue("s").stringValue())
-//                                .setName(bs.getValue("sname").stringValue())
-//                                .setCode(bs.getValue("scode").stringValue())
-//                                .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
-//                        );
-//                    }
-//                }
             }
         }
 

@@ -28,8 +28,7 @@ public class FilerController {
 
     private final FilerService filerService = new FilerService();
 
-    public FilerController() throws TTFilerException {
-    }
+    public FilerController() throws TTFilerException {}
 
     @PostMapping("file/document")
     public void fileDocument(@RequestBody TTDocument document) throws TTFilerException {

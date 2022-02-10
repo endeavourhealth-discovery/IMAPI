@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EntityRepository2 {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private Map<String, String> prefixMap;
     private StringJoiner spql;
@@ -115,7 +114,7 @@ public class EntityRepository2 {
                     iris.forEach(bundle::addPredicate);
                 }
             } catch (IOException ignored) {
-
+                //Do nothing
             }
             return bundle;
         }
@@ -192,8 +191,7 @@ public class EntityRepository2 {
                 } else {
                     tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
                     tripleMap.get(subject).asIriRef().setName(value);
-                    if (predNames.get(subject) != null)
-                        predNames.put(subject, value);
+                    predNames.computeIfPresent(subject, (k, v) -> value);
                 }
             } else {
                 tripleMap.putIfAbsent(subject, new TTNode());
@@ -569,21 +567,18 @@ public class EntityRepository2 {
             node.addObject(predicate, TTIriRef.iri(object.stringValue()));
         }
         else {
-            if (valueMap.get(object.stringValue()) == null)
-                if (subjectMap.get(object.stringValue())!=null)
-                    valueMap.put(object.stringValue(),subjectMap.get(object.stringValue()));
+            if (valueMap.get(object.stringValue()) == null) {
+                if (subjectMap.get(object.stringValue()) != null)
+                    valueMap.put(object.stringValue(), subjectMap.get(object.stringValue()));
                 else {
                     valueMap.put(object.stringValue(), new TTNode());
                     subjectMap.put(object.stringValue(), valueMap.get(object.stringValue()).asNode());
                 }
+            }
             subjectMap.put(object.stringValue(), valueMap.get(object.stringValue()).asNode());
             node.addObject(predicate,valueMap.get(object.stringValue()).asNode());
         }
     }
-
-
-
-
 
     private String getLinkedShapeSql() {
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +

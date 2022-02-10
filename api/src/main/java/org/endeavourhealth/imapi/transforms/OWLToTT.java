@@ -72,11 +72,11 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
    @Override
    public Object visitSubClassOf(OWLFSParser.SubClassOfContext ctx){
-      if (isGCI(ctx))
-         return null;
-      TTArray subClassOf= addArrayAxiom(RDFS.SUBCLASSOF);
-      subClassOf.add(convertClassExpression(ctx.superClass().classExpression()));
-      return null;
+      if (!isGCI(ctx)){
+         TTArray subClassOf= addArrayAxiom(RDFS.SUBCLASSOF);
+         subClassOf.add(convertClassExpression(ctx.superClass().classExpression()));
+      }
+      return this.defaultResult();
    }
 
    private TTArray addArrayAxiom(TTIriRef predicate){

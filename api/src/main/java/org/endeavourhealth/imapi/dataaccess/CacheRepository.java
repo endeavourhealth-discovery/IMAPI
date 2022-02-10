@@ -74,11 +74,11 @@ public class CacheRepository {
 		String value = o.stringValue();
 		TTNode node;
 		if (s.isIRI()) {
-			if (subjectMap.get(subject)==null) {
-				TTEntity entity = new TTEntity().setIri(subject);
-				subjectMap.put(subject, entity);
+			subjectMap.computeIfAbsent(subject, k ->  {
+				TTEntity entity = new TTEntity().setIri(k);
 				entities.add(entity);
-			}
+				return entity;
+			});
 			node=subjectMap.get(subject);
 		}
 		else {

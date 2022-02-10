@@ -93,6 +93,8 @@ public class IM {
     public static final TTIriRef NATIONALLY_ASSURED = iri(NAMESPACE + "NationallyAssuredUK");
     public static final TTIriRef SUPPLIER_ASSURED = iri(NAMESPACE + "SupplierAssured");
 
+    //Sets
+    public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
 
 
     //Graphs

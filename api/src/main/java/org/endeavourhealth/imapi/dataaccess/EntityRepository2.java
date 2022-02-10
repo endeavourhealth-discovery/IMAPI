@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 public class EntityRepository2 {
 
     private Map<String, String> prefixMap;
@@ -41,7 +43,7 @@ public class EntityRepository2 {
                     cl.setIri(bs.getValue("concept").stringValue())
                             .setTerm(bs.getValue("name").stringValue())
                             .setCode(bs.getValue("code").stringValue())
-                            .setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue()));
+                            .setScheme(iri(bs.getValue("scheme").stringValue(), bs.getValue("schemeName").stringValue()));
                     if (includeLegacy) {
                         Value lc = bs.getValue("legacyCode");
                         if (lc != null)
@@ -49,9 +51,10 @@ public class EntityRepository2 {
                         Value lt = bs.getValue("legacyName");
                         if (lt != null)
                             cl.setLegacyTerm(lt.stringValue());
-                        Value ls = bs.getValue("legacySchemeName");
+                        Value ls = bs.getValue("legacyScheme");
+                        Value lsn = bs.getValue("legacySchemeName");
                         if (ls != null)
-                            cl.setLegacyTerm(ls.stringValue());
+                            cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
                     }
 
                 }
@@ -178,7 +181,7 @@ public class EntityRepository2 {
             else
                 predNames.put(predicate,predicate);
         } else {
-            tripleMap.putIfAbsent(predicate, TTIriRef.iri(predicate));
+            tripleMap.putIfAbsent(predicate, iri(predicate));
             predNames.put(predicate,predicate);
         }
         TTNode node;
@@ -187,7 +190,7 @@ public class EntityRepository2 {
                 if (subject.equals(entityIri)) {
                     entity.setName(value);
                 } else {
-                    tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
+                    tripleMap.putIfAbsent(subject, iri(subject));
                     tripleMap.get(subject).asIriRef().setName(value);
                     predNames.computeIfPresent(subject, (k, v) -> value);
                 }
@@ -209,7 +212,7 @@ public class EntityRepository2 {
                 node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
             }
             else if (o.isIRI()){
-                tripleMap.putIfAbsent(value,TTIriRef.iri(value));
+                tripleMap.putIfAbsent(value, iri(value));
                 node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
             }
             else {
@@ -515,7 +518,7 @@ public class EntityRepository2 {
        try (TupleQueryResult rs = qry.evaluate()){
            while (rs.hasNext()) {
                BindingSet bs = rs.next();
-               TTIriRef iri= TTIriRef.iri(bs.getValue("iri").stringValue());
+               TTIriRef iri= iri(bs.getValue("iri").stringValue());
                iris.stream().filter(i-> i.equals(iri))
                  .findFirst().ifPresent(i-> i.setName(bs.getValue("label").stringValue()));
            }
@@ -543,7 +546,7 @@ public class EntityRepository2 {
 
     private void processTripleLinkShape(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String,TTNode> subjectMap,Statement st) {
         Resource subject = st.getSubject();
-        TTIriRef predicate = TTIriRef.iri(st.getPredicate().stringValue());
+        TTIriRef predicate = iri(st.getPredicate().stringValue());
         Value object = st.getObject();
         TTNode node = subjectMap.get(subject.stringValue());
         if (node == null) {
@@ -561,7 +564,7 @@ public class EntityRepository2 {
             node.set(predicate, TTLiteral.literal(l.stringValue(), l.getDatatype().stringValue()));
         }
         else if (object.isIRI()) {
-            node.addObject(predicate, TTIriRef.iri(object.stringValue()));
+            node.addObject(predicate, iri(object.stringValue()));
         }
         else {
             if (valueMap.get(object.stringValue()) == null) {

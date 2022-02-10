@@ -19,6 +19,7 @@ public class CONFIG {
     public static final TTIriRef XML_SCHEMA_DATATYPES = iri(NAMESPACE + "xmlSchemaDataTypes");
     public static final TTIriRef DEFAULT_PREFIXES = iri(NAMESPACE + "defaultPrefixes");
     public static final TTIriRef GRAPH_EXCLUDE_PREDICATES = iri(NAMESPACE + "graphExcludePredicates");
+    public static final TTIriRef IM1_PUBLISH = iri(NAMESPACE + "im1Publish");
 
     private CONFIG() {}
 }

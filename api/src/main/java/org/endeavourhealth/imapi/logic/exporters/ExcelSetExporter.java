@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -94,12 +95,13 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(4, 20000);
 
         if (!expandedSets.contains(entity.getIri())) {
-            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, true);
+            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
             for (CoreLegacyCode cl : expansion) {
                 if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
                     Row row = addRow(sheet);
                     String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                    addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), cl.getLegacySchemeName());
+                    String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
+                    addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
                     legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
                 }
             }
@@ -118,7 +120,7 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(2, 2500);
 
         if (!expandedSets.contains(entity.getIri())) {
-            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity, false);
+            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), false);
             for (CoreLegacyCode cl : expansion) {
                 if (!codesAddedToWorkbook.contains(cl.getCode())) {
                     Row row = addRow(sheet);

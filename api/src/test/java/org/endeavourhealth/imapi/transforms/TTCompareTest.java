@@ -6,6 +6,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class TTCompareTest {
 
 	@Test
@@ -24,6 +26,7 @@ class TTCompareTest {
 		to.set(IM.CODE,sub2);
 
 		System.out.println(TTCompare.equals(from,to));
+		assertTrue(TTCompare.equals(from,to));
 
 	}
 }

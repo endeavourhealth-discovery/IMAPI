@@ -15,7 +15,7 @@ public class TTDocumentFilerRdf4j extends TTDocumentFiler {
 
     public TTDocumentFilerRdf4j() {
         LOG.info("Connecting");
-        conn = ConnectionManager.getConnection();
+        conn = ConnectionManager.getIMConnection();
 
         LOG.info("Initializing");
         conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap);

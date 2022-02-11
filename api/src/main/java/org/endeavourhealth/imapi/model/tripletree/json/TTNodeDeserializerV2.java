@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */

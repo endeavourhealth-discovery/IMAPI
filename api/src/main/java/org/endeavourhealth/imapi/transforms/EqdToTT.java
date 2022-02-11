@@ -654,15 +654,15 @@ public class EqdToTT {
 	private TTIriRef getValueSet(EQDOCValueSet vs) throws DataFormatException {
 		TTEntity valueSet = new TTEntity();
 		TTIriRef iri = TTIriRef.iri("urn:uuid:" + UUID.randomUUID());
-		StringBuilder vsetName= null;
+		StringBuilder vsetName = new StringBuilder();
 		if (vs.getDescription()!=null)
 			vsetName = new StringBuilder(vs.getDescription());
 		valueSet.setIri(iri.getIri());
 		valueSet.addType(IM.CONCEPT_SET);
 		VocCodeSystemEx scheme = vs.getCodeSystem();
 		if (vs.getValues().size() == 1) {
-			if (vsetName==null)
-				vsetName = new StringBuilder(vs.getValues().get(0).getDisplayName());
+			if (vsetName.length() == 0)
+				vsetName.append(vs.getValues().get(0).getDisplayName());
 			valueSet.addObject(IM.DEFINITION, getValue(scheme, vs.getValues().get(0)));
 		} else {
 			TTNode orSet = new TTNode();
@@ -671,8 +671,9 @@ public class EqdToTT {
 			for (EQDOCValueSetValue ev : vs.getValues()) {
 				i++;
 				if (i<10) {
-					vsetName = new StringBuilder(vsetName == null ? ev.getDisplayName() :
-							vsetName + ", " + ev.getDisplayName());
+					if (vsetName.length() != 0)
+					    vsetName.append(", ");
+					vsetName.append(ev.getDisplayName());
 				}
 				else
 					if (i==10)
@@ -680,7 +681,7 @@ public class EqdToTT {
 				orSet.addObject(SHACL.OR, getValue(scheme, ev));
 			}
 		}
-		if (vsetName!=null) {
+		if (vsetName.length() > 0) {
 			iri.setName(vsetName.toString());
 			valueSet.setName(iri.getName());
 		}

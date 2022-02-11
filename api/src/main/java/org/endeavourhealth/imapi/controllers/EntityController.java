@@ -17,10 +17,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.logic.service.ConfigService;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
@@ -34,7 +34,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
-import org.jetbrains.annotations.NotNull;
+import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -63,7 +63,7 @@ public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
 
     private final EntityService entityService = new EntityService();
-	private final ConfigService configService = new ConfigService();
+	private final ConfigManager configManager = new ConfigManager();
 
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
@@ -164,7 +164,6 @@ public class EntityController {
 		return getObjectHttpEntity(format, filename, headers, document);
 	}
 
-	@NotNull
 	private HttpEntity<Object> getObjectHttpEntity(@RequestParam String format, String filename, HttpHeaders headers, TTDocument document) throws JsonProcessingException {
 		if("turtle".equals(format)){
 
@@ -211,7 +210,7 @@ public class EntityController {
 
         TTIriRef entity = entityService.getEntityReference(iri);
 
-        List<ComponentLayoutItem> configs = configService.getConfig("definition", new TypeReference<>(){});
+        List<ComponentLayoutItem> configs = configManager.getConfig(CONFIG.DEFINITION, new TypeReference<>(){});
 
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();

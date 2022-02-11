@@ -5,14 +5,12 @@ ext {
             apachePoi           : '5.0.0',
             factPlusPlus        : '1.6.5',
             h2                  : '1.4.200',
-            hikari              : '4.0.3',
             jackson             : '2.11.4',
-            junit               : '5.7.2',
+            junit               : '5.8.1',
             junitRunner         : '1.7.2',
             logback             : '1.2.6',
             lombok              : '1.18.22',
             mockito             : '3.9.0',
-            mysql               : '8.0.27',
             owlApi              : '4.5.20',
             rdf4j               : '3.7.3',
             reactor             : '3.4.0',
@@ -23,9 +21,9 @@ ext {
             springTestSecurity  : '5.5.3',
             springfox           : '2.9.2',
             swagger             : '1.5.20',
-            testContainers      : '1.14.3',
             validation          : '2.0.1.Final',
-            woodstox            : '3.2.6'
+            woodstox            : '3.2.6',
+            aws                 : '1.12.153'
     ]
     libs = [
             imGrammar           : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
@@ -36,7 +34,6 @@ ext {
             apacheText          : "org.apache.commons:commons-text:$versions.apacheText",
             factPlusPlus        : "uk.ac.manchester.cs:factplusplus:$versions.factPlusPlus",
             h2database          : "com.h2database:h2:$versions.h2",
-            hikari              : "com.zaxxer:HikariCP:$versions.hikari",
             jacksonAnnotations  : "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
             jacksonDatabind     : "com.fasterxml.jackson.core:jackson-databind:$versions.jackson",
             javaxxmlbind        : "javax.xml.bind:jaxb-api:2.3.1",
@@ -46,7 +43,6 @@ ext {
             logbackClassic      : "ch.qos.logback:logback-classic:$versions.logback",
             lombok              : "org.projectlombok:lombok:$versions.lombok",
             mockito             : "org.mockito:mockito-junit-jupiter:$versions.mockito",
-            mysql               : "mysql:mysql-connector-java:$versions.mysql",
             opensearchClient    : "org.opensearch.client:opensearch-rest-client:1.1.0",
             opensearchJava      : "org.opensearch.client:opensearch-java:0.1.0",
             owlApi              : "net.sourceforge.owlapi:owlapi-distribution:$versions.owlApi",
@@ -70,9 +66,8 @@ ext {
             springfoxSwagger    : "io.springfox:springfox-swagger2:$versions.springfox",
             springfoxSwaggerUi  : "io.springfox:springfox-swagger-ui:$versions.springfox",
             swagger             : "io.swagger:swagger-annotations:$versions.swagger",
-            testContainers      : "org.testcontainers:testcontainers:$versions.testContainers",
-            testContainersMySql : "org.testcontainers:mysql:$versions.testContainers",
             validation          : "javax.validation:validation-api:$versions.validation",
-            woodstox            : "org.codehaus.woodstox:wstx-lgpl:$versions.woodstox"
+            woodstox            : "org.codehaus.woodstox:wstx-lgpl:$versions.woodstox",
+            awsS3               : "com.amazonaws:aws-java-sdk-s3:$versions.aws"
     ]
 }

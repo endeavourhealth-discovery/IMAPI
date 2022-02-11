@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
@@ -15,9 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class EntityRepository {
     private static final Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
@@ -29,7 +28,7 @@ public class EntityRepository {
             .add("  ?s rdfs:label ?sname")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -51,7 +50,7 @@ public class EntityRepository {
                 .add("?o rdfs:label ?oname .")
                 .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -77,7 +76,7 @@ public class EntityRepository {
             .add("  OPTIONAL { ?g rdfs:label ?gname } .")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -109,7 +108,7 @@ public class EntityRepository {
      * @return the entity populated
      */
     private static TTEntity getEntityWithSubPredicates(String iri, Set<TTIriRef> mainPredicates, Set<TTIriRef> subPredicates){
-        RepositoryConnection conn =  ConnectionManager.getConnection();
+        RepositoryConnection conn =  ConnectionManager.getIMConnection();
         StringBuilder mainPredVar;
         StringBuilder subPredVar= new StringBuilder("?p2");
         if (mainPredicates!=null){
@@ -202,7 +201,7 @@ public class EntityRepository {
         } else {
             TTNode node = valueMap.get(subject).asNode();
             if (value.isLiteral()) {
-                node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue()));
+                node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue(), ((Literal)value).getDatatype().stringValue()));
             } else if (value.isIRI()) {
                 TTIriRef objectIri = null;
                 if (valueMap.get(value) != null)

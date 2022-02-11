@@ -8,6 +8,7 @@ plugins {
 sonarqube {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
+        property 'sonar.exclusions', '**/parser/**, **/transforms/**/eqd/**'
     }
 }
 
@@ -46,10 +47,9 @@ dependencies {
     implementation libs.springfoxSwagger
     implementation libs.springfoxSwaggerUi
     implementation libs.swagger
-    implementation libs.testContainers
-    implementation libs.testContainersMySql
     implementation libs.validation
     implementation libs.woodstox
+    implementation libs.awsS3
 
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
@@ -59,7 +59,6 @@ dependencies {
     testImplementation libs.springTest
     testImplementation libs.springTestSecurity
 
-    providedCompile libs.mysql
     providedCompile libs.springTomcat
 
     compileOnly libs.jacksonAnnotations

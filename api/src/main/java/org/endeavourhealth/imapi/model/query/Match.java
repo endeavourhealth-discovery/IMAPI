@@ -12,11 +12,8 @@ public class Match extends TTNode {
 
 	public Match(){
 		set(RDF.TYPE,IM.MATCH_CLAUSE);
-		setPredicateTemplate(new TTIriRef[]{RDF.TYPE, RDFS.LABEL,RDFS.COMMENT,
-			IM.PATH_TO,IM.ENTITY_TYPE,IM.NOT_EXIST,IM.FUNCTION,IM.PROPERTY,
-			IM.VALUE_COMPARE,IM.VALUE_IN,IM.VALUE_NOTIN,IM.VALUE_RANGE,IM.VALUE_FUNCTION,IM.VALUE_VAR,
-			IM.AND,IM.OR,IM.NOT});
 	}
+
 
 	public String getName(){
 		return (String) TTUtil.get(this,RDFS.LABEL,String.class);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -44,7 +45,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
-	private static final String XML_SCHEME_DATA_TYPES = "xmlSchemaDataTypes";
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
@@ -55,7 +55,7 @@ public class EntityService {
     private SetRepository setRepository = new SetRepository();
     private TermCodeRepository termCodeRepository = new TermCodeRepository();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
-    private ConfigService configService = new ConfigService();
+	private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
 
 	public TTBundle getBundle(String iri, Set<String> predicates,int limit) {
@@ -135,7 +135,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return Collections.emptyList();
 
-		List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
+		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return Collections.emptyList();
 
@@ -152,7 +152,7 @@ public class EntityService {
 		if (iri == null || iri.isEmpty())
 			return 0;
 
-		List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {});
+		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
 		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
 			return 0;
 
@@ -338,7 +338,7 @@ public class EntityService {
 	private List<String> getBlockedIris() {
 		List<String> blockedIris = new ArrayList<>();
 		try {
-			blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>(){});
+			blockedIris = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>(){});
 		} catch (Exception e) {
 			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
 		}
@@ -348,7 +348,7 @@ public class EntityService {
 	private Map<String, String> getDefaultPredicateNames() {
 		Map<String, String> defaultPredicates = new HashMap<>();
 		try {
-			defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
+			defaultPredicates = configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {
 			});
 		} catch (Exception e) {
 			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
@@ -704,7 +704,7 @@ public class EntityService {
     public TTBundle getInferredBundle(String iri) {
         Set<String> predicates = null;
         try {
-            predicates = configService.getConfig("inferredExcludePredicates", new TypeReference<>() {
+            predicates = configManager.getConfig(CONFIG.INFERRED_EXCLUDE_PREDICATES, new TypeReference<>() {
             });
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);

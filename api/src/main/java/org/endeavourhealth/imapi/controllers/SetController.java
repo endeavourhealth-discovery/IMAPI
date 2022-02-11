@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
@@ -14,6 +15,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -101,5 +103,15 @@ public class SetController {
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
+    }
+
+    @GetMapping(value = "/publish")
+    @ApiOperation(
+        value = "Publish set",
+        notes = "Published an expanded set to IM1"
+    )
+    @PreAuthorize("hasAuthority('IM1_PUBLISH')")
+    public void evaluate(@RequestParam(name = "iri") String iri) {
+        new SetExporter().publishSetToIM1(iri);
     }
 }

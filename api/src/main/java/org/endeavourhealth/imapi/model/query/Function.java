@@ -5,13 +5,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.util.List;
 
 public class Function extends TTNode {
 
 	public Function(){
-		setPredicateTemplate(new TTIriRef[]{IM.FUNCTION_IRI,IM.ARGUMENT});
+		set(RDF.TYPE,IM.FUNCTION_CLAUSE);
 	}
 
 	public TTIriRef getName(){

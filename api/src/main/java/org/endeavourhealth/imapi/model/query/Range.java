@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.query;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -11,7 +10,6 @@ public class Range extends TTNode {
 	public Range(){
 
 		set(RDF.TYPE,IM.RANGE_CLAUSE);
-		setPredicateTemplate(new TTIriRef[]{IM.FROM, IM.TO});
 	}
 
 	public Compare getFrom() {

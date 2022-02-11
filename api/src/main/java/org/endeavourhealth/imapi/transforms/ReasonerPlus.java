@@ -4,6 +4,8 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
@@ -22,6 +24,8 @@ public class ReasonerPlus {
    private OWLReasoner owlReasoner;
    private TTManager manager;
    private Set<String> done;
+
+   private static final Logger LOG = LoggerFactory.getLogger(ReasonerPlus.class);
 
    public ReasonerPlus(){
       manager= new TTManager();
@@ -95,7 +99,7 @@ public class ReasonerPlus {
                } else if (oldDomain.isNode() && oldDomain.asNode().get(OWL.UNIONOF) != null){
                   for (TTValue subDomain: oldDomain.asNode().get(OWL.UNIONOF).iterator()){
                      if (!subDomain.isIriRef()) {
-                        System.err.println("Sub domains and ranges must be iris");
+                        LOG.debug("Sub domains and ranges must be iris");
                      } else {
                         newDomains.add(subDomain);
                      }
@@ -160,7 +164,7 @@ public class ReasonerPlus {
            } else if (expression.asNode().get(OWL.ONPROPERTY) != null) {
                addRole(node, expression.asNode());
            } else
-               System.err.println("Only one level of nesting supported. ");
+               LOG.debug("Only one level of nesting supported. ");
        } else
            throw new DataFormatException("Unrecognised owl expression format");
    }

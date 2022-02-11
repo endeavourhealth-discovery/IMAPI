@@ -18,7 +18,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class SetRepository {
@@ -32,7 +31,7 @@ public class SetRepository {
             .add("  ?s rdf:type ?o")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("o", Values.iri(type.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {

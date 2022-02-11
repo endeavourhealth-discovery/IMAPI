@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityTctRepository {
@@ -25,7 +24,7 @@ public class EntityTctRepository {
             .add("  ?a rdfs:label ?aname .")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("c", Values.iri(childIri));
             qry.setBinding("r", Values.iri(relationshipIri));

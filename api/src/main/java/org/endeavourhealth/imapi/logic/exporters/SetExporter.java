@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,8 +44,10 @@ public class SetExporter {
     }
 
     private void pushToS3(StringJoiner results) {
-        String bucket = "imv1sender";
+        String bucket = "im-inbound-dev";
         String region = "eu-west-2";
+        String accessKey = "";
+        String secretKey = "";
 
         try {
             JsonNode config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH.getIri());
@@ -52,12 +56,19 @@ public class SetExporter {
             } else {
                 bucket = config.get("bucket").asText();
                 region = config.get("region").asText();
+                accessKey = config.get("accessKey").asText();
+                secretKey = config.get("secretKey").asText();
             }
         } catch (JsonProcessingException e) {
             LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
         }
 
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(region).build();
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+        final AmazonS3 s3 = AmazonS3ClientBuilder
+            .standard()
+            .withRegion(region)
+            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+            .build();
         try {
             s3.putObject(bucket, "valueset.tsv", results.toString());
         } catch (AmazonServiceException e) {

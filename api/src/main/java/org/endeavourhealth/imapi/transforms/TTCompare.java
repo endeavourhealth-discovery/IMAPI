@@ -12,6 +12,10 @@ import java.util.Iterator;
  */
 public class TTCompare {
 
+	private TTCompare() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	/**
 	 * Tests equality the predicate keys and values of a node
 	 * @param from first node

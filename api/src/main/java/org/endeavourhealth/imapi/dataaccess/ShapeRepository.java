@@ -9,6 +9,10 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 
 public class ShapeRepository {
 
+	private ShapeRepository(){
+		throw new IllegalStateException("Utility class");
+	}
+
 	/**
 	 * Gets all shapes from the information module e.g. for use to populate the cache
 	 * @return maps from iri to shapes and predicate names for the Node shape predicates.

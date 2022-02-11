@@ -113,8 +113,10 @@ public class EqdToTT {
 
 	private String getPerson(String name) {
 		StringBuilder uri= new StringBuilder();
-		name.chars().forEach(c-> {if (Character.isLetterOrDigit(c))
-			uri.append(Character.toString(c));});
+		name.chars().forEach(c-> {
+			if (Character.isLetterOrDigit(c))
+				uri.append(Character.toString(c));
+		});
 		String root= owner.getIri();
 		root= root.substring(0,root.lastIndexOf("#")-1);
 		return root.replace("org.","uir.")+"/personrole#"+

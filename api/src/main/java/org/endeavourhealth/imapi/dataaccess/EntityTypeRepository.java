@@ -11,7 +11,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.StringJoiner;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityTypeRepository {
@@ -25,7 +24,7 @@ public class EntityTypeRepository {
             .add("    ?o rdfs:label ?oname .")
             .add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             qry.setBinding("s", Values.iri(iri));

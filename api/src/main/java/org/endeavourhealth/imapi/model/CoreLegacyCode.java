@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.model;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.Objects;
+
 public class CoreLegacyCode {
 	private String iri;
 	private String code;
@@ -10,7 +12,6 @@ public class CoreLegacyCode {
 	private String legacyCode;
 	private String legacyTerm;
 	private TTIriRef legacyScheme;
-	private String legacySchemeName;
 
 	public String getCode() {
 		return code;
@@ -66,15 +67,6 @@ public class CoreLegacyCode {
 		return this;
 	}
 
-	public String getLegacySchemeName() {
-		return legacySchemeName;
-	}
-
-	public CoreLegacyCode setLegacySchemeName(String legacySchemeName) {
-		this.legacySchemeName = legacySchemeName;
-		return this;
-	}
-
 	public String getIri() {
 		return iri;
 	}
@@ -83,4 +75,19 @@ public class CoreLegacyCode {
 		this.iri = iri;
 		return this;
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CoreLegacyCode that = (CoreLegacyCode) o;
+        return Objects.equals(iri, that.iri)
+            && Objects.equals(legacyCode, that.legacyCode)
+            && Objects.equals(legacyScheme, that.legacyScheme);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(iri, legacyCode, legacyScheme);
+    }
 }

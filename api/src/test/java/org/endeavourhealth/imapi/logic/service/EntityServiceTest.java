@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.model.*;
@@ -66,7 +67,7 @@ class EntityServiceTest {
     EntityTypeRepository entityTypeRepository;
 
     @Mock
-    ConfigService configService;
+    ConfigManager configManager;
 
     @Test
     void getEntityPredicates_nullIriPredicates() {
@@ -360,7 +361,7 @@ class EntityServiceTest {
                 .setName("Adverse reaction to Amlodipine Besilate");
 
         when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
-        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
+        when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
 
@@ -370,7 +371,7 @@ class EntityServiceTest {
     @Test
     void usages_XMLContainsIri() throws JsonProcessingException {
 
-        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
+        when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
 
         List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
 
@@ -386,7 +387,7 @@ class EntityServiceTest {
     @Test
     void totalRecords_NotNullIri() throws JsonProcessingException {
         when(entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate( any(),any())).thenReturn(1000);
-        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
+        when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         Integer actual = entityService.totalRecords("http://endhealth.info/im#25451000252115");
         assertEquals(1000, actual);
@@ -394,7 +395,7 @@ class EntityServiceTest {
 
     @Test
     void totalRecords_XMLIri() throws JsonProcessingException {
-        when(configService.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
+        when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
 
         Integer actual = entityService.totalRecords("http://www.w3.org/2001/XMLSchema#string");
         assertEquals(0, actual);

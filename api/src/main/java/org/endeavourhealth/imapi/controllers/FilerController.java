@@ -28,16 +28,17 @@ public class FilerController {
 
     private final FilerService filerService = new FilerService();
 
-    public FilerController() throws TTFilerException {
-    }
+    public FilerController() throws TTFilerException {}
 
     @PostMapping("file/document")
+    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public void fileDocument(@RequestBody TTDocument document) throws TTFilerException {
         LOG.debug("fileDocument");
         filerService.fileDocument(document);
     }
 
     @PostMapping("file/entity")
+    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public void fileEntity(@RequestBody TTEntity entity,@RequestBody TTIriRef graph) throws TTFilerException {
         LOG.debug("fileEntity");
         filerService.fileEntity(entity,graph);

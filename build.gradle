@@ -20,8 +20,8 @@ sonarqube {
         property 'sonar.login', sonarLogin
         property 'sonar.host.url', 'https://sonarcloud.io'
         property 'sonar.junit.reportPaths', 'build/test-results/test/binary'
-        property 'sonar.exclusions', 'parser/**, transforms/**/eqd/**'
-        property 'sonar.coverage.exclusions', 'api/**, dataaccess-*/**, models/**, statemachine/**, transforms/**'
+        property 'sonar.exclusions', '**/imapi/parser/**, **/imapi/transforms/**/eqd/**'
+        property 'sonar.coverage.exclusions', '**/imapi/config/**, **/imapi/controllers/**, **/imapi/dataaccess/**, **/imapi/errorhandling/**, **/imapi/filer/**, **/imapi/vocabulary/**'
     }
 }
 

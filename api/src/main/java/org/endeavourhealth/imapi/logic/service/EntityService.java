@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -44,7 +45,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
-    private static final String XML_SCHEME_DATA_TYPES = "xmlSchemaDataTypes";
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 100;
@@ -55,7 +55,7 @@ public class EntityService {
     private SetRepository setRepository = new SetRepository();
     private TermCodeRepository termCodeRepository = new TermCodeRepository();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
-    private ConfigService configService = new ConfigService();
+	private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
 
 
@@ -136,10 +136,9 @@ public class EntityService {
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
 
-        List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {
-        });
-        if (xmlDataTypes != null && xmlDataTypes.contains(iri))
-            return Collections.emptyList();
+		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
+		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
+			return Collections.emptyList();
 
         int rowNumber = 0;
         if (pageIndex != null && pageSize != null)
@@ -154,10 +153,9 @@ public class EntityService {
         if (iri == null || iri.isEmpty())
             return 0;
 
-        List<String> xmlDataTypes = configService.getConfig(XML_SCHEME_DATA_TYPES, new TypeReference<>() {
-        });
-        if (xmlDataTypes != null && xmlDataTypes.contains(iri))
-            return 0;
+		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
+		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
+			return 0;
 
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
@@ -334,43 +332,42 @@ public class EntityService {
                 }
             }
         }
-        return members;
-    }
+		return members;
+	}
 
-    private List<String> getBlockedIris() {
-        List<String> blockedIris = new ArrayList<>();
-        try {
-            blockedIris = configService.getConfig("xmlSchemaDataTypes", new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
-        }
-        return blockedIris;
-    }
+	private List<String> getBlockedIris() {
+		List<String> blockedIris = new ArrayList<>();
+		try {
+			blockedIris = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>(){});
+		} catch (Exception e) {
+			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+		}
+		return blockedIris;
+	}
 
-    private Map<String, String> getDefaultPredicateNames() {
-        Map<String, String> defaultPredicates = new HashMap<>();
-        try {
-            defaultPredicates = configService.getConfig("defaultPredicateNames", new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
-        }
-        return defaultPredicates;
-    }
+	private Map<String, String> getDefaultPredicateNames() {
+		Map<String, String> defaultPredicates = new HashMap<>();
+		try {
+			defaultPredicates = configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {
+			});
+		} catch (Exception e) {
+			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
+		}
+		return defaultPredicates;
+	}
 
-    private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
-        ValueSetMember member = new ValueSetMember();
-        Map<String, String> defaultPredicates = getDefaultPredicateNames();
-        List<String> blockedIris = getBlockedIris();
-        String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
-        member.setEntity(iri("", nodeAsString));
-        return member;
-    }
+	private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
+		ValueSetMember member = new ValueSetMember();
+		Map<String, String> defaultPredicates = getDefaultPredicateNames();
+		List<String> blockedIris = getBlockedIris();
+		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
+		member.setEntity(iri("", nodeAsString));
+		return member;
+	}
 
-    private ValueSetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
-        ValueSetMember member = new ValueSetMember();
-        List<String> blockedIris = getBlockedIris();
+	private ValueSetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
+		ValueSetMember member = new ValueSetMember();
+		List<String> blockedIris = getBlockedIris();
         SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri.getIri());
         String iriAsString = TTToString.ttIriToString(iri, "object", 0, withHyperlinks, false, blockedIris);
         member.setEntity(iri(iri.getIri(), iriAsString));
@@ -734,7 +731,7 @@ public class EntityService {
     public TTBundle getInferredBundle(String iri) {
         Set<String> predicates = null;
         try {
-            predicates = configService.getConfig("inferredExcludePredicates", new TypeReference<>() {
+            predicates = configManager.getConfig(CONFIG.INFERRED_EXCLUDE_PREDICATES, new TypeReference<>() {
             });
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);

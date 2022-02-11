@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.*;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
@@ -21,7 +20,7 @@ public class CacheRepository {
 	public Set<TTBundle> getSchema(){
 		String sql= getSchemaSql();
 		Set<TTEntity> shapes = new HashSet<>();
-		try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			GraphQuery qry = conn.prepareGraphQuery(sql);
 			try (GraphQueryResult gs = qry.evaluate()) {
 				Map<String, TTValue> valueMap = new HashMap<>();
@@ -75,11 +74,11 @@ public class CacheRepository {
 		String value = o.stringValue();
 		TTNode node;
 		if (s.isIRI()) {
-			if (subjectMap.get(subject)==null) {
-				TTEntity entity = new TTEntity().setIri(subject);
-				subjectMap.put(subject, entity);
+			subjectMap.computeIfAbsent(subject, k ->  {
+				TTEntity entity = new TTEntity().setIri(k);
 				entities.add(entity);
-			}
+				return entity;
+			});
 			node=subjectMap.get(subject);
 		}
 		else {

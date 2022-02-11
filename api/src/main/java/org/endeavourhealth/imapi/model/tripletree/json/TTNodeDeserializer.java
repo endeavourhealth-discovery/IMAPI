@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 /**
  * DeSerializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument Deserializer

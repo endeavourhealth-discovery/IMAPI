@@ -36,7 +36,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
         usePrefixes = (usePrefixes != null && usePrefixes);
 
       setPredicateOrder();
-      TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), predicateTemplate, usePrefixes);
+      TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
       gen.writeStartObject();
       helper.serializeContexts(document.getPrefixes(), gen);
       if (document.getGraph()!=null) {

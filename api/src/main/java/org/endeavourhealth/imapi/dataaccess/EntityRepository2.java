@@ -11,18 +11,14 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private Map<String, String> prefixMap;
     private StringJoiner spql;
@@ -30,14 +26,14 @@ public class EntityRepository2 {
     /**
      * Gets the expansion set for a concept set
      *
-     * @param set           iri of the concept set
+     * @param definition    definition of the set
      * @param includeLegacy flag whether to include legacy codes
      * @return A set of Core codes and their legacy codes
      */
-    public Set<CoreLegacyCode> getSetExpansion(TTEntity set, boolean includeLegacy) {
-        String sql = getExpansionAsSelect(set, includeLegacy);
+    public Set<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
+        String sql = getExpansionAsSelect(definition, includeLegacy);
         Set<CoreLegacyCode> result = new HashSet<>();
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -47,7 +43,7 @@ public class EntityRepository2 {
                     cl.setIri(bs.getValue("concept").stringValue())
                             .setTerm(bs.getValue("name").stringValue())
                             .setCode(bs.getValue("code").stringValue())
-                            .setScheme(TTIriRef.iri(bs.getValue("scheme").stringValue()));
+                            .setScheme(iri(bs.getValue("scheme").stringValue(), bs.getValue("schemeName").stringValue()));
                     if (includeLegacy) {
                         Value lc = bs.getValue("legacyCode");
                         if (lc != null)
@@ -55,9 +51,10 @@ public class EntityRepository2 {
                         Value lt = bs.getValue("legacyName");
                         if (lt != null)
                             cl.setLegacyTerm(lt.stringValue());
-                        Value ls = bs.getValue("legacySchemeName");
+                        Value ls = bs.getValue("legacyScheme");
+                        Value lsn = bs.getValue("legacySchemeName");
                         if (ls != null)
-                            cl.setLegacyTerm(ls.stringValue());
+                            cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
                     }
 
                 }
@@ -103,7 +100,7 @@ public class EntityRepository2 {
 
         StringJoiner sql = getBundleSparql(predicates, excludePredicates);
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
             qry.setBinding("entity", Values.iri(iri));
             try (GraphQueryResult gs = qry.evaluate()) {
@@ -118,7 +115,7 @@ public class EntityRepository2 {
                     iris.forEach(bundle::addPredicate);
                 }
             } catch (IOException ignored) {
-
+                //Do nothing
             }
             return bundle;
         }
@@ -143,7 +140,7 @@ public class EntityRepository2 {
 
         sql.add("  ?entity ?1predicate ?1Level.")
             .add("  ?1predicate rdfs:label ?1pName.");
-        if (predicates != null) {
+        if (predicates != null && !predicates.isEmpty()) {
             StringBuilder inPredicates = new StringBuilder();
             int i = 0;
             for (String pred : predicates) {
@@ -184,7 +181,7 @@ public class EntityRepository2 {
             else
                 predNames.put(predicate,predicate);
         } else {
-            tripleMap.putIfAbsent(predicate, TTIriRef.iri(predicate));
+            tripleMap.putIfAbsent(predicate, iri(predicate));
             predNames.put(predicate,predicate);
         }
         TTNode node;
@@ -193,14 +190,13 @@ public class EntityRepository2 {
                 if (subject.equals(entityIri)) {
                     entity.setName(value);
                 } else {
-                    tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
+                    tripleMap.putIfAbsent(subject, iri(subject));
                     tripleMap.get(subject).asIriRef().setName(value);
-                    if (predNames.get(subject) != null)
-                        predNames.put(subject, value);
+                    predNames.computeIfPresent(subject, (k, v) -> value);
                 }
             } else {
                 tripleMap.putIfAbsent(subject, new TTNode());
-                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value));
+                tripleMap.get(subject).asNode().set(RDFS.LABEL, TTLiteral.literal(value, ((Literal)o).getDatatype().stringValue()));
             }
         }
         else {
@@ -216,11 +212,11 @@ public class EntityRepository2 {
                 node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
             }
             else if (o.isIRI()){
-                tripleMap.putIfAbsent(value,TTIriRef.iri(value));
+                tripleMap.putIfAbsent(value, iri(value));
                 node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
             }
             else {
-                tripleMap.putIfAbsent(value,TTLiteral.literal(value));
+                tripleMap.putIfAbsent(value,TTLiteral.literal(value, ((Literal)o).getDatatype().stringValue()));
                 node.set(tripleMap.get(predicate).asIriRef(),tripleMap.get(value).asLiteral());
             }
         }
@@ -230,11 +226,11 @@ public class EntityRepository2 {
     /**
      * Generates sparql from a concept set entity
      *
-     * @param setEntity     the TT entity that holds the set definition
+     * @param definition    definition of set
      * @param includeLegacy whether or not legacy codes should be included
      * @return A string of SPARQL
      */
-    public String getExpansionAsGraph(TTEntity setEntity, boolean includeLegacy) {
+    public String getExpansionAsGraph(TTArray definition, boolean includeLegacy) {
         initialiseBuilders();
         spql.add("CONSTRUCT {?concept rdfs:label ?name.")
                 .add("?concept im:code ?code.")
@@ -250,7 +246,7 @@ public class EntityRepository2 {
         spql.add("WHERE {");
         addNames(includeLegacy);
         spql.add("{SELECT distinct ?concept");
-        whereClause(setEntity);
+        whereClause(definition);
         spql.add("}");
         return insertPrefixes() + spql.toString();
     }
@@ -259,11 +255,11 @@ public class EntityRepository2 {
     /**
      * Returns a set expansion as a select query. Note that if legacy is included the result will be a denormalised list.
      *
-     * @param setEntity     iri of set
+     * @param definition    definition of set
      * @param includeLegacy whether to include simple legacy maps
      * @return String containing the sparql query
      */
-    public String getExpansionAsSelect(TTEntity setEntity, boolean includeLegacy) {
+    public String getExpansionAsSelect(TTArray definition, boolean includeLegacy) {
         initialiseBuilders();
         spql.add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
         if (includeLegacy)
@@ -271,15 +267,14 @@ public class EntityRepository2 {
         spql.add("WHERE {");
         addNames(includeLegacy);
         spql.add("{SELECT distinct ?concept");
-        whereClause(setEntity);
+        whereClause(definition);
         spql.add("}");
         spql.add("}");
         return insertPrefixes() + spql.toString();
     }
 
-    private void whereClause(TTEntity setEntity) {
+    private void whereClause(TTArray definition) {
         spql.add("WHERE {");
-        TTArray definition = setEntity.get(IM.DEFINITION);
         graphWherePattern(definition);
         spql.add("}");
     }
@@ -307,7 +302,7 @@ public class EntityRepository2 {
                 values.append(getShort(superClass.asIriRef().getIri())).append(" ");
         }
         if (!values.toString().equals("")) {
-            spql.add("{ ?concept" + isa() + " ?superClass.");
+            spql.add("{ ?concept " + isa() + " ?superClass.");
             values = new StringBuilder("VALUES ?superClass {" + values + "}");
             spql.add(values.toString());
 
@@ -464,7 +459,7 @@ public class EntityRepository2 {
         sql.add("SELECT * WHERE {");
         sql.add("?s rdf:type ?o .");
         sql.add("}");
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -489,7 +484,7 @@ public class EntityRepository2 {
         sql.add("?o (sh:or|sh:and) ?o2 .");
         sql.add("}");
 
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -523,7 +518,7 @@ public class EntityRepository2 {
        try (TupleQueryResult rs = qry.evaluate()){
            while (rs.hasNext()) {
                BindingSet bs = rs.next();
-               TTIriRef iri= TTIriRef.iri(bs.getValue("iri").stringValue());
+               TTIriRef iri= iri(bs.getValue("iri").stringValue());
                iris.stream().filter(i-> i.equals(iri))
                  .findFirst().ifPresent(i-> i.setName(bs.getValue("label").stringValue()));
            }
@@ -534,7 +529,7 @@ public class EntityRepository2 {
     public Set<TTEntity> getLinkedShapes(String iri){
         String sql = getLinkedShapeSql();
         Set<TTEntity> shapes = new HashSet<>();
-        try (RepositoryConnection conn = ConnectionManager.getConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry = conn.prepareGraphQuery(sql);
             qry.setBinding("shape", Values.iri(iri));
             try (GraphQueryResult gs = qry.evaluate()) {
@@ -551,7 +546,7 @@ public class EntityRepository2 {
 
     private void processTripleLinkShape(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String,TTNode> subjectMap,Statement st) {
         Resource subject = st.getSubject();
-        TTIriRef predicate = TTIriRef.iri(st.getPredicate().stringValue());
+        TTIriRef predicate = iri(st.getPredicate().stringValue());
         Value object = st.getObject();
         TTNode node = subjectMap.get(subject.stringValue());
         if (node == null) {
@@ -569,24 +564,21 @@ public class EntityRepository2 {
             node.set(predicate, TTLiteral.literal(l.stringValue(), l.getDatatype().stringValue()));
         }
         else if (object.isIRI()) {
-            node.addObject(predicate, TTIriRef.iri(object.stringValue()));
+            node.addObject(predicate, iri(object.stringValue()));
         }
         else {
-            if (valueMap.get(object.stringValue()) == null)
-                if (subjectMap.get(object.stringValue())!=null)
-                    valueMap.put(object.stringValue(),subjectMap.get(object.stringValue()));
+            if (valueMap.get(object.stringValue()) == null) {
+                if (subjectMap.get(object.stringValue()) != null)
+                    valueMap.put(object.stringValue(), subjectMap.get(object.stringValue()));
                 else {
                     valueMap.put(object.stringValue(), new TTNode());
                     subjectMap.put(object.stringValue(), valueMap.get(object.stringValue()).asNode());
                 }
+            }
             subjectMap.put(object.stringValue(), valueMap.get(object.stringValue()).asNode());
             node.addObject(predicate,valueMap.get(object.stringValue()).asNode());
         }
     }
-
-
-
-
 
     private String getLinkedShapeSql() {
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +

@@ -77,11 +77,12 @@ public class SetExporter {
     }
 
     private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
+        String setId = setIri.substring(setIri.indexOf("#") + 1);
         StringJoiner results = new StringJoiner(System.lineSeparator());
         for(CoreLegacyCode member : members) {
             results.add(
                 new StringJoiner("\t")
-                    .add(setIri)
+                    .add(setId)
                     .add(name)
                     .add(member.getCode())
                     .add(member.getScheme().getIri())
@@ -91,7 +92,7 @@ public class SetExporter {
             if (member.getLegacyCode() != null && !member.getLegacyCode().isEmpty()) {
                 results.add(
                     new StringJoiner("\t")
-                        .add(setIri)
+                        .add(setId)
                         .add(name)
                         .add(member.getLegacyCode())
                         .add(member.getLegacyScheme().getIri())

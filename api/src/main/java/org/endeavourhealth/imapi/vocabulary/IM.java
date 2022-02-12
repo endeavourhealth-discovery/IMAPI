@@ -206,6 +206,14 @@ public class IM {
   public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE+"usageTotal");
   public static final TTIriRef PLABEL= iri(NAMESPACE+"pLabel");
   public static final TTIriRef OLABEL= iri(NAMESPACE+"oLabel");
-    private IM() {}
+
+  //im1
+  public static final TTIriRef IM1MAP= iri(NAMESPACE+"im1Map");
+  public static final TTIriRef DBID= iri(NAMESPACE+"dbid");
+  public static final TTIriRef IM1SCHEME= iri(NAMESPACE+"im1Scheme");
+  public static final TTIriRef IM1CODE= iri(NAMESPACE+"im1Code");
+
+
+  private IM() {}
 }
 

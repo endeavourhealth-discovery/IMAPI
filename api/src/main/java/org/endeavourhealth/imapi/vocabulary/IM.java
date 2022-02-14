@@ -212,6 +212,8 @@ public class IM {
   public static final TTIriRef DBID= iri(NAMESPACE+"dbid");
   public static final TTIriRef IM1SCHEME= iri(NAMESPACE+"im1Scheme");
   public static final TTIriRef IM1CODE= iri(NAMESPACE+"im1Code");
+  public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
+
 
 
   private IM() {}

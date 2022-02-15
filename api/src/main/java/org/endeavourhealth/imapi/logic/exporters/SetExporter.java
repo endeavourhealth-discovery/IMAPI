@@ -79,6 +79,7 @@ public class SetExporter {
     private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
         String setId = setIri.substring(setIri.indexOf("#") + 1);
         StringJoiner results = new StringJoiner(System.lineSeparator());
+        results.add("vsId\tvsName\tmemberCode\tmemberScheme");
         for(CoreLegacyCode member : members) {
             results.add(
                 new StringJoiner("\t")

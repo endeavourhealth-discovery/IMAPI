@@ -19,10 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Component
 public class SetExporter {
@@ -70,7 +69,10 @@ public class SetExporter {
             .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
             .build();
         try {
-            s3.putObject(bucket, "valueset.tsv", results.toString());
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
+            String filename = date.format(timestamp.getTime()) + "_valuset.tsv";
+            s3.putObject(bucket, filename, results.toString());
         } catch (AmazonServiceException e) {
             LOG.error(e.getErrorMessage());
         }
@@ -109,8 +111,10 @@ public class SetExporter {
 
         for(String iri : setIris){
             TTArray definition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri()), 0).getEntity().get(IM.DEFINITION);
-            members.addAll(entityRepository2.getSetExpansion(definition, false));
-            members.addAll(entityRepository2.getSetExpansion(definition, true));
+            if(definition != null) {
+                members.addAll(entityRepository2.getSetExpansion(definition, false));
+                members.addAll(entityRepository2.getSetExpansion(definition, true));
+            }
         }
         return members;
     }

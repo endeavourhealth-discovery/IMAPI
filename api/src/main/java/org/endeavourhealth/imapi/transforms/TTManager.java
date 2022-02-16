@@ -511,7 +511,9 @@ public class TTManager {
       TTNode termCode= new TTNode();
       if (status!=null)
          termCode.set(IM.HAS_STATUS,status);
-      termCode.set(RDFS.LABEL,TTLiteral.literal(term));
+      if (term!=null) {
+         termCode.set(RDFS.LABEL, TTLiteral.literal(term));
+      }
       if (code!=null)
          termCode.set(IM.CODE,TTLiteral.literal(code));
       entity.addObject(IM.HAS_TERM_CODE,termCode);

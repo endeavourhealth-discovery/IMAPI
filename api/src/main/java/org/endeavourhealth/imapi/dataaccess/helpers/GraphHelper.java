@@ -17,6 +17,10 @@ import java.util.Map;
  */
 public class GraphHelper {
 
+	private GraphHelper() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	/**
 	 * Runs a sparql construct query and processes the results into a TTEntity map with an iri TTEntity map
 	 * @param qry Fully formed construct query with bound variables

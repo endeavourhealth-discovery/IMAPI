@@ -11,6 +11,11 @@ import java.util.*;
  * Static methods for casting TT classes to business objects for use in builders
  */
 public class TTUtil {
+
+	private TTUtil() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static Object get(TTNode node,TTIriRef predicate,Class clazz) {
 			if (node.get(predicate) == null)
 				return null;

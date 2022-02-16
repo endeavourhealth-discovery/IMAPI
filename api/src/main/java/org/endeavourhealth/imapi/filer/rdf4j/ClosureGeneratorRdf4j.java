@@ -34,7 +34,9 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	private static HashMap<String, Set<String>> parentMap;
 	private static Map<String,Set<String>> replacementMap;
 	private static HashMap<String, Set<String>> closureMap;
+	private static String[] topConcepts={"http://snomed.info/sct#138875005",IM.NAMESPACE+"Concept"};
 	private int counter;
+	private Set<String> blockingIris = new HashSet<>();
 
 
 	public ClosureGeneratorRdf4j() throws TTFilerException {
@@ -55,6 +57,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 	@Override
 	public void generateClosure(String outpath, boolean secure) throws IOException {
+		getTctBlockers();
 		List<TTIriRef> relationships = Arrays.asList(
 			RDFS.SUBCLASSOF,
 			RDFS.SUBPROPERTYOF,
@@ -78,14 +81,39 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 	}
 
+	private void getTctBlockers() {
+		LOG.debug(String.format("Getting %s ", "top level stoppers"));
+		blockingIris.addAll(Arrays.asList(topConcepts));
+		//For now, only exclude top snomed and im concept
+		/*
+		StringBuilder blockers= new StringBuilder();
+		for (String blocker:topConcepts){
+			blockers.append(",<").append(blocker).append(">");
+		}
+		blockers = new StringBuilder(blockers.substring(1));
+		TupleQuery stmt;
+		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelect ?child \n" +
+			"where {?child <" + RDFS.SUBCLASSOF.getIri()+ "> ?parent." +
+			"filter (?parent in ("+blockers+"))}\n");
+
+		try (TupleQueryResult rs = stmt.evaluate()) {
+			while (rs.hasNext()) {
+				BindingSet bs = rs.next();
+				String child= bs.getValue("child").stringValue();
+				blockingIris.add(child);
+			}
+
+		}
+
+		 */
+	}
+
 	private void buildReverseClosure() {
 		if (!replacementMap.isEmpty()) {
 			for (Map.Entry<String, Set<String>> entry : replacementMap.entrySet()) {
 				String replacement = entry.getKey();
 				Set<String> replacementAncestors= closureMap.get(replacement);
-				for (String replacedBy : entry.getValue()) {
-					replacementAncestors.add(replacedBy);
-				}
+				replacementAncestors.addAll(entry.getValue());
 			}
 		}
 	}
@@ -102,12 +130,14 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 				BindingSet bs = rs.next();
 				String child = bs.getValue("child").stringValue();
 				String parent = bs.getValue("parent").stringValue();
-				Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
-				parents.add(parent);
-				if (relationship.equals(SNOMED.REPLACED_BY)){
-				  Set<String> replacements= replacementMap.computeIfAbsent(parent,k-> new HashSet<>());
-					replacements.add(child);
-				}
+				if (!blockingIris.contains(parent)) {
+						Set<String> parents = parentMap.computeIfAbsent(child, k -> new HashSet<>());
+						parents.add(parent);
+						if (relationship.equals(SNOMED.REPLACED_BY)) {
+							Set<String> replacements = replacementMap.computeIfAbsent(parent, k -> new HashSet<>());
+							replacements.add(child);
+						}
+					}
 			}
 		}
 		LOG.debug(String.format("Relationships loaded for %s %d entities", relationship.getIri(), parentMap.size()));
@@ -173,6 +203,8 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 		for (Map.Entry<String, Set<String>> entry : closureMap.entrySet()) {
 			for (String closure : entry.getValue()) {
 				counter++;
+				if (counter % 1000000 == 0)
+					LOG.info("Written {} isas ", counter);
 				fw.write("<" + entry.getKey() + "> <" + IM.IS_A.getIri() + "> <" + closure + ">.\n");
 			}
 		}
@@ -181,7 +213,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	}
 
 	private void importClosure(String outpath, boolean secure) throws IOException {
-        LOG.debug("Importing closure ...");
+        LOG.info("Importing closure ...");
 
         StringJoiner sql = new StringJoiner("\n");
         sql.add("INSERT DATA {");
@@ -193,7 +225,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
                     lineCount++;
                     sql.add(triple);
                     if (lineCount % 200000 == 0) {
-                        LOG.debug("Importing " + lineCount + " of " + counter + " triples :" + triple);
+                        LOG.info("Importing " + lineCount + " of " + counter + " triples :" + triple);
                         sql.add("}");
                         Update upd = conn.prepareUpdate(sql.toString());
                         conn.begin();
@@ -206,7 +238,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
                 triple = reader.readLine();
             }
         }
-        LOG.debug("Importing " + lineCount + " of " + counter + " triples :");
+        LOG.info("Importing " + lineCount + " of " + counter + " triples :");
         if (sql.length() > 20) {
             sql.add("}");
             Update upd = conn.prepareUpdate(sql.toString());

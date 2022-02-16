@@ -83,7 +83,15 @@ public class ConnectionManager {
             LOG.warn("GRAPH_SERVER not set, defaulting to '{}'", server);
         }
 
-        return new HTTPRepository(server, repoId);
+        HTTPRepository repo = new HTTPRepository(server, repoId);
+
+        String user = System.getenv("GRAPH_USER");
+        String pass = System.getenv("GRAPH_PASS");
+
+        if (user != null && pass != null)
+            repo.setUsernameAndPassword(user, pass);
+
+        return repo;
     }
 
     private static SailRepository getFileRepo(String repoId) {

@@ -12,6 +12,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
  */
 public class PropertyRepository {
 
+	private PropertyRepository() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static TTEntityMap getProperty(String focusIri){
 		String sql = getPropertiesSql();
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {

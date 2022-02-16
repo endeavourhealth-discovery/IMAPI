@@ -108,10 +108,10 @@ public class SetController {
     @GetMapping(value = "/publish")
     @ApiOperation(
         value = "Publish set",
-        notes = "Published an expanded set to IM1"
+        notes = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-    public void evaluate(@RequestParam(name = "iri") String iri) {
+    public void publish(@RequestParam(name = "iri") String iri) {
         new SetExporter().publishSetToIM1(iri);
     }
 }

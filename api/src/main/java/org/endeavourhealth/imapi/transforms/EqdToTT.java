@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.query.*;
@@ -27,6 +28,7 @@ public class EqdToTT {
 	private String activeReport;
 	private TTDocument document;
 	private final String slash = "/";
+	private final EntityRepository2 repo = new EntityRepository2();
 
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
@@ -113,8 +115,10 @@ public class EqdToTT {
 
 	private String getPerson(String name) {
 		StringBuilder uri= new StringBuilder();
-		name.chars().forEach(c-> {if (Character.isLetterOrDigit(c))
-			uri.append(Character.toString(c));});
+		name.chars().forEach(c-> {
+			if (Character.isLetterOrDigit(c))
+				uri.append(Character.toString(c));
+		});
 		String root= owner.getIri();
 		root= root.substring(0,root.lastIndexOf("#")-1);
 		return root.replace("org.","uir.")+"/personrole#"+
@@ -638,7 +642,7 @@ public class EqdToTT {
 		document.addEntity(valueSet);
 		VocCodeSystemEx scheme= set.getCodeSystem();
 		for (EQDOCExceptionValue ev:set.getValues()){
-			valueSet.addObject(IM.DEFINITION,getValue(scheme,ev.getValue()));
+			valueSet.addObject(IM.DEFINITION,getValue(scheme,ev.getValue(),ev.getDisplayName()));
 		}
 		return TTIriRef.iri(iri);
 	}
@@ -663,22 +667,28 @@ public class EqdToTT {
 		if (vs.getValues().size() == 1) {
 			if (vsetName.length() == 0)
 				vsetName.append(vs.getValues().get(0).getDisplayName());
-			valueSet.addObject(IM.DEFINITION, getValue(scheme, vs.getValues().get(0)));
+			TTIriRef concept= getValue(scheme,vs.getValues().get(0));
+			if (concept!=null)
+			  valueSet.addObject(IM.DEFINITION, concept);
 		} else {
-			TTNode orSet = new TTNode();
-			valueSet.addObject(IM.DEFINITION, orSet);
 			int i=0;
 			for (EQDOCValueSetValue ev : vs.getValues()) {
 				i++;
-				if (i<10) {
+				if (i < 10) {
 					if (vsetName.length() != 0)
-					    vsetName.append(", ");
+						vsetName.append(", ");
 					vsetName.append(ev.getDisplayName());
+				} else if (i == 10)
+					vsetName.append("..more");
+				TTIriRef concept = getValue(scheme, ev);
+				if (concept != null) {
+					if (valueSet.get(IM.DEFINITION)==null)
+						valueSet.set(IM.DEFINITION,new TTNode());
+					TTNode orSet= valueSet.get(IM.DEFINITION).asNode();
+					orSet.addObject(SHACL.OR, concept);
 				}
 				else
-					if (i==10)
-					  vsetName.append("..more");
-				orSet.addObject(SHACL.OR, getValue(scheme, ev));
+					System.err.println("Missing : "+ ev.getValue()+" " + ev.getDisplayName());
 			}
 		}
 		if (vsetName.length() > 0) {
@@ -696,10 +706,10 @@ public class EqdToTT {
 		return iri;
 	}
 	private TTIriRef getValue(VocCodeSystemEx scheme,EQDOCValueSetValue ev) throws DataFormatException {
-		return getValue(scheme, ev.getValue());
+		return getValue(scheme, ev.getValue(),ev.getDisplayName());
 	}
 
-	private TTIriRef getValue(VocCodeSystemEx scheme, String originalCode) throws DataFormatException {
+	private TTIriRef getValue(VocCodeSystemEx scheme, String originalCode,String originalTerm) throws DataFormatException {
 		if (scheme== VocCodeSystemEx.EMISINTERNAL) {
 			String key = "EMISINTERNAL/" + originalCode;
 			Object mapValue = dataMap.get(key);
@@ -710,7 +720,14 @@ public class EqdToTT {
 				throw new DataFormatException("unmapped emis internal code : "+key);
 		}
 		else if (scheme==VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")){
-			return TTIriRef.iri(SNOMED.NAMESPACE+originalCode);
+			List<String> schemes= new ArrayList<>();
+			schemes.add(SNOMED.NAMESPACE);
+			schemes.add(IM.CODE_SCHEME_EMIS.getIri());
+			TTIriRef snomed=repo.getCoreFromCode(originalCode,schemes);
+			if (snomed==null)
+				if (originalTerm!=null)
+					snomed= repo.getCoreFromLegacyTerm(originalTerm,IM.CODE_SCHEME_EMIS.getIri());
+			return snomed;
 		}
 		else
 			throw new DataFormatException("code scheme not recognised : "+scheme.value());

@@ -499,11 +499,21 @@ public class TTManager {
    }
 
 
+   public static TTEntity addTermCode(TTEntity entity,
+                                      String term,String code){
+      return addTermCode(entity,term,code,null);
+   }
+
+
 
    public static TTEntity addTermCode(TTEntity entity,
-                                       String term,String code){
+                                       String term,String code,TTIriRef status){
       TTNode termCode= new TTNode();
-      termCode.set(RDFS.LABEL,TTLiteral.literal(term));
+      if (status!=null)
+         termCode.set(IM.HAS_STATUS,status);
+      if (term!=null) {
+         termCode.set(RDFS.LABEL, TTLiteral.literal(term));
+      }
       if (code!=null)
          termCode.set(IM.CODE,TTLiteral.literal(code));
       entity.addObject(IM.HAS_TERM_CODE,termCode);

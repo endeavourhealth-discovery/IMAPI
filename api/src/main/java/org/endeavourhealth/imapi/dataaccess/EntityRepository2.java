@@ -122,6 +122,78 @@ public class EntityRepository2 {
     }
 
 
+    /**
+     * Returns an entity iri and name from a code or a term code
+     * @param code the code or description id or term code
+     * @return iri and name of entity
+     */
+    public TTIriRef getCoreFromCode(String code,List<String> schemes){
+        StringBuilder sql=
+          new StringBuilder("PREFIX im: <http://endhealth.info/im#>\n" +
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+            "select ?concept ?label\n");
+        for (String scheme:schemes){
+            sql.append("from <").append(scheme).append(">\n");
+        }
+          sql.append("where {  {\n")
+            .append(" ?concept im:code ?code.\n")
+            .append("    filter (isIri(?concept))\n")
+            .append(" ?concept rdfs:label ?label.}\n")
+            .append("  UNION{?concept im:hasTermCode ?node.\n")
+            .append("        ?node im:code ?code.\n")
+            .append("          filter not exists { ?concept im:matchedTo ?core}\n")
+            .append("        ?concept rdfs:label ?label}\n")
+            .append("  UNION {?legacy im:hasTermCode ?node.\n")
+            .append("         ?node im:code ?code.\n")
+            .append("          ?legacy im:matchedTo ?concept.\n")
+            .append("         ?concept rdfs:label ?label.}\n")
+            .append("   UNION {?legacy im:codeId ?code.\n")
+            .append("          ?legacy im:matchedTo ?concept.\n")
+            .append("          ?concept rdfs:label ?label.}\n")
+            .append("}");
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("code", Values.literal(code));
+            return getConceptRefFromResult(qry);
+        }
+
+    }
+
+    /**
+     * Returns an entity iri and name from a code or a term code
+     * @param term the code or description id or term code
+     * @return iri and name of entity
+     */
+    public TTIriRef getCoreFromLegacyTerm(String term,String scheme){
+        String sql="PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "select ?concept ?label\n"+
+          "where { graph ?scheme {\n" +
+          "?legacy rdfs:label ?term.\n" +
+          "?legacy im:matchedTo ?concept.}\n"+
+          "{?concept rdfs:label ?label} }";
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("term", Values.literal(term));
+            qry.setBinding("scheme", Values.iri(scheme));
+            return getConceptRefFromResult(qry);
+        }
+    }
+
+    private TTIriRef getConceptRefFromResult(TupleQuery qry) {
+        TTIriRef concept=null;
+        try (TupleQueryResult gs = qry.evaluate()) {
+            while (gs.hasNext()) {
+                BindingSet bs = gs.next();
+                concept = TTIriRef.iri(bs.getValue("concept").stringValue());
+                if (bs.getValue("label") != null)
+                    concept.setName(bs.getValue("label").stringValue());
+
+            }
+        }
+        return concept;
+    }
+
 
     private StringJoiner getBundleSparql(Set<String> predicates,
                                          boolean excludePredicates) {

@@ -68,7 +68,7 @@ public class EntityCache implements Runnable{
 			if (property==null){
 				synchronized (propertyLock) {
 				TTEntityMap propertyMap = PropertyRepository.getProperty(iri);
-				  if (propertyMap.getEntities() == null)
+				if (propertyMap.getEntities() == null)
 					return null;
 				cacheProperties(propertyMap);
 				Reasoner reasoner= new Reasoner();

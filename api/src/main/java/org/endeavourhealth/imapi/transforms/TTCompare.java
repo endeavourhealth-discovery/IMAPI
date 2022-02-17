@@ -12,6 +12,10 @@ import java.util.Iterator;
  */
 public class TTCompare {
 
+	private TTCompare() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	/**
 	 * Tests equality the predicate keys and values of a node
 	 * @param from first node
@@ -19,11 +23,21 @@ public class TTCompare {
 	 * @return if the same or not
 	 */
 	public static boolean equals(TTNode from, TTNode to){
+		if (isNull(from.getPredicateMap(),to.getPredicateMap()))
+			return false;
 		if (from.getPredicateMap().size() != to.getPredicateMap().size())
 			return false;
 
 		return from.getPredicateMap().entrySet().stream()
 			.allMatch(e -> equals(e.getValue(),to.getPredicateMap().get(e.getKey())));
+	}
+
+	private static boolean isNull(Object from, Object to){
+		if (from==null&&to!=null)
+			return true;
+		if (to==null&&from!=null)
+			return true;
+		return false;
 	}
 
 	/**
@@ -33,12 +47,17 @@ public class TTCompare {
 	 * @return true or false
 	 */
 	public static boolean equals(TTArray from, TTArray to){
+		if (isNull(from,to))
+			return false;
 		if (from.size()!=to.size())
 			return false;
-		Iterator<TTValue> s1It = from.getElements().iterator();
-		Iterator<TTValue> s2It = to.getElements().iterator();
-		while (s1It.hasNext()) {
-			if (!equals(s1It.next(), s2It.next()))
+		for (TTValue fromVal:from.getElements()){
+			boolean found=false;
+			for (TTValue toVal:to.getElements()){
+				if (equals(fromVal,toVal))
+					found=true;
+			}
+			if (!found)
 				return false;
 		}
 		return true;

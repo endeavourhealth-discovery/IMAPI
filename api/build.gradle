@@ -28,8 +28,6 @@ dependencies {
     implementation libs.javaxxmlbind
     implementation libs.logbackCore
     implementation libs.logbackClassic
-    implementation libs.opensearchClient
-    implementation libs.opensearchJava
     implementation libs.owlApi
     implementation libs.reactorCore
     implementation libs.rdf4jQuery

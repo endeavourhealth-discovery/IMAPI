@@ -17,9 +17,6 @@ public class FilerService {
     private final TTDocumentFiler documentFiler = new TTDocumentFilerRdf4j();
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
 
-    public FilerService() throws TTFilerException {
-    }
-
     public void fileDocument(TTDocument document) throws TTFilerException {
         documentFiler.fileDocument(document);
     }

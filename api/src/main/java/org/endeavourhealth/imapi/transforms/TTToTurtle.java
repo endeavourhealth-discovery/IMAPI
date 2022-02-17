@@ -17,10 +17,6 @@ public class TTToTurtle {
 	private int level;
 	private Map<String,String> prefixes= new HashMap<>();
 
-	public TTToTurtle(){
-	}
-
-
 	/**
 	 * Transforms a document to Turtle format.
 	 * @param document the document in Triple Tree class format

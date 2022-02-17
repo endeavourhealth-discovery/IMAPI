@@ -102,7 +102,8 @@ public class ExcelSetExporter {
                     String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
                     String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
                     addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
-                    legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
+                    if(cl.getLegacyCode() != null && !"".equals(cl.getLegacyCode()))
+                        legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
                 }
             }
             sheet.autoSizeColumn(3);

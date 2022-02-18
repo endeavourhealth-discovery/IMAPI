@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.*;
 
@@ -55,8 +56,8 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", Values.iri(objectIri));
-            qry.setBinding("e", Values.iri(excludePredicateIri));
+            qry.setBinding("o", iri(objectIri));
+            qry.setBinding("e", iri(excludePredicateIri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -82,8 +83,8 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", Values.iri(objectIri));
-            qry.setBinding("e", Values.iri(excludePredicateIri));
+            qry.setBinding("o", iri(objectIri));
+            qry.setBinding("e", iri(excludePredicateIri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -111,7 +112,7 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("o", Values.iri(iri));
+            qry.setBinding("o", iri(iri));
             execute(result, qry);
         }
 
@@ -138,8 +139,8 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("bp", Values.iri(predicate));
-            qry.setBinding("bo", Values.iri(object));
+            qry.setBinding("bp", iri(predicate));
+            qry.setBinding("bo", iri(object));
             execute(result, qry);
         }
 
@@ -186,7 +187,7 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("p", Values.iri(parentIri));
+            qry.setBinding("p", iri(parentIri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 return rs.hasNext();
             }
@@ -224,7 +225,7 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("p", Values.iri(parentIri));
+            qry.setBinding("p", iri(parentIri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -268,7 +269,7 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("c", Values.iri(childIri));
+            qry.setBinding("c", iri(childIri));
 
             LOG.debug("Executing...");
             try (TupleQueryResult rs = qry.evaluate()) {
@@ -297,8 +298,8 @@ public class EntityTripleRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("s", Values.iri(subjectIri));
-            qry.setBinding("p", Values.iri(predicateIri));
+            qry.setBinding("s", iri(subjectIri));
+            qry.setBinding("p", iri(predicateIri));
             LOG.debug("Executing...");
             try (TupleQueryResult rs = qry.evaluate()) {
                 LOG.debug("Retrieving...");
@@ -372,7 +373,7 @@ public class EntityTripleRepository {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
             for (EntitySummary core : coreEntities) {
-                qry.setBinding("o", Values.iri(core.getIri()));
+                qry.setBinding("o", iri(core.getIri()));
                 execute(result, qry);
             }
         }
@@ -406,7 +407,7 @@ public class EntityTripleRepository {
             if (predicates != null && !predicates.isEmpty()) {
                 int i = 0;
                 for (String predicate : predicates) {
-                    qry.setBinding("p" + i++, Values.iri(predicate));
+                    qry.setBinding("p" + i++, iri(predicate));
                 }
             }
 
@@ -473,7 +474,7 @@ public class EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
-            qry.setBinding("s", Values.iri(iri));
+            qry.setBinding("s", iri(iri));
 
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -495,7 +496,7 @@ public class EntityTripleRepository {
         try( RepositoryConnection conn = ConnectionManager.getIMConnection()){
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
-            qry.setBinding("g", Values.iri(iri));
+            qry.setBinding("g", iri(iri));
             try(TupleQueryResult rs = qry.evaluate()){
                 while (rs.hasNext()){
                     BindingSet bs = rs.next();
@@ -506,4 +507,31 @@ public class EntityTripleRepository {
 
         return iris;
     }
+
+    public TTIriRef findParentFolderRef(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?p ?pname")
+                .add("WHERE {")
+                .add("  ?c im:isContainedIn ?p .")
+                .add("  ?p rdfs:label ?pname .")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("c", iri(iri));
+
+            LOG.debug("Executing...");
+            try (TupleQueryResult rs = qry.evaluate()) {
+                LOG.debug("Retrieving...");
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+
+                    return new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

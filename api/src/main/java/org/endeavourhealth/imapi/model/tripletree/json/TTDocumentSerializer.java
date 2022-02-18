@@ -19,7 +19,6 @@ import java.util.*;
  * <p>Uses @context for prefixes and common annotation elements</p>
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
-   private List<TTIriRef> predicateTemplate;
 
    public TTDocumentSerializer() {
       this(null);
@@ -73,9 +72,9 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
    }
 
    private void setPredicateOrder() {
-      predicateTemplate = List.of(RDF.TYPE,RDFS.LABEL,
-        RDFS.COMMENT,IM.CODE,IM.HAS_SCHEME,IM.HAS_STATUS,
-        RDFS.SUBCLASSOF);
+      List<TTIriRef> predicateTemplate = List.of(RDF.TYPE, RDFS.LABEL,
+              RDFS.COMMENT, IM.CODE, IM.HAS_SCHEME, IM.HAS_STATUS,
+              RDFS.SUBCLASSOF);
    }
 
 }

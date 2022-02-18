@@ -31,9 +31,9 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 	private Repository repo;
 	private RepositoryConnection conn;
-	private static HashMap<String, Set<String>> parentMap;
-	private static Map<String,Set<String>> replacementMap;
-	private static HashMap<String, Set<String>> closureMap;
+	private HashMap<String, Set<String>> parentMap;
+	private Map<String,Set<String>> replacementMap;
+	private HashMap<String, Set<String>> closureMap;
 	private static String[] topConcepts={"http://snomed.info/sct#138875005",IM.NAMESPACE+"Concept"};
 	private int counter;
 	private Set<String> blockingIris = new HashSet<>();
@@ -120,7 +120,9 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 
 	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
-		LOG.debug(String.format("Extracting %s ", relationship.getIri()));
+		if(LOG.isDebugEnabled() && relationship.getIri() != null){
+			LOG.debug(String.format("Extracting %s ", relationship.getIri()));
+		}
 		TupleQuery stmt;
 		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelect ?child ?parent\n" +
 				"where {?child <" + relationship.getIri() + "> ?parent }\n");

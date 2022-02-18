@@ -173,7 +173,7 @@ public class EntityRepository2 {
           "?legacy im:matchedTo ?concept.}\n"+
           "{?concept rdfs:label ?label} }";
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            TupleQuery qry = conn.prepareTupleQuery(sql);
             qry.setBinding("term", Values.literal(term));
             qry.setBinding("scheme", Values.iri(scheme));
             return getConceptRefFromResult(qry);

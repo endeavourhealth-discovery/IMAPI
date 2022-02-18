@@ -817,7 +817,7 @@ public class EntityService {
 
     public List<TTIriRef> getParentPath(String iri) {
         TTEntity entity = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri())), 0).getEntity();
-        List<TTIriRef> parents = new ArrayList<TTIriRef>();
+        List<TTIriRef> parents = new ArrayList<>();
         getParentPathRecursive(iri, parents);
         Collections.reverse(parents);
         parents.add(new TTIriRef(iri, entity.getName()));
@@ -845,7 +845,7 @@ public class EntityService {
     }
 
     private void getParentHierarchyRecursive(EntityReferenceNode child) {
-        if (child.getParents() != null && child.getParents().size() != 0) {
+        if (child.getParents() != null && !child.getParents().isEmpty()) {
             for (EntityReferenceNode parent : child.getParents()) {
                 TTEntity parentEntity = getBundle(parent.getIri(), new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri())), 0).getEntity();
                 EntityReferenceNode parentNode = new EntityReferenceNode(parentEntity.getIri(), parentEntity.getName(), parentEntity.getType());

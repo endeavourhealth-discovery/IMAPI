@@ -70,11 +70,8 @@ public class SetRepository {
     }
 
     public Set<IMv2v1Map> getIMv2v1Maps(Set<EntitySummary> members) {
-        Set<IMv2v1Map> result = new HashSet<>();
-
         // TODO: How to implement in Graph?
-
-        return result;
+        return new HashSet<>();
     }
 
     public List<ValueSetMember> expandMember(String iri) {

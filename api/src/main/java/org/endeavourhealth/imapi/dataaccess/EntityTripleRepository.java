@@ -512,8 +512,8 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname")
                 .add("WHERE {")
-                .add("  ?c (im:isContainedIn) ?p .")
-                .add("GRAPH ?g { ?p rdfs:label ?pname } .")
+                .add("  ?c im:isContainedIn ?p .")
+                .add("  ?p rdfs:label ?pname .")
                 .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {

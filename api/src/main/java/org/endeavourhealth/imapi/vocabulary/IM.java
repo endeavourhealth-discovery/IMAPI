@@ -115,6 +115,7 @@ public class IM {
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
     public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
+    public static final TTIriRef GRAPH_STATS= TTIriRef.iri(DOMAIN +"stats#");
 
 
     // redant code schemes are now the same as graphs
@@ -175,6 +176,7 @@ public class IM {
   public static final TTIriRef VALUE_MATCH = iri(NAMESPACE +"valueMatch");
   public static final TTIriRef VALUE_IRI = iri(NAMESPACE +"valueIrI");
   public static final TTIriRef VALUE_DATA = iri(NAMESPACE +"valueData");
+  public static final TTIriRef USED_IN = iri(NAMESPACE +"usedIn");
 
 
 

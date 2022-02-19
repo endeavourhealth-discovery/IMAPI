@@ -160,8 +160,9 @@ public class EntityRepository2 {
     }
 
     /**
-     * Returns an entity iri and name from a code or a term code
+     * Returns a core entity iri and name from a legacy term
      * @param term the code or description id or term code
+     * @param scheme the legacy scheme of the term
      * @return iri and name of entity
      */
     public TTIriRef getCoreFromLegacyTerm(String term,String scheme){
@@ -180,6 +181,68 @@ public class EntityRepository2 {
         }
     }
 
+    /**
+     * Returns A core entity iri and name from a core term
+     * @param term the code or description id or term code
+     * @return iri and name of entity
+     */
+    public TTIriRef getReferenceFromCoreTerm(String term,List<String> schemes){
+        String sql="PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "select ?concept ?label\n";
+        for (String scheme:schemes)
+            sql=sql+"from <"+scheme+">\n";
+         sql=sql+ "where {\n" +
+          "?concept rdfs:label ?term." +
+           "filter(isIri(?concept))}\n";
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("term", Values.literal(term));
+            return getConceptRefFromResult(qry);
+        }
+    }
+
+    public Map<String,Set<String>> getAllMatchedLegacy(){
+        String sql="PREFIX im: <http://endhealth.info/im#>\n"+
+      "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"+
+      "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"+
+     "select ?legacy ?concept\n"+
+      "where {?legacy im:matchedTo ?concept.}\n";
+        Map<String,Set<String>> maps= new HashMap<>();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            TTIriRef concept=null;
+            try (TupleQueryResult gs = qry.evaluate()) {
+                while (gs.hasNext()) {
+                    BindingSet bs = gs.next();
+                    String legacy= bs.getValue("legacy").stringValue();
+                    maps.putIfAbsent(legacy, new HashSet<>());
+                    maps.get(legacy).add(bs.getValue("concept").stringValue());
+                    if (bs.getValue("label") != null)
+                        concept.setName(bs.getValue("label").stringValue());
+
+                }
+            }
+        }
+        return maps;
+    }
+
+
+    public Set<TTIriRef> getMatchedCore(String legacy){
+        String sql="PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "select ?concept ?label\n" +
+          "where {\n" +
+          "    ?legacy im:matchedTo ?concept.\n" +
+          "    ?concept rdfs:label ?label}\n" +
+          "    ";
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            qry.setBinding("legacy", Values.iri(legacy));
+            return getConceptRefsFromResult(qry);
+        }
+    }
+
     private TTIriRef getConceptRefFromResult(TupleQuery qry) {
         TTIriRef concept=null;
         try (TupleQueryResult gs = qry.evaluate()) {
@@ -192,6 +255,23 @@ public class EntityRepository2 {
             }
         }
         return concept;
+    }
+
+    private Set<TTIriRef> getConceptRefsFromResult(TupleQuery qry) {
+        Set<TTIriRef> results=null;
+        try (TupleQueryResult gs = qry.evaluate()) {
+            while (gs.hasNext()) {
+                BindingSet bs = gs.next();
+                if (results==null)
+                    results= new HashSet<>();
+                TTIriRef concept = TTIriRef.iri(bs.getValue("concept").stringValue());
+                if (bs.getValue("label") != null)
+                    concept.setName(bs.getValue("label").stringValue());
+                results.add(concept);
+
+            }
+        }
+        return results;
     }
 
 

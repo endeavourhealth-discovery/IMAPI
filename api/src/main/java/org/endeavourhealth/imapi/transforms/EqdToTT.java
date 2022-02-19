@@ -26,9 +26,12 @@ public class EqdToTT {
 	private Properties criteriaLabels;
 	private int varCounter;
 	private String activeReport;
+	private final Map<String,TTEntity> reportMap= new HashMap<>();
 	private TTDocument document;
 	private final String slash = "/";
 	private final EntityRepository2 repo = new EntityRepository2();
+	private final Map<String,TTIriRef> valueMap= new HashMap<>();
+
 
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
@@ -130,6 +133,7 @@ public class EqdToTT {
 		setVocabMaps();
 		activeReport = eqReport.getId();
 		TTEntity entity= new TTEntity().addType(IM.PROFILE);
+		reportMap.put(activeReport,entity);
 		entity.set(IM.ENTITY_TYPE,TTIriRef.iri(IM.NAMESPACE+"Person"));
 		entity.setIri("urn:uuid:" + eqReport.getId());
 		entity.setName(eqReport.getName());
@@ -639,7 +643,9 @@ public class EqdToTT {
 		String iri = "urn:uuid:" + UUID.randomUUID();
 		valueSet.setIri(iri);
 		valueSet.addType(IM.CONCEPT_SET);
+		valueSet.addObject(IM.USED_IN,TTIriRef.iri(reportMap.get(activeReport).getIri()));
 		document.addEntity(valueSet);
+
 		VocCodeSystemEx scheme= set.getCodeSystem();
 		for (EQDOCExceptionValue ev:set.getValues()){
 			valueSet.addObject(IM.DEFINITION,getValue(scheme,ev.getValue(),ev.getDisplayName()));
@@ -695,12 +701,16 @@ public class EqdToTT {
 			iri.setName(vsetName.toString());
 			valueSet.setName(iri.getName());
 		}
+		/*
 		TTEntity duplicateOf = getDuplicateSet(valueSet);
 		if (duplicateOf!=null){
 			iri= TTIriRef.iri(duplicateOf.getIri());
 			iri.setName(duplicateOf.getName());
 			return iri;
 		}
+
+		 */
+		valueSet.addObject(IM.USED_IN,TTIriRef.iri(reportMap.get(activeReport).getIri()));
 		document.addEntity(valueSet);
 		valueSets.add(valueSet);
 		return iri;
@@ -723,10 +733,15 @@ public class EqdToTT {
 			List<String> schemes= new ArrayList<>();
 			schemes.add(SNOMED.NAMESPACE);
 			schemes.add(IM.CODE_SCHEME_EMIS.getIri());
-			TTIriRef snomed=repo.getCoreFromCode(originalCode,schemes);
-			if (snomed==null)
-				if (originalTerm!=null)
-					snomed= repo.getCoreFromLegacyTerm(originalTerm,IM.CODE_SCHEME_EMIS.getIri());
+			TTIriRef snomed= valueMap.get(originalCode);
+			if (snomed==null) {
+				snomed = repo.getCoreFromCode(originalCode, schemes);
+				if (snomed == null)
+					if (originalTerm != null)
+						snomed = repo.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
+				if (snomed != null)
+					valueMap.put(originalCode, snomed);
+			}
 			return snomed;
 		}
 		else

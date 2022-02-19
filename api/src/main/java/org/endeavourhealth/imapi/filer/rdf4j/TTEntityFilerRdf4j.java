@@ -81,7 +81,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
 
     private void replacePredicates(TTEntity entity,TTIriRef graph) throws TTFilerException {
-        if (!TTFilerFactory.skipDeletes)
+        if (!TTFilerFactory.isSkipDeletes())
             deleteTriples(entity, graph);
         fileEntityPredicates(entity, graph);
     }
@@ -149,7 +149,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     private void updatePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
         //Deletes the previous predicate objects ie. clears out all previous objects
-        if (!TTFilerFactory.skipDeletes)
+        if (!TTFilerFactory.isSkipDeletes())
             deletePredicates(entity,graph);
         fileEntityPredicates(entity,graph);
     }

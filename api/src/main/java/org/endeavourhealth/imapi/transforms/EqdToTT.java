@@ -18,8 +18,8 @@ import java.util.*;
 import java.util.zip.DataFormatException;
 
 public class EqdToTT {
-	public static  Map<String,String> reportNames;
-	public static final Set<TTEntity> valueSets = new HashSet<>();
+	private static  Map<String,String> reportNames;
+	private static final Set<TTEntity> valueSets = new HashSet<>();
 	private static final Set<String> roles= new HashSet<>();
 	private TTIriRef owner;
 	private Properties dataMap;

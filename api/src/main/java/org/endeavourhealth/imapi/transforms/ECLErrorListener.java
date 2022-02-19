@@ -11,24 +11,20 @@ public class ECLErrorListener extends BaseErrorListener{
    private String partialToken;
    private List<String> errorMessages;
    private String errorOffset;
-   private Recognizer recognizer;
-   private CommonToken badToken;
-   private IntervalSet expectedTokens;
 
 
-@Override
+   @Override
 public void syntaxError(Recognizer<?,?> recognizer,
                         Object offendingSymbol, int line, int charPositionInLine,
                         String msg, RecognitionException e) {
-   this.recognizer = recognizer;
+   CommonToken badToken;
    if (offendingSymbol instanceof CommonToken)
       badToken = (CommonToken) offendingSymbol;
    if (recognizer instanceof Lexer) {
       throw new UnknownFormatConversionException(msg + " line " + line + " offset " + charPositionInLine);
    } else {
       Parser parser = (Parser) recognizer;
-      ParserRuleContext ctx = parser.getContext();
-      expectedTokens = parser.getExpectedTokens();
+      IntervalSet expectedTokens = parser.getExpectedTokens();
       String message = "Expecting " + expectedTokens.toString(parser.getVocabulary());
       throw new UnknownFormatConversionException("ECL Syntax error : " + message + " line " + line
           + " offset " + charPositionInLine);

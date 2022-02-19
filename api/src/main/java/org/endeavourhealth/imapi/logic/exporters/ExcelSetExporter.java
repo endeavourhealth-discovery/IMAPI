@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -30,9 +29,9 @@ public class ExcelSetExporter {
     private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
-    public XSSFWorkbook workbook;
-    public XSSFFont font;
-    public CellStyle headerStyle;
+    private XSSFWorkbook workbook;
+    private XSSFFont font;
+    private CellStyle headerStyle;
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();

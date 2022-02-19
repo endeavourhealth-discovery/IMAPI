@@ -8,14 +8,10 @@ import java.util.List;
 
 public class WorkflowRepository {
     public List<StateMachineConfig> getWorkflows() {
-        List<StateMachineConfig> result = new ArrayList<>();
-
-        return result;
+        return new ArrayList<>();
     }
 
     public List<Task> findAllTasks() {
-        List<Task> result = new ArrayList<>();
-
-        return result;
+        return new ArrayList<>();
     }
 }

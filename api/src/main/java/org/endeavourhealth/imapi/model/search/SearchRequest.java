@@ -12,6 +12,7 @@ import java.util.List;
 )
 public class SearchRequest {
     private String termFilter;
+    private String index="concept";
     private List<String> statusFilter = new ArrayList<>();
     private List<String> typeFilter = new ArrayList<>();
     private List<String> schemeFilter = new ArrayList<>();
@@ -115,6 +116,15 @@ public class SearchRequest {
 
     public SearchRequest setSize(int size) {
         this.size = size;
+        return this;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public SearchRequest setIndex(String index) {
+        this.index = index;
         return this;
     }
 }

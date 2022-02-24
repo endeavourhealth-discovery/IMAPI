@@ -34,7 +34,7 @@ public class IM {
     public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "Clause");
     public static final TTIriRef COMPARE_CLAUSE = iri(NAMESPACE + "CompareClause");
     public static final TTIriRef ARGUMENT_CLAUSE = iri(NAMESPACE + "ArgumentClause");
     public static final TTIriRef RANGE_CLAUSE = iri(NAMESPACE + "RangeClause");

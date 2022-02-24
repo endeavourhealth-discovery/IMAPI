@@ -2,8 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.*;
@@ -17,7 +15,6 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.opensearch.*;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -30,11 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -161,71 +154,9 @@ public class EntityService {
     }
 
     public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException {
+        SearchService searchService= new SearchService();
+        return searchService.getEntitiesByTerm(request);
 
-        if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
-            return Collections.emptyList();
-
-        Query osQuery = new Query();
-        Request osRequest = new Request(request.getSize());
-        for (String term : request.getTermFilter().split(" ")) {
-            osQuery.addMust(term);
-        }
-
-        Filter schemeFilter = new Filter(1);
-        for (String scheme : request.getSchemeFilter()) {
-            schemeFilter.addShould(new SchemeId(scheme));
-        }
-        osQuery.addFilter(schemeFilter);
-
-        Filter statusFilter = new Filter(1);
-        for (String status : request.getStatusFilter()) {
-            statusFilter.addShould(new StatusId(status));
-        }
-        osQuery.addFilter(statusFilter);
-
-        Filter typeFilter = new Filter(1);
-        for (String type : request.getTypeFilter()) {
-            typeFilter.addShould(new TypeId(type));
-        }
-        osQuery.addFilter(typeFilter);
-
-        osRequest.setQuery(osQuery);
-        ObjectMapper mapper = new ObjectMapper();
-        String osRequestAsString = mapper.writeValueAsString(osRequest);
-
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(new URI(System.getenv("OPENSEARCH_URL")))
-//				.timeout(Duration.of(10, ChronoUnit.SECONDS))
-                .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(osRequestAsString))
-                .build();
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = client
-                .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-                .thenApply(res -> res)
-                .get();
-
-        if (299 < response.statusCode()) {
-            LOG.debug("Open search request failed with code: " + response.statusCode());
-            throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
-        }
-
-        ObjectMapper resultMapper = new ObjectMapper();
-        JsonNode root = resultMapper.readTree(response.body());
-        List<SearchResultSummary> searchResults = new ArrayList<>();
-        for (JsonNode hit : root.get("hits").get("hits")) {
-            SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
-            TTArray types = new TTArray();
-            for (JsonNode type : hit.get("_source").get("entityType")) {
-                types.add(new TTIriRef(type.get("@id").asText(), type.get("name").asText()));
-            }
-            source.setEntityType(types);
-            searchResults.add(source);
-        }
-
-        return searchResults;
     }
 
     public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {

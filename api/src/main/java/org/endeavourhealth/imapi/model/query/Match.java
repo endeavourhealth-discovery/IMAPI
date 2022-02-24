@@ -197,6 +197,7 @@ public class Match extends TTNode {
 	public Function getFunction(){
 		return (Function) TTUtil.get(this,IM.FUNCTION, Function.class);
 	}
+
 	public Match setFunction(Function function){
 		this.set(IM.FUNCTION,function);
 		return this;

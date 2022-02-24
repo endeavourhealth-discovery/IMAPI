@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class that holds the IM schema as a cache of static maps, including shapes, predicate display ordeers,
@@ -20,11 +21,13 @@ public class EntityCache implements Runnable{
 	public static final Object shapeLock= new Object();
 	public static final Object propertyLock= new Object();
 	public static final Object entityLock= new Object();
+
 	static final Map<String, TTEntity> shapes = new HashMap<>();
 	static final Map<String, TTEntity> properties = new HashMap<>();
 	static final Map<String, TTEntity> entities = new HashMap<>();
 	static final Map<String, List<TTIriRef>> predicateOrder= new HashMap<>();
 	static final Map<String,String> predicateNames= new HashMap<>();
+
 
 
 	/**

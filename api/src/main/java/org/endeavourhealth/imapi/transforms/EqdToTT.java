@@ -123,7 +123,7 @@ public class EqdToTT {
 				uri.append(Character.toString(c));
 		});
 		String root= owner.getIri();
-		root= root.substring(0,root.lastIndexOf("#")-1);
+		root= root.substring(0,root.lastIndexOf("#"));
 		return root.replace("org.","uir.")+"/personrole#"+
 			uri;
 	}

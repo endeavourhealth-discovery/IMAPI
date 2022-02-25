@@ -512,7 +512,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?p ?pname")
                 .add("WHERE {")
-                .add("  ?c im:isContainedIn ?p .")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
                 .add("  ?p rdfs:label ?pname .")
                 .add("}");
 

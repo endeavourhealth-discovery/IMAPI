@@ -2,6 +2,9 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
+import org.endeavourhealth.imapi.dataaccess.FileRepository;
+import org.endeavourhealth.imapi.filer.TTFilerFactory;
+import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.query.*;
@@ -10,8 +13,10 @@ import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.workflow.repository.FileUploadRepository;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.io.InvalidClassException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,14 +35,18 @@ public class EqdToTT {
 	private TTDocument document;
 	private final String slash = "/";
 	private final EntityRepository2 repo = new EntityRepository2();
-	private final Map<String,TTIriRef> valueMap= new HashMap<>();
+	private final Map<String,Set<TTIriRef>> valueMap= new HashMap<>();
+	private FileRepository fileRepo;
+
+
+
 
 
 	String dateMatch;
 	private final Map<Object, Object> vocabMap = new HashMap<>();
 
 	public void convertDoc(TTDocument document, TTIriRef mainFolder, EnquiryDocument eqd, TTIriRef owner, Properties dataMap,
-						   Properties criteriaLabels) throws DataFormatException, InvalidClassException {
+						   Properties criteriaLabels) throws DataFormatException, IOException {
 		this.owner = owner;
 		this.dataMap = dataMap;
 		this.document= document;
@@ -57,7 +66,7 @@ public class EqdToTT {
 
 	}
 
-	private void convertReports(EnquiryDocument eqd) throws DataFormatException, InvalidClassException {
+	private void convertReports(EnquiryDocument eqd) throws DataFormatException, IOException {
 		for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
 			if (eqReport.getId() == null)
 				throw new DataFormatException("No report id");
@@ -128,7 +137,7 @@ public class EqdToTT {
 			uri;
 	}
 
-	public TTEntity convertReport(EQDOCReport eqReport) throws DataFormatException, InvalidClassException {
+	public TTEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException {
 
 		setVocabMaps();
 		activeReport = eqReport.getId();
@@ -158,7 +167,7 @@ public class EqdToTT {
 		return entity;
 	}
 
-	private void convertPopulation(EQDOCPopulation population, Match main) throws DataFormatException, InvalidClassException {
+	private void convertPopulation(EQDOCPopulation population, Match main) throws DataFormatException, IOException {
 		Match parentOr=null;
 		for (EQDOCCriteriaGroup eqGroup : population.getCriteriaGroup()) {
 			VocRuleAction ifTrue = eqGroup.getActionIfTrue();
@@ -241,7 +250,7 @@ public class EqdToTT {
 	}
 
 	private void setCriteria(EQDOCCriteria eqCriteria,
-													 Match match) throws DataFormatException, InvalidClassException {
+													 Match match) throws DataFormatException, IOException {
 		if ((eqCriteria.getPopulationCriterion() != null)) {
 			EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
 			match
@@ -266,7 +275,7 @@ public class EqdToTT {
 		}
 	}
 
-	private Match convertCriterion(EQDOCCriterion eqCriterion, Match match,String linkField) throws DataFormatException, InvalidClassException {
+	private void convertCriterion(EQDOCCriterion eqCriterion, Match match, String linkField) throws DataFormatException, IOException {
 		String eqTable = eqCriterion.getTable();
 		if (criteriaLabels.get(eqCriterion.getId()) != null) {
 			match.setName(criteriaLabels.get(eqCriterion.getId()).toString());
@@ -301,11 +310,10 @@ public class EqdToTT {
 			processColumns(eqCriterion.getFilterAttribute(), eqCriterion.getTable(),match,
 				false,linkField);
 		}
-		return match;
 	}
 
 	private void processColumns(EQDOCFilterAttribute filterAttribute, String eqTable,Match match,
-								boolean noSubject,String linkField) throws DataFormatException, InvalidClassException {
+								boolean noSubject,String linkField) throws DataFormatException, IOException {
 		Map<Match, List<EQDOCColumnValue>> columnMap = getColumnMap(filterAttribute, eqTable);
 		if (columnMap.entrySet().size() == 1) {
 			for (Map.Entry<Match, List<EQDOCColumnValue>> entry : columnMap.entrySet()) {
@@ -358,7 +366,7 @@ public class EqdToTT {
 
 	}
 
-	private void setRestriction(EQDOCCriterion eqCriterion,Match match) throws DataFormatException, InvalidClassException {
+	private void setRestriction(EQDOCCriterion eqCriterion,Match match) throws DataFormatException, IOException {
 		String eqTable = eqCriterion.getTable();
 		Map<Match,List<EQDOCColumnValue>> columnMap= getColumnMap(eqCriterion.getFilterAttribute(),eqTable);
 		if (columnMap.size()>1)
@@ -426,7 +434,7 @@ public class EqdToTT {
 		return columnMap;
 	}
 
-	private void setMainCriterion(String eqTable,EQDOCColumnValue cv,Match match) throws DataFormatException, InvalidClassException {
+	private void setMainCriterion(String eqTable,EQDOCColumnValue cv,Match match) throws DataFormatException, IOException {
 		for (String eqColumn : cv.getColumn()) {
 			setPropertyValue(cv, eqTable, eqColumn, match);
 			if (eqColumn.contains("DATE"))
@@ -440,7 +448,7 @@ public class EqdToTT {
 	}
 
 	private void setPropertyValue(EQDOCColumnValue cv,String eqTable,String eqColumn,
-																Match match) throws DataFormatException, InvalidClassException {
+																Match match) throws DataFormatException, IOException {
 		String predPath= getMap(eqTable + slash + eqColumn);
 		String predicate= predPath.substring(predPath.lastIndexOf("/")+1);
 		match.setProperty(TTIriRef.iri(IM.NAMESPACE+ predicate));
@@ -526,7 +534,7 @@ public class EqdToTT {
 		setCompare(match, comp, value,units,compareAgainst);
 	}
 
-	private void setCompare(Match match, Comparison comp,String value,String units,String compareAgainst) throws InvalidClassException {
+	private void setCompare(Match match, Comparison comp,String value,String units,String compareAgainst) {
 			match.setValueTest(comp,value);
 			if (compareAgainst!=null){
 				Function function = getTimeDiff(units, compareAgainst, match.getValueVar());
@@ -615,7 +623,7 @@ public class EqdToTT {
 		return (String) target;
 	}
 
-	private void convertLinkedCriterion(EQDOCLinkedCriterion eqLinked, Match match,String linkField) throws DataFormatException, InvalidClassException {
+	private void convertLinkedCriterion(EQDOCLinkedCriterion eqLinked, Match match,String linkField) throws DataFormatException, IOException {
 
 		Match subMatch= new Match();
 		match.addAnd(subMatch);
@@ -638,7 +646,7 @@ public class EqdToTT {
 			.setValue(value));
 	}
 
-	private TTIriRef getExceptionSet(EQDOCException set) throws DataFormatException {
+	private TTIriRef getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
 		TTEntity valueSet = new TTEntity();
 		String iri = "urn:uuid:" + UUID.randomUUID();
 		valueSet.setIri(iri);
@@ -648,7 +656,12 @@ public class EqdToTT {
 
 		VocCodeSystemEx scheme= set.getCodeSystem();
 		for (EQDOCExceptionValue ev:set.getValues()){
-			valueSet.addObject(IM.DEFINITION,getValue(scheme,ev.getValue(),ev.getDisplayName()));
+			Set<TTIriRef> values= getValue(scheme,ev.getValue(),ev.getDisplayName());
+			if (values!=null) {
+				TTNode ors = new TTNode();
+				valueSet.addObject(IM.DEFINITION, ors);
+				values.forEach(v -> ors.addObject(SHACL.OR, v));
+			}
 		}
 		return TTIriRef.iri(iri);
 	}
@@ -661,7 +674,7 @@ public class EqdToTT {
 		return null;
 	}
 
-	private TTIriRef getValueSet(EQDOCValueSet vs) throws DataFormatException {
+	private TTIriRef getValueSet(EQDOCValueSet vs) throws DataFormatException, IOException {
 		TTEntity valueSet = new TTEntity();
 		TTIriRef iri = TTIriRef.iri("urn:uuid:" + UUID.randomUUID());
 		StringBuilder vsetName = new StringBuilder();
@@ -673,9 +686,16 @@ public class EqdToTT {
 		if (vs.getValues().size() == 1) {
 			if (vsetName.length() == 0)
 				vsetName.append(vs.getValues().get(0).getDisplayName());
-			TTIriRef concept= getValue(scheme,vs.getValues().get(0));
-			if (concept!=null)
-			  valueSet.addObject(IM.DEFINITION, concept);
+			Set<TTIriRef> concepts= getValue(scheme,vs.getValues().get(0));
+			if (concepts!=null) {
+				if (concepts.size()==1)
+					valueSet.addObject(IM.DEFINITION, concepts.stream().findFirst().get());
+				else {
+					TTNode ors= new TTNode();
+					valueSet.addObject(IM.DEFINITION,ors);
+					concepts.forEach(v-> ors.addObject(SHACL.OR,v));
+				}
+			}
 		} else {
 			int i=0;
 			for (EQDOCValueSetValue ev : vs.getValues()) {
@@ -686,12 +706,15 @@ public class EqdToTT {
 					vsetName.append(ev.getDisplayName());
 				} else if (i == 10)
 					vsetName.append("..more");
-				TTIriRef concept = getValue(scheme, ev);
-				if (concept != null) {
-					if (valueSet.get(IM.DEFINITION)==null)
-						valueSet.set(IM.DEFINITION,new TTNode());
-					TTNode orSet= valueSet.get(IM.DEFINITION).asNode();
-					orSet.addObject(SHACL.OR, concept);
+				Set<TTIriRef> concepts = getValue(scheme, ev);
+				if (concepts!=null) {
+					if (concepts.size()==1)
+						valueSet.addObject(IM.DEFINITION, concepts.stream().findFirst().get());
+					else {
+						TTNode ors= new TTNode();
+						valueSet.addObject(IM.DEFINITION,ors);
+						concepts.forEach(v-> ors.addObject(SHACL.OR,v));
+					}
 				}
 				else
 					System.err.println("Missing : "+ ev.getValue()+" " + ev.getDisplayName());
@@ -715,16 +738,19 @@ public class EqdToTT {
 		valueSets.add(valueSet);
 		return iri;
 	}
-	private TTIriRef getValue(VocCodeSystemEx scheme,EQDOCValueSetValue ev) throws DataFormatException {
+	private Set<TTIriRef> getValue(VocCodeSystemEx scheme,EQDOCValueSetValue ev) throws DataFormatException, IOException {
 		return getValue(scheme, ev.getValue(),ev.getDisplayName());
 	}
 
-	private TTIriRef getValue(VocCodeSystemEx scheme, String originalCode,String originalTerm) throws DataFormatException {
+	private Set<TTIriRef> getValue(VocCodeSystemEx scheme, String originalCode,
+																 String originalTerm) throws DataFormatException {
 		if (scheme== VocCodeSystemEx.EMISINTERNAL) {
 			String key = "EMISINTERNAL/" + originalCode;
 			Object mapValue = dataMap.get(key);
 			if (mapValue != null) {
-				return TTIriRef.iri(mapValue.toString());
+				Set<TTIriRef> result= new HashSet<>();
+				result.add(TTIriRef.iri(mapValue.toString()));
+				return result;
 			}
 			else
 				throw new DataFormatException("unmapped emis internal code : "+key);
@@ -733,12 +759,13 @@ public class EqdToTT {
 			List<String> schemes= new ArrayList<>();
 			schemes.add(SNOMED.NAMESPACE);
 			schemes.add(IM.CODE_SCHEME_EMIS.getIri());
-			TTIriRef snomed= valueMap.get(originalCode);
+			Set<TTIriRef> snomed= valueMap.get(originalCode);
 			if (snomed==null) {
-				snomed = repo.getCoreFromCode(originalCode, schemes);
+				snomed= getCoreFrcomCode(originalCode,schemes);
 				if (snomed == null)
 					if (originalTerm != null)
-						snomed = repo.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
+						snomed= getCoreFromLegacyTerm(originalTerm,IM.NAMESPACE);
+
 				if (snomed != null)
 					valueMap.put(originalCode, snomed);
 			}
@@ -747,6 +774,31 @@ public class EqdToTT {
 		else
 			throw new DataFormatException("code scheme not recognised : "+scheme.value());
 
+	}
+
+	private Set<TTIriRef> getCoreFromLegacyTerm(String originalTerm, String namespace) {
+		try {
+			if (TTFilerFactory.isBulk()) {
+				if (fileRepo == null)
+					fileRepo = new FileRepository();
+				return fileRepo.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
+			} else {
+				return repo.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
+			}
+		} catch (Exception e) {
+			System.err.println("unable to retrieve iri from term "+ e.getMessage());
+			return null;
+		}
+	}
+
+	private Set<TTIriRef> getCoreFrcomCode(String originalCode, List<String> schemes) {
+		if (TTFilerFactory.isBulk()) {
+			if (fileRepo==null)
+				fileRepo= new FileRepository();
+			return fileRepo.getCoreFromCode(originalCode, schemes);
+		}
+		else
+			return repo.getCoreFromCode(originalCode, schemes);
 	}
 
 	private void setParent(Match mainClause, TTIriRef parent, String parentName) {

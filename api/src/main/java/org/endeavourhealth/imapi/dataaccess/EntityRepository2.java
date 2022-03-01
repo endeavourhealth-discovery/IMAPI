@@ -127,7 +127,7 @@ public class EntityRepository2 {
      * @param code the code or description id or term code
      * @return iri and name of entity
      */
-    public TTIriRef getCoreFromCode(String code,List<String> schemes){
+    public Set<TTIriRef> getCoreFromCode(String code,List<String> schemes){
         StringBuilder sql=
           new StringBuilder("PREFIX im: <http://endhealth.info/im#>\n" +
             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
@@ -154,7 +154,7 @@ public class EntityRepository2 {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("code", Values.literal(code));
-            return getConceptRefFromResult(qry);
+            return getConceptRefsFromResult(qry);
         }
 
     }
@@ -165,7 +165,7 @@ public class EntityRepository2 {
      * @param scheme the legacy scheme of the term
      * @return iri and name of entity
      */
-    public TTIriRef getCoreFromLegacyTerm(String term,String scheme){
+    public Set<TTIriRef> getCoreFromLegacyTerm(String term,String scheme){
         String sql="PREFIX im: <http://endhealth.info/im#>\n" +
           "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
           "select ?concept ?label\n"+
@@ -177,7 +177,7 @@ public class EntityRepository2 {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             qry.setBinding("term", Values.literal(term));
             qry.setBinding("scheme", Values.iri(scheme));
-            return getConceptRefFromResult(qry);
+            return getConceptRefsFromResult(qry);
         }
     }
 

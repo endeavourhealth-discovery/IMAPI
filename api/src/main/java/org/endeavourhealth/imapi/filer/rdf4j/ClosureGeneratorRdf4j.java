@@ -58,6 +58,9 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	@Override
 	public void generateClosure(String outpath, boolean secure) throws IOException {
 		getTctBlockers();
+		LOG.info("Clearing out all isAs.. This will take some time....");
+		clearIsAs();
+
 		List<TTIriRef> relationships = Arrays.asList(
 			RDFS.SUBCLASSOF,
 			RDFS.SUBPROPERTYOF,
@@ -118,7 +121,13 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 		}
 	}
 
+ private void clearIsAs(){
+	 String sql="delete {?c <"+IM.NAMESPACE+"isA> "+"?p }"+
+		 "where { ?c <"+IM.NAMESPACE+"isA> "+"?p}";
 
+	 Update upd = conn.prepareUpdate(sql);
+	 upd.execute();
+ }
 	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
 		if(LOG.isDebugEnabled() && relationship.getIri() != null){
 			LOG.debug(String.format("Extracting %s ", relationship.getIri()));
@@ -218,7 +227,8 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
         LOG.info("Importing closure ...");
 
         StringJoiner sql = new StringJoiner("\n");
-        sql.add("INSERT DATA {");
+				sql.add("PREFIX im: <http://endhealth.info/im#>");
+        sql.add("INSERT DATA { GRAPH <"+IM.NAMESPACE+"> {");
         int lineCount = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(outpath + "/closure.ttl"))) {
             String triple = reader.readLine();
@@ -226,15 +236,16 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
                 if (!triple.isEmpty()) {
                     lineCount++;
                     sql.add(triple);
-                    if (lineCount % 200000 == 0) {
+                    if (lineCount % 200000== 0) {
                         LOG.info("Importing " + lineCount + " of " + counter + " triples :" + triple);
-                        sql.add("}");
+                        sql.add("} }");
                         Update upd = conn.prepareUpdate(sql.toString());
                         conn.begin();
                         upd.execute();
                         conn.commit();
                         sql = new StringJoiner("\n");
-                        sql.add("INSERT DATA {");
+											  sql.add("PREFIX im: <http://endhealth.info/im#>");
+                        sql.add("INSERT DATA { GRAPH <"+IM.NAMESPACE+"> { ");
                     }
                 }
                 triple = reader.readLine();
@@ -242,7 +253,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
         }
         LOG.info("Importing " + lineCount + " of " + counter + " triples :");
         if (sql.length() > 20) {
-            sql.add("}");
+            sql.add("} }");
             Update upd = conn.prepareUpdate(sql.toString());
             conn.begin();
             upd.execute();

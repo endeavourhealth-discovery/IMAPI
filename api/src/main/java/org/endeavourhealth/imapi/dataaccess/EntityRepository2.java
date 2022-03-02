@@ -23,6 +23,7 @@ public class EntityRepository2 {
     private Map<String, String> prefixMap;
     private StringJoiner spql;
 
+
     /**
      * Gets the expansion set for a concept set
      *

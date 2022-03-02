@@ -23,6 +23,11 @@ public class FileRepository {
 	private Map<String,Map<String,Set<String>>> termCoreMap= new HashMap<>();
 	private Map<String,Map<String,Set<String>>> codes= new HashMap<>();
 	private Map<String,String> coreTerms= new HashMap<>();
+	private static String dataPath;
+
+	public FileRepository(String dataPath){
+		this.dataPath=dataPath;
+	}
 
 	public void fetchRelationships(Map<String, Set<String>> parentMap,
 																				Map<String,Set<String>> replacementMap,
@@ -63,6 +68,30 @@ public class FileRepository {
 		else
 			return null;
 		}
+
+	public Map<String, Set<String>> getAllMatchedLegacy() throws IOException{
+		Map<String,Set<String>> legacyMap= new HashMap<>();
+		String fileName=getFile("LegacyCore");
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			String line = reader.readLine();
+			while (line != null && !line.isEmpty()) {
+				String[] fields = line.split("\t");
+				String legacy=fields[0];
+				if (fields.length<2){
+					System.out.println("invalid line "+ line);
+					String x= reader.readLine();
+					System.out.println(x);
+					line=line+x;
+					fields= line.split("\t");
+				}
+				String core = fields[1];
+				Set<String> coreSet= legacyMap.computeIfAbsent(legacy, l-> new HashSet<>());
+				coreSet.add(core);
+				line = reader.readLine();
+			}
+		}
+		return legacyMap;
+	}
 
 	private void fetchCoreTerms() throws IOException{
 		String fileName=getFile("CoreTerms");
@@ -208,10 +237,18 @@ public class FileRepository {
 
 	private String getSchemeFile(String fileType,String scheme){
 		scheme= scheme.substring(scheme.lastIndexOf("/")+1);
-		return System.getenv("GRAPH_BULK_PATH")+"\\"+fileType+"-"+scheme+".txt";
+		return dataPath+"\\"+fileType+"-"+scheme+".txt";
 	}
 
 	private String getFile(String fileType){
-		return System.getenv("GRAPH_BULK_PATH")+"\\"+fileType+".txt";
+		return dataPath+"\\"+fileType+".txt";
+	}
+
+	public static String getDataPath() {
+		return dataPath;
+	}
+
+	public static void setDataPath(String dataPath) {
+		FileRepository.dataPath = dataPath;
 	}
 }

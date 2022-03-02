@@ -36,7 +36,7 @@ public class EqdToTT {
 	private final String slash = "/";
 	private final EntityRepository2 repo = new EntityRepository2();
 	private final Map<String,Set<TTIriRef>> valueMap= new HashMap<>();
-	private FileRepository fileRepo;
+
 
 
 
@@ -717,7 +717,7 @@ public class EqdToTT {
 					}
 				}
 				else
-					System.err.println("Missing : "+ ev.getValue()+" " + ev.getDisplayName());
+					System.err.println("Missing \t"+ ev.getValue()+"\t " + ev.getDisplayName());
 			}
 		}
 		if (vsetName.length() > 0) {
@@ -761,7 +761,7 @@ public class EqdToTT {
 			schemes.add(IM.CODE_SCHEME_EMIS.getIri());
 			Set<TTIriRef> snomed= valueMap.get(originalCode);
 			if (snomed==null) {
-				snomed= getCoreFrcomCode(originalCode,schemes);
+				snomed= getCoreFromCode(originalCode,schemes);
 				if (snomed == null)
 					if (originalTerm != null)
 						snomed= getCoreFromLegacyTerm(originalTerm,IM.NAMESPACE);
@@ -778,26 +778,14 @@ public class EqdToTT {
 
 	private Set<TTIriRef> getCoreFromLegacyTerm(String originalTerm, String namespace) {
 		try {
-			if (TTFilerFactory.isBulk()) {
-				if (fileRepo == null)
-					fileRepo = new FileRepository();
-				return fileRepo.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
-			} else {
 				return repo.getCoreFromLegacyTerm(originalTerm, IM.CODE_SCHEME_EMIS.getIri());
-			}
 		} catch (Exception e) {
 			System.err.println("unable to retrieve iri from term "+ e.getMessage());
 			return null;
 		}
 	}
 
-	private Set<TTIriRef> getCoreFrcomCode(String originalCode, List<String> schemes) {
-		if (TTFilerFactory.isBulk()) {
-			if (fileRepo==null)
-				fileRepo= new FileRepository();
-			return fileRepo.getCoreFromCode(originalCode, schemes);
-		}
-		else
+	private Set<TTIriRef> getCoreFromCode(String originalCode, List<String> schemes) {
 			return repo.getCoreFromCode(originalCode, schemes);
 	}
 

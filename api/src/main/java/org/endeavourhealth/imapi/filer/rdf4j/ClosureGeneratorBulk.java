@@ -23,7 +23,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 	@Override
 	public void generateClosure(String outpath, boolean secure) throws IOException {
 		getTctBlockers();
-		FileRepository repo= new FileRepository();
+		FileRepository repo= new FileRepository(outpath);
 
 		parentMap = new HashMap<>(1000000);
 		replacementMap= new HashMap<>();
@@ -31,8 +31,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		repo.fetchRelationships(parentMap,replacementMap,blockingIris);
 
 
-		String path = System.getenv("GRAPH_BULK_PATH");
-		try(FileWriter isas = new FileWriter(path+"\\BulkImport.nq",true)) {
+		try(FileWriter isas = new FileWriter(outpath+"\\BulkImport.nq",true)) {
 			buildClosure();
 			buildReverseClosure();
 			writeClosureData(isas);

@@ -39,6 +39,9 @@ public class IM {
     public static final TTIriRef ARGUMENT_CLAUSE = iri(NAMESPACE + "ArgumentClause");
     public static final TTIriRef RANGE_CLAUSE = iri(NAMESPACE + "RangeClause");
     public static final TTIriRef FUNCTION_CLAUSE = iri(NAMESPACE + "FunctionClause");
+  public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
+  public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
+  public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
 
 
     //Collection predicates

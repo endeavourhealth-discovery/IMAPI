@@ -93,7 +93,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 					List<String> quadList = converter.transformEntity(entity, document.getGraph().getIri());
 					for (String quad : quadList)
-						quads.write(quad + " <" + document.getGraph().getIri() + ">\n");
+						quads.write(quad + "\n");
 				}
 				LOG.debug(counter + "Document written to file");
 				LOG.info("Finished - {}", new Date());

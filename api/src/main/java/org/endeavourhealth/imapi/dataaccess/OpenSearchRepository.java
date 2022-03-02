@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 
 /**
  * Methods for searching open search / elastic repositories
  */
-public class LuceneRepository {
-	private static final Logger LOG = LoggerFactory.getLogger(LuceneRepository.class);
+public class OpenSearchRepository {
+	private static final Logger LOG = LoggerFactory.getLogger(OpenSearchRepository.class);
 
 
 	/**

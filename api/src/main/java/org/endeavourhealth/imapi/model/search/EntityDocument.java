@@ -17,7 +17,7 @@ public class EntityDocument {
 	String code;
 	Set<String> key= new HashSet<>();
 	TTIriRef scheme;
-	TTArray entityType = new TTArray();
+	Set<TTIriRef> entityType = new HashSet<>();
 	TTIriRef status;
 	Set<SearchTermCode> termCode = new HashSet<>();
 	Integer weighting;
@@ -110,11 +110,11 @@ public class EntityDocument {
 		return this;
 	}
 
-	public TTArray getEntityType() {
+	public Set<TTIriRef> getEntityType() {
 		return entityType;
 	}
 
-	public EntityDocument setEntityType(TTArray entityType) {
+	public EntityDocument setEntityType(Set<TTIriRef> entityType) {
 		this.entityType = entityType;
 		return this;
 	}

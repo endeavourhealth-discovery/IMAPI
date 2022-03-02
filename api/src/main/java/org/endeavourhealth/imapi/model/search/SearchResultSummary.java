@@ -18,15 +18,15 @@ public class SearchResultSummary {
     private String description;
     private TTIriRef status;
     private TTIriRef scheme;
-    private TTArray entityType;
-    private List<TTIriRef> isDescendentOf = new ArrayList<>();
+    private Set<TTIriRef> entityType= new HashSet<>();
+    private Set<TTIriRef> isDescendentOf = new HashSet<>();
     private Integer weighting;
     private String match;
     private Set<String> key;
     Set<SearchTermCode> termCode = new HashSet<>();
 
 
-    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, TTArray entityTypes, List<TTIriRef> isDescendentOf, Integer weighting, String match) {
+    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer weighting, String match) {
         this.name = name;
         this.iri = iri;
         this.code = code;
@@ -103,20 +103,20 @@ public class SearchResultSummary {
         return this;
     }
 
-    public TTArray getEntityTypes() {
+    public Set<TTIriRef> getEntityTypes() {
         return entityType;
     }
 
-    public SearchResultSummary setEntityType(TTArray entityTypes) {
+    public SearchResultSummary setEntityType(Set<TTIriRef> entityTypes) {
         this.entityType = entityTypes;
         return this;
     }
 
-    public List<TTIriRef> getIsDescendentOf() {
+    public Set<TTIriRef> getIsDescendentOf() {
         return isDescendentOf;
     }
 
-    public SearchResultSummary setIsDescendentOf(List<TTIriRef> isDescendentOf) {
+    public SearchResultSummary setIsDescendentOf(Set<TTIriRef> isDescendentOf) {
         this.isDescendentOf = isDescendentOf;
         return this;
     }
@@ -148,7 +148,7 @@ public class SearchResultSummary {
         return this;
     }
 
-    public TTArray getEntityType() {
+    public Set<TTIriRef> getEntityType() {
         return entityType;
     }
 

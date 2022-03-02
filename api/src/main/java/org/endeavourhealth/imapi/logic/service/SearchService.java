@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.endeavourhealth.imapi.dataaccess.LuceneRepository;
+import org.endeavourhealth.imapi.dataaccess.OpenSearchRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 public class SearchService {
 	private static final Logger LOG = LoggerFactory.getLogger(org.endeavourhealth.imapi.logic.service.SearchService.class);
 	private String searchTerm;
-	private final LuceneRepository repo = new LuceneRepository();
+	private final OpenSearchRepository repo = new OpenSearchRepository();
 
 
 	/**
@@ -38,7 +38,8 @@ public class SearchService {
 	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException {
 		if (request == null || request.getTermFilter() == null || request.getTermFilter().isEmpty())
 			return Collections.emptyList();
-		request.setIndex("concept");
+		if (request.getIndex()==null)
+			request.setIndex("concept");
 		searchTerm = request.getTermFilter();
 
 		QueryBuilder qry;

@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -85,6 +87,12 @@ public class OpenSearchRepository {
 		List<SearchResultSummary> searchResults = new ArrayList<>();
 		for (JsonNode hit : root.get("hits").get("hits")) {
 			SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
+			for (Iterator<JsonNode> it = hit.get("_source").get("entityType").elements(); it.hasNext();) {
+				JsonNode type = it.next();
+				TTIriRef typeIriRef = new TTIriRef(type.get("@id").asText(), type.get("name").asText());
+				source.getEntityType().remove(typeIriRef);
+				source.getEntityType().add(typeIriRef);
+			}
 			searchResults.add(source);
 		}
 		//Finds a match for the first few

@@ -9,12 +9,9 @@ import java.util.Map;
 
 public class TTToNQuad {
 	private List<String> quads;
-	private int blank;
+	private static int blank;
 	String graph;
 
-	public TTToNQuad(){
-		blank=0;
-	}
 
 
 	public List<String> transformEntity(TTEntity entity,String graph){

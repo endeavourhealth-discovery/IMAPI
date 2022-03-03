@@ -113,7 +113,7 @@ public class IM {
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vis#");
     public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
-    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1Maps#");
+    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1#");
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
@@ -213,10 +213,8 @@ public class IM {
   public static final TTIriRef OLABEL= iri(NAMESPACE+"oLabel");
 
   //im1
-  public static final TTIriRef IM1MAP= iri(NAMESPACE+"im1Map");
-  public static final TTIriRef DBID= iri(NAMESPACE+"dbid");
-  public static final TTIriRef IM1SCHEME= iri(NAMESPACE+"im1Scheme");
-  public static final TTIriRef IM1CODE= iri(NAMESPACE+"im1Code");
+
+  public static final TTIriRef DBID= iri(NAMESPACE+"dbId");
   public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
 
 

@@ -57,6 +57,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @SwaggerDefinition(tags = {
     @Tag(name = "Entity Controller", description = "Main Entity endpoint")
 })
+
 @RequestScope
 public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);

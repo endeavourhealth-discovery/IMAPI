@@ -17,10 +17,6 @@ public class TTToTurtle {
 	private int level;
 	private Map<String,String> prefixes= new HashMap<>();
 
-	public TTToTurtle(){
-	}
-
-
 	/**
 	 * Transforms a document to Turtle format.
 	 * @param document the document in Triple Tree class format
@@ -46,6 +42,8 @@ public class TTToTurtle {
 		return turtle.toString();
 	}
 
+
+
 	private void nl(){
 		turtle.append("\n");
 		if (level>0) {
@@ -58,6 +56,8 @@ public class TTToTurtle {
 	}
 
 	private void insertPrefixes() {
+		if (prefixes==null)
+			return;
 		for (Map.Entry<String, String> entry : prefixes.entrySet()) {
 			turtle.insert(0, "@prefix " + entry.getValue() + ": <" + entry.getKey() + "> .\n");
 
@@ -89,10 +89,16 @@ public class TTToTurtle {
 		if (predicateObjectList != null) {
 			for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
 				TTIriRef predicate = entry.getKey();
-				outputPredicateObject(predicate, entry.getValue(), nodeCount);
-				nodeCount++;
+				TTArray value = entry.getValue();
+				if (value == null)
+					if (value.isEmpty()) {
+						outputPredicateObject(predicate, entry.getValue(), nodeCount);
+						nodeCount++;
+						outputPredicateObject(predicate, entry.getValue(), nodeCount);
+						nodeCount++;
 					}
 			}
+		}
 	}
 
 	private void outputPredicateObject(TTIriRef predicate,TTArray object,int nodeCount) {
@@ -163,6 +169,8 @@ public class TTToTurtle {
 	}
 
 	private String getShort(String iri) {
+		if (prefixes==null)
+			return iri;
 		if (iri.contains("#")) {
 			int lnPos = iri.indexOf("#") + 1;
 			String ns = iri.substring(0, lnPos);

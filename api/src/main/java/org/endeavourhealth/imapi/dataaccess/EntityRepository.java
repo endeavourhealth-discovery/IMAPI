@@ -41,8 +41,8 @@ public class EntityRepository {
         return result;
     }
 
-    private TTArray getTypesByIri(String iri) {
-        TTArray result = new TTArray();
+    private Set<TTIriRef> getTypesByIri(String iri) {
+        Set<TTIriRef> result = new HashSet<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?o ?oname WHERE {")
@@ -81,7 +81,7 @@ public class EntityRepository {
             qry.setBinding("s", Values.iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
-                    TTArray types = getTypesByIri(iri);
+                    Set<TTIriRef> types = getTypesByIri(iri);
                     BindingSet bs = rs.next();
                     result
                         .setIri(iri)

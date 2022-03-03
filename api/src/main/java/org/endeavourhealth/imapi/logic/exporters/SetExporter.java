@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -19,10 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Component
 public class SetExporter {
@@ -32,18 +30,66 @@ public class SetExporter {
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
     public void publishSetToIM1(String setIri){
+        LOG.debug("Exporting set to IMv1");
+
+        LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
         Set<String> setIris = getSets(setIri);
 
-        Set<CoreLegacyCode> members = getMembers(setIris);
+        Set<Integer> members = getMembers(setIris);
 
         StringJoiner results = generateTSV(setIri, name, members);
 
         pushToS3(results);
+        LOG.trace("Done");
+    }
+
+    private Set<String> getSets(String setIri) {
+        LOG.trace("Getting set list...");
+        Set<String> setIris = new HashSet<>();
+        setIris.add(setIri);
+
+        List<String> subsets = entityRepository2.getMemberIris(setIri);
+        for(String member : subsets){
+            if(entityRepository2.isSet(member)){
+                setIris.add(member);
+            }
+        }
+        return setIris;
+    }
+
+    private Set<Integer> getMembers(Set<String> setIris) {
+        LOG.trace("Getting members for sets...");
+        Set<Integer> members = new HashSet<>();
+
+        for(String iri : setIris){
+            TTArray definition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri()), 0).getEntity().get(IM.DEFINITION);
+            members.addAll(entityRepository2.getSetDbids(iri, definition));
+        }
+        return members;
+    }
+
+    private StringJoiner generateTSV(String setIri, String name, Set<Integer> members) {
+        LOG.trace("Generating output...");
+
+        StringJoiner results = new StringJoiner(System.lineSeparator());
+        results.add("vsId\tvsName\tmemberDbid");
+
+        for(Integer member : members) {
+                results.add(
+                    new StringJoiner("\t")
+                        .add(setIri)
+                        .add(name)
+                        .add(member.toString())
+                        .toString()
+                );
+        }
+        return results;
     }
 
     private void pushToS3(StringJoiner results) {
+        LOG.trace("Publishing to S3...");
         String bucket = "im-inbound-dev";
         String region = "eu-west-2";
         String accessKey = "";
@@ -70,61 +116,12 @@ public class SetExporter {
             .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
             .build();
         try {
-            s3.putObject(bucket, "valueset.tsv", results.toString());
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
+            String filename = date.format(timestamp.getTime()) + "_valuset.tsv";
+            s3.putObject(bucket, filename, results.toString());
         } catch (AmazonServiceException e) {
             LOG.error(e.getErrorMessage());
         }
-    }
-
-    private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
-        String setId = setIri.substring(setIri.indexOf("#") + 1);
-        StringJoiner results = new StringJoiner(System.lineSeparator());
-        results.add("vsId\tvsName\tmemberCode\tmemberScheme");
-        for(CoreLegacyCode member : members) {
-            results.add(
-                new StringJoiner("\t")
-                    .add(setId)
-                    .add(name)
-                    .add(member.getCode())
-                    .add(member.getScheme().getIri())
-                    .toString()
-            );
-
-            if (member.getLegacyCode() != null && !member.getLegacyCode().isEmpty()) {
-                results.add(
-                    new StringJoiner("\t")
-                        .add(setId)
-                        .add(name)
-                        .add(member.getLegacyCode())
-                        .add(member.getLegacyScheme().getIri())
-                        .toString()
-                );
-            }
-        }
-        return results;
-    }
-
-    private Set<CoreLegacyCode> getMembers(Set<String> setIris) {
-        Set<CoreLegacyCode> members = new HashSet<>();
-
-        for(String iri : setIris){
-            TTArray definition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri()), 0).getEntity().get(IM.DEFINITION);
-            members.addAll(entityRepository2.getSetExpansion(definition, false));
-            members.addAll(entityRepository2.getSetExpansion(definition, true));
-        }
-        return members;
-    }
-
-    private Set<String> getSets(String setIri) {
-        Set<String> setIris = new HashSet<>();
-        setIris.add(setIri);
-
-        List<String> subsets = entityRepository2.getMemberIris(setIri);
-        for(String member : subsets){
-            if(entityRepository2.isSet(member)){
-                setIris.add(member);
-            }
-        }
-        return setIris;
     }
 }

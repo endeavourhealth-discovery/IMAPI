@@ -34,11 +34,14 @@ public class IM {
     public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "Clause");
     public static final TTIriRef COMPARE_CLAUSE = iri(NAMESPACE + "CompareClause");
     public static final TTIriRef ARGUMENT_CLAUSE = iri(NAMESPACE + "ArgumentClause");
     public static final TTIriRef RANGE_CLAUSE = iri(NAMESPACE + "RangeClause");
     public static final TTIriRef FUNCTION_CLAUSE = iri(NAMESPACE + "FunctionClause");
+  public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
+  public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
+  public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
 
 
     //Collection predicates
@@ -110,11 +113,12 @@ public class IM {
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vis#");
     public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
-    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1Maps#");
+    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1#");
     public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
     public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
     public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
+    public static final TTIriRef GRAPH_STATS= TTIriRef.iri(DOMAIN +"stats#");
 
 
     // redant code schemes are now the same as graphs
@@ -175,6 +179,7 @@ public class IM {
   public static final TTIriRef VALUE_MATCH = iri(NAMESPACE +"valueMatch");
   public static final TTIriRef VALUE_IRI = iri(NAMESPACE +"valueIrI");
   public static final TTIriRef VALUE_DATA = iri(NAMESPACE +"valueData");
+  public static final TTIriRef USED_IN = iri(NAMESPACE +"usedIn");
 
 
 
@@ -208,10 +213,8 @@ public class IM {
   public static final TTIriRef OLABEL= iri(NAMESPACE+"oLabel");
 
   //im1
-  public static final TTIriRef IM1MAP= iri(NAMESPACE+"im1Map");
+
   public static final TTIriRef DBID= iri(NAMESPACE+"dbid");
-  public static final TTIriRef IM1SCHEME= iri(NAMESPACE+"im1Scheme");
-  public static final TTIriRef IM1CODE= iri(NAMESPACE+"im1Code");
   public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
 
 

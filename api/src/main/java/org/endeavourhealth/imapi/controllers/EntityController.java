@@ -58,6 +58,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @SwaggerDefinition(tags = {
     @Tag(name = "Entity Controller", description = "Main Entity endpoint")
 })
+
 @RequestScope
 public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
@@ -369,5 +370,17 @@ public class EntityController {
 
 			return new HttpEntity<>(outputStream.toByteArray(), headers);
 		}
+	}
+
+	@GetMapping("/public/folderPath")
+	public List<TTIriRef> getFolderPath(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getFolderPath");
+		return entityService.getParentPath(iri);
+	}
+
+	@GetMapping("/public/parentHierarchy")
+	public EntityReferenceNode getParentHierarchy(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getParentHierarchy");
+		return entityService.getParentHierarchy(iri);
 	}
 }

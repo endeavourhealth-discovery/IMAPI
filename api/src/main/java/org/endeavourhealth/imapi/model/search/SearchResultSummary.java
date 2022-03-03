@@ -1,11 +1,14 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @JsonIgnoreProperties({"id"})
 public class SearchResultSummary {
@@ -15,19 +18,22 @@ public class SearchResultSummary {
     private String description;
     private TTIriRef status;
     private TTIriRef scheme;
-    private TTArray entityType;
-    private List<TTIriRef> isDescendentOf = new ArrayList<>();
+    private Set<TTIriRef> entityType= new HashSet<>();
+    private Set<TTIriRef> isDescendentOf = new HashSet<>();
     private Integer weighting;
     private String match;
+    private Set<String> key;
+    Set<SearchTermCode> termCode = new HashSet<>();
 
-    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, TTArray entityType, List<TTIriRef> isDescendentOf, Integer weighting, String match) {
+
+    public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer weighting, String match) {
         this.name = name;
         this.iri = iri;
         this.code = code;
         this.description = description;
         this.status = status;
         this.scheme = scheme;
-        this.entityType = entityType;
+        this.entityType = entityTypes;
         this.isDescendentOf = isDescendentOf;
         this.weighting = weighting;
         this.match = match;
@@ -42,6 +48,13 @@ public class SearchResultSummary {
 
     public SearchResultSummary setName(String name) {
         this.name = name;
+        return this;
+    }
+    @JsonSetter("name")
+    public SearchResultSummary setNameFromJson(String name) {
+        this.name = name;
+        if (this.match==null)
+            this.match=name;
         return this;
     }
 
@@ -90,20 +103,20 @@ public class SearchResultSummary {
         return this;
     }
 
-    public TTArray getEntityType() {
+    public Set<TTIriRef> getEntityTypes() {
         return entityType;
     }
 
-    public SearchResultSummary setEntityType(TTArray entityType) {
-        this.entityType = entityType;
+    public SearchResultSummary setEntityType(Set<TTIriRef> entityTypes) {
+        this.entityType = entityTypes;
         return this;
     }
 
-    public List<TTIriRef> getIsDescendentOf() {
+    public Set<TTIriRef> getIsDescendentOf() {
         return isDescendentOf;
     }
 
-    public SearchResultSummary setIsDescendentOf(List<TTIriRef> isDescendentOf) {
+    public SearchResultSummary setIsDescendentOf(Set<TTIriRef> isDescendentOf) {
         this.isDescendentOf = isDescendentOf;
         return this;
     }
@@ -123,6 +136,28 @@ public class SearchResultSummary {
 
     public SearchResultSummary setMatch(String match) {
         this.match = match;
+        return this;
+    }
+
+    public Set<SearchTermCode> getTermCode() {
+        return termCode;
+    }
+
+    public SearchResultSummary setTermCode(Set<SearchTermCode> searchTermCodes) {
+        this.termCode = searchTermCodes;
+        return this;
+    }
+
+    public Set<TTIriRef> getEntityType() {
+        return entityType;
+    }
+
+    public Set<String> getKey() {
+        return key;
+    }
+
+    public SearchResultSummary setKey(Set<String> key) {
+        this.key = key;
         return this;
     }
 }

@@ -241,10 +241,9 @@ public class TTManager {
    public TTEntity createGraph(String iri,String name, String description){
       TTEntity graph= new TTEntity()
         .setIri(iri)
-        .addType(RDFS.RESOURCE)
+        .addType(RDFS.CLASS)
         .setName(name)
-        .setDescription(description)
-        .addType(IM.GRAPH);
+        .setDescription(description);
       graph.addObject(RDFS.SUBCLASSOF,IM.GRAPH);
       return graph;
    }
@@ -511,7 +510,9 @@ public class TTManager {
       TTNode termCode= new TTNode();
       if (status!=null)
          termCode.set(IM.HAS_STATUS,status);
-      termCode.set(RDFS.LABEL,TTLiteral.literal(term));
+      if (term!=null) {
+         termCode.set(RDFS.LABEL, TTLiteral.literal(term));
+      }
       if (code!=null)
          termCode.set(IM.CODE,TTLiteral.literal(code));
       entity.addObject(IM.HAS_TERM_CODE,termCode);

@@ -8,10 +8,7 @@ import java.util.List;
 public class TermCodeRepository {
 
     public List<TermCode> findAllByIri(String iri) {
-        List<TermCode> terms = new ArrayList<>();
-
         // TODO: Term code implementation in graph?
-
-        return terms;
+        return new ArrayList<>();
     }
 }

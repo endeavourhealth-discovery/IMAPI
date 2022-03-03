@@ -88,7 +88,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 					addSubtypes(entity);
 					addTerms(entity,graph);
 
-					if (counter % 20000 == 0)
+					if (counter % 100000 == 0)
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
 
 					List<String> quadList = converter.transformEntity(entity, document.getGraph().getIri());

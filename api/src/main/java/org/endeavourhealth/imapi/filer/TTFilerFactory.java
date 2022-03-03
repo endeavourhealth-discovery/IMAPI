@@ -1,10 +1,7 @@
 package org.endeavourhealth.imapi.filer;
 
 
-import org.endeavourhealth.imapi.filer.rdf4j.ClosureGeneratorBulk;
-import org.endeavourhealth.imapi.filer.rdf4j.ClosureGeneratorRdf4j;
-import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
-import org.endeavourhealth.imapi.filer.rdf4j.TTDocumentFilerRdf4j;
+import org.endeavourhealth.imapi.filer.rdf4j.*;
 
 public class TTFilerFactory {
     private static boolean skipDeletes=false;
@@ -24,6 +21,10 @@ public class TTFilerFactory {
             return new TTDocumentFilerRdf4j();
         else
             return new TTBulkFiler();
+    }
+
+    public static TTEntityFiler getEntityFiler(){
+        return new TTEntityFilerRdf4j();
     }
 
     public static TCGenerator getClosureGenerator() throws TTFilerException {

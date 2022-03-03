@@ -214,7 +214,7 @@ public class IM {
 
   //im1
 
-  public static final TTIriRef DBID= iri(NAMESPACE+"dbId");
+  public static final TTIriRef DBID= iri(NAMESPACE+"dbid");
   public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
 
 

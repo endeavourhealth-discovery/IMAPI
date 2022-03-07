@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
@@ -113,12 +112,13 @@ public class SetController {
         setExporter.publishSetToIM1(iri);
     }
 
-    @GetMapping(value = "/export")
+
+    @GetMapping(value = "/public/export")
     @ApiOperation(
             value = "Export set",
             notes = "Exporting an expanded set to IM1"
     )
-    public StringJoiner export(@RequestParam(name = "iri") String iri) {
-        return setExporter.generateForIm1(iri);
+    public String export(@RequestParam(name = "iri") String iri) {
+        return setExporter.generateForIm1(iri).toString();
     }
 }

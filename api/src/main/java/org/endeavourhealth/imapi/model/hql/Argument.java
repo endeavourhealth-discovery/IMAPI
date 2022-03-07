@@ -1,19 +1,19 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.hql;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class ArgumentClause {
+public class Argument {
 
-	TTIriRef parameter;
+	String parameter;
 	String valueData;
 	TTIriRef valueIri;
-	Clause valueMatch;
+	Match valueMatch;
 
-	public TTIriRef getParameter() {
+	public String getParameter() {
 		return parameter;
 	}
 
-	public ArgumentClause setParameter(TTIriRef parameter) {
+	public Argument setParameter(String parameter) {
 		this.parameter = parameter;
 		return this;
 	}
@@ -22,7 +22,7 @@ public class ArgumentClause {
 		return valueData;
 	}
 
-	public ArgumentClause setValueData(String valueData) {
+	public Argument setValueData(String valueData) {
 		this.valueData = valueData;
 		return this;
 	}
@@ -31,16 +31,16 @@ public class ArgumentClause {
 		return valueIri;
 	}
 
-	public ArgumentClause setValueIri(TTIriRef valueIri) {
+	public Argument setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
 		return this;
 	}
 
-	public Clause getValueMatch() {
+	public Match getValueMatch() {
 		return valueMatch;
 	}
 
-	public ArgumentClause setValueMatch(Clause valueMatch) {
+	public Argument setValueMatch(Match valueMatch) {
 		this.valueMatch = valueMatch;
 		return this;
 	}

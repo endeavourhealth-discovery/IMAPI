@@ -1,19 +1,16 @@
 package org.endeavourhealth.imapi.transforms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
-import org.endeavourhealth.imapi.dataaccess.FileRepository;
-import org.endeavourhealth.imapi.filer.TTFilerFactory;
-import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
-import org.endeavourhealth.imapi.model.query.*;
+import org.endeavourhealth.imapi.model.hql.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.endeavourhealth.imapi.workflow.repository.FileUploadRepository;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -143,7 +140,6 @@ public class EqdToTT {
 		activeReport = eqReport.getId();
 		TTEntity entity= new TTEntity().addType(IM.PROFILE);
 		reportMap.put(activeReport,entity);
-		entity.set(IM.ENTITY_TYPE,TTIriRef.iri(IM.NAMESPACE+"Person"));
 		entity.setIri("urn:uuid:" + eqReport.getId());
 		entity.setName(eqReport.getName());
 		entity.setDescription(eqReport.getDescription());
@@ -153,16 +149,18 @@ public class EqdToTT {
 			setProvenance(entity.getIri(), null);
 
 		if (eqReport.getPopulation() != null) {
-			Match mainClause= new Match();
-			entity.set(IM.DEFINITION,mainClause);
+			Profile profile= new Profile();
+			profile.setEntityType(TTIriRef.iri(IM.NAMESPACE+"Person"));
+			Match parentClause= profile.addAnd();
 			if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-				setParent(mainClause, TTIriRef.iri(IM.NAMESPACE+"Q_RegisteredGMS"), "Registered with GP for GMS services on the reference date");
+				setParent(parentClause, TTIriRef.iri(IM.NAMESPACE+"Q_RegisteredGMS"), "Registered with GP for GMS services on the reference date");
 			}
 			if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-				setParent(mainClause,TTIriRef.iri("urn:uuid:" + id), reportNames.get(id));
+				setParent(parentClause,TTIriRef.iri("urn:uuid:" + id), reportNames.get(id));
 			}
-			convertPopulation(eqReport.getPopulation(), mainClause);
+			convertPopulation(eqReport.getPopulation(), profile.addAnd());
+			entity.set(IM.DEFINITION,TTLiteral.literal(profile.getasJson()));
 		}
 		return entity;
 	}
@@ -255,7 +253,7 @@ public class EqdToTT {
 			EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
 			match
 				.setProperty(IM.HAS_PROFILE)
-				.setValueIn(TTIriRef.iri("urn:uuid:" + srch.getReportGuid())
+				.addValueIn(TTIriRef.iri("urn:uuid:" + srch.getReportGuid())
 					.setName(reportNames.get(srch.getReportGuid())));
 		}
 		else {
@@ -382,31 +380,19 @@ public class EqdToTT {
 		match.setPathTo(firstMatch.getPathTo());
 		match.setEntityType(firstMatch.getEntityType());
 		EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
-		Function function= new Function();
-		match.setFunction(function);
-		function.setName(IM.ORDER_LIMIT);
 		if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC)
-			function.addArgument(new Argument()
-				.setParameter(IM.SORT_ORDER)
-				.setValueIri(IM.ASCENDING));
+			match.setSort(new Sort()
+					.setDirection(Order.ASCENDING));
 		else
-			function.addArgument(new Argument()
-				.setParameter(IM.SORT_ORDER)
-				.setValueIri(IM.DESCENDING));
+			match.setSort(new Sort()
+				.setDirection(Order.DESCENDING));
 		String eqColumn = restrict.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String fieldPath = getMap(eqTable + slash + eqColumn);
 		String field=fieldPath.substring(fieldPath.lastIndexOf("/")+1);
-		function.addArgument(new Argument()
-			.setParameter(IM.SORT_FIELD)
-			.setValueIri(TTIriRef.iri(IM.NAMESPACE + field)));
-		function.addArgument(new Argument()
-			.setParameter(IM.LIMIT)
-			.setValue(String.valueOf(restrict.getColumnOrder().getRecordCount())));
-		Match subMatch= new Match();
-		function.addArgument(new Argument()
-			.setParameter(IM.MATCH)
-			.setValueMatch(subMatch));
-		processColumns(eqCriterion.getFilterAttribute(), eqTable, subMatch,true,linkColumn);
+		match.getSort()
+				.setOrderBy(TTIriRef.iri(IM.NAMESPACE + field));
+		match.getSort().setCount(restrict.getColumnOrder().getRecordCount());
+		processColumns(eqCriterion.getFilterAttribute(), eqTable, match,true,linkColumn);
 	}
 
 
@@ -535,7 +521,7 @@ public class EqdToTT {
 	}
 
 	private void setCompare(Match match, Comparison comp,String value,String units,String compareAgainst) {
-			match.setValueTest(comp,value);
+			match.setValueCompare(comp,value);
 			if (compareAgainst!=null){
 				Function function = getTimeDiff(units, compareAgainst, match.getValueVar());
 				if (function != null) {
@@ -545,21 +531,18 @@ public class EqdToTT {
 			if (match.getProperty().equals(TTIriRef.iri(IM.NAMESPACE+"age"))){
 				Function function = new Function();
 				match.setValueFunction(function);
-				function.setName(TTIriRef.iri(IM.NAMESPACE+"AgeFunction"));
-				function.addArgument(new Argument().setParameter("units").setValue(units));
+				function.setId(TTIriRef.iri(IM.NAMESPACE+"AgeFunction"));
+				function.addArgument(new Argument().setParameter("units").setValueData(units));
 			}
 	}
 
 	private Function getTimeDiff(String units,String firstDate,String compareAgainst){
 		Function function=null;
-		TTArray arguments;
 		if (compareAgainst!=null) {
-			function = new Function().setName(TTIriRef.iri(IM.NAMESPACE + "TimeDifference"));
-			arguments = new TTArray();
-			arguments.add(new Argument().setParameter("units").setValue(units));
-			arguments.add(new Argument().setParameter("firstDate").setValue(firstDate));
-			arguments.add(new Argument().setParameter("secondDate").setValue(compareAgainst));
-			function.setArgument(arguments);
+			function = new Function().setId(TTIriRef.iri(IM.NAMESPACE + "TimeDifference"));
+			function.addArgument(new Argument().setParameter("units").setValueData(units));
+			function.addArgument(new Argument().setParameter("firstDate").setValueData(firstDate));
+			function.addArgument(new Argument().setParameter("secondDate").setValueData(compareAgainst));
 		}
 		return function;
 	}
@@ -639,11 +622,11 @@ public class EqdToTT {
 		match.addAnd(subMatch);
 		String units= eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value();
 		VocRangeFromOperator eqOp= eqRel.getRangeValue().getRangeFrom().getOperator();
-		TTLiteral value= TTLiteral.literal(eqRel.getRangeValue().getRangeFrom().getValue().getValue());
+		String value= eqRel.getRangeValue().getRangeFrom().getValue().getValue();
 		Function function= getTimeDiff(units,firstDate,dateMatch);
 		subMatch.setValueFunction(function);
-		subMatch.setValue(new Compare().setComparison((Comparison) vocabMap.get(eqOp))
-			.setValue(value));
+		subMatch.setValueCompare(new Compare().setComparison((Comparison) vocabMap.get(eqOp))
+			.setValueData(value));
 	}
 
 	private TTIriRef getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
@@ -795,7 +778,7 @@ public class EqdToTT {
 			parentPop.setName(parentName);
 		mainClause.addAnd(parentPop);
 		parentPop.setProperty(IM.HAS_PROFILE)
-			.setValueIn(parent);
+			.addValueIn(parent);
 	}
 
 	private void setVocabMaps() {

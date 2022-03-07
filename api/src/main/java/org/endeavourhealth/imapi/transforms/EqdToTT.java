@@ -159,13 +159,13 @@ public class EqdToTT {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 				setParent(parentClause,TTIriRef.iri("urn:uuid:" + id), reportNames.get(id));
 			}
-			convertPopulation(eqReport.getPopulation(), profile.addAnd());
+			convertPopulation(eqReport.getPopulation(), profile);
 			entity.set(IM.DEFINITION,TTLiteral.literal(profile.getasJson()));
 		}
 		return entity;
 	}
 
-	private void convertPopulation(EQDOCPopulation population, Match main) throws DataFormatException, IOException {
+	private void convertPopulation(EQDOCPopulation population, Profile main) throws DataFormatException, IOException {
 		Match parentOr=null;
 		for (EQDOCCriteriaGroup eqGroup : population.getCriteriaGroup()) {
 			VocRuleAction ifTrue = eqGroup.getActionIfTrue();

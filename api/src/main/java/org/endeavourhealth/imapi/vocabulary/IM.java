@@ -42,7 +42,7 @@ public class IM {
   public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
   public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
   public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
-  public static final TTIriRef PROCESS = iri(NAMESPACE + "Process");
+  public static final TTIriRef PROCESS = iri(NAMESPACE + "HqlDocument");
 
 
     //Collection predicates

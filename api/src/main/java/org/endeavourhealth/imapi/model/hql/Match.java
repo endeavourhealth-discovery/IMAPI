@@ -9,15 +9,10 @@ import java.util.List;
 @JsonPropertyOrder({"name","iri","description","bool","notExist","pathTo","entityType","property","valueCompare","valueIn","valueNotIn",
 "valueRange","valueFunction","sort","test"})
 
-public class Match {
-	private List<Match> and;
-	private List<Match> or;
-	private List<Match> not;
-	String name;
-	TTIriRef id;
-	String description;
+public class Match extends Profile {
+
+
 	TTIriRef pathTo;
-	TTIriRef entityType;
 	TTIriRef property;
 	Compare valueCompare;
 	List<TTIriRef> valueIn;
@@ -31,76 +26,7 @@ public class Match {
 	boolean notExist;
 
 
-	public String getName() {
-		return name;
-	}
 
-	public Match setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public TTIriRef getId() {
-		return id;
-	}
-
-	public Match setId(TTIriRef iri) {
-		this.id = iri;
-		return this;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public Match setDescription(String description) {
-		this.description = description;
-		return this;
-	}
-
-	public List<Match> getAnd() {
-		return and;
-	}
-
-	public Match setAnd(List<Match> and) {
-		this.and = and;
-		return this;
-	}
-
-	public Match addAnd(){
-		if (this.and==null)
-			this.and= new ArrayList<>();
-		Match newAnd= new Match();
-		and.add(newAnd);
-		return newAnd;
-	}
-
-	public Match addAnd(Match and){
-		if (this.and==null)
-			this.and= new ArrayList<>();
-		this.and.add(and);
-		return and;
-	}
-
-	public Match setOr(List<Match> or) {
-		this.or = or;
-		return this;
-	}
-
-	public Match addOr(){
-		if (this.or==null)
-			this.or= new ArrayList<>();
-		Match newOr= new Match();
-		this.or.add(newOr);
-		return newOr;
-	}
-
-	public Match addOr(Match or){
-		if (this.or==null)
-			this.or= new ArrayList<>();
-		this.or.add(or);
-		return or;
-	}
 
 
 
@@ -143,14 +69,6 @@ public class Match {
 		return this;
 	}
 
-	public TTIriRef getEntityType() {
-		return entityType;
-	}
-
-	public Match setEntityType(TTIriRef entityType) {
-		this.entityType = entityType;
-		return this;
-	}
 
 	public TTIriRef getProperty() {
 		return property;
@@ -252,31 +170,6 @@ public class Match {
 		return this;
 	}
 
-	public List<Match> getOr() {
-		return or;
-	}
 
-	public List<Match> getNot() {
-		return not;
-	}
 
-	public Match setNot(List<Match> not) {
-		this.not = not;
-		return this;
-	}
-
-	public Match addNot(){
-		if (this.not==null)
-			this.not= new ArrayList<>();
-		Match newNot= new Match();
-		this.not.add(newNot);
-		return newNot;
-	}
-
-	public Match addNot(Match not){
-		if (this.not==null)
-			this.not= new ArrayList<>();
-		this.not.add(not);
-		return not;
-	}
 }

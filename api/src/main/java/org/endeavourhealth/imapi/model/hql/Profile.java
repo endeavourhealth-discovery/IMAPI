@@ -11,11 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Profile {
+	TTIriRef id;
+	String name;
+	String description;
 	private TTIriRef entityType;
 	private List<Match> and;
 	private List<Match> or;
-	Match not;
+	private List<Match> not;
 	private Match match;
+
+
 
 	public List<Match> getAnd() {
 		return and;
@@ -27,25 +32,30 @@ public class Profile {
 	}
 
 	public Match addAnd(){
-		if (this.and==null)
-			this.and= new ArrayList<>();
-		Match newAnd= new Match();
-		and.add(newAnd);
-		return newAnd;
+		return addAnd(new Match());
 	}
 
-	public Profile setOr(List<Match> or) {
-		this.or = or;
-		return this;
+	public Match addAnd(Match and){
+		if (this.and==null)
+			this.and= new ArrayList<>();
+		this.and.add(and);
+		return and;
 	}
 
 	public Match addOr(){
+		return addOr(new Match());
+	}
+
+	public Match addOr(Match or){
 		if (this.or==null)
 			this.or= new ArrayList<>();
-		Match newOr= new Match();
-		and.add(newOr);
-		return newOr;
+		this.or.add(or);
+		return or;
 	}
+
+
+
+
 
 	@JsonIgnore
  public String getasJson() throws JsonProcessingException {
@@ -56,13 +66,13 @@ public class Profile {
 	 return objectMapper.writeValueAsString(this);
  }
 
+
+
 	public List<Match> getOr() {
 		return or;
 	}
 
-	public Match getNot() {
-		return not;
-	}
+
 
 	public TTIriRef getEntityType() {
 		return entityType;
@@ -73,10 +83,6 @@ public class Profile {
 		return this;
 	}
 
-	public Match createMatch() {
-		this.match = new Match();
-		return this.match;
-	}
 
 	public Match getMatch() {
 		return match;
@@ -93,10 +99,55 @@ public class Profile {
 		return this.match;
 	}
 
+	public Profile setOr(List<Match> or) {
+		this.or = or;
+		return this;
+	}
 
-	public Profile setNot(Match not) {
+	public List<Match> getNot() {
+		return not;
+	}
+
+	public Profile setNot(List<Match> not) {
 		this.not = not;
 		return this;
 	}
 
+	public Match addNot(){
+		return addNot(new Match());
+	}
+
+	public Match addNot(Match not){
+		if (this.not==null)
+			this.not= new ArrayList<>();
+		this.not.add(not);
+		return not;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Profile setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	public TTIriRef getId() {
+		return id;
+	}
+
+	public Profile setId(TTIriRef id) {
+		this.id = id;
+		return this;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public Profile setDescription(String description) {
+		this.description = description;
+		return this;
+	}
 }

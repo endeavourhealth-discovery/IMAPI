@@ -1,14 +1,18 @@
 grammar HDSL;
 
-query : profile | dataset;
-profile : entityType booleanClause|matchMatchClause;
+process : id? (profile | dataset| update| delete | create | types| transform) ;
+update : ;
+delete : ;
+create : ;
+types : ;
+transform : ;
+profile : 'profile' entityType booleanClause|matchMatchClause;
 dataset:;
 entityType :
-    'entityType' iri;
-iri: id name?;
+    'entityType' iriRef;
 id : IRIREF;
 name : String;
-clause : (name |  iri | description)*;
+clause : (name |  iriRef | description)*;
 description : String;
 booleanClause: 'bool' clause operator (booleanClause | matchClause)+;
 operator: 'and' | 'or' | 'not';
@@ -17,20 +21,38 @@ matchClause :
      pathTo?
      entityType?
      property?
-     valueCompare?
-     (valueIn+)?
-	 (valueNotIn+)?
-	  valueRange?
-	 valueFunction?
-	 valueVar?
-	 test?
-	 function?
-	 notExist
 	 ;
 
 pathTo : IRIREF;
 property : IRIREF;
 
+iriRef
+    : IRI_REF
+    | prefixedName
+    ;
+
+prefixedName
+    : PNAME_LN
+    | PNAME_NS
+    ;
+
+
+PNAME_NS
+    : PN_PREFIX? ':'
+    ;
+
+PNAME_LN
+    : PNAME_NS PN_LOCAL
+    ;
+
+PN_PREFIX
+    : PN_CHARS_BASE ((PN_CHARS|'.')* PN_CHARS)?
+    ;
+
+
+PN_LOCAL
+    : ( PN_CHARS_U | DIGIT ) ((PN_CHARS|'.')* PN_CHARS)?
+    ;
 
 
 
@@ -55,9 +77,10 @@ STRING_LITERAL_SINGLE_QUOTE
    ;
 
 
-IRIREF
-   :  (PN_CHARS | '.' | ':' | '/' | '\\' | '#' | '@' | '%' | '&' | UCHAR)*
-   ;
+IRI_REF
+    : '<' ( ~('<' | '>' | '"' | '{' | '}' | '|' | '^' | '\\' | '`') | (PN_CHARS))* '>'
+    ;
+
 
 ECHAR
    : '\\' [tbnrf"'\\]
@@ -78,6 +101,11 @@ HEX
  PN_CHARS
     : PN_CHARS_U | '-' | [0-9] | '\u00B7' | [\u0300-\u036F] | [\u203F-\u2040];
 
+
+fragment
+DIGIT
+    : '0'..'9'
+    ;
 
 WS
    : ([\t\r\n\u000C] | ' ') + -> skip

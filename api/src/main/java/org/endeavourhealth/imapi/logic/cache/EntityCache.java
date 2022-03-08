@@ -35,30 +35,17 @@ public class EntityCache implements Runnable{
 	 */
 	public static void refreshCache() {
 		refreshShapes();
-		refreshProperties();
 	}
 
 	public static void refreshShapes(){
 		synchronized (EntityCache.shapeLock) {
 			TTEntityMap shapeMap = ShapeRepository.getShapes();
 			Reasoner reasoner = new Reasoner();
-			for (Map.Entry<String, TTEntity> entry : shapeMap.getEntities().entrySet()) {
-				reasoner.inheritProperties(entry.getValue(), shapeMap);
-			}
 			cacheShapes(shapeMap);
 		}
 	}
 
-	public static void refreshProperties(){
-		synchronized (EntityCache.propertyLock) {
-			TTEntityMap propertyMap= PropertyRepository.getProperties();
-			Reasoner reasoner = new Reasoner();
-			for (Map.Entry<String, TTEntity> entry : propertyMap.getEntities().entrySet()) {
-				reasoner.inheritProperties(entry.getValue(), propertyMap);
-			}
-			cacheProperties(propertyMap);
-		}
-	}
+
 
 
 
@@ -135,8 +122,6 @@ public class EntityCache implements Runnable{
 					TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri);
 					if (shapeMap.getEntities() == null)
 						return null;
-					Reasoner reasoner = new Reasoner();
-					reasoner.inheritProperties(shapeMap.getEntity(iri), shapeMap);
 					synchronized (EntityCache.shapeLock) {
 						cacheShapes(shapeMap);
 					}

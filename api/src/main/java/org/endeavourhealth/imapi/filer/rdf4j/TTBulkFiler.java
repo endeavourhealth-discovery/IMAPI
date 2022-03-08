@@ -29,6 +29,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	private FileWriter codeCoreMap;
 	private FileWriter descendants;
 	private FileWriter legacyCore;
+	private FileWriter allEntities;
 	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
 
 	@Override
@@ -69,7 +70,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				codeMap = new FileWriter(path + "\\CodeMap-" + scheme + ".txt",true);
 				termCoreMap = new FileWriter(path + "\\TermCoreMap-" + scheme + ".txt",true);
 				subtypes = new FileWriter(path + "\\SubTypes" + ".txt",true);
-				FileWriter allEntities = new FileWriter(path + "\\Entities" + ".txt", true);
+				allEntities = new FileWriter(path + "\\Entities" + ".txt", true);
 				codeCoreMap = new FileWriter(path + "\\CodeCoreMap-" + scheme+ ".txt",true);
 				descendants = new FileWriter(path + "\\Descendants" + ".txt",true);
 				coreTerms = new FileWriter(path + "\\CoreTerms" + ".txt",true);
@@ -88,7 +89,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 					addSubtypes(entity);
 					addTerms(entity,graph);
 
-					if (counter % 20000 == 0)
+					if (counter % 100000 == 0)
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
 
 					List<String> quadList = converter.transformEntity(entity, document.getGraph().getIri());
@@ -109,6 +110,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				descendants.close();
 				coreTerms.close();
 				legacyCore.close();
+				allEntities.close();
 			}
 		} catch (Exception e)  {
 		e.printStackTrace();

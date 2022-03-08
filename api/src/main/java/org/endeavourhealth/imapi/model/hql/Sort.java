@@ -1,8 +1,8 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.hql;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class SortClause {
+public class Sort {
 	TTIriRef orderBy;
 	Integer count;
 	Order direction;
@@ -11,7 +11,7 @@ public class SortClause {
 		return orderBy;
 	}
 
-	public SortClause setOrderBy(TTIriRef orderBy) {
+	public Sort setOrderBy(TTIriRef orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}
@@ -20,7 +20,7 @@ public class SortClause {
 		return count;
 	}
 
-	public SortClause setCount(Integer count) {
+	public Sort setCount(Integer count) {
 		this.count = count;
 		return this;
 	}
@@ -29,7 +29,7 @@ public class SortClause {
 		return direction;
 	}
 
-	public SortClause setDirection(Order direction) {
+	public Sort setDirection(Order direction) {
 		this.direction = direction;
 		return this;
 	}

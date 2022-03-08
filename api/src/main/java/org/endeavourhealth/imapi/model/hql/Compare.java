@@ -1,10 +1,8 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.hql;
 
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.tripletree.TTUtil;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class CompareClause {
+public class Compare {
 
 	Comparison comparison;
 	String valueData;
@@ -14,7 +12,7 @@ public class CompareClause {
 		return comparison;
 	}
 
-	public CompareClause setComparison(Comparison comparison) {
+	public Compare setComparison(Comparison comparison) {
 		this.comparison = comparison;
 		return this;
 	}
@@ -24,17 +22,19 @@ public class CompareClause {
 	}
 
 
+	@JsonIgnore
 	public String getValue() {
 		return valueData;
 	}
 
-	public CompareClause setValueData(String valueData) {
+	public Compare setValueData(String valueData) {
 		this.valueData = valueData;
 		return this;
 	}
 
 
-	public CompareClause setValue(String valueData) {
+	@JsonIgnore
+	public Compare setValue(String valueData) {
 		this.valueData = valueData;
 		return this;
 	}
@@ -44,7 +44,7 @@ public class CompareClause {
 		return function;
 	}
 
-	public CompareClause setFunction(Function function) {
+	public Compare setFunction(Function function) {
 		this.function = function;
 		return this;
 	}

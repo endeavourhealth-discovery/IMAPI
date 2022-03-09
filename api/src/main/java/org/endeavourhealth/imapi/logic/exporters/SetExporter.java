@@ -30,6 +30,13 @@ public class SetExporter {
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
     public void publishSetToIM1(String setIri){
+        StringJoiner results = generateForIm1(setIri);
+
+        pushToS3(results);
+        LOG.trace("Done");
+    }
+
+    public StringJoiner generateForIm1(String setIri) {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
@@ -39,10 +46,7 @@ public class SetExporter {
 
         Set<Integer> members = getMembers(setIris);
 
-        StringJoiner results = generateTSV(setIri, name, members);
-
-        pushToS3(results);
-        LOG.trace("Done");
+        return generateTSV(setIri, name, members);
     }
 
     private Set<String> getSets(String setIri) {

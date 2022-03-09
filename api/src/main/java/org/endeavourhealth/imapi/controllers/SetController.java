@@ -39,6 +39,7 @@ public class SetController {
 
     private final EntityService entityService = new EntityService();
     private final SetService setService = new SetService();
+    private final SetExporter setExporter = new SetExporter();
 
 	@GetMapping(value = "/public/download")
     @ApiOperation(
@@ -108,6 +109,16 @@ public class SetController {
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
     public void publish(@RequestParam(name = "iri") String iri) {
-        new SetExporter().publishSetToIM1(iri);
+        setExporter.publishSetToIM1(iri);
+    }
+
+
+    @GetMapping(value = "/public/export")
+    @ApiOperation(
+            value = "Export set",
+            notes = "Exporting an expanded set to IM1"
+    )
+    public String export(@RequestParam(name = "iri") String iri) {
+        return setExporter.generateForIm1(iri).toString();
     }
 }

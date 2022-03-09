@@ -150,6 +150,8 @@ public class EqdToTT {
 
 		if (eqReport.getPopulation() != null) {
 			Profile profile= new Profile();
+			profile.setName(entity.getName());
+			profile.setId(TTIriRef.iri(entity.getIri()));
 			profile.setEntityType(TTIriRef.iri(IM.NAMESPACE+"Person"));
 			Match parentClause= profile.addAnd();
 			if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
@@ -210,6 +212,8 @@ public class EqdToTT {
 			else
 				throw new DataFormatException("unrecognised action rule combination : "+ activeReport);
 
+			if (eqGroup.getId()!=null)
+				 thisMatch.setId(TTIriRef.iri("urn:uuid:"+eqGroup.getId()));
 			VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 			int eqCount= eqGroup.getDefinition().getCriteria().size();
 			for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
@@ -257,6 +261,8 @@ public class EqdToTT {
 					.setName(reportNames.get(srch.getReportGuid())));
 		}
 		else {
+			if (eqCriteria.getCriterion().getId()!=null)
+				match.setId(TTIriRef.iri("urn:uuid:"+ eqCriteria.getCriterion().getId()));
 			if (eqCriteria.getCriterion().getLinkedCriterion()!=null){
 				Match subMatch= new Match();
 				match.addAnd(subMatch);
@@ -772,12 +778,10 @@ public class EqdToTT {
 			return repo.getCoreFromCode(originalCode, schemes);
 	}
 
-	private void setParent(Match mainClause, TTIriRef parent, String parentName) {
-		Match parentPop= new Match();
+	private void setParent(Match clause, TTIriRef parent, String parentName) {
 		if (parentName!=null)
-			parentPop.setName(parentName);
-		mainClause.addAnd(parentPop);
-		parentPop.setProperty(IM.HAS_PROFILE)
+			clause.setName(parentName);
+		clause.setProperty(IM.HAS_PROFILE)
 			.addValueIn(parent);
 	}
 

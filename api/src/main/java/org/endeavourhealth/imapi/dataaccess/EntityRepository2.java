@@ -246,9 +246,11 @@ public class EntityRepository2 {
           "select ?concept ?label\n";
         for (String scheme:schemes)
             sql=sql+"from <"+scheme+">\n";
-         sql=sql+ "where {\n" +
+         sql=sql+ "where { {\n" +
           "?concept rdfs:label ?term." +
-           "filter(isIri(?concept))}\n";
+           "filter(isIri(?concept))}\n"+
+           "union { ?concept im:hasTermCode ?tc."+
+           "?tc rdfs:label ?term.} }";
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             qry.setBinding("term", Values.literal(term));

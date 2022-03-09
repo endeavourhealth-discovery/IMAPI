@@ -33,43 +33,35 @@ public class SetReducer {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			List<String> members = new ArrayList<>();
 			StringJoiner sql = new StringJoiner("\n");
-			sql.add("Select ?core where {?concept <" + IM.HAS_MEMBER.getIri() + "> ?member." +
-				"?member <"+ IM.MATCHED_TO.getIri()+"> ?core}");
+			sql.add("PREFIX im: <http://endhealth.info/im#>")
+				.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+				.add("Select distinct ?member ?name")
+				.add("where {")
+				.add("    ?set im:hasMember ?member.")
+				.add("    ?member rdfs:label ?name.")
+				.add("   filter not exists {" )
+				.add("    ?member im:isA ?super.")
+				.add("    filter (?super!=?member)")
+				.add("     im:VSET_Microbiology im:hasMember ?super")
+				.add("    }}");
+
 			TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-			qry.setBinding("concept", Values.iri(set.getIri()));
+			qry.setBinding("set", Values.iri(set.getIri()));
 			try (TupleQueryResult rs = qry.evaluate()) {
 				if (!rs.hasNext())
 					throw new InvalidAttributesException("Not converted to expression constraint. Does not have expanded members");
+				Integer originalSize= set.get(IM.HAS_MEMBER).size();
+				TTNode ors= new TTNode();
+				set.set(IM.DEFINITION,ors);
 				while (rs.hasNext()) {
 					BindingSet bs = rs.next();
-					members.add(bs.getValue("core").stringValue());
+					ors.addObject(SHACL.OR,TTIriRef.iri(bs.getValue("member").stringValue()));
 				}
-				Set<String> toRemove = new HashSet<>();
-				for (String member : members) {
-					qry = conn.prepareTupleQuery("Select ?parent\n " +
-						"where {<" + member + "> <" + IM.IS_A.getIri() + "> ?parent}");
-					TupleQueryResult rs2 = qry.evaluate();
-					while (rs2.hasNext()) {
-						BindingSet bs = rs2.next();
-						String parent = bs.getValue("parent").stringValue();
-						if (!parent.equals(member)) {
-							if (members.contains(parent)) {
-								toRemove.add(member);
-							}
-						}
-					}
-				}
-				int currentCount = members.size();
-				toRemove.forEach(m -> members.remove(m));
-				int newCount = members.size();
-				if (currentCount - newCount < 10)
-					throw new InvalidAttributesException("Not converted to expression constraint. No significant change");
 				set.getPredicateMap().remove(IM.HAS_MEMBER);
-				TTNode or = new TTNode();
-				set.set(IM.DEFINITION, or);
-				for (String member : members)
-					or.addObject(SHACL.OR, TTIriRef.iri(member));
-				System.out.println("for set " + set.getIri() + " removed " + (currentCount - newCount) + " members");
+				Integer newSize= set.get(IM.DEFINITION).asNode().get(SHACL.OR).size();
+
+				System.out.println("for set " + set.getIri() +
+					" original size = "+ originalSize+" new size "+ newSize+ " removed " + (originalSize- newSize) + " members");
 			}
 		}
 		return set;

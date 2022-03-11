@@ -26,15 +26,15 @@ public class HqlDocument {
 		return profile;
 	}
 
-	public HqlDocument setProfile(List<Profile> profile) {
-		this.profile = profile;
+	public HqlDocument setProfile(List<Profile> query) {
+		this.profile = query;
 		return this;
 	}
 
-	public HqlDocument addProfile (Profile profile){
-		if (this.profile==null)
-			this.profile= new ArrayList<>();
-		this.profile.add(profile);
+	public HqlDocument addProfile (Profile query){
+		if (this.profile ==null)
+			this.profile = new ArrayList<>();
+		this.profile.add(query);
 		return this;
 	}
 }

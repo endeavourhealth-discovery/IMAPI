@@ -98,7 +98,7 @@ public class EntityRepository2 {
             .add("SELECT ?dbid")
             .add("WHERE {")
             .add("  ?set ?imHasMember ?concept.")
-            .add("  ?concept ?imDbid ?dbid.")
+            .add("  ?concept ?imDbid ?im1id.")
             .add("}")
             .toString();
 
@@ -107,7 +107,7 @@ public class EntityRepository2 {
             qry.setBinding("set", Values.iri(setIri));
             qry.setBinding("imHasMember", Values.iri(IM.HAS_MEMBER.getIri()));
             qry.setBinding("imMap", Values.iri(IM.NAMESPACE + "im1Map"));
-            qry.setBinding("imDbid", Values.iri(IM.DBID.getIri()));
+            qry.setBinding("imDbid", Values.iri(IM.IM1ID.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();

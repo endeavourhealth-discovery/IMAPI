@@ -154,6 +154,7 @@ public class EqdToTT {
 			profile.setId(TTIriRef.iri(entity.getIri()));
 			profile.setEntityType(TTIriRef.iri(IM.NAMESPACE+"Person"));
 			Match parentClause= profile.addAnd();
+			parentClause.setId(TTIriRef.iri("urn:uuid:"+ UUID.randomUUID()));
 			if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
 				setParent(parentClause, TTIriRef.iri(IM.NAMESPACE+"Q_RegisteredGMS"), "Registered with GP for GMS services on the reference date");
 			}

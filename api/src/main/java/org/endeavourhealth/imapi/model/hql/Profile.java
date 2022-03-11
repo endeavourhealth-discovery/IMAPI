@@ -10,10 +10,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Profile {
-	TTIriRef id;
-	String name;
-	String description;
+public class Profile extends HqlPackage{
+
 	private TTIriRef entityType;
 	private List<Match> and;
 	private List<Match> or;

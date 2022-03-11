@@ -1,12 +1,12 @@
-grammar HDSL;
+grammar HQL;
 
-process : id? (profile | dataset| update| delete | create | types| transform) ;
+process : id? (query | update| delete | create) ;
+query : (query|members) return;
+members : id+;
 update : ;
 delete : ;
 create : ;
-types : ;
-transform : ;
-profile : 'profile' entityType booleanClause|matchMatchClause;
+query : 'query' entityType booleanClause|matchClause;
 dataset:;
 entityType :
     'entityType' iriRef;
@@ -16,8 +16,8 @@ clause : (name |  iriRef | description)*;
 description : String;
 booleanClause: 'bool' clause operator (booleanClause | matchClause)+;
 operator: 'and' | 'or' | 'not';
-matchMatchClause: 'match' matchClause;
-matchClause :
+matchClause: 'match' matchAndFilter;
+matchAndFilter :
      pathTo?
      entityType?
      property?

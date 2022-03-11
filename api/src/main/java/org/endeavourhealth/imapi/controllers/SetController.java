@@ -122,7 +122,13 @@ public class SetController {
             value = "Export set",
             notes = "Exporting an expanded set to IM1"
     )
-    public String export(@RequestParam(name = "iri") String iri) {
-        return setExporter.generateForIm1(iri).toString();
+    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) {
+        TTIriRef entity = entityService.getEntityReference(iri);
+        String filename = entity.getName() + " " + LocalDate.now();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "force-download"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
+        String result = setExporter.generateForIm1(iri).toString();
+        return new HttpEntity<>(result, headers);
     }
 }

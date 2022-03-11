@@ -11,6 +11,7 @@ public class CONFIG {
 
     // Config entries
     public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+    public static final TTIriRef SUMMARY = iri(NAMESPACE + "summary");
     public static final TTIriRef FILTER_DEFAULTS = iri(NAMESPACE + "filterDefaults");
     public static final TTIriRef INFERRED_PREDICATES = iri(NAMESPACE + "inferredPredicates");
     public static final TTIriRef INFERRED_EXCLUDE_PREDICATES = iri(NAMESPACE + "inferredExcludePredicates");

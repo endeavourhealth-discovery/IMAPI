@@ -13,6 +13,7 @@ public class IM {
     public static final String TYPE = "@type";
 
     //Entity top level predicates
+    public static final TTIriRef id = iri(NAMESPACE + "id");
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
@@ -147,39 +148,7 @@ public class IM {
 
 
 
-    //Query
-  public static final TTIriRef ORDER_LIMIT= iri(NAMESPACE + "OrderLimit");
-  public static final TTIriRef AND= iri(NAMESPACE + "and");
-  public static final TTIriRef OR= iri(NAMESPACE + "or");
-  public static final TTIriRef NOT= iri(NAMESPACE + "not");
-  public static final TTIriRef MATCH = iri(NAMESPACE + "match");
-  public static final TTIriRef ORDER = iri(NAMESPACE + "order");
-  public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
-  public static final TTIriRef ENTITY_TYPE = iri(NAMESPACE + "entityType");
-  public static final TTIriRef PROPERTY = iri(NAMESPACE + "property");
-  public static final TTIriRef VALUE_COMPARE = iri(NAMESPACE + "valueCompare");
-  public static final TTIriRef NOT_EXIST = iri(NAMESPACE+ "notExist");
-  public static final TTIriRef VALUE_IN = iri(NAMESPACE + "valueIn");
-  public static final TTIriRef VALUE_NOTIN = iri(NAMESPACE + "valueNotIn");
-  public static final TTIriRef FROM = iri(NAMESPACE + "from");
-  public static final TTIriRef TO = iri(NAMESPACE + "to");
-  public static final TTIriRef VALUE_RANGE  = iri(NAMESPACE+ "valueRange");
-  public static final TTIriRef VALUE_FUNCTION = iri(NAMESPACE + "valueFunction");
-  public static final TTIriRef COMPARISON = iri(NAMESPACE + "comparison");
-  public static final TTIriRef FUNCTION_IRI = iri(NAMESPACE + "functionIri");
-  public static final TTIriRef ARGUMENT = iri(NAMESPACE + "argument");
-  public static final TTIriRef PARAMETER = iri(NAMESPACE + "parameter");
-  public static final TTIriRef LIMIT = iri(NAMESPACE + "limit");
-  public static final TTIriRef SORT_FIELD = iri(NAMESPACE + "sortField");
-  public static final TTIriRef TEST = iri(NAMESPACE + "test");
-  public static final TTIriRef VALUE_VAR = iri(NAMESPACE + "valueVar");
-  public static final TTIriRef FUNCTION = iri(NAMESPACE + "function");
-  public static final TTIriRef ASCENDING = iri(NAMESPACE +"ASCENDING");
-  public static final TTIriRef DESCENDING = iri(NAMESPACE +"DESCENDING");
-  public static final TTIriRef SORT_ORDER = iri(NAMESPACE +"sortOrder");
-  public static final TTIriRef VALUE_MATCH = iri(NAMESPACE +"valueMatch");
-  public static final TTIriRef VALUE_IRI = iri(NAMESPACE +"valueIrI");
-  public static final TTIriRef VALUE_DATA = iri(NAMESPACE +"valueData");
+
   public static final TTIriRef USED_IN = iri(NAMESPACE +"usedIn");
 
 
@@ -212,10 +181,11 @@ public class IM {
   public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE+"usageTotal");
   public static final TTIriRef PLABEL= iri(NAMESPACE+"pLabel");
   public static final TTIriRef OLABEL= iri(NAMESPACE+"oLabel");
+  public static final TTIriRef ORDER = iri(NAMESPACE + "order");
 
   //im1
 
-  public static final TTIriRef DBID= iri(NAMESPACE+"dbid");
+  public static final TTIriRef IM1ID= iri(NAMESPACE+"im1id");
   public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
 
 

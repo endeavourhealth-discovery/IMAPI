@@ -40,6 +40,8 @@ public class ConfigController {
         LOG.debug("getComponentLayout");
         if ("definition".equals(name))
             return configManager.getConfig(CONFIG.DEFINITION, new TypeReference<>(){});
+        if ("summary".equals(name))
+            return configManager.getConfig(CONFIG.SUMMARY, new TypeReference<>(){});
         else
             throw new IllegalArgumentException("Unknown component layout config");
     }

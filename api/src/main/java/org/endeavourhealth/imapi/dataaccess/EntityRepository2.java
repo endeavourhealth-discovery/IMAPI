@@ -24,8 +24,8 @@ public class EntityRepository2 {
     private StringJoiner spql;
 
 
-    public Set<Integer> getSetDbids(String setIri, TTArray definition) {
-        Set<Integer> result = new HashSet<>();
+    public Set<String> getSetDbids(String setIri, TTArray definition) {
+        Set<String> result = new HashSet<>();
 
         addExpansionDbids(definition, result);
 
@@ -75,7 +75,7 @@ public class EntityRepository2 {
 
     }
 
-    private void addExpansionDbids(TTArray definition, Set<Integer> result) {
+    private void addExpansionDbids(TTArray definition, Set<String> result) {
         if (definition != null) {
             String sql = getIm1ExpansionAsSelect(definition);
             try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -83,9 +83,9 @@ public class EntityRepository2 {
                 try (TupleQueryResult rs = qry.evaluate()) {
                     while (rs.hasNext()) {
                         BindingSet bs = rs.next();
-                        result.add(((Literal)bs.getValue("dbid")).intValue());
-                        if (bs.getValue("legacyDbid") != null)
-                            result.add(((Literal)bs.getValue("legacyDbid")).intValue());
+                        result.add(((Literal)bs.getValue("id")).stringValue());
+                        if (bs.getValue("legacyId") != null)
+                            result.add(((Literal)bs.getValue("legacyId")).stringValue());
                     }
                 }
             }
@@ -93,12 +93,12 @@ public class EntityRepository2 {
     }
 
 
-    private void addSetMemberDbids(String setIri, Set<Integer> result) {
+    private void addSetMemberDbids(String setIri, Set<String> result) {
         String sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?dbid")
+            .add("SELECT ?id")
             .add("WHERE {")
             .add("  ?set ?imHasMember ?concept.")
-            .add("  ?concept ?imDbid ?im1id.")
+            .add("  ?concept ?imDbid ?id.")
             .add("}")
             .toString();
 
@@ -106,12 +106,11 @@ public class EntityRepository2 {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             qry.setBinding("set", Values.iri(setIri));
             qry.setBinding("imHasMember", Values.iri(IM.HAS_MEMBER.getIri()));
-            qry.setBinding("imMap", Values.iri(IM.NAMESPACE + "im1Map"));
             qry.setBinding("imDbid", Values.iri(IM.IM1ID.getIri()));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    result.add(((Literal)bs.getValue("dbid")).intValue());
+                    result.add(((Literal)bs.getValue("id")).stringValue());
                 }
             }
         }
@@ -484,12 +483,12 @@ public class EntityRepository2 {
 
     private String getIm1ExpansionAsSelect(TTArray definition) {
         initialiseBuilders();
-        spql.add("SELECT ?concept ?dbid ?legacy ?legacyDbid")
+        spql.add("SELECT ?concept ?id ?legacy ?legacyId")
             .add("WHERE {")
-            .add("  ?concept im:dbid ?dbid.")
+            .add("  ?concept im:im1id ?id.")
             .add("  OPTIONAL {")
             .add("      ?legacy im:matchedTo ?concept.")
-            .add("      ?legacy im:dbid ?legacyDbid.")
+            .add("      ?legacy im:im1id ?legacyId.")
             .add("  }")
             .add("  {")
             .add("      SELECT distinct ?concept");

@@ -44,7 +44,7 @@ public class SetExporter {
 
         Set<String> setIris = getSets(setIri);
 
-        Set<Integer> members = getMembers(setIris);
+        Set<String> members = getMembers(setIris);
 
         return generateTSV(setIri, name, members);
     }
@@ -63,9 +63,9 @@ public class SetExporter {
         return setIris;
     }
 
-    private Set<Integer> getMembers(Set<String> setIris) {
+    private Set<String> getMembers(Set<String> setIris) {
         LOG.trace("Getting members for sets...");
-        Set<Integer> members = new HashSet<>();
+        Set<String> members = new HashSet<>();
 
         for(String iri : setIris){
             TTArray definition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri()), 0).getEntity().get(IM.DEFINITION);
@@ -74,18 +74,18 @@ public class SetExporter {
         return members;
     }
 
-    private StringJoiner generateTSV(String setIri, String name, Set<Integer> members) {
+    private StringJoiner generateTSV(String setIri, String name, Set<String> members) {
         LOG.trace("Generating output...");
 
         StringJoiner results = new StringJoiner(System.lineSeparator());
         results.add("vsId\tvsName\tmemberDbid");
 
-        for(Integer member : members) {
+        for(String member : members) {
                 results.add(
                     new StringJoiner("\t")
                         .add(setIri)
                         .add(name)
-                        .add(member.toString())
+                        .add(member)
                         .toString()
                 );
         }

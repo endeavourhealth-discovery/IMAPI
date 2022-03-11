@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -88,6 +89,13 @@ public class EntityController {
             limit = EntityService.UNLIMITED;
         return entityService.getBundle(iri, predicates, limit).getEntity();
     }
+
+	@GetMapping(value = "/fullEntity", produces = "application/json")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getFullEntity");
+		return entityService.getEntityByPredicateExclusions(iri, null, EntityService.UNLIMITED).getEntity();
+	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {

@@ -354,6 +354,7 @@ public class EntityTripleRepository {
 
                 namespaceCache.addAll(result.values());
             }
+            Collections.sort(namespaceCache, Comparator.comparing(Namespace::getName));
             return namespaceCache;
         }
     }

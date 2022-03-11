@@ -51,7 +51,6 @@ public class EntityService {
 	private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
 
-
     public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
         return entityRepository2.getBundle(iri, predicates);
     }

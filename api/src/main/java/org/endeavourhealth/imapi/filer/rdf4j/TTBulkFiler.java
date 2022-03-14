@@ -83,6 +83,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				LOG.info("Writing out graph data for " + graph);
 				for (TTEntity entity : document.getEntities()) {
 					counter++;
+					String entityGraph= entity.getGraph()!=null ? entity.getGraph().getIri() : graph;
 					if (entity.get(IM.PRIVACY_LEVEL)!=null)
 						if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>getPrivacyLevel())
 							continue;
@@ -90,14 +91,14 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				//	if (entity.getIri().equals("http://endhealth.info/emis#_ESCTMA381305"))
 				//		System.out.println(entity.getIri());
 					allEntities.write(entity.getIri() + "\n");
-					addToMaps(entity,graph);
+					addToMaps(entity,entityGraph);
 					addSubtypes(entity);
-					addTerms(entity,graph);
+					addTerms(entity,entityGraph);
 
 					if (counter % 100000 == 0)
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
 
-					List<String> quadList = converter.transformEntity(entity, document.getGraph().getIri());
+					List<String> quadList = converter.transformEntity(entity, entityGraph);
 					for (String quad : quadList)
 						quads.write(quad + "\n");
 				}

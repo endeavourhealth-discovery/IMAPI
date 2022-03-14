@@ -49,6 +49,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
             if (document.getEntities() != null) {
                 int i = 0;
                 for (TTEntity entity : document.getEntities()) {
+                    TTIriRef entityGraph= entity.getGraph()!=null ?entity.getGraph() : graph;
                     if (entity.get(IM.PRIVACY_LEVEL)!=null)
                         if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
                             continue;
@@ -59,7 +60,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                             entity.setCrud(document.getCrud());
                         }
                     }
-                    fileEntity(entity, graph);
+                    fileEntity(entity, entityGraph);
                     i++;
                     if (i % 10000 == 0) {
                         LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());

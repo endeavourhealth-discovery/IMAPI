@@ -17,6 +17,7 @@ public class TTEntity extends TTNode implements Serializable {
     private String iri;
     private TTContext context = new TTContext();
     private TTIriRef crud;
+    private TTIriRef graph;
 
     public TTEntity() {}
 
@@ -150,4 +151,12 @@ public class TTEntity extends TTNode implements Serializable {
         return this;
     }
 
+    public TTIriRef getGraph() {
+        return graph;
+    }
+
+    public TTEntity setGraph(TTIriRef graph) {
+        this.graph = graph;
+        return this;
+    }
 }

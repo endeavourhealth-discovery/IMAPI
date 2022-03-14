@@ -187,7 +187,7 @@ public class IM {
 
   public static final TTIriRef IM1ID= iri(NAMESPACE+"im1id");
   public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
-
+  public static final TTIriRef PRIVACY_LEVEL= iri(NAMESPACE+"privacyLevel");
 
 
   private IM() {}

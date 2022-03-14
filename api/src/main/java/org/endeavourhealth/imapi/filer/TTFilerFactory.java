@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.*;
 public class TTFilerFactory {
     private static boolean skipDeletes=false;
     private static boolean bulk = false;
+    private static int privacyLevel=0;
     private TTFilerFactory() {}
 
     public static boolean isSkipDeletes() {
@@ -40,5 +41,13 @@ public class TTFilerFactory {
 
     public static void setBulk(boolean bulk) {
         TTFilerFactory.bulk = bulk;
+    }
+
+    public static int getPrivacyLevel() {
+        return privacyLevel;
+    }
+
+    public static void setPrivacyLevel(int privacyLevel) {
+        TTFilerFactory.privacyLevel = privacyLevel;
     }
 }

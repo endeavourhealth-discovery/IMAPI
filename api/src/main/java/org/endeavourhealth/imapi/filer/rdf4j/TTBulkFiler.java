@@ -30,6 +30,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	private FileWriter descendants;
 	private FileWriter legacyCore;
 	private FileWriter allEntities;
+	private static int privacyLevel=0;
 	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
 
 	@Override
@@ -82,6 +83,10 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				LOG.info("Writing out graph data for " + graph);
 				for (TTEntity entity : document.getEntities()) {
 					counter++;
+					if (entity.get(IM.PRIVACY_LEVEL)!=null)
+						if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>getPrivacyLevel())
+							continue;
+
 				//	if (entity.getIri().equals("http://endhealth.info/emis#_ESCTMA381305"))
 				//		System.out.println(entity.getIri());
 					allEntities.write(entity.getIri() + "\n");
@@ -237,5 +242,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 	public static void setPreload(String preload) {
 		TTBulkFiler.preload = preload;
+	}
+
+	public static int getPrivacyLevel() {
+		return privacyLevel;
+	}
+
+	public static void setPrivacyLevel(int privacyLevel) {
+		TTBulkFiler.privacyLevel = privacyLevel;
 	}
 }

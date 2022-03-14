@@ -23,6 +23,14 @@ public class SnomedConcept {
         return (rootEntity+ appendChk);
     }
 
+    public static String getNameSpace(String s){
+        if (s.length()>10)
+            return s.substring(s.length()-10, s.length()-3);
+        else
+            return "";
+    }
+
+
 
 
 

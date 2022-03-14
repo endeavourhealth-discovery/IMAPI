@@ -49,7 +49,9 @@ public abstract class TTDocumentFiler implements AutoCloseable {
             if (document.getEntities() != null) {
                 int i = 0;
                 for (TTEntity entity : document.getEntities()) {
-                    //inherit crud
+                    if (entity.get(IM.PRIVACY_LEVEL)!=null)
+                        if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
+                            continue;
                     if (entity.getCrud() == null) {
                         if (document.getCrud() == null) {
                             entity.setCrud(IM.REPLACE);

@@ -55,7 +55,7 @@ public class TTToNQuad {
 			quads.add(subject+ predicate + "<"+ value.asIriRef().getIri()+"> <"+graph+">.");
 		else if(value.isLiteral()){
 			String data= value.asLiteral().getValue();
-			data= data.replace("\\","\\\\").replace("\n","\\n").replace("\r","\\r").replace("\"","");
+			data= data.replace("\\","\\\\").replace("\n","\\n").replace("\r","\\r").replace("\"","\\\"");
 			if (value.asLiteral().getType()==null)
 				quads.add(subject+ predicate+ "\""+ data+"\" <"+graph+">.");
 			else {

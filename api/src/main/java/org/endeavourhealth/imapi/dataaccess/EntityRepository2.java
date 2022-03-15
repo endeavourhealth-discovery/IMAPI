@@ -212,6 +212,33 @@ public class EntityRepository2 {
 
     }
 
+
+    /**
+     * Returns an entity iri and name from a code or a term code
+     * @param codeId the code or description id or term code
+     * @return iri and name of entity
+     */
+    public Set<TTIriRef> getCoreFromCodeId(String codeId,List<String> schemes){
+        StringBuilder sql=
+          new StringBuilder("PREFIX im: <http://endhealth.info/im#>\n" +
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+            "select ?concept ?label\n");
+        for (String scheme:schemes){
+            sql.append("from <").append(scheme).append(">\n");
+        }
+        sql.append("where {  ")
+          .append(" ?legacy im:codeId ?codeId.\n")
+          .append(" ?legacy im:matchedTo ?concept.")
+          .append(" ?concept rdfs:label ?label.}\n");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("codeId", Values.literal(codeId));
+            return getConceptRefsFromResult(qry);
+        }
+
+    }
+
     /**
      * Returns a core entity iri and name from a legacy term
      * @param term the code or description id or term code
@@ -233,6 +260,32 @@ public class EntityRepository2 {
             return getConceptRefsFromResult(qry);
         }
     }
+
+    /**
+     * Returns an entity iri and name from a term code code
+     * @param code the code that is a term code
+     * @param scheme the scheme of the term
+     * @return set of iris and name of entity
+     */
+
+    public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) {
+        String sql="PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "select ?concept ?label\n"+
+          "where { graph ?scheme {\n" +
+          "?tc im:code ?code.\n" +
+          "?concept im:hasTermCode ?tc.}\n"+
+          "{?concept rdfs:label ?label} }";
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            qry.setBinding("code", Values.literal(code));
+            qry.setBinding("scheme", Values.iri(scheme));
+            return getConceptRefsFromResult(qry);
+        }
+
+    }
+
+
 
     /**
      * Returns A core entity iri and name from a core term

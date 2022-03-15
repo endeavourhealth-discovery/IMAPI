@@ -25,7 +25,6 @@ dependencies {
     implementation libs.apacheText
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind
-    implementation libs.javaxxmlbind
     implementation libs.logbackCore
     implementation libs.logbackClassic
     implementation libs.elasticsearch

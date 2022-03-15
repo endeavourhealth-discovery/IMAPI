@@ -1,12 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
@@ -19,10 +12,12 @@ import java.util.stream.Collectors;
 
 public class FileRepository {
 
-	private Map<String,Map<String,Set<String>>> codeCoreMap= new HashMap<>();
-	private Map<String,Map<String,Set<String>>> termCoreMap= new HashMap<>();
-	private Map<String,Map<String,Set<String>>> codes= new HashMap<>();
-	private Map<String,String> coreTerms= new HashMap<>();
+	private final Map<String,Map<String,Set<String>>> codeCoreMap= new HashMap<>();
+	private final Map<String,Map<String,Set<String>>> termCoreMap= new HashMap<>();
+	private final Map<String,Map<String,Set<String>>> codes= new HashMap<>();
+	private final Map<String,String> coreTerms= new HashMap<>();
+	private final Map<String,Map<String,String>> termCodes= new HashMap<>();
+	private final Map<String,Map<String,Set<String>>> codeIds = new HashMap<>();
 	private static String dataPath;
 
 	public FileRepository(String dataPath){
@@ -53,6 +48,17 @@ public class FileRepository {
 		}
 
 	}
+	public Set<TTIriRef> getCoreFromCodeId(String codeId,List<String> schemes) throws IOException {
+	 for (String scheme:schemes){
+		 if (codeIds.get(scheme)==null){
+			 fetchCodeIds(scheme);
+		 }
+		 if (codeIds.get(scheme).get(codeId)!=null)
+			 return codeIds.get(scheme).get(codeId).stream().map(TTIriRef::iri).collect(Collectors.toSet());
+	 }
+	 return null;
+	}
+
 
 	/**
 	 * Returns A core entity iri and name from a core term
@@ -68,6 +74,27 @@ public class FileRepository {
 		else
 			return null;
 		}
+
+
+	public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) throws IOException {
+
+		if (termCodes.get(scheme)==null){
+			fetchTermCodes(scheme);
+		}
+		String concept= termCodes.get(scheme).get(code);
+		if (concept!=null) {
+			Set<TTIriRef> concepts = new HashSet<>();
+			concepts.add(TTIriRef.iri(concept));
+			return concepts;
+		}
+		else
+			return null;
+	}
+
+
+
+
+
 
 
 
@@ -97,7 +124,6 @@ public class FileRepository {
 
 	private void fetchCoreTerms() throws IOException{
 		String fileName=getFile("CoreTerms");
-		Map<String,Set<String>> children= new HashMap<>();
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 			String line = reader.readLine();
 			while (line != null && !line.isEmpty()) {
@@ -170,6 +196,42 @@ public class FileRepository {
 
 		}
 	}
+
+	public void fetchCodeIds(String scheme) throws FileNotFoundException, IOException {
+	Map<String,Set<String>> codeSet= codeIds.computeIfAbsent(scheme, s-> new HashMap<>());
+	String fileName= getSchemeFile("CodeIds",scheme);
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+		String line= reader.readLine();
+		while(line != null && !line.isEmpty()){
+			String[] fields=line.split("\t");
+			String code=fields[0];
+			String iri=fields[1];
+			Set<String> coreSet= codeSet.computeIfAbsent(code,c-> new HashSet<>());
+			coreSet.add(iri);
+			line= reader.readLine();
+		}
+
+	}
+}
+
+
+	public void fetchTermCodes(String scheme) throws IOException {
+		Map<String,String> iris= termCodes.computeIfAbsent(scheme, s-> new HashMap<>());
+		String fileName= getSchemeFile("TermCodes",scheme);
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			String line= reader.readLine();
+			while(line != null && !line.isEmpty()){
+				String[] fields=line.split("\t");
+				String code=fields[0];
+				String iri=fields[1];
+				iris.put(code,iri);
+				line= reader.readLine();
+			}
+
+		}
+
+
+	}
 	public Map<String,Set<String>> getDescendants(String concept) throws IOException {
 		return fetchDescendants(concept);
 	}
@@ -236,6 +298,7 @@ public class FileRepository {
 
 		}
 	}
+
 
 	private String getSchemeFile(String fileType,String scheme){
 		scheme= scheme.substring(scheme.lastIndexOf("/")+1);

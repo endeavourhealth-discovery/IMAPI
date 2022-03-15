@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.controllers;
 
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
@@ -14,8 +13,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.annotation.RequestScope;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -25,6 +24,7 @@ import java.util.List;
 @SwaggerDefinition(tags = {
         @Tag(name = "Workflow Controller", description = "Main Workflow endpoint")
 })
+@RequestScope
 public class WorkflowController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowController.class);
@@ -33,13 +33,13 @@ public class WorkflowController {
     WorkflowService workflowService;
 
     @GetMapping()
-    public List<StateMachineConfig> getWorkflows() throws SQLException {
+    public List<StateMachineConfig> getWorkflows() {
         LOG.debug("getWorkflows");
         return workflowService.getWorkflows();
     }
 
     @GetMapping("/tasks")
-    public List<Task> getWorkflowTasks() throws SQLException {
+    public List<Task> getWorkflowTasks() {
         LOG.debug("getWorkflowTasks");
         return workflowService.getWorkflowTasks();
     }

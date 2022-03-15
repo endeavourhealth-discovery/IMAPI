@@ -1,13 +1,14 @@
 #!/bin/bash
 
+chmod +x ./gradlew
+
 mkdir badges
 
 # Artifact
-artifact=$( xmllint --xpath "/*[local-name() = 'project']/*[local-name() = 'artifactId']/text()" pom.xml )
+artifact='IMAPI'
 
 # Version
-version=$( xmllint --xpath "/*[local-name() = 'project']/*[local-name() = 'version']/text()" pom.xml )
-version=${version/-/--} # Hyphen escaping required by shields.io
+version='1.0.0'
 
 # Update badges pre-build
 echo "https://img.shields.io/badge/Build-In_progress-orange.svg"
@@ -24,14 +25,14 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 { #try
-    eval $* &&
+    ./gradlew build &&
     buildresult=0
 } || { #catch
     buildresult=1
 }
 
 # Build
-if [[ "$buildresult" -gt "0" ]] ; then
+if [[ $buildresult -gt 0 ]] ; then
         badge_status=failing
         badge_colour=red
 else
@@ -44,21 +45,10 @@ curl -s "https://img.shields.io/badge/Build-$badge_status-$badge_colour.svg" > b
 echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
-# Unit tests
-failures=$( xmllint --xpath 'string(//testsuite/@failures) + string(//testsuite/@errors)' api/target/surefire-reports/TEST-*.xml )
-
-if [[ "$failures" -gt "0" ]] ; then
-        badge_status=failing
-        badge_colour=red
-else
-        badge_status=passing
-        badge_colour=green
-fi
-
 echo "Generating badge 'https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg'"
 curl -s "https://img.shields.io/badge/Unit_Tests-$badge_status-$badge_colour.svg" > badges/unit-test.svg
 
 # Sync with S3
 aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive --acl public-read --region eu-west-2
 
-exit ${buildresult}
+exit $buildresult

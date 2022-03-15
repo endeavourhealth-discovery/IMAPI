@@ -11,9 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -24,28 +23,29 @@ import java.util.Set;
 @SwaggerDefinition(tags = {
         @Tag(name = "Instance Controller", description = "Main Instance endpoint")
 })
+@RequestScope
 public class InstanceController {
     private static final Logger LOG = LoggerFactory.getLogger(InstanceController.class);
 
     @Autowired
     InstanceService instanceService;
 
-    @GetMapping(value = "/partial", produces = "application/json")
+    @GetMapping(value = "/public/partial", produces = "application/json")
     public InstanceDTO getPartialInstance(@RequestParam(name = "iri") String iri,
-                                          @RequestParam(name = "predicate", required = false) Set<String> predicates) throws SQLException {
+                                          @RequestParam(name = "predicate", required = false) Set<String> predicates) {
         LOG.debug("getPartialInstance");
         return instanceService.getInstancePredicates(iri,predicates);
     }
 
-    @GetMapping(value = "/search")
+    @GetMapping(value = "/public/search")
     public List<TTIriRef> search(@RequestParam(name = "request") String request,
-                                 @RequestParam(name = "typesIris") Set<String> typesIris ) throws SQLException {
+                                 @RequestParam(name = "typesIris") Set<String> typesIris ) {
         LOG.debug("search");
         return instanceService.search(request, typesIris);
     }
 
-    @GetMapping("/typesCount")
-    public List<SimpleCount> typesCount() throws SQLException {
+    @GetMapping("/public/typesCount")
+    public List<SimpleCount> typesCount() {
         LOG.debug("typesCount");
         return instanceService.typesCount();
     }

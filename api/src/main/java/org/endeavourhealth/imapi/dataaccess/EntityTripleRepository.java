@@ -460,11 +460,11 @@ public class EntityTripleRepository {
     public List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add(" SELECT ?o ?oname ?ocode ?osch WHERE{")
-                .add(" ?s rdfs:subClassOf ?o .")
-                .add(" ?o im:code ?ocode ; ")
-                .add("    im:scheme ?osch . ")
-                .add("GRAPH ?g { ?o rdfs:label ?oname } .");
+                .add(" SELECT ?s ?code ?scheme ?name  WHERE{")
+                .add(" ?s im:matchedTo ?o .")
+                .add(" ?s im:code ?code .")
+                .add(" ?s im:scheme ?scheme .  ")
+                .add("GRAPH ?g { ?s rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql
@@ -475,12 +475,12 @@ public class EntityTripleRepository {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
 
-            qry.setBinding("s", iri(iri));
+            qry.setBinding("o", iri(iri));
 
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "oname"), getString(bs, "ocode"), getString(bs, "osch")));
+                    simpleMaps.add(new SimpleMap(getString(bs, "s"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")));
                 }
             }
         }

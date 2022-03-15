@@ -55,7 +55,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                             continue;
                     if (entity.getCrud() == null) {
                         if (document.getCrud() == null) {
-                            entity.setCrud(IM.REPLACE);
+                            entity.setCrud(IM.REPLACE_PREDICATES);
                         } else {
                             entity.setCrud(document.getCrud());
                         }

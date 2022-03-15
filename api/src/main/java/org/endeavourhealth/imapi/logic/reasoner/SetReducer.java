@@ -7,9 +7,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
@@ -30,27 +28,30 @@ public class SetReducer {
 	 * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
 	 */
 	public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
+		String sql=null;
+		Integer originalSize;
+		if (set.get(IM.DEFINITION)!=null) {
+				sql= getOrSql(set);
+				if (sql==null)
+					throw new InvalidAttributesException("Complex ecl. Cannot reduce");
+				else
+					originalSize= set.get(IM.DEFINITION).asNode().get(SHACL.OR).size();
+		}
+		else if (set.get(IM.HAS_MEMBER)==null) {
+			throw new InvalidAttributesException("No set members to reduce");
+		}
+		else {
+				sql = GetMemberSql();
+				originalSize = set.get(IM.HAS_MEMBER).size();
+		}
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			List<String> members = new ArrayList<>();
-			StringJoiner sql = new StringJoiner("\n");
-			sql.add("PREFIX im: <http://endhealth.info/im#>")
-				.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-				.add("Select distinct ?member ?name")
-				.add("where {")
-				.add("    ?set im:hasMember ?member.")
-				.add("    ?member rdfs:label ?name.")
-				.add("   filter not exists {" )
-				.add("    ?member im:isA ?super.")
-				.add("    filter (?super!=?member)")
-				.add("     im:VSET_Microbiology im:hasMember ?super")
-				.add("    }}");
-
 			TupleQuery qry = conn.prepareTupleQuery(sql.toString());
 			qry.setBinding("set", Values.iri(set.getIri()));
 			try (TupleQueryResult rs = qry.evaluate()) {
 				if (!rs.hasNext())
 					throw new InvalidAttributesException("Not converted to expression constraint. Does not have expanded members");
-				Integer originalSize= set.get(IM.HAS_MEMBER).size();
+
 				TTNode ors= new TTNode();
 				set.set(IM.DEFINITION,ors);
 				while (rs.hasNext()) {
@@ -59,7 +60,6 @@ public class SetReducer {
 				}
 				set.getPredicateMap().remove(IM.HAS_MEMBER);
 				Integer newSize= set.get(IM.DEFINITION).asNode().get(SHACL.OR).size();
-
 				System.out.println("for set " + set.getIri() +
 					" original size = "+ originalSize+" new size "+ newSize+ " removed " + (originalSize- newSize) + " members");
 			}
@@ -67,6 +67,52 @@ public class SetReducer {
 		return set;
 	}
 
+	private String GetMemberSql() {
+		StringJoiner sql = new StringJoiner("\n");
+		sql.add("PREFIX im: <http://endhealth.info/im#>")
+			.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+			.add("Select distinct ?member ?name")
+			.add("where {")
+			.add("    ?set im:hasMember ?member.")
+			.add("    ?member rdfs:label ?name.")
+			.add("   filter not exists {" )
+			.add("    ?member im:isA ?super.")
+			.add("    filter (?super!=?member)")
+			.add("     ?set im:hasMember ?super")
+			.add("    }}");
+		return sql.toString();
+	}
+
+	private String getOrSql(TTEntity set) {
+
+		TTArray definition= set.get(IM.DEFINITION);
+		if (definition.isIriRef()){
+			return null;
+		}
+		if (!definition.isNode())
+			return null;
+		if (definition.asNode().get(SHACL.OR)==null)
+			return null;
+		for (TTValue value:definition.asNode().get(SHACL.OR).getElements()){
+			if (!value.isIriRef())
+				return null;
+		}
+		StringJoiner sql = new StringJoiner("\n");
+		sql.add("PREFIX im: <http://endhealth.info/im#>")
+			.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+			.add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
+			.add("Select distinct ?member ?name")
+			.add("where {")
+			.add("    ?set im:definition ?or.")
+			.add("    ?or sh:or ?member.")
+			.add("    ?member rdfs:label ?name.")
+			.add("   filter not exists {" )
+			.add("    ?member im:isA ?super.")
+			.add("    filter (?super!=?member)")
+			.add("     ?or sh:or ?super")
+			.add("    }}");
+		return sql.toString();
+	}
 
 
 }

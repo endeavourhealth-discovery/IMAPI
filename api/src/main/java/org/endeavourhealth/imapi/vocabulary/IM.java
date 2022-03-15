@@ -141,9 +141,11 @@ public class IM {
 
     //Crud and provenance operations
 
-    public static final TTIriRef UPDATE = TTIriRef.iri(NAMESPACE +"Update");
-    public static final TTIriRef ADD = TTIriRef.iri(NAMESPACE +"Add");
-    public static final TTIriRef REPLACE = TTIriRef.iri(NAMESPACE +"Replace");
+    public static final TTIriRef REPLACE_PREDICATES = TTIriRef.iri(NAMESPACE +"ReplacePredicates");
+    public static final TTIriRef ADD_VALUES = TTIriRef.iri(NAMESPACE +"AddValues");
+    public static final TTIriRef DELETE_SELF = TTIriRef.iri(NAMESPACE +"DeleteSelf");
+    public static final TTIriRef DELETE_PREDICATES = TTIriRef.iri(NAMESPACE +"DeleteSelf");
+    public static final TTIriRef REPLACE_VALUES = TTIriRef.iri(NAMESPACE +"ReplaceValues");
     public static final TTIriRef CREATION = TTIriRef.iri(NAMESPACE +"2001000252109");
 
 

@@ -69,11 +69,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         if (entity.get(RDFS.LABEL) != null && entity.get(IM.HAS_STATUS) == null)
             entity.set(IM.HAS_STATUS, IM.ACTIVE);
         if (entity.getCrud() != null) {
-            if (entity.getCrud().equals(IM.UPDATE))
-                updatePredicates(entity, graph);
-            else if (entity.getCrud().equals(IM.ADD))
-               fileEntityPredicates(entity, graph);
-            else
+            if (entity.getCrud().equals(IM.REPLACE_VALUES))
+                replaceValues(entity, graph);
+            else if (entity.getCrud().equals(IM.ADD_VALUES))
+               addValues(entity, graph);
+            else if (entity.getCrud().equals(IM.REPLACE_PREDICATES))
                 replacePredicates(entity, graph);
         } else
             replacePredicates(entity, graph);
@@ -83,10 +83,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     private void replacePredicates(TTEntity entity,TTIriRef graph) throws TTFilerException {
         if (!TTFilerFactory.isSkipDeletes())
             deleteTriples(entity, graph);
-        fileEntityPredicates(entity, graph);
+        addValues(entity, graph);
     }
 
-    private void fileEntityPredicates(TTEntity entity,TTIriRef graph) throws TTFilerException {
+    private void addValues(TTEntity entity,TTIriRef graph) throws TTFilerException {
         try {
             ModelBuilder builder = new ModelBuilder();
             builder = builder.namedGraph(graph.getIri());
@@ -146,12 +146,12 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         }
 
     }
-    private void updatePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {
+    private void replaceValues(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
-        //Deletes the previous predicate objects ie. clears out all previous objects
+        //Deletes the previous predicate values and adds in the new ones
         if (!TTFilerFactory.isSkipDeletes())
             deletePredicates(entity,graph);
-        fileEntityPredicates(entity,graph);
+        addValues(entity,graph);
     }
 
     private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTArray array) throws TTFilerException {

@@ -458,8 +458,8 @@ public class EntityService {
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
         for (TTValue propertyGroup : entity.get(SHACL.PROPERTY).iterator()) {
             if (propertyGroup.isNode()) {
-                TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
-                        ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
+                TTIriRef inheritedFrom = propertyGroup.asNode().has(RDFS.DOMAIN)
+                        ? propertyGroup.asNode().get(RDFS.DOMAIN).asIriRef()
                         : null;
                 if (propertyGroup.asNode().has(SHACL.PATH)) {
                     getDataModelShaclProperties(properties, propertyGroup, inheritedFrom);

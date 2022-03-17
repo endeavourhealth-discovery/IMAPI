@@ -121,6 +121,7 @@ public class IM {
     public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
     public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
     public static final TTIriRef GRAPH_STATS= TTIriRef.iri(DOMAIN +"stats#");
+   public static final TTIriRef GRAPH_DELTAS= TTIriRef.iri(DOMAIN +"deltas#");
 
 
     // redant code schemes are now the same as graphs
@@ -141,12 +142,11 @@ public class IM {
 
     //Crud and provenance operations
 
-    public static final TTIriRef REPLACE_PREDICATES = TTIriRef.iri(NAMESPACE +"ReplacePredicates");
-    public static final TTIriRef ADD_VALUES = TTIriRef.iri(NAMESPACE +"AddValues");
-    public static final TTIriRef DELETE_SELF = TTIriRef.iri(NAMESPACE +"DeleteSelf");
-    public static final TTIriRef DELETE_PREDICATES = TTIriRef.iri(NAMESPACE +"DeleteSelf");
-    public static final TTIriRef REPLACE_VALUES = TTIriRef.iri(NAMESPACE +"ReplaceValues");
-    public static final TTIriRef CREATION = TTIriRef.iri(NAMESPACE +"2001000252109");
+    public static final TTIriRef UPDATE_ALL = TTIriRef.iri(NAMESPACE +"UpdateAll");
+    public static final TTIriRef ADD_QUADS = TTIriRef.iri(NAMESPACE +"AddQuads");
+    public static final TTIriRef UPDATE_PREDICATES = TTIriRef.iri(NAMESPACE +"UpdatePredicates");
+    public static final TTIriRef DELETE_ALL = TTIriRef.iri(NAMESPACE +"DeleteAll");
+    public static final TTIriRef PROV_CREATION = TTIriRef.iri(NAMESPACE +"2001000252109");
 
 
 

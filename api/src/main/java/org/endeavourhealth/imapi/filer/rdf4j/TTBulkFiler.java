@@ -57,13 +57,17 @@ public class TTBulkFiler  extends TTDocumentFiler {
 			return;
 		writeGraph(document);
 
-
 	}
+
+
 
 
 	private void writeGraph(TTDocument document) throws TTFilerException {
 
-		String graph = document.getGraph().getIri();
+		String graph=null;
+		if (document.getGraph()!=null) {
+			graph = document.getGraph().getIri();
+		}
 		String scheme = graph.substring(graph.lastIndexOf("/") + 1);
 		String path = dataPath;
 		try {

@@ -803,6 +803,10 @@ public class EntityRepository2 {
     }
 
    public static Map<String,String> getIriNames(RepositoryConnection conn,Set<TTIriRef> iris){
+       Map<String,String> names= new HashMap<>();
+        if (iris == null || iris.size() == 0)
+            return names;
+
        String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));
        StringJoiner sql = new StringJoiner("\n");
        sql.add("SELECT ?iri ?label")
@@ -811,7 +815,6 @@ public class EntityRepository2 {
          .add(" filter (?iri in (")
          .add(iriTokens+"))")
          .add("}");
-       Map<String,String> names= new HashMap<>();
        TupleQuery qry = conn.prepareTupleQuery(sql.toString());
        try (TupleQueryResult rs = qry.evaluate()){
            while (rs.hasNext()) {

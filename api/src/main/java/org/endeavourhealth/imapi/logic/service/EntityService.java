@@ -56,7 +56,15 @@ public class EntityService {
     }
 
     public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
-        return entityRepository2.getBundle(iri, excludePredicates, true);
+        TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
+        if(excludePredicates.contains(RDFS.LABEL.getIri())) {
+            Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
+                    .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            bundle.setPredicates(filtered);
+            bundle.getEntity().set(RDFS.LABEL, (TTValue) null);
+        }
+        return bundle;
     }
 
     public TTIriRef getEntityReference(String iri) {
@@ -452,8 +460,8 @@ public class EntityService {
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
         for (TTValue propertyGroup : entity.get(SHACL.PROPERTY).iterator()) {
             if (propertyGroup.isNode()) {
-                TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
-                        ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
+                TTIriRef inheritedFrom = propertyGroup.asNode().has(RDFS.DOMAIN)
+                        ? propertyGroup.asNode().get(RDFS.DOMAIN).asIriRef()
                         : null;
                 if (propertyGroup.asNode().has(SHACL.PATH)) {
                     getDataModelShaclProperties(properties, propertyGroup, inheritedFrom);

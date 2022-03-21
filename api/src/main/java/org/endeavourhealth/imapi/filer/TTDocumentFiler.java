@@ -41,6 +41,37 @@ public abstract class TTDocumentFiler implements AutoCloseable {
         LOG.info("Finished - {}", new Date());
     }
 
+    /**
+     * Files a document within a broader transaction i.e. no commit
+     * @param document the document to file
+     * @throws TTFilerException filing exception
+     */
+    public void fileInsideTraction(TTDocument document) throws TTFilerException {
+        LOG.info("Filing entities.... ");
+        int i = 0;
+        for (TTEntity entity : document.getEntities()) {
+            TTIriRef entityGraph= entity.getGraph();
+            if (entityGraph==null)
+                entityGraph= document.getGraph();
+            entity.setCrud(document.getCrud());
+            if (document.getGraph()==null)
+                document.setGraph(entity.getGraph());
+            if (entity.get(IM.PRIVACY_LEVEL)!=null)
+                if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
+                            continue;
+                fileEntity(entity, entityGraph);
+                i++;
+                LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size());
+
+        }
+    }
+
+    public void updateTct(TTDocument document) throws TTFilerException {
+        conceptFiler.updateTct(document);
+
+    }
+
+
     private void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
 
@@ -55,7 +86,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                             continue;
                     if (entity.getCrud() == null) {
                         if (document.getCrud() == null) {
-                            entity.setCrud(IM.REPLACE_PREDICATES);
+                            entity.setCrud(IM.UPDATE_ALL);
                         } else {
                             entity.setCrud(document.getCrud());
                         }

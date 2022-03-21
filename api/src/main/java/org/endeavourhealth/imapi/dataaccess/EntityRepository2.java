@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.io.IOException;
 import java.util.*;
@@ -161,16 +162,34 @@ public class EntityRepository2 {
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
                     processStatement(bundle, valueMap, iri, st);
                 }
-                boolean unwrapped = TTManager.unwrapRDFfromJson(bundle.getEntity());
-                if (unwrapped) {
-                    Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
-                    getIriNames(conn,iris);
-                    iris.forEach(bundle::addPredicate);
-                }
+                TTManager.unwrapRDFfromJson(bundle.getEntity());
+                Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
+                getIriNames(conn,iris);
+                setNames(bundle.getEntity(), iris);
+                iris.forEach(bundle::addPredicate);
             } catch (IOException ignored) {
                 //Do nothing
             }
             return bundle;
+        }
+    }
+
+    private void setNames(TTValue subject, Set<TTIriRef> iris){
+        HashMap<String, String> names = new HashMap<>();
+        iris.forEach(i -> names.put(i.getIri(),i.getName()));
+        if (subject.isIriRef())
+            subject.asIriRef().setName(names.get(subject.asIriRef().getIri()));
+        else if (subject.isNode()){
+            if (subject.asNode().getPredicateMap()!=null){
+                for (Map.Entry<TTIriRef,TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
+                    for (TTValue value:entry.getValue().getElements()){
+                        if (value.isIriRef())
+                            value.asIriRef().setName(names.get(value.asIriRef().getIri()));
+                        else if (value.isNode())
+                            setNames(value,iris);
+                    }
+                }
+            }
         }
     }
 
@@ -212,6 +231,33 @@ public class EntityRepository2 {
 
     }
 
+
+    /**
+     * Returns an entity iri and name from a code or a term code
+     * @param codeId the code or description id or term code
+     * @return iri and name of entity
+     */
+    public Set<TTIriRef> getCoreFromCodeId(String codeId,List<String> schemes){
+        StringBuilder sql=
+          new StringBuilder("PREFIX im: <http://endhealth.info/im#>\n" +
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+            "select ?concept ?label\n");
+        for (String scheme:schemes){
+            sql.append("from <").append(scheme).append(">\n");
+        }
+        sql.append("where {  ")
+          .append(" ?legacy im:codeId ?codeId.\n")
+          .append(" ?legacy im:matchedTo ?concept.")
+          .append(" ?concept rdfs:label ?label.}\n");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("codeId", Values.literal(codeId));
+            return getConceptRefsFromResult(qry);
+        }
+
+    }
+
     /**
      * Returns a core entity iri and name from a legacy term
      * @param term the code or description id or term code
@@ -235,11 +281,38 @@ public class EntityRepository2 {
     }
 
     /**
+     * Returns an entity iri and name from a term code code
+     * @param code the code that is a term code
+     * @param scheme the scheme of the term
+     * @return set of iris and name of entity
+     */
+
+    public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) {
+        String sql="PREFIX im: <http://endhealth.info/im#>\n" +
+          "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+          "select ?concept ?label\n"+
+          "where { graph ?scheme {\n" +
+          "?tc im:code ?code.\n" +
+          "?concept im:hasTermCode ?tc.}\n"+
+          "{?concept rdfs:label ?label} }";
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            qry.setBinding("code", Values.literal(code));
+            qry.setBinding("scheme", Values.iri(scheme));
+            return getConceptRefsFromResult(qry);
+        }
+
+    }
+
+
+
+    /**
      * Returns A core entity iri and name from a core term
      * @param term the code or description id or term code
      * @return iri and name of entity
      */
-    public TTIriRef getReferenceFromCoreTerm(String term,List<String> schemes){
+    public TTIriRef getReferenceFromCoreTerm(String term){
+        List<String> schemes = List.of(IM.NAMESPACE, SNOMED.NAMESPACE);
         String sql="PREFIX im: <http://endhealth.info/im#>\n" +
           "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
           "select ?concept ?label\n";
@@ -730,6 +803,10 @@ public class EntityRepository2 {
     }
 
    public static Map<String,String> getIriNames(RepositoryConnection conn,Set<TTIriRef> iris){
+       Map<String,String> names= new HashMap<>();
+        if (iris == null || iris.size() == 0)
+            return names;
+
        String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));
        StringJoiner sql = new StringJoiner("\n");
        sql.add("SELECT ?iri ?label")
@@ -738,7 +815,6 @@ public class EntityRepository2 {
          .add(" filter (?iri in (")
          .add(iriTokens+"))")
          .add("}");
-       Map<String,String> names= new HashMap<>();
        TupleQuery qry = conn.prepareTupleQuery(sql.toString());
        try (TupleQueryResult rs = qry.evaluate()){
            while (rs.hasNext()) {

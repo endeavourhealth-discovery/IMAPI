@@ -38,7 +38,6 @@ ext {
             h2database          : "com.h2database:h2:$versions.h2",
             jacksonAnnotations  : "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
             jacksonDatabind     : "com.fasterxml.jackson.core:jackson-databind:$versions.jackson",
-            javaxxmlbind        : "javax.xml.bind:jaxb-api:2.3.1",
             junit               : "org.junit.jupiter:junit-jupiter-api:$versions.junit",
             junitRunner         : "org.junit.platform:junit-platform-runner:$versions.junitRunner",
             logbackCore         : "ch.qos.logback:logback-core:$versions.logback",

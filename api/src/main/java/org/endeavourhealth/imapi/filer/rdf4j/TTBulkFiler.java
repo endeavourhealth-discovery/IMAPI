@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TTBulkFiler  extends TTDocumentFiler {
@@ -30,7 +31,9 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	private FileWriter descendants;
 	private FileWriter legacyCore;
 	private FileWriter allEntities;
+	private FileWriter codeIds;
 	private static int privacyLevel=0;
+	private static int statementCount;
 	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
 
 	@Override
@@ -55,13 +58,17 @@ public class TTBulkFiler  extends TTDocumentFiler {
 			return;
 		writeGraph(document);
 
-
 	}
+
+
 
 
 	private void writeGraph(TTDocument document) throws TTFilerException {
 
-		String graph = document.getGraph().getIri();
+		String graph=null;
+		if (document.getGraph()!=null) {
+			graph = document.getGraph().getIri();
+		}
 		String scheme = graph.substring(graph.lastIndexOf("/") + 1);
 		String path = dataPath;
 		try {
@@ -73,6 +80,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				subtypes = new FileWriter(path + "\\SubTypes" + ".txt",true);
 				allEntities = new FileWriter(path + "\\Entities" + ".txt", true);
 				codeCoreMap = new FileWriter(path + "\\CodeCoreMap-" + scheme+ ".txt",true);
+				codeIds= new FileWriter(path+"\\CodeIds-"+scheme+".txt",true);
 				descendants = new FileWriter(path + "\\Descendants" + ".txt",true);
 				coreTerms = new FileWriter(path + "\\CoreTerms" + ".txt",true);
 				legacyCore = new FileWriter(path + "\\LegacyCore" + ".txt",true);
@@ -99,11 +107,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
 
 					List<String> quadList = converter.transformEntity(entity, entityGraph);
-					for (String quad : quadList)
+					for (String quad : quadList) {
 						quads.write(quad + "\n");
+						statementCount++;
+					}
 				}
 				LOG.debug(counter + "Document written to file");
-				LOG.info("Finished - {}", new Date());
+				LOG.info("Finished - total of {} statements,  {}", statementCount,new Date());
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new TTFilerException(e.getMessage());
@@ -117,6 +127,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				coreTerms.close();
 				legacyCore.close();
 				allEntities.close();
+				codeIds.close();
 			}
 		} catch (Exception e)  {
 		e.printStackTrace();
@@ -154,36 +165,61 @@ public class TTBulkFiler  extends TTDocumentFiler {
 			if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
 				codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
 		}
+		if (entity.get(IM.CODE_ID)!=null)
+			codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
+				entity.getIri()+"\n");
 		if (entity.get(IM.HAS_TERM_CODE)!=null){
-			if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
 				for (TTValue tc:entity.get(IM.HAS_TERM_CODE).getElements()) {
 					if (tc.asNode().get(IM.CODE) != null) {
 						String code = tc.asNode().get(IM.CODE).asLiteral().getValue();
-						codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
+						if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
+							codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
 					}
 				}
 		}
 
+
 		if (entity.get(IM.MATCHED_TO)!=null) {
 			for (TTValue core : entity.get(IM.MATCHED_TO).getElements()) {
-				if (!isCoreGraph)
-					legacyCore.write(entity.getIri()+"\t"+ core.asIriRef().getIri()+"\n");
+				if (!isCoreGraph) {
+					legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
+					if (entity.get(IM.CODE_ID)!=null)
+						codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
+							                           core.asIriRef().getIri()+"\n");
+				}
 				codeCoreMap.write(entity.getCode()+"\t"+ core.asIriRef().getIri()+"\n");
-				termCoreMap.write(entity.getName()+"\t"+ core.asIriRef().getIri()+"\n");
+				writeTermCoreMap(entity.getName(),core.asIriRef().getIri());
 				if (entity.get(IM.HAS_TERM_CODE) != null) {
 					for (TTValue tc : entity.get(IM.HAS_TERM_CODE).getElements()) {
 						TTNode termCode = tc.asNode();
 						if (termCode.get(IM.CODE) != null) {
 							String code = termCode.get(IM.CODE).asLiteral().getValue();
-							codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
+							codeCoreMap.write(code+"\t"+core.asIriRef().getIri());
 						}
 						if (termCode.get(RDFS.LABEL) != null) {
 							String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
-							termCoreMap.write(term+"\t"+ core.asIriRef().getIri()+"\n");
+
+							writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
 						}
 					}
 				}
 			}
+		}
+	}
+
+	private void writeTermCoreMap(String term,String core) throws IOException {
+		if (term== null)
+			return;
+
+		termCoreMap.write(term+"\t"+ core+"\n");
+		byte[] arr=term.getBytes(StandardCharsets.UTF_8);
+		if (!(arr.length== term.length())){
+			StringBuilder newTerm= new StringBuilder();
+			for (byte b : arr) {
+				if (b > 0)
+					newTerm.append((char) b);
+			}
+			termCoreMap.write(newTerm+"\t"+ core+"\n");
 		}
 	}
 
@@ -194,7 +230,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				String data = dataPath;
 				String preloadPath =preload;
 				Process process = Runtime.getRuntime()
-					.exec("cmd /c " + "preload --configFile " + config + "\\Config.ttl " +"--queue.folder "+data + " "+ data + "\\BulkImport*.nq",
+					.exec("cmd /c " + "preload --stopOnFirstError --configFile " + config + "\\Config.ttl " +"--queue.folder "+data + " "+ data + "\\BulkImport*.nq",
 						null, new File(preloadPath));
 				BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
@@ -206,7 +242,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 					System.out.println(line);
 				}
 			File directory= new File(data+"\\");
-			for(File file: directory.listFiles())
+			for(File file: Objects.requireNonNull(directory.listFiles()))
 				if (!file.isDirectory())
 					file.delete();
 			} catch (IOException e) {
@@ -251,5 +287,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 	public static void setPrivacyLevel(int privacyLevel) {
 		TTBulkFiler.privacyLevel = privacyLevel;
+	}
+
+	public static int getStatementCount() {
+		return statementCount;
+	}
+
+	public static void setStatementCount(int statementCount) {
+		TTBulkFiler.statementCount = statementCount;
 	}
 }

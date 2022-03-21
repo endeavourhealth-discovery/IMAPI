@@ -110,6 +110,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		for (Map.Entry<String, Set<String>> entry : closureMap.entrySet()) {
 			for (String closure : entry.getValue()) {
 				counter++;
+				TTBulkFiler.setStatementCount(TTBulkFiler.getStatementCount()+1);
 				if (counter % 1000000 == 0)
 					LOG.info("Written {} isas ", counter);
 				fw.write("<" + entry.getKey() + "> <" + IM.IS_A.getIri() + "> <" + closure + "> <"+IM.NAMESPACE+">.\n");
@@ -117,6 +118,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		}
 		fw.close();
 		LOG.debug(counter + " Closure triples written");
+		LOG.debug("statement count {}",TTBulkFiler.getStatementCount());
 	}
 
 }

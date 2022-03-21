@@ -164,11 +164,31 @@ public class EntityRepository2 {
                 TTManager.unwrapRDFfromJson(bundle.getEntity());
                 Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                 getIriNames(conn,iris);
+                setNames(bundle.getEntity(), iris);
                 iris.forEach(bundle::addPredicate);
             } catch (IOException ignored) {
                 //Do nothing
             }
             return bundle;
+        }
+    }
+
+    private void setNames(TTValue subject, Set<TTIriRef> iris){
+        HashMap<String, String> names = new HashMap<>();
+        iris.forEach(i -> names.put(i.getIri(),i.getName()));
+        if (subject.isIriRef())
+            subject.asIriRef().setName(names.get(subject.asIriRef().getIri()));
+        else if (subject.isNode()){
+            if (subject.asNode().getPredicateMap()!=null){
+                for (Map.Entry<TTIriRef,TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
+                    for (TTValue value:entry.getValue().getElements()){
+                        if (value.isIriRef())
+                            value.asIriRef().setName(names.get(value.asIriRef().getIri()));
+                        else if (value.isNode())
+                            setNames(value,iris);
+                    }
+                }
+            }
         }
     }
 

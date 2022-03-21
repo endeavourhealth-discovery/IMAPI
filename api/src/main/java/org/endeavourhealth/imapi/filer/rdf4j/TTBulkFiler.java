@@ -33,6 +33,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	private FileWriter allEntities;
 	private FileWriter codeIds;
 	private static int privacyLevel=0;
+	private static int statementCount;
 	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
 
 	@Override
@@ -106,11 +107,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
 
 					List<String> quadList = converter.transformEntity(entity, entityGraph);
-					for (String quad : quadList)
+					for (String quad : quadList) {
 						quads.write(quad + "\n");
+						statementCount++;
+					}
 				}
 				LOG.debug(counter + "Document written to file");
-				LOG.info("Finished - {}", new Date());
+				LOG.info("Finished - total of {} statements,  {}", statementCount,new Date());
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new TTFilerException(e.getMessage());
@@ -227,7 +230,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				String data = dataPath;
 				String preloadPath =preload;
 				Process process = Runtime.getRuntime()
-					.exec("cmd /c " + "preload --configFile " + config + "\\Config.ttl " +"--queue.folder "+data + " "+ data + "\\BulkImport*.nq",
+					.exec("cmd /c " + "preload --stopOnFirstError --configFile " + config + "\\Config.ttl " +"--queue.folder "+data + " "+ data + "\\BulkImport*.nq",
 						null, new File(preloadPath));
 				BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
@@ -284,5 +287,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 	public static void setPrivacyLevel(int privacyLevel) {
 		TTBulkFiler.privacyLevel = privacyLevel;
+	}
+
+	public static int getStatementCount() {
+		return statementCount;
+	}
+
+	public static void setStatementCount(int statementCount) {
+		TTBulkFiler.statementCount = statementCount;
 	}
 }

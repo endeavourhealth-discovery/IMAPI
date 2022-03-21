@@ -65,7 +65,7 @@ public class FileRepository {
 	 * @param term the code or description id or term code
 	 * @return iri and name of entity
 	 */
-	public TTIriRef getReferenceFromCoreTerm(String term,List<String> schemes) throws IOException {
+	public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
 		if (coreTerms.isEmpty()) {
 			fetchCoreTerms();
 		}

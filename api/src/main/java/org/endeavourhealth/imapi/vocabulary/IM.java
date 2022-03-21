@@ -43,7 +43,7 @@ public class IM {
   public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
   public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
   public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
-  public static final TTIriRef PROCESS = iri(NAMESPACE + "HqlDocument");
+
 
 
     //Collection predicates
@@ -80,6 +80,7 @@ public class IM {
     public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE+"1261000252108");
     public static final TTIriRef SUFFICIENTLY_DEFINED = iri(NAMESPACE+"1251000252106");
     public static final TTIriRef NECESSARY_NOT_SUFFICIENT = iri(NAMESPACE+"2771000252102");
+    public static final TTIriRef UNASSIGNED= iri(NAMESPACE + "Unassigned");
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE +"hasMap");
@@ -122,6 +123,7 @@ public class IM {
     public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
     public static final TTIriRef GRAPH_STATS= TTIriRef.iri(DOMAIN +"stats#");
    public static final TTIriRef GRAPH_DELTAS= TTIriRef.iri(DOMAIN +"deltas#");
+   public static final TTIriRef GRAPH_IMPERIAL_CERNER= TTIriRef.iri(DOMAIN +"ic#");
 
 
     // redant code schemes are now the same as graphs
@@ -186,10 +188,10 @@ public class IM {
   public static final TTIriRef ORDER = iri(NAMESPACE + "order");
 
   //im1
-
-  public static final TTIriRef IM1ID= iri(NAMESPACE+"im1id");
+  public static final TTIriRef IM1ID= iri(NAMESPACE+"im1Id");
   public static final TTIriRef WEIGHTING= iri(NAMESPACE+"weighting");
   public static final TTIriRef PRIVACY_LEVEL= iri(NAMESPACE+"privacyLevel");
+  public static final TTIriRef IM1SCHEME= iri(NAMESPACE+"im1Scheme");
 
 
   private IM() {}

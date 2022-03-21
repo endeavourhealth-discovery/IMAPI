@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.io.IOException;
 import java.util.*;
@@ -310,7 +311,8 @@ public class EntityRepository2 {
      * @param term the code or description id or term code
      * @return iri and name of entity
      */
-    public TTIriRef getReferenceFromCoreTerm(String term,List<String> schemes){
+    public TTIriRef getReferenceFromCoreTerm(String term){
+        List<String> schemes = List.of(IM.NAMESPACE, SNOMED.NAMESPACE);
         String sql="PREFIX im: <http://endhealth.info/im#>\n" +
           "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
           "select ?concept ?label\n";

@@ -163,12 +163,12 @@ public class EntityRepository2 {
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
                     processStatement(bundle, valueMap, iri, st);
                 }
-                TTManager.unwrapRDFfromJson(bundle.getEntity());
+                // TTManager.unwrapRDFfromJson(bundle.getEntity());
                 Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                 getIriNames(conn,iris);
                 setNames(bundle.getEntity(), iris);
                 iris.forEach(bundle::addPredicate);
-            } catch (IOException ignored) {
+            // } catch (IOException ignored) {
                 //Do nothing
             }
             return bundle;

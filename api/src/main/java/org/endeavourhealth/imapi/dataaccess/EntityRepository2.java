@@ -81,6 +81,7 @@ public class EntityRepository2 {
             String sql = getIm1ExpansionAsSelect(definition);
             try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
                 TupleQuery qry = conn.prepareTupleQuery(sql);
+                qry.setBinding("im1id", Values.iri(IM.IM1ID.getIri()));
                 try (TupleQueryResult rs = qry.evaluate()) {
                     while (rs.hasNext()) {
                         BindingSet bs = rs.next();
@@ -558,10 +559,10 @@ public class EntityRepository2 {
         initialiseBuilders();
         spql.add("SELECT ?concept ?id ?legacy ?legacyId")
             .add("WHERE {")
-            .add("  ?concept im:im1id ?id.")
+            .add("  ?concept ?im1id ?id.")
             .add("  OPTIONAL {")
             .add("      ?legacy im:matchedTo ?concept.")
-            .add("      ?legacy im:im1id ?legacyId.")
+            .add("      ?legacy ?im1id ?legacyId.")
             .add("  }")
             .add("  {")
             .add("      SELECT distinct ?concept");
@@ -803,6 +804,10 @@ public class EntityRepository2 {
     }
 
    public static Map<String,String> getIriNames(RepositoryConnection conn,Set<TTIriRef> iris){
+       Map<String,String> names= new HashMap<>();
+        if (iris == null || iris.size() == 0)
+            return names;
+
        String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));
        StringJoiner sql = new StringJoiner("\n");
        sql.add("SELECT ?iri ?label")
@@ -811,7 +816,6 @@ public class EntityRepository2 {
          .add(" filter (?iri in (")
          .add(iriTokens+"))")
          .add("}");
-       Map<String,String> names= new HashMap<>();
        TupleQuery qry = conn.prepareTupleQuery(sql.toString());
        try (TupleQueryResult rs = qry.evaluate()){
            while (rs.hasNext()) {

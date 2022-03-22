@@ -262,7 +262,7 @@ public class SetService {
                 TTEntity member = (TTEntity) value.asNode();
                 String code = member.getCode();
                 String scheme = member.getScheme().getIri();
-                String im1id = member.get(iri(IM.NAMESPACE + "im1dbid")).asLiteral().getValue();
+                String im1id = member.get(IM.IM1ID).asLiteral().getValue();
                 im1maps.write(conceptSet.getIri()+"\t" + im1id + "\t"+scheme + code+"\n");
             }
         }

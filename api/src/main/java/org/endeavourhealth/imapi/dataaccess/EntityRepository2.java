@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private Map<String, String> prefixMap;
     private StringJoiner spql;
@@ -81,6 +84,7 @@ public class EntityRepository2 {
             String sql = getIm1ExpansionAsSelect(definition);
             try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
                 TupleQuery qry = conn.prepareTupleQuery(sql);
+                qry.setBinding("im1id", Values.iri(IM.IM1ID.getIri()));
                 try (TupleQueryResult rs = qry.evaluate()) {
                     while (rs.hasNext()) {
                         BindingSet bs = rs.next();
@@ -558,10 +562,10 @@ public class EntityRepository2 {
         initialiseBuilders();
         spql.add("SELECT ?concept ?id ?legacy ?legacyId")
             .add("WHERE {")
-            .add("  ?concept im:im1id ?id.")
+            .add("  ?concept ?im1id ?id.")
             .add("  OPTIONAL {")
             .add("      ?legacy im:matchedTo ?concept.")
-            .add("      ?legacy im:im1id ?legacyId.")
+            .add("      ?legacy ?im1id ?legacyId.")
             .add("  }")
             .add("  {")
             .add("      SELECT distinct ?concept");

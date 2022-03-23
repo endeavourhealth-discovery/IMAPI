@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private Map<String, String> prefixMap;
     private StringJoiner spql;
@@ -163,12 +166,12 @@ public class EntityRepository2 {
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
                     processStatement(bundle, valueMap, iri, st);
                 }
-                // TTManager.unwrapRDFfromJson(bundle.getEntity());
+                TTManager.unwrapRDFfromJson(bundle.getEntity());
                 Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                 getIriNames(conn,iris);
                 setNames(bundle.getEntity(), iris);
                 iris.forEach(bundle::addPredicate);
-            // } catch (IOException ignored) {
+            } catch (IOException ignored) {
                 //Do nothing
             }
             return bundle;

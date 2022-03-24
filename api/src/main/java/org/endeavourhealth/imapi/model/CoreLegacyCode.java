@@ -9,6 +9,7 @@ public class CoreLegacyCode {
 	private String code;
 	private String term;
 	private TTIriRef scheme;
+	private String legacyIri;
 	private String legacyCode;
 	private String legacyTerm;
 	private TTIriRef legacyScheme;
@@ -76,5 +77,12 @@ public class CoreLegacyCode {
 		return this;
 	}
 
+	public String getLegacyIri() {
+		return legacyIri;
+	}
 
+	public CoreLegacyCode setLegacyIri(String legacyIri) {
+		this.legacyIri = legacyIri;
+		return this;
+	}
 }

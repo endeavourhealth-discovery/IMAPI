@@ -70,10 +70,13 @@ public class EntityRepository2 {
                     }
 
                     if (includeLegacy) {
+                        Value legIri= bs.getValue("legacy");
                         Value lc = bs.getValue("legacyCode");
                         Value lt = bs.getValue("legacyName");
                         Value ls = bs.getValue("legacyScheme");
                         Value lsn = bs.getValue("legacySchemeName");
+                        if (legIri!=null)
+                            cl.setLegacyIri(legIri.stringValue());
                         if (lc!=null)
                             cl.setLegacyCode(lc.stringValue());
                         if (lt!=null)

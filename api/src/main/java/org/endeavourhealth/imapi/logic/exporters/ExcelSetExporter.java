@@ -84,7 +84,7 @@ public class ExcelSetExporter {
         return workbook;
     }
 
-    private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyCodesAddedToWorkbook, TTEntity entity) {
+    private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyIrisAddedToWorkbook, TTEntity entity) {
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
@@ -96,15 +96,12 @@ public class ExcelSetExporter {
         if (!expandedSets.contains(entity.getIri())) {
             List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
             for (CoreLegacyCode cl : expansion) {
-                if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
-                    Row row = addRow(sheet);
-                    String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                    String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
-                    addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
-                    if(cl.getLegacyCode() != null && !"".equals(cl.getLegacyCode()))
-                        legacyCodesAddedToWorkbook.add(cl.getLegacyCode());
-                }
-            }
+                        Row row = addRow(sheet);
+                        String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                        String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
+                        addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
+                        legacyIrisAddedToWorkbook.add(cl.getLegacyIri());
+                    }
             sheet.autoSizeColumn(3);
             expandedSets.add(entity.getIri());
         }
@@ -122,11 +119,11 @@ public class ExcelSetExporter {
         if (!expandedSets.contains(entity.getIri())) {
             List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), false);
             for (CoreLegacyCode cl : expansion) {
-                if (!codesAddedToWorkbook.contains(cl.getCode())) {
+                if (!codesAddedToWorkbook.contains(cl.getIri())) {
                     Row row = addRow(sheet);
                     String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
                     addCells(row, cl.getCode(), cl.getTerm(), isExtension);
-                    codesAddedToWorkbook.add(cl.getCode());
+                    codesAddedToWorkbook.add(cl.getIri());
                 }
             }
             expandedSets.add(entity.getIri());

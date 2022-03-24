@@ -398,4 +398,10 @@ public class EntityController {
 		LOG.debug("getParentHierarchy");
 		return entityService.getParentHierarchy(iri);
 	}
+
+    @GetMapping("/public/pathBetweenNodes")
+    public List<TTIriRef> getPathBetweenNodes(@RequestParam(name = "descendant") String descendant, @RequestParam(name = "ancestor") String ancestor) {
+        LOG.debug("getPathBetweenNodes");
+        return entityService.getPathBetweenNodes(descendant, ancestor);
+    }
 }

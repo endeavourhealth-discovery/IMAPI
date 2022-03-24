@@ -825,5 +825,9 @@ public class EntityService {
             }
         }
     }
+
+    public List<TTIriRef> getPathBetweenNodes(String descendant, String ancestor) {
+        return entityRepository.getPathBetweenNodes(descendant, ancestor);
+    }
 }
 

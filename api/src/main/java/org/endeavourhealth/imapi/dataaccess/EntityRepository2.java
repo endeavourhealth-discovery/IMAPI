@@ -45,34 +45,49 @@ public class EntityRepository2 {
      * @param includeLegacy flag whether to include legacy codes
      * @return A set of Core codes and their legacy codes
      */
-    public Set<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
-        Set<CoreLegacyCode> result = new HashSet<>();
+    public List<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
+        List<CoreLegacyCode> result = new ArrayList<>();
         String sql = getExpansionAsSelect(definition, includeLegacy);
+        List<String> lsa= new ArrayList<>();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
+
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     CoreLegacyCode cl = new CoreLegacyCode();
-                    result.add(cl);
-                    cl.setIri(bs.getValue("concept").stringValue())
-                        .setTerm(bs.getValue("name").stringValue())
-                        .setCode(bs.getValue("code").stringValue())
-                        .setScheme(iri(bs.getValue("scheme").stringValue(), bs.getValue("schemeName").stringValue()));
-                    if (includeLegacy) {
-                        Value lc = bs.getValue("legacyCode");
-                        if (lc != null)
-                            cl.setLegacyCode(lc.stringValue());
-                        Value lt = bs.getValue("legacyName");
-                        if (lt != null)
-                            cl.setLegacyTerm(lt.stringValue());
-                        Value ls = bs.getValue("legacyScheme");
-                        Value lsn = bs.getValue("legacySchemeName");
-                        if (ls != null)
-                            cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
+                    String concept= bs.getValue("concept").stringValue();
+                    Value name= bs.getValue("name");
+                    Value code = bs.getValue("code");
+                    Value scheme= bs.getValue("scheme");
+                    Value schemeName= bs.getValue("schemeName");
+                    cl.setIri(concept);
+                    if (name!=null)
+                        cl.setTerm(name.stringValue());
+                    if (code!=null) {
+                        cl.setCode(code.stringValue());
+                        cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
 
+                    if (includeLegacy) {
+                        Value legIri= bs.getValue("legacy");
+                        Value lc = bs.getValue("legacyCode");
+                        Value lt = bs.getValue("legacyName");
+                        Value ls = bs.getValue("legacyScheme");
+                        Value lsn = bs.getValue("legacySchemeName");
+                        if (legIri!=null)
+                            cl.setLegacyIri(legIri.stringValue());
+                        if (lc!=null)
+                            cl.setLegacyCode(lc.stringValue());
+                        if (lt!=null)
+                            cl.setLegacyTerm(lt.stringValue());
+                        if (ls!=null)
+                            cl.setLegacyScheme(iri(ls.stringValue(),lsn.stringValue()));
+
+                        }
+                    result.add(cl);
                 }
+
             }
         }
         return result;

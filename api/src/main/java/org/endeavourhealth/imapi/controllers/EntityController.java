@@ -359,7 +359,22 @@ public class EntityController {
 	@GetMapping("/public/setExport")
 	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri);
+		XSSFWorkbook workbook = entityService.getSetExport(iri,true);
+		HttpHeaders headers = new HttpHeaders();
+
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			workbook.write(outputStream);
+			workbook.close();
+			headers.setContentType(new MediaType("application", "force-download"));
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport.xlsx\"");
+
+			return new HttpEntity<>(outputStream.toByteArray(), headers);
+		}
+	}
+	@GetMapping("/public/setExport/core")
+	public HttpEntity<Object> getSetExportCore(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
+		LOG.debug("getSetExportCore");
+		XSSFWorkbook workbook = entityService.getSetExport(iri,false);
 		HttpHeaders headers = new HttpHeaders();
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -383,4 +398,10 @@ public class EntityController {
 		LOG.debug("getParentHierarchy");
 		return entityService.getParentHierarchy(iri);
 	}
+
+    @GetMapping("/public/pathBetweenNodes")
+    public List<TTIriRef> getPathBetweenNodes(@RequestParam(name = "descendant") String descendant, @RequestParam(name = "ancestor") String ancestor) {
+        LOG.debug("getPathBetweenNodes");
+        return entityService.getPathBetweenNodes(descendant, ancestor);
+    }
 }

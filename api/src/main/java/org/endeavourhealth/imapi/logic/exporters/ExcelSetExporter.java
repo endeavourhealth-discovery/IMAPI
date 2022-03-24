@@ -32,6 +32,7 @@ public class ExcelSetExporter {
     private XSSFWorkbook workbook;
     private XSSFFont font;
     private CellStyle headerStyle;
+    private CellStyle rowStyle;
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();
@@ -40,6 +41,8 @@ public class ExcelSetExporter {
         font.setBold(true);
         headerStyle.setFont(font);
         headerStyle.setWrapText(true);
+        this.rowStyle= workbook.createCellStyle();
+        rowStyle.setWrapText(true);
     }
 
     /**
@@ -52,7 +55,7 @@ public class ExcelSetExporter {
      * @return
      * @throws DataFormatException
      */
-    public XSSFWorkbook getSetAsExcel(String setIri) throws DataFormatException {
+    public XSSFWorkbook getSetAsExcel(String setIri,boolean legacy) throws DataFormatException {
         Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
 
@@ -73,11 +76,13 @@ public class ExcelSetExporter {
             for (String memberIri : memberList) {
                 TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates, 0).getEntity();
                 addCoreExpansionToWorkBook(expandedSets, codesAddedToWorkbook, member);
-                addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);
+                if (legacy)
+                    addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);
             }
         } else {
             addCoreExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
-            addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
+            if (legacy)
+                addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
         }
 
 
@@ -89,7 +94,7 @@ public class ExcelSetExporter {
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
         sheet.setColumnWidth(0, 5000);
-        sheet.setColumnWidth(1, 20000);
+        sheet.setColumnWidth(1, 25000);
         sheet.setColumnWidth(2, 2500);
         sheet.setColumnWidth(4, 20000);
 
@@ -137,6 +142,7 @@ public class ExcelSetExporter {
         if (null == sheet) sheet = workbook.createSheet("ECL set definition");
         addHeaders(sheet, headerStyle, "ECL");
         Row row = addRow(sheet);
+        row.setHeight((short) 2300);
         addCells(row, ecl);
         sheet.autoSizeColumn(0);
     }
@@ -162,6 +168,7 @@ public class ExcelSetExporter {
     private void addCells(Row row, String... values) {
         for (String value : values) {
             Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
+            iriCell.setCellStyle(rowStyle);
             if (value != null) {
                 if (value.contains("\n")) {
                     iriCell.getRow()

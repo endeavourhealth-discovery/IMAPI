@@ -44,7 +44,7 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriNoConcept() throws DataFormatException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet(), anyInt())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115");
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115",true);
         assertNotNull(actual);
     }
 
@@ -52,7 +52,7 @@ public class ExcelSetExporterTest {
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet(), anyInt())).thenReturn(new TTBundle().setEntity(mockDefinition()));
         when(entityRepository2.getSetExpansion(any(), anyBoolean())).thenReturn(new ArrayList<>());
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115");
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115",true);
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());
     }

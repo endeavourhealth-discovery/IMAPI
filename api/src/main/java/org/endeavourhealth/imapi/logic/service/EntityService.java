@@ -735,11 +735,11 @@ public class EntityService {
         return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri,boolean legacy) throws DataFormatException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri);
+        return new ExcelSetExporter().getSetAsExcel(iri,legacy);
     }
 
     /**

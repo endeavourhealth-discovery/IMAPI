@@ -94,7 +94,7 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(4, 20000);
 
         if (!expandedSets.contains(entity.getIri())) {
-            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
+            List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
             for (CoreLegacyCode cl : expansion) {
                 if (!legacyCodesAddedToWorkbook.contains(cl.getLegacyCode())) {
                     Row row = addRow(sheet);
@@ -120,7 +120,7 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(2, 2500);
 
         if (!expandedSets.contains(entity.getIri())) {
-            Set<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), false);
+            List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), false);
             for (CoreLegacyCode cl : expansion) {
                 if (!codesAddedToWorkbook.contains(cl.getCode())) {
                     Row row = addRow(sheet);

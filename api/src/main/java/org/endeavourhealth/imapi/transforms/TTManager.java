@@ -26,7 +26,7 @@ public class TTManager {
    private TTDocument document;
    private TTContext context;
    private Set<TTIriRef> templatedPredicates;
-   private static final TTIriRef[] jsonPredicates= {IM.DEFINITION,IM.HAS_MAP};
+   private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP};
 
    public enum Grammar {JSON,TURTLE}
 

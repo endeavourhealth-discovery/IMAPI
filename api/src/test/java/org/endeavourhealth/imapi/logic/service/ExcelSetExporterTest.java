@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.zip.DataFormatException;
 
@@ -50,7 +51,7 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet(), anyInt())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-        when(entityRepository2.getSetExpansion(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(entityRepository2.getSetExpansion(any(), anyBoolean())).thenReturn(new ArrayList<>());
         XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());

@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
-    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private Map<String, String> prefixMap;
     private StringJoiner spql;
@@ -193,22 +192,21 @@ public class EntityRepository2 {
         }
     }
 
-    private void setNames(TTValue subject, Set<TTIriRef> iris){
+    private void setNames(TTValue subject, Set<TTIriRef> iris) {
         HashMap<String, String> names = new HashMap<>();
-        iris.forEach(i -> names.put(i.getIri(),i.getName()));
+        iris.forEach(i -> names.put(i.getIri(), i.getName()));
         if (subject.isIriRef())
             subject.asIriRef().setName(names.get(subject.asIriRef().getIri()));
-        else if (subject.isNode()){
-            if (subject.asNode().getPredicateMap()!=null){
-                for (Map.Entry<TTIriRef,TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
-                    for (TTValue value:entry.getValue().getElements()){
-                        if (value.isIriRef())
-                            value.asIriRef().setName(names.get(value.asIriRef().getIri()));
-                        else if (value.isNode())
-                            setNames(value,iris);
-                    }
+        else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
+            for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
+                for (TTValue value : entry.getValue().getElements()) {
+                    if (value.isIriRef())
+                        value.asIriRef().setName(names.get(value.asIriRef().getIri()));
+                    else if (value.isNode())
+                        setNames(value, iris);
                 }
             }
+
         }
     }
 
@@ -351,10 +349,10 @@ public class EntityRepository2 {
 
     public Map<String,Set<String>> getAllMatchedLegacy(){
         String sql="PREFIX im: <http://endhealth.info/im#>\n"+
-      "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"+
-      "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"+
-     "select ?legacy ?concept\n"+
-      "where {?legacy im:matchedTo ?concept.}\n";
+                   "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"+
+                   "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"+
+                   "select ?legacy ?concept\n"+
+                   "where {?legacy im:matchedTo ?concept.}\n";
         Map<String,Set<String>> maps= new HashMap<>();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
@@ -823,7 +821,7 @@ public class EntityRepository2 {
 
    public static Map<String,String> getIriNames(RepositoryConnection conn,Set<TTIriRef> iris){
        Map<String,String> names= new HashMap<>();
-        if (iris == null || iris.size() == 0)
+        if (iris == null || iris.isEmpty())
             return names;
 
        String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));

@@ -404,6 +404,7 @@ public class EntityController {
         LOG.debug("getPathBetweenNodes");
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
+	
 	@GetMapping("/public/unassigned")
 	public List<TTIriRef> getUnassigned() {
 		LOG.debug("getUnassigned");

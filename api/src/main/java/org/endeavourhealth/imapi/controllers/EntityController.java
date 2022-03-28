@@ -383,4 +383,10 @@ public class EntityController {
 		LOG.debug("getParentHierarchy");
 		return entityService.getParentHierarchy(iri);
 	}
+
+	@GetMapping("/public/unassigned")
+	public List<TTIriRef> getUnassigned() {
+		LOG.debug("getUnassigned");
+		return entityService.getUnassigned();
+	}
 }

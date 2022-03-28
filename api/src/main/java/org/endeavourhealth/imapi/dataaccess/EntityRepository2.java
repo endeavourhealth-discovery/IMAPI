@@ -902,8 +902,28 @@ public class EntityRepository2 {
     }
 
 
+    public List<TTIriRef> findUnassigned() {
+        List<TTIriRef> result = new ArrayList<>();
 
+        StringJoiner guery = new StringJoiner("\n");
+        guery.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
+        guery.add("SELECT * WHERE {");
+        guery.add("?s <http://endhealth.info/im#status> <http://endhealth.info/im#Unassigned> .");
+        guery.add("?s rdfs:label ?name .");
+        guery.add("}");
 
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(guery.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
 }
 
 

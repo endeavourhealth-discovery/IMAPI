@@ -825,5 +825,9 @@ public class EntityService {
             }
         }
     }
+
+    public List<TTIriRef> getUnassigned() {
+        return entityRepository2.findUnassigned();
+    }
 }
 

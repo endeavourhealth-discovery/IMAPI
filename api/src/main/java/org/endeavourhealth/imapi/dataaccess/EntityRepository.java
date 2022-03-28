@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityRepository {
@@ -30,7 +31,7 @@ public class EntityRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("s", Values.iri(iri));
+            qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -52,7 +53,7 @@ public class EntityRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("s", Values.iri(iri));
+            qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
@@ -78,7 +79,7 @@ public class EntityRepository {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
-            qry.setBinding("s", Values.iri(iri));
+            qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     Set<TTIriRef> types = getTypesByIri(iri);
@@ -158,7 +159,7 @@ public class EntityRepository {
           "}\n";
         GraphQuery qry = conn.prepareGraphQuery(sql);
         qry.setBinding("entity",
-          Values.iri(Objects.requireNonNull(iri,
+          iri(Objects.requireNonNull(iri,
             "iri may not be null")));
 
         GraphQueryResult gs = qry.evaluate();
@@ -226,4 +227,30 @@ public class EntityRepository {
     }
 
 
+    public List<TTIriRef> getPathBetweenNodes(String descendant, String ancestor) {
+        List<TTIriRef> result = new ArrayList<>();
+
+        String spql = new StringJoiner(System.lineSeparator())
+            .add("select *")
+            .add("where {")
+            .add("  ?descendant (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf)+ ?m .")
+            .add("  ?m (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf)+ ?ancestor ;")
+            .add("     rdfs:label ?name .")
+            .add("}")
+            .toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+             TupleQuery qry = prepareSparql(conn, spql);
+            qry.setBinding("descendant", iri(descendant));
+            qry.setBinding("ancestor", iri(ancestor));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(TTIriRef.iri(bs.getValue("m").stringValue(), bs.getValue("name").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
 }

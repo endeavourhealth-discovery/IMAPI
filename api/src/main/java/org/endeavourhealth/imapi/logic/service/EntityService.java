@@ -735,11 +735,11 @@ public class EntityService {
         return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri,boolean legacy) throws DataFormatException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri);
+        return new ExcelSetExporter().getSetAsExcel(iri,legacy);
     }
 
     /**
@@ -826,6 +826,8 @@ public class EntityService {
         }
     }
 
+    public List<TTIriRef> getPathBetweenNodes(String descendant, String ancestor) {
+        return entityRepository.getPathBetweenNodes(descendant, ancestor);
     public List<TTIriRef> getUnassigned() {
         return entityRepository2.findUnassigned();
     }

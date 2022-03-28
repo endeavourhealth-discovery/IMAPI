@@ -9,6 +9,7 @@ public class CoreLegacyCode {
 	private String code;
 	private String term;
 	private TTIriRef scheme;
+	private String legacyIri;
 	private String legacyCode;
 	private String legacyTerm;
 	private TTIriRef legacyScheme;
@@ -76,18 +77,12 @@ public class CoreLegacyCode {
 		return this;
 	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CoreLegacyCode that = (CoreLegacyCode) o;
-        return Objects.equals(iri, that.iri)
-            && Objects.equals(legacyCode, that.legacyCode)
-            && Objects.equals(legacyScheme, that.legacyScheme);
-    }
+	public String getLegacyIri() {
+		return legacyIri;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(iri, legacyCode, legacyScheme);
-    }
+	public CoreLegacyCode setLegacyIri(String legacyIri) {
+		this.legacyIri = legacyIri;
+		return this;
+	}
 }

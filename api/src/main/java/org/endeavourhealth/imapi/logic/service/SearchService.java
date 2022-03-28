@@ -68,6 +68,8 @@ public class SearchService {
 		TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
 		tqb.boost(2F);
 		boolBuilder.should(tqb);
+
+		boolBuilder.should(tqb);
 		tqb = new TermQueryBuilder("key", request.getTermFilter().toLowerCase());
 		boolBuilder.should(tqb).minimumShouldMatch(1);
 		addFilters(boolBuilder, request);
@@ -75,6 +77,7 @@ public class SearchService {
 			ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
 		return funcScoreQuery;
 	}
+
 
 	private void addFilters(BoolQueryBuilder qry, SearchRequest request) {
 		if (!request.getSchemeFilter().isEmpty()) {
@@ -101,7 +104,10 @@ public class SearchService {
 		BoolQueryBuilder outer = new BoolQueryBuilder();
 		outer.should(boolQuery);
 		TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
-		outer.should(tqb).minimumShouldMatch(1);
+		TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
+		tqb.boost(2F);
+		tqiri.boost(2F);
+		outer.should(tqb).should(tqiri).minimumShouldMatch(1);
 		addFilters(outer, request);
 		FunctionScoreQueryBuilder funcScoreQuery = new FunctionScoreQueryBuilder(outer,
 			ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));

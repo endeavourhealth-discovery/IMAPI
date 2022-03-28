@@ -1228,13 +1228,13 @@ class EntityServiceTest {
 
     @Test
     void getSetExport_NullIri() throws DataFormatException {
-        XSSFWorkbook actual = entityService.getSetExport(null);
+        XSSFWorkbook actual = entityService.getSetExport(null,true);
         assertNull(actual);
     }
 
     @Test
     void getSetExport_EmptyIri() throws DataFormatException {
-        XSSFWorkbook actual = entityService.getSetExport("");
+        XSSFWorkbook actual = entityService.getSetExport("",true);
         assertNull(actual);
     }
 

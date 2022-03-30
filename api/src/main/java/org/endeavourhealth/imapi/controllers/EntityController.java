@@ -409,4 +409,10 @@ public class EntityController {
 		LOG.debug("getUnassigned");
 		return entityService.getUnassigned();
 	}
+
+	@GetMapping("/public/mappingSuggestions")
+	public List<TTEntity> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+		LOG.debug("getMappingSuggestions");
+		return entityService.getMappingSuggestions(iri, name);
+	}
 }

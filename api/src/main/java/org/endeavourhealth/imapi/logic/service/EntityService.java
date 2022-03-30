@@ -89,6 +89,7 @@ public class EntityService {
             node.setIri(c.getIri()).setName(c.getName());
             node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
             node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
+            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
             result.add(node);
         }
 
@@ -832,6 +833,16 @@ public class EntityService {
 
     public List<TTIriRef> getUnassigned() {
         return entityRepository2.findUnassigned();
+    }
+
+    public List<TTEntity> getMappingSuggestions(String iri, String name) {
+        List<TTEntity> suggestions = new ArrayList<TTEntity>();
+        List<String> iris = entityRepository.findEntitiesByName(name);
+        iris.remove(iri);
+        for (String suggestionIri: iris) {
+            suggestions.add(getBundle(iri, null, EntityService.UNLIMITED).getEntity());
+        }
+        return suggestions;
     }
 }
 

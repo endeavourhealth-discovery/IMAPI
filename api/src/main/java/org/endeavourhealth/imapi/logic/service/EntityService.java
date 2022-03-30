@@ -531,7 +531,10 @@ public class EntityService {
 
         List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
                 .map(prop -> new GraphDto(prop.getProperty().getIri(), prop.getProperty().getName(),
-                        prop.getType().getIri(), prop.getType().getName(), prop.getInheritedFrom().getIri(), prop.getInheritedFrom().getName()))
+                        prop.getType() != null ? prop.getType().getIri() : "",
+                        prop.getType() != null ? prop.getType().getName() : "",
+                        prop.getInheritedFrom() != null ? prop.getInheritedFrom().getIri() : "",
+                        prop.getInheritedFrom() != null ? prop.getInheritedFrom().getName() : ""))
                 .collect(Collectors.toList());
 
         List<GraphDto> isas = getEntityDefinedParents(entity);

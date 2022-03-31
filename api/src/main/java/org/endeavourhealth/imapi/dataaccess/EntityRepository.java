@@ -255,8 +255,8 @@ public class EntityRepository {
         return result;
     }
 
-    public List<String> findEntitiesByName(String name) {
-        List<String> result = new ArrayList<>();
+    public List<TTIriRef> findEntitiesByName(String name) {
+        List<TTIriRef> result = new ArrayList<>();
 
         String spql = new StringJoiner(System.lineSeparator())
                 .add("select *")
@@ -271,7 +271,7 @@ public class EntityRepository {
             try (TupleQueryResult rs = qry.evaluate()) {
                 while(rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    result.add(bs.getValue("s").stringValue());
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), name));
                 }
             }
         }

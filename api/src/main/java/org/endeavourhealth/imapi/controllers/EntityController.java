@@ -24,6 +24,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -405,13 +406,13 @@ public class EntityController {
     }
 	
 	@GetMapping("/public/unassigned")
-	public List<TTIriRef> getUnassigned() {
+	public List<UnassignedEntity> getUnassigned() {
 		LOG.debug("getUnassigned");
 		return entityService.getUnassigned();
 	}
 
 	@GetMapping("/public/mappingSuggestions")
-	public List<TTEntity> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+	public List<TTIriRef> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
 		LOG.debug("getMappingSuggestions");
 		return entityService.getMappingSuggestions(iri, name);
 	}

@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -48,7 +49,7 @@ public class EntityService {
     private SetRepository setRepository = new SetRepository();
     private TermCodeRepository termCodeRepository = new TermCodeRepository();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
-	private ConfigManager configManager = new ConfigManager();
+    private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
 
     public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
@@ -57,7 +58,7 @@ public class EntityService {
 
     public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
-        if(excludePredicates.contains(RDFS.LABEL.getIri())) {
+        if (excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
                     .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -137,9 +138,10 @@ public class EntityService {
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
 
-		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
-		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
-			return Collections.emptyList();
+        List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {
+        });
+        if (xmlDataTypes != null && xmlDataTypes.contains(iri))
+            return Collections.emptyList();
 
         int rowNumber = 0;
         if (pageIndex != null && pageSize != null)
@@ -154,15 +156,16 @@ public class EntityService {
         if (iri == null || iri.isEmpty())
             return 0;
 
-		List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {});
-		if (xmlDataTypes != null && xmlDataTypes.contains(iri))
-			return 0;
+        List<String> xmlDataTypes = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {
+        });
+        if (xmlDataTypes != null && xmlDataTypes.contains(iri))
+            return 0;
 
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
 
     public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException {
-        SearchService searchService= new SearchService();
+        SearchService searchService = new SearchService();
         return searchService.getEntitiesByTerm(request);
 
     }
@@ -271,42 +274,43 @@ public class EntityService {
                 }
             }
         }
-		return members;
-	}
+        return members;
+    }
 
-	private List<String> getBlockedIris() {
-		List<String> blockedIris = new ArrayList<>();
-		try {
-			blockedIris = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>(){});
-		} catch (Exception e) {
-			LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
-		}
-		return blockedIris;
-	}
+    private List<String> getBlockedIris() {
+        List<String> blockedIris = new ArrayList<>();
+        try {
+            blockedIris = configManager.getConfig(CONFIG.XML_SCHEMA_DATATYPES, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.warn("Error getting xmlSchemaDataTypes config, reverting to default", e);
+        }
+        return blockedIris;
+    }
 
-	private Map<String, String> getDefaultPredicateNames() {
-		Map<String, String> defaultPredicates = new HashMap<>();
-		try {
-			defaultPredicates = configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {
-			});
-		} catch (Exception e) {
-			LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
-		}
-		return defaultPredicates;
-	}
+    private Map<String, String> getDefaultPredicateNames() {
+        Map<String, String> defaultPredicates = new HashMap<>();
+        try {
+            defaultPredicates = configManager.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.warn("Error getting defaultPredicateNames config, reverting to default", e);
+        }
+        return defaultPredicates;
+    }
 
-	private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
-		ValueSetMember member = new ValueSetMember();
-		Map<String, String> defaultPredicates = getDefaultPredicateNames();
-		List<String> blockedIris = getBlockedIris();
-		String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
-		member.setEntity(iri("", nodeAsString));
-		return member;
-	}
+    private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
+        ValueSetMember member = new ValueSetMember();
+        Map<String, String> defaultPredicates = getDefaultPredicateNames();
+        List<String> blockedIris = getBlockedIris();
+        String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
+        member.setEntity(iri("", nodeAsString));
+        return member;
+    }
 
-	private ValueSetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
-		ValueSetMember member = new ValueSetMember();
-		List<String> blockedIris = getBlockedIris();
+    private ValueSetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
+        ValueSetMember member = new ValueSetMember();
+        List<String> blockedIris = getBlockedIris();
         SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri.getIri());
         String iriAsString = TTToString.ttIriToString(iri, "object", 0, withHyperlinks, false, blockedIris);
         member.setEntity(iri(iri.getIri(), iriAsString));
@@ -739,11 +743,11 @@ public class EntityService {
         return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri,boolean legacy) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri, boolean legacy) throws DataFormatException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri,legacy);
+        return new ExcelSetExporter().getSetAsExcel(iri, legacy);
     }
 
     /**
@@ -834,18 +838,18 @@ public class EntityService {
         return entityRepository.getPathBetweenNodes(descendant, ancestor);
     }
 
-    public List<TTIriRef> getUnassigned() {
-        return entityRepository2.findUnassigned();
+    public List<UnassignedEntity> getUnassigned() {
+        List<UnassignedEntity> unassignedList = new ArrayList<>();
+        for (TTIriRef unassigned : entityRepository2.findUnassigned()) {
+            unassignedList.add(new UnassignedEntity().setIri(unassigned.getIri()).setName(unassigned.getName()).setSuggestions(new ArrayList<>()));
+        }
+        return unassignedList;
     }
 
-    public List<TTEntity> getMappingSuggestions(String iri, String name) {
-        List<TTEntity> suggestions = new ArrayList<TTEntity>();
-        List<String> iris = entityRepository.findEntitiesByName(name);
-        iris.remove(iri);
-        for (String suggestionIri: iris) {
-            suggestions.add(getBundle(iri, null, EntityService.UNLIMITED).getEntity());
-        }
-        return suggestions;
+    public List<TTIriRef> getMappingSuggestions(String iri, String name) {
+        List<TTIriRef> iriRefs = entityRepository.findEntitiesByName(name);
+        iriRefs.removeIf(iriRef -> iriRef.getIri().equals(iri));
+        return iriRefs;
     }
 }
 

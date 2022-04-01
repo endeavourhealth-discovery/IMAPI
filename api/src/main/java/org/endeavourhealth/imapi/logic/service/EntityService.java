@@ -41,7 +41,7 @@ public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
     public static final int UNLIMITED = 0;
-    public static final int MAX_CHILDREN = 100;
+    public static final int MAX_CHILDREN = 200;
 
     private EntityRepository entityRepository = new EntityRepository();
     private EntityTctRepository entityTctRepository = new EntityTctRepository();

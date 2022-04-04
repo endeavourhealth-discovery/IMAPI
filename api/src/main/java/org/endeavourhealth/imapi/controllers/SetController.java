@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.controllers;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
@@ -29,10 +27,7 @@ import java.util.zip.DataFormatException;
 @RestController
 @RequestMapping("api/set")
 @CrossOrigin(origins = "*")
-@Api(value="SetController")
-@SwaggerDefinition(tags = {
-    @Tag(name = "Set Controller", description = "Main Set endpoint")
-})
+@Tag(name="SetController")
 @RequestScope
 public class SetController {
     private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
@@ -42,9 +37,9 @@ public class SetController {
     private final SetExporter setExporter = new SetExporter();
 
 	@GetMapping(value = "/public/download")
-    @ApiOperation(
-        value = "Download set",
-        notes = "Returns a download for a set"
+    @Operation(
+        summary = "Download set",
+        description = "Returns a download for a set"
     )
 	public HttpEntity<Object> downloadSet(@RequestParam(name = "iri") String iri,
                                           @RequestParam(name = "expandMembers") boolean expanded,
@@ -68,18 +63,18 @@ public class SetController {
     }
 
     @GetMapping(value = "/public/evaluate")
-    @ApiOperation(
-        value = "Evaluate set",
-        notes = "Evaluates a given set"
+    @Operation(
+        summary = "Evaluate set",
+        description = "Evaluates a given set"
     )
     public Set<EntitySummary> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) {
 	    return setService.evaluateConceptSet(iri, includeLegacy);
     }
 
     @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
-    @ApiOperation(
-        value = "Evaluate ECL",
-        notes = "Evaluates an query"
+    @Operation(
+        summary = "Evaluate ECL",
+        description = "Evaluates an query"
     )
     public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
         try {
@@ -90,9 +85,9 @@ public class SetController {
     }
 
     @PostMapping(value="/public/eclSearch", consumes="text/plain", produces="application/json")
-    @ApiOperation(
-        value="ECL search",
-        notes="Search entities using ECL string"
+    @Operation(
+        summary="ECL search",
+        description="Search entities using ECL string"
     )
     public SearchResponse eclSearch(
             @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
@@ -107,9 +102,9 @@ public class SetController {
     }
 
     @GetMapping(value = "/publish")
-    @ApiOperation(
-        value = "Publish set",
-        notes = "Publishes an expanded set to IM1"
+    @Operation(
+        summary = "Publish set",
+        description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
     public void publish(@RequestParam(name = "iri") String iri) {
@@ -118,9 +113,9 @@ public class SetController {
 
 
     @GetMapping(value = "/public/export")
-    @ApiOperation(
-            value = "Export set",
-            notes = "Exporting an expanded set to IM1"
+    @Operation(
+            summary = "Export set",
+            description = "Exporting an expanded set to IM1"
     )
     public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) {
         TTIriRef entity = entityService.getEntityReference(iri);

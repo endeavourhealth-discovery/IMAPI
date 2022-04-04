@@ -133,8 +133,8 @@ public class EntityService {
                 .sorted(Comparator.comparing(TTIriRef::getName)).collect(Collectors.toList());
     }
 
-    public List<TTIriRef> usages(String iri, Integer pageIndex, Integer pageSize) throws JsonProcessingException {
-
+    public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize) throws JsonProcessingException {
+        ArrayList<TTEntity> usageEntities = new ArrayList<>();
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
 
@@ -147,9 +147,16 @@ public class EntityService {
         if (pageIndex != null && pageSize != null)
             rowNumber = pageIndex * pageSize;
 
-        return entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASSOF.getIri()).stream()
+        List<TTIriRef> usageRefs = entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate(iri, rowNumber, pageSize, RDFS.SUBCLASSOF.getIri()).stream()
                 .sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
                 .distinct().collect(Collectors.toList());
+
+        for (TTIriRef usage: usageRefs) {
+            TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.getIri()), 0).getEntity().getType();
+            usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
+        }
+
+        return usageEntities;
     }
 
     public Integer totalRecords(String iri) throws JsonProcessingException {

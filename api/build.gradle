@@ -42,9 +42,7 @@ dependencies {
     implementation libs.springSecurity
     implementation libs.springStatemachine
     implementation libs.springWeb
-    implementation libs.springfoxSwagger
-    implementation libs.springfoxSwaggerUi
-    implementation libs.swagger
+    implementation libs.springdoc
     implementation libs.validation
     implementation libs.woodstox
     implementation libs.awsS3

@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -18,10 +16,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
 @RequestMapping("api/filer")
 @CrossOrigin(origins = "*")
-@Api(value="FilerController")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Filer Controller", description = "Main Filer endpoint")
-})
+@Tag(name="FilerController")
 @RequestScope
 public class FilerController {
     private static final Logger LOG = LoggerFactory.getLogger(FilerController.class);

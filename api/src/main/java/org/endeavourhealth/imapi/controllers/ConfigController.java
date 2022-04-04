@@ -2,9 +2,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.config.DashboardLayout;
@@ -22,10 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/config")
 @CrossOrigin(origins = "*")
-@Api(value="ConfigController")
-@SwaggerDefinition(tags = {
-    @Tag(name = "Config Controller", description = "IM application configuration endpoint")
-})
+@Tag(name="ConfigController")
 @RequestScope
 public class ConfigController {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigController.class);

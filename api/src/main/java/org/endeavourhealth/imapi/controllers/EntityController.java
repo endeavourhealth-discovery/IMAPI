@@ -12,10 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
@@ -30,7 +28,6 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
@@ -42,23 +39,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 @RestController
 @RequestMapping("api/entity")
 @CrossOrigin(origins = "*")
-@Api(value="EntityController")
-@SwaggerDefinition(tags = {
-    @Tag(name = "Entity Controller", description = "Main Entity endpoint")
-})
-
+@Tag(name = "Entity Controller")
 @RequestScope
 public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
@@ -69,11 +56,10 @@ public class EntityController {
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
 	@PostMapping(value = "/public/search")
-    @ApiOperation(
-        value = "Advanced entity search",
-        notes = "Performs an advanced entity search with multiple filter options",
-        response = SearchResponse.class
-    )
+    @Operation(
+        summary = "Advanced entity search",
+        description = "Performs an advanced entity search with multiple filter options"
+	)
 	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
 		LOG.debug("advancedSearch");
 			return entityService.advancedSearch(request);

@@ -32,6 +32,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	private FileWriter legacyCore;
 	private FileWriter allEntities;
 	private FileWriter codeIds;
+	private FileWriter coreIris;
 	private static int privacyLevel=0;
 	private static int statementCount;
 	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
@@ -84,6 +85,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				descendants = new FileWriter(path + "\\Descendants" + ".txt",true);
 				coreTerms = new FileWriter(path + "\\CoreTerms" + ".txt",true);
 				legacyCore = new FileWriter(path + "\\LegacyCore" + ".txt",true);
+				coreIris= new FileWriter(path+"\\coreIris.txt",true);
 
 
 				int counter = 0;
@@ -99,6 +101,8 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				//	if (entity.getIri().equals("http://endhealth.info/emis#_ESCTMA381305"))
 				//		System.out.println(entity.getIri());
 					allEntities.write(entity.getIri() + "\n");
+					if (graph.equals(IM.NAMESPACE))
+						coreIris.write(entity.getIri()+"\t"+ entity.getName()+"\n");
 					addToMaps(entity,entityGraph);
 					addSubtypes(entity);
 					addTerms(entity,entityGraph);
@@ -128,6 +132,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				legacyCore.close();
 				allEntities.close();
 				codeIds.close();
+				coreIris.close();
 			}
 		} catch (Exception e)  {
 		e.printStackTrace();

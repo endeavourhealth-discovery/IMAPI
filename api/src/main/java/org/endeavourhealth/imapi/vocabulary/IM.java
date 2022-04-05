@@ -157,7 +157,8 @@ public class IM {
 
 
 
-  public static final TTIriRef HAS_PROFILE = iri(NAMESPACE+"hasProfile");
+  public static final TTIriRef IN_RESULT_SET = iri(NAMESPACE+"inResultSet");
+  public static final TTIriRef HAS_PROFILE = iri(NAMESPACE+"inResultSet");
   public static final TTIriRef GMS_PATIENT = iri(NAMESPACE + "2751000252106");
 
   //Provenance

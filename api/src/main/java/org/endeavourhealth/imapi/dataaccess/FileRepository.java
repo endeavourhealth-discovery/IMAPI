@@ -18,10 +18,32 @@ public class FileRepository {
 	private final Map<String,String> coreTerms= new HashMap<>();
 	private final Map<String,Map<String,String>> termCodes= new HashMap<>();
 	private final Map<String,Map<String,Set<String>>> codeIds = new HashMap<>();
+	private final Map<String,String> coreIris= new HashMap<>();
 	private static String dataPath;
 
 	public FileRepository(String dataPath){
 		this.dataPath=dataPath;
+	}
+
+	public String getCoreName(String iri) throws IOException {
+		if (coreIris.isEmpty()){
+			fetchCoreIris();
+		}
+		return coreIris.get(iri);
+	}
+
+	private void fetchCoreIris() throws IOException{
+		String fileName=getFile("CoreIris");
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			String line = reader.readLine();
+			while (line != null && !line.isEmpty()) {
+				String[] fields = line.split("\t");
+				String iri= fields[0];
+				String name = fields[1];
+				coreIris.put(iri,name);
+				line = reader.readLine();
+			}
+		}
 	}
 
 	public void fetchRelationships(Map<String, Set<String>> parentMap,

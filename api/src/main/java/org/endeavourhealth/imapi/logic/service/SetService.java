@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.EditSet;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.transforms.ECLToTT;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
@@ -28,8 +29,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Component
 public class SetService {
     private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
@@ -37,6 +36,7 @@ public class SetService {
     private final SetRepository setRepository;
     private final EntityTripleRepository entityTripleRepository;
     private final EntityRepository entityRepository;
+    private final EntityService entityService = new EntityService();
 
     public SetService() {
         setRepository = new SetRepository();
@@ -427,5 +427,25 @@ public class SetService {
         result.setCount(evaluated.size());
         result.setPage(1);
         return result;
+    }
+
+    public Workbook getDefinedMembers(String iri){
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFFont font = workbook.createFont();
+        CellStyle headerStyle = workbook.createCellStyle();
+        font.setBold(true);
+        headerStyle.setFont(font);
+        Sheet sheet = workbook.createSheet("Defined Members");
+        addHeaders(sheet, headerStyle, 10000, "Iri", "Name");
+        List<ValueSetMember> members = entityService.getValueSetMembers(iri,false, false, 2000, false).getMembers();
+        for(ValueSetMember member:members){
+            if (member.getEntity().getIri() != null && !member.getEntity().getIri().isEmpty()) {
+                String memberIri = member.getEntity().getIri();
+                String name = member.getEntity().getName();
+                Row row = addRow(sheet);
+                addCells(row, memberIri, name);
+            }
+        }
+        return workbook;
     }
 }

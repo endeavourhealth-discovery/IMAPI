@@ -126,4 +126,24 @@ public class SetController {
         String result = setExporter.generateForIm1(iri).toString();
         return new HttpEntity<>(result, headers);
     }
+
+    @GetMapping(value = "/public/definedMembers")
+    @Operation(
+            summary = "Download defined members",
+            description = "Returns a download for defined members"
+    )
+    public HttpEntity<Object> downloadDefinedMembers(@RequestParam(name = "iri") String iri) throws IOException {
+        TTIriRef entity = entityService.getEntityReference(iri);
+        String filename = entity.getName().length() > 100 ? entity.getName().substring(0,100) + " " + LocalDate.now() : entity.getName() + " " + LocalDate.now();
+        Workbook wb = setService.getDefinedMembers(iri);
+        HttpHeaders headers = new HttpHeaders();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            wb.write(outputStream);
+            wb.close();
+            headers.setContentType(new MediaType("application", "force-download"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".xlsx\"");
+
+            return new HttpEntity<>(outputStream.toByteArray(), headers);
+        }
+    }
 }

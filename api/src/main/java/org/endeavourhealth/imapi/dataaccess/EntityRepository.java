@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
 
 public class EntityRepository {
@@ -169,7 +170,7 @@ public class EntityRepository {
         for (org.eclipse.rdf4j.model.Statement st : gs) {
             i++;
             if (i%100==0) {
-                LOG.debug(i+ " "+st.getSubject().stringValue()+" " + st.getPredicate().stringValue()+" "+st.getObject().stringValue());
+                LOG.debug(String.format("%d %s %s %s", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue()));
             }
            populateEntity(st, entity,valueMap);
         }
@@ -252,5 +253,30 @@ public class EntityRepository {
         }
 
         return result;
+    }
+
+    public List<TTIriRef> findEntitiesByName(String name) {
+        List<TTIriRef> result = new ArrayList<>();
+
+        String spql = new StringJoiner(System.lineSeparator())
+                .add("select *")
+                .add("where {")
+                .add("  ?s rdfs:label ?name")
+                .add("}")
+                .toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, spql);
+            qry.setBinding("name", literal(name));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), name));
+                }
+            }
+        }
+
+        return result;
+
     }
 }

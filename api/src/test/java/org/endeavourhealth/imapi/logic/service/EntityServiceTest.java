@@ -342,28 +342,14 @@ class EntityServiceTest {
 
     @Test
     void usages_NullIri() throws JsonProcessingException {
-        List<TTIriRef> actual = entityService.usages(null,null,null);
+        List<TTEntity> actual = entityService.usages(null,null,null);
 
         assertNotNull(actual);
     }
 
     @Test
     void usages_EmptyIri() throws JsonProcessingException {
-        List<TTIriRef> actual = entityService.usages("",null,null);
-
-        assertNotNull(actual);
-    }
-
-    @Test
-    void usages_NotNullIri() throws JsonProcessingException {
-        TTIriRef ttIriRef = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-
-        when(entityTripleRepository.getActiveSubjectByObjectExcludeByPredicate( any(), any(),any(),any())).thenReturn(Collections.singletonList(ttIriRef));
-        when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://www.w3.org/2001/XMLSchema#string"));
-
-        List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
+        List<TTEntity> actual = entityService.usages("",null,null);
 
         assertNotNull(actual);
     }
@@ -373,7 +359,7 @@ class EntityServiceTest {
 
         when(configManager.getConfig(any(), any(TypeReference.class))).thenReturn(Collections.singletonList("http://endhealth.info/im#25451000252115"));
 
-        List<TTIriRef> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
+        List<TTEntity> actual = entityService.usages("http://endhealth.info/im#25451000252115",1,10);
 
         assertNotNull(actual);
     }

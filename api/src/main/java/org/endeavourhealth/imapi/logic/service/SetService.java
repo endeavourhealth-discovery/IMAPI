@@ -358,7 +358,6 @@ public class SetService {
     private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) {
         Sheet sheet = workbook.createSheet("Concept summary");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "Turtle");
-        Row row = addRow(sheet);
 
         TTToTurtle turtleConverter = new TTToTurtle();
         List<Namespace> namespaces = entityTripleRepository.findNamespaces();
@@ -370,10 +369,23 @@ public class SetService {
 
         try {
             String ecl = TTToECL.getExpressionConstraint(set.get(IM.DEFINITION),true);
-            addCells(row, set.getIri(), set.getName(), ecl, turtle);
-        } catch (DataFormatException e){
-            addCells(row, set.getIri(), set.getName(), "Error", turtle);
 
+            String[] eclLines = ecl.split("\n");
+            String[] ttlLines = turtle.split("\n");
+
+            for (int i = 0; i < Math.max(eclLines.length, ttlLines.length); i++) {
+                String iri = (i==0) ? set.getIri() : "";
+                String name = (i==0) ? set.getName() : "";
+                String e = (i < eclLines.length) ? eclLines[i] : "";
+                String t = (i < ttlLines.length) ? ttlLines[i] : "";
+
+                Row row = addRow(sheet);
+                addCells(row, iri, name, e, t);
+            }
+
+        } catch (DataFormatException e){
+            Row row = addRow(sheet);
+            addCells(row, set.getIri(), set.getName(), "Error", turtle);
         }
     }
 

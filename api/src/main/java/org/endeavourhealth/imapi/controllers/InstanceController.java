@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.InstanceService;
 import org.endeavourhealth.imapi.model.dto.InstanceDTO;
 import org.endeavourhealth.imapi.model.report.SimpleCount;
@@ -19,10 +17,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("instance")
 @CrossOrigin(origins = "*")
-@Api(value="InstanceController")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Instance Controller", description = "Main Instance endpoint")
-})
+@Tag(name="InstanceController")
 @RequestScope
 public class InstanceController {
     private static final Logger LOG = LoggerFactory.getLogger(InstanceController.class);

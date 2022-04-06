@@ -90,13 +90,10 @@ public class TTToTurtle {
 			for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
 				TTIriRef predicate = entry.getKey();
 				TTArray value = entry.getValue();
-				if (value == null)
-					if (value.isEmpty()) {
-						outputPredicateObject(predicate, entry.getValue(), nodeCount);
-						nodeCount++;
-						outputPredicateObject(predicate, entry.getValue(), nodeCount);
-						nodeCount++;
-					}
+				if (value != null && !value.isEmpty()){
+					outputPredicateObject(predicate, entry.getValue(), nodeCount);
+					nodeCount++;
+				}
 			}
 		}
 	}

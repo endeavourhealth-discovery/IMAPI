@@ -535,4 +535,33 @@ public class EntityTripleRepository {
         return null;
     }
 
+    public boolean hasGrandChildren(String iri, List<String> schemeIris, boolean inactive) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?gc")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
+                .add(" ?gc (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?c .")
+                .add("GRAPH ?g { ?c rdfs:label ?name } .");
+
+        if (schemeIris != null && !schemeIris.isEmpty()) {
+            sql
+                    .add(valueList("g", schemeIris));
+        }
+
+        if (!inactive)
+            sql
+                    .add("  OPTIONAL { ?c im:status ?s}")
+                    .add("  FILTER (?s != im:Inactive) .");
+
+        sql.add("}")
+                .add("LIMIT 1");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("p", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                return rs.hasNext();
+            }
+        }
+    }
 }

@@ -97,12 +97,12 @@ public class SearchService {
 		}
 	}
 
-	private QueryBuilder buildSimpleTermCodeMatch(SearchRequest request) {
-		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-		MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter());
-		boolQuery.must(mfs);
+	private QueryBuilder buildSimpleTermCodeMatch(SearchRequest request){
+		MatchPhraseQueryBuilder mpq= new MatchPhraseQueryBuilder("termCode.term", request.getTermFilter()).boost(1.5F);
+		MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter()).boost(0.5F);
 		BoolQueryBuilder outer = new BoolQueryBuilder();
-		outer.should(boolQuery);
+		outer.should(mpq);
+		outer.should(mfs);
 		TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
 		TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
 		tqb.boost(2F);
@@ -116,8 +116,10 @@ public class SearchService {
 
 	private QueryBuilder buildSimpleTermMatch(SearchRequest request) {
 		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-		MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter());
-		boolQuery.must(mfs);
+		MatchPhraseQueryBuilder mpq= new MatchPhraseQueryBuilder("termCode.term", request.getTermFilter()).boost(1.5F);
+		MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter()).boost(0.5F);
+		boolQuery.should(mpq);
+		boolQuery.should(mfs);
 		addFilters(boolQuery, request);
 		FunctionScoreQueryBuilder funcScoreQuery = new FunctionScoreQueryBuilder(boolQuery,
 			ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));

@@ -13,6 +13,7 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
     private List<EntityReferenceNode> children;
     private String moduleId;
     private boolean hasChildren;
+    private boolean hasGrandChildren;
     private TTArray type;
     
     public EntityReferenceNode() {
@@ -76,7 +77,16 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
         return this;
     }
 
-	public EntityReferenceNode setHasChildren(boolean hasChildren) {
+    public EntityReferenceNode setHasGrandChildren(boolean hasGrandChildren) {
+        this.hasGrandChildren = hasGrandChildren;
+        return this;
+    }
+
+    public boolean isHasGrandChildren() {
+        return hasGrandChildren;
+    }
+
+    public EntityReferenceNode setHasChildren(boolean hasChildren) {
 		this.hasChildren = hasChildren;
 		return this;
 	}

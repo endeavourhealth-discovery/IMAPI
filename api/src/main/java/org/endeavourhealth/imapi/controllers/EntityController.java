@@ -12,10 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
@@ -24,12 +22,12 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
@@ -40,25 +38,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 @RestController
 @RequestMapping("api/entity")
 @CrossOrigin(origins = "*")
-@Api(value="EntityController")
-@SwaggerDefinition(tags = {
-    @Tag(name = "Entity Controller", description = "Main Entity endpoint")
-})
-
+@Tag(name = "Entity Controller")
 @RequestScope
 public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
@@ -69,11 +56,10 @@ public class EntityController {
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
 	@PostMapping(value = "/public/search")
-    @ApiOperation(
-        value = "Advanced entity search",
-        notes = "Performs an advanced entity search with multiple filter options",
-        response = SearchResponse.class
-    )
+    @Operation(
+        summary = "Advanced entity search",
+        description = "Performs an advanced entity search with multiple filter options"
+	)
 	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
 		LOG.debug("advancedSearch");
 			return entityService.advancedSearch(request);
@@ -252,7 +238,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/public/usages")
-	public List<TTIriRef> entityUsages(@RequestParam(name = "iri") String iri,
+	public List<TTEntity> entityUsages(@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "page", required = false) Integer page,
 			@RequestParam(name = "size", required = false) Integer size) throws JsonProcessingException {
         LOG.debug("entityUsages");
@@ -404,4 +390,16 @@ public class EntityController {
         LOG.debug("getPathBetweenNodes");
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
+	
+	@GetMapping("/public/unassigned")
+	public List<UnassignedEntity> getUnassigned() {
+		LOG.debug("getUnassigned");
+		return entityService.getUnassigned();
+	}
+
+	@GetMapping("/public/mappingSuggestions")
+	public List<TTIriRef> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+		LOG.debug("getMappingSuggestions");
+		return entityService.getMappingSuggestions(iri, name);
+	}
 }

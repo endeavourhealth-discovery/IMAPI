@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.hql;
+package org.endeavourhealth.imapi.model.query;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;

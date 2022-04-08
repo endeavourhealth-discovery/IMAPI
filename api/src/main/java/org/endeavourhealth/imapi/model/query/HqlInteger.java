@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.hql;
+package org.endeavourhealth.imapi.model.query;
 
 public interface HqlInteger {
 	Integer getValue();

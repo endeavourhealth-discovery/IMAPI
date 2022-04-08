@@ -1,10 +1,7 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.imapi.model.hql.Comparison;
+import org.endeavourhealth.imapi.model.query.Comparison;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class QueryGenHelper {
 

@@ -6,12 +6,15 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"name","iri","description","bool","notExist","pathTo","entityType","property","valueCompare","valueIn","valueNotIn",
+@JsonPropertyOrder({"name","iri","description","bool","notExist","pathTo","graph","entityId","includeMembers","entityType","property","valueCompare","valueIn","valueNotIn",
 "valueRange","valueFunction","sort","test"})
 
 public class Match extends Profile {
 
 
+	TTIriRef entityId;
+	boolean includeMembers;
+	TTIriRef graph;
 	TTIriRef pathTo;
 	TTIriRef property;
 	Compare valueCompare;
@@ -25,8 +28,28 @@ public class Match extends Profile {
 	Function function;
 	boolean notExist;
 
+	public boolean isIncludeMembers() {
+		return includeMembers;
+	}
 
+	public Match setIncludeMembers(boolean includeMembers) {
+		this.includeMembers = includeMembers;
+		return this;
+	}
 
+	public TTIriRef getGraph() {
+		return graph;
+	}
+
+	public Match setGraph(TTIriRef graph) {
+		this.graph = graph;
+		return this;
+	}
+
+	public Match setEntityType(TTIriRef entityType) {
+		super.setEntityType(entityType);
+		return this;
+	}
 
 
 
@@ -170,6 +193,12 @@ public class Match extends Profile {
 		return this;
 	}
 
+	public TTIriRef getEntityId() {
+		return entityId;
+	}
 
-
+	public Match setEntityId(TTIriRef entityId) {
+		this.entityId = entityId;
+		return this;
+	}
 }

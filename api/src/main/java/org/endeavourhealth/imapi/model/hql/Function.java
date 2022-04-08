@@ -7,15 +7,15 @@ import java.util.List;
 
 public class Function {
 	TTIriRef id;
-	TTIriRef funtionIri;
+	String name;
 	List<Argument> argument;
 
-	public TTIriRef getFuntionIri() {
-		return funtionIri;
+	public String getName() {
+		return name;
 	}
 
-	public Function setFuntionIri(TTIriRef funtionIri) {
-		this.funtionIri = funtionIri;
+	public Function setName(String name) {
+		this.name = name;
 		return this;
 	}
 
@@ -32,6 +32,14 @@ public class Function {
 		if (this.argument==null)
 			this.argument= new ArrayList<>();
 		this.argument.add(argument);
+		return this;
+	}
+
+	public Function addArgument(String parameter, Object value){
+		Argument arg= new Argument();
+		arg.setParameter(parameter);
+		arg.setValue(value);
+		addArgument(arg);
 		return this;
 	}
 

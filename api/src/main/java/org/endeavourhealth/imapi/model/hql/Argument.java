@@ -2,12 +2,12 @@ package org.endeavourhealth.imapi.model.hql;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.List;
+
 public class Argument {
 
 	String parameter;
-	String valueData;
-	TTIriRef valueIri;
-	Match valueMatch;
+	Object value;
 
 	public String getParameter() {
 		return parameter;
@@ -18,30 +18,16 @@ public class Argument {
 		return this;
 	}
 
-	public String getValueData() {
-		return valueData;
+	public Object getValue() {
+		return value;
 	}
 
-	public Argument setValueData(String valueData) {
-		this.valueData = valueData;
+	public Argument setValue(Object value) {
+		if (!(List.of(String.class,TTIriRef.class,Match.class,Boolean.class,
+			Double.class,Float.class).contains(value.getClass())))
+			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Match clauses");
+		this.value= value;
 		return this;
 	}
 
-	public TTIriRef getValueIri() {
-		return valueIri;
-	}
-
-	public Argument setValueIri(TTIriRef valueIri) {
-		this.valueIri = valueIri;
-		return this;
-	}
-
-	public Match getValueMatch() {
-		return valueMatch;
-	}
-
-	public Argument setValueMatch(Match valueMatch) {
-		this.valueMatch = valueMatch;
-		return this;
-	}
 }

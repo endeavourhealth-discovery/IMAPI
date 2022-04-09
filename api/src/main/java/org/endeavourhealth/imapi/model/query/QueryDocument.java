@@ -9,32 +9,32 @@ import java.util.List;
  * A class that represents a data manapulation process of some kind including query update delete etc
  * The definition of the process is held as a json literal value of the im:definition predicate
  */
-public class HqlDocument {
+public class QueryDocument {
 	private TTIriRef id;
-	private List<Profile> profile;
+	private List<Profile> query;
 
 	public TTIriRef getId() {
 		return id;
 	}
 
-	public HqlDocument setId(TTIriRef id) {
+	public QueryDocument setId(TTIriRef id) {
 		this.id = id;
 		return this;
 	}
 
 	public List<Profile> getProfile() {
-		return profile;
+		return query;
 	}
 
-	public HqlDocument setProfile(List<Profile> query) {
-		this.profile = query;
+	public QueryDocument setProfile(List<Profile> query) {
+		this.query = query;
 		return this;
 	}
 
-	public HqlDocument addProfile (Profile query){
-		if (this.profile ==null)
-			this.profile = new ArrayList<>();
-		this.profile.add(query);
+	public QueryDocument addProfile (Profile query){
+		if (this.query ==null)
+			this.query = new ArrayList<>();
+		this.query.add(query);
 		return this;
 	}
 }

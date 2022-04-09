@@ -9,7 +9,7 @@ class SelectTest {
 
 	@Test
 	void setFields() throws JsonProcessingException {
-		Query query = HqlFactory.createHql();
+		Query query = QueryFactory.createQuery();
 		Match match= new Match();
 		query.setWhere(match);
 

@@ -52,7 +52,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<States, Ev
     }
 
     public Action<States,Events> processAction(){
-        return context -> LOG.info("HqlDocument was called ");
+        return context -> LOG.info("QueryDocument was called ");
     }
 
 

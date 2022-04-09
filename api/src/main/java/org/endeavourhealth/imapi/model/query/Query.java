@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonPropertyOrder ({"function","select","filter"})
-public class Hql {
+public class Query {
 
-	private Function function;
 	private List<SubSelect> select;
 	private Match where;
 
@@ -16,7 +15,7 @@ public class Hql {
 		return where;
 	}
 
-	public Hql setWhere(Match where) {
+	public Query setWhere(Match where) {
 		this.where = where;
 		return this;
 	}
@@ -26,31 +25,23 @@ public class Hql {
 		return select;
 	}
 
-	public Hql setSelect(List<SubSelect> select) {
+	public Query setSelect(List<SubSelect> select) {
 		this.select = select;
 		return this;
 	}
 
-	public Hql addSelect(SubSelect select) {
+	public Query addSelect(SubSelect select) {
 		if (this.select==null)
 			this.select= new ArrayList<>();
 		this.select.add(select);
 		return this;
 	}
-	public Hql addSelect(String property) {
+	public Query addSelect(String property) {
 		SubSelect select= new SubSelect();
 		select.setProperty(property);
 		return addSelect(select);
 	}
 
 
-	public Function getFunction() {
-		return function;
-	}
-
-	public Hql setFunction(Function function) {
-		this.function = function;
-		return this;
-	}
 
 }

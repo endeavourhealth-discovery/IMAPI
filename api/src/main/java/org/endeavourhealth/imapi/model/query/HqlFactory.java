@@ -14,7 +14,7 @@ public class HqlFactory {
 			return new HqlDocument();
 	}
 
-	public static Hql createHql(){
-		return new Hql();
+	public static Query createHql(){
+		return new Query();
 	}
 }

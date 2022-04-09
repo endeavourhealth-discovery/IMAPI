@@ -9,17 +9,17 @@ class SelectTest {
 
 	@Test
 	void setFields() throws JsonProcessingException {
-		Hql hql= HqlFactory.createHql();
+		Query query = HqlFactory.createHql();
 		Match match= new Match();
-		hql.setWhere(match);
+		query.setWhere(match);
 
 		ObjectMapper objectMapper= new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json= objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(hql);
+		String json= objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(query);
 		System.out.println(json);
-		Hql q2= objectMapper.readValue(json,Hql.class);
+		Query q2= objectMapper.readValue(json, Query.class);
 
 	}
 }

@@ -1,20 +1,20 @@
-package org.endeavourhealth.imapi.model.hql;
+package org.endeavourhealth.imapi.model.query;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class HqlFactory {
+public class QueryFactory {
 
 		public static Profile createProfileFromJson(String json) throws JsonProcessingException {
 			ObjectMapper objectMapper = new ObjectMapper();
 			return objectMapper.readValue(json, Profile.class);
 	}
 
-	public static HqlDocument createHqlDocument(){
-			return new HqlDocument();
+	public static QueryDocument createQueryDocument(){
+			return new QueryDocument();
 	}
 
-	public static Hql createHql(){
-		return new Hql();
+	public static Query createQuery(){
+		return new Query();
 	}
 }

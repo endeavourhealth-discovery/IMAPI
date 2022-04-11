@@ -1,26 +1,25 @@
-package org.endeavourhealth.imapi.model.hql;
+package org.endeavourhealth.imapi.model.query;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class SelectTest {
 
 	@Test
 	void setFields() throws JsonProcessingException {
-		Hql hql= HqlFactory.createHql();
+		Query query = QueryFactory.createQuery();
 		Match match= new Match();
-		hql.setMatch(match);
+		query.setWhere(match);
 
 		ObjectMapper objectMapper= new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json= objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(hql);
+		String json= objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(query);
 		System.out.println(json);
-		Hql q2= objectMapper.readValue(json,Hql.class);
+		Query q2= objectMapper.readValue(json, Query.class);
 
 	}
 }

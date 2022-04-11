@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.hql;
+package org.endeavourhealth.imapi.model.query;
 
 public class Range {
 	Compare from;

@@ -2,18 +2,16 @@ package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.poi.ss.formula.functions.T;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.hql.Match;
-import org.endeavourhealth.imapi.model.hql.Order;
-import org.endeavourhealth.imapi.model.hql.Profile;
-import org.endeavourhealth.imapi.model.hql.Sort;
+import org.endeavourhealth.imapi.model.query.Match;
+import org.endeavourhealth.imapi.model.query.Order;
+import org.endeavourhealth.imapi.model.query.Profile;
+import org.endeavourhealth.imapi.model.query.Sort;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.util.*;
 
 public class QueryGenerator {

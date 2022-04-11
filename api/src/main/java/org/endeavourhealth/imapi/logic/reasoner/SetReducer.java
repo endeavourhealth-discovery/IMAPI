@@ -71,7 +71,7 @@ public class SetReducer {
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add("PREFIX im: <http://endhealth.info/im#>")
 			.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-			.add("Select distinct ?member ?name")
+			.add("SubSelect distinct ?member ?name")
 			.add("where {")
 			.add("    ?set im:hasMember ?member.")
 			.add("    ?member rdfs:label ?name.")
@@ -101,7 +101,7 @@ public class SetReducer {
 		sql.add("PREFIX im: <http://endhealth.info/im#>")
 			.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
 			.add("PREFIX sh: <http://www.w3.org/ns/shacl#>")
-			.add("Select distinct ?member ?name")
+			.add("SubSelect distinct ?member ?name")
 			.add("where {")
 			.add("    ?set im:definition ?or.")
 			.add("    ?or sh:or ?member.")

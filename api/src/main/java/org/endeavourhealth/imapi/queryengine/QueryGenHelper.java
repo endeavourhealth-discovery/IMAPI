@@ -1,10 +1,7 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.imapi.model.hql.Comparison;
+import org.endeavourhealth.imapi.model.query.Comparison;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class QueryGenHelper {
 
@@ -75,7 +72,7 @@ public class QueryGenHelper {
     }
 
     public static String getValue(TTIriRef i) {
-        // Return concept DBID (compass) or Iri (Resolution)
+        // SubSelect concept DBID (compass) or Iri (Resolution)
         String iri = i.getIri();
         switch (iri) {
             case "http://endhealth.info/im#2751000252106": return "1335286";

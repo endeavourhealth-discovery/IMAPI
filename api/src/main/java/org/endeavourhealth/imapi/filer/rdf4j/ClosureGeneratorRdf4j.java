@@ -131,7 +131,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
 			LOG.info("Extracting " + relationship.getIri());
 		TupleQuery stmt;
-		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nReturn ?child ?parent\n" +
+		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSubSelect ?child ?parent\n" +
 				"where {?child <" + relationship.getIri() + "> ?parent }\n");
 
 		try (TupleQueryResult rs = stmt.evaluate()) {

@@ -103,12 +103,12 @@ public class SearchResultSummary {
         return this;
     }
 
-    public Set<TTIriRef> getEntityTypes() {
+    public Set<TTIriRef> getEntityType() {
         return entityType;
     }
 
-    public SearchResultSummary setEntityType(Set<TTIriRef> entityTypes) {
-        this.entityType = entityTypes;
+    public SearchResultSummary setEntityType(Set<TTIriRef> entityType) {
+        this.entityType = entityType;
         return this;
     }
 
@@ -146,10 +146,6 @@ public class SearchResultSummary {
     public SearchResultSummary setTermCode(Set<SearchTermCode> searchTermCodes) {
         this.termCode = searchTermCodes;
         return this;
-    }
-
-    public Set<TTIriRef> getEntityType() {
-        return entityType;
     }
 
     public Set<String> getKey() {

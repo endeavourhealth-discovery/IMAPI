@@ -4,11 +4,16 @@ package org.endeavourhealth.imapi.logic.exporters;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.elasticsearch.discovery.SettingsBasedSeedHostsProvider;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
+import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTToECL;
+import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -28,11 +33,11 @@ public class ExcelSetExporter {
 
     private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetService setService = new SetService();
 
     private XSSFWorkbook workbook;
     private XSSFFont font;
     private CellStyle headerStyle;
-    private CellStyle rowStyle;
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();
@@ -41,8 +46,6 @@ public class ExcelSetExporter {
         font.setBold(true);
         headerStyle.setFont(font);
         headerStyle.setWrapText(true);
-        this.rowStyle= workbook.createCellStyle();
-        rowStyle.setWrapText(true);
     }
 
     /**
@@ -63,8 +66,7 @@ public class ExcelSetExporter {
             return workbook;
         }
 
-        String ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
-        addEclToWorkbook(ecl);
+        addDefinitionToWorkbook(entity);
         if (hasSubset(entity.getIri())) {
             Set<String> codesAddedToWorkbook = new HashSet<>();
             Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
@@ -137,14 +139,38 @@ public class ExcelSetExporter {
     }
 
 
-    private void addEclToWorkbook(String ecl) {
-        Sheet sheet = workbook.getSheet("ECL set definition");
-        if (null == sheet) sheet = workbook.createSheet("ECL set definition");
-        addHeaders(sheet, headerStyle, "ECL");
-        Row row = addRow(sheet);
-        row.setHeight((short) 2300);
-        addCells(row, ecl);
-        sheet.autoSizeColumn(0);
+    private void addDefinitionToWorkbook(TTEntity set) {
+        Sheet sheet = workbook.getSheet("Definition");
+        if (null == sheet) sheet = workbook.createSheet("Definition");
+        addHeaders(sheet, headerStyle, "Iri", "Name", "ECL", "Turtle");
+        TTToTurtle turtleConverter = new TTToTurtle();
+        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+        TTContext context = new TTContext();
+        for(Namespace namespace : namespaces){
+            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+        }
+        String turtle = turtleConverter.transformEntity(set, context);
+
+        try {
+            String ecl = TTToECL.getExpressionConstraint(set.get(IM.DEFINITION),true);
+
+            String[] eclLines = ecl.split("\n");
+            String[] ttlLines = turtle.split("\n");
+
+            for (int i = 0; i < Math.max(eclLines.length, ttlLines.length); i++) {
+                String iri = (i==0) ? set.getIri() : "";
+                String name = (i==0) ? set.getName() : "";
+                String e = (i < eclLines.length) ? eclLines[i] : "";
+                String t = (i < ttlLines.length) ? ttlLines[i] : "";
+
+                Row row = addRow(sheet);
+                addCells(row, iri, name, e, t);
+            }
+
+        } catch (DataFormatException e){
+            Row row = addRow(sheet);
+            addCells(row, set.getIri(), set.getName(), "Error", turtle);
+        }
     }
 
 
@@ -168,7 +194,6 @@ public class ExcelSetExporter {
     private void addCells(Row row, String... values) {
         for (String value : values) {
             Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
-            iriCell.setCellStyle(rowStyle);
             if (value != null) {
                 if (value.contains("\n")) {
                     iriCell.getRow()

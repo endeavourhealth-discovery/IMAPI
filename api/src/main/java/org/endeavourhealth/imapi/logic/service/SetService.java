@@ -356,7 +356,7 @@ public class SetService {
     }
 
     private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) {
-        Sheet sheet = workbook.createSheet("Concept summary");
+        Sheet sheet = workbook.createSheet("Definition");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "Turtle");
 
         TTToTurtle turtleConverter = new TTToTurtle();
@@ -427,25 +427,5 @@ public class SetService {
         result.setCount(evaluated.size());
         result.setPage(1);
         return result;
-    }
-
-    public Workbook getDefinedMembers(String iri){
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFFont font = workbook.createFont();
-        CellStyle headerStyle = workbook.createCellStyle();
-        font.setBold(true);
-        headerStyle.setFont(font);
-        Sheet sheet = workbook.createSheet("Defined Members");
-        addHeaders(sheet, headerStyle, 10000, "Iri", "Name");
-        List<ValueSetMember> members = entityService.getValueSetMembers(iri,false, false, 2000, false).getMembers();
-        for(ValueSetMember member:members){
-            if (member.getEntity().getIri() != null && !member.getEntity().getIri().isEmpty()) {
-                String memberIri = member.getEntity().getIri();
-                String name = member.getEntity().getName();
-                Row row = addRow(sheet);
-                addCells(row, memberIri, name);
-            }
-        }
-        return workbook;
     }
 }

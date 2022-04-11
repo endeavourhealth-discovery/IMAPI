@@ -4,10 +4,8 @@ package org.endeavourhealth.imapi.logic.exporters;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.elasticsearch.discovery.SettingsBasedSeedHostsProvider;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
@@ -33,7 +31,6 @@ public class ExcelSetExporter {
 
     private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private SetService setService = new SetService();
 
     private XSSFWorkbook workbook;
     private XSSFFont font;

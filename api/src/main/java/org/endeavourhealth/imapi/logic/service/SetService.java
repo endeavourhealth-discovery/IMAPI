@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.EditSet;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.transforms.ECLToTT;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
@@ -36,7 +35,6 @@ public class SetService {
     private final SetRepository setRepository;
     private final EntityTripleRepository entityTripleRepository;
     private final EntityRepository entityRepository;
-    private final EntityService entityService = new EntityService();
 
     public SetService() {
         setRepository = new SetRepository();

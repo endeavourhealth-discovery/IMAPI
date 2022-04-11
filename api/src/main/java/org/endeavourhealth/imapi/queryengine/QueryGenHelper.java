@@ -72,7 +72,7 @@ public class QueryGenHelper {
     }
 
     public static String getValue(TTIriRef i) {
-        // SubSelect concept DBID (compass) or Iri (Resolution)
+        // Selection concept DBID (compass) or Iri (Resolution)
         String iri = i.getIri();
         switch (iri) {
             case "http://endhealth.info/im#2751000252106": return "1335286";

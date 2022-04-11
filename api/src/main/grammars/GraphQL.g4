@@ -19,7 +19,7 @@ operationDefinition:
 
 operationType: 'query' | 'mutation' | 'subscription';
 
-//https://spec.graphql.org/June2018/#sec-SubSelect-Sets
+//https://spec.graphql.org/June2018/#sec-Selection-Sets
 selectionSet: '{' selection+ '}';
 
 selection: field

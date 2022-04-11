@@ -1,11 +1,22 @@
 package org.endeavourhealth.imapi.logic.service;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.endeavourhealth.imapi.dataaccess.OpenSearchRepository;
+import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.query.Query;
+import org.endeavourhealth.imapi.model.query.Selection;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.transforms.IMQToSparql;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.zip.DataFormatException;
 
 
 /**
@@ -23,6 +35,89 @@ public class SearchService {
 	private static final Logger LOG = LoggerFactory.getLogger(org.endeavourhealth.imapi.logic.service.SearchService.class);
 	private String searchTerm;
 	private final OpenSearchRepository repo = new OpenSearchRepository();
+
+
+	/**
+	 * Queries any IM entity using the query model
+	 * @param query Query object
+	 * @return a generic JSONArray containing the results
+	 * @throws DataFormatException
+	 */
+	public JSONArray queryIM(Query query) throws DataFormatException {
+		IMQToSparql converter= new IMQToSparql();
+		String spq= converter.convert(query);
+		JSONArray result= new JSONArray();
+		Map<Value,JSONObject> entityMap= new HashMap<>();
+		try (RepositoryConnection repo= ConnectionManager.getIMConnection()) {
+			TupleQuery qry = repo.prepareTupleQuery(spq);
+			try (TupleQueryResult rs = qry.evaluate()){
+				while (rs.hasNext()){
+					BindingSet bs= rs.next();
+					bindResults(converter,query.getSelect(),bs,result,entityMap);
+				}
+			}
+		}
+		return result;
+	}
+
+	private void bindResults(IMQToSparql converter,List<Selection> select, BindingSet bs,
+													 JSONArray result,Map<Value,JSONObject> entityMap) {
+		JSONObject root;
+		Value entityIri= bs.getValue("entity");
+		if (entityMap.get(entityIri)==null) {
+			root = new JSONObject();
+			entityMap.put(entityIri, root);
+			result.add(root);
+		}
+		root= entityMap.get(entityIri);
+		for (Selection selection:select){
+			String property=selection.getProperty().getIri();
+			String var= converter.getPropertyMap().get(property);
+			if (IMQToSparql.isId(property))
+				root.put("@id",entityIri.stringValue());
+			else {
+				if (selection.getAlias() != null)
+					var = converter.getAliasMap().get(var);
+				Value value = bs.getValue(var);
+				if (value!=null) {
+					if (value.isLiteral())
+						root.put(property, value.stringValue());
+				}
+			}
+			if (selection.getSelect()!=null){
+				root.putIfAbsent(property, new JSONArray());
+				JSONObject subNode= new JSONObject();
+				for (Selection subSelect:selection.getSelect()) {
+					bindSubResults(converter, subSelect,property + "/",subNode,entityMap,bs);
+				}
+				if (!subNode.isEmpty())
+					((JSONArray)root.get(property)).add(subNode);
+			}
+		}
+	}
+
+	private void bindSubResults(IMQToSparql converter,Selection selection,String path,JSONObject node,
+															Map<Value,JSONObject> entityMap,BindingSet bs){
+		String property=selection.getProperty().getIri();
+		String var= converter.getPropertyMap().get(path+property);
+			if (selection.getAlias() != null)
+				var = converter.getAliasMap().get(var);
+			Value value = bs.getValue(var);
+			if (value!=null) {
+				if (value.isLiteral()) {
+					node.put(property, value.stringValue());
+				}
+			}
+			if (selection.getSelect()!=null){
+				node.putIfAbsent(property, new JSONArray());
+				JSONObject subNode= new JSONObject();
+				for (Selection subSelect:selection.getSelect()) {
+					bindSubResults(converter, subSelect,property + "/",subNode,entityMap,bs);
+				}
+				if (!subNode.isEmpty())
+					((JSONArray)node.get(property)).add(subNode);
+			}
+	}
 
 
 	/**

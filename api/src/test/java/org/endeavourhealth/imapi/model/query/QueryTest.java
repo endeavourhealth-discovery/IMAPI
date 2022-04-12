@@ -14,18 +14,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 class QueryTest {
 
 	@Test
 	public void createQuery() throws IOException, DataFormatException {
-
 		/*
-		Query query= buildQuery1();
-		//Query query= buildQuery2();
+		//Query query= buildQuery1();
+		Query query= buildQuery2();
 		SearchService ss= new SearchService();
-		JSONArray ob= ss.queryIM(query);
+		List ob= ss.queryIM(query);
 
 
 		ObjectMapper om= new ObjectMapper();
@@ -40,6 +40,8 @@ class QueryTest {
 		}
 
 		 */
+
+		 
 	}
 
 	private Query buildQuery2() throws DataFormatException {

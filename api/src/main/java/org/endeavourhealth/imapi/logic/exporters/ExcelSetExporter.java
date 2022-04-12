@@ -65,7 +65,7 @@ public class ExcelSetExporter {
 
         if (entity.get(IM.DEFINITION) == null) {
             if (entity.get(IM.HAS_MEMBER)==null)
-            return null;
+            return workbook;
         }
         String ecl;
         if (entity.get(IM.HAS_MEMBER)!=null){

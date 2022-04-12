@@ -10,6 +10,7 @@ import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.endeavourhealth.imapi.dataaccess.OpenSearchRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.query.Query;
 import org.endeavourhealth.imapi.model.query.Selection;
@@ -33,7 +34,7 @@ import java.util.zip.DataFormatException;
  */
 
 public class SearchService {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(org.endeavourhealth.imapi.logic.service.SearchService.class);
 	private final OpenSearchRepository repo = new OpenSearchRepository();
 
@@ -138,13 +139,19 @@ public class SearchService {
 			return Collections.emptyList();
 		if (request.getIndex()==null)
 			request.setIndex("concept");
+		String term= request.getTermFilter();
 
 		QueryBuilder qry;
 
 		if (request.getTermFilter().length() < 3) {
 			qry = buildCodeKeyQuery(request);
 			return repo.getEntities(qry, request);
-		} else if (!request.getTermFilter().contains(" ")) {
+		} else if (!term.contains(" ")) {
+			if (term.contains(":")){
+				String namespace= EntityCache.getDefaultPrefixes().getNamespace(term.substring(0,term.indexOf(":")));
+				if (namespace!=null)
+					request.setTermFilter(namespace+ term.split(":")[1]);
+			}
 			qry = buildSimpleTermCodeMatch(request);
 			return repo.getEntities(qry, request);
 		} else {
@@ -161,12 +168,12 @@ public class SearchService {
 
 	private QueryBuilder buildCodeKeyQuery(SearchRequest request) {
 		BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
-		TermQueryBuilder tqb = new TermQueryBuilder("code.keyword", request.getTermFilter());
+		TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
 		tqb.boost(2F);
 		boolBuilder.should(tqb);
 
 		boolBuilder.should(tqb);
-		tqb = new TermQueryBuilder("key.keyword", request.getTermFilter().toLowerCase());
+		tqb = new TermQueryBuilder("key", request.getTermFilter().toLowerCase());
 		boolBuilder.should(tqb).minimumShouldMatch(1);
 		addFilters(boolBuilder, request);
 		return new FunctionScoreQueryBuilder(boolBuilder,
@@ -198,8 +205,8 @@ public class SearchService {
 		BoolQueryBuilder outer = new BoolQueryBuilder();
 		outer.should(mpq);
 		outer.should(mfs);
-		TermQueryBuilder tqb = new TermQueryBuilder("code.keyword", request.getTermFilter());
-		TermQueryBuilder tqiri = new TermQueryBuilder("iri.keyword", request.getTermFilter());
+		TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
+		TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
 		tqb.boost(2F);
 		tqiri.boost(2F);
 		outer.should(tqb).should(tqiri).minimumShouldMatch(1);

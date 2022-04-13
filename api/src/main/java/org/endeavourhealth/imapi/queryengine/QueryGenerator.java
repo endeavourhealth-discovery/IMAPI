@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.query.Match;
 import org.endeavourhealth.imapi.model.query.Order;
 import org.endeavourhealth.imapi.model.query.Profile;
 import org.endeavourhealth.imapi.model.query.Sort;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -36,7 +37,11 @@ public class QueryGenerator {
         LOG.info("Loading query");
         TTBundle bundle = svc.getBundle(iri, Set.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
-        String query = bundle.getEntity().get(IM.DEFINITION).asLiteral().getValue();
+        TTArray def = bundle.getEntity().get(IM.DEFINITION);
+        if (def == null)
+            return null;
+
+        String query = def.asLiteral().getValue();
         LOG.info(query);
 
         LOG.info("Deserializing");
@@ -47,6 +52,9 @@ public class QueryGenerator {
     }
 
     private QueryGenerator generateQuery(Profile profile, String alias) throws JsonProcessingException {
+        return this.generateQuery(profile, alias, false);
+    }
+    private QueryGenerator generateQuery(Profile profile, String alias, boolean pkOnly) throws JsonProcessingException {
         StringJoiner result = new StringJoiner(System.lineSeparator());
 
         try {
@@ -57,7 +65,7 @@ public class QueryGenerator {
                 .setPk(QueryGenHelper.getPk(iri))
                 .setAlias(alias);
 
-            fields.add(alias + "." + mainTable.getPk());
+            // fields.add(alias + "." + mainTable.getPk());
 
             Match match = profile.getMatch();
             if (match != null) {
@@ -79,6 +87,11 @@ public class QueryGenerator {
             LOG.error(result.toString());
             throw e;
         }
+
+        if (pkOnly) {
+            fields.clear();
+        }
+        fields.add(alias + "." + mainTable.getPk());
 
         return this;
     }
@@ -159,7 +172,7 @@ public class QueryGenerator {
             StringJoiner subselect = new StringJoiner(" ");
 
             Profile profile = loadProfile(match.getValueIn().get(0).getIri());
-            QueryGenerator sub = new QueryGenerator().generateQuery(profile, "sub");
+            QueryGenerator sub = new QueryGenerator().generateQuery(profile, "sub", true);
 
             subselect.add(table.getAlias() + "." + table.getPk());
             subselect.add("IN (");
@@ -187,6 +200,8 @@ public class QueryGenerator {
                 right = ("IN (" + String.join(", ", values) + ")");
             } else if (match.getValueCompare() != null) {
                 right = (QueryGenHelper.getComparison(match.getValueCompare().getComparison())) + " " + (match.getValueCompare().getValue());
+            } else if (match.getValueRange() != null) {
+                right = "BETWEEN " + match.getValueRange().getFrom().getValue() + " AND " + match.getValueRange().getTo().getValue();
             } else if (match.isNotExist()) {
                 right = ("IS NULL");
             }
@@ -202,7 +217,7 @@ public class QueryGenerator {
         Table sub = createTable(match.getEntityType().getIri());
         sub.setJoin(table.getAlias() + "." + table.getPk() + " = " + QueryGenHelper.getTableField(sub, match.getPathTo().getIri()));
 
-        QueryGenerator qry = new QueryGenerator().generateQuery(match, sub.getAlias() + "_sub");
+        QueryGenerator qry = new QueryGenerator().generateQuery(match, sub.getAlias() + "_sub", true);
 
         qry.fields.forEach(f -> fields.add(f.replaceAll(sub.getAlias() + "_sub\\.", sub.getAlias() + ".")));
         qry.fields.clear();

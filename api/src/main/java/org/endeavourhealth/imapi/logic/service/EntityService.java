@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -151,7 +152,7 @@ public class EntityService {
                 .sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
                 .distinct().collect(Collectors.toList());
 
-        for (TTIriRef usage: usageRefs) {
+        for (TTIriRef usage : usageRefs) {
             TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.getIri()), 0).getEntity().getType();
             usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
         }
@@ -857,6 +858,56 @@ public class EntityService {
         List<TTIriRef> iriRefs = entityRepository.findEntitiesByName(name);
         iriRefs.removeIf(iriRef -> iriRef.getIri().equals(iri));
         return iriRefs;
+    }
+
+    public List<List<TTIriRef>> getParentHierarchies(String iri) {
+        ParentDto parentHierarchy = new ParentDto(iri, null, null);
+        addParentHierarchiesRecursively(parentHierarchy);
+        return getParentHierarchiesFlatLists(parentHierarchy);
+    }
+
+    public List<List<TTIriRef>> getParentHierarchiesFlatLists(ParentDto parent) {
+        List<List<TTIriRef>> parentHierarchies = new ArrayList<>();
+        parentHierarchies.add(new ArrayList<>());
+        addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.get(0), parent);
+//        if(!parentHierarchies.get(0).isEmpty()) {
+//            List<TTIriRef> firstPath = parentHierarchies.remove(0);
+//            for (List<TTIriRef> list : parentHierarchies) {
+//                list.addAll(0, firstPath);
+//            }
+//        }
+
+//        for (List<TTIriRef> list : parentHierarchies) {
+//            list = list.stream().distinct().collect(Collectors.toList());
+//        }
+
+        return parentHierarchies;
+    }
+
+    public void addParentHierarchiesRecursively(List<List<TTIriRef>> parentHierarchies, List<TTIriRef> currentPath, ParentDto parent) {
+        if (parent != null && parent.hasMultipleParents()) {
+            for (ParentDto parentsParent : parent.getParents()) {
+                List<TTIriRef> path =  new ArrayList<>();
+                path.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
+                parentHierarchies.add(path);
+                addParentHierarchiesRecursively(parentHierarchies, path, parentsParent);
+            }
+        } else if (parent != null && parent.hasSingleParent()) {
+            for (ParentDto parentsParent : parent.getParents()) {
+                currentPath.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
+                addParentHierarchiesRecursively(parentHierarchies, currentPath, parentsParent);
+            }
+        }
+    }
+
+    public void addParentHierarchiesRecursively(ParentDto parent) {
+        List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
+        if (parents.size() != 0) {
+            parent.setParents(parents);
+            for (ParentDto parentsParent : parents) {
+                addParentHierarchiesRecursively(parentsParent);
+            }
+        }
     }
 }
 

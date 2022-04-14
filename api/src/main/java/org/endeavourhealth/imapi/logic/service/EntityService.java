@@ -58,7 +58,7 @@ public class EntityService {
 
     public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
-        if (excludePredicates.contains(RDFS.LABEL.getIri())) {
+        if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
                     .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

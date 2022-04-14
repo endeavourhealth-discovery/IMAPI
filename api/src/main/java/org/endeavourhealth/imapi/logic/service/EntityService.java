@@ -870,24 +870,14 @@ public class EntityService {
         List<List<TTIriRef>> parentHierarchies = new ArrayList<>();
         parentHierarchies.add(new ArrayList<>());
         addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.get(0), parent);
-//        if(!parentHierarchies.get(0).isEmpty()) {
-//            List<TTIriRef> firstPath = parentHierarchies.remove(0);
-//            for (List<TTIriRef> list : parentHierarchies) {
-//                list.addAll(0, firstPath);
-//            }
-//        }
-
-//        for (List<TTIriRef> list : parentHierarchies) {
-//            list = list.stream().distinct().collect(Collectors.toList());
-//        }
-
         return parentHierarchies;
     }
 
     public void addParentHierarchiesRecursively(List<List<TTIriRef>> parentHierarchies, List<TTIriRef> currentPath, ParentDto parent) {
         if (parent != null && parent.hasMultipleParents()) {
+            parentHierarchies.remove(currentPath);
             for (ParentDto parentsParent : parent.getParents()) {
-                List<TTIriRef> path =  new ArrayList<>();
+                List<TTIriRef> path =  new ArrayList<>(currentPath);
                 path.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
                 parentHierarchies.add(path);
                 addParentHierarchiesRecursively(parentHierarchies, path, parentsParent);
@@ -908,6 +898,18 @@ public class EntityService {
                 addParentHierarchiesRecursively(parentsParent);
             }
         }
+    }
+
+    public List<TTIriRef> getShortestPathBetweenNodes(String iri) {
+        List<List<TTIriRef>> paths = getParentHierarchies(iri);
+
+        paths.sort(new Comparator<List<TTIriRef>>() {
+            @Override
+            public int compare(List<TTIriRef> a1, List<TTIriRef> a2) {
+                return a2.size() - a1.size(); // biggest to smallest
+            }
+        });
+        return paths.get(paths.size() - 1);
     }
 }
 

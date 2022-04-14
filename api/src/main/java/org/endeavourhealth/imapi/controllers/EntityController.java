@@ -409,4 +409,10 @@ public class EntityController {
 		LOG.debug("getParentHierarchies");
 		return entityService.getParentHierarchies(iri);
 	}
+
+	@GetMapping("/public/shortestParentHierarchy")
+	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getShortestPathBetweenNodes");
+		return entityService.getShortestPathBetweenNodes(iri);
+	}
 }

@@ -26,5 +26,7 @@ artifacts:
   files:
     - appspec.yml
     - aws_scripts/cleanup
+    - aws_scripts/deploy
     - api/build/libs/imapi.war
     - node_api/dist/**/*
+    - node_api/package.json

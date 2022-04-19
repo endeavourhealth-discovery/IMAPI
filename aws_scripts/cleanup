@@ -1,2 +1,2 @@
-rm /opt/tomcat/webapps/imapi.war
-rm -r /opt/nodeapi/*
+rm -f /opt/tomcat/webapps/imapi.war || true
+rm -rf /opt/nodeapi/* || true

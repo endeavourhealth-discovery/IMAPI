@@ -15,6 +15,7 @@ phases:
       - chmod +x aws_scripts/build.sh
       - aws_scripts/build.sh
       - cd node_api
+      - npm i
       - npm run build
   post_build:
     commands:

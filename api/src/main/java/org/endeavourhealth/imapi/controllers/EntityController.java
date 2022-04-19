@@ -21,6 +21,7 @@ import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -408,4 +409,15 @@ public class EntityController {
         LOG.debug("getNames");
         return entityService.getNames(iris);
     }
+	@GetMapping("/public/parentHierarchies")
+	public List<List<TTIriRef>> getParentHierarchies(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getParentHierarchies");
+		return entityService.getParentHierarchies(iri);
+	}
+
+	@GetMapping("/public/shortestParentHierarchy")
+	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
+		LOG.debug("getShortestPathBetweenNodes");
+		return entityService.getShortestPathBetweenNodes(ancestor, descendant);
+	}
 }

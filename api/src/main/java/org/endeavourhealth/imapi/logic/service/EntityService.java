@@ -900,8 +900,10 @@ public class EntityService {
         }
     }
 
-    public List<TTIriRef> getShortestPathBetweenNodes(String iri) {
-        List<List<TTIriRef>> paths = getParentHierarchies(iri);
+    public List<TTIriRef> getShortestPathBetweenNodes(String ancestor, String descendant) {
+        List<TTIriRef> shortestPath = new ArrayList<>();
+        List<List<TTIriRef>> paths = getParentHierarchies(descendant);
+        paths = paths.stream().filter(list -> indexOf(list, ancestor) != -1).collect(Collectors.toList());
 
         paths.sort(new Comparator<List<TTIriRef>>() {
             @Override
@@ -909,7 +911,26 @@ public class EntityService {
                 return a2.size() - a1.size(); // biggest to smallest
             }
         });
-        return paths.get(paths.size() - 1);
+
+        if (paths.size() != 0) {
+            shortestPath = paths.get(paths.size() - 1);
+            int index = indexOf(shortestPath, ancestor);
+            shortestPath = shortestPath.subList(0, index + 1);
+        }
+        return shortestPath;
+    }
+
+    private int indexOf(List<TTIriRef> iriRefs, String iri) {
+        boolean found = false;
+        int i = 0;
+        while (!found && i < iriRefs.size() - 1) {
+            if (iriRefs.get(i).getIri().equals(iri)) {
+                found = true;
+            } else {
+                i++;
+            }
+        }
+        return found ? i : -1;
     }
 }
 

@@ -411,8 +411,8 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/shortestParentHierarchy")
-	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "iri") String iri) {
+	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
 		LOG.debug("getShortestPathBetweenNodes");
-		return entityService.getShortestPathBetweenNodes(iri);
+		return entityService.getShortestPathBetweenNodes(ancestor, descendant);
 	}
 }

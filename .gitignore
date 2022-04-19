@@ -5,3 +5,5 @@ target
 .project
 .gradle
 build
+node_modules
+/node_api/dist/

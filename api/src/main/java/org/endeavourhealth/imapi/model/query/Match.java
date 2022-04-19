@@ -27,6 +27,16 @@ public class Match extends Profile {
 	Match test;
 	Function function;
 	boolean notExist;
+	boolean inverseOf;
+
+	public boolean isInverseOf() {
+		return inverseOf;
+	}
+
+	public Match setInverseOf(boolean inverseOf) {
+		this.inverseOf = inverseOf;
+		return this;
+	}
 
 	public boolean isIncludeMembers() {
 		return includeMembers;

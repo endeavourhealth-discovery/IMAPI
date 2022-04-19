@@ -7,9 +7,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
@@ -56,14 +60,25 @@ public class ExcelSetExporter {
      * @throws DataFormatException
      */
     public XSSFWorkbook getSetAsExcel(String setIri,boolean legacy) throws DataFormatException {
-        Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
+        Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri(),IM.HAS_MEMBER.getIri());
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
 
         if (entity.get(IM.DEFINITION) == null) {
+            if (entity.get(IM.HAS_MEMBER)==null)
             return workbook;
         }
-
-        String ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
+        String ecl;
+        if (entity.get(IM.HAS_MEMBER)!=null){
+            ecl="";
+            TTNode orNode= new TTNode();
+            entity.addObject(IM.DEFINITION,orNode);
+            for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
+                orNode.addObject(SHACL.OR,value);
+            }
+        }
+        else {
+            ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
+        }
         addEclToWorkbook(ecl);
         if (hasSubset(entity.getIri())) {
             Set<String> codesAddedToWorkbook = new HashSet<>();

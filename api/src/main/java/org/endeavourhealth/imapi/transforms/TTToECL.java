@@ -190,5 +190,24 @@ public class TTToECL {
 				return iri;
 
 	}
+
+	/**
+	 * Gets simple iri set as ECL for compatibility with definition
+	 * @param  members a TTArray or TTNNode containing an iri set
+	 * @return ECL String
+	 */
+
+	public static String getMembersAsECL(TTArray members) {
+		StringBuilder ecl= new StringBuilder();
+		boolean first = true;
+		String or = " OR ";
+		for (TTValue iriRef:members.getElements()){
+			if (!first)
+				ecl.append(or).append("\n");
+			addClass(iriRef.asIriRef(), ecl, true);
+			first= false;
+		}
+		return ecl.toString();
+	}
 }
 

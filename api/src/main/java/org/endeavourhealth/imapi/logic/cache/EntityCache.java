@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Reasoner;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 public class EntityCache implements Runnable{
 
+	public static TTContext defaultPrefixes;
 	public static final Object shapeLock= new Object();
 	public static final Object propertyLock= new Object();
 	public static final Object entityLock= new Object();
@@ -237,7 +238,17 @@ public class EntityCache implements Runnable{
 		return iris;
 	}
 
-
+	public static TTContext getDefaultPrefixes() {
+		if (defaultPrefixes==null) {
+			defaultPrefixes = new TTContext();
+			defaultPrefixes.add(RDFS.NAMESPACE, "rdfs");
+			defaultPrefixes.add(RDF.NAMESPACE, "rdf");
+			defaultPrefixes.add(IM.NAMESPACE, "im");
+			defaultPrefixes.add(XSD.NAMESPACE, "xsd");
+			defaultPrefixes.add(SNOMED.NAMESPACE, "sn");
+		}
+		return defaultPrefixes;
+	}
 
 
 	@Override

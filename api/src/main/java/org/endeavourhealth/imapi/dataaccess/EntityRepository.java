@@ -8,6 +8,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -278,5 +279,29 @@ public class EntityRepository {
 
         return result;
 
+    }
+
+    public List<ParentDto> findParentHierarchies(String iri) {
+        List<ParentDto> result = new ArrayList<>();
+
+        String spql = new StringJoiner(System.lineSeparator())
+                .add("SELECT * {")
+                .add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o .")
+                .add("?o rdfs:label ?name .")
+                .add("}")
+                .toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, spql);
+            qry.setBinding("s", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new ParentDto(bs.getValue("o").stringValue(), bs.getValue("name").stringValue(), null));
+                }
+            }
+        }
+
+        return result;
     }
 }

@@ -873,7 +873,7 @@ public class EntityService {
         return parentHierarchies;
     }
 
-    public void addParentHierarchiesRecursively(List<List<TTIriRef>> parentHierarchies, List<TTIriRef> currentPath, ParentDto parent) {
+    private void addParentHierarchiesRecursively(List<List<TTIriRef>> parentHierarchies, List<TTIriRef> currentPath, ParentDto parent) {
         if (parent != null && parent.hasMultipleParents()) {
             parentHierarchies.remove(currentPath);
             for (ParentDto parentsParent : parent.getParents()) {
@@ -890,7 +890,7 @@ public class EntityService {
         }
     }
 
-    public void addParentHierarchiesRecursively(ParentDto parent) {
+    private void addParentHierarchiesRecursively(ParentDto parent) {
         List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
         if (parents.size() != 0) {
             parent.setParents(parents);
@@ -915,7 +915,7 @@ public class EntityService {
         if (paths.size() != 0) {
             shortestPath = paths.get(paths.size() - 1);
             int index = indexOf(shortestPath, ancestor);
-            shortestPath = shortestPath.subList(0, index + 1);
+            shortestPath = shortestPath.subList(0, index == shortestPath.size() ? index : index + 1);
         }
         return shortestPath;
     }
@@ -923,7 +923,7 @@ public class EntityService {
     private int indexOf(List<TTIriRef> iriRefs, String iri) {
         boolean found = false;
         int i = 0;
-        while (!found && i < iriRefs.size() - 1) {
+        while (!found && i < iriRefs.size()) {
             if (iriRefs.get(i).getIri().equals(iri)) {
                 found = true;
             } else {

@@ -3,7 +3,7 @@ os: linux
 files:
   - source: /api/build/libs/imapi.war
     destination: /opt/tomcat/webapps
-  - source: /node_api/dist/*
+  - source: /node_api/dist
     destination: /opt/nodeapi/
 hooks:
   BeforeInstall:

@@ -858,5 +858,11 @@ public class EntityService {
         iriRefs.removeIf(iriRef -> iriRef.getIri().equals(iri));
         return iriRefs;
     }
+
+    public Set<TTIriRef> getNames(Set<String> iris) {
+        Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
+        entityRepository2.getNames(result);
+        return result;
+    }
 }
 

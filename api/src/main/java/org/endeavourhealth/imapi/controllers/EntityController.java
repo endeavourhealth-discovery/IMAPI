@@ -402,4 +402,10 @@ public class EntityController {
 		LOG.debug("getMappingSuggestions");
 		return entityService.getMappingSuggestions(iri, name);
 	}
+
+    @PostMapping("/public/getNames")
+    public Set<TTIriRef> getNames(@RequestBody Set<String> iris) {
+        LOG.debug("getNames");
+        return entityService.getNames(iris);
+    }
 }

@@ -404,6 +404,11 @@ public class EntityController {
 		return entityService.getMappingSuggestions(iri, name);
 	}
 
+    @PostMapping("/public/getNames")
+    public Set<TTIriRef> getNames(@RequestBody Set<String> iris) {
+        LOG.debug("getNames");
+        return entityService.getNames(iris);
+    }
 	@GetMapping("/public/parentHierarchies")
 	public List<List<TTIriRef>> getParentHierarchies(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getParentHierarchies");

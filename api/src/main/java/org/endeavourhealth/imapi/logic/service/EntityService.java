@@ -59,7 +59,7 @@ public class EntityService {
 
     public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
-        if (excludePredicates.contains(RDFS.LABEL.getIri())) {
+        if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
                     .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -860,6 +860,11 @@ public class EntityService {
         return iriRefs;
     }
 
+    public Set<TTIriRef> getNames(Set<String> iris) {
+        Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
+        entityRepository2.getNames(result);
+        return result;
+}
     public List<List<TTIriRef>> getParentHierarchies(String iri) {
         ParentDto parentHierarchy = new ParentDto(iri, null, null);
         addParentHierarchiesRecursively(parentHierarchy);

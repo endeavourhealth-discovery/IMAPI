@@ -344,9 +344,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/setExport")
-	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
+	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri, @RequestParam(name = "legacy") boolean legacy) throws DataFormatException, IOException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri,true);
+		XSSFWorkbook workbook = entityService.getSetExport(iri,legacy);
 		HttpHeaders headers = new HttpHeaders();
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

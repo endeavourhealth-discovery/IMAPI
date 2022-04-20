@@ -7,11 +7,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTToECL;
+import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -36,7 +39,6 @@ public class ExcelSetExporter {
     private XSSFWorkbook workbook;
     private XSSFFont font;
     private CellStyle headerStyle;
-    private CellStyle rowStyle;
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();
@@ -45,8 +47,6 @@ public class ExcelSetExporter {
         font.setBold(true);
         headerStyle.setFont(font);
         headerStyle.setWrapText(true);
-        this.rowStyle= workbook.createCellStyle();
-        rowStyle.setWrapText(true);
     }
 
     /**
@@ -63,23 +63,12 @@ public class ExcelSetExporter {
         Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri(),IM.HAS_MEMBER.getIri());
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
 
-        if (entity.get(IM.DEFINITION) == null) {
-            if (entity.get(IM.HAS_MEMBER)==null)
+        if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
-        }
-        String ecl;
-        if (entity.get(IM.HAS_MEMBER)!=null){
-            ecl="";
-            TTNode orNode= new TTNode();
-            entity.addObject(IM.DEFINITION,orNode);
-            for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
-                orNode.addObject(SHACL.OR,value);
-            }
-        }
-        else {
-            ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
-        }
-        addEclToWorkbook(ecl);
+
+        String ecl = getEcl(entity);
+        String ttl = getTtl(entity);
+        addDefinitionToWorkbook(ecl, ttl);
         if (hasSubset(entity.getIri())) {
             Set<String> codesAddedToWorkbook = new HashSet<>();
             Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
@@ -100,8 +89,38 @@ public class ExcelSetExporter {
                 addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
         }
 
-
         return workbook;
+    }
+
+    private String getEcl(TTEntity entity) throws DataFormatException {
+        if (entity.get(IM.DEFINITION) == null) {
+            if (entity.get(IM.HAS_MEMBER)==null)
+                return null;
+        }
+        String ecl;
+        if (entity.get(IM.HAS_MEMBER)!=null){
+            ecl="";
+            TTNode orNode= new TTNode();
+            entity.addObject(IM.DEFINITION,orNode);
+            for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
+                orNode.addObject(SHACL.OR,value);
+            }
+        }
+        else {
+            ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
+        }
+
+        return ecl;
+    }
+
+    private String getTtl(TTEntity entity) {
+        TTToTurtle turtleConverter = new TTToTurtle();
+        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+        TTContext context = new TTContext();
+        for(Namespace namespace : namespaces){
+            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+        }
+        return turtleConverter.transformEntity(entity, context);
     }
 
     private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyIrisAddedToWorkbook, TTEntity entity) {
@@ -151,15 +170,21 @@ public class ExcelSetExporter {
 
     }
 
+    private void addDefinitionToWorkbook(String ecl, String ttl) {
+        Sheet sheet = workbook.getSheet("Definition");
+        if (null == sheet) sheet = workbook.createSheet("Definition");
+        addHeaders(sheet, headerStyle, "ECL", "Turtle");
 
-    private void addEclToWorkbook(String ecl) {
-        Sheet sheet = workbook.getSheet("ECL set definition");
-        if (null == sheet) sheet = workbook.createSheet("ECL set definition");
-        addHeaders(sheet, headerStyle, "ECL");
-        Row row = addRow(sheet);
-        row.setHeight((short) 2300);
-        addCells(row, ecl);
-        sheet.autoSizeColumn(0);
+        String[] eclLines = ecl.split("\n");
+        String[] ttlLines = ttl.split("\n");
+
+        for (int i = 0; i < Math.max(eclLines.length, ttlLines.length); i++) {
+            String e = (i < eclLines.length) ? eclLines[i] : "";
+            String t = (i < ttlLines.length) ? ttlLines[i] : "";
+
+            Row row = addRow(sheet);
+            addCells(row, e, t);
+        }
     }
 
 
@@ -183,7 +208,6 @@ public class ExcelSetExporter {
     private void addCells(Row row, String... values) {
         for (String value : values) {
             Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
-            iriCell.setCellStyle(rowStyle);
             if (value != null) {
                 if (value.contains("\n")) {
                     iriCell.getRow()

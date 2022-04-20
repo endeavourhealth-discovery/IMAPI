@@ -63,23 +63,12 @@ public class ExcelSetExporter {
         Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri(),IM.HAS_MEMBER.getIri());
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
 
-        if (entity.get(IM.DEFINITION) == null) {
-            if (entity.get(IM.HAS_MEMBER)==null)
+        if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
-        }
-        String ecl;
-        if (entity.get(IM.HAS_MEMBER)!=null){
-            ecl="";
-            TTNode orNode= new TTNode();
-            entity.addObject(IM.DEFINITION,orNode);
-            for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
-                orNode.addObject(SHACL.OR,value);
-            }
-        }
-        else {
-            ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
-        }
-        addEclToWorkbook(ecl);
+
+        String ecl = getEcl(entity);
+        String ttl = getTtl(entity);
+        addDefinitionToWorkbook(ecl, ttl);
         if (hasSubset(entity.getIri())) {
             Set<String> codesAddedToWorkbook = new HashSet<>();
             Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
@@ -100,8 +89,38 @@ public class ExcelSetExporter {
                 addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
         }
 
-
         return workbook;
+    }
+
+    private String getEcl(TTEntity entity) throws DataFormatException {
+        if (entity.get(IM.DEFINITION) == null) {
+            if (entity.get(IM.HAS_MEMBER)==null)
+                return null;
+        }
+        String ecl;
+        if (entity.get(IM.HAS_MEMBER)!=null){
+            ecl="";
+            TTNode orNode= new TTNode();
+            entity.addObject(IM.DEFINITION,orNode);
+            for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
+                orNode.addObject(SHACL.OR,value);
+            }
+        }
+        else {
+            ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
+        }
+
+        return ecl;
+    }
+
+    private String getTtl(TTEntity entity) {
+        TTToTurtle turtleConverter = new TTToTurtle();
+        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
+        TTContext context = new TTContext();
+        for(Namespace namespace : namespaces){
+            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
+        }
+        return turtleConverter.transformEntity(entity, context);
     }
 
     private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyIrisAddedToWorkbook, TTEntity entity) {
@@ -151,47 +170,20 @@ public class ExcelSetExporter {
 
     }
 
-    private void addEclToWorkbook(String ecl) {
-        Sheet sheet = workbook.getSheet("ECL set definition");
-        if (null == sheet) sheet = workbook.createSheet("ECL set definition");
-        addHeaders(sheet, headerStyle, "ECL");
-        Row row = addRow(sheet);
-        row.setHeight((short) 2300);
-        addCells(row, ecl);
-        sheet.autoSizeColumn(0);
-    }
-
-    private void addDefinitionToWorkbook(TTEntity set) {
+    private void addDefinitionToWorkbook(String ecl, String ttl) {
         Sheet sheet = workbook.getSheet("Definition");
         if (null == sheet) sheet = workbook.createSheet("Definition");
-        addHeaders(sheet, headerStyle, "Iri", "Name", "ECL", "Turtle");
-        TTToTurtle turtleConverter = new TTToTurtle();
-        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
-        TTContext context = new TTContext();
-        for(Namespace namespace : namespaces){
-            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
-        }
-        String turtle = turtleConverter.transformEntity(set, context);
+        addHeaders(sheet, headerStyle, "ECL", "Turtle");
 
-        try {
-            String ecl = TTToECL.getExpressionConstraint(set.get(IM.DEFINITION),true);
+        String[] eclLines = ecl.split("\n");
+        String[] ttlLines = ttl.split("\n");
 
-            String[] eclLines = ecl.split("\n");
-            String[] ttlLines = turtle.split("\n");
+        for (int i = 0; i < Math.max(eclLines.length, ttlLines.length); i++) {
+            String e = (i < eclLines.length) ? eclLines[i] : "";
+            String t = (i < ttlLines.length) ? ttlLines[i] : "";
 
-            for (int i = 0; i < Math.max(eclLines.length, ttlLines.length); i++) {
-                String iri = (i==0) ? set.getIri() : "";
-                String name = (i==0) ? set.getName() : "";
-                String e = (i < eclLines.length) ? eclLines[i] : "";
-                String t = (i < ttlLines.length) ? ttlLines[i] : "";
-
-                Row row = addRow(sheet);
-                addCells(row, iri, name, e, t);
-            }
-
-        } catch (DataFormatException e){
             Row row = addRow(sheet);
-            addCells(row, set.getIri(), set.getName(), "Error", turtle);
+            addCells(row, e, t);
         }
     }
 

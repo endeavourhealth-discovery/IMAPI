@@ -4,7 +4,6 @@ import axios from 'axios';
 export default class SearchController {
   public path = '/'
   public router = express.Router();
-  private service;
 
   constructor() {
     this.initRoutes();
@@ -26,7 +25,7 @@ export default class SearchController {
       if (searchRequest.termFilter.length < 3) {
         const qry = this.buildCodeKeyQuery(searchRequest);
         result = await this.getEntities(qry);
-      } else if (!searchRequest.termFilter.contains(" ")) {
+      } else if (!searchRequest.termFilter.includes(" ")) {
         const qry = this.buildSimpleTermCodeMatch(searchRequest);
         result = await this.getEntities(qry);
       } else {
@@ -43,14 +42,8 @@ export default class SearchController {
     res.end();
   }
 
-
   private buildCodeKeyQuery(searchRequest: any): any {
-    return {
-      size: 100,
-      query: {
-        function_score: {
-          query: {
-            bool: {
+    return this.wrapBoolQuery({
               filter: this.getFilters(searchRequest),
               should: [
                 {
@@ -71,36 +64,13 @@ export default class SearchController {
                 }
               ],
               minimum_should_match: 1,
-            },
-          },
-          functions: [
-            {
-              filter: {
-                match_all: {
-                  boost: 1
-                }
-              },
-              field_value_factor: {
-                field: "weighting",
-                factor: 0.5,
-                missing: 1
-              }
-            }
-          ]
-        }
-      }
-    };
+            });
   }
 
   private buildSimpleTermCodeMatch(searchRequest:any): any {
     // Fix prefixes if contains ":"
 
-    return {
-      size: 100,
-      query: {
-        function_score: {
-          query: {
-            bool: {
+    return this.wrapBoolQuery({
               filter: this.getFilters(searchRequest),
               should: [
                 {
@@ -137,34 +107,11 @@ export default class SearchController {
                 }
               ],
               minimum_should_match: 1,
-            },
-          },
-          functions: [
-            {
-              filter: {
-                match_all: {
-                  boost: 1
-                }
-              },
-              field_value_factor: {
-                field: "weighting",
-                factor: 0.5,
-                missing: 1
-              }
-            }
-          ]
-        }
-      }
-    };
+            });
   }
 
   private buildSimpleTermMatch(searchRequest: any): any {
-    return {
-      size: 100,
-      query: {
-        function_score: {
-          query: {
-            bool: {
+    return this.wrapBoolQuery({
               filter: this.getFilters(searchRequest),
               should: [
                 {
@@ -185,25 +132,7 @@ export default class SearchController {
                 }
               ],
               minimum_should_match: 1,
-            },
-          },
-          functions: [
-            {
-              filter: {
-                match_all: {
-                  boost: 1
-                }
-              },
-              field_value_factor: {
-                field: "weighting",
-                factor: 0.5,
-                missing: 1
-              }
-            }
-          ],
-        }
-      }
-    };
+            });
   }
 
   private buildMultiWordMatch(searchRequest: any): any {
@@ -222,16 +151,20 @@ export default class SearchController {
       });
     }
 
+    return this.wrapBoolQuery( {
+              filter: this.getFilters(searchRequest),
+              must: musts,
+              minimum_should_match: 1,
+            });
+  }
+
+  private wrapBoolQuery(boolQuery: any): any {
     return {
       size: 100,
       query: {
         function_score: {
           query: {
-            bool: {
-              filter: this.getFilters(searchRequest),
-              must: musts,
-              minimum_should_match: 1,
-            },
+            bool: boolQuery,
           },
           functions: [
             {

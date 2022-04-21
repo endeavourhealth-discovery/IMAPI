@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -52,6 +54,7 @@ public class EntityService {
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
+    private TTEntityFilerRdf4j ttEntityFilerRdf4j = new TTEntityFilerRdf4j();
 
     public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
         return entityRepository2.getBundle(iri, predicates);
@@ -936,6 +939,29 @@ public class EntityService {
             }
         }
         return found ? i : -1;
+    }
+
+    public TTEntity saveTask(TTEntity entity) throws TTFilerException {
+        entity.setCrud(IM.UPDATE_ALL)
+                .addType(IM.TASK)
+                .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
+        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        return getBundle(entity.getIri(), null, 0).getEntity();
+    }
+
+    public TTEntity addConceptToTask(TTEntity entity) throws TTFilerException {
+        entity.setCrud(IM.ADD_QUADS)
+                .set(IM.IN_TASK, iri(entity.get(IM.IN_TASK).asLiteral().getValue()));
+        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        return getBundle(entity.getIri(), null, 0).getEntity();
+    }
+
+
+    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws TTFilerException {
+        TTEntity entity = getBundle(removedActionIri, null, 0).getEntity();
+        entity.set(IM.IN_TASK, new TTValue() {}).setCrud(IM.DELETE_ALL);
+        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        return getBundle(entity.getIri(), null, 0).getEntity();
     }
 }
 

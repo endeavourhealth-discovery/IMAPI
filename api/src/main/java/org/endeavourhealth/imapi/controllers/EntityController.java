@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -419,5 +420,26 @@ public class EntityController {
 	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
 		LOG.debug("getShortestPathBetweenNodes");
 		return entityService.getShortestPathBetweenNodes(ancestor, descendant);
+	}
+
+	@PostMapping("/task")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity createTask(@RequestBody TTEntity entity) throws TTFilerException {
+		LOG.debug("createTask");
+		return entityService.saveTask(entity);
+	}
+
+	@PostMapping("/task/action")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity addTaskAction(@RequestBody TTEntity entity) throws TTFilerException {
+		LOG.debug("addTaskAction");
+		return entityService.addConceptToTask(entity);
+	}
+
+	@DeleteMapping("/task/action")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri) throws TTFilerException {
+		LOG.debug("removeTaskAction");
+		return entityService.removeConceptFromTask(taskIri, removedActionIri);
 	}
 }

@@ -200,7 +200,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT ?c ?cname")
                 .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {

@@ -21,6 +21,7 @@ public class IM {
     public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
     public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");
     //public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
+    public static final TTIriRef IN_TASK = iri(NAMESPACE + "inTask");
 
     //Entity top level triples
     public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
@@ -43,7 +44,7 @@ public class IM {
   public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
   public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
   public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
-
+    public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
 
 
     //Collection predicates

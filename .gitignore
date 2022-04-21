@@ -7,3 +7,4 @@ target
 build
 node_modules
 /node_api/dist/
+.env

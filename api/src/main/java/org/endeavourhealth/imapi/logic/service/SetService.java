@@ -28,8 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Component
 public class SetService {
     private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
@@ -356,7 +354,7 @@ public class SetService {
     }
 
     private void addDefinitionsToWorkbook(TTEntity set, Workbook workbook, CellStyle headerStyle) {
-        Sheet sheet = workbook.createSheet("Concept summary");
+        Sheet sheet = workbook.createSheet("Definition");
         addHeaders(sheet, headerStyle, 10000, "Iri", "Name", "ECL", "Turtle");
 
         TTToTurtle turtleConverter = new TTToTurtle();

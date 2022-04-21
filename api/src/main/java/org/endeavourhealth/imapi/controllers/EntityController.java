@@ -21,6 +21,7 @@ import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -343,9 +344,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/setExport")
-	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
+	public HttpEntity<Object> getSetExport(@RequestParam(name = "iri") String iri, @RequestParam(name = "legacy") boolean legacy) throws DataFormatException, IOException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri,true);
+		XSSFWorkbook workbook = entityService.getSetExport(iri,legacy);
 		HttpHeaders headers = new HttpHeaders();
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -401,5 +402,22 @@ public class EntityController {
 	public List<TTIriRef> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
 		LOG.debug("getMappingSuggestions");
 		return entityService.getMappingSuggestions(iri, name);
+	}
+
+    @PostMapping("/public/getNames")
+    public Set<TTIriRef> getNames(@RequestBody Set<String> iris) {
+        LOG.debug("getNames");
+        return entityService.getNames(iris);
+    }
+	@GetMapping("/public/parentHierarchies")
+	public List<List<TTIriRef>> getParentHierarchies(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getParentHierarchies");
+		return entityService.getParentHierarchies(iri);
+	}
+
+	@GetMapping("/public/shortestParentHierarchy")
+	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
+		LOG.debug("getShortestPathBetweenNodes");
+		return entityService.getShortestPathBetweenNodes(ancestor, descendant);
 	}
 }

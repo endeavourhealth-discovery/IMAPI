@@ -210,6 +210,12 @@ public class EntityRepository2 {
         }
     }
 
+    public void getNames(Set<TTIriRef> iris) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            EntityRepository2.getIriNames(conn, iris);
+        }
+    }
+
 
     /**
      * Returns an entity iri and name from a code or a term code

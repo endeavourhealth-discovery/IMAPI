@@ -60,7 +60,7 @@ public class ExcelSetExporterTest {
     private TTEntity mockDefinition() {
         TTEntity definition = new TTEntity()
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
-            .setName("Concept Set- Barts Covid vaccine study medication concepts");
+            .setName("Concept SetModel- Barts Covid vaccine study medication concepts");
 
         definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety", "Value sets for the Barts Vaccine safety study")));
 

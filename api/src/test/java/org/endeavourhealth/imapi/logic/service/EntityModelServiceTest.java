@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
-class EntityServiceTest {
+class EntityModelServiceTest {
     @InjectMocks
     EntityService entityService;
 
@@ -119,7 +119,7 @@ class EntityServiceTest {
 //                .setObject(iri("http://endhealth.info/im#25451000252115")));
 //
 //        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
-//        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",Set.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()), 0).getEntity();
+//        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",SetModel.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()), 0).getEntity();
 //        assertNotNull(actual);
 //    }
 

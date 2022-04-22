@@ -36,15 +36,13 @@ public class IM {
     public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "Match");
-    public static final TTIriRef COMPARE_CLAUSE = iri(NAMESPACE + "Compare");
-    public static final TTIriRef ARGUMENT_CLAUSE = iri(NAMESPACE + "Argument");
-    public static final TTIriRef RANGE_CLAUSE = iri(NAMESPACE + "Range");
-    public static final TTIriRef FUNCTION_CLAUSE = iri(NAMESPACE + "Function");
+    public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
   public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
   public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
   public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
     public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
+  public static final TTIriRef SETMODEL = iri(NAMESPACE + "SetModel");
+  public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
 
 
     //Collection predicates

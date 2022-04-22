@@ -70,7 +70,7 @@ public class SearchRequest {
         return this;
     }
 
-    @Schema(name = "Entity subtype filter",
+    @Schema(name = "SetModel subtype filter",
         description = "List of IRI's of which the entity must be a descendant",
         example = "['http://endhealth.info/im#DiscoveryOntology']")
     public List<String> getDescendentFilter() {
@@ -82,7 +82,7 @@ public class SearchRequest {
         return this;
     }
 
-    @Schema(name = "Entity inheritance filter",
+    @Schema(name = "SetModel inheritance filter",
         description = "Marks the results if they are descendants of any of these entities, but does not filter by them",
         example = "['http://endhealth.info/im#Encounter']")
     public List<String> getMarkIfDescendentOf() {

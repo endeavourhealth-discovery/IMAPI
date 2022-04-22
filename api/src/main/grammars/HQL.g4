@@ -16,7 +16,7 @@ clause : (name |  iriRef | description)*;
 description : String;
 booleanClause: 'bool' clause operator (booleanClause | matchClause)+;
 operator: 'and' | 'or' | 'not';
-matchClause: 'match' matchAndFilter;
+matchClause: 'matchProperties' matchAndFilter;
 matchAndFilter :
      pathTo?
      entityType?

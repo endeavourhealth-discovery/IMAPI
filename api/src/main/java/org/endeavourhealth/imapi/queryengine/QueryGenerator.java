@@ -1,21 +1,7 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.query.Match;
-import org.endeavourhealth.imapi.model.query.Order;
-import org.endeavourhealth.imapi.model.query.Profile;
-import org.endeavourhealth.imapi.model.query.Sort;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-
 public class QueryGenerator {
+    /*
     private static final Logger LOG = LoggerFactory.getLogger(QueryGenerator.class);
 
     private final EntityService svc = new EntityService();
@@ -27,15 +13,15 @@ public class QueryGenerator {
     private Integer limit = null;
 
     public QueryGenerator getSelect(String iri) throws JsonProcessingException {
-        Profile json = loadProfile(iri);
+        Match json = loadProfile(iri);
 
         LOG.info("Generating Query");
         return generateQuery(json, "main");
     }
 
-    private Profile loadProfile(String iri) throws JsonProcessingException {
+    private Match loadProfile(String iri) throws JsonProcessingException {
         LOG.info("Loading query");
-        TTBundle bundle = svc.getBundle(iri, Set.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
+        TTBundle bundle = svc.getBundle(iri, SetModel.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
         TTArray def = bundle.getEntity().get(IM.DEFINITION);
         if (def == null)
@@ -45,16 +31,16 @@ public class QueryGenerator {
         LOG.info(query);
 
         LOG.info("Deserializing");
-        Profile json = new ObjectMapper().readValue(query, Profile.class);
+        Match json = new ObjectMapper().readValue(query, Match.class);
         LOG.info(json.toString());
 
         return json;
     }
 
-    private QueryGenerator generateQuery(Profile profile, String alias) throws JsonProcessingException {
+    private QueryGenerator generateQuery(SetModel profile, String alias) throws JsonProcessingException {
         return this.generateQuery(profile, alias, false);
     }
-    private QueryGenerator generateQuery(Profile profile, String alias, boolean pkOnly) throws JsonProcessingException {
+    private QueryGenerator generateQuery(SetModel profile, String alias, boolean pkOnly) throws JsonProcessingException {
         StringJoiner result = new StringJoiner(System.lineSeparator());
 
         try {
@@ -66,22 +52,28 @@ public class QueryGenerator {
                 .setAlias(alias);
 
             // fields.add(alias + "." + mainTable.getPk());
+            for (Match matchProperty:profile.getMust()){
+                if (matchProperty.getValueObject()!=null){
+                    addJoin(mainTable, matchProperty);
+                }
+                else
+                 conditions.add(getAnd(mainTable, matchProperty));
+            }
+            for (Match matchProperty:profile.getOr()){
+                    conditions.add(getOr(mainTable, matchProperty));
+            }
 
-            Match match = profile.getMatch();
-            if (match != null) {
-                addJoin(mainTable, match);
-            } else if (profile.getAnd() != null && !profile.getAnd().isEmpty()) {
-                conditions.add(getAnd(mainTable, profile.getAnd()));
-            } else if (profile.getOr() != null && !profile.getOr().isEmpty()) {
+
+            else if (profile.getOr() != null && !profile.getOr().isEmpty()) {
                 conditions.add(getOr(mainTable, profile.getOr()));
             }
 
             if (profile instanceof Match && ((Match)profile).getSort()!=null) {
-                Sort sort = ((Match)profile).getSort();
-                String direction = sort.getDirection() == null || sort.getDirection() == Order.ASCENDING ? " ASC" : " DESC";
-                orderBy.add(QueryGenHelper.getTableField(mainTable, sort.getOrderBy().getIri()) + direction);
-                if (sort.getCount() != null)
-                    limit = sort.getCount();
+                SortLimit sortLimit = ((Match)profile).getSort();
+                String direction = sortLimit.getDirection() == null || sortLimit.getDirection() == Order.ASCENDING ? " ASC" : " DESC";
+                orderBy.add(QueryGenHelper.getTableField(mainTable, sortLimit.getOrderBy().getIri()) + direction);
+                if (sortLimit.getCount() != null)
+                    limit = sortLimit.getCount();
             }
         } catch (Exception e) {
             LOG.error(result.toString());
@@ -118,17 +110,17 @@ public class QueryGenerator {
         return result.toString();
     }
 
-    private Table addJoin(Table parent, Match match) throws JsonProcessingException {
-        Table table = createTable(match.getEntityType().getIri());
+    private Table addJoin(Table parent, Match matchProperty) throws JsonProcessingException {
+        Table table = createTable(matchProperty.getValueObject().getEntityType().getIri());
 
         StringJoiner join = new StringJoiner(System.lineSeparator());
 
-        join.add(QueryGenHelper.getTableField(table, match.getPathTo().getIri()) + " = " + parent.getAlias() + "." + parent.getPk());
+        join.add(QueryGenHelper.getTableField(table, matchProperty.getPathTo().getIri()) + " = " + parent.getAlias() + "." + parent.getPk());
 
-        if (match.getAnd() != null && !match.getAnd().isEmpty()) {
-            join.add("AND " + getAnd(table, match.getAnd()));
-        } else if (match.getOr() != null && !match.getOr().isEmpty()) {
-            join.add("AND " + getOr(table, match.getOr()));
+        if (matchProperty.getMatch() != null && !matchProperty.getMatch().isEmpty()) {
+            join.add("AND " + getAnd(table, matchProperty.getMatch()));
+        } else if (matchProperty.getOr() != null && !matchProperty.getOr().isEmpty()) {
+            join.add("AND " + getOr(table, matchProperty.getOr()));
         }
 
         table.setJoin(join.toString());
@@ -136,42 +128,42 @@ public class QueryGenerator {
         return table;
     }
 
-    private String getAnd(Table table, List<Match> matches) throws JsonProcessingException {
-        return String.join("\nAND ", getStatements(table, matches));
+    private String getAnd(Table table, List<Match> matchProperties) throws JsonProcessingException {
+        return String.join("\nAND ", getStatements(table, matchProperties));
     }
 
-    private String getOr(Table table, List<Match> matches) throws JsonProcessingException {
-        return String.join("\nOR ", getStatements(table, matches));
+    private String getOr(Table table, List<Match> matchProperties) throws JsonProcessingException {
+        return String.join("\nOR ", getStatements(table, matchProperties));
     }
 
-    private List<String> getStatements(Table table, List<Match> matches) throws JsonProcessingException {
+    private List<String> getStatements(Table table, List<Match> matchProperties) throws JsonProcessingException {
         List<String> result = new ArrayList<>();
 
-        for(Match match: matches) {
-            if (match.getProperty()!=null) {
-                String condition = getCondition(table, match);
+        for(Match matchProperty : matchProperties) {
+            if (matchProperty.getProperty()!=null) {
+                String condition = getCondition(table, matchProperty);
                 if (condition != null)
                     result.add(condition);
-            } else if (match.getEntityType() != null) {
-                subJoin(table, match);
-            } else if (match.getAnd() != null && !match.getAnd().isEmpty()) {
-                result.add("(" + getAnd(table, match.getAnd()) + ")");
-            } else if (match.getOr() != null && !match.getOr().isEmpty()) {
-                result.add("(" + getOr(table, match.getOr()) + ")");
+            } else if (matchProperty.getEntityType() != null) {
+                subJoin(table, matchProperty);
+            } else if (matchProperty.getMatch() != null && !matchProperty.getMatch().isEmpty()) {
+                result.add("(" + getAnd(table, matchProperty.getMatch()) + ")");
+            } else if (matchProperty.getOr() != null && !matchProperty.getOr().isEmpty()) {
+                result.add("(" + getOr(table, matchProperty.getOr()) + ")");
             } else {
-                throw new IllegalArgumentException("Unknown match type");
+                throw new IllegalArgumentException("Unknown matchProperty type");
             }
         }
 
         return result;
     }
 
-    private String getCondition(Table table, Match match) throws JsonProcessingException {
-        if (IM.HAS_PROFILE.equals(match.getProperty())) {
+    private String getCondition(Table table, Match matchProperty) throws JsonProcessingException {
+        if (IM.HAS_PROFILE.equals(matchProperty.getProperty())) {
             // Subselect
             StringJoiner subselect = new StringJoiner(" ");
 
-            Profile profile = loadProfile(match.getValueIn().get(0).getIri());
+            Match profile = loadProfile(matchProperty.getValueIn().get(0).getIri());
             QueryGenerator sub = new QueryGenerator().generateQuery(profile, "sub", true);
 
             subselect.add(table.getAlias() + "." + table.getPk());
@@ -179,53 +171,53 @@ public class QueryGenerator {
             subselect.add(sub.build());
             subselect.add(")");
 
-            if (match.getValueVar() != null)
+            if (matchProperty.getValueVar() != null)
                 LOG.warn("Unknown field!");
 
             return subselect.toString();
         } else {
             String left;
-            if (match.getPathTo() == null) {
-                left = QueryGenHelper.getTableField(table, match.getProperty().getIri());
+            if (matchProperty.getPathTo() == null) {
+                left = QueryGenHelper.getTableField(table, matchProperty.getProperty().getIri());
             } else {
-                Table sub = addJoin(table, match);
-                left = QueryGenHelper.getTableField(sub, match.getProperty().getIri());
+                Table sub = addJoin(table, matchProperty);
+                left = QueryGenHelper.getTableField(sub, matchProperty.getProperty().getIri());
             }
 
             String right = null;
-            if (match.getValueIn() != null) {
+            if (matchProperty.getValueIn() != null) {
                 List<String> values = new ArrayList<>();
-                match.getValueIn().forEach(i -> values.add("\"" + QueryGenHelper.getValue(i) + "\""));
+                matchProperty.getValueIn().forEach(i -> values.add("\"" + QueryGenHelper.getValue(i) + "\""));
 
                 right = ("IN (" + String.join(", ", values) + ")");
-            } else if (match.getValueCompare() != null) {
-                right = (QueryGenHelper.getComparison(match.getValueCompare().getComparison())) + " " + (match.getValueCompare().getValue());
-            } else if (match.getValueRange() != null) {
-                right = "BETWEEN " + match.getValueRange().getFrom().getValue() + " AND " + match.getValueRange().getTo().getValue();
-            } else if (match.isNotExist()) {
+            } else if (matchProperty.getValueCompare() != null) {
+                right = (QueryGenHelper.getComparison(matchProperty.getValueCompare().getComparison())) + " " + (matchProperty.getValueCompare().getValue());
+            } else if (matchProperty.getValueRange() != null) {
+                right = "BETWEEN " + matchProperty.getValueRange().getFrom().getValue() + " AND " + matchProperty.getValueRange().getTo().getValue();
+            } else if (matchProperty.isNotExist()) {
                 right = ("IS NULL");
             }
 
-            if (match.getValueVar() != null)
-                fields.add(left + " AS " + match.getValueVar());
+            if (matchProperty.getValueVar() != null)
+                fields.add(left + " AS " + matchProperty.getValueVar());
 
             return right == null ? null :(left + " " + right);
         }
     }
 
-    private void subJoin(Table table, Match match) throws JsonProcessingException {
-        Table sub = createTable(match.getEntityType().getIri());
-        sub.setJoin(table.getAlias() + "." + table.getPk() + " = " + QueryGenHelper.getTableField(sub, match.getPathTo().getIri()));
+    private void subJoin(Table table, Match matchProperty) throws JsonProcessingException {
+        Table sub = createTable(matchProperty.getEntityType().getIri());
+        sub.setJoin(table.getAlias() + "." + table.getPk() + " = " + QueryGenHelper.getTableField(sub, matchProperty.getPathTo().getIri()));
 
-        QueryGenerator qry = new QueryGenerator().generateQuery(match, sub.getAlias() + "_sub", true);
+        QueryGenerator qry = new QueryGenerator().generateQuery(matchProperty, sub.getAlias() + "_sub", true);
 
         qry.fields.forEach(f -> fields.add(f.replaceAll(sub.getAlias() + "_sub\\.", sub.getAlias() + ".")));
         qry.fields.clear();
         qry.fields.add(sub.getAlias() + "_sub." + sub.getPk());
-        qry.conditions.add(table.getAlias() + "." + table.getPk() + " = " + sub.getAlias() + "_sub." + QueryGenHelper.getField(sub, match.getPathTo().getIri()));
+        qry.conditions.add(table.getAlias() + "." + table.getPk() + " = " + sub.getAlias() + "_sub." + QueryGenHelper.getField(sub, matchProperty.getPathTo().getIri()));
 
         conditions.add(sub.getAlias() + "." + sub.getPk() + " = (" + qry.build() + ")");
-        conditions.add(getCondition(sub, match.getTest()));
+        conditions.add(getCondition(sub, matchProperty.getTest()));
 
     }
 
@@ -240,4 +232,6 @@ public class QueryGenerator {
 
         return result;
     }
+
+     */
 }

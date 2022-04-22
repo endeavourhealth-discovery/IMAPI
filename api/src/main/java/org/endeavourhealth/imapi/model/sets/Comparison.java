@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.sets;
 
 public enum Comparison {
 	EQUAL,

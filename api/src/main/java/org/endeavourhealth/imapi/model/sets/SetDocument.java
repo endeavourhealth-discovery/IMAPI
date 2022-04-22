@@ -11,6 +11,39 @@ import java.util.List;
 public class SetDocument {
 	private TTIriRef id;
 	private List<SetModel> setModel;
+	private List<SetModel> profile;
+
+	public List<SetModel> getSetModel() {
+		return setModel;
+	}
+
+	public SetDocument setSetModel(List<SetModel> setModel) {
+		this.setModel = setModel;
+		return this;
+	}
+
+	public SetDocument addSetModel(SetModel set){
+		if (this.setModel==null)
+			this.setModel= new ArrayList<>();
+		this.setModel.add(set);
+		return this;
+	}
+
+	public List<SetModel> getProfile() {
+		return profile;
+	}
+
+	public SetDocument setProfile(List<SetModel> profile) {
+		this.profile = profile;
+		return this;
+	}
+
+	public SetDocument addProfile(SetModel profile){
+		if (this.profile==null)
+			this.profile= new ArrayList<>();
+		this.profile.add(profile);
+		return this;
+	}
 
 	public TTIriRef getId() {
 		return id;
@@ -22,21 +55,4 @@ public class SetDocument {
 	}
 
 
-
-
-	public List<SetModel> getSet() {
-		return setModel;
-	}
-
-	public SetDocument setSet(List<SetModel> setModel) {
-		this.setModel = setModel;
-		return this;
-	}
-
-	public SetDocument addSet(SetModel setModel){
-		if (this.setModel ==null)
-			this.setModel = new ArrayList<>();
-		this.setModel.add(setModel);
-		return this;
-	}
 }

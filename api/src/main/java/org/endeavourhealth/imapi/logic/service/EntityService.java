@@ -857,10 +857,10 @@ public class EntityService {
         return unassignedList;
     }
 
-    public List<TTIriRef> getMappingSuggestions(String iri, String name) {
-        List<TTIriRef> iriRefs = entityRepository.findEntitiesByName(name);
-        iriRefs.removeIf(iriRef -> iriRef.getIri().equals(iri));
-        return iriRefs;
+    public List<TTEntity> getMappingSuggestions(String iri, String name) {
+        List<TTEntity> suggestions = entityRepository.findEntitiesByName(name);
+        suggestions.removeIf(iriRef -> iriRef.getIri().equals(iri));
+        return suggestions;
     }
 
     public Set<TTIriRef> getNames(Set<String> iris) {
@@ -960,6 +960,13 @@ public class EntityService {
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws TTFilerException {
         TTEntity entity = getBundle(removedActionIri, null, 0).getEntity();
         entity.set(IM.IN_TASK, new TTValue() {}).setCrud(IM.DELETE_ALL);
+        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        return getBundle(entity.getIri(), null, 0).getEntity();
+    }
+
+    public TTEntity saveMapping(String mappedFrom, String mappedTo) throws TTFilerException {
+        TTEntity entity = getBundle(mappedFrom, null, 0).getEntity();
+        entity.setCrud(IM.UPDATE_PREDICATES).set(IM.MATCHED_TO, iri(mappedTo));
         ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
         return getBundle(entity.getIri(), null, 0).getEntity();
     }

@@ -400,7 +400,7 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/mappingSuggestions")
-	public List<TTIriRef> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+	public List<TTEntity> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
 		LOG.debug("getMappingSuggestions");
 		return entityService.getMappingSuggestions(iri, name);
 	}
@@ -441,5 +441,12 @@ public class EntityController {
 	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri) throws TTFilerException {
 		LOG.debug("removeTaskAction");
 		return entityService.removeConceptFromTask(taskIri, removedActionIri);
+	}
+
+	@PostMapping("/mapping")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity addMapping(@RequestParam(name = "mappedFrom") String mappedFrom, @RequestParam(name = "mappedTo") String mappedTo) throws TTFilerException {
+		LOG.debug("addMapping");
+		return entityService.saveMapping(mappedFrom, mappedTo);
 	}
 }

@@ -36,10 +36,7 @@ public class IM {
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
-  public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
-  public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
-  public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
-  public static final TTIriRef SETMODEL = iri(NAMESPACE + "SetModel");
+  public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
   public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
 
 

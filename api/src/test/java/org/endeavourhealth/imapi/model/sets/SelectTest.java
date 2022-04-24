@@ -1,8 +1,5 @@
 package org.endeavourhealth.imapi.model.sets;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.tripletree.TTIri;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -10,7 +7,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.zip.DataFormatException;
@@ -21,8 +17,8 @@ class SelectTest {
 	public void createShapeQuery() throws IOException, DataFormatException {
 
 		/*
-		//SetModel query= buildEntityModel1();
-		SetModel query = buildQuery2();
+		//DataSet query= buildEntityModel1();
+		DataSet query = buildQuery2();
 
 
 
@@ -30,7 +26,7 @@ class SelectTest {
 		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		try (FileWriter fw= new FileWriter("c:\\temp\\SetModel.json")) {
+		try (FileWriter fw= new FileWriter("c:\\temp\\DataSet.json")) {
 			fw.write(om.writerWithDefaultPrettyPrinter().writeValueAsString(query));
 		}
 		try (FileWriter fw= new FileWriter("c:\\temp\\Result.json")) {
@@ -42,31 +38,31 @@ class SelectTest {
 		 
 	}
 
-	private SetModel buildQuery2() throws DataFormatException {
-		SetModel setModel = new SetModel()
-			.addProperty(new PropertyMap()
+	private DataSet buildQuery2() throws DataFormatException {
+		DataSet dataSet = new DataSet()
+			.addSelect(new Select()
 				.setVar("id")
 				.setAlias("id"))
-				.addProperty(new PropertyMap()
+				.addSelect(new Select()
 					.setVar("code")
 					.setAlias("code"))
-					.addProperty(new PropertyMap()
+					.addSelect(new Select()
 						.setVar("label")
 						.setAlias("name"));
-		setModel.addProperty(new PropertyMap()
+		dataSet.addSelect(new Select()
 			.setVar("matchedTo")
-			.setObject(new SetModel()
-				.addProperty(new PropertyMap()
+			.setObject(new DataSet()
+				.addSelect(new Select()
 					.setVar("legacyCode")
 					.setAlias("legacyCode"))
-				.addProperty(new PropertyMap()
+				.addSelect(new Select()
 					.setVar("legacyLabel")
 					.setAlias("legacyTerm"))
-				.addProperty(new PropertyMap()
+				.addSelect(new Select()
 					.setVar("usage")
 					.setAlias("usage"))));
 
-		setModel
+		dataSet
 			.setMatch(new Match()
 				.setEntityId(TTIri.iri(IM.NAMESPACE+"VSET_EncounterTypes"))
 					.setIncludeMembers(true)
@@ -93,16 +89,16 @@ class SelectTest {
 					.addMay(new Match()
 						.setProperty(IM.USAGE_TOTAL)
 						.setValueVar("usage")))));
-		return setModel;
+		return dataSet;
 	}
 
-	private SetModel buildQuery1() {
-		SetModel query = new SetModel();
-		query.addProperty(new PropertyMap()
+	private DataSet buildQuery1() {
+		DataSet query = new DataSet();
+		query.addSelect(new Select()
 				.setVar("id"))
-			.addProperty(new PropertyMap().setVar("label"))
-			.addProperty( new PropertyMap().setVar("code"))
-			.addProperty(new PropertyMap().setVar("im:usage"))
+			.addSelect(new Select().setVar("label"))
+			.addSelect( new Select().setVar("code"))
+			.addSelect(new Select().setVar("im:usage"))
 				.setMatch(new Match()
 					.setEntityType(TTIriRef.iri(IM.CONCEPT.getIri()))
 					.setGraph(SNOMED.GRAPH_SNOMED)

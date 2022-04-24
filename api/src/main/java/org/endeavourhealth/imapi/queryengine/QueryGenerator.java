@@ -21,7 +21,7 @@ public class QueryGenerator {
 
     private Match loadProfile(String iri) throws JsonProcessingException {
         LOG.info("Loading query");
-        TTBundle bundle = svc.getBundle(iri, SetModel.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
+        TTBundle bundle = svc.getBundle(iri, DataSet.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
         TTArray def = bundle.getEntity().get(IM.DEFINITION);
         if (def == null)
@@ -37,10 +37,10 @@ public class QueryGenerator {
         return json;
     }
 
-    private QueryGenerator generateQuery(SetModel profile, String alias) throws JsonProcessingException {
+    private QueryGenerator generateQuery(DataSet profile, String alias) throws JsonProcessingException {
         return this.generateQuery(profile, alias, false);
     }
-    private QueryGenerator generateQuery(SetModel profile, String alias, boolean pkOnly) throws JsonProcessingException {
+    private QueryGenerator generateQuery(DataSet profile, String alias, boolean pkOnly) throws JsonProcessingException {
         StringJoiner result = new StringJoiner(System.lineSeparator());
 
         try {

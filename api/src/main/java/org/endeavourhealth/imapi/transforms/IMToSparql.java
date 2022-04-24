@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
+import org.endeavourhealth.imapi.model.sets.DataSet;
 import org.endeavourhealth.imapi.model.sets.Match;
-import org.endeavourhealth.imapi.model.sets.SetModel;
-import org.endeavourhealth.imapi.model.sets.PropertyMap;
+import org.endeavourhealth.imapi.model.sets.Select;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -18,7 +18,7 @@ public class IMToSparql {
 	private final Map<String,String> aliasMap= new HashMap<>();
 	private String tabs="";
 	private int o=0;
-	private SetModel query;
+	private DataSet query;
 	private java.util.Set aliases = new HashSet<>();
 
 
@@ -44,7 +44,7 @@ public class IMToSparql {
 	 * @param query Query Obiect containing select where
 	 * @return String of SPARQL
 	 */
-	public String convert(SetModel query) throws DataFormatException {
+	public String convert(DataSet query) throws DataFormatException {
 		this.query= query;
 		StringBuilder selectQl= new StringBuilder();
 		selectQl.append(getDefaultPrefixes());
@@ -59,13 +59,13 @@ public class IMToSparql {
 	}
 
 	/**
-	 * Processes the setModel clause and binds to the variables created in the where clause
-	 * @param selectQl Sparql setModel clause thus far
-	 * @param setModel the setModel property value being selected
+	 * Processes the dataSet clause and binds to the variables created in the where clause
+	 * @param selectQl Sparql dataSet clause thus far
+	 * @param dataSet the dataSet property value being selected
 	 */
-	private void select(StringBuilder selectQl, String subject, SetModel setModel) throws DataFormatException {
-		if (setModel.getProperty()!=null) {
-			for (PropertyMap selection : setModel.getProperty()) {
+	private void select(StringBuilder selectQl, String subject, DataSet dataSet) throws DataFormatException {
+		if (dataSet.getSelect()!=null) {
+			for (Select selection : dataSet.getSelect()) {
 				String var = selection.getVar();
 				if (isId(var))
 					selectQl.append(subject).append(" ");

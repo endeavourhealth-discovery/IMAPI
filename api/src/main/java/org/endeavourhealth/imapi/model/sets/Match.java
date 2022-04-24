@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeMembers","graph","property","inverseOf","valueCompare","valueIn","valueNotIn",
-"valueRange","valueFunction","valueWithin","valueVar","valueObject","isIndex","and","or","may"})
+"valueRange","valueFunction","valueWithin","valueVar","valueObject","isIndex","and","or","may","sortLimit","function"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends TTIri {
 
@@ -21,12 +21,12 @@ public class Match extends TTIri {
 	private TTIriRef entityType;
 	private TTIriRef entityId;
 	private List<TTIri> subsetOf;
+
 	TTIriRef property;
 	Compare valueCompare;
 	List<TTIriRef> valueIn;
 	List<TTIriRef> valueNotIn;
 	Range valueRange;
-	Function valueFunction;
 	String valueVar;
 	Match valueObject;
 	Function function;
@@ -35,6 +35,13 @@ public class Match extends TTIri {
 	boolean notExist=false;
 	boolean includeMembers=false;
 	boolean isIndex;
+
+
+	public Match setName(String name){
+		super.setName(name);
+		return this;
+	}
+
 
 	public boolean isIndex() {
 		return isIndex;
@@ -152,12 +159,6 @@ public class Match extends TTIri {
 			this.may= new ArrayList<>();
 		this.may.add(may);
 		return this;
-	}
-
-
-	@Override
-	public String getDescription() {
-		return super.getDescription();
 	}
 
 	@Override
@@ -289,14 +290,7 @@ public class Match extends TTIri {
 		return this;
 	}
 
-	public Function getValueFunction() {
-		return valueFunction;
-	}
 
-	public Match setValueFunction(Function valueFunction) {
-		this.valueFunction = valueFunction;
-		return this;
-	}
 
 	public String getValueVar() {
 		return valueVar;

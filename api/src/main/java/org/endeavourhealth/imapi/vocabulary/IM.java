@@ -42,6 +42,7 @@ public class IM {
   public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
     public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
   public static final TTIriRef SETMODEL = iri(NAMESPACE + "SetModel");
+  public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
   public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
 
 

@@ -11,8 +11,8 @@ import org.endeavourhealth.imapi.dataaccess.OpenSearchRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.sets.SetModel;
-import org.endeavourhealth.imapi.model.sets.PropertyMap;
+import org.endeavourhealth.imapi.model.sets.DataSet;
+import org.endeavourhealth.imapi.model.sets.Select;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.transforms.IMToSparql;
@@ -45,7 +45,7 @@ public class SearchService {
 	 * @return a generic JSONArray containing the results
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public JSONArray queryIM(SetModel query) throws DataFormatException {
+	public JSONArray queryIM(DataSet query) throws DataFormatException {
 		IMToSparql converter= new IMToSparql();
 		String spq= converter.convert(query);
 		JSONArray result= new JSONArray();
@@ -65,7 +65,7 @@ public class SearchService {
 		return result;
 	}
 
-	private void bindResults(IMToSparql converter, String subject, SetModel setModel, BindingSet bs,
+	private void bindResults(IMToSparql converter, String subject, DataSet dataSet, BindingSet bs,
 													 List<JSONObject> result, JSONObject root, Map<Value, JSONObject> entityMap) {
 
 		Value entityIri= bs.getValue(subject);
@@ -74,8 +74,8 @@ public class SearchService {
 			result.add(root);
 		}
 		root= entityMap.get(entityIri);
-		if (setModel.getProperty()!=null) {
-			for (PropertyMap selection : setModel.getProperty()) {
+		if (dataSet.getSelect()!=null) {
+			for (Select selection : dataSet.getSelect()) {
 				String var = selection.getVar();
 				String alias= selection.getAlias();
 				if (alias!=null){

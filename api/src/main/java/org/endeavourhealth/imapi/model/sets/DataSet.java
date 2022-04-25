@@ -13,19 +13,35 @@ import java.util.List;
 
 @JsonPropertyOrder ({"iri","name","description","var","subset","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class SetModel extends TTIri{
+public class DataSet extends TTIri{
 
 	private TTIriRef graph;
-	List<PropertyMap> property;
-	private List<SetModel> subset;
+	private List<Select> select;
+	private List<DataSet> subset;
+	private List<Select> groupBy;
+	private Match match;
 
-	Match match;
 
+	public List<Select> getGroupBy() {
+		return groupBy;
+	}
+
+	public DataSet setGroupBy(List<Select> groupBy) {
+		this.groupBy = groupBy;
+		return this;
+	}
+
+	public DataSet addGroupBy(Select group){
+		if (this.groupBy==null)
+			this.groupBy= new ArrayList<>();
+		this.groupBy.add(group);
+		return this;
+	}
 	public Match getMatch() {
 		return match;
 	}
 
-	public SetModel setMatch(Match match) {
+	public DataSet setMatch(Match match) {
 		this.match = match;
 		return this;
 	}
@@ -34,7 +50,7 @@ public class SetModel extends TTIri{
 		return graph;
 	}
 
-	public SetModel setGraph(TTIriRef graph) {
+	public DataSet setGraph(TTIriRef graph) {
 		this.graph = graph;
 		return this;
 	}
@@ -44,34 +60,34 @@ public class SetModel extends TTIri{
 
 
 
-	public List<SetModel> getSubset() {
+	public List<DataSet> getSubset() {
 		return subset;
 	}
 
-	public SetModel setSubset(List<SetModel> setModels) {
-		this.subset = setModels;
+	public DataSet setSubset(List<DataSet> dataSets) {
+		this.subset = dataSets;
 		return this;
 	}
-	public SetModel addSubset(SetModel group){
+	public DataSet addSubset(DataSet group){
 		if (this.subset ==null)
 			this.subset = new ArrayList<>();
 		this.subset.add(group);
 		return this;
 	}
 
-	public List<PropertyMap> getProperty() {
-		return property;
+	public List<Select> getSelect() {
+		return select;
 	}
 
-	public SetModel setProperty(List<PropertyMap> property) {
-		this.property = property;
+	public DataSet setSelect(List<Select> select) {
+		this.select = select;
 		return this;
 	}
 
-	public SetModel addProperty(PropertyMap property){
-		if (this.property==null)
-			this.property= new ArrayList<>();
-		this.property.add(property);
+	public DataSet addSelect(Select select){
+		if (this.select ==null)
+			this.select = new ArrayList<>();
+		this.select.add(select);
 		return this;
 	}
 

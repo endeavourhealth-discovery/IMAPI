@@ -6,7 +6,6 @@ public class Compare {
 
 	Comparison comparison;
 	String valueData;
-	Function function;
 
 	public Comparison getComparison() {
 		return comparison;
@@ -40,12 +39,5 @@ public class Compare {
 	}
 
 
-	public Function getFunction() {
-		return function;
-	}
 
-	public Compare setFunction(Function function) {
-		this.function = function;
-		return this;
-	}
 }

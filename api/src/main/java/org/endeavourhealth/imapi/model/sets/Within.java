@@ -7,7 +7,17 @@ public class Within {
 	private Range range;
 	private Compare compare;
 	private String of;
+	private Function function;
 	private Match targetMatch;
+
+	public Function getFunction() {
+		return function;
+	}
+
+	public Within setFunction(Function function) {
+		this.function = function;
+		return this;
+	}
 
 	public Range getRange() {
 		return range;

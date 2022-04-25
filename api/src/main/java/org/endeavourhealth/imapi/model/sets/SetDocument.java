@@ -6,39 +6,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A collection of setModel definitions for use in query and reporting or model transformation
+ * A collection of dataSet definitions for use in query and reporting or model transformation
  */
 public class SetDocument {
 	private TTIriRef id;
-	private List<SetModel> setModel;
-	private List<SetModel> profile;
+	private List<DataSet> dataSet;
+	private List<DataSet> profile;
 
-	public List<SetModel> getSetModel() {
-		return setModel;
+	public List<DataSet> getSetModel() {
+		return dataSet;
 	}
 
-	public SetDocument setSetModel(List<SetModel> setModel) {
-		this.setModel = setModel;
+	public SetDocument setSetModel(List<DataSet> dataSet) {
+		this.dataSet = dataSet;
 		return this;
 	}
 
-	public SetDocument addSetModel(SetModel set){
-		if (this.setModel==null)
-			this.setModel= new ArrayList<>();
-		this.setModel.add(set);
+	public SetDocument addSetModel(DataSet set){
+		if (this.dataSet ==null)
+			this.dataSet = new ArrayList<>();
+		this.dataSet.add(set);
 		return this;
 	}
 
-	public List<SetModel> getProfile() {
+	public List<DataSet> getProfile() {
 		return profile;
 	}
 
-	public SetDocument setProfile(List<SetModel> profile) {
+	public SetDocument setProfile(List<DataSet> profile) {
 		this.profile = profile;
 		return this;
 	}
 
-	public SetDocument addProfile(SetModel profile){
+	public SetDocument addProfile(DataSet profile){
 		if (this.profile==null)
 			this.profile= new ArrayList<>();
 		this.profile.add(profile);

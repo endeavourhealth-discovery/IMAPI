@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SetModel of static methods that produce text summaries for shapes
+ * DataSet of static methods that produce text summaries for shapes
  *
  */
 public class Summariser {

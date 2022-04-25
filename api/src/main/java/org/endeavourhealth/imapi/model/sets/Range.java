@@ -4,6 +4,8 @@ public class Range {
 	Compare from;
 	Compare to;
 
+
+
 	public Compare getFrom() {
 		return from;
 	}

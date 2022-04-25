@@ -7,9 +7,9 @@ public class SetFactory {
 
 
 
-	public static SetModel createSetModelFromJson(String json) throws JsonProcessingException {
+	public static DataSet createSetModelFromJson(String json) throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readValue(json, SetModel.class);
+		return objectMapper.readValue(json, DataSet.class);
 	}
 
 }

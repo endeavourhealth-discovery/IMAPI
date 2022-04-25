@@ -1,9 +1,10 @@
 package org.endeavourhealth.imapi.model.valuset;
 
 public enum MemberType {
-    INCLUDED,
+    INCLUDED_DESC,
     EXCLUDED,
     SUBSET,
     EXPANDED,
-    COMPLEX
+    COMPLEX,
+    INCLUDED_SELF
 }

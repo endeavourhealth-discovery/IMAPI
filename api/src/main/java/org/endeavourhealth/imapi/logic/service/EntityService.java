@@ -867,7 +867,8 @@ public class EntityService {
         Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
         entityRepository2.getNames(result);
         return result;
-}
+    }
+
     public List<List<TTIriRef>> getParentHierarchies(String iri) {
         ParentDto parentHierarchy = new ParentDto(iri, null, null);
         addParentHierarchiesRecursively(parentHierarchy);
@@ -885,7 +886,7 @@ public class EntityService {
         if (parent != null && parent.hasMultipleParents()) {
             parentHierarchies.remove(currentPath);
             for (ParentDto parentsParent : parent.getParents()) {
-                List<TTIriRef> path =  new ArrayList<>(currentPath);
+                List<TTIriRef> path = new ArrayList<>(currentPath);
                 path.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
                 parentHierarchies.add(path);
                 addParentHierarchiesRecursively(parentHierarchies, path, parentsParent);
@@ -959,16 +960,29 @@ public class EntityService {
 
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws TTFilerException {
         TTEntity entity = getBundle(removedActionIri, null, 0).getEntity();
-        entity.set(IM.IN_TASK, new TTValue() {}).setCrud(IM.DELETE_ALL);
+        entity.set(IM.IN_TASK, new TTValue() {
+        }).setCrud(IM.UPDATE_PREDICATES);
         ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
         return getBundle(entity.getIri(), null, 0).getEntity();
     }
 
-    public TTEntity saveMapping(String mappedFrom, String mappedTo) throws TTFilerException {
-        TTEntity entity = getBundle(mappedFrom, null, 0).getEntity();
-        entity.setCrud(IM.UPDATE_PREDICATES).set(IM.MATCHED_TO, iri(mappedTo));
-        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-        return getBundle(entity.getIri(), null, 0).getEntity();
+    public List<TTEntity> saveMapping(Map<String, List<String>> mappings) throws TTFilerException {
+        List<TTEntity> result = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
+            TTEntity entity = getBundle(entry.getKey(), null, 0).getEntity();
+            entity.set(IM.MAPPED_TO, new TTArray()).setCrud(IM.DELETE_ALL);
+            ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+            entity.setCrud(IM.ADD_QUADS);
+            for (String iri : entry.getValue()) {
+                if (entity.get(IM.MAPPED_TO) == null) {
+                    entity.set(IM.MAPPED_TO, new TTArray());
+                }
+                entity.get(IM.MAPPED_TO).add(iri(iri));
+            }
+            ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+            result.add(getBundle(entity.getIri(), null, 0).getEntity());
+        }
+        return result;
     }
 }
 

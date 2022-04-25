@@ -445,8 +445,8 @@ public class EntityController {
 
 	@PostMapping("/mapping")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity addMapping(@RequestParam(name = "mappedFrom") String mappedFrom, @RequestParam(name = "mappedTo") String mappedTo) throws TTFilerException {
+	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings) throws TTFilerException {
 		LOG.debug("addMapping");
-		return entityService.saveMapping(mappedFrom, mappedTo);
+		return entityService.saveMapping(mappings);
 	}
 }

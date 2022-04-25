@@ -1,5 +1,4 @@
 package org.endeavourhealth.imapi.logic.service;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -12,11 +11,11 @@ import org.endeavourhealth.imapi.dataaccess.OpenSearchRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.query.Query;
-import org.endeavourhealth.imapi.model.query.Selection;
+import org.endeavourhealth.imapi.model.sets.DataSet;
+import org.endeavourhealth.imapi.model.sets.Select;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.transforms.IMQToSparql;
+import org.endeavourhealth.imapi.transforms.IMToSparql;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -42,90 +41,68 @@ public class SearchService {
 
 	/**
 	 * Queries any IM entity using the query model
-	 * @param query Query object
+	 * @param query data model entity object to populate
 	 * @return a generic JSONArray containing the results
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public JSONArray queryIM(Query query) throws DataFormatException {
-		IMQToSparql converter= new IMQToSparql();
+	public JSONArray queryIM(DataSet query) throws DataFormatException {
+		IMToSparql converter= new IMToSparql();
 		String spq= converter.convert(query);
 		JSONArray result= new JSONArray();
 		Map<Value, JSONObject> entityMap= new HashMap<>();
+		JSONObject root= new JSONObject();
+		result.add(root);
 		try (RepositoryConnection repo= ConnectionManager.getIMConnection()) {
 			TupleQuery qry = repo.prepareTupleQuery(spq);
 			try (TupleQueryResult rs = qry.evaluate()){
 				while (rs.hasNext()){
 					BindingSet bs= rs.next();
-					bindResults(converter,query.getSelect(),bs,result,entityMap);
+					bindResults(converter,"entity",query,bs,result,root,entityMap);
+
 				}
 			}
 		}
 		return result;
 	}
 
-	private void bindResults(IMQToSparql converter, List<Selection> select, BindingSet bs,
-													 List<JSONObject> result, Map<Value, JSONObject> entityMap) {
-		JSONObject root;
-		Value entityIri= bs.getValue("entity");
+	private void bindResults(IMToSparql converter, String subject, DataSet dataSet, BindingSet bs,
+													 List<JSONObject> result, JSONObject root, Map<Value, JSONObject> entityMap) {
+
+		Value entityIri= bs.getValue(subject);
 		if (entityMap.get(entityIri)==null) {
-			root = new JSONObject();
 			entityMap.put(entityIri, root);
 			result.add(root);
 		}
 		root= entityMap.get(entityIri);
-		for (Selection selection:select){
-			String property=selection.getProperty().getIri();
-			String var= converter.getPropertyMap().get(property);
-			if (IMQToSparql.isId(property))
-				root.put("@id",entityIri.stringValue());
-			else {
-				if (selection.getAlias() != null)
-					var = converter.getAliasMap().get(var);
-				Value value = bs.getValue(var);
-				if (value!=null) {
-					if (value.isLiteral())
-						root.put(property, value.stringValue());
+		if (dataSet.getSelect()!=null) {
+			for (Select selection : dataSet.getSelect()) {
+				String var = selection.getVar();
+				String alias= selection.getAlias();
+				if (alias!=null){
+					var= alias;
 				}
-			}
-			if (selection.getSelect()!=null){
-				root.putIfAbsent(property, new ArrayList<>());
-				JSONObject subNode= new JSONObject();
-				for (Selection subSelect:selection.getSelect()) {
-					bindSubResults(converter, subSelect,property + "/",subNode,bs);
-				}
-				if (!subNode.isEmpty()) {
-					  ((ArrayList) root.get(property)).add(subNode);
-				}
-			}
-		}
-	}
-
-	private void bindSubResults(IMQToSparql converter, Selection selection, String path, JSONObject node,
-															BindingSet bs){
-		String property=selection.getProperty().getIri();
-		String var= converter.getPropertyMap().get(path+property);
-		if (selection.getSelect()!=null){
-			node.putIfAbsent(property, new ArrayList<>());
-			JSONObject subNode= new JSONObject();
-			for (Selection subSelect:selection.getSelect()) {
-				bindSubResults(converter, subSelect,property + "/",subNode,bs);
-			}
-			if (!subNode.isEmpty()) {
-				((List<JSONObject>) node.get(property)).add(subNode);
-			}
-		}
-		else {
-			if (selection.getAlias() != null)
-				var = converter.getAliasMap().get(var);
-			Value value = bs.getValue(var);
-			if (value != null) {
-				if (value.isLiteral()) {
-					node.put(property, value.stringValue());
+				if (converter.isId(var))
+					root.put("@id",entityIri.stringValue());
+				else {
+					if (selection.getObject() != null) {
+						root.putIfAbsent(var, new ArrayList<>());
+						JSONObject subNode = new JSONObject();
+						bindResults(converter, var, selection.getObject(), bs, result, subNode, entityMap);
+						if (!subNode.isEmpty()) {
+							((ArrayList) root.get(var)).add(subNode);
+						}
+					}
+					else {
+						Value bound = bs.getValue(var);
+						if (bound!=null) {
+							if (bound.isLiteral())
+								root.put(var, bound.stringValue());
+						}
+					}
 				}
 			}
 		}
 	}
-
 
 	/**
 	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied

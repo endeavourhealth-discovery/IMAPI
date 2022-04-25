@@ -1,8 +1,10 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.sets;
 
 public class Range {
 	Compare from;
 	Compare to;
+
+
 
 	public Compare getFrom() {
 		return from;

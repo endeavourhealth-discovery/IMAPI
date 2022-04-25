@@ -23,7 +23,11 @@ public class QueryController {
         description = "Generates SQL statement for given query"
     )
     public String generateSQL(@RequestParam(name = "iri") String iri) throws JsonProcessingException {
+        /*
         QueryGenerator result = new QueryGenerator().getSelect(iri);
         return result.build();
+
+         */
+        return null;
     }
 }

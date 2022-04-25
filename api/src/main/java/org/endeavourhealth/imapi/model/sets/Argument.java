@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.sets;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -23,7 +23,7 @@ public class Argument {
 	}
 
 	public Argument setValue(Object value) {
-		if (!(List.of(String.class,TTIriRef.class,Match.class,Boolean.class,
+		if (!(List.of(String.class,TTIriRef.class, Match.class,Boolean.class,
 			Double.class,Float.class).contains(value.getClass())))
 			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Match clauses");
 		this.value= value;

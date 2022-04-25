@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.query;
+package org.endeavourhealth.imapi.model.sets;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 

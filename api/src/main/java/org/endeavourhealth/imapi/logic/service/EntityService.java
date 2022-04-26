@@ -282,16 +282,30 @@ public class EntityService {
             else if (result.isNode())
                 members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
             else {
-                for (TTValue element : result.iterator()) {
-                    if (element.isNode()) {
-                        members.add(getValueSetMemberFromNode(element, withHyperlinks));
-                    } else if (element.isIriRef()) {
-                        members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
+                if(DIRECT){
+                    members.add(getValueSetMemberFromArray(result, withHyperlinks));
+                }
+                else{
+                    for (TTValue element : result.iterator()) {
+                        if (element.isNode()) {
+                            members.add(getValueSetMemberFromNode(element, withHyperlinks));
+                        } else if (element.isIriRef()) {
+                            members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
+                        }
                     }
                 }
             }
         }
         return members;
+    }
+
+    private ValueSetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {
+        ValueSetMember member = new ValueSetMember();
+        Map<String, String> defaultPredicates = getDefaultPredicateNames();
+        List<String> blockedIris = getBlockedIris();
+        String arrayAsString = TTToString.ttValueToString(result, "object", defaultPredicates, 0, withHyperlinks, blockedIris);
+        member.setEntity(iri("", arrayAsString));
+        return member;
     }
 
     private List<String> getBlockedIris() {

@@ -42,6 +42,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+    private boolean DIRECT = false;
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
@@ -242,11 +243,15 @@ public class EntityService {
     }
 
     private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION, withHyperlinks);
+        Set<ValueSetMember> definedMemberInclusions = getMember(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), withHyperlinks);
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
-                included.setType(MemberType.INCLUDED);
+                if(DIRECT){
+                    included.setType(MemberType.INCLUDED_SELF);
+                }else{
+                    included.setType(MemberType.INCLUDED_DESC);
+                }
             } else {
                 if (expandSets) {
                     included.setLabel("Subset - expanded");
@@ -262,13 +267,17 @@ public class EntityService {
     }
 
 
-    private Set<ValueSetMember> getMember(String iri, TTIriRef predicate, boolean withHyperlinks) {
+    private Set<ValueSetMember> getMember(String iri, Set<String> predicates, boolean withHyperlinks) {
         Set<ValueSetMember> members = new HashSet<>();
-        Set<String> predicates = new HashSet<>();
-        predicates.add(predicate.getIri());
-        TTArray result = getBundle(iri, predicates, UNLIMITED)
-                .getEntity()
-                .get(predicate.asIriRef());
+
+        TTBundle bundle = getBundle(iri, predicates, UNLIMITED);
+        TTArray result;
+        if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
+            result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
+            DIRECT = true;
+        } else {
+            result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+        }
 
         if (result != null) {
             if (result.isIriRef())

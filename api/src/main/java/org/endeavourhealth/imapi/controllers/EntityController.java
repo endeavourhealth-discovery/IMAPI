@@ -420,4 +420,10 @@ public class EntityController {
 		LOG.debug("getShortestPathBetweenNodes");
 		return entityService.getShortestPathBetweenNodes(ancestor, descendant);
 	}
+
+	@GetMapping("/public/iriExists")
+	public Boolean checkIfIriExists(@RequestParam(name = "iri") String iri) {
+		LOG.debug("checkIfIriExists");
+		return entityService.checkIfIriExists(iri);
+	}
 }

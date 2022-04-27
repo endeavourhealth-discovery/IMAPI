@@ -1223,6 +1223,4 @@ class EntityModelServiceTest {
         XSSFWorkbook actual = entityService.getSetExport("",true);
         assertNull(actual);
     }
-
-
 }

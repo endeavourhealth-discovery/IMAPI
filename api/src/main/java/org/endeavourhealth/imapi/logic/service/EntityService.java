@@ -946,5 +946,10 @@ public class EntityService {
         }
         return found ? i : -1;
     }
+
+    public boolean checkIfIriExists(String iri) {
+        Boolean result = entityRepository.checkIfIriExists(iri);
+        return result;
+    }
 }
 

@@ -22,7 +22,6 @@ import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -400,9 +399,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/mappingSuggestions")
-	public List<TTEntity> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+	public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
 		LOG.debug("getMappingSuggestions");
-		return entityService.getMappingSuggestions(iri, name);
+		return entityService.advancedSearch(request);
 	}
 
     @PostMapping("/public/getNames")

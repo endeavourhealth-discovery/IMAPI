@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
@@ -201,12 +202,7 @@ public class EntityTripleRepository {
                 .add("SELECT ?c ?cname")
                 .add("WHERE {")
                 .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
-                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
-
-        if (schemeIris != null && !schemeIris.isEmpty()) {
-            sql
-                    .add(valueList("g", schemeIris));
-        }
+                .add(" ?c rdfs:label ?cname .");
 
         if (!inactive)
             sql

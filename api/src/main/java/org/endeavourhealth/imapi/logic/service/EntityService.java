@@ -969,8 +969,7 @@ public class EntityService {
 
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws TTFilerException {
         TTEntity entity = getBundle(removedActionIri, null, 0).getEntity();
-        entity.set(IM.IN_TASK, new TTValue() {
-        }).setCrud(IM.UPDATE_PREDICATES);
+        entity.set(IM.IN_TASK, new TTArray()).setCrud(IM.UPDATE_ALL);
         ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
         return getBundle(entity.getIri(), null, 0).getEntity();
     }

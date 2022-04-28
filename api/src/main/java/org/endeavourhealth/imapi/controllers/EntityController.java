@@ -422,8 +422,8 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/iriExists")
-	public Boolean checkIfIriExists(@RequestParam(name = "iri") String iri) {
-		LOG.debug("checkIfIriExists");
-		return entityService.checkIfIriExists(iri);
+	public Boolean iriExists(@RequestParam(name = "iri") String iri) {
+		LOG.debug("iriExists");
+		return entityService.iriExists(iri);
 	}
 }

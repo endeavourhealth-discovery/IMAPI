@@ -314,7 +314,7 @@ public class EntityRepository {
             TupleQuery qry = prepareSparql(conn, spql);
             qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
-                while(rs.hasNext()) {
+                if(rs.hasNext()) {
                     result = true;
                 }
             }

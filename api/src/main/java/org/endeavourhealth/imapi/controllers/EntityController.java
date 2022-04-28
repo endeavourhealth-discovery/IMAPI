@@ -428,11 +428,11 @@ public class EntityController {
 		return entityService.saveTask(entity);
 	}
 
-	@PostMapping("/task/action")
+	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity addTaskAction(@RequestBody TTEntity entity) throws TTFilerException {
+	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri) throws TTFilerException {
 		LOG.debug("addTaskAction");
-		return entityService.addConceptToTask(entity);
+		return entityService.addConceptToTask(entityIri, taskIri);
 	}
 
 	@DeleteMapping("/task/action")

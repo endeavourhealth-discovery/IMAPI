@@ -956,28 +956,38 @@ public class EntityService {
                 .addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
         ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-        return getBundle(entity.getIri(), null, 0).getEntity();
+        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
-    public TTEntity addConceptToTask(TTEntity entity) throws TTFilerException {
-        entity.setCrud(IM.ADD_QUADS)
-                .set(IM.IN_TASK, iri(entity.get(IM.IN_TASK).asLiteral().getValue()));
+    public TTEntity addConceptToTask(String entityIri, String taskIri) throws TTFilerException {
+        TTEntity entity = getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
+        if (entity.get(IM.IN_TASK) == null) {
+            entity.set(IM.IN_TASK, new TTArray());
+        }
+        entity.get(IM.IN_TASK).add(iri(taskIri));
+        entity.setCrud(IM.ADD_QUADS);
         ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-        return getBundle(entity.getIri(), null, 0).getEntity();
+        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
 
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws TTFilerException {
-        TTEntity entity = getBundle(removedActionIri, null, 0).getEntity();
-        entity.set(IM.IN_TASK, new TTArray()).setCrud(IM.UPDATE_ALL);
+        TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null, EntityService.UNLIMITED).getEntity();
+        System.out.println(IM.IN_TASK.getIri());
+        TTEntity ent = getBundle(removedActionIri, new HashSet(List.of(IM.IN_TASK)), 0).getEntity();
+        if (entity.get(IM.IN_TASK) == null) {
+            entity.set(IM.IN_TASK, new TTArray());
+        }
+        entity.get(IM.IN_TASK).remove(iri(taskIri));
+        entity.setCrud(IM.UPDATE_ALL);
         ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-        return getBundle(entity.getIri(), null, 0).getEntity();
+        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
     public List<TTEntity> saveMapping(Map<String, List<String>> mappings) throws TTFilerException {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
-            TTEntity entity = getBundle(entry.getKey(), null, 0).getEntity();
+            TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
             entity.set(IM.MAPPED_TO, new TTArray()).setCrud(IM.DELETE_ALL);
             ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
             entity.setCrud(IM.ADD_QUADS);
@@ -988,7 +998,7 @@ public class EntityService {
                 entity.get(IM.MAPPED_TO).add(iri(iri));
             }
             ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-            result.add(getBundle(entity.getIri(), null, 0).getEntity());
+            result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());
         }
         return result;
     }

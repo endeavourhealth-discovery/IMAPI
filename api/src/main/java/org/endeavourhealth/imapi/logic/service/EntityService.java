@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
+import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -21,6 +22,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
+import org.endeavourhealth.imapi.validators.CreateEntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
@@ -40,6 +42,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+    private static final FilerService filerService = new FilerService();
     private boolean DIRECT = false;
 
     public static final int UNLIMITED = 0;
@@ -950,6 +953,14 @@ public class EntityService {
     public boolean iriExists(String iri) {
         Boolean result = entityRepository.iriExists(iri);
         return result;
+    }
+
+    public TTEntity createEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
+        CreateEntityValidator validator = new CreateEntityValidator();
+        validator.isValid(entity, this);
+        TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
+//        filerService.fileEntity(entity, graph);
+        return entity;
     }
 }
 

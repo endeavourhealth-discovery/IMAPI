@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -34,6 +36,7 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -293,12 +296,11 @@ public class EntityController {
             new TTIriRef(":1911000252103", "Transfer event")));
 	}
 
-	@PostMapping
+	@PostMapping(value = "/create")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity createEntity(@RequestBody EntityDefinitionDto entityDto) {
+	public TTEntity createEntity(@RequestBody TTEntity entity) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
-//    	TODO convert entityDto to entity and save
-		return new TTEntity();
+		return entityService.createEntity(entity);
 	}
 
 	@GetMapping(value = "/public/graph")

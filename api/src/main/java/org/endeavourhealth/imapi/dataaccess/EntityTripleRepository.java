@@ -75,7 +75,7 @@ public class EntityTripleRepository {
 
     public Integer getCountOfActiveSubjectByObjectExcludeByPredicate(String objectIri, String excludePredicateIri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT (COUNT(?s) AS ?cnt) WHERE {")
+                .add("SELECT (COUNT(DISTINCT ?s) AS ?cnt) WHERE {")
                 .add("    ?s ?p ?o .")
                 .add("    ?s im:status ?status .")
                 .add("    FILTER (?p != ?e && ?status != im:Inactive)")

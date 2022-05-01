@@ -17,8 +17,6 @@ war {
 }
 
 dependencies {
-    implementation libs.imGrammar
-
     implementation libs.antlr
     implementation libs.apacheCollections4
     implementation libs.apachePoi
@@ -46,6 +44,7 @@ dependencies {
     implementation libs.validation
     implementation libs.woodstox
     implementation libs.awsS3
+    implementation libs.jsonSimple
 
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools

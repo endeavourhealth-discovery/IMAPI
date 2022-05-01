@@ -1,9 +1,12 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.imapi.model.query.Comparison;
+import org.endeavourhealth.imapi.model.sets.Comparison;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueryGenHelper {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryGenHelper.class);
 
     public static String getEntitySource(String entityIri) {
         switch (entityIri) {
@@ -72,14 +75,16 @@ public class QueryGenHelper {
     }
 
     public static String getValue(TTIriRef i) {
-        // SubSelect concept DBID (compass) or Iri (Resolution)
+        // Selection concept DBID (compass) or Iri (Resolution)
         String iri = i.getIri();
         switch (iri) {
             case "http://endhealth.info/im#2751000252106": return "1335286";
             case "urn:uuid:db167604-ca0a-4922-9fab-f6d6d514c065": return "1335286";
             case "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11": return "1082811";
             case "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c": return "1057547";
-            default: throw new IllegalArgumentException("Unknown value " + iri);
+            default:
+                LOG.error("Unknown value " + iri);
+                return iri;
         }
     }
 }

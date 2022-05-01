@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -39,6 +40,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+    private boolean direct = false;
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
@@ -58,7 +60,7 @@ public class EntityService {
 
     public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
-        if (excludePredicates.contains(RDFS.LABEL.getIri())) {
+        if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
                     .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -151,7 +153,7 @@ public class EntityService {
                 .sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder())))
                 .distinct().collect(Collectors.toList());
 
-        for (TTIriRef usage: usageRefs) {
+        for (TTIriRef usage : usageRefs) {
             TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.getIri()), 0).getEntity().getType();
             usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
         }
@@ -238,11 +240,15 @@ public class EntityService {
     }
 
     private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberInclusions = getMember(iri, IM.DEFINITION, withHyperlinks);
+        Set<ValueSetMember> definedMemberInclusions = getMember(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), withHyperlinks);
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
-                included.setType(MemberType.INCLUDED);
+                if(direct){
+                    included.setType(MemberType.INCLUDED_SELF);
+                }else{
+                    included.setType(MemberType.INCLUDED_DESC);
+                }
             } else {
                 if (expandSets) {
                     included.setLabel("Subset - expanded");
@@ -258,13 +264,17 @@ public class EntityService {
     }
 
 
-    private Set<ValueSetMember> getMember(String iri, TTIriRef predicate, boolean withHyperlinks) {
+    private Set<ValueSetMember> getMember(String iri, Set<String> predicates, boolean withHyperlinks) {
         Set<ValueSetMember> members = new HashSet<>();
-        Set<String> predicates = new HashSet<>();
-        predicates.add(predicate.getIri());
-        TTArray result = getBundle(iri, predicates, UNLIMITED)
-                .getEntity()
-                .get(predicate.asIriRef());
+
+        TTBundle bundle = getBundle(iri, predicates, UNLIMITED);
+        TTArray result;
+        if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
+            result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
+            direct = true;
+        } else {
+            result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+        }
 
         if (result != null) {
             if (result.isIriRef())
@@ -272,16 +282,30 @@ public class EntityService {
             else if (result.isNode())
                 members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
             else {
-                for (TTValue element : result.iterator()) {
-                    if (element.isNode()) {
-                        members.add(getValueSetMemberFromNode(element, withHyperlinks));
-                    } else if (element.isIriRef()) {
-                        members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
+                if(direct){
+                    members.add(getValueSetMemberFromArray(result, withHyperlinks));
+                }
+                else{
+                    for (TTValue element : result.iterator()) {
+                        if (element.isNode()) {
+                            members.add(getValueSetMemberFromNode(element, withHyperlinks));
+                        } else if (element.isIriRef()) {
+                            members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
+                        }
                     }
                 }
             }
         }
         return members;
+    }
+
+    private ValueSetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {
+        ValueSetMember member = new ValueSetMember();
+        Map<String, String> defaultPredicates = getDefaultPredicateNames();
+        List<String> blockedIris = getBlockedIris();
+        String arrayAsString = TTToString.ttValueToString(result, "object", defaultPredicates, 0, withHyperlinks, blockedIris);
+        member.setEntity(iri("", arrayAsString));
+        return member;
     }
 
     private List<String> getBlockedIris() {
@@ -497,6 +521,8 @@ public class EntityService {
             pv.setType(property.asNode().get(SHACL.CLASS).asIriRef());
         if (property.asNode().has(SHACL.DATATYPE))
             pv.setType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+        if (property.asNode().has(SHACL.FUNCTION))
+            pv.setType(property.asNode().get(SHACL.FUNCTION).asIriRef());
         if (property.asNode().has(SHACL.MAXCOUNT))
             pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
         if (property.asNode().has(SHACL.MINCOUNT))
@@ -857,6 +883,84 @@ public class EntityService {
         List<TTIriRef> iriRefs = entityRepository.findEntitiesByName(name);
         iriRefs.removeIf(iriRef -> iriRef.getIri().equals(iri));
         return iriRefs;
+    }
+
+    public Set<TTIriRef> getNames(Set<String> iris) {
+        Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
+        entityRepository2.getNames(result);
+        return result;
+}
+    public List<List<TTIriRef>> getParentHierarchies(String iri) {
+        ParentDto parentHierarchy = new ParentDto(iri, null, null);
+        addParentHierarchiesRecursively(parentHierarchy);
+        return getParentHierarchiesFlatLists(parentHierarchy);
+    }
+
+    public List<List<TTIriRef>> getParentHierarchiesFlatLists(ParentDto parent) {
+        List<List<TTIriRef>> parentHierarchies = new ArrayList<>();
+        parentHierarchies.add(new ArrayList<>());
+        addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.get(0), parent);
+        return parentHierarchies;
+    }
+
+    private void addParentHierarchiesRecursively(List<List<TTIriRef>> parentHierarchies, List<TTIriRef> currentPath, ParentDto parent) {
+        if (parent != null && parent.hasMultipleParents()) {
+            parentHierarchies.remove(currentPath);
+            for (ParentDto parentsParent : parent.getParents()) {
+                List<TTIriRef> path =  new ArrayList<>(currentPath);
+                path.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
+                parentHierarchies.add(path);
+                addParentHierarchiesRecursively(parentHierarchies, path, parentsParent);
+            }
+        } else if (parent != null && parent.hasSingleParent()) {
+            for (ParentDto parentsParent : parent.getParents()) {
+                currentPath.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
+                addParentHierarchiesRecursively(parentHierarchies, currentPath, parentsParent);
+            }
+        }
+    }
+
+    private void addParentHierarchiesRecursively(ParentDto parent) {
+        List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
+        if (parents.size() != 0) {
+            parent.setParents(parents);
+            for (ParentDto parentsParent : parents) {
+                addParentHierarchiesRecursively(parentsParent);
+            }
+        }
+    }
+
+    public List<TTIriRef> getShortestPathBetweenNodes(String ancestor, String descendant) {
+        List<TTIriRef> shortestPath = new ArrayList<>();
+        List<List<TTIriRef>> paths = getParentHierarchies(descendant);
+        paths = paths.stream().filter(list -> indexOf(list, ancestor) != -1).collect(Collectors.toList());
+
+        paths.sort(new Comparator<List<TTIriRef>>() {
+            @Override
+            public int compare(List<TTIriRef> a1, List<TTIriRef> a2) {
+                return a2.size() - a1.size(); // biggest to smallest
+            }
+        });
+
+        if (paths.size() != 0) {
+            shortestPath = paths.get(paths.size() - 1);
+            int index = indexOf(shortestPath, ancestor);
+            shortestPath = shortestPath.subList(0, index == shortestPath.size() ? index : index + 1);
+        }
+        return shortestPath;
+    }
+
+    private int indexOf(List<TTIriRef> iriRefs, String iri) {
+        boolean found = false;
+        int i = 0;
+        while (!found && i < iriRefs.size()) {
+            if (iriRefs.get(i).getIri().equals(iri)) {
+                found = true;
+            } else {
+                i++;
+            }
+        }
+        return found ? i : -1;
     }
 }
 

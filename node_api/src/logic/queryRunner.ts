@@ -43,7 +43,7 @@ export default class QueryRunner {
     }
   }
 
-  private async getDefinition(queryIri: string): Promise<DataSet> {
+   protected async getDefinition(queryIri: string): Promise<DataSet> {
     console.log("Loading " + queryIri);
     const rs = await this.graph.execute(
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",

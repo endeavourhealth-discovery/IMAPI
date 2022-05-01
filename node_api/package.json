@@ -26,7 +26,8 @@
     "jwk-to-pem": "^2.0.5",
     "mysql2": "^2.3.3",
     "node-fetch": "^2.6.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",

@@ -39,15 +39,11 @@ export class GraphdbService {
 
       client.registerParser(new SparqlJsonResultParser());
 
-
-
       const stmt = new UpdateQueryPayload()
         .setQuery(sparql)
         .setContentType(QueryContentType.X_WWW_FORM_URLENCODED)
         .setInference(true)
         .setTimeout(5);
-
-
 
       return client.update(stmt).then(() => {
         return true;

@@ -2,7 +2,10 @@ import express, { Request, Response } from 'express';
 import AuthMiddleware from '../middlewares/auth.middleware';
 import { GraphdbService } from '../services/graphdb.service';
 
-import VocabularyUtils from '../helpers/manipulation/OntologyUtils'
+import { SparqlSnippets } from '../helpers/'
+import VocabularyUtils from '../helpers/OntologyUtils'
+import TTEntity from '../model/tripletree/TTEntity'
+import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
 
 export default class EntityController {
   public path = '/'
@@ -19,7 +22,7 @@ export default class EntityController {
   private initRoutes() {
     this.router.get('/private', /*this.auth.secure('IM1_PUBLISH'),*/(req, res) => this.graphDBTest(req, res));
     this.router.get('/api/entity/public/inferredBundle', (req, res) => this.graphDBinferredBundle(req, res));
-    this.router.post('/api/entity/public/updatePredicates', (req, res) => this.graphDBupdatePredicates(req, res));
+    this.router.post('/api/entity/public/bulkUpdatePredicates', (req, res) => this.graphDBbulkUpdatePredicates(req, res));
     // /api/entity/public/fullEntity/:iri
   }
 
@@ -29,8 +32,15 @@ export default class EntityController {
     res.send(rs);
   }
 
+  private async graphDBcreateEntity(req: Request, res: Response) {
 
-  private async graphDBupdatePredicates(req: Request, res: Response) {
+
+
+  }
+
+
+  //POST Request with key in body named "predicates" containing an array of predicates to be updated
+  private async graphDBbulkUpdatePredicates(req: Request, res: Response) {
 
     const updates = req.body.predicates;
 
@@ -40,7 +50,9 @@ export default class EntityController {
 
       try {
 
-        const { iri, property, value } = update;
+        const { action, ...quad } = update;
+
+        console.log("update", update);
 
         const isObjectKeysEmptyOrNull = Object.keys(update).some(key => {
           return update[key] == null || update[key] == "";
@@ -50,17 +62,8 @@ export default class EntityController {
 
         if (isObjectKeysEmptyOrNull) throw "One or more properties are empty or null";
 
-        const query = `
-      DELETE {
-        <${iri}> ${property} ?oldValue
-      }
-      INSERT {
-        <${iri}> ${property}  "${value}"
-      }
-      WHERE {
-        <${iri}> ${property} ?oldValue
-      }`;
 
+        const query = SparqlSnippets[action](quad);
 
         const isQuerySuccess = new Promise((resolve, reject) => {
           if (this.service.update(query)) {
@@ -70,9 +73,6 @@ export default class EntityController {
           }
         });
 
-        //this.service.update(query).then(resolve).catch(reject);
-
-        // console.log("isQuerySuccess", isQuerySuccess)
         return isQuerySuccess;
 
       } catch (err) {
@@ -87,34 +87,29 @@ export default class EntityController {
 
     const rs = {
       success: true,
-      message: "All updates accepted",
+      message: "All updates were accepted",
     }
 
     queryResults.then(results => {
 
-      if (results.every(result => result)) {
+      const isAllUpdatesSuccessful = results.every(result => result);
+
+      if (isAllUpdatesSuccessful) {
         return res.status(200).send(rs);
       } else {
         rs.success = false;
-        rs.message = "One or more upates failed";
+        rs.message = "One or more upates was rejected";
         rs["data"] = results.map((result, index) => {
           return {
-            action: "update",
+            action: updates[index].action,
             index: index,
             success: result
           }
         })
         return res.status(500).send(rs);
       }
-
-
-
     });
-
-
   };
-  
-
 
 
   //GET Request with query parameter "iri"
@@ -123,26 +118,17 @@ export default class EntityController {
     const iri = req.query.iri;
 
     if (iri && iri != "") {
-      const query = `
-      SELECT 
-        ?predicate 
-        ?predicateLabel 
-        ?object 
-        ?objectLabel
-      WHERE {
-                  <${iri}> ?predicate ?object.
-                  ?predicate rdfs:label ?predicateLabel.
-        optional  {?object rdfs:label ?objectLabel.}
-        }`;
-
+      const query = SparqlSnippets.inferredBundle(iri as string);
 
       const queryResult = await this.service.execute(query);
 
-      //response
       let rs = {
-        entity: { "@id": iri, "rdf:type": [], "rdfs:label": null, "rdfs:comment": null, "im:isContainedIn": [], "im:definition": null },
+        // entity: { "@id": iri, "rdf:type": [], "rdfs:label": null, "rdfs:comment": null, "im:isContainedIn": [], "im:definition": null },
+        entity: new TTEntity(iri as string),
         predicates: {}
       };
+
+      console.log("rs", rs);
 
       // populates response with queryResults
       queryResult.forEach(item => {
@@ -151,7 +137,8 @@ export default class EntityController {
         const predicateLabel = item?.predicateLabel;
         const objectLabel = item?.objectLabel;
 
-        const prefixedPredicate = VocabularyUtils.toPrefixedPredicate(predicate)
+        const prefixedPredicate = VocabularyUtils.toPrefix(predicate)
+
 
         if (Array.isArray(rs.entity[prefixedPredicate])) {
           rs.entity[prefixedPredicate].push(

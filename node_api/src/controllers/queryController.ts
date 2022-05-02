@@ -51,7 +51,6 @@ export default class QueryController {
     const data =await this.workflow.populateQuery(req.query.iri as string)
 
     // console.log("query", data)
-
     res.send(data).end();
 
   }

@@ -20,6 +20,11 @@ export default class ManipulationUtils {
     }
 
 
+    public static excludedPaths(clause: any): boolean {
+        const excludedPathProperties = ["test", "valueObject"]
+        return !excludedPathProperties.some(path => clause.path.includes(path));
+    }
+
     public static entitiesFromPredicates(queryResult): any {
         let entity;
         const visitedIris = new Set();

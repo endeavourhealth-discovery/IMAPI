@@ -1,5 +1,6 @@
 import TTEntity from '../model/tripletree/TTEntity';
-import {OntologyUtils} from '../helpers'
+import { OntologyUtils } from '../helpers'
+import { Keyspaces } from 'aws-sdk';
 
 export default class ManipulationUtils {
 
@@ -9,6 +10,13 @@ export default class ManipulationUtils {
     **/
     public static onlyUnique(element: any, index: any, array: any): boolean {
         return array.indexOf(element) === index;
+    }
+
+    public static isTTIriRef(element: any): boolean {
+        const keys = Object.keys(element);
+        const excludedKeys = ["and", "or", "property"]; 
+        const isExcludedKeysPresent = !keys.some(key => excludedKeys.includes(key));
+        return keys.includes("@id") && isExcludedKeysPresent;
     }
 
 
@@ -22,10 +30,10 @@ export default class ManipulationUtils {
             const iri = item.iri.value;
 
             if (!visitedIris.has(iri)) {
-                visitedIris.size > 0 ? entities.push( entity) : null;
+                visitedIris.size > 0 ? entities.push(entity) : null;
                 visitedIris.add(iri);
                 entity = new TTEntity(iri);
-            } 
+            }
 
             const predicate = item.predicate.value || item?.predicate;
             const object = item?.object?.value || item?.object;
@@ -46,7 +54,7 @@ export default class ManipulationUtils {
 
 
             if (index == queryResult.length - 1) {
-                entities.push( entity)
+                entities.push(entity)
             }
         })
 

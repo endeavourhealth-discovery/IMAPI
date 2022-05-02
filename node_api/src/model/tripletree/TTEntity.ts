@@ -75,8 +75,8 @@ export default class TTEntity extends TTNode {
 
     constructor(iri?: string, name?: string) {
         super()
-        iri ? this.set(IM.IRI, iri) : null;
-        name ? this.set(RDFS.LABEL, name) : null;
+        iri ? this[IM.IRI] = iri : null;
+        name ? this[RDFS.LABEL] = name : null;
     }
 
 

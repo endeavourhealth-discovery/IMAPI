@@ -7,6 +7,7 @@ import jp from 'jsonpath';
 import { SparqlSnippets } from '../helpers/'
 import { OntologyUtils, ManipulationUtils } from '../helpers'
 
+import _ from "lodash";
 
 
 export default class QueryWorkflow {
@@ -51,7 +52,6 @@ export default class QueryWorkflow {
 
       const rs = ManipulationUtils.entitiesFromPredicates(queryResult);
 
-
       return rs;
 
     } else {
@@ -67,24 +67,26 @@ export default class QueryWorkflow {
 
     const definition: DataSet = await this.getDefinition(queryIri);
 
+    // find all TTIriRefs in definition
     const jsonQuery = `$..[?(@.@id)]`;
-    const TTIriRefsList = jp.nodes(definition.match, jsonQuery);
-    if (TTIriRefsList.length == 0) return {};
+    let IriRefs = jp.nodes(definition.match, jsonQuery);
+    if (IriRefs.length == 0) return {};
+
+    IriRefs = IriRefs.filter(ref => ManipulationUtils.isTTIriRef(ref.value)); // excludes objects which match the jsonQuery but  are operators/clauses instead of IriRefs 
 
 
-    const TTIRIRefs = TTIriRefsList.map(item => item?.value["@id"]);
+    // get all entities from database for TTIriRefs
+    const iris = IriRefs.map(item => item.value["@id"]);
+    const entities = await this.getAllEntities(iris);
 
+    // populate definition with entities
+    IriRefs.forEach((item: any) => {
+      const path = jp.stringify(item.path).substring(2);
+      const entity = entities.filter(entity => entity["@id"] == item.value["@id"])[0]
+      entity ?  _.set(definition.match, path, entity) : console.log("No DB entity found IriRef at path: " + path);
+    })
 
-    // console.log("TTIriRefs: " + TTIriRefs);
-
-    const entities = await this.getAllEntities(TTIRIRefs);
-
-    return entities;
-
-
-
-
-
+    return definition;
   }
 
   //populate definition
@@ -92,14 +94,12 @@ export default class QueryWorkflow {
 
     // split into individual match-clauses
 
-    const definition: DataSet = await this.getRichDefinition(queryIri);
+    const richDefinition: DataSet = await this.getRichDefinition(queryIri);
 
     // const jsonQuery = `$..[?(@.@id)]`
     //matches an object with an "id" and "property" key
     const jsonQuery = `$..[?(@.@id && @.property)]`;
-    const matchClauses = jp.nodes(definition.match, jsonQuery);
-    console.log("matchClauses: " + matchClauses);
-    console.log("path: " + matchClauses);
+    const matchClauses = jp.nodes(richDefinition.match, jsonQuery);
 
 
     // generate query
@@ -111,7 +111,7 @@ export default class QueryWorkflow {
     // save clause  to db as im:matchClause + update OpenSearch
 
     // return response with populated query definition
-    return matchClauses;
+    return richDefinition;
 
   }
 

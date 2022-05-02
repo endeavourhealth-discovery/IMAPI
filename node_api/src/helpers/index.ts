@@ -1,5 +1,6 @@
 import OntologyUtils from "./OntologyUtils"
 import SparqlSnippets from "./SparqlSnippets"
+import ManipulationUtils from "./ManipulationUtils"
 
 
-export { OntologyUtils, SparqlSnippets };
+export { OntologyUtils, SparqlSnippets, ManipulationUtils };

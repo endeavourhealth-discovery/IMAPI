@@ -43,7 +43,7 @@ export default class QueryRunner {
     }
   }
 
-   protected async getDefinition(queryIri: string): Promise<DataSet> {
+   public async getDefinition(queryIri: string): Promise<DataSet> {
     console.log("Loading " + queryIri);
     const rs = await this.graph.execute(
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",
@@ -57,6 +57,9 @@ export default class QueryRunner {
 
     return JSON.parse(rs[0].def);
   }
+
+
+
 
   private generateSql(match: Match): void {
     this.sql = new Sql();

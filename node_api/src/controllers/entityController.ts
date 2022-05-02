@@ -32,11 +32,7 @@ export default class EntityController {
     res.send(rs);
   }
 
-  private async graphDBcreateEntity(req: Request, res: Response) {
 
-
-
-  }
 
 
   //POST Request with key in body named "predicates" containing an array of predicates to be updated
@@ -44,7 +40,6 @@ export default class EntityController {
 
     const updates = req.body.predicates;
 
-    // console.log("updates: ", updates);
 
     const updateDB = (update) => {
 
@@ -52,13 +47,11 @@ export default class EntityController {
 
         const { action, ...quad } = update;
 
-        console.log("update", update);
 
         const isObjectKeysEmptyOrNull = Object.keys(update).some(key => {
           return update[key] == null || update[key] == "";
         });
 
-        // console.log("isObjectKeysEmptyOrNull", isObjectKeysEmptyOrNull)
 
         if (isObjectKeysEmptyOrNull) throw "One or more properties are empty or null";
 
@@ -119,16 +112,10 @@ export default class EntityController {
 
     if (iri && iri != "") {
       const query = SparqlSnippets.inferredBundle(iri as string);
-
       const queryResult = await this.service.execute(query);
 
-      let rs = {
-        // entity: { "@id": iri, "rdf:type": [], "rdfs:label": null, "rdfs:comment": null, "im:isContainedIn": [], "im:definition": null },
-        entity: new TTEntity(iri as string),
-        predicates: {}
-      };
-
-      console.log("rs", rs);
+      const entity = new TTEntity(iri as string);
+      const predicates = {};   
 
       // populates response with queryResults
       queryResult.forEach(item => {
@@ -136,24 +123,29 @@ export default class EntityController {
         const object = item?.object?.value || item?.object;
         const predicateLabel = item?.predicateLabel;
         const objectLabel = item?.objectLabel;
-
         const prefixedPredicate = VocabularyUtils.toPrefix(predicate)
 
 
-        if (Array.isArray(rs.entity[prefixedPredicate])) {
-          rs.entity[prefixedPredicate].push(
+        if (Array.isArray(entity[prefixedPredicate])) {
+          entity[prefixedPredicate].push(
             {
               "@id": object,
               "name": objectLabel
             }
           );
         } else {
-          rs.entity[prefixedPredicate] = object;
+          entity[prefixedPredicate] = object;
         }
-
-        rs.predicates[predicate] = predicateLabel;
-
+        predicates[predicate] = predicateLabel;
       })
+
+      let rs = {
+        // entity: { "@id": iri, "rdf:type": [], "rdfs:label": null, "rdfs:comment": null, "im:isContainedIn": [], "im:definition": null },
+        entity: entity,
+        predicates: predicates,
+      };
+
+      console.log("rs", rs);
 
 
       res.status(200).send(rs);
@@ -162,6 +154,7 @@ export default class EntityController {
       res.status(500).send("No iri query paramater provided in GET requests");
     }
   }
+
 
 
 }

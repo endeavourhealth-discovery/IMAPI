@@ -91,12 +91,12 @@ export default class TTEntity extends TTNode {
     public toJSON(): any {
         let obj = this;
         this.predicates.forEach((value, predicate) => obj[predicate] = value);
-        const { predicates: _, ...props } = obj;  //"predicates" PROPERTY IS ignored upon serialisation to JSON
+        const { predicates: _, ...props } = obj;  //"predicates"  IS ignored upon serialisation to JSON
         return props;
     }
 
-    fromJSON(json: string): void {
-        const obj = JSON.parse(json);
+    fromJSON(json: any): void {
+        const obj = typeof (json) == "string" ? JSON.parse(json) : json;
         Object.keys(obj).forEach(key => {
             this.set(key, obj[key]);
         })

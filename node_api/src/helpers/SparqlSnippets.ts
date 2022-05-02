@@ -1,7 +1,16 @@
-import { IM } from "../vocabulary/"
-
-
 export default class SparqSnippets {
+    public static allEntities(iris: string[]): string {
+        const iriStr = iris.map(iri => `<${iri}>`).join(',');
+
+        return `
+        SELECT ?iri ?predicate ?predicateLabel ?object ?objectLabel
+        WHERE   { 	
+                ?iri ?predicate ?object.
+            optional{?predicate rdfs:label ?predicateLabel.}
+            optional{?object rdfs:label ?objectLabel.}
+            FILTER (?iri IN (${iriStr}))
+        }`;
+    }
 
     public static inferredBundle(iri: string): string {
         return `

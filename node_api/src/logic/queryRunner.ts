@@ -1,13 +1,16 @@
-import {MysqlService} from '../services/mysql.service';
-import {GraphdbService, iri} from '../services/graphdb.service';
-import {dataModelMap} from './dataModelMap';
-import {DataSet} from '../model/sets/DataSet';
-import {Match} from '../model/sets/Match';
-import {Sql} from '../model/sql/Sql';
-import {Table} from '../model/sql/Table';
-import {Join} from '../model/sql/Join';
-import {TTIriRef} from '../model/tripletree/TTIriRef';
+import {MysqlService} from "../services/mysql.service";
+import {GraphdbService, iri} from "../services/graphdb.service";
+import {getField, getJoin, getTable} from "./dataModelMap";
+import {DataSet} from "../model/sets/DataSet";
+import {Match} from "../model/sets/Match";
+import {Sql} from "../model/sql/Sql";
+import {Table} from "../model/sql/Table";
+import {Join} from "../model/sql/Join";
+import {SimpleCondition} from "../model/sql/SimpleCondition";
+import {ConditionList} from "../model/sql/ConditionList";
+import {TTIri} from '../model/tripletree/TTIri';
 import {Condition} from '../model/sql/Condition';
+import {Argument} from '../model/sets/Argument';
 
 export default class QueryRunner {
   private mysql: MysqlService;
@@ -23,19 +26,19 @@ export default class QueryRunner {
     try {
       const definition: DataSet = await this.getDefinition(queryIri);
 
-      console.log("===== DEFINITION =================================================")
+/*      console.log("===== DEFINITION =================================================")
       console.log(JSON.stringify(definition.match, null, 2));
-      console.log("==================================================================")
+      console.log("==================================================================")*/
 
       this.generateSql(definition.match);
-      console.log("===== SQL ========================================================")
+/*      console.log("===== SQL ========================================================")
       console.log(JSON.stringify(this.sql, null, 2));
-      console.log("==================================================================")
+      console.log("==================================================================")*/
 
-      console.log(this.sqlToString());
+      console.log(this.sql.toString());
 
 
-      return await this.mysql.test();
+      // return await this.mysql.test();
     } catch (e) {
       console.error("***** ERROR!!");
       console.log(e);
@@ -60,121 +63,136 @@ export default class QueryRunner {
 
   private generateSql(match: Match): void {
     this.sql = new Sql();
+    this.sql.table = getTable(match.entityType["@id"], "m");
 
-    this.sql.from = this.getTable(match.entityType['@id']);
-
-    this.processMatch(match);
+    this.processMatch(this.sql.table, this.sql.conditions, match);
   }
 
-  private processMatch(match: Match) {
-    const fk = match.property['@id'];     // TODO: Seems wrong place for FK?
+  private processMatch(table: Table, conditions: Condition[], match: Match) {
     if (match.valueObject) {
-      this.processValueObject(this.sql.from, match.valueObject, fk);
-    } else
-      throw "Unknown/missing match type";
+      this.processValueObject(table, match.property["@id"], match.valueObject);
+    } else if (match.subsetOf) {
+      for (const s of match.subsetOf)
+        this.processSubsetOf(table, s);
+    } else if (match.valueIn) {
+      this.processValueIn(table, conditions, match);
+    } else if (match.valueCompare) {
+      this.processValueCompare(table, conditions, match);
+    } else if (match.notExist) {
+      this.processNotExist(table, conditions, match);
+    } else if (match.valueVar || match.and || match.or) {
+      // Globally handled (below)
+    } else {
+      console.error("Unknown/no match type\n" + JSON.stringify(match, null, 2));
+    }
+
+    if (match.valueVar)
+      this.sql.fields.push(this.getSubject(table, match) + " AS " + match.valueVar);
+
+    if (match.and)
+      this.getMatches(table, conditions, match.and, "AND");
+
+    if (match.or)
+      this.getMatches(table, conditions, match.or, "OR");
   }
 
-  private processValueObject(parent: Table, valObj: Match, fk: string) {
-    let join: Join = new Join();
-    join.table = this.getTable(valObj.entityType['@id']);
-    join.conditions.push({
-      subject: this.getField(join.table, fk),
-      predicate: "=",
-      object: parent.alias + "." + parent.pk,
-    } as Condition);
+  private processValueIn(table: Table, conditions: Condition[], match: Match) {
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = getField(table, match.property['@id'])
 
+    // TODO: Need to translate from IRIs to (v1) DBIDs
+    c.predicate = 'IN'
+    c.object = '(';
+    match.valueIn.forEach(v => {
+      c.object += '\n"' + v['@id'] + '"';
+    });
+    c.object += ')';
+  }
+
+  private processValueObject(parentTable: Table, propertyId: string, match: Match) {
+    const join: Join = getJoin(parentTable, propertyId, match.entityType["@id"], "t" + this.sql.joins.length);
     this.sql.joins.push(join);
 
-    if (valObj.and) {
-      this.processConditions(join, valObj.and, 'AND');
-    }
-/*
-    if (valObj.or) {
-      this.processConditions(sql, join, valObj.or, 'OR');
-    }*/
+    this.processMatch(join.table, join.conditions, match);
   }
 
-  private processConditions(join: Join, tests: Match[], operator: string) {
-    if (tests.length) {
-      tests.forEach(test => this.processCondition(join, test, operator));
-    }
+  private processSubsetOf(parentTable: Table, queryIri: TTIri) {
+    const join: Join = new Join();
+    join.table = getTable(queryIri['@id'], "t" + this.sql.joins.length);
+    join.on = getField(parentTable, "pk") + " = " + getField(join.table, "pk");
+
+    this.sql.joins.push(join);
   }
 
-  private processCondition(join: Join, test: Match, operator: string) {
-    let condition: Condition = new Condition();
-    join.conditions.push(condition);
-    join.operator = operator;
-    condition.subject = this.getField(join.table, test.property['@id']);
-
-    this.getTest(join, condition, test);
+  private processValueCompare(table: Table, conditions: Condition[], match: Match) {
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = this.getSubject(table, match);
+    c.predicate = this.getComparison(match.valueCompare.comparison);
+    c.object = match.valueCompare.valueData;
   }
 
-  private getTest(join: Join, condition: Condition, test: Match) {
-    if (test.valueIn) {
-      condition.predicate = "IN";
-      condition.object = "(";
-      for (let i=0; i < test.valueIn.length; i++) {
-        condition.object += (i>0 ? ", " : "") + test.valueIn[i]['@id'];
-      }
-      condition.object += ")";
-    } else if (test.valueCompare) {
-      condition.predicate = JSON.stringify(test.valueCompare.comparison);
-      condition.object = test.valueCompare.valueData;
-    } else if (test.notExist) {
-      condition.predicate = "IS";
-      condition.object = "NULL";
-    } else {
-      console.error("Unknown test!");
-    }
+  private processNotExist(table: Table, conditions: Condition[], match: Match) {
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = this.getSubject(table, match);
+    c.predicate = 'IS'
+    c.object = 'NULL';
   }
 
-  private getTable(entityTypeId: string): Table {
-    if (!entityTypeId)
-      throw "No entity type provided";
+  private getMatches(table: Table, conditions: Condition[], matches:Match[], operator: string) {
+    const result: ConditionList = new ConditionList();
+    conditions.push(result);
+    result.operator = operator;
 
-    if (!dataModelMap[entityTypeId])
-      throw "Entity [" + entityTypeId + "] does not exist in map";
-
-    const table = JSON.parse(JSON.stringify(dataModelMap[entityTypeId]));
-    table.alias = 't' + this.sql.joins.length;
-
-    return table;
-  }
-
-  private getField(table: Table, fieldId: string): string {
-    if (!table.fields[fieldId])
-      throw "Table [" + table.name + "] does not contain field [" + fieldId + "]";
-
-    return table.alias + "." + table.fields[fieldId];
-  }
-
-  private sqlToString(): string {
-    let result = "SELECT m." + this.sql.from.pk;
-
-    if (this.sql.select.length > 0) {
-      this.sql.select.forEach(f => result += ", " + f);
-    }
-
-    result += "\nFROM " + this.sql.from.name + " m";
-    if (this.sql.joins && this.sql.joins.length > 0) {
-      this.sql.joins.forEach((j: Join) => {
-        console.log(JSON.stringify(j.table))
-        result += "\nJOIN " + j.table.name + " " + j.table.alias + " ";
-        for (let i=0; i<j.conditions.length; i++) {
-          let c : Condition = j.conditions[i];
-          result += "\n\t" + (i==0 ? "ON" : j.operator) + " " + c.subject + " " + c.predicate + " " + c.object;
-        }
-      });
-    }
-
-    if (this.sql.where && this.sql.where.conditions.length > 0) {
-      for (let i = 0; i < this.sql.where.conditions.length; i++) {
-        const c: Condition = this.sql.where.conditions[i];
-
-        result += "\n" + (i === 0 ? "WHERE" : this.sql.where.operator) + " " + c.subject + " " + c.predicate + " " + c.object;
-      }
+    for(const match of matches) {
+      this.processMatch(table, result.conditions, match);
     }
 
     return result;
+  }
+
+
+  private getSubject(table: Table, match: Match): string {
+    if (match.function)
+      return this.getFunction(table, match);
+    else
+      return getField(table, match.property['@id']);
+  }
+
+  private getFunction(table: Table, match: Match): string {
+    const fn = match.function.id['@id'];
+
+    if (fn === "http://endhealth.info/im#AgeFunction") {
+      return "TIMESTAMPDIFF("
+        + this.getArgument(match.function.argument, "units") + ", "
+        + getField(table, match.property['@id']) + ", "
+        + this.getArgument(match.function.argument, "referenceDate") + ")";
+    } else {
+      throw "Unknown function [" + fn + "]";
+    }
+  }
+
+  private getArgument(args: Argument[], name: string): any {
+    for(const a of args) {
+      if (a.parameter === name)
+        return a.value;
+    }
+
+    throw "Unknown argument [" + name + "]";
+  }
+
+  private getComparison(c: string) {
+    switch (c) {
+      case "EQUAL": return "=";
+      case "GREATER_THAN": return ">";
+      case "GREATER_THAN_OR_EQUAL": return ">=";
+      case "LESS_THAN": return "<";
+      case "LESS_THAN_OR_EQUAL": return "<=";
+      case "NOT_EQUAL": return "<>";
+      case "MEMBER_OF": throw "Cannot compare \"Member of\"";
+      default: throw "Unknown comparator [" + c + "]";
+    }
   }
 }

@@ -524,6 +524,8 @@ public class EntityService {
             pv.setType(property.asNode().get(SHACL.CLASS).asIriRef());
         if (property.asNode().has(SHACL.DATATYPE))
             pv.setType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+        if (property.asNode().has(SHACL.FUNCTION))
+            pv.setType(property.asNode().get(SHACL.FUNCTION).asIriRef());
         if (property.asNode().has(SHACL.MAXCOUNT))
             pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
         if (property.asNode().has(SHACL.MINCOUNT))

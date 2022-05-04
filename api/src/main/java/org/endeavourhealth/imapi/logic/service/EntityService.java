@@ -22,7 +22,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
-import org.endeavourhealth.imapi.validators.CreateEntityValidator;
+import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
@@ -956,8 +956,16 @@ public class EntityService {
     }
 
     public TTEntity createEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
-        CreateEntityValidator validator = new CreateEntityValidator();
-        validator.isValid(entity, this);
+        EntityValidator validator = new EntityValidator();
+        validator.isValid(entity, this, "Create");
+        TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
+//        filerService.fileEntity(entity, graph);
+        return entity;
+    }
+
+    public TTEntity updateEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
+        EntityValidator validator = new EntityValidator();
+        validator.isValid(entity, this, "Update");
         TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
 //        filerService.fileEntity(entity, graph);
         return entity;

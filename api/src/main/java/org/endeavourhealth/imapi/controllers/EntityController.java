@@ -303,6 +303,13 @@ public class EntityController {
 		return entityService.createEntity(entity);
 	}
 
+	@PostMapping(value = "/update")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity updateEntity(@RequestBody TTEntity entity) throws TTFilerException, JsonProcessingException {
+		LOG.debug("updateEntity");
+		return entityService.updateEntity(entity);
+	}
+
 	@GetMapping(value = "/public/graph")
 	public GraphDto getGraphData(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getGraphData");

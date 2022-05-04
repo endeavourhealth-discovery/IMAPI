@@ -1,5 +1,5 @@
-import TTEntity from '../model/tripletree/TTEntity';
-import { OntologyUtils } from '../helpers'
+import TTEntity from '../../model/tripletree/TTEntity';
+import { OntologyUtils } from "../../helpers/query/"
 import { Keyspaces } from 'aws-sdk';
 
 export default class ManipulationUtils {

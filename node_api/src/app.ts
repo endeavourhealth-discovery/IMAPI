@@ -2,6 +2,9 @@ import express, { Application, Request, Response } from 'express';
 import cors from "cors";
 import * as https from 'https';
 import * as fs from 'fs';
+// import swaggerAutogen from 'swagger-autogen';
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('../swagger_output.json')
 
 class App {
   public app: Application
@@ -18,6 +21,9 @@ class App {
       }));
       
     this.app.options('*', cors());
+
+
+    this.app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 
     appInit.middleWares.forEach(m => this.app.use(m));

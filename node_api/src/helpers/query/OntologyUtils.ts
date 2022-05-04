@@ -1,4 +1,4 @@
-import {Namespaces, Prefixes} from '../model/constants';
+import {Namespaces, Prefixes} from "../../model/constants"
 
 
 export default class OntologyUtils {

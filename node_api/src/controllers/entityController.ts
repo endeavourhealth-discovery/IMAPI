@@ -2,8 +2,7 @@ import express, { Request, Response } from 'express';
 import AuthMiddleware from '../middlewares/auth.middleware';
 import { GraphdbService } from '../services/graphdb.service';
 
-import { SparqlSnippets } from '../helpers/'
-import VocabularyUtils from '../helpers/OntologyUtils'
+import {SparqlSnippets, OntologyUtils} from '../helpers/query'
 import TTEntity from '../model/tripletree/TTEntity'
 import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
 
@@ -123,7 +122,7 @@ export default class EntityController {
         const object = item?.object?.value || item?.object;
         const predicateLabel = item?.predicateLabel;
         const objectLabel = item?.objectLabel;
-        const prefixedPredicate = VocabularyUtils.toPrefix(predicate)
+        const prefixedPredicate = OntologyUtils.toPrefix(predicate)
 
 
         if (Array.isArray(entity[prefixedPredicate])) {

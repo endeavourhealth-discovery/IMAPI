@@ -4,9 +4,11 @@ import TTEntity from '../model/tripletree/TTEntity';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
-import { SparqlSnippets } from '../helpers/'
-import { OntologyUtils, ManipulationUtils, QueryUtils } from '../helpers'
+import {TextGenerator} from "../model/text";
+import { OntologyUtils, ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
+import { IM, RDF, RDFS } from "../vocabulary"
+
 
 import _ from "lodash";
 
@@ -84,7 +86,7 @@ export default class QueryWorkflow {
     IriRefs.forEach((item: any) => {
       const path = jp.stringify(item.path).substring(2);
       const entity = entities.find(entity => entity["@id"] == item.value["@id"])
-      entity ? _.set(definition.match, path, entity) : console.log("No DB entity found IriRef at path: " + path);
+      entity ? _.set(definition.match, path, entity) : console.log("No DB entity found for IriRef at path: " + path);
     })
 
     return definition;
@@ -110,13 +112,14 @@ export default class QueryWorkflow {
 
     // add summary to match clauses
     matchClauses.forEach(item => {
-      const summary  = QueryUtils.summariseClause(item.value);
+      const summary  = TextGenerator.summarise(item.value) || "";
       const path = jp.stringify(item.path).substring(2) + "_summary";
-      summary ? _.set(definition.match, path, summary) : console.log("No DB entity found IriRef at path: " + path);
-      console.log("summary: ", summary);
+      summary ? _.set(definition.match, path, summary) : null;
+      // console.log("summary: ", summary);
     
 
     })
+
     // const summary = await this.getTextSummary(matchClauses);
 
     // populate

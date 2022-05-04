@@ -947,6 +947,33 @@ public class EntityRepository2 {
 
         return result;
     }
+
+    public TTArray findFilteredInTask(String actionIri, String taskIri) {
+        TTArray ttArray = new TTArray();
+
+        StringJoiner guery = new StringJoiner("\n");
+        guery.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("SELECT * {")
+                .add("?actionIri im:inTask ?task .")
+                .add("?task rdfs:label ?taskName .")
+                .add("FILTER (?task != ?taskIri)")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(guery.toString());
+            qry.setBinding("actionIri", Values.iri(actionIri));
+            qry.setBinding("taskIri", Values.iri(taskIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    ttArray.add(new TTIriRef(bs.getValue("task").stringValue(), bs.getValue("taskName").stringValue()));
+                }
+            }
+        }
+
+        return ttArray;
+    }
 }
 
 

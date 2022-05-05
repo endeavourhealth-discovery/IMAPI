@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.sets.DataSet;
+import org.endeavourhealth.imapi.model.sets.QNode;
 import org.endeavourhealth.imapi.queryengine.QueryGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +37,12 @@ public class QueryController {
     }
 
 
-    @GetMapping(value = "/public/queryIM", produces = "application/json")
+    @GetMapping( "/public/queryIM")
     @Operation(
       summary = "Query IM",
-      description = "Queries the IM and returns objects based on the IM entities"
+      description = "Runs a query on IM"
     )
-    public String queryIM(@RequestParam(name = "query") String query) throws DataFormatException, JsonProcessingException {
+    public QNode queryIM(@RequestBody DataSet query) throws DataFormatException, JsonProcessingException {
         return new SearchService().queryIM(query);
-
     }
 }

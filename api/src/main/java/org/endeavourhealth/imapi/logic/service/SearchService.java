@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.DataSet;
+import org.endeavourhealth.imapi.model.sets.QNode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -47,9 +48,8 @@ public class SearchService {
 	 * @return a generic JSONDocument containing the results and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public String queryIM(String query) throws DataFormatException, JsonProcessingException {
-		DataSet dataSet= new ObjectMapper().readValue(query,DataSet.class);
-		return new IMQuery().queryIM(dataSet);
+	public QNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+		return new IMQuery().queryIM(query);
 
 	}
 

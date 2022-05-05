@@ -48,7 +48,7 @@ public class IMQuery {
 	}
 
 
-	public String queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+	public QNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
 		QNode result = new QNode();
 		String spq = buildSparql(query);
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -86,7 +86,7 @@ public class IMQuery {
 				}
 			}
 
-			return result.asJson();
+			return result;
 		}
 
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
@@ -46,8 +47,9 @@ public class SearchService {
 	 * @return a generic JSONDocument containing the results and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public String queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
-		return new IMQuery().queryIM(query);
+	public String queryIM(String query) throws DataFormatException, JsonProcessingException {
+		DataSet dataSet= new ObjectMapper().readValue(query,DataSet.class);
+		return new IMQuery().queryIM(dataSet);
 
 	}
 

@@ -1,10 +1,11 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Function {
 	TTIriRef id;
 	String name;

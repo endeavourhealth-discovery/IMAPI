@@ -1,0 +1,24 @@
+{
+  "name" : "ShapesUsingDateOfBirth",
+  "select" : [ {
+    "binding" : "*"
+  } ],
+  "match" : {
+    "entityType" : {
+      "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+    },
+    "property" : {
+      "@id" : "http://www.w3.org/ns/shacl#property"
+    },
+    "valueObject" : {
+      "property" : {
+        "@id" : "http://www.w3.org/ns/shacl#path"
+      },
+      "valueIn" : [ {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      } ]
+    }
+  },
+  "resultFormat" : "OBJECT",
+  "usePrefixes" : true
+}

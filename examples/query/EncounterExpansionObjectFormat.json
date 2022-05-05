@@ -1,0 +1,64 @@
+{
+  "name" : "EncounterExpansionObjectFormat",
+  "select" : [ {
+    "binding" : "term"
+  }, {
+    "binding" : "code"
+  }, {
+    "binding" : "matchedTo",
+    "object" : [ {
+      "binding" : "legacyTerm"
+    }, {
+      "binding" : "legacyCode"
+    }, {
+      "binding" : "scheme"
+    } ]
+  } ],
+  "match" : {
+    "entityId" : {
+      "@id" : "http://endhealth.info/im#VSET_EncounterTypes"
+    },
+    "includeMembers" : true,
+    "optional" : [ {
+      "property" : {
+        "@id" : "http://endhealth.info/im#code"
+      },
+      "valueVar" : "code"
+    }, {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "valueVar" : "term"
+    }, {
+      "property" : {
+        "@id" : "http://endhealth.info/im#matchedTo"
+      },
+      "inverseOf" : true,
+      "valueVar" : "matchedTo",
+      "valueObject" : {
+        "and" : [ {
+          "property" : {
+            "@id" : "http://endhealth.info/im#scheme"
+          },
+          "valueIn" : [ {
+            "@id" : "http://endhealth.info/enc#"
+          } ],
+          "valueVar" : "scheme"
+        } ],
+        "optional" : [ {
+          "property" : {
+            "@id" : "http://endhealth.info/im#code"
+          },
+          "valueVar" : "legacyCode"
+        }, {
+          "property" : {
+            "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+          },
+          "valueVar" : "legacyTerm"
+        } ]
+      }
+    } ]
+  },
+  "resultFormat" : "OBJECT",
+  "usePrefixes" : true
+}

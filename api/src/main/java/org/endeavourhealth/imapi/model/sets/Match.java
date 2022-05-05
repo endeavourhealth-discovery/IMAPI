@@ -2,31 +2,32 @@ package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.endeavourhealth.imapi.model.tripletree.TTIri;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeMembers","graph","property","inverseOf","valueCompare","valueIn","valueNotIn",
+@JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeSubEntities","includeMembers","graph","property","includeSubProperties","inverseOf","valueCompare","valueIn","valueNotIn",
 "valueRange","valueFunction","valueWithin","valueVar","valueObject","isIndex","and","or","may","sortLimit","function"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends TTIri {
+public class Match extends Heading {
 
 	private List<Match> and;
 	private List<Match> or;
-	private List<Match> may;
+	private List<Match> optional;
 	private SortLimit sortLimit;
 	private TTIriRef graph;
 	private TTIriRef entityType;
 	private TTIriRef entityId;
-	private List<TTIri> subsetOf;
+	private List<TTIriRef> subsetOf;
 
 	TTIriRef property;
 	Compare valueCompare;
 	List<TTIriRef> valueIn;
 	List<TTIriRef> valueNotIn;
 	Range valueRange;
+	String entityVar;
+	String propertyVar;
 	String valueVar;
 	Match valueObject;
 	Function function;
@@ -35,7 +36,44 @@ public class Match extends TTIri {
 	boolean notExist=false;
 	boolean includeMembers=false;
 	boolean isIndex;
+	boolean includeSubEntities;
+	boolean includeSubProperties;
 
+	public String getEntityVar() {
+		return entityVar;
+	}
+
+	public Match setEntityVar(String entityVar) {
+		this.entityVar = entityVar;
+		return this;
+	}
+
+	public String getPropertyVar() {
+		return propertyVar;
+	}
+
+	public Match setPropertyVar(String propertyVar) {
+		this.propertyVar = propertyVar;
+		return this;
+	}
+
+	public boolean isIncludeSubProperties() {
+		return includeSubProperties;
+	}
+
+	public Match setIncludeSubProperties(boolean includeSubProperties) {
+		this.includeSubProperties = includeSubProperties;
+		return this;
+	}
+
+	public boolean isIncludeSubEntities() {
+		return includeSubEntities;
+	}
+
+	public Match setIncludeSubEntities(boolean includeSubEntities) {
+		this.includeSubEntities = includeSubEntities;
+		return this;
+	}
 
 	public Match setName(String name){
 		super.setName(name);
@@ -52,16 +90,16 @@ public class Match extends TTIri {
 		return this;
 	}
 
-	public List<TTIri> getSubsetOf() {
+	public List<TTIriRef> getSubsetOf() {
 		return subsetOf;
 	}
 
-	public Match setSubsetOf(List<TTIri> subsetOf) {
+	public Match setSubsetOf(List<TTIriRef> subsetOf) {
 		this.subsetOf = subsetOf;
 		return this;
 	}
 
-	public Match addSubsetOf(TTIri from){
+	public Match addSubsetOf(TTIriRef from){
 		if (this.subsetOf ==null)
 			this.subsetOf = new ArrayList<>();
 		this.subsetOf.add(from);
@@ -146,18 +184,18 @@ public class Match extends TTIri {
 		return this;
 	}
 
-	public List<Match> getMay() {
-		return may;
+	public List<Match> getOptional() {
+		return optional;
 	}
 
-	public Match setMay(List<Match> may) {
-		this.may = may;
+	public Match setOptional(List<Match> optional) {
+		this.optional = optional;
 		return this;
 	}
-	public Match addMay(Match may){
-		if (this.may==null)
-			this.may= new ArrayList<>();
-		this.may.add(may);
+	public Match addOptional(Match may){
+		if (this.optional ==null)
+			this.optional = new ArrayList<>();
+		this.optional.add(may);
 		return this;
 	}
 

@@ -1,14 +1,51 @@
 package org.endeavourhealth.imapi.model.sets;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIri;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-public class Select extends TTIri {
+import java.util.ArrayList;
+import java.util.List;
 
-	private DataSet object;
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+public class Select {
+
+
 	private boolean sum;
 	private boolean average;
 	private boolean max;
 	private boolean count;
+	private String binding;
+	private String alias;
+	private String name;
+	private List<Select> object;
+
+
+	public List<Select> getObject() {
+		return object;
+	}
+
+	public Select setObject(List<Select> object) {
+		this.object = object;
+		return this;
+	}
+
+	public Select addObject(Select select){
+		if (this.object ==null)
+			this.object = new ArrayList<>();
+		this.object.add(select);
+		return this;
+	}
+
+	public String getBinding() {
+		return binding;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public String getName() {
+		return name;
+	}
 
 	public boolean isCount() {
 		return count;
@@ -46,27 +83,18 @@ public class Select extends TTIri {
 		return this;
 	}
 
-	public DataSet getObject() {
-		return object;
-	}
-
-	public Select setObject(DataSet object) {
-		this.object = object;
-		return this;
-	}
-
-	public Select setVar(String var){
-		super.setVar(var);
+	public Select setBinding(String binding){
+		this.binding = binding;
 		return this;
 	}
 
 	public Select setAlias(String alias){
-		super.setAlias(alias);
+		this.alias=alias;
 		return this;
 	}
 
 	public Select setName(String name){
-		super.setName(name);
+		this.name=name;
 		return this;
 	}
 }

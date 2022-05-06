@@ -959,7 +959,8 @@ public class EntityService {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Create");
         TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
-//        filerService.fileEntity(entity, graph);
+        entity.setCrud(IM.ADD_QUADS);
+        filerService.fileEntity(entity, graph);
         return entity;
     }
 
@@ -967,7 +968,8 @@ public class EntityService {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Update");
         TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
-//        filerService.fileEntity(entity, graph);
+        entity.setCrud(IM.UPDATE_ALL);
+        filerService.fileEntity(entity, graph);
         return entity;
     }
 }

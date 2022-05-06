@@ -297,14 +297,14 @@ public class EntityController {
 	}
 
 	@PostMapping(value = "/create")
-	@PreAuthorize("isAuthenticated()")
+	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity createEntity(@RequestBody TTEntity entity) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
 		return entityService.createEntity(entity);
 	}
 
 	@PostMapping(value = "/update")
-	@PreAuthorize("isAuthenticated()")
+	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity updateEntity(@RequestBody TTEntity entity) throws TTFilerException, JsonProcessingException {
 		LOG.debug("updateEntity");
 		return entityService.updateEntity(entity);

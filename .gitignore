@@ -11,3 +11,4 @@ node_modules
 
 /api/bin/
 org.eclipse.jdt.core.prefs
+*.backup.json

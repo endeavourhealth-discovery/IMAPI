@@ -3,6 +3,7 @@ const swaggerAutogen = require('swagger-autogen')()
 
 const doc = {
     info: {
+        version: '1.0.0',
       title: 'IMAPI on Express.js',
       description: 'IMAPI backend API Swagger Documentation',
     },

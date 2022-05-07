@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import TTNode from "./TTNode"
 
-import { IM, OWL, RDF, RDFS, SHACL } from "../../vocabulary/"
+import { IM, OWL, RDF, RDFS, SHACL } from "../../vocabulary"
 
 
 export default class TTEntity extends TTNode {

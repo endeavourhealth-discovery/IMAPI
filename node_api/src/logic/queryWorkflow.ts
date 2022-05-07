@@ -4,7 +4,7 @@ import TTEntity from '../model/tripletree/TTEntity';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
-import {TextGenerator} from "../model/text";
+import { TextGenerator } from "../model/text";
 import { OntologyUtils, ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
 import { IM, RDF, RDFS } from "../vocabulary"
@@ -18,7 +18,6 @@ export default class QueryWorkflow {
   constructor() {
     this.graph = new GraphdbService();
   }
-
 
 
   public async getDefinition(queryIri: string): Promise<DataSet> {
@@ -40,10 +39,15 @@ export default class QueryWorkflow {
   //richDefinition //pre populated with rdf:type, range, 
   // get all TTIriRefs from definition
 
-  // use entityService to get all metadat for TTIriRefs
 
-  // POST Reqwuest with body containing array named "iris"
-  private async getAllEntities(iris: string[]) {
+  /*  #swagger.parameters['obj'] = {
+                in: 'body',
+                description: 'Accepts an array of IRIs"',
+                schema: {
+                    iri: '[uuid1, iri2,...]',
+                }
+        } */
+  public async allEntities(iris: string[]) {
 
     if (Array.isArray(iris) && iris.length > 0) {
 
@@ -80,7 +84,7 @@ export default class QueryWorkflow {
 
     // get all entities from database for TTIriRefs
     const iris = IriRefs.map(item => item.value["@id"]);
-    const entities = await this.getAllEntities(iris);
+    const entities = await this.allEntities(iris);
 
     // populate definition with entities
     IriRefs.forEach((item: any) => {
@@ -97,42 +101,40 @@ export default class QueryWorkflow {
 
   // }
   //populate definition
-  public async populateQuery(queryIri: string): Promise<any> {
+  public async summariseQuery(type: string = "get", payload: any): Promise<any> {
 
-    // split into individual match-clauses
+    const definition: DataSet =
+      (type == "get")
+        ? await this.getDefinition(payload)
+        : payload;
 
-    const definition: DataSet = await this.getRichDefinition(queryIri);
-
-    // const jsonQuery = `$..[?(@.@id)]`
-    //matches an object with an "id" and "property" key
-    const jsonQuery = `$..[?(@.property)]`;
+    //matchClause = an object with "property" key
+    const jsonQuery = `$..[?(@.property)]`;    // const jsonQuery = `$..[?(@.@id)]`
     let matchClauses = jp.nodes(definition.match, jsonQuery);
     matchClauses = matchClauses.filter(excludedPaths);
 
 
     // add summary to match clauses
     matchClauses.forEach(item => {
-      const summary  = TextGenerator.summarise(item.value) || "";
-      const path = jp.stringify(item.path).substring(2) + "_summary";
+      const summary = TextGenerator.summarise(item.value) || "";
+      const key = "name";
+      const path = jp.stringify(item.path).substring(2) + key;
       summary ? _.set(definition.match, path, summary) : null;
-      // console.log("summary: ", summary);
-    
-
+      // console.log(`summary of clause (${path}):`, summary);
     })
 
-    // const summary = await this.getTextSummary(matchClauses);
-
-    // populate
-
-    // save query back to db + generate provenance agent + activity
-
-    // save clause  to db as im:matchClause + update OpenSearch
-
-    // return response with populated query definition
     return definition;
 
   }
+  // const summary = await this.getTextSummary(matchClauses);
 
+  // populate
+
+  // save query back to db + generate provenance agent + activity
+
+  // save clause  to db as im:matchClause + update OpenSearch
+
+  // return response with populated query definition
 
 
 

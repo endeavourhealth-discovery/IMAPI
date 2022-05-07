@@ -53,7 +53,7 @@
         "responses": {}
       }
     },
-    "/api/query/public/populate": {
+    "/api/query/public/summariseClause": {
       "get": {
         "description": "",
         "parameters": [],

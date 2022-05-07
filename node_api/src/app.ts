@@ -15,15 +15,15 @@ class App {
     this.app = express();
     this.port = appInit.port;
 
-      this.app.use(cors({
-        origin: process.env.ALLOWED_HOSTS as string,
-        optionsSuccessStatus: 200
-      }));
-      
+    this.app.use(cors({
+      origin: "*" || process.env.ALLOWED_HOSTS as string,
+      optionsSuccessStatus: 200
+    }));
+
     this.app.options('*', cors());
 
 
-    this.app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+    this.app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 
     appInit.middleWares.forEach(m => this.app.use(m));

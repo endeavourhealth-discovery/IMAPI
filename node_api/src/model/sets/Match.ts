@@ -29,9 +29,4 @@ export class Match extends TTIri {
   public notExist: boolean;
   public includeMembers: boolean;
   public index: boolean;
-
-
-
-
-
 }

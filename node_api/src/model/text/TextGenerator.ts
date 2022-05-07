@@ -18,16 +18,15 @@ export class TextGenerator {
     public static summarise(clause: any): string {
 
 
-        // const isPath = jsonPath => _.get(clauseDefinition, jsonPath) != undefined;
-        // const path = jsonPath => _.get(clauseDefinition, jsonPath);
 
         clause = new Clause(clause);
 
-        let property = clause.path('property.rdfs:label').value;
+        let property = clause.path('property.name').value;
         let comparison = Comparison[clause.path('valueCompare.comparison').value];
-        let comparator = clause.path('valueCompare.valueData').value;
-        let valueIn = clause.path('valueIn[0].rdfs:label').value;
-        let entity = clause.path('valueObject.entityType.rdfs:label').value;
+        let valueCompare = clause.path('valueCompare.valueData').value;
+        // let unit = clause.path('valueCompare.function.argument[0].value').value;
+        let valueIn = clause.path('valueIn[0].name').value;
+        let entity = clause.path('valueObject.entityType.name').value;
         let test = clause.path('valueObject.sortLimit.test').value;
         let testValueIn = clause.path('valueObject.sortLimit.test[0].valueIn[0].name').value;
         // let testValueIn = clause.path('valueObject.sortLimit.test.valueIn[0].rdfs:label').value;
@@ -38,18 +37,18 @@ export class TextGenerator {
 
 
         if (test) {
-            sentence = ["had", a(testValueIn), testValueIn];
+            sentence = ["had", testValueIn];
 
-        } else if (clause.path("valueObject.entityType").exists) {
+        } else if (entity) {
             sentence = ["had", a(entity), entity, "with a", property, "that is", valueIn,];
 
-        } else if (clause.path("valueIn").exists) {
+        } else if (valueIn) {
             sentence = ["had", a(property), property, "that is", valueIn];
 
-        } else if (clause.path("valueCompare").exists) {
-            sentence = ["had", a(property), property, "that is", comparator, comparison];
+        } else if (valueCompare) {
+            sentence = ["had", a(property), property, "that is", comparison, valueCompare ];
 
-        } else if (clause.path("property").exists) {
+        } else if (property) {
             sentence = ["had", a(property), property, "that exists"];
 
         }

@@ -25,7 +25,8 @@ export default class ManipulationUtils {
         return !excludedPathProperties.some(path => clause.path.includes(path));
     }
 
-    public static entitiesFromPredicates(queryResult): any {
+    // from a graphDB query result with columns (predicate, object, predicateLabel, objectLabel) it generates TTEntity.
+    public static entitiesFromPredicates(queryResult: any): any {
         let entity;
         const visitedIris = new Set();
         const entities: any[] = [];
@@ -34,6 +35,7 @@ export default class ManipulationUtils {
         queryResult.forEach((item, index) => {
             const iri = item.iri.value;
 
+            //adds an entity to return value if all their predicates are populated.
             if (!visitedIris.has(iri)) {
                 visitedIris.size > 0 ? entities.push(entity) : null;
                 visitedIris.add(iri);
@@ -47,6 +49,7 @@ export default class ManipulationUtils {
             const prefixedPredicate = OntologyUtils.toPrefix(predicate)
 
             if (Array.isArray(entity[prefixedPredicate])) {
+                //TTIriRef e.g. rdf:type
                 entity[prefixedPredicate].push(
                     {
                         "@id": object,
@@ -54,10 +57,12 @@ export default class ManipulationUtils {
                     }
                 );
             } else {
+                //All Else e.g. rdfs:comment
                 entity[prefixedPredicate] = object;
             }
 
 
+            //add final entity in the query result ot the return value
             if (index == queryResult.length - 1) {
                 entities.push(entity)
             }

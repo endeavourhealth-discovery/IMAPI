@@ -47,7 +47,7 @@ export class Helpers {
     }
 
     public static a(testString: string) {
-       return ["a", "e", "i", "o", "u"].some((letter: string) => letter.toLowerCase() == testString.substring(0, 1).toLowerCase()) ? "an" : "a";
+        return testString && testString != "" ? ["a", "e", "i", "o", "u"].some((letter: string) => letter.toLowerCase() == testString.substring(0, 1).toLowerCase()) ? "an" : "a" : "a";
     };
 
 }

@@ -19,41 +19,50 @@ export default class QueryController {
   }
 
   private initRoutes() {
-    this.router.get('/api/query/public/run', (req, res) => this.runQuery(req, res));
-    this.router.get('/api/query/public/definition', (req, res) => this.definition(req, res));
-    this.router.get('/api/query/public/richDefinition', (req, res) => this.richDefinition(req, res));
-    this.router.get('/api/query/public/populate', (req, res) => this.populate(req, res))
+
+    this.router.get('/node_api/query/public/run', (req, res) => this.runQuery(req, res));
+    this.router.get('/node_api/query/public/definition', (req, res) => this.definition(req, res));
+    this.router.get('/node_api/query/public/richDefinition', (req, res) => this.richDefinition(req, res));
+    this.router.get('/node_api/query/public/querySummary', (req, res) => this.getQuerySummary(req, res))
+    this.router.post('/node_api/query/public/querySummary', (req, res) => this.postQuerySummary(req, res))
 
   }
 
+  /* #swagger.parameters['iri'] = {
+     in: 'query',
+     description: 'The Iri of the query you want to run. Example: "urn:uuid:40a4a1f1-b768-4db8-a8a6-6df744935d97',
+  } 
+  */
   async runQuery(req: Request, res: Response) {
+
     const data = await this.runner.runQuery(req.query.iri as string);
     res.send(data);
     res.end();
   }
 
-  async definition (req: Request, res: Response) {
+
+  async definition(req: Request, res: Response) {
     const data = await this.workflow.getDefinition(req.query.iri as string);
     res.send(data).end();
   }
 
-  async richDefinition (req: Request, res: Response) {
+
+  async richDefinition(req: Request, res: Response) {
     const data = await this.workflow.getRichDefinition(req.query.iri as string);
     res.send(data).end();
   }
 
-
-  
- 
-  protected async populate(req: Request, res: Response) {
-
-
-    const data =await this.workflow.populateQuery(req.query.iri as string)
-
-    // console.log("query", data)
+  async postQuerySummary(req: Request, res: Response) {
+    res.setHeader('Content-Type', 'application/json')
+    const data = await this.workflow.summariseQuery("post", req.body)
     res.send(data).end();
 
   }
+  async getQuerySummary(req: Request, res: Response) {
+    res.setHeader('Content-Type', 'application/json')
+    const data = await this.workflow.summariseQuery("get", req.query.iri as string)
+    res.send(data).end();
 
+  }
 }
 

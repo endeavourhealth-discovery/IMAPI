@@ -191,6 +191,7 @@ class DataSetTest {
 
 	private static void output(DataSet dataSet) throws IOException, DataFormatException {
 
+		/*
 		SearchService ss= new SearchService();
 		String json= dataSet.getasJson();
 		try (FileWriter wr= new FileWriter("c:\\examples\\querydefinitions\\"+ dataSet.getName()+".json")){
@@ -200,6 +201,8 @@ class DataSetTest {
 		try (FileWriter wr= new FileWriter("c:\\examples\\queryresults\\"+ dataSet.getName()+"_result.json")){
 			wr.write(result.asJson());
 		}
+
+		 */
 
 	}
 

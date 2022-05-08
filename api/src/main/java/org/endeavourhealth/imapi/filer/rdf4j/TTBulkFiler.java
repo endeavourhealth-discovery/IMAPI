@@ -110,8 +110,8 @@ public class TTBulkFiler  extends TTDocumentFiler {
 					if (counter % 100000 == 0)
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
 
-					if (entity.getStatus()==null)
-						entity.setStatus(IM.ACTIVE);
+					if (entity.get(RDFS.LABEL) != null && entity.get(IM.HAS_STATUS) == null)
+						entity.set(IM.HAS_STATUS, IM.ACTIVE);
 
 					List<String> quadList = converter.transformEntity(entity, entityGraph);
 					for (String quad : quadList) {

@@ -5,8 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.sets.DataSet;
-import org.endeavourhealth.imapi.model.sets.QNode;
-import org.endeavourhealth.imapi.queryengine.QueryGenerator;
+import org.endeavourhealth.imapi.model.sets.ResultNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +41,7 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a query on IM"
     )
-    public QNode queryIM(@RequestBody DataSet query) throws DataFormatException, JsonProcessingException {
+    public ResultNode queryIM(@RequestBody DataSet query) throws DataFormatException, JsonProcessingException {
         return new SearchService().queryIM(query);
     }
 }

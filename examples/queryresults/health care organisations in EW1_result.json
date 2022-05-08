@@ -1,0 +1,116 @@
+{
+  "predicates" : [ {
+    "http://endhealth.info/im#address" : "address",
+    "http://endhealth.info/im#uprn" : "UPRN",
+    "http://endhealth.info/im#country" : "Country",
+    "http://endhealth.info/im#status" : "status",
+    "http://endhealth.info/im#postCode" : "Post Code",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "label",
+    "http://endhealth.info/im#locality" : "Locality",
+    "http://endhealth.info/im#addressLine1" : "Address (line 1)",
+    "http://endhealth.info/im#region" : "Region",
+    "http://endhealth.info/im#addressLine2" : "Address (line 2)",
+    "http://endhealth.info/im#addressLine3" : "Address (line 3)",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : "type"
+  } ],
+  "entities" : [ {
+    "im:address" : [ {
+      "im:status" : [ {
+        "@id" : [ "im:Active" ]
+      } ],
+      "im:addressLine1" : [ "445 CABLE STREET" ],
+      "im:locality" : [ "LONDON" ],
+      "im:postCode" : [ "E1W 3DP" ],
+      "im:uprn" : [ "6210726" ],
+      "rdf:type" : [ {
+        "@id" : [ "im:Address" ]
+      } ],
+      "@id" : [ "http://loc.endhealth.info/im#U99255" ],
+      "im:country" : [ "ENGLAND" ]
+    } ],
+    "rdfs:label" : [ "TOWER HAMLETS NETWORK 4 PCN" ],
+    "@id" : {
+      "localName" : "U99255",
+      "namespace" : "http://org.endhealth.info/im#",
+      "iri" : true,
+      "resource" : true
+    }
+  }, {
+    "im:address" : [ {
+      "im:status" : [ {
+        "@id" : [ "im:Active" ]
+      } ],
+      "im:addressLine1" : [ "DOCTORS SURGERY" ],
+      "im:locality" : [ "LONDON" ],
+      "im:postCode" : [ "E1W 3DP" ],
+      "im:region" : [ "GREATER LONDON" ],
+      "rdf:type" : [ {
+        "@id" : [ "im:Address" ]
+      } ],
+      "@id" : [ "http://loc.endhealth.info/im#Y01650" ],
+      "im:addressLine2" : [ "445 CABLE STREET" ],
+      "im:country" : [ "ENGLAND" ]
+    } ],
+    "rdfs:label" : [ "CABLE STREET SURGERY" ],
+    "@id" : {
+      "localName" : "Y01650",
+      "namespace" : "http://org.endhealth.info/im#",
+      "iri" : true,
+      "resource" : true
+    }
+  }, {
+    "im:address" : [ {
+      "im:status" : [ {
+        "@id" : [ "im:Active" ]
+      } ],
+      "im:addressLine1" : [ "445 CABLE STREET" ],
+      "im:locality" : [ "LONDON" ],
+      "im:postCode" : [ "E1W 3DP" ],
+      "im:uprn" : [ "6210726" ],
+      "rdf:type" : [ {
+        "@id" : [ "im:Address" ]
+      } ],
+      "@id" : [ "http://loc.endhealth.info/im#H9P5L" ],
+      "im:country" : [ "ENGLAND" ]
+    } ],
+    "rdfs:label" : [ "CABLE STREET SURGERY (BRANCH SITE FOR EAST ONE HEALTH) - COVID LOCAL VACCINATION SERVICE" ],
+    "@id" : {
+      "localName" : "H9P5L",
+      "namespace" : "http://org.endhealth.info/im#",
+      "iri" : true,
+      "resource" : true
+    }
+  }, {
+    "im:address" : [ {
+      "im:status" : [ {
+        "@id" : [ "im:Active" ]
+      } ],
+      "im:addressLine1" : [ "CABLE STREET SURGERY" ],
+      "im:locality" : [ "LONDON" ],
+      "im:postCode" : [ "E1W 3DP" ],
+      "im:region" : [ "GREATER LONDON" ],
+      "rdf:type" : [ {
+        "@id" : [ "im:Address" ]
+      } ],
+      "@id" : [ "http://loc.endhealth.info/im#F84682001" ],
+      "im:addressLine3" : [ "TOWER HAMLETS" ],
+      "im:addressLine2" : [ "445 CABLE STREET" ],
+      "im:country" : [ "ENGLAND" ]
+    } ],
+    "rdfs:label" : [ "EAST ONE HEALTH BRANCH" ],
+    "@id" : {
+      "localName" : "F84682001",
+      "namespace" : "http://org.endhealth.info/im#",
+      "iri" : true,
+      "resource" : true
+    }
+  } ],
+  "@context" : {
+    "im" : [ "http://endhealth.info/im#" ],
+    "sh" : [ "http://www.w3.org/ns/shacl#" ],
+    "rdf" : [ "http://www.w3.org/1999/02/22-rdf-syntax-ns#" ],
+    "xsd" : [ "http://www.w3.org/2001/XMLSchema#" ],
+    "rdfs" : [ "http://www.w3.org/2000/01/rdf-schema#" ],
+    "sn" : [ "http://snomed.info/sct#" ]
+  }
+}

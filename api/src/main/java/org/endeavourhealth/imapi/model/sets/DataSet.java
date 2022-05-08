@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder ({"iri","name","description","var","select","propertyMap","match","subset"})
+@JsonPropertyOrder ({"iri","name","description","var","resultFormat","subset","distinct","activeOnly","referenceDate","select","groupBy","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class DataSet extends Heading {
 
@@ -23,6 +23,43 @@ public class DataSet extends Heading {
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
 	private boolean distinct;
+	private String referenceDate;
+	private boolean activeOnly;
+
+	public boolean isActiveOnly() {
+		return activeOnly;
+	}
+
+	public DataSet setActiveOnly(boolean activeOnly) {
+		this.activeOnly = activeOnly;
+		return this;
+	}
+
+	public String getReferenceDate() {
+		return referenceDate;
+	}
+
+	public DataSet setReferenceDate(String referenceDate) {
+		this.referenceDate = referenceDate;
+		return this;
+	}
+
+
+	@Override
+	public DataSet setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
+
+
+	@Override
+	public DataSet setDescription(String description){
+		super.setDescription(description);
+		return this;
+	}
+
+
 
 	public boolean isDistinct() {
 		return distinct;
@@ -37,6 +74,7 @@ public class DataSet extends Heading {
 		return usePrefixes;
 	}
 
+	@Override
 	public DataSet setName(String name){
 		super.setName(name);
 		return this;

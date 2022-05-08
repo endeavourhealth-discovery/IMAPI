@@ -1,0 +1,34 @@
+{
+  "name" : "PropertiesOfShapesUsingDateOfBirth",
+  "description" : "all of the data model properties for entities that have a property df a data of birth",
+  "select" : [ {
+    "binding" : "property",
+    "object" : [ {
+      "binding" : "*"
+    } ]
+  } ],
+  "match" : {
+    "entityType" : {
+      "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+    },
+    "property" : {
+      "@id" : "http://www.w3.org/ns/shacl#property"
+    },
+    "valueObject" : {
+      "property" : {
+        "@id" : "http://www.w3.org/ns/shacl#path"
+      },
+      "valueConcept" : [ {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      } ]
+    },
+    "optional" : [ {
+      "property" : {
+        "@id" : "http://www.w3.org/ns/shacl#property"
+      },
+      "valueVar" : "property"
+    } ]
+  },
+  "resultFormat" : "OBJECT",
+  "usePrefixes" : true
+}

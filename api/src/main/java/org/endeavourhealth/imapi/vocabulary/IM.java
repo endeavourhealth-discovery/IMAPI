@@ -32,11 +32,10 @@ public class IM {
     public static final TTIriRef FOLDER = iri(NAMESPACE + "Folder");
     public static final TTIriRef VALUESET= iri(NAMESPACE+"ValueSet");
     public static final TTIriRef TEXT_MAPS= iri(NAMESPACE+"TextMaps");
-    public static final TTIriRef PROFILE= iri(NAMESPACE+"Profile");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
-  public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
+  public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
   public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
 
 
@@ -96,6 +95,7 @@ public class IM {
 
     //Sets
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
+  public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
 
 
     //Graphs

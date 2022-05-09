@@ -32,8 +32,6 @@ public class EntityRepository2 {
 
         addExpansionDbids(definition, result);
 
-        addSetMemberDbids(setIri, result);
-
         return result;
     }
 
@@ -106,30 +104,6 @@ public class EntityRepository2 {
                         if (bs.getValue("legacyId") != null)
                             result.add(((Literal)bs.getValue("legacyId")).stringValue());
                     }
-                }
-            }
-        }
-    }
-
-
-    private void addSetMemberDbids(String setIri, Set<String> result) {
-        String sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?id")
-            .add("WHERE {")
-            .add("  ?set ?imHasMember ?concept.")
-            .add("  ?concept ?imDbid ?id.")
-            .add("}")
-            .toString();
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            qry.setBinding("set", Values.iri(setIri));
-            qry.setBinding("imHasMember", Values.iri(IM.HAS_MEMBER.getIri()));
-            qry.setBinding("imDbid", Values.iri(IM.IM1ID.getIri()));
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    result.add(((Literal)bs.getValue("id")).stringValue());
                 }
             }
         }

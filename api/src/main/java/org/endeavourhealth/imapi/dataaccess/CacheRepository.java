@@ -52,7 +52,8 @@ public class CacheRepository {
 		return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
 			"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
 			"PREFIX im: <http://endhealth.info/im#>\n" +
-			"PREFIX sh: <http://www.w3.org/ns/shacl#>Construct {\n" +
+			"PREFIX sh: <http://www.w3.org/ns/shacl#> \n"+
+			"CONSTRUCT {\n" +
 			"    ?shape ?p ?o.\n" +
 			"     ?o ?p2 ?o2.\n" +
 			"}\n" +

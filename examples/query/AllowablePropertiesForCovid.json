@@ -1,0 +1,38 @@
+{
+  "name" : "AllowablePropertiesForCovid",
+  "select" : [ {
+    "binding" : "id"
+  }, {
+    "binding" : "code"
+  }, {
+    "binding" : "term"
+  } ],
+  "match" : {
+    "and" : [ {
+      "includeSubEntities" : true,
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
+      }
+    }, {
+      "property" : {
+        "@id" : "http://endhealth.info/im#isA"
+      },
+      "inverseOf" : true,
+      "valueIn" : [ {
+        "@id" : "http://snomed.info/sct#674814021000119106"
+      } ]
+    } ],
+    "optional" : [ {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "valueVar" : "term"
+    }, {
+      "property" : {
+        "@id" : "http://endhealth.info/im#code"
+      },
+      "valueVar" : "code"
+    } ]
+  },
+  "distinct" : true
+}

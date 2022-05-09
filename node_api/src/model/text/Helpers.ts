@@ -50,6 +50,11 @@ export class Helpers {
         return testString && testString != "" ? ["a", "e", "i", "o", "u"].some((letter: string) => letter.toLowerCase() == testString.substring(0, 1).toLowerCase()) ? "an" : "a" : "a";
     };
 
+    public static pronoun(testString: string): string {
+        return Helpers.isObjectAnimate(testString) ? "they" : "it";
+    }
+
+
 }
 
 // export const Helpers = { "isSingular": isSingular, "firstLetterIsVowel": firstLetterIsVowel, "includes": includes, "isObjectAnimate": isObjectAnimate, "isTrue": isTrue, "hasTransformation": hasTransformation, "isNegative": isNegative, "a": a };

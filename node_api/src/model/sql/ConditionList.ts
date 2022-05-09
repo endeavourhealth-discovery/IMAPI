@@ -1,7 +1,6 @@
 import {Condition} from './Condition';
 
 export class ConditionList {
-  public operator: string;
+  public operator: string = 'AND';
   public conditions: Condition[] = [];
-  public subConditions: ConditionList;
 }

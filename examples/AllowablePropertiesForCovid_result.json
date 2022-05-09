@@ -1,0 +1,66 @@
+{
+  "entities" : [ {
+    "code" : [ "363698007" ],
+    "term" : [ "Finding site (attribute)" ]
+  }, {
+    "code" : [ "246075003" ],
+    "term" : [ "Causative agent (attribute)" ]
+  }, {
+    "code" : [ "246454002" ],
+    "term" : [ "Occurrence (attribute)" ]
+  }, {
+    "code" : [ "363714003" ],
+    "term" : [ "Interprets (attribute)" ]
+  }, {
+    "code" : [ "116676008" ],
+    "term" : [ "Associated morphology (attribute)" ]
+  }, {
+    "code" : [ "246112005" ],
+    "term" : [ "Severity (attribute)" ]
+  }, {
+    "code" : [ "371881003" ],
+    "term" : [ "During (attribute)" ]
+  }, {
+    "code" : [ "255234002" ],
+    "term" : [ "After (attribute)" ]
+  }, {
+    "code" : [ "419066007" ],
+    "term" : [ "Finding informer (attribute)" ]
+  }, {
+    "code" : [ "42752001" ],
+    "term" : [ "Due to (attribute)" ]
+  }, {
+    "code" : [ "363713009" ],
+    "term" : [ "Has interpretation (attribute)" ]
+  }, {
+    "code" : [ "363705008" ],
+    "term" : [ "Has definitional manifestation (attribute)" ]
+  }, {
+    "code" : [ "263502005" ],
+    "term" : [ "Clinical course (attribute)" ]
+  }, {
+    "code" : [ "246456000" ],
+    "term" : [ "Episodicity (attribute)" ]
+  }, {
+    "code" : [ "370135005" ],
+    "term" : [ "Pathological process (attribute)" ]
+  }, {
+    "code" : [ "726633004" ],
+    "term" : [ "Temporally related to (attribute)" ]
+  }, {
+    "code" : [ "418775008" ],
+    "term" : [ "Finding method (attribute)" ]
+  }, {
+    "code" : [ "288556008" ],
+    "term" : [ "Before (attribute)" ]
+  }, {
+    "code" : [ "726634005" ],
+    "term" : [ "During AND/OR after (attribute)" ]
+  }, {
+    "code" : [ "719722006" ],
+    "term" : [ "Has realization (attribute)" ]
+  }, {
+    "code" : [ "47429007" ],
+    "term" : [ "Associated with (attribute)" ]
+  } ]
+}

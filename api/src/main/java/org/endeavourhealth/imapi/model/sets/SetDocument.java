@@ -13,16 +13,16 @@ public class SetDocument {
 	private List<DataSet> dataSet;
 	private List<DataSet> profile;
 
-	public List<DataSet> getSetModel() {
+	public List<DataSet> getDataSet() {
 		return dataSet;
 	}
 
-	public SetDocument setSetModel(List<DataSet> dataSet) {
+	public SetDocument setDataSet(List<DataSet> dataSet) {
 		this.dataSet = dataSet;
 		return this;
 	}
 
-	public SetDocument addSetModel(DataSet set){
+	public SetDocument addDataSet(DataSet set){
 		if (this.dataSet ==null)
 			this.dataSet = new ArrayList<>();
 		this.dataSet.add(set);

@@ -1,0 +1,27 @@
+{
+  "name" : "AsthmaSubTypesCore",
+  "select" : [ {
+    "binding" : "label",
+    "alias" : "term"
+  }, {
+    "binding" : "code",
+    "alias" : "code"
+  } ],
+  "match" : {
+    "entityId" : {
+      "@id" : "http://snomed.info/sct#195967001"
+    },
+    "includeSubEntities" : true,
+    "optional" : [ {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      },
+      "valueVar" : "label"
+    }, {
+      "property" : {
+        "@id" : "http://endhealth.info/im#code"
+      },
+      "valueVar" : "code"
+    } ]
+  }
+}

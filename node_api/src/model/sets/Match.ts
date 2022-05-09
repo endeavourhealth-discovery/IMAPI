@@ -14,7 +14,7 @@ export class Match extends TTIri {
   public graph: TTIriRef;
   public entityType: TTIriRef;
   public entityId: TTIriRef;
-  public subsetOf: TTIri;
+  public subsetOf: TTIri[];
 
   public property: TTIriRef;
   public valueCompare: Compare;

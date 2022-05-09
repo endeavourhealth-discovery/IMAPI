@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
@@ -11,7 +10,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.DataSet;
-import org.endeavourhealth.imapi.model.sets.QNode;
+import org.endeavourhealth.imapi.model.sets.ResultNode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class SearchService {
 	 * @return a generic JSONDocument containing the results and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public QNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+	public ResultNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
 		return new IMQuery().queryIM(query);
 
 	}

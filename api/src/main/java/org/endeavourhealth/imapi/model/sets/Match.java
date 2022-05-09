@@ -2,13 +2,14 @@ package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeSubEntities","includeMembers","graph","property","includeSubProperties","inverseOf","valueCompare","valueIn","valueNotIn",
-"valueRange","valueFunction","valueWithin","valueVar","valueObject","isIndex","and","or","may","sortLimit","function"})
+"valueRange","valueFunction","valueWithin","valueVar","valueObject","valueConcept","isIndex","and","or","sortLimit","function","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Heading {
 
@@ -17,14 +18,18 @@ public class Match extends Heading {
 	private List<Match> optional;
 	private SortLimit sortLimit;
 	private TTIriRef graph;
-	private TTIriRef entityType;
+	private ConceptRef entityType;
 	private TTIriRef entityId;
+	private TTIriRef entityIn;
 	private List<TTIriRef> subsetOf;
 
-	TTIriRef property;
+	ConceptRef property;
 	Compare valueCompare;
 	List<TTIriRef> valueIn;
 	List<TTIriRef> valueNotIn;
+	List<ConceptRef> valueConcept;
+	List<ConceptRef> valueNotConcept;
+	List<TTIriRef> valueSuperTypeOf;
 	Range valueRange;
 	String entityVar;
 	String propertyVar;
@@ -34,10 +39,68 @@ public class Match extends Heading {
 	Within valueWithin;
 	boolean inverseOf=false;
 	boolean notExist=false;
-	boolean includeMembers=false;
 	boolean isIndex;
 	boolean includeSubEntities;
-	boolean includeSubProperties;
+
+
+
+
+	public TTIriRef getEntityIn() {
+		return entityIn;
+	}
+
+	public List<ConceptRef> getValueConcept() {
+		return valueConcept;
+	}
+
+	public Match setValueConcept(List<ConceptRef> valueConcept) {
+		this.valueConcept = valueConcept;
+		return this;
+	}
+
+	public Match addValueConcept(ConceptRef value){
+		if (this.valueConcept==null)
+			this.valueConcept= new ArrayList<>();
+		this.valueConcept.add(value);
+		return this;
+	}
+
+	public Match addValueNotConcept(ConceptRef value){
+		if (this.valueNotConcept==null)
+			this.valueNotConcept= new ArrayList<>();
+		this.valueNotConcept.add(value);
+		return this;
+	}
+
+	public List<ConceptRef> getValueNotConcept() {
+		return valueNotConcept;
+	}
+
+	public Match setValueNotConcept(List<ConceptRef> valueNotConcept) {
+		this.valueNotConcept = valueNotConcept;
+		return this;
+	}
+
+	public Match setEntityIn(TTIriRef entityIn) {
+		this.entityIn = entityIn;
+		return this;
+	}
+
+	public List<TTIriRef> getValueSuperTypeOf() {
+		return valueSuperTypeOf;
+	}
+
+	public Match setValueSuperTypeOf(List<TTIriRef> valueSuperTypeOf) {
+		this.valueSuperTypeOf = valueSuperTypeOf;
+		return this;
+	}
+
+	public Match addValueSuperTypeOf(TTIriRef in){
+		if (this.valueSuperTypeOf==null)
+			this.valueSuperTypeOf= new ArrayList<>();
+		this.valueSuperTypeOf.add(in);
+		return this;
+	}
 
 	public String getEntityVar() {
 		return entityVar;
@@ -57,14 +120,6 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public boolean isIncludeSubProperties() {
-		return includeSubProperties;
-	}
-
-	public Match setIncludeSubProperties(boolean includeSubProperties) {
-		this.includeSubProperties = includeSubProperties;
-		return this;
-	}
 
 	public boolean isIncludeSubEntities() {
 		return includeSubEntities;
@@ -105,14 +160,6 @@ public class Match extends Heading {
 		this.subsetOf.add(from);
 		return this;
 	}
-	public boolean isIncludeMembers() {
-		return includeMembers;
-	}
-
-	public Match setIncludeMembers(boolean includeMembers) {
-		this.includeMembers = includeMembers;
-		return this;
-	}
 
 	public TTIriRef getEntityId() {
 		return entityId;
@@ -143,12 +190,19 @@ public class Match extends Heading {
 	}
 
 
-	public TTIriRef getEntityType() {
+	public ConceptRef getEntityType() {
 		return entityType;
 	}
 
-	public Match setEntityType(TTIriRef entityType) {
+	@JsonSetter
+	public Match setEntityType(ConceptRef entityType) {
 		this.entityType = entityType;
+		return this;
+	}
+
+
+	public Match setEntityType(TTIriRef entityType) {
+		this.entityType = ConceptRef.iri(entityType.getIri());
 		return this;
 	}
 
@@ -252,21 +306,6 @@ public class Match extends Heading {
 
 
 
-	public Match addValueIn(TTIriRef in){
-		if (valueIn==null)
-			valueIn= new ArrayList<>();
-		valueIn.add(in);
-		return this;
-	}
-
-
-	public Match addValueNotIn(TTIriRef notIn){
-		if (valueNotIn==null)
-			valueNotIn= new ArrayList<>();
-		valueNotIn.add(notIn);
-		return this;
-	}
-
 
 	public Match setValueCompare(Comparison comp, String value) {
 		setValueCompare(new Compare().setComparison(comp).setValueData(value));
@@ -283,12 +322,18 @@ public class Match extends Heading {
 
 
 
-	public TTIriRef getProperty() {
+	public ConceptRef getProperty() {
 		return property;
 	}
 
-	public Match setProperty(TTIriRef property) {
+	@JsonSetter
+	public Match setProperty(ConceptRef property) {
 		this.property = property;
+		return this;
+	}
+
+	public Match setProperty(TTIriRef property) {
+		this.property = ConceptRef.iri(property.getIri());
 		return this;
 	}
 
@@ -301,8 +346,22 @@ public class Match extends Heading {
 		return this;
 	}
 
+
 	public List<TTIriRef> getValueIn() {
 		return valueIn;
+	}
+	public Match addValueIn(TTIriRef value){
+		if (this.valueIn==null)
+			this.valueIn= new ArrayList<>();
+		this.valueIn.add(value);
+		return this;
+	}
+
+	public Match addValueNotIn(TTIriRef value){
+		if (this.valueNotIn==null)
+			this.valueNotIn= new ArrayList<>();
+		this.valueNotIn.add(value);
+		return this;
 	}
 
 	public Match setValueIn(List<TTIriRef> valueIn) {

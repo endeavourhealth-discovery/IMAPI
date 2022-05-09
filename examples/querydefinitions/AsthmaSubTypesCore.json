@@ -14,6 +14,7 @@
     "includeSubEntities" : true,
     "optional" : [ {
       "property" : {
+        "name" : "label",
         "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
       },
       "valueVar" : "label"

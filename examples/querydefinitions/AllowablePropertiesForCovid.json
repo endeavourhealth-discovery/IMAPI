@@ -1,5 +1,8 @@
 {
   "name" : "AllowablePropertiesForCovid",
+  "description" : "gets the active properties and their subtypes that have a domain which is a super type of covid.",
+  "distinct" : true,
+  "activeOnly" : true,
   "select" : [ {
     "binding" : "id"
   }, {
@@ -8,19 +11,13 @@
     "binding" : "term"
   } ],
   "match" : {
-    "and" : [ {
-      "includeSubEntities" : true,
-      "property" : {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
-      }
-    }, {
-      "property" : {
-        "@id" : "http://endhealth.info/im#isA"
-      },
-      "inverseOf" : true,
-      "valueIn" : [ {
-        "@id" : "http://snomed.info/sct#674814021000119106"
-      } ]
+    "includeSubEntities" : true,
+    "property" : {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
+    },
+    "valueConcept" : [ {
+      "includeSupertypes" : true,
+      "@id" : "http://snomed.info/sct#674814021000119106"
     } ],
     "optional" : [ {
       "property" : {
@@ -33,6 +30,5 @@
       },
       "valueVar" : "code"
     } ]
-  },
-  "distinct" : true
+  }
 }

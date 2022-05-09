@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +17,17 @@ public class Select {
 	private String binding;
 	private String alias;
 	private String name;
+	private TTIriRef property;
 	private List<Select> object;
 
+	public TTIriRef getProperty() {
+		return property;
+	}
+
+	public Select setProperty(TTIriRef property) {
+		this.property = property;
+		return this;
+	}
 
 	public List<Select> getObject() {
 		return object;

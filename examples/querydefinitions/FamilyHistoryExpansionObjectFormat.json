@@ -1,5 +1,6 @@
 {
-  "name" : "EncounterExpansionObjectFormat",
+  "name" : "FamilyHistoryExpansionObjectFormat",
+  "description" : "expands the family history value set including legacy codes",
   "select" : [ {
     "binding" : "term"
   }, {
@@ -15,10 +16,6 @@
     } ]
   } ],
   "match" : {
-    "entityId" : {
-      "@id" : "http://endhealth.info/im#VSET_EncounterTypes"
-    },
-    "includeMembers" : true,
     "optional" : [ {
       "property" : {
         "@id" : "http://endhealth.info/im#code"
@@ -40,10 +37,10 @@
           "property" : {
             "@id" : "http://endhealth.info/im#scheme"
           },
-          "valueIn" : [ {
+          "valueVar" : "scheme",
+          "valueConcept" : [ {
             "@id" : "http://endhealth.info/enc#"
-          } ],
-          "valueVar" : "scheme"
+          } ]
         } ],
         "optional" : [ {
           "property" : {
@@ -57,7 +54,10 @@
           "valueVar" : "legacyTerm"
         } ]
       }
-    } ]
+    } ],
+    "entityIn" : {
+      "@id" : "http://endhealth.info/im#VSET_FamilyHistory"
+    }
   },
   "resultFormat" : "OBJECT",
   "usePrefixes" : true

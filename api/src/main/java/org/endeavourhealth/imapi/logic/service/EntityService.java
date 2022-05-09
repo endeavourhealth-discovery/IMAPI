@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
+import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -21,6 +22,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
+import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
@@ -40,6 +42,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+    private static final FilerService filerService = new FilerService();
     private boolean direct = false;
 
     public static final int UNLIMITED = 0;
@@ -961,6 +964,29 @@ public class EntityService {
             }
         }
         return found ? i : -1;
+    }
+
+    public boolean iriExists(String iri) {
+        Boolean result = entityRepository.iriExists(iri);
+        return result;
+    }
+
+    public TTEntity createEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
+        EntityValidator validator = new EntityValidator();
+        validator.isValid(entity, this, "Create");
+        TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
+        entity.setCrud(IM.ADD_QUADS);
+        filerService.fileEntity(entity, graph);
+        return entity;
+    }
+
+    public TTEntity updateEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
+        EntityValidator validator = new EntityValidator();
+        validator.isValid(entity, this, "Update");
+        TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
+        entity.setCrud(IM.UPDATE_ALL);
+        filerService.fileEntity(entity, graph);
+        return entity;
     }
 }
 

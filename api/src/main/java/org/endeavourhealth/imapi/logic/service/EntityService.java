@@ -876,7 +876,7 @@ public class EntityService {
 
     public List<UnassignedEntity> getUnassigned() {
         List<UnassignedEntity> unassignedList = new ArrayList<>();
-        for (TTIriRef unassigned : entityRepository2.findUnassigned()) {
+        for (TTIriRef unassigned : entityRepository2.findUnmapped()) {
             unassignedList.add(new UnassignedEntity().setIri(unassigned.getIri()).setName(unassigned.getName()).setSuggestions(new ArrayList<>()));
         }
         return unassignedList;
@@ -1001,14 +1001,14 @@ public class EntityService {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
             TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
-            entity.set(IM.MAPPED_TO, new TTArray()).setCrud(IM.DELETE_ALL);
+            entity.set(IM.MATCHED_TO, new TTArray()).setCrud(IM.DELETE_ALL);
             ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
             entity.setCrud(IM.ADD_QUADS);
             for (String iri : entry.getValue()) {
-                if (entity.get(IM.MAPPED_TO) == null) {
-                    entity.set(IM.MAPPED_TO, new TTArray());
+                if (entity.get(IM.MATCHED_TO) == null) {
+                    entity.set(IM.MATCHED_TO, new TTArray());
                 }
-                entity.get(IM.MAPPED_TO).add(iri(iri));
+                entity.get(IM.MATCHED_TO).add(iri(iri));
             }
             ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
             result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());

@@ -948,6 +948,36 @@ public class EntityRepository2 {
         return result;
     }
 
+    public List<TTIriRef> findUnmapped() {
+        List<TTIriRef> result = new ArrayList<>();
+
+        StringJoiner query = new StringJoiner("\n");
+        query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
+        query.add("PREFIX im: <http://endhealth.info/im#>");
+        query.add("PREFIX sn: <http://snomed.info/sct#>");
+        query.add("SELECT DISTINCT ?s ?name {");
+        query.add("?s ?p ?o .");
+        query.add("?s im:scheme sn: .");
+        query.add("?s rdfs:label ?name .");
+        query.add("FILTER NOT EXISTS {");
+        query.add("?s (im:matchedTo | im:mappedTo) ?o2 ");
+        query.add("}");
+        query.add("}");
+        query.add("LIMIT 100");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(query.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
+
     public TTArray findFilteredInTask(String actionIri, String taskIri) {
         TTArray ttArray = new TTArray();
 

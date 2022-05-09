@@ -1,41 +1,46 @@
-package org.endeavourhealth.imapi.model.tripletree;
+package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 /** Extends TTIriRef with optional variable, alias, and description
  * for use in dynamic data modelling
  */
 @JsonPropertyOrder({"description","@id","name","alias","var"})
-public class TTIri extends TTIriRef{
+public class Heading extends TTIriRef {
 	private String var;
 	private String description;
-	private String alias;
 
-	public static TTIri iri(String iri) {
-		return new TTIri(iri);
+
+
+	public static Heading iri(String iri) {
+		return new Heading(iri);
 	}
-	public static TTIri iri(String iri, String name) {
-		return new TTIri(iri, name);
+	public static Heading iri(String iri, String name) {
+		return new Heading(iri, name);
+	}
+	public static Heading iri(TTIriRef iri) {
+		return new Heading(iri.getIri());
 	}
 
-	public TTIri(){
+	public Heading(){
 	}
 
-	public TTIri setName(String name){
+	public Heading setName(String name){
 		super.setName(name);
 		return this;
 	}
 
 
-	public TTIri(String iri) {
+	public Heading(String iri) {
 		setIri(iri);
 	}
-	public TTIri(String iri, String name) {
+	public Heading(String iri, String name) {
 		setIri(iri);
 		setName(name);
 	}
 
-	public TTIri(TTIriRef iriRef){
+	public Heading(TTIriRef iriRef){
 		setIri(iriRef.getIri());
 		if (iriRef.getName()!=null)
 			setName(iriRef.getName());
@@ -46,7 +51,7 @@ public class TTIri extends TTIriRef{
 		return var;
 	}
 
-	public TTIri setVar(String var) {
+	public Heading setVar(String var) {
 		this.var = var;
 		return this;
 	}
@@ -56,17 +61,10 @@ public class TTIri extends TTIriRef{
 		return description;
 	}
 
-	public TTIri setDescription(String description) {
+	public Heading setDescription(String description) {
 		this.description = description;
 		return this;
 	}
 
-	public String getAlias() {
-		return alias;
-	}
 
-	public TTIri setAlias(String alias) {
-		this.alias = alias;
-		return this;
-	}
 }

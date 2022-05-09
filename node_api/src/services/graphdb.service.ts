@@ -1,10 +1,11 @@
 import Graphdb from 'graphdb';
 
-const {ServerClientConfig, ServerClient} = Graphdb.server;
-const {RDFMimeType} = Graphdb.http;
-const {RepositoryClientConfig} = Graphdb.repository;
-const {GetQueryPayload, QueryType} = Graphdb.query;
-const {SparqlJsonResultParser} = Graphdb.parser;
+const { ServerClientConfig, ServerClient } = Graphdb.server;
+const { RDFMimeType } = Graphdb.http;
+const { RepositoryClientConfig } = Graphdb.repository;
+const { GetQueryPayload, QueryType, UpdateQueryPayload } = Graphdb.query;
+const { QueryContentType } = Graphdb.http;
+const { SparqlJsonResultParser } = Graphdb.parser;
 
 export class GraphdbService {
   private serverConfig;
@@ -31,6 +32,30 @@ export class GraphdbService {
     this.repo = this.server.getRepository(process.env.GRAPH_REPO, this.repoConfig);
   }
 
+
+  public async update(sparql: string): Promise<boolean> {
+    try {
+      const client = await this.repo;
+
+      client.registerParser(new SparqlJsonResultParser());
+
+      const stmt = new UpdateQueryPayload()
+        .setQuery(sparql)
+        .setContentType(QueryContentType.X_WWW_FORM_URLENCODED)
+        .setInference(true)
+        .setTimeout(5);
+
+      return client.update(stmt).then(() => {
+        return true;
+      });
+
+    } catch (e) {
+      console.error("********* ERROR!!")
+      console.error(e);
+      return false;
+    }
+  }
+
   public async execute(sparql: string, bindings?: any): Promise<any[]> {
     try {
       const client = await this.repo;
@@ -52,7 +77,7 @@ export class GraphdbService {
 
       const result: any[] = [];
       rs.on('data', (binding) => {
-        for(const b of Object.keys(binding)) {
+        for (const b of Object.keys(binding)) {
           // Horrible Literal fix
           if (binding[b].constructor.name === 'Literal') {
             let v: string = binding[b].id;

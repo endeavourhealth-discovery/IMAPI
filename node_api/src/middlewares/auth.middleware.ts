@@ -18,6 +18,7 @@ class AuthMiddleware {
     if (!token) return resp.status(401).end();
 
     let decodedJwt: any = jwt.decode(token, { complete: true });
+    console.log("decodedJwt", decodedJwt)
     if (decodedJwt === null) {
       resp.status(401).end()
       return

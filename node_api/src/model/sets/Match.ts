@@ -1,9 +1,10 @@
-import {TTIriRef} from '../tripletree/TTIriRef';
-import {SortLimit} from './SortLimit';
-import {TTIri} from '../tripletree/TTIri';
-import {Compare} from './Compare';
-import {Within} from './Within';
-import {Function} from './Function';
+import { TTIriRef } from '../tripletree/TTIriRef';
+import { SortLimit } from './SortLimit';
+import { TTIri } from '../tripletree/TTIri';
+import { Compare } from './Compare';
+import { Within } from './Within';
+import { Function } from './Function';
+
 
 export class Match extends TTIri {
   public and: Match[];
@@ -13,7 +14,7 @@ export class Match extends TTIri {
   public graph: TTIriRef;
   public entityType: TTIriRef;
   public entityId: TTIriRef;
-  public subsetOf: TTIri;
+  public subsetOf: TTIri[];
 
   public property: TTIriRef;
   public valueCompare: Compare;

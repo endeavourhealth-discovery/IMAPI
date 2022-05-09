@@ -5,22 +5,94 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.TTIri;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonPropertyOrder ({"iri","name","description","var","subset","match"})
+@JsonPropertyOrder ({"iri","name","description","var","resultFormat","subset","distinct","activeOnly","referenceDate","select","groupBy","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class DataSet extends TTIri{
+public class DataSet extends Heading {
 
 	private TTIriRef graph;
 	private List<Select> select;
+
 	private List<DataSet> subset;
 	private List<Select> groupBy;
 	private Match match;
+	private ResultFormat resultFormat;
+	private boolean usePrefixes;
+	private boolean distinct;
+	private String referenceDate;
+	private boolean activeOnly;
 
+	public boolean isActiveOnly() {
+		return activeOnly;
+	}
+
+	public DataSet setActiveOnly(boolean activeOnly) {
+		this.activeOnly = activeOnly;
+		return this;
+	}
+
+	public String getReferenceDate() {
+		return referenceDate;
+	}
+
+	public DataSet setReferenceDate(String referenceDate) {
+		this.referenceDate = referenceDate;
+		return this;
+	}
+
+
+	@Override
+	public DataSet setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
+
+
+	@Override
+	public DataSet setDescription(String description){
+		super.setDescription(description);
+		return this;
+	}
+
+
+
+	public boolean isDistinct() {
+		return distinct;
+	}
+
+	public DataSet setDistinct(boolean distinct) {
+		this.distinct = distinct;
+		return this;
+	}
+
+	public boolean isUsePrefixes() {
+		return usePrefixes;
+	}
+
+	@Override
+	public DataSet setName(String name){
+		super.setName(name);
+		return this;
+	}
+
+	public DataSet setUsePrefixes(boolean usePrefixes) {
+		this.usePrefixes = usePrefixes;
+		return this;
+	}
+
+	public ResultFormat getResultFormat() {
+		return resultFormat;
+	}
+
+	public DataSet setResultFormat(ResultFormat resultFormat) {
+		this.resultFormat = resultFormat;
+		return this;
+	}
 
 	public List<Select> getGroupBy() {
 		return groupBy;
@@ -102,7 +174,7 @@ public class DataSet extends TTIri{
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		return objectMapper.writeValueAsString(this);
+		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
 	}
 
 

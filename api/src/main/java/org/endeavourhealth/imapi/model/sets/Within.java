@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder ({"range","compare","of","from"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Within {
 	private Range range;
 	private Compare compare;

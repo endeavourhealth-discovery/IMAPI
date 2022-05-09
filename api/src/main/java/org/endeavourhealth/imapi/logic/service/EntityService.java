@@ -43,7 +43,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
     private static final FilerService filerService = new FilerService();
-    private boolean DIRECT = false;
+    private boolean direct = false;
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
@@ -247,7 +247,7 @@ public class EntityService {
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
-                if(DIRECT){
+                if(direct){
                     included.setType(MemberType.INCLUDED_SELF);
                 }else{
                     included.setType(MemberType.INCLUDED_DESC);
@@ -274,7 +274,7 @@ public class EntityService {
         TTArray result;
         if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
             result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
-            DIRECT = true;
+            direct = true;
         } else {
             result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
         }
@@ -285,16 +285,30 @@ public class EntityService {
             else if (result.isNode())
                 members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
             else {
-                for (TTValue element : result.iterator()) {
-                    if (element.isNode()) {
-                        members.add(getValueSetMemberFromNode(element, withHyperlinks));
-                    } else if (element.isIriRef()) {
-                        members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
+                if(direct){
+                    members.add(getValueSetMemberFromArray(result, withHyperlinks));
+                }
+                else{
+                    for (TTValue element : result.iterator()) {
+                        if (element.isNode()) {
+                            members.add(getValueSetMemberFromNode(element, withHyperlinks));
+                        } else if (element.isIriRef()) {
+                            members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
+                        }
                     }
                 }
             }
         }
         return members;
+    }
+
+    private ValueSetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {
+        ValueSetMember member = new ValueSetMember();
+        Map<String, String> defaultPredicates = getDefaultPredicateNames();
+        List<String> blockedIris = getBlockedIris();
+        String arrayAsString = TTToString.ttValueToString(result, "object", defaultPredicates, 0, withHyperlinks, blockedIris);
+        member.setEntity(iri("", arrayAsString));
+        return member;
     }
 
     private List<String> getBlockedIris() {
@@ -510,6 +524,8 @@ public class EntityService {
             pv.setType(property.asNode().get(SHACL.CLASS).asIriRef());
         if (property.asNode().has(SHACL.DATATYPE))
             pv.setType(property.asNode().get(SHACL.DATATYPE).asIriRef());
+        if (property.asNode().has(SHACL.FUNCTION))
+            pv.setType(property.asNode().get(SHACL.FUNCTION).asIriRef());
         if (property.asNode().has(SHACL.MAXCOUNT))
             pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
         if (property.asNode().has(SHACL.MINCOUNT))

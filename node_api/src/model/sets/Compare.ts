@@ -1,6 +1,4 @@
-import {Comparison} from './Comparison';
-
 export class Compare {
-  public comparison: Comparison;
+  public comparison: string;
   public valueData: string;
 }

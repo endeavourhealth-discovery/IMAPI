@@ -958,7 +958,7 @@ public class EntityService {
     public TTEntity createEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Create");
-        TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
+        TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
         entity.setCrud(IM.ADD_QUADS);
         filerService.fileEntity(entity, graph);
         return entity;
@@ -967,7 +967,7 @@ public class EntityService {
     public TTEntity updateEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Update");
-        TTIriRef graph = iri(IM.GRAPH.getIri(), IM.GRAPH.getName());
+        TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
         entity.setCrud(IM.UPDATE_ALL);
         filerService.fileEntity(entity, graph);
         return entity;

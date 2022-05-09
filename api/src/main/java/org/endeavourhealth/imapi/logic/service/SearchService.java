@@ -147,8 +147,8 @@ public class SearchService {
 		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
 		MatchPhraseQueryBuilder mpq= new MatchPhraseQueryBuilder("termCode.term", request.getTermFilter()).boost(1.5F);
 		MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter()).boost(0.5F);
-		boolQuery.should(mpq);
-		boolQuery.should(mfs);
+		boolQuery.should(mpq).minimumShouldMatch(1);
+		boolQuery.should(mfs).minimumShouldMatch(1);
 		addFilters(boolQuery, request);
 		return new FunctionScoreQueryBuilder(boolQuery,
 			ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));

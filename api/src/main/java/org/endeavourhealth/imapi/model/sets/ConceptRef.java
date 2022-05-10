@@ -21,7 +21,7 @@ public class ConceptRef extends TTIriRef{
 	}
 
 	public static ConceptRef iri(TTIriRef iri) {
-		return new ConceptRef(iri.getIri());
+		return new ConceptRef(iri.getIri(),iri.getName());
 	}
 
 	public static ConceptRef iri(String iri, String name) {

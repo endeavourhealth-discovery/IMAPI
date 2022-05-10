@@ -17,7 +17,7 @@ public class DataSet extends Heading {
 	private TTIriRef graph;
 	private Select select;
 
-	private List<Select> subset;
+	private List<Select> subselect;
 	private List<Select> groupBy;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
@@ -116,18 +116,18 @@ public class DataSet extends Heading {
 
 
 
-	public List<Select> getSubset() {
-		return subset;
+	public List<Select> getSubselect() {
+		return subselect;
 	}
 
-	public DataSet setSubset(List<Select> columnGroups) {
-		this.subset = columnGroups;
+	public DataSet setSubselect(List<Select> columnGroups) {
+		this.subselect = columnGroups;
 		return this;
 	}
-	public DataSet addSubset(Select group){
-		if (this.subset ==null)
-			this.subset = new ArrayList<>();
-		this.subset.add(group);
+	public DataSet addSubselect(Select group){
+		if (this.subselect ==null)
+			this.subselect = new ArrayList<>();
+		this.subselect.add(group);
 		return this;
 	}
 

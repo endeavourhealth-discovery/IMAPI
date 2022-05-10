@@ -334,6 +334,8 @@ public class Filter extends Heading {
 
 	public Filter setProperty(TTIriRef property) {
 		this.property = ConceptRef.iri(property.getIri());
+		if (property.getName()!=null)
+			this.property.setName(property.getName());
 		return this;
 	}
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.filer.TTTransactionFiler;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -55,7 +56,7 @@ public class EntityService {
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
-    private TTEntityFilerRdf4j ttEntityFilerRdf4j = new TTEntityFilerRdf4j();
+    private TTTransactionFiler ttTransactionFiler = new TTTransactionFiler("logs.txt");
 
     public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
         return entityRepository2.getBundle(iri, predicates);
@@ -874,12 +875,12 @@ public class EntityService {
         return entityRepository.getPathBetweenNodes(descendant, ancestor);
     }
 
-    public List<UnassignedEntity> getUnassigned() {
-        List<UnassignedEntity> unassignedList = new ArrayList<>();
-        for (TTIriRef unassigned : entityRepository2.findUnmapped()) {
-            unassignedList.add(new UnassignedEntity().setIri(unassigned.getIri()).setName(unassigned.getName()).setSuggestions(new ArrayList<>()));
+    public List<TTIriRef> getUnmapped() {
+        List<TTIriRef> unmappedList = new ArrayList<>();
+        for (TTIriRef unmapped : entityRepository2.findUnmapped()) {
+            unmappedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
         }
-        return unassignedList;
+        return unmappedList;
     }
 
     public List<TTEntity> getMappingSuggestions(String iri, String name) {
@@ -967,50 +968,44 @@ public class EntityService {
         return found ? i : -1;
     }
 
-    public TTEntity saveTask(TTEntity entity) throws TTFilerException {
-        entity.setCrud(IM.UPDATE_ALL)
-                .addType(IM.TASK)
+    public TTEntity saveTask(TTEntity entity) throws Exception {
+        entity.addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
-        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
+        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
-    public TTEntity addConceptToTask(String entityIri, String taskIri) throws TTFilerException {
+    public TTEntity addConceptToTask(String entityIri, String taskIri) throws Exception {
         TTEntity entity = getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
         if (entity.get(IM.IN_TASK) == null) {
             entity.set(IM.IN_TASK, new TTArray());
         }
         entity.get(IM.IN_TASK).add(iri(taskIri));
-        entity.setCrud(IM.ADD_QUADS);
-        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
+        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
 
-    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws TTFilerException {
+    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws Exception {
         TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null, EntityService.UNLIMITED).getEntity();
         entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
-        entity.setCrud(IM.DELETE_ALL);
-        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-        entity.setCrud(IM.ADD_QUADS);
-        ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
+        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
-    public List<TTEntity> saveMapping(Map<String, List<String>> mappings) throws TTFilerException {
+    public List<TTEntity> saveMapping(Map<String, List<String>> mappings) throws Exception {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
             TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
-            entity.set(IM.MATCHED_TO, new TTArray()).setCrud(IM.DELETE_ALL);
-            ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
-            entity.setCrud(IM.ADD_QUADS);
+            entity.set(IM.MATCHED_TO, new TTArray());
             for (String iri : entry.getValue()) {
-                if (entity.get(IM.MATCHED_TO) == null) {
-                    entity.set(IM.MATCHED_TO, new TTArray());
-                }
                 entity.get(IM.MATCHED_TO).add(iri(iri));
             }
-            ttEntityFilerRdf4j.fileEntity(entity, IM.GRAPH);
+            TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
+            ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
             result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());
         }
         return result;

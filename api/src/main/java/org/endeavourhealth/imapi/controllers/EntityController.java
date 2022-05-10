@@ -392,10 +392,10 @@ public class EntityController {
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
 	
-	@GetMapping("/public/unassigned")
-	public List<UnassignedEntity> getUnassigned() {
+	@GetMapping("/public/unmapped")
+	public List<TTIriRef> getUnmapped() {
 		LOG.debug("getUnassigned");
-		return entityService.getUnassigned();
+		return entityService.getUnmapped();
 	}
 
 	@GetMapping("/public/mappingSuggestions")
@@ -423,28 +423,28 @@ public class EntityController {
 
 	@PostMapping("/task")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity createTask(@RequestBody TTEntity entity) throws TTFilerException {
+	public TTEntity createTask(@RequestBody TTEntity entity) throws Exception {
 		LOG.debug("createTask");
 		return entityService.saveTask(entity);
 	}
 
 	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri) throws TTFilerException {
+	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri) throws Exception {
 		LOG.debug("addTaskAction");
 		return entityService.addConceptToTask(entityIri, taskIri);
 	}
 
 	@DeleteMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri) throws TTFilerException {
+	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri) throws Exception {
 		LOG.debug("removeTaskAction");
 		return entityService.removeConceptFromTask(taskIri, removedActionIri);
 	}
 
 	@PostMapping("/mapping")
 	@PreAuthorize("isAuthenticated()")
-	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings) throws TTFilerException {
+	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings) throws Exception {
 		LOG.debug("addMapping");
 		return entityService.saveMapping(mappings);
 	}

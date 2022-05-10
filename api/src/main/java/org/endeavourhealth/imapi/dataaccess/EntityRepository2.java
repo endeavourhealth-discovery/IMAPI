@@ -960,10 +960,13 @@ public class EntityRepository2 {
         query.add("?s im:scheme sn: .");
         query.add("?s rdfs:label ?name .");
         query.add("FILTER NOT EXISTS {");
-        query.add("?s (im:matchedTo | im:mappedTo) ?o2 ");
+        query.add("?s im:matchedTo ?o2 ");
+        query.add("}");
+        query.add("FILTER NOT EXISTS {");
+        query.add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o3 ");
         query.add("}");
         query.add("}");
-        query.add("LIMIT 100");
+        query.add("LIMIT 1000");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());

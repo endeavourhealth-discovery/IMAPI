@@ -991,6 +991,8 @@ public class EntityService {
         entity.setCrud(IM.UPDATE_ALL);
         filerService.fileEntity(entity, graph);
         return entity;
+    }
+
     public TTEntity saveTask(TTEntity entity) throws Exception {
         entity.addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));

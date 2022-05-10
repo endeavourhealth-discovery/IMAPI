@@ -433,6 +433,8 @@ public class EntityController {
 	public Boolean iriExists(@RequestParam(name = "iri") String iri) {
 		LOG.debug("iriExists");
 		return entityService.iriExists(iri);
+	}
+
 	@PostMapping("/task")
 	@PreAuthorize("isAuthenticated()")
 	public TTEntity createTask(@RequestBody TTEntity entity) throws Exception {

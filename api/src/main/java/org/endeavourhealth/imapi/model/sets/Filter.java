@@ -11,11 +11,11 @@ import java.util.List;
 @JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeSubEntities","includeMembers","graph","property","includeSubProperties","inverseOf","valueCompare","valueIn","valueNotIn",
 "valueRange","valueFunction","valueWithin","valueVar","valueObject","valueConcept","isIndex","and","or","sortLimit","function","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends Heading {
+public class Filter extends Heading {
 
-	private List<Match> and;
-	private List<Match> or;
-	private List<Match> optional;
+	private List<Filter> and;
+	private List<Filter> or;
+	private List<Filter> optional;
 	private SortLimit sortLimit;
 	private TTIriRef graph;
 	private ConceptRef entityType;
@@ -34,7 +34,7 @@ public class Match extends Heading {
 	String entityVar;
 	String propertyVar;
 	String valueVar;
-	Match valueObject;
+	Filter valueObject;
 	Function function;
 	Within valueWithin;
 	boolean inverseOf=false;
@@ -53,19 +53,19 @@ public class Match extends Heading {
 		return valueConcept;
 	}
 
-	public Match setValueConcept(List<ConceptRef> valueConcept) {
+	public Filter setValueConcept(List<ConceptRef> valueConcept) {
 		this.valueConcept = valueConcept;
 		return this;
 	}
 
-	public Match addValueConcept(ConceptRef value){
+	public Filter addValueConcept(ConceptRef value){
 		if (this.valueConcept==null)
 			this.valueConcept= new ArrayList<>();
 		this.valueConcept.add(value);
 		return this;
 	}
 
-	public Match addValueNotConcept(ConceptRef value){
+	public Filter addValueNotConcept(ConceptRef value){
 		if (this.valueNotConcept==null)
 			this.valueNotConcept= new ArrayList<>();
 		this.valueNotConcept.add(value);
@@ -76,12 +76,12 @@ public class Match extends Heading {
 		return valueNotConcept;
 	}
 
-	public Match setValueNotConcept(List<ConceptRef> valueNotConcept) {
+	public Filter setValueNotConcept(List<ConceptRef> valueNotConcept) {
 		this.valueNotConcept = valueNotConcept;
 		return this;
 	}
 
-	public Match setEntityIn(TTIriRef entityIn) {
+	public Filter setEntityIn(TTIriRef entityIn) {
 		this.entityIn = entityIn;
 		return this;
 	}
@@ -90,12 +90,12 @@ public class Match extends Heading {
 		return valueSuperTypeOf;
 	}
 
-	public Match setValueSuperTypeOf(List<TTIriRef> valueSuperTypeOf) {
+	public Filter setValueSuperTypeOf(List<TTIriRef> valueSuperTypeOf) {
 		this.valueSuperTypeOf = valueSuperTypeOf;
 		return this;
 	}
 
-	public Match addValueSuperTypeOf(TTIriRef in){
+	public Filter addValueSuperTypeOf(TTIriRef in){
 		if (this.valueSuperTypeOf==null)
 			this.valueSuperTypeOf= new ArrayList<>();
 		this.valueSuperTypeOf.add(in);
@@ -106,7 +106,7 @@ public class Match extends Heading {
 		return entityVar;
 	}
 
-	public Match setEntityVar(String entityVar) {
+	public Filter setEntityVar(String entityVar) {
 		this.entityVar = entityVar;
 		return this;
 	}
@@ -115,7 +115,7 @@ public class Match extends Heading {
 		return propertyVar;
 	}
 
-	public Match setPropertyVar(String propertyVar) {
+	public Filter setPropertyVar(String propertyVar) {
 		this.propertyVar = propertyVar;
 		return this;
 	}
@@ -125,12 +125,12 @@ public class Match extends Heading {
 		return includeSubEntities;
 	}
 
-	public Match setIncludeSubEntities(boolean includeSubEntities) {
+	public Filter setIncludeSubEntities(boolean includeSubEntities) {
 		this.includeSubEntities = includeSubEntities;
 		return this;
 	}
 
-	public Match setName(String name){
+	public Filter setName(String name){
 		super.setName(name);
 		return this;
 	}
@@ -140,7 +140,7 @@ public class Match extends Heading {
 		return isIndex;
 	}
 
-	public Match setIndex(boolean index) {
+	public Filter setIndex(boolean index) {
 		isIndex = index;
 		return this;
 	}
@@ -149,12 +149,12 @@ public class Match extends Heading {
 		return subsetOf;
 	}
 
-	public Match setSubsetOf(List<TTIriRef> subsetOf) {
+	public Filter setSubsetOf(List<TTIriRef> subsetOf) {
 		this.subsetOf = subsetOf;
 		return this;
 	}
 
-	public Match addSubsetOf(TTIriRef from){
+	public Filter addSubsetOf(TTIriRef from){
 		if (this.subsetOf ==null)
 			this.subsetOf = new ArrayList<>();
 		this.subsetOf.add(from);
@@ -165,7 +165,7 @@ public class Match extends Heading {
 		return entityId;
 	}
 
-	public Match setEntityId(TTIriRef entityId) {
+	public Filter setEntityId(TTIriRef entityId) {
 		this.entityId = entityId;
 		return this;
 	}
@@ -174,7 +174,7 @@ public class Match extends Heading {
 		return sortLimit;
 	}
 
-	public Match setSortLimit(SortLimit sortLimit) {
+	public Filter setSortLimit(SortLimit sortLimit) {
 		this.sortLimit = sortLimit;
 		return this;
 	}
@@ -184,7 +184,7 @@ public class Match extends Heading {
 		return graph;
 	}
 
-	public Match setGraph(TTIriRef graph) {
+	public Filter setGraph(TTIriRef graph) {
 		this.graph = graph;
 		return this;
 	}
@@ -195,58 +195,58 @@ public class Match extends Heading {
 	}
 
 	@JsonSetter
-	public Match setEntityType(ConceptRef entityType) {
+	public Filter setEntityType(ConceptRef entityType) {
 		this.entityType = entityType;
 		return this;
 	}
 
 
-	public Match setEntityType(TTIriRef entityType) {
+	public Filter setEntityType(TTIriRef entityType) {
 		this.entityType = ConceptRef.iri(entityType.getIri());
 		return this;
 	}
 
-	public List<Match> getAnd() {
+	public List<Filter> getAnd() {
 		return and;
 	}
 
-	public Match setAnd(List<Match> and) {
+	public Filter setAnd(List<Filter> and) {
 		this.and = and;
 		return this;
 	}
 
-	public Match addAnd(Match must){
+	public Filter addAnd(Filter must){
 		if (this.and ==null)
 			this.and = new ArrayList<>();
 		this.and.add(must);
 		return this;
 	}
 
-	public List<Match> getOr() {
+	public List<Filter> getOr() {
 		return or;
 	}
 
-	public Match setOr(List<Match> or) {
+	public Filter setOr(List<Filter> or) {
 		this.or = or;
 		return this;
 	}
 
-	public Match addOr(Match or){
+	public Filter addOr(Filter or){
 		if (this.or==null)
 			this.or= new ArrayList<>();
 		this.or.add(or);
 		return this;
 	}
 
-	public List<Match> getOptional() {
+	public List<Filter> getOptional() {
 		return optional;
 	}
 
-	public Match setOptional(List<Match> optional) {
+	public Filter setOptional(List<Filter> optional) {
 		this.optional = optional;
 		return this;
 	}
-	public Match addOptional(Match may){
+	public Filter addOptional(Filter may){
 		if (this.optional ==null)
 			this.optional = new ArrayList<>();
 		this.optional.add(may);
@@ -254,7 +254,7 @@ public class Match extends Heading {
 	}
 
 	@Override
-	public Match setDescription(String context) {
+	public Filter setDescription(String context) {
 		super.setDescription(context);
 		return this;
 	}
@@ -263,7 +263,7 @@ public class Match extends Heading {
 		return valueWithin;
 	}
 
-	public Match setValueWithin(Within valueWithin) {
+	public Filter setValueWithin(Within valueWithin) {
 		this.valueWithin = valueWithin;
 		return this;
 	}
@@ -272,15 +272,15 @@ public class Match extends Heading {
 		return notExist;
 	}
 
-	public Match setNotExist(boolean notExist) {
+	public Filter setNotExist(boolean notExist) {
 		this.notExist = notExist;
 		return this;
 	}
 
-	public Match(String iri) {
+	public Filter(String iri) {
 		super(iri);
 	}
-	public Match() {
+	public Filter() {
 	}
 
 
@@ -290,16 +290,16 @@ public class Match extends Heading {
 		return inverseOf;
 	}
 
-	public Match setInverseOf(boolean inverseOf) {
+	public Filter setInverseOf(boolean inverseOf) {
 		this.inverseOf = inverseOf;
 		return this;
 	}
 
-	public Match getValueObject() {
+	public Filter getValueObject() {
 		return valueObject;
 	}
 
-	public Match setValueObject(Match valueObject) {
+	public Filter setValueObject(Filter valueObject) {
 		this.valueObject = valueObject;
 		return this;
 	}
@@ -307,13 +307,13 @@ public class Match extends Heading {
 
 
 
-	public Match setValueCompare(Comparison comp, String value) {
+	public Filter setValueCompare(Comparison comp, String value) {
 		setValueCompare(new Compare().setComparison(comp).setValueData(value));
 		return this;
 	}
 
-	public Match setRangeValueTest(Comparison fromComp, String fromValue,
-																 Comparison toComp, String toValue){
+	public Filter setRangeValueTest(Comparison fromComp, String fromValue,
+																	Comparison toComp, String toValue){
 		setValueRange(new Range()
 			.setFrom(new Compare().setComparison(fromComp).setValue(fromValue))
 			.setTo(new Compare().setComparison(toComp).setValue(toValue)));
@@ -327,12 +327,12 @@ public class Match extends Heading {
 	}
 
 	@JsonSetter
-	public Match setProperty(ConceptRef property) {
+	public Filter setProperty(ConceptRef property) {
 		this.property = property;
 		return this;
 	}
 
-	public Match setProperty(TTIriRef property) {
+	public Filter setProperty(TTIriRef property) {
 		this.property = ConceptRef.iri(property.getIri());
 		return this;
 	}
@@ -341,7 +341,7 @@ public class Match extends Heading {
 		return valueCompare;
 	}
 
-	public Match setValueCompare(Compare valueCompare) {
+	public Filter setValueCompare(Compare valueCompare) {
 		this.valueCompare = valueCompare;
 		return this;
 	}
@@ -350,21 +350,21 @@ public class Match extends Heading {
 	public List<TTIriRef> getValueIn() {
 		return valueIn;
 	}
-	public Match addValueIn(TTIriRef value){
+	public Filter addValueIn(TTIriRef value){
 		if (this.valueIn==null)
 			this.valueIn= new ArrayList<>();
 		this.valueIn.add(value);
 		return this;
 	}
 
-	public Match addValueNotIn(TTIriRef value){
+	public Filter addValueNotIn(TTIriRef value){
 		if (this.valueNotIn==null)
 			this.valueNotIn= new ArrayList<>();
 		this.valueNotIn.add(value);
 		return this;
 	}
 
-	public Match setValueIn(List<TTIriRef> valueIn) {
+	public Filter setValueIn(List<TTIriRef> valueIn) {
 		this.valueIn = valueIn;
 		return this;
 	}
@@ -373,7 +373,7 @@ public class Match extends Heading {
 		return valueNotIn;
 	}
 
-	public Match setValueNotIn(List<TTIriRef> valueNotIn) {
+	public Filter setValueNotIn(List<TTIriRef> valueNotIn) {
 		this.valueNotIn = valueNotIn;
 		return this;
 	}
@@ -382,7 +382,7 @@ public class Match extends Heading {
 		return valueRange;
 	}
 
-	public Match setValueRange(Range valueRange) {
+	public Filter setValueRange(Range valueRange) {
 		this.valueRange = valueRange;
 		return this;
 	}
@@ -393,7 +393,7 @@ public class Match extends Heading {
 		return valueVar;
 	}
 
-	public Match setValueVar(String valueVar) {
+	public Filter setValueVar(String valueVar) {
 		this.valueVar = valueVar;
 		return this;
 	}
@@ -404,7 +404,7 @@ public class Match extends Heading {
 		return function;
 	}
 
-	public Match setFunction(Function function) {
+	public Filter setFunction(Function function) {
 		this.function = function;
 		return this;
 	}

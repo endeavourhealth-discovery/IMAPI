@@ -1,37 +1,36 @@
 {
   "name" : "health care organisations in EW1",
   "description" : "name and address of organisations with post code starting with EW1",
-  "select" : [ {
-    "binding" : "name"
-  }, {
-    "binding" : "address",
-    "object" : [ {
-      "binding" : "*"
-    } ]
-  } ],
-  "match" : {
+  "select" : {
+    "filter" : {
+      "property" : {
+        "@id" : "http://endhealth.info/im#address"
+      },
+      "valueVar" : "address",
+      "valueObject" : {
+        "property" : {
+          "@id" : "http://endhealth.info/im#postCode"
+        },
+        "valueCompare" : {
+          "comparison" : "EQUAL",
+          "valueData" : "E1W 3DP"
+        }
+      }
+    },
     "entityType" : {
       "name" : "Organisation",
       "@id" : "http://endhealth.info/im#Organisation"
     },
-    "property" : {
-      "@id" : "http://endhealth.info/im#address"
-    },
-    "valueVar" : "address",
-    "valueObject" : {
-      "property" : {
-        "@id" : "http://endhealth.info/im#postCode"
-      },
-      "valueCompare" : {
-        "comparison" : "EQUAL",
-        "valueData" : "E1W 3DP"
+    "property" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
+      "alias" : "name"
+    }, {
+      "@id" : "http://endhealth.info/im#address",
+      "object" : {
+        "property" : [ {
+          "binding" : "*"
+        } ]
       }
-    },
-    "optional" : [ {
-      "property" : {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-      },
-      "valueVar" : "name"
     } ]
   },
   "usePrefixes" : true

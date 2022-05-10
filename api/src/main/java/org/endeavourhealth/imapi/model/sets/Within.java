@@ -10,7 +10,7 @@ public class Within {
 	private Compare compare;
 	private String of;
 	private Function function;
-	private Match targetMatch;
+	private Filter targetFilter;
 
 	public Function getFunction() {
 		return function;
@@ -48,12 +48,12 @@ public class Within {
 		return this;
 	}
 
-	public Match getTargetMatch() {
-		return targetMatch;
+	public Filter getTargetFilter() {
+		return targetFilter;
 	}
 
-	public Within setTargetMatch(Match targetMatch) {
-		this.targetMatch = targetMatch;
+	public Within setTargetFilter(Filter targetFilter) {
+		this.targetFilter = targetFilter;
 		return this;
 	}
 }

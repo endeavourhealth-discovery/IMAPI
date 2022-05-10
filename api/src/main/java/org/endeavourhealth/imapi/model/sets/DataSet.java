@@ -15,14 +15,13 @@ import java.util.List;
 public class DataSet extends Heading {
 
 	private TTIriRef graph;
-	private List<Select> select;
+	private Select select;
 
-	private List<DataSet> subset;
+	private List<Select> subset;
 	private List<Select> groupBy;
-	private Match match;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
-	private boolean distinct;
+
 	private String referenceDate;
 	private boolean activeOnly;
 
@@ -61,14 +60,6 @@ public class DataSet extends Heading {
 
 
 
-	public boolean isDistinct() {
-		return distinct;
-	}
-
-	public DataSet setDistinct(boolean distinct) {
-		this.distinct = distinct;
-		return this;
-	}
 
 	public boolean isUsePrefixes() {
 		return usePrefixes;
@@ -109,14 +100,7 @@ public class DataSet extends Heading {
 		this.groupBy.add(group);
 		return this;
 	}
-	public Match getMatch() {
-		return match;
-	}
 
-	public DataSet setMatch(Match match) {
-		this.match = match;
-		return this;
-	}
 
 	public TTIriRef getGraph() {
 		return graph;
@@ -132,41 +116,30 @@ public class DataSet extends Heading {
 
 
 
-	public List<DataSet> getSubset() {
+	public List<Select> getSubset() {
 		return subset;
 	}
 
-	public DataSet setSubset(List<DataSet> dataSets) {
-		this.subset = dataSets;
+	public DataSet setSubset(List<Select> columnGroups) {
+		this.subset = columnGroups;
 		return this;
 	}
-	public DataSet addSubset(DataSet group){
+	public DataSet addSubset(Select group){
 		if (this.subset ==null)
 			this.subset = new ArrayList<>();
 		this.subset.add(group);
 		return this;
 	}
 
-	public List<Select> getSelect() {
+
+	public Select getSelect() {
 		return select;
 	}
 
-	public DataSet setSelect(List<Select> select) {
+	public DataSet setSelect(Select select) {
 		this.select = select;
 		return this;
 	}
-
-	public DataSet addSelect(Select select){
-		if (this.select ==null)
-			this.select = new ArrayList<>();
-		this.select.add(select);
-		return this;
-	}
-
-
-
-
-
 
 	@JsonIgnore
 	public String getasJson() throws JsonProcessingException {

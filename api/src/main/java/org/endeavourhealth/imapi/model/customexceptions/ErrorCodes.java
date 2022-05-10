@@ -13,7 +13,8 @@ public enum ErrorCodes {
     ACCESS_DENIED_EXCEPTION("AccessDeniedException"),
     AUTHENTICATION_EXCEPTION("AuthenticationException"),
     ECL_FORMAT_EXCEPTION("EclFormatException"),
-    OPEN_SEARCH_EXCEPTION("OpenSearchException");
+    OPEN_SEARCH_EXCEPTION("OpenSearchException"),
+    TT_FILER_EXCEPTION("TTFilerException");
 
     private String code;
 

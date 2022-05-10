@@ -1,14 +1,30 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
+import cors from "cors";
 import * as https from 'https';
 import * as fs from 'fs';
+// import swaggerAutogen from 'swagger-autogen';
+const swaggerUi = require('swagger-ui-express')
+const swaggerFile = require('../swagger_output.json')
 
 class App {
   public app: Application
   public port: number
+  public router = express.Router()
 
-  constructor(appInit: {port: number; controllers: any[]; middleWares: any[]}) {
+  constructor(appInit: { port: number; controllers: any[]; middleWares: any[] }) {
     this.app = express();
     this.port = appInit.port;
+
+    this.app.use(cors({
+      origin: "*" || process.env.ALLOWED_HOSTS as string,
+      optionsSuccessStatus: 200
+    }));
+
+    this.app.options('*', cors());
+
+
+    this.app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+
 
     appInit.middleWares.forEach(m => this.app.use(m));
 

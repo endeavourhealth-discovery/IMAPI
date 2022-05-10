@@ -14,17 +14,20 @@ public class SetToSparql {
 	private String tabs="   ";
 
 
-	public String getExpansionSparql(String iri) {
-		StringBuilder subQuery= new StringBuilder();
+	public String getExpansionSparql(String entityVar,String iri) {
+
 		Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
 		TTEntity entity = entityRepo.getEntityPredicates(iri, predicates, 0).getEntity();
-		subQuery.append(tabs).append("{ SELECT ?entity\n");
-		subQuery.append(tabs).append("WHERE {");
 		if (entity.get(IM.DEFINITION)!=null) {
+			StringBuilder subQuery = new StringBuilder();
+			subQuery.append(tabs).append("\n{ SELECT ?"+entityVar+"\n");
+			subQuery.append(tabs).append("WHERE {");
 			getExpansionWhere(entity.get(IM.DEFINITION), subQuery);
+			subQuery.append(tabs + "}}");
+			return subQuery.toString();
 		}
-		subQuery.append(tabs+"}}");
-		return subQuery.toString();
+		else
+		 return "";
 
 	}
 

@@ -10,10 +10,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -68,8 +71,18 @@ public class SetExporter {
         Set<String> members = new HashSet<>();
 
         for(String iri : setIris){
-            TTArray definition = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri()), 0).getEntity().get(IM.DEFINITION);
-            members.addAll(entityRepository2.getSetDbids(iri, definition));
+            TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), 0).getEntity();
+
+            // Inject direct members into definition
+            if (entity.get(IM.HAS_MEMBER) != null) {
+                TTNode orNode = new TTNode();
+                entity.addObject(IM.DEFINITION,orNode);
+                for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
+                    orNode.addObject(SHACL.OR,value);
+                }
+            }
+
+            members.addAll(entityRepository2.getSetDbids(iri, entity.get(IM.DEFINITION)));
         }
         return members;
     }

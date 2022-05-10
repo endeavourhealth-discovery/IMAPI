@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.errorhandling;
 
 import org.apache.catalina.connector.ClientAbortException;
+import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -118,6 +119,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(OpenSearchException.class)
     protected ResponseEntity<Object> handleOpenSearchException(OpenSearchException ex) {
         ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex, ErrorCodes.OPEN_SEARCH_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(TTFilerException.class)
+    protected ResponseEntity<Object> handleTTFilerException(TTFilerException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.TT_FILER_EXCEPTION);
         return buildResponseEntity(error);
     }
 

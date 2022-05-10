@@ -1,0 +1,25 @@
+{
+  "name" : "EverythingAboutShapesUsingDateOfBirth",
+  "description" : "all of the properties and relationships for entities that have a property of a date of birth",
+  "resultFormat" : "OBJECT",
+  "select" : [ {
+    "binding" : "*"
+  } ],
+  "match" : {
+    "entityType" : {
+      "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+    },
+    "property" : {
+      "@id" : "http://www.w3.org/ns/shacl#property"
+    },
+    "valueObject" : {
+      "property" : {
+        "@id" : "http://www.w3.org/ns/shacl#path"
+      },
+      "valueConcept" : [ {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      } ]
+    }
+  },
+  "usePrefixes" : true
+}

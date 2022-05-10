@@ -26,7 +26,7 @@ public class Summariser {
 		StringBuilder summary= new StringBuilder();
 		summary.append(getVerb(match.getProperty().getIri())).append(" ");
 		if (match.getValueIn()!=null)
-			summary.append(getValueIn(match.getValueIn()));
+			//summary.append(getValueIn(match.getValueIn()));
 		if (match.getValueCompare()!=null)
 			summary.append(getCompare(match.getValueCompare()));
 		return summary.toString();

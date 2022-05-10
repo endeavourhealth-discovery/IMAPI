@@ -44,8 +44,6 @@ dependencies {
     implementation libs.validation
     implementation libs.woodstox
     implementation libs.awsS3
-    implementation libs.jsonSimple
-
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
 

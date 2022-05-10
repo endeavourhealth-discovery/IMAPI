@@ -8,3 +8,7 @@ build
 node_modules
 /node_api/dist/
 .env
+
+/api/bin/
+org.eclipse.jdt.core.prefs
+*.backup.json

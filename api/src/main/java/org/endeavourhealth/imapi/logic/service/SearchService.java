@@ -1,29 +1,26 @@
 package org.endeavourhealth.imapi.logic.service;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.endeavourhealth.imapi.dataaccess.OpenSearchRepository;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.sets.DataSet;
-import org.endeavourhealth.imapi.model.sets.Select;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.transforms.IMToSparql;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.endeavourhealth.imapi.model.sets.DataSet;
+import org.endeavourhealth.imapi.model.sets.ResultNode;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -36,73 +33,27 @@ public class SearchService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(org.endeavourhealth.imapi.logic.service.SearchService.class);
 	private final OpenSearchRepository repo = new OpenSearchRepository();
+	private final TTIriRef PROPNAME= TTIriRef.iri(IM.NAMESPACE+"propName");
+	private final TTIriRef OBNAME= TTIriRef.iri(IM.NAMESPACE+"obName");
+
+
+
 
 
 
 	/**
 	 * Queries any IM entity using the query model
 	 * @param query data model entity object to populate
-	 * @return a generic JSONArray containing the results
+	 * @return a generic JSONDocument containing the results and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public JSONArray queryIM(DataSet query) throws DataFormatException {
-		IMToSparql converter= new IMToSparql();
-		String spq= converter.convert(query);
-		JSONArray result= new JSONArray();
-		Map<Value, JSONObject> entityMap= new HashMap<>();
-		JSONObject root= new JSONObject();
-		result.add(root);
-		try (RepositoryConnection repo= ConnectionManager.getIMConnection()) {
-			TupleQuery qry = repo.prepareTupleQuery(spq);
-			try (TupleQueryResult rs = qry.evaluate()){
-				while (rs.hasNext()){
-					BindingSet bs= rs.next();
-					bindResults(converter,"entity",query,bs,result,root,entityMap);
+	public ResultNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+		return new IMQuery().queryIM(query);
 
-				}
-			}
-		}
-		return result;
 	}
 
-	private void bindResults(IMToSparql converter, String subject, DataSet dataSet, BindingSet bs,
-													 List<JSONObject> result, JSONObject root, Map<Value, JSONObject> entityMap) {
 
-		Value entityIri= bs.getValue(subject);
-		if (entityMap.get(entityIri)==null) {
-			entityMap.put(entityIri, root);
-			result.add(root);
-		}
-		root= entityMap.get(entityIri);
-		if (dataSet.getSelect()!=null) {
-			for (Select selection : dataSet.getSelect()) {
-				String var = selection.getVar();
-				String alias= selection.getAlias();
-				if (alias!=null){
-					var= alias;
-				}
-				if (converter.isId(var))
-					root.put("@id",entityIri.stringValue());
-				else {
-					if (selection.getObject() != null) {
-						root.putIfAbsent(var, new ArrayList<>());
-						JSONObject subNode = new JSONObject();
-						bindResults(converter, var, selection.getObject(), bs, result, subNode, entityMap);
-						if (!subNode.isEmpty()) {
-							((ArrayList) root.get(var)).add(subNode);
-						}
-					}
-					else {
-						Value bound = bs.getValue(var);
-						if (bound!=null) {
-							if (bound.isLiteral())
-								root.put(var, bound.stringValue());
-						}
-					}
-				}
-			}
-		}
-	}
+
 
 	/**
 	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied
@@ -196,8 +147,8 @@ public class SearchService {
 		BoolQueryBuilder boolQuery = new BoolQueryBuilder();
 		MatchPhraseQueryBuilder mpq= new MatchPhraseQueryBuilder("termCode.term", request.getTermFilter()).boost(1.5F);
 		MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter()).boost(0.5F);
-		boolQuery.should(mpq);
-		boolQuery.should(mfs);
+		boolQuery.should(mpq).minimumShouldMatch(1);
+		boolQuery.should(mfs).minimumShouldMatch(1);
 		addFilters(boolQuery, request);
 		return new FunctionScoreQueryBuilder(boolQuery,
 			ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));

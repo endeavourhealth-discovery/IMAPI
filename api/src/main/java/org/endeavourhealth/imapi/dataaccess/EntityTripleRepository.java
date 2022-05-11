@@ -199,8 +199,7 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?c ?cname")
-                .add("WHERE {")
+                .add("SELECT DISTINCT ?c ?cname {")
                 .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 

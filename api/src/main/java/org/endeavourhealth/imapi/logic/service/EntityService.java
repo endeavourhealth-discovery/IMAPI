@@ -84,7 +84,6 @@ public class EntityService {
 
     public List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize,
                                                           boolean inactive) {
-
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
 
@@ -996,8 +995,7 @@ public class EntityService {
     public TTEntity saveTask(TTEntity entity) throws Exception {
         entity.addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
-        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
-        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
+        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH));
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
@@ -1007,8 +1005,7 @@ public class EntityService {
             entity.set(IM.IN_TASK, new TTArray());
         }
         entity.get(IM.IN_TASK).add(iri(taskIri));
-        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
-        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
+        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH));
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
@@ -1016,8 +1013,7 @@ public class EntityService {
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws Exception {
         TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null, EntityService.UNLIMITED).getEntity();
         entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
-        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
-        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
+        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH));
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 

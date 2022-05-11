@@ -36,6 +36,7 @@ import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -118,7 +119,9 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-        return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
+		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri()), 0).getEntity();
+		boolean inactive = entity.getType().contains(IM.TASK);
+        return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 
 	@GetMapping("/public/exportConcept")

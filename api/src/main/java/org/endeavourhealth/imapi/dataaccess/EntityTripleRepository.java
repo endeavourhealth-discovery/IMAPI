@@ -202,7 +202,12 @@ public class EntityTripleRepository {
                 .add("SELECT ?c ?cname")
                 .add("WHERE {")
                 .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
-                .add(" ?c rdfs:label ?cname .");
+                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+
+        if (schemeIris != null && !schemeIris.isEmpty()) {
+            sql
+                    .add(valueList("g", schemeIris));
+        }
 
         if (!inactive)
             sql

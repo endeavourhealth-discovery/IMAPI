@@ -120,7 +120,7 @@ public class EntityController {
             size = EntityService.MAX_CHILDREN;
         }
 		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri()), 0).getEntity();
-		boolean inactive = entity.getType().contains(IM.TASK);
+		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK);
         return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 

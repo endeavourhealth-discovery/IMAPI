@@ -102,6 +102,17 @@ public class EntityService {
         return result;
     }
 
+    public Pageable<TTIriRef> getImmediateChildrenWithCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (iri == null || iri.isEmpty())
+            return null;
+
+        int rowNumber = 0;
+        if (page != null && size != null)
+            rowNumber = (page - 1) * 10;
+
+        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris,rowNumber, size, inactive);
+    }
+
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
         return entityTripleRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
     }

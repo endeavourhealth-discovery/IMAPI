@@ -1,621 +1,414 @@
 {
   "entities" : [ {
-    "code" : [ "55570000" ],
-    "term" : [ "Asthma without status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266361008" ]
   }, {
-    "code" : [ "1945002" ],
-    "term" : [ "Allergic asthma with stated cause (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195967001" ]
   }, {
-    "code" : [ "195967001" ],
-    "term" : [ "Asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1945002" ]
   }, {
-    "code" : [ "195967001" ],
-    "term" : [ "Asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#423889005" ]
   }, {
-    "code" : [ "10692681000119108" ],
-    "term" : [ "Aspirin exacerbated respiratory disease (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#424643009" ]
   }, {
-    "code" : [ "10675431000119106" ],
-    "term" : [ "Severe persistent allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#786836003" ]
   }, {
-    "code" : [ "708096008" ],
-    "term" : [ "Acute severe exacerbation of intrinsic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195983001" ]
   }, {
-    "code" : [ "708094006" ],
-    "term" : [ "Acute exacerbation of intrinsic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#866881000000101" ]
   }, {
-    "code" : [ "125011000119100" ],
-    "term" : [ "Mild persistent asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266364000" ]
   }, {
-    "code" : [ "274105009" ],
-    "term" : [ "Asthma attack NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195936003" ]
   }, {
-    "code" : [ "370219009" ],
-    "term" : [ "Moderate asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266359004" ]
   }, {
-    "code" : [ "1064771000000103" ],
-    "term" : [ "Acute severe exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#427354000" ]
   }, {
-    "code" : [ "427295004" ],
-    "term" : [ "Moderate persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195973000" ]
   }, {
-    "code" : [ "689421000000104" ],
-    "term" : [ "Status asthmaticus NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#782520007" ]
   }, {
-    "code" : [ "10674711000119105" ],
-    "term" : [ "Acute severe exacerbation of asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#37981002" ]
   }, {
-    "code" : [ "91340006" ],
-    "term" : [ "Extrinsic asthma with status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#426979002" ]
   }, {
-    "code" : [ "36979006" ],
-    "term" : [ "Status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233687002" ]
   }, {
-    "code" : [ "56507008" ],
-    "term" : [ "Tea-tasters' disease (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#389146007" ]
   }, {
-    "code" : [ "155578006" ],
-    "term" : [ "Asthma attack (& NOS) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#91340006" ]
   }, {
-    "code" : [ "233685005" ],
-    "term" : [ "Intrinsic asthma with asthma attack (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#708095007" ]
   }, {
-    "code" : [ "409663006" ],
-    "term" : [ "Cough variant asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675471000119109" ]
   }, {
-    "code" : [ "59786004" ],
-    "term" : [ "Weavers' cough (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#689431000000102" ]
   }, {
-    "code" : [ "233687002" ],
-    "term" : [ "Colophony asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#427679007" ]
   }, {
-    "code" : [ "16862005" ],
-    "term" : [ "Extrinsic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#8312004" ]
   }, {
-    "code" : [ "30352005" ],
-    "term" : [ "Allergic-infective asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#170643001" ]
   }, {
-    "code" : [ "195975007" ],
-    "term" : [ "Intrinsic asthma with: [asthma attack] or [status asthmaticus] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#170644007" ]
   }, {
-    "code" : [ "370220003" ],
-    "term" : [ "Occasional asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266363006" ]
   }, {
-    "code" : [ "10675751000119107" ],
-    "term" : [ "Severe uncontrolled persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#155574008" ]
   }, {
-    "code" : [ "707512002" ],
-    "term" : [ "Uncomplicated moderate persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233684009" ]
   }, {
-    "code" : [ "707361000000103" ],
-    "term" : [ "Allergic bronchopulmonary aspergillosis" ]
+    "@id" : [ "http://snomed.info/sct#445427006" ]
   }, {
-    "code" : [ "57546000" ],
-    "term" : [ "Asthma with status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10742121000119104" ]
   }, {
-    "code" : [ "93432008" ],
-    "term" : [ "Drug-induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266398009" ]
   }, {
-    "code" : [ "707513007" ],
-    "term" : [ "Uncomplicated severe persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#367110001" ]
   }, {
-    "code" : [ "10692721000119102" ],
-    "term" : [ "Chronic obstructive asthma co-occurrent with acute exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#71435009" ]
   }, {
-    "code" : [ "186081000000101" ],
-    "term" : [ "Work aggravated asthma" ]
+    "@id" : [ "http://snomed.info/sct#195949008" ]
   }, {
-    "code" : [ "1103911000000103" ],
-    "term" : [ "Severe asthma with fungal sensitisation (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195975007" ]
   }, {
-    "code" : [ "423889005" ],
-    "term" : [ "Non-immunoglobulin E mediated allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#370221004" ]
   }, {
-    "code" : [ "424643009" ],
-    "term" : [ "Immunoglobulin E-mediated allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1761000119103" ]
   }, {
-    "code" : [ "442025000" ],
-    "term" : [ "Acute exacerbation of chronic asthmatic bronchitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675911000119109" ]
   }, {
-    "code" : [ "10675551000119104" ],
-    "term" : [ "Acute severe exacerbation of severe persistent asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266396008" ]
   }, {
-    "code" : [ "72301000119103" ],
-    "term" : [ "Asthma in pregnancy (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#189521000000104" ]
   }, {
-    "code" : [ "404806001" ],
-    "term" : [ "Cheese-makers' asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#124991000119109" ]
   }, {
-    "code" : [ "37981002" ],
-    "term" : [ "Allergic bronchopulmonary aspergillosis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#56968009" ]
   }, {
-    "code" : [ "10676391000119108" ],
-    "term" : [ "Moderate persistent allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#59786004" ]
   }, {
-    "code" : [ "689431000000102" ],
-    "term" : [ "Asthma NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195968006" ]
   }, {
-    "code" : [ "233688007" ],
-    "term" : [ "Sulfite-induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#16584951000119101" ]
   }, {
-    "code" : [ "266397004" ],
-    "term" : [ "Asthma: [intrinsic] or [late onset] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#99981000000103" ]
   }, {
-    "code" : [ "370221004" ],
-    "term" : [ "Severe asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#427295004" ]
   }, {
-    "code" : [ "195976008" ],
-    "term" : [ "Intrinsic asthma NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707444001" ]
   }, {
-    "code" : [ "71435009" ],
-    "term" : [ "Chronic obstructive bronchitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#135171000119106" ]
   }, {
-    "code" : [ "389145006" ],
-    "term" : [ "Allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195970002" ]
   }, {
-    "code" : [ "708095007" ],
-    "term" : [ "Acute severe exacerbation of immunoglobin E-mediated allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266362001" ]
   }, {
-    "code" : [ "708093000" ],
-    "term" : [ "Acute exacerbation of immunoglobulin E-mediated allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#72301000119103" ]
   }, {
-    "code" : [ "31387002" ],
-    "term" : [ "Exercise-induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707445000" ]
   }, {
-    "code" : [ "170645008" ],
-    "term" : [ "Moderate asthma (procedure)" ]
+    "@id" : [ "http://snomed.info/sct#589231000000108" ]
   }, {
-    "code" : [ "233684009" ],
-    "term" : [ "Allergic non-atopic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#187687003" ]
   }, {
-    "code" : [ "782513000" ],
-    "term" : [ "Acute severe exacerbation of allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#304527002" ]
   }, {
-    "code" : [ "589241000000104" ],
-    "term" : [ "Asthma unspecified (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#416601004" ]
   }, {
-    "code" : [ "195983001" ],
-    "term" : [ "(Asthma: [exercise induced] or [allergic NEC] or [NOS]) or (allergic bronchitis NEC)" ]
+    "@id" : [ "http://snomed.info/sct#735589002" ]
   }, {
-    "code" : [ "10674991000119104" ],
-    "term" : [ "Intermittent allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195982006" ]
   }, {
-    "code" : [ "155579003" ],
-    "term" : [ "Asthma: [NOS] or [attack] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233679003" ]
   }, {
-    "code" : [ "593601000000101" ],
-    "term" : [ "Pneumopathy due to inhalation of other dust (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707511009" ]
   }, {
-    "code" : [ "405944004" ],
-    "term" : [ "Asthmatic bronchitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#139202009" ]
   }, {
-    "code" : [ "8312004" ],
-    "term" : [ "Intrinsic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233680000" ]
   }, {
-    "code" : [ "59327009" ],
-    "term" : [ "Intrinsic asthma with status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#16862005" ]
   }, {
-    "code" : [ "1086701000000102" ],
-    "term" : [ "Life threatening acute exacerbation of allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#56507008" ]
   }, {
-    "code" : [ "80374003" ],
-    "term" : [ "Platinosis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195939005" ]
   }, {
-    "code" : [ "426979002" ],
-    "term" : [ "Mild persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1086711000000100" ]
   }, {
-    "code" : [ "944961000000107" ],
-    "term" : [ "Asthma-chronic obstructive pulmonary disease overlap syndrome (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#708038006" ]
   }, {
-    "code" : [ "389146007" ],
-    "term" : [ "Extrinsic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#579691000000102" ]
   }, {
-    "code" : [ "424199006" ],
-    "term" : [ "Substance induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707447008" ]
   }, {
-    "code" : [ "195982006" ],
-    "term" : [ "Late onset asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#703953004" ]
   }, {
-    "code" : [ "233679003" ],
-    "term" : [ "Late onset asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#593601000000101" ]
   }, {
-    "code" : [ "734904007" ],
-    "term" : [ "Life threatening acute exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10676431000119103" ]
   }, {
-    "code" : [ "707979007" ],
-    "term" : [ "Acute severe exacerbation of severe persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#735588005" ]
   }, {
-    "code" : [ "707980005" ],
-    "term" : [ "Acute severe exacerbation of moderate persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#401000119107" ]
   }, {
-    "code" : [ "866881000000101" ],
-    "term" : [ "Chronic asthma with fixed airflow obstruction (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#80374003" ]
   }, {
-    "code" : [ "734905008" ],
-    "term" : [ "Moderate acute exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#155577001" ]
   }, {
-    "code" : [ "195974006" ],
-    "term" : [ "Intrinsic asthma without status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#19849005" ]
   }, {
-    "code" : [ "427603009" ],
-    "term" : [ "Intermittent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233685005" ]
   }, {
-    "code" : [ "707981009" ],
-    "term" : [ "Acute severe exacerbation of mild persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707512002" ]
   }, {
-    "code" : [ "703954005" ],
-    "term" : [ "Allergic asthma caused by Dermatophagoides farinae (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10674991000119104" ]
   }, {
-    "code" : [ "418395004" ],
-    "term" : [ "Tea-makers' asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#404806001" ]
   }, {
-    "code" : [ "708038006" ],
-    "term" : [ "Acute exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266360009" ]
   }, {
-    "code" : [ "195978009" ],
-    "term" : [ "Exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#426656000" ]
   }, {
-    "code" : [ "707447008" ],
-    "term" : [ "Exacerbation of severe persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#866891000000104" ]
   }, {
-    "code" : [ "266363006" ],
-    "term" : [ "Status asthmaticus NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#829976001" ]
   }, {
-    "code" : [ "10692761000119107" ],
-    "term" : [ "Asthma-chronic obstructive pulmonary disease overlap syndrome (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#2360001000004109" ]
   }, {
-    "code" : [ "416601004" ],
-    "term" : [ "Work aggravated asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675871000119106" ]
   }, {
-    "code" : [ "266362001" ],
-    "term" : [ "Intrinsic asthma with status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#196013003" ]
   }, {
-    "code" : [ "19849005" ],
-    "term" : [ "Meat-wrappers' asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233678006" ]
   }, {
-    "code" : [ "103781000119103" ],
-    "term" : [ "Allergic bronchopulmonary mycosis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#11641008" ]
   }, {
-    "code" : [ "195972005" ],
-    "term" : [ "Extrinsic asthma NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#59327009" ]
   }, {
-    "code" : [ "233686006" ],
-    "term" : [ "Aspirin-sensitive asthma with nasal polyps (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233688007" ]
   }, {
-    "code" : [ "10676431000119103" ],
-    "term" : [ "Acute severe exacerbation of moderate persistent allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1741000119102" ]
   }, {
-    "code" : [ "1086711000000100" ],
-    "term" : [ "Life threatening acute exacerbation of intrinsic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#370218001" ]
   }, {
-    "code" : [ "278517007" ],
-    "term" : [ "Asthmatic bronchitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#405944004" ]
   }, {
-    "code" : [ "233681001" ],
-    "term" : [ "Extrinsic asthma with asthma attack (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#73849000" ]
   }, {
-    "code" : [ "41553006" ],
-    "term" : [ "Detergent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195972005" ]
   }, {
-    "code" : [ "56968009" ],
-    "term" : [ "Asthma caused by wood dust (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#135181000119109" ]
   }, {
-    "code" : [ "189511000000105" ],
-    "term" : [ "Occupational asthma" ]
+    "@id" : [ "http://snomed.info/sct#427603009" ]
   }, {
-    "code" : [ "92807009" ],
-    "term" : [ "Chemical-induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#944961000000107" ]
   }, {
-    "code" : [ "186071000000103" ],
-    "term" : [ "Occupational asthma" ]
+    "@id" : [ "http://snomed.info/sct#10675431000119106" ]
   }, {
-    "code" : [ "593201000000103" ],
-    "term" : [ "Pneumopathy due to inhalation of other dust NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10676511000119109" ]
   }, {
-    "code" : [ "155577001" ],
-    "term" : [ "Status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#57607007" ]
   }, {
-    "code" : [ "233678006" ],
-    "term" : [ "Childhood asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#12428000" ]
   }, {
-    "code" : [ "165621000000103" ],
-    "term" : [ "Brittle asthma" ]
+    "@id" : [ "http://snomed.info/sct#41553006" ]
   }, {
-    "code" : [ "195968006" ],
-    "term" : [ "Asthma: [extrinsic - atopic] or [allergic] or [pollen] or [childhood] or [with hay fever] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#93432008" ]
   }, {
-    "code" : [ "195977004" ],
-    "term" : [ "Mixed asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266397004" ]
   }, {
-    "code" : [ "10675991000119100" ],
-    "term" : [ "Acute severe exacerbation of mild persistent allergic asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#404808000" ]
   }, {
-    "code" : [ "266398009" ],
-    "term" : [ "Asthma: [NOS] or [attack] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#30352005" ]
   }, {
-    "code" : [ "99981000000103" ],
-    "term" : [ "Aspirin-induced asthma" ]
+    "@id" : [ "http://snomed.info/sct#155578006" ]
   }, {
-    "code" : [ "786836003" ],
-    "term" : [ "Near fatal asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1064771000000103" ]
   }, {
-    "code" : [ "18041002" ],
-    "term" : [ "Printers' asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195979001" ]
   }, {
-    "code" : [ "155575009" ],
-    "term" : [ "Extrinsic asthma - atopy (& pollen) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#278517007" ]
   }, {
-    "code" : [ "195981004" ],
-    "term" : [ "Asthma attack (& NOS) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#442025000" ]
   }, {
-    "code" : [ "195979001" ],
-    "term" : [ "Asthma unspecified (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10692761000119107" ]
   }, {
-    "code" : [ "99031000119107" ],
-    "term" : [ "Acute exacerbation of asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#370219009" ]
   }, {
-    "code" : [ "139202009" ],
-    "term" : [ "Exercise-induced asthma (finding)" ]
+    "@id" : [ "http://snomed.info/sct#170646009" ]
   }, {
-    "code" : [ "135171000119106" ],
-    "term" : [ "Acute exacerbation of moderate persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#762521001" ]
   }, {
-    "code" : [ "404808000" ],
-    "term" : [ "Isocyanate induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195977004" ]
   }, {
-    "code" : [ "427679007" ],
-    "term" : [ "Mild intermittent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#653751000000109" ]
   }, {
-    "code" : [ "125021000119107" ],
-    "term" : [ "Intermittent asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195981004" ]
   }, {
-    "code" : [ "1761000119103" ],
-    "term" : [ "Chronic obstructive airway disease with asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#155576005" ]
   }, {
-    "code" : [ "2360001000004109" ],
-    "term" : [ "Steroid dependent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195974006" ]
   }, {
-    "code" : [ "233683003" ],
-    "term" : [ "Hay fever with asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707981009" ]
   }, {
-    "code" : [ "266361008" ],
-    "term" : [ "Non-allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195971003" ]
   }, {
-    "code" : [ "11641008" ],
-    "term" : [ "Millers' asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675751000119107" ]
   }, {
-    "code" : [ "57607007" ],
-    "term" : [ "Occupational asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1064821000000109" ]
   }, {
-    "code" : [ "782520007" ],
-    "term" : [ "Exacerbation of allergic asthma due to infection (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266358007" ]
   }, {
-    "code" : [ "170643001" ],
-    "term" : [ "Occasional asthma (procedure)" ]
+    "@id" : [ "http://snomed.info/sct#707446004" ]
   }, {
-    "code" : [ "10676511000119109" ],
-    "term" : [ "Acute severe exacerbation of moderate persistent asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#733858005" ]
   }, {
-    "code" : [ "370218001" ],
-    "term" : [ "Mild asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#734905008" ]
   }, {
-    "code" : [ "195970002" ],
-    "term" : [ "(Hay fever with asthma) or (extrinsic asthma without status asthmaticus) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233683003" ]
   }, {
-    "code" : [ "644281000000107" ],
-    "term" : [ "Allergic asthma NEC (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#155575009" ]
   }, {
-    "code" : [ "367110001" ],
-    "term" : [ "Exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1103911000000103" ]
   }, {
-    "code" : [ "735589002" ],
-    "term" : [ "Uncomplicated non-allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#389145006" ]
   }, {
-    "code" : [ "195971003" ],
-    "term" : [ "Extrinsic asthma with: [asthma attack] or [status asthmaticus] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#67415000" ]
   }, {
-    "code" : [ "703953004" ],
-    "term" : [ "Allergic asthma caused by Dermatophagoides pteronyssinus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707361000000103" ]
   }, {
-    "code" : [ "266360009" ],
-    "term" : [ "Extrinsic asthma with status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675551000119104" ]
   }, {
-    "code" : [ "404804003" ],
-    "term" : [ "Platinum asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#425969006" ]
   }, {
-    "code" : [ "196013003" ],
-    "term" : [ "Pneumopathy due to inhalation of other dust (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707513007" ]
   }, {
-    "code" : [ "195973000" ],
-    "term" : [ "(Intrinsic asthma) or (late onset asthma) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#186081000000101" ]
   }, {
-    "code" : [ "266396008" ],
-    "term" : [ "Extrinsic asthma - atopy (& pollen) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#125001000119103" ]
   }, {
-    "code" : [ "1064821000000109" ],
-    "term" : [ "Life threatening acute exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#103781000119103" ]
   }, {
-    "code" : [ "304527002" ],
-    "term" : [ "Acute asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#233681001" ]
   }, {
-    "code" : [ "707446004" ],
-    "term" : [ "Exacerbation of moderate persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#21341004" ]
   }, {
-    "code" : [ "735588005" ],
-    "term" : [ "Uncomplicated allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#55570000" ]
   }, {
-    "code" : [ "829976001" ],
-    "term" : [ "Thunderstorm asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#170645008" ]
   }, {
-    "code" : [ "10675911000119109" ],
-    "term" : [ "Acute severe exacerbation of mild persistent allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#125011000119100" ]
   }, {
-    "code" : [ "707511009" ],
-    "term" : [ "Uncomplicated mild persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#189511000000105" ]
   }, {
-    "code" : [ "233680000" ],
-    "term" : [ "Allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#155579003" ]
   }, {
-    "code" : [ "707444001" ],
-    "term" : [ "Uncomplicated asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#409663006" ]
   }, {
-    "code" : [ "426656000" ],
-    "term" : [ "Severe persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#589241000000104" ]
   }, {
-    "code" : [ "1741000119102" ],
-    "term" : [ "Intermittent asthma uncontrolled (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#708093000" ]
   }, {
-    "code" : [ "125001000119103" ],
-    "term" : [ "Moderate persistent asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#734904007" ]
   }, {
-    "code" : [ "170644007" ],
-    "term" : [ "Mild asthma (procedure)" ]
+    "@id" : [ "http://snomed.info/sct#195978009" ]
   }, {
-    "code" : [ "170646009" ],
-    "term" : [ "Severe asthma (procedure)" ]
+    "@id" : [ "http://snomed.info/sct#274105009" ]
   }, {
-    "code" : [ "63088003" ],
-    "term" : [ "Allergic asthma without status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#944971000000100" ]
   }, {
-    "code" : [ "196015005" ],
-    "term" : [ "Pneumopathy due to inhalation of other dust NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#195976008" ]
   }, {
-    "code" : [ "266365004" ],
-    "term" : [ "Asthma NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#424199006" ]
   }, {
-    "code" : [ "195949008" ],
-    "term" : [ "Chronic asthmatic bronchitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#63088003" ]
   }, {
-    "code" : [ "266359004" ],
-    "term" : [ "Extrinsic asthma without status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#644281000000107" ]
   }, {
-    "code" : [ "653751000000109" ],
-    "term" : [ "Asthma attack NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#689421000000104" ]
   }, {
-    "code" : [ "866891000000104" ],
-    "term" : [ "Chronic asthma with fixed airflow obstruction " ]
+    "@id" : [ "http://snomed.info/sct#10676391000119108" ]
   }, {
-    "code" : [ "195936003" ],
-    "term" : [ "Bronchitis: [unspecified (& chest infection)] or [recurrent wheezy] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#782513000" ]
   }, {
-    "code" : [ "67415000" ],
-    "term" : [ "Hay asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1751000119100" ]
   }, {
-    "code" : [ "21341004" ],
-    "term" : [ "Asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#404804003" ]
   }, {
-    "code" : [ "155576005" ],
-    "term" : [ "Asthma: [intrinsic] or [late onset] (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#196015005" ]
   }, {
-    "code" : [ "10675391000119101" ],
-    "term" : [ "Severe controlled persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#99031000119107" ]
   }, {
-    "code" : [ "708090002" ],
-    "term" : [ "Acute severe exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#370220003" ]
   }, {
-    "code" : [ "155574008" ],
-    "term" : [ "Asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#18041002" ]
   }, {
-    "code" : [ "1751000119100" ],
-    "term" : [ "Acute exacerbation of chronic obstructive airways disease with asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#266365004" ]
   }, {
-    "code" : [ "10742121000119104" ],
-    "term" : [ "Asthma in mother complicating childbirth (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#92807009" ]
   }, {
-    "code" : [ "111991000000106" ],
-    "term" : [ "Brittle asthma" ]
+    "@id" : [ "http://snomed.info/sct#233682008" ]
   }, {
-    "code" : [ "762521001" ],
-    "term" : [ "Exacerbation of allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#708090002" ]
   }, {
-    "code" : [ "12428000" ],
-    "term" : [ "Intrinsic asthma without status asthmaticus (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1064811000000103" ]
   }, {
-    "code" : [ "73849000" ],
-    "term" : [ "Cheese-washers' lung (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#186071000000103" ]
   }, {
-    "code" : [ "266358007" ],
-    "term" : [ "Allergic atopic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#407674008" ]
   }, {
-    "code" : [ "425969006" ],
-    "term" : [ "Exacerbation of intermittent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#95111000000105" ]
   }, {
-    "code" : [ "10675471000119109" ],
-    "term" : [ "Acute severe exacerbation of severe persistent allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707979007" ]
   }, {
-    "code" : [ "189521000000104" ],
-    "term" : [ "Work aggravated asthma" ]
+    "@id" : [ "http://snomed.info/sct#281239006" ]
   }, {
-    "code" : [ "233682008" ],
-    "term" : [ "Allergic asthma NEC (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#225057002" ]
   }, {
-    "code" : [ "735587000" ],
-    "term" : [ "Acute severe exacerbation of asthma co-occurrent and due to allergic asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675991000119100" ]
   }, {
-    "code" : [ "1064811000000103" ],
-    "term" : [ "Moderate acute exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#1086701000000102" ]
   }, {
-    "code" : [ "195939005" ],
-    "term" : [ "Asthmatic bronchitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10692681000119108" ]
   }, {
-    "code" : [ "281239006" ],
-    "term" : [ "Exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#707980005" ]
   }, {
-    "code" : [ "34015007" ],
-    "term" : [ "Bakers' asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#708096008" ]
   }, {
-    "code" : [ "195980003" ],
-    "term" : [ "(Severe asthma attack) or (status asthmaticus NOS) (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#34015007" ]
   }, {
-    "code" : [ "944971000000100" ],
-    "term" : [ "Asthma-chronic obstructive pulmonary disease overlap syndrome " ]
+    "@id" : [ "http://snomed.info/sct#195980003" ]
   }, {
-    "code" : [ "187687003" ],
-    "term" : [ "Asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#708094006" ]
   }, {
-    "code" : [ "445427006" ],
-    "term" : [ "Seasonal asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#735587000" ]
   }, {
-    "code" : [ "707445000" ],
-    "term" : [ "Exacerbation of mild persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#418395004" ]
   }, {
-    "code" : [ "135181000119109" ],
-    "term" : [ "Acute exacerbation of mild persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#57546000" ]
   }, {
-    "code" : [ "124991000119109" ],
-    "term" : [ "Severe persistent asthma co-occurrent with allergic rhinitis (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#703954005" ]
   }, {
-    "code" : [ "733858005" ],
-    "term" : [ "Acute severe refractory exacerbation of asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10674711000119105" ]
   }, {
-    "code" : [ "579691000000102" ],
-    "term" : [ "Intrinsic asthma NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#165621000000103" ]
   }, {
-    "code" : [ "225057002" ],
-    "term" : [ "Brittle asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10692721000119102" ]
   }, {
-    "code" : [ "589231000000108" ],
-    "term" : [ "Extrinsic asthma NOS (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#125021000119107" ]
   }, {
-    "code" : [ "266364000" ],
-    "term" : [ "Asthma attack (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#10675391000119101" ]
   }, {
-    "code" : [ "407674008" ],
-    "term" : [ "Aspirin-induced asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#111991000000106" ]
   }, {
-    "code" : [ "95111000000105" ],
-    "term" : [ "Aspirin-induced asthma" ]
+    "@id" : [ "http://snomed.info/sct#233686006" ]
   }, {
-    "code" : [ "16584951000119101" ],
-    "term" : [ "Oral steroid-dependent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#593201000000103" ]
   }, {
-    "code" : [ "427354000" ],
-    "term" : [ "Exacerbation of persistent asthma (disorder)" ]
+    "@id" : [ "http://snomed.info/sct#36979006" ]
   }, {
-    "code" : [ "401000119107" ],
-    "term" : [ "Asthma with irreversible airway obstruction (disorder)" ]
-  }, {
-    "code" : [ "10675871000119106" ],
-    "term" : [ "Mild persistent allergic asthma (disorder)" ]
-  } ]
+    "@id" : [ "http://snomed.info/sct#31387002" ]
+  } ],
+  "@context" : { }
 }

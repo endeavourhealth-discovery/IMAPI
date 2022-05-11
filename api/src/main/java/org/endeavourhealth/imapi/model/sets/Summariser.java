@@ -22,13 +22,13 @@ public class Summariser {
 			"LESS_THAN_OR_EQUAL","<=",
 			"LESS_THAN",">");
 
-	public static String getSummary(Match match){
+	public static String getSummary(Filter filter){
 		StringBuilder summary= new StringBuilder();
-		summary.append(getVerb(match.getProperty().getIri())).append(" ");
-		if (match.getValueIn()!=null)
-			//summary.append(getValueIn(match.getValueIn()));
-		if (match.getValueCompare()!=null)
-			summary.append(getCompare(match.getValueCompare()));
+		summary.append(getVerb(filter.getProperty().getIri())).append(" ");
+		if (filter.getValueIn()!=null)
+			//summary.append(getValueIn(filter.getValueIn()));
+		if (filter.getValueCompare()!=null)
+			summary.append(getCompare(filter.getValueCompare()));
 		return summary.toString();
 	}
 

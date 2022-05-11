@@ -2,6 +2,5 @@ q1 Give me the expansion of a value set including matched legacy concepts
 q2 Give vvme all of the properties of data models that have dates of birth
 q3 As q1 but as a relational flat output
 q4 Give me the code and term for all descendants of asthma
-q5. Give me all the allowable properties for building a concept expression refining the covid concept.
+q5. Give me all the allowable properties for building a concept expression using the covid concept.
 q6 I want just the available data model properties of a node shape that have a property with a date of birth ()
-q7 What concepts can I have as values for a property when refining a concept

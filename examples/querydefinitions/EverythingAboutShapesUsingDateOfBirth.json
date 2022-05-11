@@ -3,6 +3,9 @@
   "description" : "all of the properties and relationships for entities that have a property of a date of birth",
   "resultFormat" : "OBJECT",
   "select" : {
+    "entityType" : {
+      "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+    },
     "filter" : {
       "property" : {
         "@id" : "http://www.w3.org/ns/shacl#property"
@@ -15,9 +18,6 @@
           "@id" : "http://endhealth.info/im#dateOfBirth"
         } ]
       }
-    },
-    "entityType" : {
-      "@id" : "http://www.w3.org/ns/shacl#NodeShape"
     },
     "property" : [ {
       "binding" : "*"

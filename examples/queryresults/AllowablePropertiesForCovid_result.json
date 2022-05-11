@@ -1,128 +1,131 @@
 {
   "entities" : [ {
-    "label_3" : [ "Causative agent (attribute)" ],
-    "code_2" : [ "246075003" ],
-    "@id" : [ "http://snomed.info/sct#246075003" ]
-  }, {
-    "label_3" : [ "Interprets (attribute)" ],
-    "code_2" : [ "363714003" ],
+    "http://endhealth.info/im#code" : [ "363714003" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Interprets (attribute)" ],
     "@id" : [ "http://snomed.info/sct#363714003" ]
   }, {
-    "label_3" : [ "Occurrence (attribute)" ],
-    "code_2" : [ "246454002" ],
-    "@id" : [ "http://snomed.info/sct#246454002" ]
+    "http://endhealth.info/im#code" : [ "246075003" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Causative agent (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#246075003" ]
   }, {
-    "label_3" : [ "Finding method (attribute)" ],
-    "code_2" : [ "418775008" ],
-    "@id" : [ "http://snomed.info/sct#418775008" ]
-  }, {
-    "label_3" : [ "Associated with (attribute)" ],
-    "code_2" : [ "47429007" ],
-    "@id" : [ "http://snomed.info/sct#47429007" ]
-  }, {
-    "label_3" : [ "Status pre- (contextual qualifier) (qualifier value)" ],
-    "code_2" : [ "7257007" ],
-    "@id" : [ "http://snomed.info/sct#7257007" ]
-  }, {
-    "label_3" : [ "Has definitional manifestation (attribute)" ],
-    "code_2" : [ "363705008" ],
-    "@id" : [ "http://snomed.info/sct#363705008" ]
-  }, {
-    "label_3" : [ "With severity (attribute)" ],
-    "code_2" : [ "39133001" ],
-    "@id" : [ "http://snomed.info/sct#39133001" ]
-  }, {
-    "label_3" : [ "Interprets (attribute)" ],
-    "code_2" : [ "401337006" ],
-    "@id" : [ "http://snomed.info/sct#401337006" ]
-  }, {
-    "label_3" : [ "Status during (contextual qualifier) (qualifier value)" ],
-    "code_2" : [ "238390001" ],
-    "@id" : [ "http://snomed.info/sct#238390001" ]
-  }, {
-    "label_3" : [ "Severity (attribute)" ],
-    "code_2" : [ "246112005" ],
-    "@id" : [ "http://snomed.info/sct#246112005" ]
-  }, {
-    "label_3" : [ "During (attribute)" ],
-    "code_2" : [ "371881003" ],
-    "@id" : [ "http://snomed.info/sct#371881003" ]
-  }, {
-    "label_3" : [ "Status during (contextual qualifier) (qualifier value)" ],
-    "code_2" : [ "103331003" ],
-    "@id" : [ "http://snomed.info/sct#103331003" ]
-  }, {
-    "label_3" : [ "Interprets" ],
-    "code_2" : [ "46251000000100" ],
-    "@id" : [ "http://snomed.info/sct#46251000000100" ]
-  }, {
-    "label_3" : [ "Associated morphology (attribute)" ],
-    "code_2" : [ "116676008" ],
-    "@id" : [ "http://snomed.info/sct#116676008" ]
-  }, {
-    "label_3" : [ "Finding site (attribute)" ],
-    "code_2" : [ "363698007" ],
-    "@id" : [ "http://snomed.info/sct#363698007" ]
-  }, {
-    "label_3" : [ "After (attribute)" ],
-    "code_2" : [ "255234002" ],
-    "@id" : [ "http://snomed.info/sct#255234002" ]
-  }, {
-    "label_3" : [ "Temporally related to (attribute)" ],
-    "code_2" : [ "726633004" ],
-    "@id" : [ "http://snomed.info/sct#726633004" ]
-  }, {
-    "label_3" : [ "Episodicity (attribute)" ],
-    "code_2" : [ "246456000" ],
-    "@id" : [ "http://snomed.info/sct#246456000" ]
-  }, {
-    "label_3" : [ "Pathological process (attribute)" ],
-    "code_2" : [ "370135005" ],
-    "@id" : [ "http://snomed.info/sct#370135005" ]
-  }, {
-    "label_3" : [ "Before (attribute)" ],
-    "code_2" : [ "288556008" ],
+    "http://endhealth.info/im#code" : [ "288556008" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Before (attribute)" ],
     "@id" : [ "http://snomed.info/sct#288556008" ]
   }, {
-    "label_3" : [ "Status post (contextual qualifier) (qualifier value)" ],
-    "code_2" : [ "77569001" ],
+    "http://endhealth.info/im#code" : [ "363705008" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has definitional manifestation (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#363705008" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "246454002" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Occurrence (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#246454002" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "401337006" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Interprets (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#401337006" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "19531003" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Following (qualifier value)" ],
+    "@id" : [ "http://snomed.info/sct#19531003" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "418775008" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Finding method (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#418775008" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "726633004" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Temporally related to (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#726633004" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "7257007" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Status pre- (contextual qualifier) (qualifier value)" ],
+    "@id" : [ "http://snomed.info/sct#7257007" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "46251000000100" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Interprets" ],
+    "@id" : [ "http://snomed.info/sct#46251000000100" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "116676008" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Associated morphology (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#116676008" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "363698007" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Finding site (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#363698007" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "255234002" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "After (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#255234002" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "77569001" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Status post (contextual qualifier) (qualifier value)" ],
     "@id" : [ "http://snomed.info/sct#77569001" ]
   }, {
-    "label_3" : [ "Finding informer (attribute)" ],
-    "code_2" : [ "419066007" ],
-    "@id" : [ "http://snomed.info/sct#419066007" ]
+    "http://endhealth.info/im#code" : [ "103331003" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Status during (contextual qualifier) (qualifier value)" ],
+    "@id" : [ "http://snomed.info/sct#103331003" ]
   }, {
-    "label_3" : [ "Has realization (attribute)" ],
-    "code_2" : [ "719722006" ],
-    "@id" : [ "http://snomed.info/sct#719722006" ]
-  }, {
-    "label_3" : [ "During AND/OR after (attribute)" ],
-    "code_2" : [ "726634005" ],
-    "@id" : [ "http://snomed.info/sct#726634005" ]
-  }, {
-    "label_3" : [ "Clinical course (attribute)" ],
-    "code_2" : [ "263502005" ],
-    "@id" : [ "http://snomed.info/sct#263502005" ]
-  }, {
-    "label_3" : [ "Due to (attribute)" ],
-    "code_2" : [ "42752001" ],
-    "@id" : [ "http://snomed.info/sct#42752001" ]
-  }, {
-    "label_3" : [ "Course (attribute)" ],
-    "code_2" : [ "260908002" ],
-    "@id" : [ "http://snomed.info/sct#260908002" ]
-  }, {
-    "label_3" : [ "Followed by (qualifier value)" ],
-    "code_2" : [ "13064003" ],
-    "@id" : [ "http://snomed.info/sct#13064003" ]
-  }, {
-    "label_3" : [ "Has interpretation (attribute)" ],
-    "code_2" : [ "363713009" ],
+    "http://endhealth.info/im#code" : [ "363713009" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has interpretation (attribute)" ],
     "@id" : [ "http://snomed.info/sct#363713009" ]
   }, {
-    "label_3" : [ "Following (qualifier value)" ],
-    "code_2" : [ "19531003" ],
-    "@id" : [ "http://snomed.info/sct#19531003" ]
+    "http://endhealth.info/im#code" : [ "419066007" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Finding informer (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#419066007" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "246112005" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Severity (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#246112005" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "726634005" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "During AND/OR after (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#726634005" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "260908002" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Course (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#260908002" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "13064003" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Followed by (qualifier value)" ],
+    "@id" : [ "http://snomed.info/sct#13064003" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "238390001" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Status during (contextual qualifier) (qualifier value)" ],
+    "@id" : [ "http://snomed.info/sct#238390001" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "246456000" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Episodicity (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#246456000" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "719722006" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has realization (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#719722006" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "39133001" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "With severity (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#39133001" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "370135005" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Pathological process (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#370135005" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "263502005" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Clinical course (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#263502005" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "42752001" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Due to (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#42752001" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "47429007" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Associated with (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#47429007" ]
+  }, {
+    "http://endhealth.info/im#code" : [ "371881003" ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "During (attribute)" ],
+    "@id" : [ "http://snomed.info/sct#371881003" ]
   } ],
-  "@context" : { }
+  "@context" : {
+    "http://endhealth.info/im#code" : "code",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "label"
+  }
 }

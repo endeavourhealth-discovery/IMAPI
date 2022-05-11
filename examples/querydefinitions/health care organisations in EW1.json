@@ -2,6 +2,10 @@
   "name" : "health care organisations in EW1",
   "description" : "name and address of organisations with post code starting with EW1",
   "select" : {
+    "entityType" : {
+      "name" : "Organisation",
+      "@id" : "http://endhealth.info/im#Organisation"
+    },
     "filter" : {
       "property" : {
         "@id" : "http://endhealth.info/im#address"
@@ -16,10 +20,6 @@
           "valueData" : "E1W 3DP"
         }
       }
-    },
-    "entityType" : {
-      "name" : "Organisation",
-      "@id" : "http://endhealth.info/im#Organisation"
     },
     "property" : [ {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label",

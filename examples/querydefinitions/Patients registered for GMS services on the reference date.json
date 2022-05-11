@@ -3,6 +3,10 @@
   "name" : "Patients registered for GMS services on the reference date",
   "description" : "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.",
   "select" : {
+    "entityType" : {
+      "name" : "Person",
+      "@id" : "http://endhealth.info/im#Person"
+    },
     "filter" : {
       "property" : {
         "name" : "has GP registration",
@@ -48,10 +52,6 @@
           }
         } ]
       }
-    },
-    "entityType" : {
-      "name" : "Person",
-      "@id" : "http://endhealth.info/im#Person"
     }
   }
 }

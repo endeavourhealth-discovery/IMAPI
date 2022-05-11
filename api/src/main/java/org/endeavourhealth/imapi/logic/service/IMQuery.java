@@ -35,6 +35,7 @@ public class IMQuery {
 	private final Map<String, ResultNode> valueMap = new HashMap<>();
 	private final Map<Value, ResultNode> entityMap = new HashMap<>();
 	private final Set<String> predicates= new HashSet<>();
+	private final Set<String> usedSelect= new HashSet<>();
 
 
 	public Map<String, String> getVarProperty() {
@@ -629,24 +630,39 @@ public class IMQuery {
 			ResultNode node = new ResultNode();
 			result.add("entities", node);
 			Select select = query.getSelect();
-			for (PropertyObject property:select.getProperty()){
+			for (PropertyObject property:select.getProperty()) {
 				String var = property.getBinding();
 				if (var.equals("*")) {
 					bindAll(bs, result);
 				} else {
-					if (isId(var))
-						var = "entity";
-					String alias = property.getAlias();
-					if (alias != null) {
-						var = alias;
-					}
 					Value bound = bs.getValue(var);
 					if (bound != null) {
-						node.add(var.equals("entity")? "@id": var, bound.stringValue());
+						String value;
+						if (bound.isIRI())
+							value = resultIri(bound.stringValue());
+						else
+							value = bound.stringValue();
+						if (isId(var)) {
+							node.add("@id", value);
+						} else if (var.equals("entity")) {
+							node.add("@id", value);
+						} else {
+							String alias = property.getAlias();
+							if (alias != null) {
+								node.add(alias, value);
+							} else {
+								String path = property.getIri();
+								if (!usedSelect.contains(path)) {
+									node.add(resultIri(path), value);
+									predicates.add(path);
+								} else {
+									node.add(var, value);
+								}
+							}
+						}
 					}
 				}
 			}
-
 		}
 	}
 

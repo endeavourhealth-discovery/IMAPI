@@ -822,21 +822,21 @@
   }, {
     "rdfs:label" : [ "Family history: Congenital heart disease (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Congenital heart disease" ],
-      "@id" : [ "http://endhealth.info/emis#12C8" ],
-      "im:code" : [ "12C8" ]
+      "rdfs:label" : [ "Family history: Congenital heart disease" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA453033" ],
+      "im:code" : [ "^ESCTFA453033" ]
     }, {
       "rdfs:label" : [ "FH: Congenital heart disease" ],
       "@id" : [ "http://endhealth.info/emis#12J3-1" ],
       "im:code" : [ "12J3-1" ]
     }, {
+      "rdfs:label" : [ "FH: Congenital heart disease" ],
+      "@id" : [ "http://endhealth.info/emis#12C8" ],
+      "im:code" : [ "12C8" ]
+    }, {
       "rdfs:label" : [ "FH: Congen heart disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFH453032" ],
       "im:code" : [ "^ESCTFH453032" ]
-    }, {
-      "rdfs:label" : [ "Family history: Congenital heart disease" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA453033" ],
-      "im:code" : [ "^ESCTFA453033" ]
     }, {
       "rdfs:label" : [ "FH: Congenital heart disease" ],
       "@id" : [ "http://endhealth.info/tpp#_12C8" ],
@@ -1573,29 +1573,13 @@
   }, {
     "rdfs:label" : [ "Family history with explicit context (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Family history" ],
-      "@id" : [ "http://endhealth.info/emis#12-1" ],
-      "im:code" : [ "12-1" ]
-    }, {
-      "rdfs:label" : [ "Family history with explicit context" ],
-      "@id" : [ "http://endhealth.info/emis#12Z" ],
-      "im:code" : [ "12Z" ]
-    }, {
-      "rdfs:label" : [ "FH: Relative OS" ],
-      "@id" : [ "http://endhealth.info/emis#12Q" ],
-      "im:code" : [ "12Q" ]
-    }, {
-      "rdfs:label" : [ "FH: NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12Z" ],
-      "im:code" : [ "12Z.." ]
-    }, {
       "rdfs:label" : [ "FH: Relative NOS" ],
       "@id" : [ "http://endhealth.info/emis#12QZ" ],
       "im:code" : [ "12QZ" ]
     }, {
-      "rdfs:label" : [ "Family history by relative" ],
-      "@id" : [ "http://endhealth.info/tpp#Xa6aq" ],
-      "im:code" : [ "Xa6aq" ]
+      "rdfs:label" : [ "Family history with explicit context" ],
+      "@id" : [ "http://endhealth.info/emis#12Z" ],
+      "im:code" : [ "12Z" ]
     }, {
       "rdfs:label" : [ "FH: Relative NOS" ],
       "@id" : [ "http://endhealth.info/vis#12QZ" ],
@@ -1605,17 +1589,25 @@
       "@id" : [ "http://endhealth.info/tpp#12Z__" ],
       "im:code" : [ "12Z.." ]
     }, {
-      "rdfs:label" : [ "FH: NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#XE0oU" ],
-      "im:code" : [ "XE0oU" ]
+      "rdfs:label" : [ "FH: Relative OS" ],
+      "@id" : [ "http://endhealth.info/emis#12Q" ],
+      "im:code" : [ "12Q" ]
     }, {
-      "rdfs:label" : [ "FH: Relative NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#12QZ_" ],
-      "im:code" : [ "12QZ." ]
+      "rdfs:label" : [ "FH: Relative OS" ],
+      "@id" : [ "http://endhealth.info/vis#12Q" ],
+      "im:code" : [ "12Q.." ]
     }, {
       "rdfs:label" : [ "FH - Family history" ],
       "@id" : [ "http://endhealth.info/emis#12" ],
       "im:code" : [ "12" ]
+    }, {
+      "rdfs:label" : [ "FH: Family history" ],
+      "@id" : [ "http://endhealth.info/emis#12-1" ],
+      "im:code" : [ "12-1" ]
+    }, {
+      "rdfs:label" : [ "FH: Relative NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#_12QZ" ],
+      "im:code" : [ ".12QZ" ]
     }, {
       "rdfs:label" : [ "Parent died of heart trouble" ],
       "@id" : [ "http://endhealth.info/emis#EMISPA1" ],
@@ -1629,45 +1621,53 @@
       "@id" : [ "http://endhealth.info/emis#_ESCTFH342914" ],
       "im:code" : [ "^ESCTFH342914" ]
     }, {
-      "rdfs:label" : [ "FH: Relative OS" ],
-      "@id" : [ "http://endhealth.info/vis#12Q" ],
-      "im:code" : [ "12Q.." ]
+      "rdfs:label" : [ "FH: NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#XE0oU" ],
+      "im:code" : [ "XE0oU" ]
     }, {
       "rdfs:label" : [ "Family history" ],
-      "@id" : [ "http://endhealth.info/tpp#_12__" ],
-      "im:code" : [ ".12.." ]
+      "@id" : [ "http://endhealth.info/vis#12" ],
+      "im:code" : [ "12..." ]
     }, {
-      "rdfs:label" : [ "FH: Relative OS" ],
-      "@id" : [ "http://endhealth.info/tpp#_12Q_" ],
-      "im:code" : [ ".12Q." ]
-    }, {
-      "rdfs:label" : [ "FH: Girlfriend" ],
-      "@id" : [ "http://endhealth.info/tpp#_12Q8" ],
-      "im:code" : [ ".12Q8" ]
+      "rdfs:label" : [ "FH: Relative NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#12QZ_" ],
+      "im:code" : [ "12QZ." ]
     }, {
       "rdfs:label" : [ "Family history" ],
       "@id" : [ "http://endhealth.info/tpp#12___" ],
       "im:code" : [ "12..." ]
     }, {
-      "rdfs:label" : [ "FH: Relative OS" ],
-      "@id" : [ "http://endhealth.info/tpp#12Q__" ],
-      "im:code" : [ "12Q.." ]
+      "rdfs:label" : [ "Family history by relative" ],
+      "@id" : [ "http://endhealth.info/tpp#Xa6aq" ],
+      "im:code" : [ "Xa6aq" ]
     }, {
-      "rdfs:label" : [ "FH: Relative NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#_12QZ" ],
-      "im:code" : [ ".12QZ" ]
+      "rdfs:label" : [ "Family history" ],
+      "@id" : [ "http://endhealth.info/tpp#_12__" ],
+      "im:code" : [ ".12.." ]
+    }, {
+      "rdfs:label" : [ "FH: NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12Z" ],
+      "im:code" : [ "12Z.." ]
+    }, {
+      "rdfs:label" : [ "FH: Relative OS" ],
+      "@id" : [ "http://endhealth.info/tpp#_12Q_" ],
+      "im:code" : [ ".12Q." ]
     }, {
       "rdfs:label" : [ "FH: Boyfriend" ],
       "@id" : [ "http://endhealth.info/tpp#_12Q7" ],
       "im:code" : [ ".12Q7" ]
     }, {
+      "rdfs:label" : [ "FH: Relative OS" ],
+      "@id" : [ "http://endhealth.info/tpp#12Q__" ],
+      "im:code" : [ "12Q.." ]
+    }, {
       "rdfs:label" : [ "FH: NOS" ],
       "@id" : [ "http://endhealth.info/tpp#_12Z_" ],
       "im:code" : [ ".12Z." ]
     }, {
-      "rdfs:label" : [ "Family history" ],
-      "@id" : [ "http://endhealth.info/vis#12" ],
-      "im:code" : [ "12..." ]
+      "rdfs:label" : [ "FH: Girlfriend" ],
+      "@id" : [ "http://endhealth.info/tpp#_12Q8" ],
+      "im:code" : [ ".12Q8" ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:57177007" ]
@@ -2035,9 +2035,9 @@
   }, {
     "rdfs:label" : [ "Family history: Congenital anomaly (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: congenital anomaly" ],
-      "@id" : [ "http://endhealth.info/tpp#_12J_" ],
-      "im:code" : [ ".12J." ]
+      "rdfs:label" : [ "FH: Congenital anomaly" ],
+      "@id" : [ "http://endhealth.info/tpp#12J__" ],
+      "im:code" : [ "12J.." ]
     }, {
       "rdfs:label" : [ "FH: Congenital anomaly" ],
       "@id" : [ "http://endhealth.info/emis#12J" ],
@@ -2051,25 +2051,25 @@
       "@id" : [ "http://endhealth.info/emis#ZV195" ],
       "im:code" : [ "ZV195" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of congenital anomalies" ],
-      "@id" : [ "http://endhealth.info/vis#ZV195" ],
-      "im:code" : [ "ZV195" ]
-    }, {
       "rdfs:label" : [ "Family history: Congenital anomaly" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453100" ],
       "im:code" : [ "^ESCTFA453100" ]
+    }, {
+      "rdfs:label" : [ "FH: congenital anomaly" ],
+      "@id" : [ "http://endhealth.info/tpp#_12J_" ],
+      "im:code" : [ ".12J." ]
     }, {
       "rdfs:label" : [ "FH: Congenital anomaly NOS" ],
       "@id" : [ "http://endhealth.info/tpp#_12JZ" ],
       "im:code" : [ ".12JZ" ]
     }, {
-      "rdfs:label" : [ "FH: Congenital anomaly" ],
-      "@id" : [ "http://endhealth.info/tpp#12J__" ],
-      "im:code" : [ "12J.." ]
-    }, {
       "rdfs:label" : [ "FH: Congenital anomaly NOS" ],
       "@id" : [ "http://endhealth.info/tpp#12JZ_" ],
       "im:code" : [ "12JZ." ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of congenital anomalies" ],
+      "@id" : [ "http://endhealth.info/vis#ZV195" ],
+      "im:code" : [ "ZV195" ]
     }, {
       "rdfs:label" : [ "[V]Family history of congenital anomalies" ],
       "@id" : [ "http://endhealth.info/tpp#ZV195" ],
@@ -3036,8 +3036,8 @@
     "rdfs:label" : [ "Family history: Drug dependency (situation)" ],
     "im:matchedTo" : [ {
       "rdfs:label" : [ "Family history of drug dependency" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA452953" ],
-      "im:code" : [ "^ESCTFA452953" ]
+      "@id" : [ "http://endhealth.info/emis#ZV1A3" ],
+      "im:code" : [ "ZV1A3" ]
     }, {
       "rdfs:label" : [ "FH: Drug dependency" ],
       "@id" : [ "http://endhealth.info/emis#1283" ],
@@ -3051,8 +3051,16 @@
       "@id" : [ "http://endhealth.info/emis#1283-1" ],
       "im:code" : [ "1283-1" ]
     }, {
+      "rdfs:label" : [ "FH: Drug dependency" ],
+      "@id" : [ "http://endhealth.info/vis#1283" ],
+      "im:code" : [ "1283." ]
+    }, {
       "rdfs:label" : [ "Family history of drug dependency" ],
-      "@id" : [ "http://endhealth.info/emis#ZV1A3" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA452953" ],
+      "im:code" : [ "^ESCTFA452953" ]
+    }, {
+      "rdfs:label" : [ "[V]Maternal family history of drug addiction" ],
+      "@id" : [ "http://endhealth.info/vis#ZV1A3" ],
       "im:code" : [ "ZV1A3" ]
     }, {
       "rdfs:label" : [ "Family history: Drug dependency" ],
@@ -3070,14 +3078,6 @@
       "rdfs:label" : [ "[V]Maternal family history of drug addiction" ],
       "@id" : [ "http://endhealth.info/tpp#XaDt2" ],
       "im:code" : [ "XaDt2" ]
-    }, {
-      "rdfs:label" : [ "FH: Drug dependency" ],
-      "@id" : [ "http://endhealth.info/vis#1283" ],
-      "im:code" : [ "1283." ]
-    }, {
-      "rdfs:label" : [ "[V]Maternal family history of drug addiction" ],
-      "@id" : [ "http://endhealth.info/vis#ZV1A3" ],
-      "im:code" : [ "ZV1A3" ]
     }, {
       "rdfs:label" : [ "[V]Maternal family history of drug addiction" ],
       "@id" : [ "http://endhealth.info/tpp#ZV1A3" ],
@@ -3553,29 +3553,33 @@
   }, {
     "rdfs:label" : [ "Husband deceased (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Death of husband" ],
-      "@id" : [ "http://endhealth.info/emis#13MI" ],
-      "im:code" : [ "13MI" ]
+      "rdfs:label" : [ "Husband deceased" ],
+      "@id" : [ "http://endhealth.info/emis#13IL9" ],
+      "im:code" : [ "13IL9" ]
     }, {
       "rdfs:label" : [ "Husband died" ],
       "@id" : [ "http://endhealth.info/emis#13MH" ],
       "im:code" : [ "13MH" ]
     }, {
-      "rdfs:label" : [ "Husband deceased" ],
-      "@id" : [ "http://endhealth.info/emis#13IL9" ],
-      "im:code" : [ "13IL9" ]
+      "rdfs:label" : [ "Death of husband" ],
+      "@id" : [ "http://endhealth.info/emis#13MI" ],
+      "im:code" : [ "13MI" ]
+    }, {
+      "rdfs:label" : [ "Death of husband" ],
+      "@id" : [ "http://endhealth.info/vis#13MI" ],
+      "im:code" : [ "13MI." ]
     }, {
       "rdfs:label" : [ "Husband dead" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTHU782839" ],
       "im:code" : [ "^ESCTHU782839" ]
     }, {
-      "rdfs:label" : [ "Husband died" ],
-      "@id" : [ "http://endhealth.info/tpp#_13MH" ],
-      "im:code" : [ ".13MH" ]
-    }, {
       "rdfs:label" : [ "Husband deceased" ],
       "@id" : [ "http://endhealth.info/vis#13IL9" ],
       "im:code" : [ "13IL9" ]
+    }, {
+      "rdfs:label" : [ "Husband died" ],
+      "@id" : [ "http://endhealth.info/tpp#_13MH" ],
+      "im:code" : [ ".13MH" ]
     }, {
       "rdfs:label" : [ "Death of husband" ],
       "@id" : [ "http://endhealth.info/tpp#_13MI" ],
@@ -3590,12 +3594,12 @@
       "im:code" : [ "13MH." ]
     }, {
       "rdfs:label" : [ "Death of husband" ],
-      "@id" : [ "http://endhealth.info/vis#13MI" ],
-      "im:code" : [ "13MI." ]
-    }, {
-      "rdfs:label" : [ "Death of husband" ],
       "@id" : [ "http://endhealth.info/tpp#13MI_" ],
       "im:code" : [ "13MI." ]
+    }, {
+      "rdfs:label" : [ "Husband died" ],
+      "@id" : [ "http://endhealth.info/vis#13MH" ],
+      "im:code" : [ "13MH." ]
     }, {
       "rdfs:label" : [ "Death of husband" ],
       "@id" : [ "http://endhealth.info/tpp#Xa7nt" ],
@@ -3604,10 +3608,6 @@
       "rdfs:label" : [ "Husband deceased" ],
       "@id" : [ "http://endhealth.info/tpp#Xabvs" ],
       "im:code" : [ "Xabvs" ]
-    }, {
-      "rdfs:label" : [ "Husband died" ],
-      "@id" : [ "http://endhealth.info/vis#13MH" ],
-      "im:code" : [ "13MH." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:722193000" ]
@@ -3716,40 +3716,36 @@
       "@id" : [ "http://endhealth.info/emis#12CZ" ],
       "im:code" : [ "12CZ" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of other cardiovascular disease" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV174" ],
-      "im:code" : [ "ZV174" ]
-    }, {
-      "rdfs:label" : [ "[X]Family hist/ischaemic hrt disease+oth dis/circultr system" ],
-      "@id" : [ "http://endhealth.info/tpp#ZVu66" ],
-      "im:code" : [ "ZVu66" ]
-    }, {
-      "rdfs:label" : [ "FH: Cardiovascular disease" ],
-      "@id" : [ "http://endhealth.info/tpp#XE0oF" ],
-      "im:code" : [ "XE0oF" ]
+      "rdfs:label" : [ "FH: cardiovascular disease (& [cardiac disord] or [angina])" ],
+      "@id" : [ "http://endhealth.info/tpp#12C__" ],
+      "im:code" : [ "12C.." ]
     }, {
       "rdfs:label" : [ "FH: CVS disorder" ],
       "@id" : [ "http://endhealth.info/emis#12C-1" ],
       "im:code" : [ "12C-1" ]
     }, {
-      "rdfs:label" : [ "FH: CVS disease NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12CZ" ],
-      "im:code" : [ "12CZ." ]
+      "rdfs:label" : [ "[V]Family history of other cardiovascular disease" ],
+      "@id" : [ "http://endhealth.info/emis#ZV174" ],
+      "im:code" : [ "ZV174" ]
+    }, {
+      "rdfs:label" : [ "FH: Cardiovascular disease" ],
+      "@id" : [ "http://endhealth.info/tpp#XE0oF" ],
+      "im:code" : [ "XE0oF" ]
+    }, {
+      "rdfs:label" : [ "FH: Cardiovascular disease (& [cardiac disorder])" ],
+      "@id" : [ "http://endhealth.info/tpp#XE0sZ" ],
+      "im:code" : [ "XE0sZ" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other cardiovascular disease" ],
       "@id" : [ "http://endhealth.info/vis#ZV174" ],
       "im:code" : [ "ZV174" ]
     }, {
-      "rdfs:label" : [ "[X]Family hist/ischaemic hrt disease+oth dis/circultr system" ],
-      "@id" : [ "http://endhealth.info/vis#ZVu66" ],
-      "im:code" : [ "ZVu66" ]
-    }, {
-      "rdfs:label" : [ "FH: Cardiovascular disease" ],
-      "@id" : [ "http://endhealth.info/vis#12C" ],
-      "im:code" : [ "12C.." ]
+      "rdfs:label" : [ "FH: CVS disease NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#12CZ_" ],
+      "im:code" : [ "12CZ." ]
     }, {
       "rdfs:label" : [ "[V]Family history of other cardiovascular disease" ],
-      "@id" : [ "http://endhealth.info/emis#ZV174" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV174" ],
       "im:code" : [ "ZV174" ]
     }, {
       "rdfs:label" : [ "[X]Family hist/ischaemic hrt disease+oth dis/circultr system" ],
@@ -3760,10 +3756,6 @@
       "@id" : [ "http://endhealth.info/emis#EMISNQFA5" ],
       "im:code" : [ "EMISNQFA5" ]
     }, {
-      "rdfs:label" : [ "FH: CVS disease NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#_12CZ" ],
-      "im:code" : [ ".12CZ" ]
-    }, {
       "rdfs:label" : [ "FH: Peripheral vascular disease" ],
       "@id" : [ "http://endhealth.info/emis#EMISNQFH9" ],
       "im:code" : [ "EMISNQFH9" ]
@@ -3772,29 +3764,37 @@
       "@id" : [ "http://endhealth.info/emis#EMISNQFH12" ],
       "im:code" : [ "EMISNQFH12" ]
     }, {
+      "rdfs:label" : [ "[X]Family hist/ischaemic hrt disease+oth dis/circultr system" ],
+      "@id" : [ "http://endhealth.info/tpp#ZVu66" ],
+      "im:code" : [ "ZVu66" ]
+    }, {
+      "rdfs:label" : [ "FH: Cardiovascular disease" ],
+      "@id" : [ "http://endhealth.info/vis#12C" ],
+      "im:code" : [ "12C.." ]
+    }, {
       "rdfs:label" : [ "Family history of cardiovascular disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549539" ],
       "im:code" : [ "^ESCTFA549539" ]
+    }, {
+      "rdfs:label" : [ "FH: CVS disease NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12CZ" ],
+      "im:code" : [ "12CZ." ]
+    }, {
+      "rdfs:label" : [ "[X]Family hist/ischaemic hrt disease+oth dis/circultr system" ],
+      "@id" : [ "http://endhealth.info/vis#ZVu66" ],
+      "im:code" : [ "ZVu66" ]
     }, {
       "rdfs:label" : [ "Family history: Cardiovascular disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549540" ],
       "im:code" : [ "^ESCTFA549540" ]
     }, {
-      "rdfs:label" : [ "FH: Cardiovascular disease (& [cardiac disorder])" ],
-      "@id" : [ "http://endhealth.info/tpp#XE0sZ" ],
-      "im:code" : [ "XE0sZ" ]
-    }, {
-      "rdfs:label" : [ "FH: cardiovascular disease (& [cardiac disord] or [angina])" ],
-      "@id" : [ "http://endhealth.info/tpp#12C__" ],
-      "im:code" : [ "12C.." ]
-    }, {
-      "rdfs:label" : [ "FH: CVS disease NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#12CZ_" ],
-      "im:code" : [ "12CZ." ]
-    }, {
       "rdfs:label" : [ "FH: heart disorder" ],
       "@id" : [ "http://endhealth.info/tpp#_12C_" ],
       "im:code" : [ ".12C." ]
+    }, {
+      "rdfs:label" : [ "FH: CVS disease NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#_12CZ" ],
+      "im:code" : [ ".12CZ" ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:266894000" ]
@@ -3971,6 +3971,10 @@
   }, {
     "rdfs:label" : [ "Family history of cancer (situation)" ],
     "im:matchedTo" : [ {
+      "rdfs:label" : [ "FH: Cancer - *" ],
+      "@id" : [ "http://endhealth.info/emis#124-1" ],
+      "im:code" : [ "124-1" ]
+    }, {
       "rdfs:label" : [ "[V]Family history of other lymphatic or haematopoietic neoplasm" ],
       "@id" : [ "http://endhealth.info/emis#1249" ],
       "im:code" : [ "1249" ]
@@ -3979,101 +3983,97 @@
       "@id" : [ "http://endhealth.info/emis#ZV16" ],
       "im:code" : [ "ZV16" ]
     }, {
-      "rdfs:label" : [ "FH: Cancer - *" ],
-      "@id" : [ "http://endhealth.info/emis#124-1" ],
-      "im:code" : [ "124-1" ]
-    }, {
-      "rdfs:label" : [ "FH: Malignant disease" ],
-      "@id" : [ "http://endhealth.info/emis#124-4" ],
-      "im:code" : [ "124-4" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/vis#ZV16y" ],
-      "im:code" : [ "ZV16y" ]
-    }, {
-      "rdfs:label" : [ "FH: * - other lymph/haematop." ],
-      "@id" : [ "http://endhealth.info/tpp#1249_" ],
-      "im:code" : [ "1249." ]
-    }, {
-      "rdfs:label" : [ "[X]Family history/malignant neoplasm/other organs or systems" ],
-      "@id" : [ "http://endhealth.info/tpp#ZVu62" ],
-      "im:code" : [ "ZVu62" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/emis#ZV16y" ],
-      "im:code" : [ "ZV16y" ]
-    }, {
-      "rdfs:label" : [ "[X]Family history/malignant neoplasm/other organs or systems" ],
-      "@id" : [ "http://endhealth.info/vis#ZVu62" ],
-      "im:code" : [ "ZVu62" ]
+      "rdfs:label" : [ "[V]Family history of unspecified malignant neoplasm" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV16z" ],
+      "im:code" : [ "ZV16z" ]
     }, {
       "rdfs:label" : [ "FH: * - other lymph/haematop." ],
       "@id" : [ "http://endhealth.info/vis#1249" ],
       "im:code" : [ "1249." ]
     }, {
       "rdfs:label" : [ "[V]Family history of unspecified malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/emis#ZV16z" ],
+      "@id" : [ "http://endhealth.info/vis#ZV16z" ],
       "im:code" : [ "ZV16z" ]
     }, {
       "rdfs:label" : [ "[X]Fam hist/oth mal neoplsms/lymphd,h'matopoietic+rel tissus" ],
       "@id" : [ "http://endhealth.info/tpp#ZVu61" ],
       "im:code" : [ "ZVu61" ]
     }, {
+      "rdfs:label" : [ "FH: Malignant disease" ],
+      "@id" : [ "http://endhealth.info/emis#124-4" ],
+      "im:code" : [ "124-4" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of malignant neoplasm" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV16_" ],
+      "im:code" : [ "ZV16." ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other malignant neoplasm" ],
+      "@id" : [ "http://endhealth.info/emis#ZV16y" ],
+      "im:code" : [ "ZV16y" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of unspecified malignant neoplasm" ],
+      "@id" : [ "http://endhealth.info/emis#ZV16z" ],
+      "im:code" : [ "ZV16z" ]
+    }, {
+      "rdfs:label" : [ "[X]Fam hist/oth mal neoplsms/lymphd,h'matopoietic+rel tissus" ],
+      "@id" : [ "http://endhealth.info/vis#ZVu61" ],
+      "im:code" : [ "ZVu61" ]
+    }, {
       "rdfs:label" : [ "[V]Family history of other lymphatic neoplasm" ],
       "@id" : [ "http://endhealth.info/emis#ZV167-1" ],
       "im:code" : [ "ZV167-1" ]
-    }, {
-      "rdfs:label" : [ "Family history of cancer" ],
-      "@id" : [ "http://endhealth.info/tpp#XM1Y3" ],
-      "im:code" : [ "XM1Y3" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other lymphatic/haematopoietic neoplasm" ],
-      "@id" : [ "http://endhealth.info/vis#ZV167" ],
-      "im:code" : [ "ZV167" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other lymphatic/haematopoietic neoplasm" ],
       "@id" : [ "http://endhealth.info/emis#ZV167" ],
       "im:code" : [ "ZV167" ]
     }, {
-      "rdfs:label" : [ "[X]Fam hist/oth mal neoplsms/lymphd,h'matopoietic+rel tissus" ],
-      "@id" : [ "http://endhealth.info/vis#ZVu61" ],
+      "rdfs:label" : [ "[X]Family history of other malignant neoplasms of lymphoid, haematopoietic and related tissues" ],
+      "@id" : [ "http://endhealth.info/emis#ZVu61" ],
       "im:code" : [ "ZVu61" ]
     }, {
       "rdfs:label" : [ "[V]Family history of malignant neoplasm" ],
       "@id" : [ "http://endhealth.info/vis#ZV16" ],
       "im:code" : [ "ZV16." ]
     }, {
-      "rdfs:label" : [ "[X]Family history of other malignant neoplasms of lymphoid, haematopoietic and related tissues" ],
-      "@id" : [ "http://endhealth.info/emis#ZVu61" ],
-      "im:code" : [ "ZVu61" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of unspecified malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV16z" ],
-      "im:code" : [ "ZV16z" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV16y" ],
-      "im:code" : [ "ZV16y" ]
-    }, {
       "rdfs:label" : [ "[X]Family history of malignant neoplasm of other organs or systems" ],
       "@id" : [ "http://endhealth.info/emis#ZVu62" ],
       "im:code" : [ "ZVu62" ]
+    }, {
+      "rdfs:label" : [ "[X]Family history/malignant neoplasm/other organs or systems" ],
+      "@id" : [ "http://endhealth.info/tpp#ZVu62" ],
+      "im:code" : [ "ZVu62" ]
+    }, {
+      "rdfs:label" : [ "[X]Family history/malignant neoplasm/other organs or systems" ],
+      "@id" : [ "http://endhealth.info/vis#ZVu62" ],
+      "im:code" : [ "ZVu62" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other malignant neoplasm" ],
+      "@id" : [ "http://endhealth.info/vis#ZV16y" ],
+      "im:code" : [ "ZV16y" ]
+    }, {
+      "rdfs:label" : [ "Family history of cancer" ],
+      "@id" : [ "http://endhealth.info/tpp#XM1Y3" ],
+      "im:code" : [ "XM1Y3" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other lymphatic/haematopoietic neoplasm" ],
       "@id" : [ "http://endhealth.info/tpp#ZV167" ],
       "im:code" : [ "ZV167" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of unspecified malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/vis#ZV16z" ],
-      "im:code" : [ "ZV16z" ]
+      "rdfs:label" : [ "[V]Family history of other lymphatic/haematopoietic neoplasm" ],
+      "@id" : [ "http://endhealth.info/vis#ZV167" ],
+      "im:code" : [ "ZV167" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of malignant neoplasm" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV16_" ],
-      "im:code" : [ "ZV16." ]
+      "rdfs:label" : [ "FH: * - other lymph/haematop." ],
+      "@id" : [ "http://endhealth.info/tpp#1249_" ],
+      "im:code" : [ "1249." ]
     }, {
       "rdfs:label" : [ "FH: * - other lymph/haematop." ],
       "@id" : [ "http://endhealth.info/tpp#_1249" ],
       "im:code" : [ ".1249" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other malignant neoplasm" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV16y" ],
+      "im:code" : [ "ZV16y" ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:275937001" ]
@@ -4214,57 +4214,65 @@
   }, {
     "rdfs:label" : [ "No family history of clinical finding (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "No relevant FH: family history" ],
-      "@id" : [ "http://endhealth.info/emis#122-1" ],
-      "im:code" : [ "122-1" ]
-    }, {
-      "rdfs:label" : [ "No family history of" ],
-      "@id" : [ "http://endhealth.info/emis#122Z" ],
-      "im:code" : [ "122Z" ]
-    }, {
-      "rdfs:label" : [ "No FH: NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#_122Z" ],
-      "im:code" : [ ".122Z" ]
-    }, {
-      "rdfs:label" : [ "No significant family history" ],
-      "@id" : [ "http://endhealth.info/vis#1154" ],
-      "im:code" : [ "1154." ]
-    }, {
-      "rdfs:label" : [ "No significant family history" ],
-      "@id" : [ "http://endhealth.info/tpp#_1154" ],
-      "im:code" : [ ".1154" ]
-    }, {
-      "rdfs:label" : [ "No FH: NOS" ],
-      "@id" : [ "http://endhealth.info/vis#122Z" ],
-      "im:code" : [ "122Z." ]
-    }, {
       "rdfs:label" : [ "No relevant family history" ],
       "@id" : [ "http://endhealth.info/emis#122" ],
       "im:code" : [ "122" ]
     }, {
-      "rdfs:label" : [ "No significant family history" ],
-      "@id" : [ "http://endhealth.info/emis#1154" ],
-      "im:code" : [ "1154" ]
+      "rdfs:label" : [ "No family history of" ],
+      "@id" : [ "http://endhealth.info/emis#122Z" ],
+      "im:code" : [ "122Z" ]
     }, {
       "rdfs:label" : [ "No FH: hip fracture in first degree relative" ],
       "@id" : [ "http://endhealth.info/emis#EMISNQNO28" ],
       "im:code" : [ "EMISNQNO28" ]
     }, {
       "rdfs:label" : [ "No relevant family history" ],
-      "@id" : [ "http://endhealth.info/tpp#122__" ],
+      "@id" : [ "http://endhealth.info/tpp#_122_" ],
+      "im:code" : [ ".122." ]
+    }, {
+      "rdfs:label" : [ "No significant family history" ],
+      "@id" : [ "http://endhealth.info/tpp#_1154" ],
+      "im:code" : [ ".1154" ]
+    }, {
+      "rdfs:label" : [ "No FH: NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#_122Z" ],
+      "im:code" : [ ".122Z" ]
+    }, {
+      "rdfs:label" : [ "No FH: NOS" ],
+      "@id" : [ "http://endhealth.info/vis#122Z" ],
+      "im:code" : [ "122Z." ]
+    }, {
+      "rdfs:label" : [ "No relevant FH: family history" ],
+      "@id" : [ "http://endhealth.info/emis#122-1" ],
+      "im:code" : [ "122-1" ]
+    }, {
+      "rdfs:label" : [ "No FH: NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#122Z_" ],
+      "im:code" : [ "122Z." ]
+    }, {
+      "rdfs:label" : [ "No relevant family history" ],
+      "@id" : [ "http://endhealth.info/vis#122" ],
       "im:code" : [ "122.." ]
+    }, {
+      "rdfs:label" : [ "No significant family history" ],
+      "@id" : [ "http://endhealth.info/emis#1154" ],
+      "im:code" : [ "1154" ]
     }, {
       "rdfs:label" : [ "No FH: hypertension" ],
       "@id" : [ "http://endhealth.info/emis#EMISNOFH1" ],
       "im:code" : [ "EMISNOFH1" ]
     }, {
-      "rdfs:label" : [ "No family history of clinical finding" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTNO452830" ],
-      "im:code" : [ "^ESCTNO452830" ]
+      "rdfs:label" : [ "No FH: Epilepsy" ],
+      "@id" : [ "http://endhealth.info/emis#EMISNQNO81" ],
+      "im:code" : [ "EMISNQNO81" ]
     }, {
       "rdfs:label" : [ "No FH: Ischaemic heart dis <60" ],
       "@id" : [ "http://endhealth.info/emis#EMISNOFH2" ],
       "im:code" : [ "EMISNOFH2" ]
+    }, {
+      "rdfs:label" : [ "No significant family history" ],
+      "@id" : [ "http://endhealth.info/vis#1154" ],
+      "im:code" : [ "1154." ]
     }, {
       "rdfs:label" : [ "No FH: Ischaemic heart dis >60" ],
       "@id" : [ "http://endhealth.info/emis#EMISNOFH3" ],
@@ -4278,33 +4286,21 @@
       "@id" : [ "http://endhealth.info/emis#EMISNOFH5" ],
       "im:code" : [ "EMISNOFH5" ]
     }, {
-      "rdfs:label" : [ "No significant family history" ],
-      "@id" : [ "http://endhealth.info/tpp#1154_" ],
-      "im:code" : [ "1154." ]
-    }, {
-      "rdfs:label" : [ "No FH: NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#122Z_" ],
-      "im:code" : [ "122Z." ]
-    }, {
-      "rdfs:label" : [ "No relevant family history" ],
-      "@id" : [ "http://endhealth.info/vis#122" ],
-      "im:code" : [ "122.." ]
-    }, {
-      "rdfs:label" : [ "No family history of functional psychotic illness" ],
-      "@id" : [ "http://endhealth.info/emis#EMISNQNO162" ],
-      "im:code" : [ "EMISNQNO162" ]
+      "rdfs:label" : [ "No family history of clinical finding" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTNO452830" ],
+      "im:code" : [ "^ESCTNO452830" ]
     }, {
       "rdfs:label" : [ "No FH: hyperlipidaemia" ],
       "@id" : [ "http://endhealth.info/emis#EMISNOFH6" ],
       "im:code" : [ "EMISNOFH6" ]
     }, {
-      "rdfs:label" : [ "No FH: Epilepsy" ],
-      "@id" : [ "http://endhealth.info/emis#EMISNQNO81" ],
-      "im:code" : [ "EMISNQNO81" ]
-    }, {
       "rdfs:label" : [ "No relevant family history" ],
-      "@id" : [ "http://endhealth.info/tpp#_122_" ],
-      "im:code" : [ ".122." ]
+      "@id" : [ "http://endhealth.info/tpp#122__" ],
+      "im:code" : [ "122.." ]
+    }, {
+      "rdfs:label" : [ "No family history of functional psychotic illness" ],
+      "@id" : [ "http://endhealth.info/emis#EMISNQNO162" ],
+      "im:code" : [ "EMISNQNO162" ]
     }, {
       "rdfs:label" : [ "No FH: eczema" ],
       "@id" : [ "http://endhealth.info/emis#EMISNOFH8" ],
@@ -4313,6 +4309,10 @@
       "rdfs:label" : [ "No FH: asthma" ],
       "@id" : [ "http://endhealth.info/emis#EMISNOFH7" ],
       "im:code" : [ "EMISNOFH7" ]
+    }, {
+      "rdfs:label" : [ "No significant family history" ],
+      "@id" : [ "http://endhealth.info/tpp#1154_" ],
+      "im:code" : [ "1154." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:160266009" ]
@@ -4402,6 +4402,10 @@
       "im:code" : [ "^ESCT1378891" ]
     }, {
       "rdfs:label" : [ "[V]Family history of diabetes mellitus" ],
+      "@id" : [ "http://endhealth.info/vis#ZV180" ],
+      "im:code" : [ "ZV180" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of diabetes mellitus" ],
       "@id" : [ "http://endhealth.info/emis#ZV198" ],
       "im:code" : [ "ZV198" ]
     }, {
@@ -4412,10 +4416,6 @@
       "rdfs:label" : [ "FH: diabetes mellitus" ],
       "@id" : [ "http://endhealth.info/tpp#_1252" ],
       "im:code" : [ ".1252" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of diabetes mellitus" ],
-      "@id" : [ "http://endhealth.info/vis#ZV180" ],
-      "im:code" : [ "ZV180" ]
     }, {
       "rdfs:label" : [ "[V]Family history of diabetes mellitus" ],
       "@id" : [ "http://endhealth.info/vis#ZV198" ],
@@ -4900,6 +4900,10 @@
   }, {
     "rdfs:label" : [ "Family history of learning disability (situation)" ],
     "im:matchedTo" : [ {
+      "rdfs:label" : [ "Family history of learning difficulties" ],
+      "@id" : [ "http://endhealth.info/tpp#12W1_" ],
+      "im:code" : [ "12W1." ]
+    }, {
       "rdfs:label" : [ "Family history of learning disability" ],
       "@id" : [ "http://endhealth.info/emis#12W2" ],
       "im:code" : [ "12W2" ]
@@ -4919,10 +4923,6 @@
       "rdfs:label" : [ "FH learning disability" ],
       "@id" : [ "http://endhealth.info/tpp#_12W2" ],
       "im:code" : [ ".12W2" ]
-    }, {
-      "rdfs:label" : [ "Family history of learning difficulties" ],
-      "@id" : [ "http://endhealth.info/tpp#12W1_" ],
-      "im:code" : [ "12W1." ]
     }, {
       "rdfs:label" : [ "Family history of learning disability" ],
       "@id" : [ "http://endhealth.info/tpp#12W2_" ],
@@ -6497,13 +6497,13 @@
   }, {
     "rdfs:label" : [ "Family history with explicit context pertaining to father (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Family history with explicit context pertaining to father" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA453133" ],
-      "im:code" : [ "^ESCTFA453133" ]
-    }, {
       "rdfs:label" : [ "FH: Father" ],
       "@id" : [ "http://endhealth.info/emis#12L" ],
       "im:code" : [ "12L" ]
+    }, {
+      "rdfs:label" : [ "Family history with explicit context pertaining to father" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA453133" ],
+      "im:code" : [ "^ESCTFA453133" ]
     }, {
       "rdfs:label" : [ "FH: Father NOS" ],
       "@id" : [ "http://endhealth.info/emis#12LZ" ],
@@ -7808,9 +7808,9 @@
       "@id" : [ "http://endhealth.info/tpp#_12DZ" ],
       "im:code" : [ ".12DZ" ]
     }, {
-      "rdfs:label" : [ "FH: Respiratory disease" ],
-      "@id" : [ "http://endhealth.info/tpp#XE0oJ" ],
-      "im:code" : [ "XE0oJ" ]
+      "rdfs:label" : [ "Family history of diseases of the respiratory system" ],
+      "@id" : [ "http://endhealth.info/icd10#Z836" ],
+      "im:code" : [ "Z83.6" ]
     }, {
       "rdfs:label" : [ "FH: Respiratory disease NOS" ],
       "@id" : [ "http://endhealth.info/vis#12DZ" ],
@@ -7820,12 +7820,20 @@
       "@id" : [ "http://endhealth.info/vis#12D" ],
       "im:code" : [ "12D.." ]
     }, {
+      "rdfs:label" : [ "FH: Respiratory disease" ],
+      "@id" : [ "http://endhealth.info/tpp#XE0oJ" ],
+      "im:code" : [ "XE0oJ" ]
+    }, {
       "rdfs:label" : [ "FH: Respiratory disease (& [lung disease])" ],
       "@id" : [ "http://endhealth.info/tpp#12D__" ],
       "im:code" : [ "12D.." ]
     }, {
       "rdfs:label" : [ "[V]Family history of diseases of the respiratory system" ],
       "@id" : [ "http://endhealth.info/vis#ZV19A" ],
+      "im:code" : [ "ZV19A" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of diseases of the respiratory system" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV19A" ],
       "im:code" : [ "ZV19A" ]
     }, {
       "rdfs:label" : [ "Family history of asthma and other chronic lower respiratory diseases" ],
@@ -7835,14 +7843,6 @@
       "rdfs:label" : [ "FH: Respiratory disease NOS" ],
       "@id" : [ "http://endhealth.info/tpp#12DZ_" ],
       "im:code" : [ "12DZ." ]
-    }, {
-      "rdfs:label" : [ "Family history of diseases of the respiratory system" ],
-      "@id" : [ "http://endhealth.info/icd10#Z836" ],
-      "im:code" : [ "Z83.6" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of diseases of the respiratory system" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV19A" ],
-      "im:code" : [ "ZV19A" ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:266898002" ]
@@ -8744,10 +8744,6 @@
   }, {
     "rdfs:label" : [ "Family history: Hypercholesterolemia (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Family history: Hypercholesterolaemia" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA452924" ],
-      "im:code" : [ "^ESCTFA452924" ]
-    }, {
       "rdfs:label" : [ "FH: Hypercholesterolaemia" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFH452921" ],
       "im:code" : [ "^ESCTFH452921" ]
@@ -8760,6 +8756,10 @@
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452923" ],
       "im:code" : [ "^ESCTFA452923" ]
     }, {
+      "rdfs:label" : [ "Family history: Hypercholesterolaemia" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA452924" ],
+      "im:code" : [ "^ESCTFA452924" ]
+    }, {
       "rdfs:label" : [ "FH: Hypercholesterolemia" ],
       "@id" : [ "http://endhealth.info/emis#_ESCT1192483" ],
       "im:code" : [ "^ESCT1192483" ]
@@ -8767,10 +8767,6 @@
       "rdfs:label" : [ "FH: raised lipids" ],
       "@id" : [ "http://endhealth.info/tpp#_1262" ],
       "im:code" : [ ".1262" ]
-    }, {
-      "rdfs:label" : [ "Family history of familial hypercholesterolaemia" ],
-      "@id" : [ "http://endhealth.info/vis#1269" ],
-      "im:code" : [ "1269." ]
     }, {
       "rdfs:label" : [ "FH: Fam hypercholesterolaemia" ],
       "@id" : [ "http://endhealth.info/tpp#_1269" ],
@@ -8781,12 +8777,12 @@
       "im:code" : [ "1262." ]
     }, {
       "rdfs:label" : [ "FH: Raised blood lipids" ],
-      "@id" : [ "http://endhealth.info/vis#1262" ],
-      "im:code" : [ "1262." ]
-    }, {
-      "rdfs:label" : [ "FH: Raised blood lipids" ],
       "@id" : [ "http://endhealth.info/tpp#XE0o8" ],
       "im:code" : [ "XE0o8" ]
+    }, {
+      "rdfs:label" : [ "FH: Raised blood lipids" ],
+      "@id" : [ "http://endhealth.info/vis#1262" ],
+      "im:code" : [ "1262." ]
     }, {
       "rdfs:label" : [ "FH: Hypercholesterolaemia" ],
       "@id" : [ "http://endhealth.info/tpp#1269_" ],
@@ -8795,6 +8791,10 @@
       "rdfs:label" : [ "FH: Cholesterol high" ],
       "@id" : [ "http://endhealth.info/tpp#XaBZH" ],
       "im:code" : [ "XaBZH" ]
+    }, {
+      "rdfs:label" : [ "Family history of familial hypercholesterolaemia" ],
+      "@id" : [ "http://endhealth.info/vis#1269" ],
+      "im:code" : [ "1269." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:160314003" ]
@@ -8893,6 +8893,10 @@
   }, {
     "rdfs:label" : [ "Family history: Musculoskeletal disease (situation)" ],
     "im:matchedTo" : [ {
+      "rdfs:label" : [ "FH: Orthopaedic disorder" ],
+      "@id" : [ "http://endhealth.info/emis#12I-2" ],
+      "im:code" : [ "12I-2" ]
+    }, {
       "rdfs:label" : [ "FH: Musculoskeletal disease" ],
       "@id" : [ "http://endhealth.info/emis#12I" ],
       "im:code" : [ "12I" ]
@@ -8901,22 +8905,6 @@
       "@id" : [ "http://endhealth.info/emis#12IZ" ],
       "im:code" : [ "12IZ" ]
     }, {
-      "rdfs:label" : [ "FH: Orthopaedic disorder" ],
-      "@id" : [ "http://endhealth.info/emis#12I-2" ],
-      "im:code" : [ "12I-2" ]
-    }, {
-      "rdfs:label" : [ "FH: Musculo-skeletal dis. NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#12IZ_" ],
-      "im:code" : [ "12IZ." ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other musculoskeletal disease" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV178" ],
-      "im:code" : [ "ZV178" ]
-    }, {
-      "rdfs:label" : [ "FH: Musculo-skeletal dis. NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12IZ" ],
-      "im:code" : [ "12IZ." ]
-    }, {
       "rdfs:label" : [ "[V]Family history of other musculoskeletal disease" ],
       "@id" : [ "http://endhealth.info/emis#ZV178" ],
       "im:code" : [ "ZV178" ]
@@ -8924,6 +8912,10 @@
       "rdfs:label" : [ "FH: Orthopedic disorder" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFH549577" ],
       "im:code" : [ "^ESCTFH549577" ]
+    }, {
+      "rdfs:label" : [ "FH: Musculoskeletal disease" ],
+      "@id" : [ "http://endhealth.info/vis#12I" ],
+      "im:code" : [ "12I.." ]
     }, {
       "rdfs:label" : [ "Family history: Musculoskeletal disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549578" ],
@@ -8934,8 +8926,16 @@
       "im:code" : [ "^ESCTFA549579" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other musculoskeletal disease" ],
-      "@id" : [ "http://endhealth.info/vis#ZV178" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV178" ],
       "im:code" : [ "ZV178" ]
+    }, {
+      "rdfs:label" : [ "FH: Musculo-skeletal dis. NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12IZ" ],
+      "im:code" : [ "12IZ." ]
+    }, {
+      "rdfs:label" : [ "FH: Musculo-skeletal dis. NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#12IZ_" ],
+      "im:code" : [ "12IZ." ]
     }, {
       "rdfs:label" : [ "FH: Musculoskeletal disease" ],
       "@id" : [ "http://endhealth.info/tpp#_12I_" ],
@@ -8945,9 +8945,9 @@
       "@id" : [ "http://endhealth.info/tpp#_12IZ" ],
       "im:code" : [ ".12IZ" ]
     }, {
-      "rdfs:label" : [ "FH: Musculoskeletal disease" ],
-      "@id" : [ "http://endhealth.info/vis#12I" ],
-      "im:code" : [ "12I.." ]
+      "rdfs:label" : [ "[V]Family history of other musculoskeletal disease" ],
+      "@id" : [ "http://endhealth.info/vis#ZV178" ],
+      "im:code" : [ "ZV178" ]
     }, {
       "rdfs:label" : [ "FH: Musculoskeletal disease" ],
       "@id" : [ "http://endhealth.info/tpp#XE0oS" ],
@@ -9847,6 +9847,10 @@
       "@id" : [ "http://endhealth.info/emis#124-3" ],
       "im:code" : [ "124-3" ]
     }, {
+      "rdfs:label" : [ "Family history of malignant neoplasm of other organs or systems" ],
+      "@id" : [ "http://endhealth.info/icd10#Z808" ],
+      "im:code" : [ "Z80.8" ]
+    }, {
       "rdfs:label" : [ "FH: Neoplasm - *" ],
       "@id" : [ "http://endhealth.info/emis#124" ],
       "im:code" : [ "124" ]
@@ -9863,61 +9867,57 @@
       "@id" : [ "http://endhealth.info/tpp#124__" ],
       "im:code" : [ "124.." ]
     }, {
+      "rdfs:label" : [ "Family history of malignant neoplasm of genital organs" ],
+      "@id" : [ "http://endhealth.info/icd10#Z804" ],
+      "im:code" : [ "Z80.4" ]
+    }, {
+      "rdfs:label" : [ "FH: Neoplasm - *" ],
+      "@id" : [ "http://endhealth.info/vis#124" ],
+      "im:code" : [ "124.." ]
+    }, {
       "rdfs:label" : [ "Family history of neoplasm" ],
       "@id" : [ "http://endhealth.info/tpp#XE0o4" ],
       "im:code" : [ "XE0o4" ]
-    }, {
-      "rdfs:label" : [ "Family history of malignant neoplasm of urinary tract" ],
-      "@id" : [ "http://endhealth.info/icd10#Z805" ],
-      "im:code" : [ "Z80.5" ]
     }, {
       "rdfs:label" : [ "Family history of malignant neoplasm, unspecified" ],
       "@id" : [ "http://endhealth.info/icd10#Z809" ],
       "im:code" : [ "Z80.9" ]
     }, {
-      "rdfs:label" : [ "FH: * - NOS" ],
-      "@id" : [ "http://endhealth.info/vis#124Z" ],
-      "im:code" : [ "124Z." ]
-    }, {
-      "rdfs:label" : [ "Family history of malignant neoplasm of other organs or systems" ],
-      "@id" : [ "http://endhealth.info/icd10#Z808" ],
-      "im:code" : [ "Z80.8" ]
+      "rdfs:label" : [ "Family history of other malignant neoplasms of lymphoid, haematopoietic and related tissues" ],
+      "@id" : [ "http://endhealth.info/icd10#Z807" ],
+      "im:code" : [ "Z80.7" ]
     }, {
       "rdfs:label" : [ "FH: * - NOS" ],
       "@id" : [ "http://endhealth.info/tpp#124Z_" ],
       "im:code" : [ "124Z." ]
     }, {
-      "rdfs:label" : [ "Family history of malignant neoplasm of digestive organs" ],
-      "@id" : [ "http://endhealth.info/icd10#Z800" ],
-      "im:code" : [ "Z80.0" ]
+      "rdfs:label" : [ "Family history of leukaemia" ],
+      "@id" : [ "http://endhealth.info/icd10#Z806" ],
+      "im:code" : [ "Z80.6" ]
     }, {
       "rdfs:label" : [ "Family history of malignant neoplasm of breast" ],
       "@id" : [ "http://endhealth.info/icd10#Z803" ],
       "im:code" : [ "Z80.3" ]
     }, {
-      "rdfs:label" : [ "Family history of leukaemia" ],
-      "@id" : [ "http://endhealth.info/icd10#Z806" ],
-      "im:code" : [ "Z80.6" ]
+      "rdfs:label" : [ "Family history of malignant neoplasm of urinary tract" ],
+      "@id" : [ "http://endhealth.info/icd10#Z805" ],
+      "im:code" : [ "Z80.5" ]
     }, {
-      "rdfs:label" : [ "Family history of malignant neoplasm of genital organs" ],
-      "@id" : [ "http://endhealth.info/icd10#Z804" ],
-      "im:code" : [ "Z80.4" ]
-    }, {
-      "rdfs:label" : [ "Family history of other malignant neoplasms of lymphoid, haematopoietic and related tissues" ],
-      "@id" : [ "http://endhealth.info/icd10#Z807" ],
-      "im:code" : [ "Z80.7" ]
+      "rdfs:label" : [ "Family history of malignant neoplasm of digestive organs" ],
+      "@id" : [ "http://endhealth.info/icd10#Z800" ],
+      "im:code" : [ "Z80.0" ]
     }, {
       "rdfs:label" : [ "Family history of malignant neoplasm of trachea, bronchus and lung" ],
       "@id" : [ "http://endhealth.info/icd10#Z801" ],
       "im:code" : [ "Z80.1" ]
     }, {
+      "rdfs:label" : [ "FH: * - NOS" ],
+      "@id" : [ "http://endhealth.info/vis#124Z" ],
+      "im:code" : [ "124Z." ]
+    }, {
       "rdfs:label" : [ "Family history of malignant neoplasm of other respiratory and intrathoracic organs" ],
       "@id" : [ "http://endhealth.info/icd10#Z802" ],
       "im:code" : [ "Z80.2" ]
-    }, {
-      "rdfs:label" : [ "FH: Neoplasm - *" ],
-      "@id" : [ "http://endhealth.info/vis#124" ],
-      "im:code" : [ "124.." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:266883004" ]
@@ -10066,6 +10066,10 @@
       "@id" : [ "http://endhealth.info/emis#12AZ" ],
       "im:code" : [ "12AZ" ]
     }, {
+      "rdfs:label" : [ "FH: Eye disorder" ],
+      "@id" : [ "http://endhealth.info/vis#12A" ],
+      "im:code" : [ "12A.." ]
+    }, {
       "rdfs:label" : [ "Family history of eye disorder" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453000" ],
       "im:code" : [ "^ESCTFA453000" ]
@@ -10078,13 +10082,13 @@
       "@id" : [ "http://endhealth.info/vis#ZV191" ],
       "im:code" : [ "ZV191" ]
     }, {
+      "rdfs:label" : [ "Family history of eye and ear disorders" ],
+      "@id" : [ "http://endhealth.info/icd10#Z835" ],
+      "im:code" : [ "Z83.5" ]
+    }, {
       "rdfs:label" : [ "Family history: Eye disorder" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453002" ],
       "im:code" : [ "^ESCTFA453002" ]
-    }, {
-      "rdfs:label" : [ "FH: Eye disorder" ],
-      "@id" : [ "http://endhealth.info/vis#12A" ],
-      "im:code" : [ "12A.." ]
     }, {
       "rdfs:label" : [ "FH: eye disorder" ],
       "@id" : [ "http://endhealth.info/tpp#_12A_" ],
@@ -10094,21 +10098,9 @@
       "@id" : [ "http://endhealth.info/tpp#_12AZ" ],
       "im:code" : [ ".12AZ" ]
     }, {
-      "rdfs:label" : [ "FH: Eye disorder NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12AZ" ],
-      "im:code" : [ "12AZ." ]
-    }, {
-      "rdfs:label" : [ "Family history of blindness and visual loss" ],
-      "@id" : [ "http://endhealth.info/icd10#Z821" ],
-      "im:code" : [ "Z82.1" ]
-    }, {
       "rdfs:label" : [ "FH: Eye disorder" ],
       "@id" : [ "http://endhealth.info/tpp#12A__" ],
       "im:code" : [ "12A.." ]
-    }, {
-      "rdfs:label" : [ "Family history of eye and ear disorders" ],
-      "@id" : [ "http://endhealth.info/icd10#Z835" ],
-      "im:code" : [ "Z83.5" ]
     }, {
       "rdfs:label" : [ "FH: Eye disorder NOS" ],
       "@id" : [ "http://endhealth.info/tpp#12AZ_" ],
@@ -10117,6 +10109,14 @@
       "rdfs:label" : [ "[V]Family history of other eye disorders" ],
       "@id" : [ "http://endhealth.info/tpp#ZV191" ],
       "im:code" : [ "ZV191" ]
+    }, {
+      "rdfs:label" : [ "Family history of blindness and visual loss" ],
+      "@id" : [ "http://endhealth.info/icd10#Z821" ],
+      "im:code" : [ "Z82.1" ]
+    }, {
+      "rdfs:label" : [ "FH: Eye disorder NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12AZ" ],
+      "im:code" : [ "12AZ." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:160346003" ]
@@ -10230,9 +10230,9 @@
   }, {
     "rdfs:label" : [ "[V]Potential health hazards related to personal history (PH) and family history (FH) (context-dependent category)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "[V]Potential health hazards related to personal history (PH) and family history (FH)" ],
-      "@id" : [ "http://endhealth.info/emis#ZV1" ],
-      "im:code" : [ "ZV1" ]
+      "rdfs:label" : [ "[V]Potential health hazards related to family history (FH)" ],
+      "@id" : [ "http://endhealth.info/emis#ZV1-2" ],
+      "im:code" : [ "ZV1-2" ]
     }, {
       "rdfs:label" : [ "[V]Potential health hazards related to family history (FH)" ],
       "@id" : [ "http://endhealth.info/emis#ZV1-4" ],
@@ -10242,9 +10242,9 @@
       "@id" : [ "http://endhealth.info/emis#ZV1-1" ],
       "im:code" : [ "ZV1-1" ]
     }, {
-      "rdfs:label" : [ "[V]Potential health hazards related to family history (FH)" ],
-      "@id" : [ "http://endhealth.info/emis#ZV1-2" ],
-      "im:code" : [ "ZV1-2" ]
+      "rdfs:label" : [ "[V]Potential health hazards related to personal history (PH) and family history (FH)" ],
+      "@id" : [ "http://endhealth.info/emis#ZV1" ],
+      "im:code" : [ "ZV1" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other eye disorders" ],
       "@id" : [ "http://endhealth.info/emis#_ESCT1191018" ],
@@ -11252,13 +11252,21 @@
   }, {
     "rdfs:label" : [ "Education of family (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Education of family member" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTED739711" ],
-      "im:code" : [ "^ESCTED739711" ]
+      "rdfs:label" : [ "Person consulting for explanation of investigation findings" ],
+      "@id" : [ "http://endhealth.info/icd10#Z712" ],
+      "im:code" : [ "Z71.2" ]
     }, {
       "rdfs:label" : [ "Education of family" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTED739710" ],
       "im:code" : [ "^ESCTED739710" ]
+    }, {
+      "rdfs:label" : [ "Education of family member" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTED739711" ],
+      "im:code" : [ "^ESCTED739711" ]
+    }, {
+      "rdfs:label" : [ "Other specified counselling" ],
+      "@id" : [ "http://endhealth.info/icd10#Z718" ],
+      "im:code" : [ "Z71.8" ]
     }, {
       "rdfs:label" : [ "Family education" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA739712" ],
@@ -11268,17 +11276,9 @@
       "@id" : [ "http://endhealth.info/tpp#XaCv4" ],
       "im:code" : [ "XaCv4" ]
     }, {
-      "rdfs:label" : [ "Other specified counselling" ],
-      "@id" : [ "http://endhealth.info/icd10#Z718" ],
-      "im:code" : [ "Z71.8" ]
-    }, {
       "rdfs:label" : [ "Person with feared complaint in whom no diagnosis is made" ],
       "@id" : [ "http://endhealth.info/icd10#Z711" ],
       "im:code" : [ "Z71.1" ]
-    }, {
-      "rdfs:label" : [ "Person consulting for explanation of investigation findings" ],
-      "@id" : [ "http://endhealth.info/icd10#Z712" ],
-      "im:code" : [ "Z71.2" ]
     }, {
       "rdfs:label" : [ "Dietary counselling and surveillance" ],
       "@id" : [ "http://endhealth.info/icd10#Z713" ],
@@ -11684,29 +11684,37 @@
   }, {
     "rdfs:label" : [ "Family history of central nervous system disorder (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: CNS disorder NOS" ],
-      "@id" : [ "http://endhealth.info/emis#129Z" ],
-      "im:code" : [ "129Z" ]
+      "rdfs:label" : [ "Family history of central nervous system disorder" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA549533" ],
+      "im:code" : [ "^ESCTFA549533" ]
     }, {
       "rdfs:label" : [ "FH: CNS disorder" ],
       "@id" : [ "http://endhealth.info/emis#129" ],
       "im:code" : [ "129" ]
     }, {
+      "rdfs:label" : [ "FH: CNS disorder NOS" ],
+      "@id" : [ "http://endhealth.info/emis#129Z" ],
+      "im:code" : [ "129Z" ]
+    }, {
       "rdfs:label" : [ "FH: Myoclonic dystonia" ],
       "@id" : [ "http://endhealth.info/emis#EMISNQFH13" ],
       "im:code" : [ "EMISNQFH13" ]
+    }, {
+      "rdfs:label" : [ "FH: CNS disorder" ],
+      "@id" : [ "http://endhealth.info/vis#129" ],
+      "im:code" : [ "129.." ]
     }, {
       "rdfs:label" : [ "Family history: CNS disorder" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549532" ],
       "im:code" : [ "^ESCTFA549532" ]
     }, {
-      "rdfs:label" : [ "Family history of central nervous system disorder" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA549533" ],
-      "im:code" : [ "^ESCTFA549533" ]
-    }, {
       "rdfs:label" : [ "FH: nervous syst. dis." ],
       "@id" : [ "http://endhealth.info/tpp#_129_" ],
       "im:code" : [ ".129." ]
+    }, {
+      "rdfs:label" : [ "FH: CNS disorder NOS" ],
+      "@id" : [ "http://endhealth.info/vis#129Z" ],
+      "im:code" : [ "129Z." ]
     }, {
       "rdfs:label" : [ "FH: - Parkinsonism" ],
       "@id" : [ "http://endhealth.info/tpp#_129Z" ],
@@ -11716,25 +11724,17 @@
       "@id" : [ "http://endhealth.info/tpp#129__" ],
       "im:code" : [ "129.." ]
     }, {
+      "rdfs:label" : [ "Family history of epilepsy and other diseases of the nervous system" ],
+      "@id" : [ "http://endhealth.info/icd10#Z820" ],
+      "im:code" : [ "Z82.0" ]
+    }, {
       "rdfs:label" : [ "FH: [CNS disorder NOS] or [Parkinsonism]" ],
       "@id" : [ "http://endhealth.info/tpp#129Z_" ],
       "im:code" : [ "129Z." ]
     }, {
       "rdfs:label" : [ "FH: CNS disorder" ],
-      "@id" : [ "http://endhealth.info/vis#129" ],
-      "im:code" : [ "129.." ]
-    }, {
-      "rdfs:label" : [ "FH: CNS disorder" ],
       "@id" : [ "http://endhealth.info/tpp#XE0oC" ],
       "im:code" : [ "XE0oC" ]
-    }, {
-      "rdfs:label" : [ "Family history of epilepsy and other diseases of the nervous system" ],
-      "@id" : [ "http://endhealth.info/icd10#Z820" ],
-      "im:code" : [ "Z82.0" ]
-    }, {
-      "rdfs:label" : [ "FH: CNS disorder NOS" ],
-      "@id" : [ "http://endhealth.info/vis#129Z" ],
-      "im:code" : [ "129Z." ]
     }, {
       "rdfs:label" : [ "FH: CNS disorder NOS" ],
       "@id" : [ "http://endhealth.info/tpp#XE0oD" ],
@@ -11896,13 +11896,17 @@
   }, {
     "rdfs:label" : [ "Family history of diabetes mellitus in first degree relative (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Diabetes mellitus child" ],
-      "@id" : [ "http://endhealth.info/emis#EMISNQFH2" ],
-      "im:code" : [ "EMISNQFH2" ]
+      "rdfs:label" : [ "FH: Diabetes mellitus father" ],
+      "@id" : [ "http://endhealth.info/emis#EMISNQFH5" ],
+      "im:code" : [ "EMISNQFH5" ]
     }, {
       "rdfs:label" : [ "FH: Diabetes mellitus in first degree relative" ],
       "@id" : [ "http://endhealth.info/emis#1253" ],
       "im:code" : [ "1253" ]
+    }, {
+      "rdfs:label" : [ "FH: Diabetes mellitus child" ],
+      "@id" : [ "http://endhealth.info/emis#EMISNQFH2" ],
+      "im:code" : [ "EMISNQFH2" ]
     }, {
       "rdfs:label" : [ "Family history of diabetes mellitus in first degree relative" ],
       "@id" : [ "http://endhealth.info/emis#_ESCT1383169" ],
@@ -11916,14 +11920,6 @@
       "@id" : [ "http://endhealth.info/emis#EMISNQFH4" ],
       "im:code" : [ "EMISNQFH4" ]
     }, {
-      "rdfs:label" : [ "FH: Diabetes mellitus in first degree relative" ],
-      "@id" : [ "http://endhealth.info/vis#1253" ],
-      "im:code" : [ "1253." ]
-    }, {
-      "rdfs:label" : [ "FH: Diabetes mellitus father" ],
-      "@id" : [ "http://endhealth.info/emis#EMISNQFH5" ],
-      "im:code" : [ "EMISNQFH5" ]
-    }, {
       "rdfs:label" : [ "FH: Diabetes mellitus mother" ],
       "@id" : [ "http://endhealth.info/emis#EMISNQFH6" ],
       "im:code" : [ "EMISNQFH6" ]
@@ -11935,6 +11931,10 @@
       "rdfs:label" : [ "FH: DM in 1st degree relative" ],
       "@id" : [ "http://endhealth.info/tpp#_1253" ],
       "im:code" : [ ".1253" ]
+    }, {
+      "rdfs:label" : [ "FH: Diabetes mellitus in first degree relative" ],
+      "@id" : [ "http://endhealth.info/vis#1253" ],
+      "im:code" : [ "1253." ]
     }, {
       "rdfs:label" : [ "FH: Diabetes mellitus in first degree relative" ],
       "@id" : [ "http://endhealth.info/tpp#1253_" ],
@@ -12011,13 +12011,17 @@
   }, {
     "rdfs:label" : [ "Family history with explicit context pertaining to brother (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Brother NOS" ],
-      "@id" : [ "http://endhealth.info/emis#12NZ" ],
-      "im:code" : [ "12NZ" ]
+      "rdfs:label" : [ "Family history with explicit context pertaining to brother" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA453157" ],
+      "im:code" : [ "^ESCTFA453157" ]
     }, {
       "rdfs:label" : [ "FH: Brother" ],
       "@id" : [ "http://endhealth.info/emis#12N" ],
       "im:code" : [ "12N" ]
+    }, {
+      "rdfs:label" : [ "FH: Brother NOS" ],
+      "@id" : [ "http://endhealth.info/emis#12NZ" ],
+      "im:code" : [ "12NZ" ]
     }, {
       "rdfs:label" : [ "Family history: Brother" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453155" ],
@@ -12026,10 +12030,6 @@
       "rdfs:label" : [ "Family historyof brother with explicit context" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453156" ],
       "im:code" : [ "^ESCTFA453156" ]
-    }, {
-      "rdfs:label" : [ "Family history with explicit context pertaining to brother" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA453157" ],
-      "im:code" : [ "^ESCTFA453157" ]
     }, {
       "rdfs:label" : [ "FH: Brother" ],
       "@id" : [ "http://endhealth.info/tpp#_12N_" ],
@@ -13306,10 +13306,6 @@
       "im:code" : [ "12FZ" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other genitourinary disease" ],
-      "@id" : [ "http://endhealth.info/vis#ZV187" ],
-      "im:code" : [ "ZV187" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other genitourinary disease" ],
       "@id" : [ "http://endhealth.info/emis#ZV187" ],
       "im:code" : [ "ZV187" ]
     }, {
@@ -13335,6 +13331,10 @@
     }, {
       "rdfs:label" : [ "[V]Family history of other genitourinary disease" ],
       "@id" : [ "http://endhealth.info/tpp#ZV187" ],
+      "im:code" : [ "ZV187" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other genitourinary disease" ],
+      "@id" : [ "http://endhealth.info/vis#ZV187" ],
       "im:code" : [ "ZV187" ]
     }, {
       "rdfs:label" : [ "FH: Genitourinary disease" ],
@@ -14589,6 +14589,10 @@
     "rdfs:label" : [ "Family history of leukemia (situation)" ],
     "im:matchedTo" : [ {
       "rdfs:label" : [ "FH: * - leukaemia" ],
+      "@id" : [ "http://endhealth.info/tpp#1248_" ],
+      "im:code" : [ "1248." ]
+    }, {
+      "rdfs:label" : [ "FH: * - leukaemia" ],
       "@id" : [ "http://endhealth.info/emis#1248" ],
       "im:code" : [ "1248" ]
     }, {
@@ -14596,13 +14600,13 @@
       "@id" : [ "http://endhealth.info/emis#ZV166" ],
       "im:code" : [ "ZV166" ]
     }, {
-      "rdfs:label" : [ "FH: * - leukaemia" ],
-      "@id" : [ "http://endhealth.info/vis#1248" ],
-      "im:code" : [ "1248." ]
-    }, {
       "rdfs:label" : [ "FH: leukaemia" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFH452878" ],
       "im:code" : [ "^ESCTFH452878" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of leukaemia" ],
+      "@id" : [ "http://endhealth.info/vis#ZV166" ],
+      "im:code" : [ "ZV166" ]
     }, {
       "rdfs:label" : [ "Family history of leukaemia" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452881" ],
@@ -14628,17 +14632,13 @@
       "@id" : [ "http://endhealth.info/tpp#_1248" ],
       "im:code" : [ ".1248" ]
     }, {
-      "rdfs:label" : [ "FH: * - leukaemia" ],
-      "@id" : [ "http://endhealth.info/tpp#1248_" ],
-      "im:code" : [ "1248." ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of leukaemia" ],
-      "@id" : [ "http://endhealth.info/vis#ZV166" ],
-      "im:code" : [ "ZV166" ]
-    }, {
       "rdfs:label" : [ "[V]Family history of leukaemia" ],
       "@id" : [ "http://endhealth.info/tpp#ZV166" ],
       "im:code" : [ "ZV166" ]
+    }, {
+      "rdfs:label" : [ "FH: * - leukaemia" ],
+      "@id" : [ "http://endhealth.info/vis#1248" ],
+      "im:code" : [ "1248." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:160292002" ]
@@ -14912,9 +14912,9 @@
   }, {
     "rdfs:label" : [ "Family history of clinical finding (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Family health history" ],
-      "@id" : [ "http://endhealth.info/tpp#Xa07V" ],
-      "im:code" : [ "Xa07V" ]
+      "rdfs:label" : [ "[V]Family history of unspecified specific condition" ],
+      "@id" : [ "http://endhealth.info/emis#ZV18z" ],
+      "im:code" : [ "ZV18z" ]
     }, {
       "rdfs:label" : [ "Family history of clinical finding" ],
       "@id" : [ "http://endhealth.info/emis#ZV19" ],
@@ -14924,21 +14924,21 @@
       "@id" : [ "http://endhealth.info/emis#ZV18y" ],
       "im:code" : [ "ZV18y" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of other specified specific condition" ],
-      "@id" : [ "http://endhealth.info/vis#ZV18y" ],
-      "im:code" : [ "ZV18y" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of unspecified specific condition" ],
-      "@id" : [ "http://endhealth.info/emis#ZV18z" ],
-      "im:code" : [ "ZV18z" ]
-    }, {
       "rdfs:label" : [ "[V]Family history of other specified conditions" ],
       "@id" : [ "http://endhealth.info/emis#ZV19y" ],
+      "im:code" : [ "ZV19y" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other specified conditions" ],
+      "@id" : [ "http://endhealth.info/vis#ZV19y" ],
       "im:code" : [ "ZV19y" ]
     }, {
       "rdfs:label" : [ "[V]Family history of unspecified conditions" ],
       "@id" : [ "http://endhealth.info/emis#ZV19z" ],
       "im:code" : [ "ZV19z" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other conditions" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV19_" ],
+      "im:code" : [ "ZV19." ]
     }, {
       "rdfs:label" : [ "[V]Family history of other specified conditions" ],
       "@id" : [ "http://endhealth.info/tpp#ZV19y" ],
@@ -14948,52 +14948,52 @@
       "@id" : [ "http://endhealth.info/emis#ZVu6E" ],
       "im:code" : [ "ZVu6E" ]
     }, {
+      "rdfs:label" : [ "[V]Family history of other specified specific condition" ],
+      "@id" : [ "http://endhealth.info/vis#ZV18y" ],
+      "im:code" : [ "ZV18y" ]
+    }, {
       "rdfs:label" : [ "Family medical history" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA689266" ],
       "im:code" : [ "^ESCTFA689266" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of unspecified conditions" ],
-      "@id" : [ "http://endhealth.info/vis#ZV19z" ],
-      "im:code" : [ "ZV19z" ]
-    }, {
-      "rdfs:label" : [ "[X]Family history of other specified conditions" ],
-      "@id" : [ "http://endhealth.info/tpp#ZVu6E" ],
-      "im:code" : [ "ZVu6E" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of unspecified specific condition" ],
-      "@id" : [ "http://endhealth.info/vis#ZV18z" ],
-      "im:code" : [ "ZV18z" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of unspecified conditions" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV19z" ],
-      "im:code" : [ "ZV19z" ]
+      "rdfs:label" : [ "Family health history" ],
+      "@id" : [ "http://endhealth.info/tpp#Xa07V" ],
+      "im:code" : [ "Xa07V" ]
     }, {
       "rdfs:label" : [ "Family history observations" ],
       "@id" : [ "http://endhealth.info/tpp#Xa6YI" ],
       "im:code" : [ "Xa6YI" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other conditions" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV19_" ],
+      "@id" : [ "http://endhealth.info/vis#ZV19" ],
       "im:code" : [ "ZV19." ]
     }, {
-      "rdfs:label" : [ "[V]Family history of other specified conditions" ],
-      "@id" : [ "http://endhealth.info/vis#ZV19y" ],
-      "im:code" : [ "ZV19y" ]
+      "rdfs:label" : [ "[V]Family history of unspecified conditions" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV19z" ],
+      "im:code" : [ "ZV19z" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of unspecified conditions" ],
+      "@id" : [ "http://endhealth.info/vis#ZV19z" ],
+      "im:code" : [ "ZV19z" ]
     }, {
       "rdfs:label" : [ "[V]Family history of other specified specific condition" ],
       "@id" : [ "http://endhealth.info/tpp#ZV18y" ],
       "im:code" : [ "ZV18y" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of other conditions" ],
-      "@id" : [ "http://endhealth.info/vis#ZV19" ],
-      "im:code" : [ "ZV19." ]
+      "rdfs:label" : [ "[V]Family history of unspecified specific condition" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV18z" ],
+      "im:code" : [ "ZV18z" ]
+    }, {
+      "rdfs:label" : [ "[X]Family history of other specified conditions" ],
+      "@id" : [ "http://endhealth.info/tpp#ZVu6E" ],
+      "im:code" : [ "ZVu6E" ]
     }, {
       "rdfs:label" : [ "[X]Family history of other specified conditions" ],
       "@id" : [ "http://endhealth.info/vis#ZVu6E" ],
       "im:code" : [ "ZVu6E" ]
     }, {
       "rdfs:label" : [ "[V]Family history of unspecified specific condition" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV18z" ],
+      "@id" : [ "http://endhealth.info/vis#ZV18z" ],
       "im:code" : [ "ZV18z" ]
     } ],
     "im:id" : [ {
@@ -15693,10 +15693,6 @@
   }, {
     "rdfs:label" : [ "Family history of infectious disease (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Family history of suspected Creutzfeldt-Jakob disease" ],
-      "@id" : [ "http://endhealth.info/emis#JHCFA5" ],
-      "im:code" : [ "JHCFA5" ]
-    }, {
       "rdfs:label" : [ "FH: Infectious disease" ],
       "@id" : [ "http://endhealth.info/emis#123" ],
       "im:code" : [ "123" ]
@@ -15705,33 +15701,21 @@
       "@id" : [ "http://endhealth.info/emis#ZV188" ],
       "im:code" : [ "ZV188" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of infectious disease" ],
-      "@id" : [ "http://endhealth.info/vis#ZV188" ],
-      "im:code" : [ "ZV188" ]
-    }, {
       "rdfs:label" : [ "FH: Infectious disease NOS" ],
       "@id" : [ "http://endhealth.info/emis#123Z" ],
       "im:code" : [ "123Z" ]
-    }, {
-      "rdfs:label" : [ "FH: Infectious disease" ],
-      "@id" : [ "http://endhealth.info/vis#123" ],
-      "im:code" : [ "123.." ]
-    }, {
-      "rdfs:label" : [ "FH: Infectious disease NOS" ],
-      "@id" : [ "http://endhealth.info/vis#123Z" ],
-      "im:code" : [ "123Z." ]
     }, {
       "rdfs:label" : [ "Family history of Creutzfeldt-Jakob disease" ],
       "@id" : [ "http://endhealth.info/emis#JHCFA4" ],
       "im:code" : [ "JHCFA4" ]
     }, {
+      "rdfs:label" : [ "Family history of suspected Creutzfeldt-Jakob disease" ],
+      "@id" : [ "http://endhealth.info/emis#JHCFA5" ],
+      "im:code" : [ "JHCFA5" ]
+    }, {
       "rdfs:label" : [ "Family history: Infectious disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452857" ],
       "im:code" : [ "^ESCTFA452857" ]
-    }, {
-      "rdfs:label" : [ "Family history of human immunodeficiency virus [HIV] disease" ],
-      "@id" : [ "http://endhealth.info/icd10#Z830" ],
-      "im:code" : [ "Z83.0" ]
     }, {
       "rdfs:label" : [ "FH: Infectious disease" ],
       "@id" : [ "http://endhealth.info/tpp#_123_" ],
@@ -15745,6 +15729,10 @@
       "@id" : [ "http://endhealth.info/tpp#123__" ],
       "im:code" : [ "123.." ]
     }, {
+      "rdfs:label" : [ "Family history of human immunodeficiency virus [HIV] disease" ],
+      "@id" : [ "http://endhealth.info/icd10#Z830" ],
+      "im:code" : [ "Z83.0" ]
+    }, {
       "rdfs:label" : [ "FH: Infectious disease NOS" ],
       "@id" : [ "http://endhealth.info/tpp#123Z_" ],
       "im:code" : [ "123Z." ]
@@ -15752,6 +15740,18 @@
       "rdfs:label" : [ "Family history of other infectious and parasitic diseases" ],
       "@id" : [ "http://endhealth.info/icd10#Z831" ],
       "im:code" : [ "Z83.1" ]
+    }, {
+      "rdfs:label" : [ "FH: Infectious disease" ],
+      "@id" : [ "http://endhealth.info/vis#123" ],
+      "im:code" : [ "123.." ]
+    }, {
+      "rdfs:label" : [ "FH: Infectious disease NOS" ],
+      "@id" : [ "http://endhealth.info/vis#123Z" ],
+      "im:code" : [ "123Z." ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of infectious disease" ],
+      "@id" : [ "http://endhealth.info/vis#ZV188" ],
+      "im:code" : [ "ZV188" ]
     }, {
       "rdfs:label" : [ "[V]Family history of infectious disease" ],
       "@id" : [ "http://endhealth.info/tpp#ZV188" ],
@@ -15862,10 +15862,6 @@
       "@id" : [ "http://endhealth.info/tpp#_125_" ],
       "im:code" : [ ".125." ]
     }, {
-      "rdfs:label" : [ "Family history of other endocrine, nutritional and metabolic diseases" ],
-      "@id" : [ "http://endhealth.info/icd10#Z834" ],
-      "im:code" : [ "Z83.4" ]
-    }, {
       "rdfs:label" : [ "FH: Endocrine disorder NOS" ],
       "@id" : [ "http://endhealth.info/tpp#_125Z" ],
       "im:code" : [ ".125Z" ]
@@ -15874,13 +15870,17 @@
       "@id" : [ "http://endhealth.info/tpp#125__" ],
       "im:code" : [ "125.." ]
     }, {
-      "rdfs:label" : [ "FH: Endocrine disorder NOS" ],
-      "@id" : [ "http://endhealth.info/tpp#125Z_" ],
-      "im:code" : [ "125Z." ]
+      "rdfs:label" : [ "Family history of other endocrine, nutritional and metabolic diseases" ],
+      "@id" : [ "http://endhealth.info/icd10#Z834" ],
+      "im:code" : [ "Z83.4" ]
     }, {
       "rdfs:label" : [ "FH: Endocrine disorders" ],
       "@id" : [ "http://endhealth.info/vis#125" ],
       "im:code" : [ "125.." ]
+    }, {
+      "rdfs:label" : [ "FH: Endocrine disorder NOS" ],
+      "@id" : [ "http://endhealth.info/tpp#125Z_" ],
+      "im:code" : [ "125Z." ]
     }, {
       "rdfs:label" : [ "[V]Family history of other endocrine or metabolic disease" ],
       "@id" : [ "http://endhealth.info/tpp#ZV181" ],
@@ -16029,17 +16029,17 @@
   }, {
     "rdfs:label" : [ "Family history with explicit context pertaining to mother (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Mother" ],
-      "@id" : [ "http://endhealth.info/tpp#12K__" ],
-      "im:code" : [ "12K.." ]
-    }, {
-      "rdfs:label" : [ "FH: Mother" ],
-      "@id" : [ "http://endhealth.info/emis#12K" ],
-      "im:code" : [ "12K" ]
+      "rdfs:label" : [ "Family history: Mother" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA453124" ],
+      "im:code" : [ "^ESCTFA453124" ]
     }, {
       "rdfs:label" : [ "Family history with explicit context pertaining to mother" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453122" ],
       "im:code" : [ "^ESCTFA453122" ]
+    }, {
+      "rdfs:label" : [ "FH: Mother" ],
+      "@id" : [ "http://endhealth.info/emis#12K" ],
+      "im:code" : [ "12K" ]
     }, {
       "rdfs:label" : [ "FH: Mother NOS" ],
       "@id" : [ "http://endhealth.info/emis#12KZ" ],
@@ -16049,17 +16049,21 @@
       "@id" : [ "http://endhealth.info/emis#EMISNQMO96" ],
       "im:code" : [ "EMISNQMO96" ]
     }, {
-      "rdfs:label" : [ "Family history: Mother" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA453124" ],
-      "im:code" : [ "^ESCTFA453124" ]
-    }, {
       "rdfs:label" : [ "FH: Mother" ],
       "@id" : [ "http://endhealth.info/tpp#_12K_" ],
       "im:code" : [ ".12K." ]
     }, {
       "rdfs:label" : [ "FH: Mother NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12KZ" ],
+      "im:code" : [ "12KZ." ]
+    }, {
+      "rdfs:label" : [ "FH: Mother NOS" ],
       "@id" : [ "http://endhealth.info/tpp#_12KZ" ],
       "im:code" : [ ".12KZ" ]
+    }, {
+      "rdfs:label" : [ "FH: Mother" ],
+      "@id" : [ "http://endhealth.info/tpp#12K__" ],
+      "im:code" : [ "12K.." ]
     }, {
       "rdfs:label" : [ "Maternal history" ],
       "@id" : [ "http://endhealth.info/tpp#Xa1nr" ],
@@ -16067,10 +16071,6 @@
     }, {
       "rdfs:label" : [ "FH: Mother NOS" ],
       "@id" : [ "http://endhealth.info/tpp#12KZ_" ],
-      "im:code" : [ "12KZ." ]
-    }, {
-      "rdfs:label" : [ "FH: Mother NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12KZ" ],
       "im:code" : [ "12KZ." ]
     }, {
       "rdfs:label" : [ "FH: Mother" ],
@@ -16085,13 +16085,17 @@
   }, {
     "rdfs:label" : [ "Family history: Ischemic heart disease at less than 60 years (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Cardiovascular dis. in 1st degree female relative < 65 years" ],
-      "@id" : [ "http://endhealth.info/emis#EMISNQFH7" ],
-      "im:code" : [ "EMISNQFH7" ]
+      "rdfs:label" : [ "Family history: Ischaemic heart disease at less than 60 years" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA549545" ],
+      "im:code" : [ "^ESCTFA549545" ]
     }, {
       "rdfs:label" : [ "FH: Ischaemic heart dis. <60" ],
       "@id" : [ "http://endhealth.info/emis#12C2" ],
       "im:code" : [ "12C2" ]
+    }, {
+      "rdfs:label" : [ "FH: Cardiovascular dis. in 1st degree female relative < 65 years" ],
+      "@id" : [ "http://endhealth.info/emis#EMISNQFH7" ],
+      "im:code" : [ "EMISNQFH7" ]
     }, {
       "rdfs:label" : [ "FH: Ischaemic heart disease at less than 60 years" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFH549541" ],
@@ -16108,10 +16112,6 @@
       "rdfs:label" : [ "Family history: Ischemic heart disease at less than 60 years" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549544" ],
       "im:code" : [ "^ESCTFA549544" ]
-    }, {
-      "rdfs:label" : [ "Family history: Ischaemic heart disease at less than 60 years" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA549545" ],
-      "im:code" : [ "^ESCTFA549545" ]
     }, {
       "rdfs:label" : [ "FH: IHD <60 years" ],
       "@id" : [ "http://endhealth.info/tpp#_12C2" ],
@@ -16584,17 +16584,13 @@
   }, {
     "rdfs:label" : [ "Family history of metabolic disorder (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: metabolic disorder" ],
-      "@id" : [ "http://endhealth.info/tpp#_126_" ],
-      "im:code" : [ ".126." ]
+      "rdfs:label" : [ "Family history of metabolic disorder" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA452901" ],
+      "im:code" : [ "^ESCTFA452901" ]
     }, {
       "rdfs:label" : [ "FH: Metabolic disorder" ],
       "@id" : [ "http://endhealth.info/emis#126" ],
       "im:code" : [ "126" ]
-    }, {
-      "rdfs:label" : [ "Family history of metabolic disorder" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA452901" ],
-      "im:code" : [ "^ESCTFA452901" ]
     }, {
       "rdfs:label" : [ "FH: Metabolic disorder NOS" ],
       "@id" : [ "http://endhealth.info/emis#126Z" ],
@@ -16607,6 +16603,10 @@
       "rdfs:label" : [ "Family history: Metabolic disorder" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452903" ],
       "im:code" : [ "^ESCTFA452903" ]
+    }, {
+      "rdfs:label" : [ "FH: metabolic disorder" ],
+      "@id" : [ "http://endhealth.info/tpp#_126_" ],
+      "im:code" : [ ".126." ]
     }, {
       "rdfs:label" : [ "FH: Metabolic disorder NOS" ],
       "@id" : [ "http://endhealth.info/tpp#_126Z" ],
@@ -18068,10 +18068,6 @@
   }, {
     "rdfs:label" : [ "Family history of stroke (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "Family history of stroke" ],
-      "@id" : [ "http://endhealth.info/emis#ZV171" ],
-      "im:code" : [ "ZV171" ]
-    }, {
       "rdfs:label" : [ "Family history of cerebrovascular accident" ],
       "@id" : [ "http://endhealth.info/emis#12C4" ],
       "im:code" : [ "12C4" ]
@@ -18080,24 +18076,32 @@
       "@id" : [ "http://endhealth.info/emis#12C4-2" ],
       "im:code" : [ "12C4-2" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of stroke (cerebrovascular)" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV171" ],
+      "rdfs:label" : [ "Family history of stroke" ],
+      "@id" : [ "http://endhealth.info/emis#ZV171" ],
       "im:code" : [ "ZV171" ]
     }, {
       "rdfs:label" : [ "[V]Family history of cerebrovascular accident (CVA)" ],
       "@id" : [ "http://endhealth.info/emis#ZV171-1" ],
       "im:code" : [ "ZV171-1" ]
     }, {
+      "rdfs:label" : [ "FH: CVA/stroke" ],
+      "@id" : [ "http://endhealth.info/vis#12C4" ],
+      "im:code" : [ "12C4." ]
+    }, {
       "rdfs:label" : [ "FH: CVA" ],
       "@id" : [ "http://endhealth.info/emis#12C4-1" ],
       "im:code" : [ "12C4-1" ]
+    }, {
+      "rdfs:label" : [ "Family history of stroke" ],
+      "@id" : [ "http://endhealth.info/icd10#Z823" ],
+      "im:code" : [ "Z82.3" ]
     }, {
       "rdfs:label" : [ "Family history of CVA" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA556933" ],
       "im:code" : [ "^ESCTFA556933" ]
     }, {
       "rdfs:label" : [ "[V]Family history of stroke (cerebrovascular)" ],
-      "@id" : [ "http://endhealth.info/vis#ZV171" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV171" ],
       "im:code" : [ "ZV171" ]
     }, {
       "rdfs:label" : [ "FH: stroke/CVA" ],
@@ -18112,9 +18116,9 @@
       "@id" : [ "http://endhealth.info/tpp#XM1Jg" ],
       "im:code" : [ "XM1Jg" ]
     }, {
-      "rdfs:label" : [ "FH: CVA/stroke" ],
-      "@id" : [ "http://endhealth.info/vis#12C4" ],
-      "im:code" : [ "12C4." ]
+      "rdfs:label" : [ "[V]Family history of stroke (cerebrovascular)" ],
+      "@id" : [ "http://endhealth.info/vis#ZV171" ],
+      "im:code" : [ "ZV171" ]
     }, {
       "rdfs:label" : [ "FH: stroke ([and/or] CVA)" ],
       "@id" : [ "http://endhealth.info/tpp#XE2tY" ],
@@ -18123,10 +18127,6 @@
       "rdfs:label" : [ "FH: CVA AND/OR stroke AND/OR cerebrovascular accident" ],
       "@id" : [ "http://endhealth.info/tpp#XM1Jf" ],
       "im:code" : [ "XM1Jf" ]
-    }, {
-      "rdfs:label" : [ "Family history of stroke" ],
-      "@id" : [ "http://endhealth.info/icd10#Z823" ],
-      "im:code" : [ "Z82.3" ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:275104002" ]
@@ -19064,13 +19064,13 @@
   }, {
     "rdfs:label" : [ "Family history of sudden infant death syndrome (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "H/O: cot death in family" ],
-      "@id" : [ "http://endhealth.info/emis#13IA" ],
-      "im:code" : [ "13IA" ]
-    }, {
       "rdfs:label" : [ "FH: Sudden infant death" ],
       "@id" : [ "http://endhealth.info/emis#12Z1" ],
       "im:code" : [ "12Z1" ]
+    }, {
+      "rdfs:label" : [ "H/O: cot death in family" ],
+      "@id" : [ "http://endhealth.info/emis#13IA" ],
+      "im:code" : [ "13IA" ]
     }, {
       "rdfs:label" : [ "Family history of sudden infant death syndrome" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453204" ],
@@ -19100,13 +19100,13 @@
       "@id" : [ "http://endhealth.info/tpp#13IA_" ],
       "im:code" : [ "13IA." ]
     }, {
-      "rdfs:label" : [ "H/O: cot death in family" ],
-      "@id" : [ "http://endhealth.info/vis#13IA" ],
-      "im:code" : [ "13IA." ]
-    }, {
       "rdfs:label" : [ "(H/O: cot death in family) or (cot death in family)" ],
       "@id" : [ "http://endhealth.info/tpp#XE0tB" ],
       "im:code" : [ "XE0tB" ]
+    }, {
+      "rdfs:label" : [ "H/O: cot death in family" ],
+      "@id" : [ "http://endhealth.info/vis#13IA" ],
+      "im:code" : [ "13IA." ]
     }, {
       "rdfs:label" : [ "FH: Sudden infant death" ],
       "@id" : [ "http://endhealth.info/vis#12Z1" ],
@@ -19169,6 +19169,10 @@
   }, {
     "rdfs:label" : [ "Family history: Suicide (situation)" ],
     "im:matchedTo" : [ {
+      "rdfs:label" : [ "Family history of suicide" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA452970" ],
+      "im:code" : [ "^ESCTFA452970" ]
+    }, {
       "rdfs:label" : [ "FH: Suicide" ],
       "@id" : [ "http://endhealth.info/emis#1289" ],
       "im:code" : [ "1289" ]
@@ -19176,10 +19180,6 @@
       "rdfs:label" : [ "Suicide of close relative" ],
       "@id" : [ "http://endhealth.info/emis#13MB" ],
       "im:code" : [ "13MB" ]
-    }, {
-      "rdfs:label" : [ "Family history of suicide" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA452970" ],
-      "im:code" : [ "^ESCTFA452970" ]
     }, {
       "rdfs:label" : [ "Family history: Suicide" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452971" ],
@@ -19957,9 +19957,9 @@
   }, {
     "rdfs:label" : [ "Family history: Anemia (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Anaemia (& [Addisonian])" ],
-      "@id" : [ "http://endhealth.info/tpp#1271_" ],
-      "im:code" : [ "1271." ]
+      "rdfs:label" : [ "Family history: Anemia" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA549520" ],
+      "im:code" : [ "^ESCTFA549520" ]
     }, {
       "rdfs:label" : [ "FH: Anaemia" ],
       "@id" : [ "http://endhealth.info/emis#1271" ],
@@ -19968,10 +19968,6 @@
       "rdfs:label" : [ "FH: Anemia" ],
       "@id" : [ "http://endhealth.info/emis#ZV182" ],
       "im:code" : [ "ZV182" ]
-    }, {
-      "rdfs:label" : [ "Family history: Anemia" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA549520" ],
-      "im:code" : [ "^ESCTFA549520" ]
     }, {
       "rdfs:label" : [ "Family history: Anaemia" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549521" ],
@@ -19984,6 +19980,10 @@
       "rdfs:label" : [ "FH: anaemia" ],
       "@id" : [ "http://endhealth.info/tpp#_1271" ],
       "im:code" : [ ".1271" ]
+    }, {
+      "rdfs:label" : [ "FH: Anaemia (& [Addisonian])" ],
+      "@id" : [ "http://endhealth.info/tpp#1271_" ],
+      "im:code" : [ "1271." ]
     }, {
       "rdfs:label" : [ "FH: Anaemia" ],
       "@id" : [ "http://endhealth.info/tpp#XE0o9" ],
@@ -20725,10 +20725,6 @@
   }, {
     "rdfs:label" : [ "Family history: Skin disease (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "[V]Family history of skin conditions" ],
-      "@id" : [ "http://endhealth.info/tpp#ZV194" ],
-      "im:code" : [ "ZV194" ]
-    }, {
       "rdfs:label" : [ "FH: Skin disease" ],
       "@id" : [ "http://endhealth.info/emis#12H" ],
       "im:code" : [ "12H" ]
@@ -20740,10 +20736,6 @@
       "rdfs:label" : [ "[V]Family history of skin conditions" ],
       "@id" : [ "http://endhealth.info/emis#ZV194" ],
       "im:code" : [ "ZV194" ]
-    }, {
-      "rdfs:label" : [ "FH: Skin disease NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12HZ" ],
-      "im:code" : [ "12HZ." ]
     }, {
       "rdfs:label" : [ "Family history: Skin disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453085" ],
@@ -20757,16 +20749,24 @@
       "@id" : [ "http://endhealth.info/tpp#_12HZ" ],
       "im:code" : [ ".12HZ" ]
     }, {
+      "rdfs:label" : [ "FH: Skin disease NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12HZ" ],
+      "im:code" : [ "12HZ." ]
+    }, {
       "rdfs:label" : [ "FH: Skin disease" ],
       "@id" : [ "http://endhealth.info/tpp#12H__" ],
       "im:code" : [ "12H.." ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of skin conditions" ],
+      "@id" : [ "http://endhealth.info/vis#ZV194" ],
+      "im:code" : [ "ZV194" ]
     }, {
       "rdfs:label" : [ "FH: Skin disease NOS" ],
       "@id" : [ "http://endhealth.info/tpp#12HZ_" ],
       "im:code" : [ "12HZ." ]
     }, {
       "rdfs:label" : [ "[V]Family history of skin conditions" ],
-      "@id" : [ "http://endhealth.info/vis#ZV194" ],
+      "@id" : [ "http://endhealth.info/tpp#ZV194" ],
       "im:code" : [ "ZV194" ]
     }, {
       "rdfs:label" : [ "Family history of diseases of the skin and subcutaneous tissue" ],
@@ -20959,19 +20959,19 @@
     "rdfs:label" : [ "Family history: Consanguinity (situation)" ],
     "im:matchedTo" : [ {
       "rdfs:label" : [ "Family history of consanguinity" ],
-      "@id" : [ "http://endhealth.info/emis#ZV197" ],
-      "im:code" : [ "ZV197" ]
+      "@id" : [ "http://endhealth.info/icd10#Z843" ],
+      "im:code" : [ "Z84.3" ]
     }, {
       "rdfs:label" : [ "FH: Consanguinity" ],
       "@id" : [ "http://endhealth.info/emis#12ZZ" ],
       "im:code" : [ "12ZZ" ]
     }, {
-      "rdfs:label" : [ "[X]Family history of consanguinity" ],
-      "@id" : [ "http://endhealth.info/emis#ZVu6D" ],
-      "im:code" : [ "ZVu6D" ]
+      "rdfs:label" : [ "Family history of consanguinity" ],
+      "@id" : [ "http://endhealth.info/emis#ZV197" ],
+      "im:code" : [ "ZV197" ]
     }, {
       "rdfs:label" : [ "[X]Family history of consanguinity" ],
-      "@id" : [ "http://endhealth.info/vis#ZVu6D" ],
+      "@id" : [ "http://endhealth.info/emis#ZVu6D" ],
       "im:code" : [ "ZVu6D" ]
     }, {
       "rdfs:label" : [ "Family history: Consanguinity" ],
@@ -20981,6 +20981,10 @@
       "rdfs:label" : [ "FH: Consanguinity" ],
       "@id" : [ "http://endhealth.info/tpp#_12ZZ" ],
       "im:code" : [ ".12ZZ" ]
+    }, {
+      "rdfs:label" : [ "[X]Family history of consanguinity" ],
+      "@id" : [ "http://endhealth.info/vis#ZVu6D" ],
+      "im:code" : [ "ZVu6D" ]
     }, {
       "rdfs:label" : [ "FH: Consanguinity" ],
       "@id" : [ "http://endhealth.info/tpp#12ZZ_" ],
@@ -20993,10 +20997,6 @@
       "rdfs:label" : [ "[X]Family history of consanguinity" ],
       "@id" : [ "http://endhealth.info/tpp#ZVu6D" ],
       "im:code" : [ "ZVu6D" ]
-    }, {
-      "rdfs:label" : [ "Family history of consanguinity" ],
-      "@id" : [ "http://endhealth.info/icd10#Z843" ],
-      "im:code" : [ "Z84.3" ]
     }, {
       "rdfs:label" : [ "FH: Consanguinity" ],
       "@id" : [ "http://endhealth.info/vis#12ZZ" ],
@@ -21349,9 +21349,9 @@
   }, {
     "rdfs:label" : [ "Family history: Blood disorder (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Blood disorder" ],
-      "@id" : [ "http://endhealth.info/tpp#127__" ],
-      "im:code" : [ "127.." ]
+      "rdfs:label" : [ "[V]Family history of other blood disorder" ],
+      "@id" : [ "http://endhealth.info/emis#ZV183" ],
+      "im:code" : [ "ZV183" ]
     }, {
       "rdfs:label" : [ "FH: Blood disorder" ],
       "@id" : [ "http://endhealth.info/emis#127" ],
@@ -21361,17 +21361,13 @@
       "@id" : [ "http://endhealth.info/emis#127Z" ],
       "im:code" : [ "127Z" ]
     }, {
-      "rdfs:label" : [ "FH: Blood disorder" ],
-      "@id" : [ "http://endhealth.info/vis#127" ],
-      "im:code" : [ "127.." ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other blood disorder" ],
-      "@id" : [ "http://endhealth.info/emis#ZV183" ],
-      "im:code" : [ "ZV183" ]
-    }, {
       "rdfs:label" : [ "Family history of thrombophilia" ],
       "@id" : [ "http://endhealth.info/emis#EMISNQFA21" ],
       "im:code" : [ "EMISNQFA21" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of other blood disorder" ],
+      "@id" : [ "http://endhealth.info/vis#ZV183" ],
+      "im:code" : [ "ZV183" ]
     }, {
       "rdfs:label" : [ "Family history of blood disorder" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452926" ],
@@ -21381,6 +21377,18 @@
       "@id" : [ "http://endhealth.info/emis#_ESCTFA452927" ],
       "im:code" : [ "^ESCTFA452927" ]
     }, {
+      "rdfs:label" : [ "FH: Blood disorder NOS" ],
+      "@id" : [ "http://endhealth.info/vis#127Z" ],
+      "im:code" : [ "127Z." ]
+    }, {
+      "rdfs:label" : [ "Family history of diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism" ],
+      "@id" : [ "http://endhealth.info/icd10#Z832" ],
+      "im:code" : [ "Z83.2" ]
+    }, {
+      "rdfs:label" : [ "FH: Blood disorder" ],
+      "@id" : [ "http://endhealth.info/vis#127" ],
+      "im:code" : [ "127.." ]
+    }, {
       "rdfs:label" : [ "FH: blood disorder" ],
       "@id" : [ "http://endhealth.info/tpp#_127_" ],
       "im:code" : [ ".127." ]
@@ -21389,20 +21397,12 @@
       "@id" : [ "http://endhealth.info/tpp#_127Z" ],
       "im:code" : [ ".127Z" ]
     }, {
-      "rdfs:label" : [ "Family history of diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism" ],
-      "@id" : [ "http://endhealth.info/icd10#Z832" ],
-      "im:code" : [ "Z83.2" ]
-    }, {
-      "rdfs:label" : [ "[V]Family history of other blood disorder" ],
-      "@id" : [ "http://endhealth.info/vis#ZV183" ],
-      "im:code" : [ "ZV183" ]
+      "rdfs:label" : [ "FH: Blood disorder" ],
+      "@id" : [ "http://endhealth.info/tpp#127__" ],
+      "im:code" : [ "127.." ]
     }, {
       "rdfs:label" : [ "FH: Blood disorder NOS" ],
       "@id" : [ "http://endhealth.info/tpp#127Z_" ],
-      "im:code" : [ "127Z." ]
-    }, {
-      "rdfs:label" : [ "FH: Blood disorder NOS" ],
-      "@id" : [ "http://endhealth.info/vis#127Z" ],
       "im:code" : [ "127Z." ]
     }, {
       "rdfs:label" : [ "[V]Family history of other blood disorder" ],
@@ -21828,12 +21828,20 @@
     "rdfs:label" : [ "Family illness (situation)" ],
     "im:matchedTo" : [ {
       "rdfs:label" : [ "Family illness" ],
+      "@id" : [ "http://endhealth.info/tpp#XE0pd" ],
+      "im:code" : [ "XE0pd" ]
+    }, {
+      "rdfs:label" : [ "Family illness" ],
       "@id" : [ "http://endhealth.info/emis#13L" ],
       "im:code" : [ "13L" ]
     }, {
       "rdfs:label" : [ "Relative ill" ],
       "@id" : [ "http://endhealth.info/emis#13L-2" ],
       "im:code" : [ "13L-2" ]
+    }, {
+      "rdfs:label" : [ "Family illness NOS" ],
+      "@id" : [ "http://endhealth.info/vis#13LZ" ],
+      "im:code" : [ "13LZ." ]
     }, {
       "rdfs:label" : [ "Family illness NOS" ],
       "@id" : [ "http://endhealth.info/emis#13LZ" ],
@@ -21851,10 +21859,6 @@
       "@id" : [ "http://endhealth.info/tpp#13L__" ],
       "im:code" : [ "13L.." ]
     }, {
-      "rdfs:label" : [ "Family illness" ],
-      "@id" : [ "http://endhealth.info/tpp#XE0pd" ],
-      "im:code" : [ "XE0pd" ]
-    }, {
       "rdfs:label" : [ "(Relative: [with term illn] or [diab]) or (family illn NOS)" ],
       "@id" : [ "http://endhealth.info/tpp#13LZ_" ],
       "im:code" : [ "13LZ." ]
@@ -21870,10 +21874,6 @@
       "rdfs:label" : [ "Family illness" ],
       "@id" : [ "http://endhealth.info/vis#13L" ],
       "im:code" : [ "13L.." ]
-    }, {
-      "rdfs:label" : [ "Family illness NOS" ],
-      "@id" : [ "http://endhealth.info/vis#13LZ" ],
-      "im:code" : [ "13LZ." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:266966009" ]
@@ -22334,10 +22334,6 @@
   }, {
     "rdfs:label" : [ "Family history: Gastrointestinal disease (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "[V]Family history of digestive disorder" ],
-      "@id" : [ "http://endhealth.info/emis#ZV185" ],
-      "im:code" : [ "ZV185" ]
-    }, {
       "rdfs:label" : [ "FH: Gastrointestinal disease" ],
       "@id" : [ "http://endhealth.info/emis#12E" ],
       "im:code" : [ "12E" ]
@@ -22345,6 +22341,10 @@
       "rdfs:label" : [ "FH: Gastrointestinal dis. NOS" ],
       "@id" : [ "http://endhealth.info/emis#12EZ" ],
       "im:code" : [ "12EZ" ]
+    }, {
+      "rdfs:label" : [ "[V]Family history of digestive disorder" ],
+      "@id" : [ "http://endhealth.info/emis#ZV185" ],
+      "im:code" : [ "ZV185" ]
     }, {
       "rdfs:label" : [ "Family history of gastrointestinal disease" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA453043" ],
@@ -22358,13 +22358,17 @@
       "@id" : [ "http://endhealth.info/tpp#_12E_" ],
       "im:code" : [ ".12E." ]
     }, {
+      "rdfs:label" : [ "[V]Family history of digestive disorder" ],
+      "@id" : [ "http://endhealth.info/vis#ZV185" ],
+      "im:code" : [ "ZV185" ]
+    }, {
       "rdfs:label" : [ "FH: Gastrointestinal dis. NOS" ],
       "@id" : [ "http://endhealth.info/tpp#_12EZ" ],
       "im:code" : [ ".12EZ" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of digestive disorder" ],
-      "@id" : [ "http://endhealth.info/vis#ZV185" ],
-      "im:code" : [ "ZV185" ]
+      "rdfs:label" : [ "FH: Gastrointestinal disease" ],
+      "@id" : [ "http://endhealth.info/vis#12E" ],
+      "im:code" : [ "12E.." ]
     }, {
       "rdfs:label" : [ "FH: Gastrointestinal disease" ],
       "@id" : [ "http://endhealth.info/tpp#12E__" ],
@@ -22374,9 +22378,9 @@
       "@id" : [ "http://endhealth.info/tpp#12EZ_" ],
       "im:code" : [ "12EZ." ]
     }, {
-      "rdfs:label" : [ "FH: Gastrointestinal disease" ],
-      "@id" : [ "http://endhealth.info/vis#12E" ],
-      "im:code" : [ "12E.." ]
+      "rdfs:label" : [ "FH: Gastrointestinal dis. NOS" ],
+      "@id" : [ "http://endhealth.info/vis#12EZ" ],
+      "im:code" : [ "12EZ." ]
     }, {
       "rdfs:label" : [ "[V]Family history of digestive disorder" ],
       "@id" : [ "http://endhealth.info/tpp#ZV185" ],
@@ -22385,10 +22389,6 @@
       "rdfs:label" : [ "Family history of diseases of the digestive system" ],
       "@id" : [ "http://endhealth.info/icd10#Z837" ],
       "im:code" : [ "Z83.7" ]
-    }, {
-      "rdfs:label" : [ "FH: Gastrointestinal dis. NOS" ],
-      "@id" : [ "http://endhealth.info/vis#12EZ" ],
-      "im:code" : [ "12EZ." ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:160381001" ]
@@ -22821,10 +22821,6 @@
   }, {
     "rdfs:label" : [ "Family history: Menstrual disorder (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "FH: Menstrual disorder" ],
-      "@id" : [ "http://endhealth.info/tpp#_12F5" ],
-      "im:code" : [ ".12F5" ]
-    }, {
       "rdfs:label" : [ "FH: Period problem" ],
       "@id" : [ "http://endhealth.info/emis#12F-3" ],
       "im:code" : [ "12F-3" ]
@@ -22848,6 +22844,10 @@
       "rdfs:label" : [ "FH: gynae. problem" ],
       "@id" : [ "http://endhealth.info/tpp#_12F_" ],
       "im:code" : [ ".12F." ]
+    }, {
+      "rdfs:label" : [ "FH: Menstrual disorder" ],
+      "@id" : [ "http://endhealth.info/tpp#_12F5" ],
+      "im:code" : [ ".12F5" ]
     }, {
       "rdfs:label" : [ "FH: GU disease (& problem [gynae] or [menses] or [period])" ],
       "@id" : [ "http://endhealth.info/tpp#12F__" ],
@@ -22904,9 +22904,9 @@
   }, {
     "rdfs:label" : [ "Family history: Blindness/low vision (situation)" ],
     "im:matchedTo" : [ {
-      "rdfs:label" : [ "[V]Family history of visual loss" ],
-      "@id" : [ "http://endhealth.info/emis#ZV190-2" ],
-      "im:code" : [ "ZV190-2" ]
+      "rdfs:label" : [ "Family history: Blindness/low vision" ],
+      "@id" : [ "http://endhealth.info/emis#_ESCTFA549536" ],
+      "im:code" : [ "^ESCTFA549536" ]
     }, {
       "rdfs:label" : [ "FH: Blindness/low vision" ],
       "@id" : [ "http://endhealth.info/emis#12A3" ],
@@ -22916,13 +22916,13 @@
       "@id" : [ "http://endhealth.info/emis#ZV190" ],
       "im:code" : [ "ZV190" ]
     }, {
+      "rdfs:label" : [ "[V]Family history of visual loss" ],
+      "@id" : [ "http://endhealth.info/emis#ZV190-2" ],
+      "im:code" : [ "ZV190-2" ]
+    }, {
       "rdfs:label" : [ "Family history of impaired vision" ],
       "@id" : [ "http://endhealth.info/emis#_ESCTFA549535" ],
       "im:code" : [ "^ESCTFA549535" ]
-    }, {
-      "rdfs:label" : [ "Family history: Blindness/low vision" ],
-      "@id" : [ "http://endhealth.info/emis#_ESCTFA549536" ],
-      "im:code" : [ "^ESCTFA549536" ]
     }, {
       "rdfs:label" : [ "FH: blindness" ],
       "@id" : [ "http://endhealth.info/tpp#_12A3" ],
@@ -23397,9 +23397,9 @@
       "@id" : [ "http://endhealth.info/tpp#_128_" ],
       "im:code" : [ ".128." ]
     }, {
-      "rdfs:label" : [ "[V]Family history of psychiatric condition" ],
-      "@id" : [ "http://endhealth.info/vis#ZV170" ],
-      "im:code" : [ "ZV170" ]
+      "rdfs:label" : [ "[V]Family history of mental and behavioural disorders" ],
+      "@id" : [ "http://endhealth.info/vis#ZV1A" ],
+      "im:code" : [ "ZV1A." ]
     }, {
       "rdfs:label" : [ "Family history of mental disorder" ],
       "@id" : [ "http://endhealth.info/tpp#128__" ],
@@ -23409,10 +23409,6 @@
       "@id" : [ "http://endhealth.info/tpp#ZV170" ],
       "im:code" : [ "ZV170" ]
     }, {
-      "rdfs:label" : [ "[V]Family history of other mental and behavioural disorders" ],
-      "@id" : [ "http://endhealth.info/vis#ZV1A2" ],
-      "im:code" : [ "ZV1A2" ]
-    }, {
       "rdfs:label" : [ "[V]Family history of mental and behavioural disorders" ],
       "@id" : [ "http://endhealth.info/tpp#ZV1A_" ],
       "im:code" : [ "ZV1A." ]
@@ -23421,13 +23417,17 @@
       "@id" : [ "http://endhealth.info/tpp#ZV1A2" ],
       "im:code" : [ "ZV1A2" ]
     }, {
+      "rdfs:label" : [ "[V]Family history of psychiatric condition" ],
+      "@id" : [ "http://endhealth.info/vis#ZV170" ],
+      "im:code" : [ "ZV170" ]
+    }, {
       "rdfs:label" : [ "FH: Mental disorder" ],
       "@id" : [ "http://endhealth.info/vis#128" ],
       "im:code" : [ "128.." ]
     }, {
-      "rdfs:label" : [ "[V]Family history of mental and behavioural disorders" ],
-      "@id" : [ "http://endhealth.info/vis#ZV1A" ],
-      "im:code" : [ "ZV1A." ]
+      "rdfs:label" : [ "[V]Family history of other mental and behavioural disorders" ],
+      "@id" : [ "http://endhealth.info/vis#ZV1A2" ],
+      "im:code" : [ "ZV1A2" ]
     } ],
     "im:id" : [ {
       "@id" : [ "sn:160324006" ]

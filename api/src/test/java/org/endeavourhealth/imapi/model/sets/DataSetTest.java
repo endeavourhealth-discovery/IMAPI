@@ -24,7 +24,7 @@ class DataSetTest {
 	void testBuilders() throws IOException, DataFormatException {
 		DataSet dataSet;
 
-		/*
+
 		dataSet= query1();
 		output(dataSet,searchService);
 		dataSet= query2();
@@ -39,9 +39,6 @@ class DataSetTest {
 		output(dataSet,searchService);
 		dataSet= query8();
 		output(dataSet,searchService);
-
-		 */
-
 		dataSet= query9();
 		output(dataSet,searchService);
 
@@ -228,6 +225,8 @@ class DataSetTest {
 		}
 
 		 */
+
+
 
 	}
 

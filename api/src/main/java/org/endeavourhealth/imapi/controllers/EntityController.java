@@ -443,21 +443,21 @@ public class EntityController {
 	}
 
 	@GetMapping("/task/action")
-	@PreAuthorize("isAuthenticated()")
+	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri) throws Exception {
 		LOG.debug("addTaskAction");
 		return entityService.addConceptToTask(entityIri, taskIri);
 	}
 
 	@DeleteMapping("/task/action")
-	@PreAuthorize("isAuthenticated()")
+	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri) throws Exception {
 		LOG.debug("removeTaskAction");
 		return entityService.removeConceptFromTask(taskIri, removedActionIri);
 	}
 
 	@PostMapping("/mapping")
-	@PreAuthorize("isAuthenticated()")
+	@PreAuthorize("hasAuthority('IMAdmin')")
 	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings) throws Exception {
 		LOG.debug("addMapping");
 		return entityService.saveMapping(mappings);

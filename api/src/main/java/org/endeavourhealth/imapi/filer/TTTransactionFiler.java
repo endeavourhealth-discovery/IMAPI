@@ -113,7 +113,7 @@ public class TTTransactionFiler {
 				filer.startTransaction();
 				filer.fileInsideTraction(document);
 				filer.updateTct(document);
-//				writeLog(document);
+				writeLog(document);
 				filer.commit();
 			} catch (Exception e) {
 				e.printStackTrace();

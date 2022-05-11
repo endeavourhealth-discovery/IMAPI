@@ -58,7 +58,7 @@ public class EntityService {
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
-    private TTTransactionFiler ttTransactionFiler = new TTTransactionFiler("logs.txt");
+    private TTTransactionFiler ttTransactionFiler = new TTTransactionFiler("/dev/");
 
     public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
         return entityRepository2.getBundle(iri, predicates);

@@ -24,6 +24,7 @@ class DataSetTest {
 	void testBuilders() throws IOException, DataFormatException {
 		DataSet dataSet;
 
+		/*
 		dataSet= query1();
 		output(dataSet,searchService);
 		dataSet= query2();
@@ -39,7 +40,29 @@ class DataSetTest {
 		dataSet= query8();
 		output(dataSet,searchService);
 
+		 */
+
+		dataSet= query9();
+		output(dataSet,searchService);
+
 	}
+
+	private DataSet query9() {
+		DataSet dataSet= new DataSet()
+			.setUsePrefixes(true)
+			.setName("Ranges for finding site")
+			.setDescription("retrieves the high level concepts allowable as values of the attribute finding side")
+			.setSelect(new Select()
+				.addProperty(new PropertyObject()
+					.setIri(RDFS.LABEL))
+				.setFilter(new Filter()
+					.setProperty(RDFS.RANGE)
+					.setInverseOf(true)
+					.addValueConcept(ConceptRef.iri(SNOMED.NAMESPACE+"363698007")
+						.setIncludeSupertypes(true))));
+		return dataSet;
+	}
+
 
 	private static DataSet query8() throws JsonProcessingException {
 		DataSet dataSet= new DataSet()
@@ -205,6 +228,7 @@ class DataSetTest {
 		}
 
 		 */
+
 	}
 
 

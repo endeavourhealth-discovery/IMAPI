@@ -82,7 +82,7 @@ export class GraphdbService {
           if (binding[b].constructor.name === 'Literal') {
             let v: string = binding[b].id;
             if (v.startsWith('"')) {
-              v = '"' + v.substring(1, v.length - 1).replace(/\"/g, '\\\"') + '"';
+              v = v.substring(1, v.length - 1);
             }
             binding[b] = JSON.parse(v);
           }

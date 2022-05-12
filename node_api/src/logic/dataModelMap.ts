@@ -2,7 +2,7 @@ import {Table} from '../model/sql/Table';
 import {Join} from '../model/sql/Join';
 
 export const dataModelMap = {
-  // IM Tables
+  // IMv1 Tables
   "http://endhealth.info/im#ValueSet" : {
     name: "value_set",
     fields: {
@@ -14,19 +14,35 @@ export const dataModelMap = {
     name: "value_set_member",
     fields: {
       pk: "id",
+      "value_set": "value_set",
+      "member": "member"
+    }
+  },
+  "http://endhealth.info/im#concept" : {
+    name: "concept",
+    fields: {
+      pk: "dbid",
+      "dbid": "dbid",
+      "iri": "id"
     }
   },
 
-  // Dummy query tables
+  // Query result tables
   "http://endhealth.info/im#Q_RegisteredGMS" : {
     name: "IMQ_Q_RegisteredGMS",
     fields: {
       pk: "id"
     }
   },
+  "urn:uuid:6d517466-813b-46a8-b848-aaf5a4fbdcbf" : {
+    name: "IMQ_SMI_Population",
+    fields: {
+      pk: "id"
+    }
+  },
 
   // Clinical tables
-  "http://endhealth.info/im#Patient" : {
+  "http://endhealth.info/im#Person" : {
     name: "patient",
     fields: {
       pk: "id",
@@ -42,12 +58,12 @@ export const dataModelMap = {
     }
   },
   "http://endhealth.info/im#GPRegistration": {
-    name: "registration",
+    name: "registration_status_history",
     pk: "id",
     fields: {
-      "http://endhealth.info/im#patientType": "patient_type",
-      "http://endhealth.info/im#effectiveDate": "effective_date",
-      "http://endhealth.info/im#endDate": "registration_end"
+      "http://endhealth.info/im#patientType": "registration_status_concept_id",
+      "http://endhealth.info/im#effectiveDate": "start_date",
+      "http://endhealth.info/im#endDate": "end_date"
     }
   },
   "http://endhealth.info/im#Observation": {
@@ -60,6 +76,7 @@ export const dataModelMap = {
   },
 };
 
+/*
 export function getTable(entityTypeId: string, alias: string): Table {
   if (!entityTypeId)
     throw "No entity type provided";
@@ -98,3 +115,4 @@ export function getJoin(parent: Table, relationshipId: string, childId: string, 
 
   return join;
 }
+*/

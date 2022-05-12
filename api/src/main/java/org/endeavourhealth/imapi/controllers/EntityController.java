@@ -121,12 +121,12 @@ public class EntityController {
         return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
 	}
 
-	@GetMapping(value = "/public/childrenCount")
-	public Pageable<TTIriRef> getEntityChildrenWithCount(@RequestParam(name = "iri") String iri,
-														 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-														 @RequestParam(name = "page", required = false) Integer page,
-														 @RequestParam(name = "size", required = false) Integer size) {
-		LOG.debug("getEntityChildrenWithCount");
+	@GetMapping(value = "/public/childrenAndTotalCount")
+	public Pageable<TTIriRef> getEntityChildrenAndTotalCount(@RequestParam(name = "iri") String iri,
+															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+															 @RequestParam(name = "page", required = false) Integer page,
+															 @RequestParam(name = "size", required = false) Integer size) {
+		LOG.debug("getEntityChildrenAndTotalCount");
 		if (page == null && size == null) {
 			page = 1;
 			size = 10;

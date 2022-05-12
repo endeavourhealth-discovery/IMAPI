@@ -403,10 +403,22 @@ public class EntityController {
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
 	
+	@GetMapping("/public/unassigned")
+	public List<TTIriRef> getUnassigned() {
+		LOG.debug("getUnassigned");
+		return entityService.getUnassigned();
+	}
+
 	@GetMapping("/public/unmapped")
 	public List<TTIriRef> getUnmapped() {
-		LOG.debug("getUnassigned");
+		LOG.debug("getUnmapped");
 		return entityService.getUnmapped();
+	}
+
+	@GetMapping("/public/unclassified")
+	public List<TTIriRef> getUnclassified() {
+		LOG.debug("getUnclassified");
+		return entityService.getUnclassified();
 	}
 
 	@GetMapping("/public/mappingSuggestions")

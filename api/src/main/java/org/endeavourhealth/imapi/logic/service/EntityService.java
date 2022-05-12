@@ -876,12 +876,28 @@ public class EntityService {
         return entityRepository.getPathBetweenNodes(descendant, ancestor);
     }
 
+    public List<TTIriRef> getUnassigned() {
+        List<TTIriRef> unassignedList = new ArrayList<>();
+        for (TTIriRef unmapped : entityRepository2.findUnassigned()) {
+            unassignedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
+        }
+        return unassignedList;
+    }
+
     public List<TTIriRef> getUnmapped() {
         List<TTIriRef> unmappedList = new ArrayList<>();
         for (TTIriRef unmapped : entityRepository2.findUnmapped()) {
             unmappedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
         }
         return unmappedList;
+    }
+
+    public List<TTIriRef> getUnclassified() {
+        List<TTIriRef> unclassifiedList = new ArrayList<>();
+        for (TTIriRef unmapped : entityRepository2.findUnclassified()) {
+            unclassifiedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
+        }
+        return unclassifiedList;
     }
 
     public List<TTEntity> getMappingSuggestions(String iri, String name) {

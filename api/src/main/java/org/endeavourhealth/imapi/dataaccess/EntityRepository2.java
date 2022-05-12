@@ -921,6 +921,33 @@ public class EntityRepository2 {
 
         return result;
     }
+    public List<TTIriRef> findUnclassified() {
+        List<TTIriRef> result = new ArrayList<>();
+
+        StringJoiner query = new StringJoiner("\n");
+        query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
+        query.add("PREFIX im: <http://endhealth.info/im#>");
+        query.add("PREFIX sn: <http://snomed.info/sct#>");
+        query.add("SELECT ?s ?name {");
+        query.add("GRAPH sn: {");
+        query.add("?s im:scheme sn: ;");
+        query.add("    rdfs:label ?name .");
+        query.add("}");
+        query.add("MINUS { ?s (sn:370124000|rdfs:subClassOf|im:isContainedIn|rdfs:subPropertyOf) ?o }");
+        query.add("} LIMIT 1000");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(query.toString());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
 
     public List<TTIriRef> findUnmapped() {
         List<TTIriRef> result = new ArrayList<>();

@@ -23,7 +23,6 @@ import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -121,6 +120,22 @@ public class EntityController {
         }
         return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
 	}
+
+	@GetMapping(value = "/public/childrenAndTotalCount")
+	public Pageable<TTIriRef> getEntityChildrenAndTotalCount(@RequestParam(name = "iri") String iri,
+															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+															 @RequestParam(name = "page", required = false) Integer page,
+															 @RequestParam(name = "size", required = false) Integer size) {
+		LOG.debug("getEntityChildrenAndTotalCount");
+		if (page == null && size == null) {
+			page = 1;
+			size = 10;
+		}
+		return entityService.getImmediateChildrenWithCount(iri, schemeIris, page, size, false);
+	}
+
+
+
 
 	@GetMapping("/public/exportConcept")
 	public HttpEntity<Object> exportConcept(@RequestParam String iri, @RequestParam String format) throws JsonProcessingException {

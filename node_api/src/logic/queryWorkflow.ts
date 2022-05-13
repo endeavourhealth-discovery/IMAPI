@@ -1,13 +1,10 @@
-import { Match } from './../model/sets/Match';
 import { DataSet } from '../model/sets/DataSet';
-import TTEntity from '../model/tripletree/TTEntity';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
 import { TextGenerator } from "../model/text";
-import { OntologyUtils, ManipulationUtils, SparqlSnippets } from '../helpers/query'
+import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
-import { IM, RDF, RDFS } from "../vocabulary"
 
 
 import _ from "lodash";
@@ -76,7 +73,7 @@ export default class QueryWorkflow {
 
     // find all TTIriRefs in definition
     const jsonQuery = `$..[?(@.@id)]`;
-    let IriRefs = jp.nodes(definition.match, jsonQuery);
+    let IriRefs = jp.nodes(definition.select, jsonQuery);
     if (IriRefs.length == 0) return {};
 
     IriRefs = IriRefs.filter(ref => isTTIriRef(ref.value)); // excludes objects which match the jsonQuery but  are operators/clauses instead of IriRefs 
@@ -90,7 +87,7 @@ export default class QueryWorkflow {
     IriRefs.forEach((item: any) => {
       const path = jp.stringify(item.path).substring(2);
       const entity = entities.find(entity => entity["@id"] == item.value["@id"])
-      entity ? _.set(definition.match, path, entity) : console.log("No DB entity found for IriRef at path: " + path);
+      entity ? _.set(definition.select, path, entity) : console.log("No DB entity found for IriRef at path: " + path);
     })
 
     return definition;
@@ -110,7 +107,7 @@ export default class QueryWorkflow {
 
     //matchClause = an object with "property" key
     const jsonQuery = `$..[?(@.property)]`;    // const jsonQuery = `$..[?(@.@id)]`
-    let matchClauses = jp.nodes(definition.match, jsonQuery);
+    let matchClauses = jp.nodes(definition.select, jsonQuery);
     matchClauses = matchClauses.filter(excludedPaths);
 
 
@@ -119,7 +116,7 @@ export default class QueryWorkflow {
       const summary = TextGenerator.summarise(item.value) || "";
       const key = "name";
       const path = jp.stringify(item.path).substring(2) + key;
-      summary ? _.set(definition.match, path, summary) : null;
+      summary ? _.set(definition.select, path, summary) : null;
       // console.log(`summary of clause (${path}):`, summary);
     })
 

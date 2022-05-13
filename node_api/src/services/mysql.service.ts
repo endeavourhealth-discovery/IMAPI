@@ -12,10 +12,8 @@ export class MysqlService {
     });
   }
 
-  public test() {
+  public test(sql: string) {
     return new Promise((resolve, reject) => {
-      const sql = "SELECT * FROM patient LIMIT 10";
-
       this.conn.query(sql, (err, result) => {
         if (err) {
           reject(err);

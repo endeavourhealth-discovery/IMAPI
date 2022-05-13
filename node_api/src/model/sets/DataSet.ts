@@ -1,11 +1,15 @@
 import {TTIriRef} from '../tripletree/TTIriRef';
 import {Select} from './Select';
-import {Match} from './Match';
+import {Heading} from './Heading';
 
-export class DataSet {
+export class DataSet extends Heading {
   public graph: TTIriRef;
-  public select: Select[];
-  public subset: DataSet[];
+  public select: Select;
+  public subselect: Select[];
   public groupBy: Select[];
-  public match: Match;
+  public resultFormat: any;
+  public usePrefixes: boolean;
+  public referenceDate: string;
+  public activeOnly: boolean;
+
 }

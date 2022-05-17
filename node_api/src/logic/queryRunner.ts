@@ -22,7 +22,7 @@ export default class QueryRunner {
     this.graph = new GraphdbService();
   }
 
-  public async runQuery(queryIri: string): Promise<any> {
+  public async runQuery(queryIri: string): Promise<any[]> {
     try {
       const definition: DataSet = await this.getDefinition(queryIri);
 
@@ -32,22 +32,32 @@ export default class QueryRunner {
       console.log("==================================================================")*/
 
       console.log("DROPPING: " + this.sql.toDrop());
-      await this.mysql.test(this.sql.toDrop());
+      await this.mysql.execute(this.sql.toDrop());
 
-      const refDate = new Date().toISOString().replace("T", " ").replace("Z", "");
+      // const refDate = new Date().toISOString().replace("T", " ").replace("Z", "");
+      const refDate = '2002-09-06 00:00:00';                                    // TODO: Specific date valid for test data
 
       let sqlString: string = this.sql.toCreate();
       sqlString = sqlString.replace(/\$ReferenceDate/g, refDate);
+      sqlString = sqlString.replace(/\$referenceDate/g, '"' + refDate + '"');   // TODO: Case within query definitions!?
       console.log("CREATING: " + sqlString);
-      await this.mysql.test(sqlString);
+      await this.mysql.execute(sqlString);
 
       console.log("SELECTING: " + this.sql.toSelect());
-      return this.mysql.test(this.sql.toSelect());
+      const result = await this.mysql.execute(this.sql.toSelect());
+
+      console.log(result.length + " rows");
+
+      for(const r of result) {
+        console.log(r);
+      }
+
+      return result;
 
     } catch (e) {
       console.error("***** ERROR!!");
       console.log(e);
-      return {};
+      return [];
     }
   }
 
@@ -69,9 +79,6 @@ export default class QueryRunner {
 
     return rs[0].def;
   }
-
-
-
 
   private generateSql(dataset: DataSet): void {
     this.sql = new Sql(dataset['@id']);
@@ -118,7 +125,7 @@ export default class QueryRunner {
     // Direct comparison to a concept (list)
 
     const join: Join = new Join();
-    join.table = this.sql.getTable("http://endhealth.info/im#concept", "t" + this.sql.joins.length);
+    join.table = this.sql.getTable("http://endhealth.info/im#conceptTct", "t" + this.sql.joins.length);
     if (filter.valueConcept.length == 1) {
       join.on = this.sql.getField(join.table, "iri") + " = '" + filter.valueConcept[0]['@id'] + "'";
     } else {
@@ -130,7 +137,7 @@ export default class QueryRunner {
     conditions.push(c);
     c.subject = this.getSubject(table, filter);
     c.predicate = " = ";
-    c.object = this.sql.getField(join.table, "dbid");
+    c.object = this.sql.getField(join.table, "child");
 
   }
 
@@ -154,20 +161,6 @@ export default class QueryRunner {
 
     } else
       throw "Unknown Value In predicate [" + filter.property['@id'] + "]";
-
-
-    /*      // is in result of another query, i.e. inner join
-          const c = new SimpleCondition();
-          conditions.push(c);
-          c.subject = getField(table, filter.property['@id'])
-
-          // TODO: Need to translate from IRIs to (v1) DBIDs
-          c.predicate = 'IN'
-          c.object = '(';
-          filter.valueIn.forEach(v => {
-            c.object += '\n"' + v['@id'] + '"';
-          });
-          c.object += ')';*/
 
   }
 

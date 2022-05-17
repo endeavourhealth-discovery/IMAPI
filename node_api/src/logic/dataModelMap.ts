@@ -6,16 +6,16 @@ export const dataModelMap = {
   "http://endhealth.info/im#ValueSet" : {
     name: "value_set",
     fields: {
-      pk: "id",
-      "iri": "iri"
+      pk: "dbid",
+      "iri": "id"
     }
   },
   "http://endhealth.info/im#ValueSetMember" : {
     name: "value_set_member",
     fields: {
-      pk: "id",
+      pk: "dbid",
       "value_set": "value_set",
-      "member": "member"
+      "member": "concept"
     }
   },
   "http://endhealth.info/im#concept" : {
@@ -26,7 +26,14 @@ export const dataModelMap = {
       "iri": "id"
     }
   },
-
+  "http://endhealth.info/im#conceptTct" : {
+    name: "concept_tct",
+    fields: {
+      pk: "iri",
+      "iri": "iri",
+      "child": "child"
+    }
+  },
   // Query result tables
   "http://endhealth.info/im#Q_RegisteredGMS" : {
     name: "IMQ_Q_RegisteredGMS",
@@ -46,7 +53,7 @@ export const dataModelMap = {
     name: "patient",
     fields: {
       pk: "id",
-      "http://endhealth.info/im#gpPatientType": "patient_type",
+      "http://endhealth.info/im#gpPatientType": "id",   // TODO: Needs to be patient_type function!?
       "http://endhealth.info/im#dateOfBirth": "date_of_birth",
       "http://endhealth.info/im#age": "date_of_birth"
     },
@@ -71,48 +78,7 @@ export const dataModelMap = {
     pk: "id",
     fields: {
       "http://endhealth.info/im#effectiveDate": "effective_date",
-      "http://endhealth.info/im#concept": "core_concept_id",
+      "http://endhealth.info/im#concept": "non_core_concept_id",
     }
   },
 };
-
-/*
-export function getTable(entityTypeId: string, alias: string): Table {
-  if (!entityTypeId)
-    throw "No entity type provided";
-
-  if (!dataModelMap[entityTypeId])
-    throw "Entity [" + entityTypeId + "] does not exist in map";
-
-  const table = JSON.parse(JSON.stringify(dataModelMap[entityTypeId]));
-  table.alias = alias;
-  table.id = entityTypeId;
-
-  return table;
-}
-
-export function getField(table: Table, fieldId: string): string {
-  if (!table.fields[fieldId])
-    throw "Table [" + table.name + "] does not contain field [" + fieldId + "]";
-
-  return table.alias + "." + table.fields[fieldId];
-}
-
-export function getJoin(parent: Table, relationshipId: string, childId: string, alias: string): Join {
-  if (!parent.joins[relationshipId])
-    throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "]";
-
-  if (!parent.joins[relationshipId][childId])
-    throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "] to child table [" + childId + "]";
-
-  const join: Join = new Join();
-  join.table = getTable(childId, alias);
-  join.on = parent.joins[relationshipId][childId];
-
-  join.on = join.on
-    .replace("{child}", join.table.alias)
-    .replace("{parent}", parent.alias);
-
-  return join;
-}
-*/

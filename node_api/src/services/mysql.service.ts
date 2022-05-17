@@ -12,7 +12,7 @@ export class MysqlService {
     });
   }
 
-  public test(sql: string) {
+  public execute(sql: string): Promise<RowDataPacket[]> {
     return new Promise((resolve, reject) => {
       this.conn.query(sql, (err, result) => {
         if (err) {
@@ -20,10 +20,6 @@ export class MysqlService {
           return;
         } else {
           const rows = <RowDataPacket[]>result;
-/*
-          rows.forEach(row =>
-            console.log(row)
-          );*/
           resolve(rows);
         }
       });

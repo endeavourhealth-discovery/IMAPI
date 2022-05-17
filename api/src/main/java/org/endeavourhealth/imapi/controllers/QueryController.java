@@ -36,12 +36,13 @@ public class QueryController {
     }
 
 
-    @GetMapping( "/public/queryIM")
+    @PostMapping( "/public/queryIM")
     @Operation(
       summary = "Query IM",
       description = "Runs a query on IM"
     )
     public ResultNode queryIM(@RequestBody DataSet query) throws DataFormatException, JsonProcessingException {
+        LOG.debug("queryIM");
         return new SearchService().queryIM(query);
     }
 }

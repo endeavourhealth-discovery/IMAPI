@@ -999,5 +999,16 @@ public class EntityService {
         filerService.fileEntity(entity, graph);
         return entity;
     }
+
+    public TTEntity updateHierarchy(String entityIri, List<String> folderIris) throws Exception {
+        TTEntity entity = getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
+        entity.set(IM.IS_CONTAINED_IN, new TTArray());
+        for (String folderIri : folderIris) {
+            entity.get(IM.IS_CONTAINED_IN).add(iri(folderIri));
+        }
+        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
+        filerService.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
+        return getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
+    }
 }
 

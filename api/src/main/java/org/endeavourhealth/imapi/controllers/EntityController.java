@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -450,4 +451,13 @@ public class EntityController {
 		LOG.debug("iriExists");
 		return entityService.iriExists(iri);
 	}
+
+	@PostMapping("/hierarchy")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity updateHierarchy(@RequestBody TTEntity entity) throws Exception {
+		LOG.debug("updateHierarchy");
+		return entityService.updateHierarchy(entity.getIri(), entity.get(IM.IS_CONTAINED_IN).getElements().stream().map(containedIn -> containedIn.asIriRef().getIri()).collect(Collectors.toList()));
+	}
+
+
 }

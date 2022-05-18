@@ -24,7 +24,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
     protected abstract void commit() throws TTFilerException;
     protected abstract void rollback() throws TTFilerException;
 
-    public void fileDocument(TTDocument document) throws TTFilerException {
+    public void fileDocument(TTDocument document, String agentIri) throws TTFilerException {
 
         //Sets the graph iri for use in statements, so they are owned by the graph
         this.graph = document.getGraph();
@@ -34,7 +34,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
         // Record document details, updating ontology and module
         LOG.info("Processing document-ontology-module");
 
-        fileEntities(prefixMap, document);
+        fileEntities(prefixMap, document, agentIri);
 
         LOG.info("Ontology filed");
 
@@ -46,7 +46,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
      * @param document the document to file
      * @throws TTFilerException filing exception
      */
-    public void fileInsideTraction(TTDocument document) throws TTFilerException {
+    public void fileInsideTraction(TTDocument document, String agentIri) throws TTFilerException {
         LOG.info("Filing entities.... ");
         int i = 0;
         for (TTEntity entity : document.getEntities()) {
@@ -59,7 +59,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
             if (entity.get(IM.PRIVACY_LEVEL)!=null)
                 if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
                             continue;
-                fileEntity(entity, entityGraph);
+                fileEntity(entity, entityGraph, agentIri);
                 i++;
                 LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size());
 
@@ -72,7 +72,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
     }
 
 
-    private void fileEntities(Map<String, String> prefixMap, TTDocument document) throws TTFilerException {
+    private void fileEntities(Map<String, String> prefixMap, TTDocument document, String agentIri) throws TTFilerException {
         LOG.info("Filing entities.... ");
 
         startTransaction();
@@ -91,7 +91,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                             entity.setCrud(document.getCrud());
                         }
                     }
-                    fileEntity(entity, entityGraph);
+                    fileEntity(entity, entityGraph, agentIri);
                     i++;
                     if (i % 10000 == 0) {
                         LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
@@ -107,10 +107,10 @@ public abstract class TTDocumentFiler implements AutoCloseable {
         }
     }
 
-    private void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
+    private void fileEntity(TTEntity entity, TTIriRef graph, String agentIri) throws TTFilerException {
         if (IM.GRAPH_ODS.equals(graph))
-            instanceFiler.fileEntity(entity, graph);
+            instanceFiler.fileEntity(entity, graph, agentIri);
         else
-            conceptFiler.fileEntity(entity, graph);
+            conceptFiler.fileEntity(entity, graph, agentIri);
     }
 }

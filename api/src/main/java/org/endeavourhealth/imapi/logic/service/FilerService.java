@@ -17,11 +17,11 @@ public class FilerService {
     private final TTDocumentFiler documentFiler = new TTDocumentFilerRdf4j();
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
 
-    public void fileDocument(TTDocument document) throws TTFilerException {
-        documentFiler.fileDocument(document);
+    public void fileDocument(TTDocument document, String agentIri) throws TTFilerException {
+        documentFiler.fileDocument(document, agentIri);
     }
 
-    public void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
-        entityFiler.fileEntity(entity,graph);
+    public void fileEntity(TTEntity entity, TTIriRef graph, String agentIri) throws TTFilerException {
+        entityFiler.fileEntity(entity,graph, agentIri);
     }
 }

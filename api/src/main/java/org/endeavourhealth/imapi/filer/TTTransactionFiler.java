@@ -39,20 +39,20 @@ public class TTTransactionFiler {
 	 * @param transaction a TTDocyment with a crud setting and set of entities to file
 	 * @throws TTFilerException if invalid data content
 	 */
-	public void fileTransaction(TTDocument transaction) throws Exception {
+	public void fileTransaction(TTDocument transaction, String agentIri) throws Exception {
 		if (transaction.getCrud()==null)
 			throw new TTFilerException("Transaction must have crud setting");
 		else if (!List.of(IM.UPDATE_ALL,IM.UPDATE_PREDICATES,IM.ADD_QUADS,IM.DELETE_ALL).contains(transaction.getCrud()))
 		throw new TTFilerException("Invalid crud transaction, must be im:UpdateAll,im:UpdatePredicates, or im:addQuads");
 		checkDeletes(transaction);
-		fileAsDocument(transaction);
+		fileAsDocument(transaction, agentIri);
 	}
 
 	/**
 	 * Files from the transaction logs in the delta folder
 	 * @throws Exception
 	 */
-	public void fileDeltas() throws Exception{
+	public void fileDeltas(String agentIri) throws Exception{
 		Map<Integer,String> transactionLogs= new HashMap<>();
 		File directory= new File(logPath+"\\");
 		for(File file: Objects.requireNonNull(directory.listFiles()))
@@ -69,7 +69,7 @@ public class TTTransactionFiler {
 			for (Integer logNumber:keys){
 				manager.loadDocument(new File(transactionLogs.get(logNumber)));
 				filer.startTransaction();
-				filer.fileInsideTraction(manager.getDocument());
+				filer.fileInsideTraction(manager.getDocument(), agentIri);
 				filer.updateTct(manager.getDocument());
 				filer.commit();
 		}
@@ -107,11 +107,11 @@ public class TTTransactionFiler {
 	}
 
 
-	private void fileAsDocument(TTDocument document) throws Exception{
+	private void fileAsDocument(TTDocument document, String agentIri) throws Exception{
 		try (TTDocumentFiler filer= new TTDocumentFilerRdf4j()){ //only rdf4j supported
 			try {
 				filer.startTransaction();
-				filer.fileInsideTraction(document);
+				filer.fileInsideTraction(document, agentIri);
 				filer.updateTct(document);
 				writeLog(document);
 				filer.commit();

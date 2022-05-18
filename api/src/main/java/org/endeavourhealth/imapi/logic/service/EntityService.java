@@ -113,6 +113,43 @@ public class EntityService {
         return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris,rowNumber, size, inactive);
     }
 
+    public Pageable<TTIriRef> getPartialWithTotalCount(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (iri == null || iri.isEmpty())
+            return null;
+
+        int rowNumber = 0;
+        if (page != null && size != null)
+            rowNumber = (page - 1) * 10;
+
+        return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
+    }
+
+    public ExportValueSet getMembersWithTotalCount(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+
+        List<TTIriRef> hasMembers = getPartialWithTotalCount(iri,predicateList, schemeIris,page, size, inactive).getResult();
+        TTArray array = new TTArray();
+        for(TTIriRef member: hasMembers){
+            array.add(member);
+        }
+        Set<ValueSetMember> members = new HashSet<>();
+        members.add(getValueSetMemberFromArray(array, true));
+        for(ValueSetMember valueSetMember:members){
+            valueSetMember.setLabel("a_MemberIncluded");
+            valueSetMember.setType(MemberType.INCLUDED_SELF);
+            valueSetMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
+        }
+        ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
+
+        Map<String, ValueSetMember> processedMembers = processMembers(members, false, 0, 2000);
+
+        result.addAllMembers(processedMembers.values());
+
+        return result;
+    }
+
+
+
+
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
         return entityTripleRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
     }
@@ -254,7 +291,7 @@ public class EntityService {
     }
 
     private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberInclusions = getMember(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), withHyperlinks);
+        Set<ValueSetMember> definedMemberInclusions = getMember(iri, Set.of(IM.DEFINITION.getIri()), withHyperlinks);
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
@@ -282,9 +319,13 @@ public class EntityService {
         Set<ValueSetMember> members = new HashSet<>();
 
         TTBundle bundle = getBundle(iri, predicates, UNLIMITED);
-        TTArray result;
-        if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
-            result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
+        List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,10,false).getResult();
+        TTArray result = new TTArray();
+
+        if(hasMembers.size() != 0){
+            for(TTIriRef member: hasMembers){
+                result.add(member);
+            }
             direct = true;
         } else {
             result = bundle.getEntity().get(IM.DEFINITION.asIriRef());

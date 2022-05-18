@@ -134,6 +134,34 @@ public class EntityController {
 		return entityService.getImmediateChildrenWithCount(iri, schemeIris, page, size, false);
 	}
 
+	@GetMapping(value = "/public/membersAndTotalCount")
+	public ExportValueSet getMembersAndTotalCount(@RequestParam(name = "iri") String iri,
+															 @RequestParam(name = "predicate") String predicateIri,
+															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+															 @RequestParam(name = "page", required = false) Integer page,
+															 @RequestParam(name = "size", required = false) Integer size) {
+		LOG.debug("getMembersAndTotalCount");
+		if (page == null && size == null) {
+			page = 1;
+			size = 10;
+		}
+		return entityService.getMembersWithTotalCount(iri,predicateIri, schemeIris, page, size, false);
+	}
+
+	@GetMapping(value = "/public/partialAndTotalCount")
+	public Pageable<TTIriRef> getPartialAndTotalCount(@RequestParam(name = "iri") String iri,
+													  @RequestParam(name = "predicate") String predicate,
+													  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+													  @RequestParam(name = "page", required = false) Integer page,
+													  @RequestParam(name = "size", required = false) Integer size) {
+		LOG.debug("getPartialAndTotalCount");
+		if (page == null && size == null) {
+			page = 1;
+			size = 10;
+		}
+		return entityService.getPartialWithTotalCount(iri,predicate, schemeIris, page, size, false);
+	}
+
 
 
 

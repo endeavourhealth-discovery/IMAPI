@@ -136,10 +136,10 @@ public class EntityController {
 
 	@GetMapping(value = "/public/membersAndTotalCount")
 	public ExportValueSet getMembersAndTotalCount(@RequestParam(name = "iri") String iri,
-															 @RequestParam(name = "predicate") String predicateIri,
-															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
-															 @RequestParam(name = "page", required = false) Integer page,
-															 @RequestParam(name = "size", required = false) Integer size) {
+												  @RequestParam(name = "predicate") String predicateIri,
+												  @RequestParam(name = "page", required = false) Integer page,
+												  @RequestParam(name = "size", required = false) Integer size,
+												  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris) {
 		LOG.debug("getMembersAndTotalCount");
 		if (page == null && size == null) {
 			page = 1;
@@ -151,9 +151,9 @@ public class EntityController {
 	@GetMapping(value = "/public/partialAndTotalCount")
 	public Pageable<TTIriRef> getPartialAndTotalCount(@RequestParam(name = "iri") String iri,
 													  @RequestParam(name = "predicate") String predicate,
-													  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
 													  @RequestParam(name = "page", required = false) Integer page,
-													  @RequestParam(name = "size", required = false) Integer size) {
+													  @RequestParam(name = "size", required = false) Integer size,
+													  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris) {
 		LOG.debug("getPartialAndTotalCount");
 		if (page == null && size == null) {
 			page = 1;

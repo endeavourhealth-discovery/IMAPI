@@ -1006,8 +1006,8 @@ public class EntityService {
         for (String folderIri : folderIris) {
             entity.get(IM.IS_CONTAINED_IN).add(iri(folderIri));
         }
-        TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
-        filerService.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
+        TTIriRef graph = IM.GRAPH_DISCOVERY;
+        filerService.fileEntity(entity.setCrud(IM.UPDATE_ALL), graph);
         return getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
     }
 }

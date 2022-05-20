@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@JsonIgnoreProperties({"id"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchResultSummary {
     private String name;
     private String iri;

@@ -158,9 +158,19 @@ export default class QueryRunner {
       vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
       vsm.on = this.sql.getField(vsm.table, "value_set") + " = " + this.sql.getField(vs.table, "pk") + " AND " + this.sql.getField(table, "http://endhealth.info/im#concept") + " = " + this.sql.getField(vsm.table, "member");
       this.sql.joins.push(vsm);
+    } else if (filter.property['@id'] == "http://endhealth.info/im#code") {
+      let vs: Join = new Join();
+      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+      vs.on = this.sql.getField(vs.table, "iri") + " = '" + filter.valueIn[0]['@id'] + "'";
+      this.sql.joins.push(vs);
+
+      let vsm: Join = new Join();
+      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+      vsm.on = this.sql.getField(vsm.table, "value_set") + " = " + this.sql.getField(vs.table, "pk") + " AND " + this.sql.getField(table, "http://endhealth.info/im#concept") + " = " + this.sql.getField(vsm.table, "member");
+      this.sql.joins.push(vsm);
 
     } else
-      throw "Unknown Value In predicate [" + filter.property['@id'] + "]";
+      throw "Unknown 'Value In' predicate [" + filter.property['@id'] + "]";
 
   }
 
@@ -197,11 +207,20 @@ export default class QueryRunner {
 
   private getFilters(table: Table, conditions: Condition[], filters:Filter[], operator: string) {
     const result: ConditionList = new ConditionList();
-    conditions.push(result);
     result.operator = operator;
 
     for(const filter of filters) {
       this.processFilter(table, result.conditions, filter);
+    }
+
+    if (result.conditions.length == 0) {
+      console.log("================== FILTERS =======================");
+      console.log(JSON.stringify(filters, null, 2));
+      console.log("================== CONDITIONS =======================");
+      console.log(JSON.stringify(result, null, 2));
+      console.error("No filters found!");
+    } else {
+      conditions.push(result);
     }
 
     return result;
@@ -223,6 +242,11 @@ export default class QueryRunner {
         + this.getArgument(filter.function.argument, "units") + ", "
         + this.sql.getField(table, filter.property['@id']) + ", "
         + this.getArgument(filter.function.argument, "referenceDate") + ")";
+    } else if (fn === "http://endhealth.info/im#TimeDifference") {
+      return "TIMESTAMPDIFF("
+        + this.getArgument(filter.function.argument, "units") + ", "
+        + this.getArgument(filter.function.argument, "firstDate") + ", "
+        + this.getArgument(filter.function.argument, "secondDate") + ")";
     } else {
       throw "Unknown function [" + fn + "]";
     }

@@ -47,6 +47,12 @@ export const dataModelMap = {
       pk: "id"
     }
   },
+  "urn:uuid:7d9a0a98-4df8-4748-8940-061a5148293c" : {
+    name: "IMQ_APL_CVD_Bleed",
+    fields: {
+      pk: "id"
+    }
+  },
 
   // Clinical tables
   "http://endhealth.info/im#Person" : {
@@ -54,13 +60,15 @@ export const dataModelMap = {
     fields: {
       pk: "id",
       "http://endhealth.info/im#gpPatientType": "id",   // TODO: Needs to be patient_type function!?
+      "http://endhealth.info/im#gpRegistrationStatus": "id",   // TODO: Needs to be registrations_status function!?
       "http://endhealth.info/im#dateOfBirth": "date_of_birth",
       "http://endhealth.info/im#age": "date_of_birth"
     },
     joins: {
       "http://endhealth.info/im#isSubjectOf": {
         "http://endhealth.info/im#GPRegistration": "{child}.patient_id = {parent}.id",
-        "http://endhealth.info/im#Observation": "{child}.patient_id = {parent}.id"
+        "http://endhealth.info/im#Observation": "{child}.patient_id = {parent}.id",
+        "http://endhealth.info/im#MedicationRequest": "{child}.patient_id = {parent}.id"
       }
     }
   },
@@ -81,4 +89,13 @@ export const dataModelMap = {
       "http://endhealth.info/im#concept": "non_core_concept_id",
     }
   },
+  "http://endhealth.info/im#MedicationRequest": {
+    name: "medication_order",
+    pk: "id",
+    fields: {
+      "http://endhealth.info/im#effectiveDate": "effective_date",
+      "http://endhealth.info/im#concept": "non_core_concept_id",
+      "http://endhealth.info/im#code": "non_core_concept_id",
+    }
+  }
 };

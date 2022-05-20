@@ -248,9 +248,17 @@ public class OSQuery {
 
 
 		if (!request.getSelect().isEmpty()) {
-			String[] fields= new String[request.getSelect().size()];
+			int extraFields=0;
+			if (!request.getSelect().contains("termCode"))
+				extraFields++;
+			if (!request.getSelect().contains("name"))
+				extraFields++;
+			String[] fields= new String[request.getSelect().size()+extraFields];
 			request.getSelect().toArray(fields);
-			fields[fields.length-1]= "termCode.term";
+			if (extraFields>0)
+				fields[fields.length-extraFields]="name";
+			if (extraFields==2)
+				fields[fields.length-1]= "termCode";
 			bld.fetchSource(fields,null);
 
 		}

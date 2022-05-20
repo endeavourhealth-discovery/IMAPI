@@ -7,23 +7,37 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class ProvenanceService {
 
-    public ProvAgent buildProvenanceAgent(String agentIri) {
+    public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
+        String uir = getPerson(agentName, targetEntity.getScheme());
         ProvAgent agent = new ProvAgent()
-                .setPersonInRole(TTIriRef.iri(agentIri))
+                .setPersonInRole(TTIriRef.iri(uir))
                 .setParticipationType(IM.AUTHOR_ROLE);
-        agent.setIri(agentIri);
+        agent.setName(agentName).setIri(uir.replace("uir.", "agent."));
         return agent;
     }
 
     public ProvActivity buildProvenanceActivity(TTEntity targetEntity, ProvAgent agent) {
         return new ProvActivity()
-                .setIri("http://prov.endhealth.info/im#Q_RegisteredGMS")
+                .setIri("urn:uuid:" + UUID.randomUUID())
                 .setActivityType(IM.PROV_CREATION)
                 .setEffectiveDate(LocalDateTime.now().toString())
                 .addAgent(TTIriRef.iri(agent.getIri()))
                 .setTargetEntity(TTIriRef.iri(targetEntity.getIri()));
+    }
+
+    private String getPerson(String name, TTIriRef scheme) {
+        StringBuilder uri = new StringBuilder();
+        name.chars().forEach(c -> {
+            if (Character.isLetterOrDigit(c))
+                uri.append(Character.toString(c));
+        });
+        String root = scheme.getIri();
+        root = root.substring(0, root.lastIndexOf("#"));
+        return root.replace("org.", "uir.") + "/personrole#" +
+                uri;
     }
 }

@@ -319,14 +319,14 @@ public class EntityController {
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
-		return entityService.createEntity(entity, reqObjService.getRequestAgentIri(request));
+		return entityService.createEntity(entity, reqObjService.getRequestAgentName(request));
 	}
 
 	@PostMapping(value = "/update")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 		LOG.debug("updateEntity");
-		return entityService.updateEntity(entity, reqObjService.getRequestAgentIri(request));
+		return entityService.updateEntity(entity, reqObjService.getRequestAgentName(request));
 	}
 
 	@GetMapping(value = "/public/graph")

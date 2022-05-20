@@ -981,21 +981,21 @@ public class EntityService {
         return entityRepository.iriExists(iri);
     }
 
-    public TTEntity createEntity(TTEntity entity, String agentIri) throws TTFilerException, JsonProcessingException {
+    public TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Create");
         TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
         entity.setCrud(IM.ADD_QUADS);
-        filerService.fileEntity(entity, graph, agentIri);
+        filerService.fileEntity(entity, graph, agentName);
         return entity;
     }
 
-    public TTEntity updateEntity(TTEntity entity, String agentIri) throws TTFilerException, JsonProcessingException {
+    public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Update");
         TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
         entity.setCrud(IM.UPDATE_ALL);
-        filerService.fileEntity(entity, graph, agentIri);
+        filerService.fileEntity(entity, graph, agentName);
         return entity;
     }
 }

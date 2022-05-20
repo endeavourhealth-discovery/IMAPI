@@ -32,14 +32,14 @@ public class FilerController {
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public void fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
         LOG.debug("fileDocument");
-        filerService.fileDocument(document, reqObjService.getRequestAgentIri(request));
+        filerService.fileDocument(document, reqObjService.getRequestAgentName(request));
     }
 
     @PostMapping("file/entity")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public void fileEntity(@RequestBody TTEntity entity, @RequestBody TTIriRef graph, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
         LOG.debug("fileEntity");
-        filerService.fileEntity(entity, graph, reqObjService.getRequestAgentIri(request));
+        filerService.fileEntity(entity, graph, reqObjService.getRequestAgentName(request));
     }
 
 

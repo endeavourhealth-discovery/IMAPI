@@ -11,10 +11,9 @@ public class RequestObjectService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public String getRequestAgentIri(HttpServletRequest request) throws JsonProcessingException {
+    public String getRequestAgentName(HttpServletRequest request) throws JsonProcessingException {
         String token = request.getHeader("Authorization");
-        String agent = getPropertyValueFromJwt("cognito:username", token);
-        return "http://agent.endhealth.org#" + agent;
+        return getPropertyValueFromJwt("cognito:username", token);
     }
 
     private String getPropertyValueFromJwt(String propertyValue, String jwt) throws JsonProcessingException {

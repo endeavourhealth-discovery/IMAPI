@@ -71,7 +71,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     @Override
-    public void fileEntity(TTEntity entity, TTIriRef graph, String agentIri) throws TTFilerException {
+    public void fileEntity(TTEntity entity, TTIriRef graph, String agentName) throws TTFilerException {
 
         if (entity.get(RDFS.LABEL) != null && entity.get(IM.HAS_STATUS) == null)
             entity.set(IM.HAS_STATUS, IM.ACTIVE);
@@ -87,15 +87,18 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         else
             throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
 
-        fileProvenance(entity, graph, agentIri);
+        fileProvenance(entity, graph, agentName);
     }
 
-    private void fileProvenance(TTEntity entity, TTIriRef graph, String agentIri) throws TTFilerException {
-        ProvAgent agent = provenanceService.buildProvenanceAgent(agentIri);
+    private void fileProvenance(TTEntity entity, TTIriRef graph, String agentName) throws TTFilerException {
+        ProvAgent agent = provenanceService.buildProvenanceAgent(entity, agentName);
         ProvActivity activity = provenanceService.buildProvenanceActivity(entity, agent);
         addQuads(agent, graph);
         addQuads(activity, graph);
     }
+
+
+
 
     @Override
     public void updateTct(TTDocument document) throws TTFilerException {

@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SortBy;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;

@@ -21,7 +21,6 @@ public class Filter extends Heading {
 	private ConceptRef entityType;
 	private TTIriRef entityId;
 	private TTIriRef entityIn;
-	private List<TTIriRef> subsetOf;
 
 	ConceptRef property;
 	Compare valueCompare;
@@ -145,21 +144,7 @@ public class Filter extends Heading {
 		return this;
 	}
 
-	public List<TTIriRef> getSubsetOf() {
-		return subsetOf;
-	}
 
-	public Filter setSubsetOf(List<TTIriRef> subsetOf) {
-		this.subsetOf = subsetOf;
-		return this;
-	}
-
-	public Filter addSubsetOf(TTIriRef from){
-		if (this.subsetOf ==null)
-			this.subsetOf = new ArrayList<>();
-		this.subsetOf.add(from);
-		return this;
-	}
 
 	public TTIriRef getEntityId() {
 		return entityId;

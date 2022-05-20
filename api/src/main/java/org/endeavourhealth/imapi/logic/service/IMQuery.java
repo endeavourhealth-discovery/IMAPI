@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
@@ -9,6 +8,8 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -37,7 +38,6 @@ public class IMQuery {
 	private final Set<String> predicates= new HashSet<>();
 	private final Set<String> usedSelect= new HashSet<>();
 
-
 	public Map<String, String> getVarProperty() {
 		return varProperty;
 	}
@@ -47,16 +47,31 @@ public class IMQuery {
 	}
 
 
-	public ResultNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+	public ResultNode queryIM(DataSet query) throws DataFormatException {
 		validate(query);
-		ResultNode result = new ResultNode();
-		if (query.getReferenceDate()==null){
-			String now= LocalDate.now().toString();
+		if (query.getReferenceDate() == null) {
+			String now = LocalDate.now().toString();
 			query.setReferenceDate(now);
 		}
 		String spq = buildSparql(query);
+			return goGraphSearch(spq);
+	}
 
+
+
+	private String getInList(List<SearchResultSummary> osResult) {
+		List<String> inArray = new ArrayList<>();
+		for (SearchResultSummary res : osResult) {
+			inArray.add(iri(res.getIri()));
+		}
+		return Strings.join(inArray, ",");
+	}
+
+
+
+	private ResultNode goGraphSearch(String spq) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+			ResultNode result = new ResultNode();
 			ResultNode context= new ResultNode();
 				result.put("@context", context);
 			if (query.isUsePrefixes()) {
@@ -90,10 +105,8 @@ public class IMQuery {
 					}
 				}
 			}
-
 			return result;
 		}
-
 
 	}
 
@@ -104,7 +117,7 @@ public class IMQuery {
 	 * @return String of SPARQL
 	 **/
 
-	public String buildSparql(DataSet query) throws DataFormatException {
+	public String buildSparql(DataSet query) throws DataFormatException{
 		this.query = query;
 		if (query.getResultFormat()==null){
 			query.setResultFormat(inferResultFormat());
@@ -124,13 +137,12 @@ public class IMQuery {
 		select(selectQl, select,whereQl,0,"entity");
 		selectQl.append("\n");
 
-		//where(whereQl, "entity", 0, query.getMatch());
-		//whereSelect(whereQl,query.getSelect(),"entity",0);
 		whereQl.append("}");
 
 		selectQl.append(whereQl);
 		return selectQl.toString();
 	}
+
 
 
 
@@ -295,8 +307,7 @@ public class IMQuery {
 		if (predicate.contains(":")) {
 			if (predicate.substring(predicate.indexOf(":") + 1).equals("id"))
 				return true;
-			if (predicate.substring(predicate.indexOf(":") + 1).equals("iri"))
-				return true;
+			return predicate.substring(predicate.indexOf(":") + 1).equals("iri");
 		}
 		return false;
 	}
@@ -394,7 +405,7 @@ public class IMQuery {
 		if (where.getEntityType() != null) {
 			ConceptRef type = where.getEntityType();
 			if (type.isIncludeSubtypes()) {
-				whereQl.append(tabs).append("?").append("super_" + subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
+				whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
 				whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(subject).append(".\n");
 			} else if (type.isIncludeSupertypes()) {
 				whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
@@ -409,10 +420,8 @@ public class IMQuery {
 
 		}
 		if (where.getAnd()!=null) {
-			String andSubject=subject;
 			for (Filter filter : where.getAnd()) {
-				whereProperty(whereQl, andSubject, level, filter);
-				andSubject= filter.getValueVar();
+				whereProperty(whereQl, subject, level, filter);
 			}
 		}
 		if (where.getOptional()!=null){
@@ -455,6 +464,7 @@ public class IMQuery {
 	 * @param where the where clause
 	 */
 	private void whereProperty(StringBuilder whereQl, String subject,int level, Filter where) throws DataFormatException {
+		//Open search?
 		if (where.isIncludeSubEntities()){
 			o++;
 			whereQl.append(tabs).append("?").append(subject)
@@ -468,7 +478,6 @@ public class IMQuery {
 			object = nextObject();
 			where.setValueVar(object);
 		}
-
 
 
 		varProperty.put(object,predicate);
@@ -526,7 +535,7 @@ public class IMQuery {
 			return value;
 		else {
 			try {
-				Calendar cal = DatatypeConverter.parseDateTime(value);
+				DatatypeConverter.parseDateTime(value);
 				if (!value.contains("^^xsd"))
 					value=value+"^^xsd:dateTime";
 				return value;
@@ -598,7 +607,7 @@ public class IMQuery {
 		if (comp== Comparison.LESS_THAN_OR_EQUAL)
 			return "<=";
 		else
-			throw new DataFormatException("Unknown comparison operator : "+ comp.toString());
+			throw new DataFormatException("comparison operator : "+ comp.toString()+" is not supported in graph query. use open search");
 	}
 
 
@@ -697,7 +706,7 @@ public class IMQuery {
 			return;
 
 		if (property==null) {
-			varProperty.get(var);
+			property=varProperty.get(var);
 			predicates.add(iri(property));
 		}
 
@@ -726,34 +735,35 @@ public class IMQuery {
 
 	private void bindAllForObject(BindingSet bs, ResultNode rootNode, String path, String subject, int level) {
 		ResultNode node= rootNode;
-		for (int i=level; i<nestLevel;i++){
+		StringBuilder pathBuilder = new StringBuilder(path);
+		for (int i = level; i<nestLevel; i++){
 			Value prop= bs.getValue(subject+"_p"+i);
 			Value ob= bs.getValue(subject+"_o"+i);
 			if (prop!=null){
 				String property= resultIri(prop.stringValue());
 				predicates.add(iri(property));
 				if (ob.isBNode()){
-					ResultNode obNode= valueMap.get(path+(ob.stringValue()));
+					ResultNode obNode= valueMap.get(pathBuilder +(ob.stringValue()));
 					if (obNode==null){
 						obNode= new ResultNode();
-						valueMap.put(path+(ob.stringValue()),obNode);
+						valueMap.put(pathBuilder +(ob.stringValue()),obNode);
 						predicates.add(property);
 						node.add(property,obNode);
 					}
-					path = path+ (ob.stringValue());
+					pathBuilder.append(ob.stringValue());
 					node= obNode;
 				}
 				else if (ob.isIRI()) {
-					ResultNode obNode = valueMap.get(path+(ob.stringValue()));
+					ResultNode obNode = valueMap.get(pathBuilder +(ob.stringValue()));
 					if (obNode == null) {
 						obNode = new ResultNode();
 						obNode.add("@id", resultIri(ob.stringValue()));
-						valueMap.put(path+(ob.stringValue()), obNode);
+						valueMap.put(pathBuilder +(ob.stringValue()), obNode);
 						node.add(property,obNode);
 						predicates.add(property);
 					}
 					node=obNode;
-					path = path+ ob.stringValue();
+					pathBuilder.append(ob.stringValue());
 				}
 				else {
 					node.add(property,ob.stringValue());

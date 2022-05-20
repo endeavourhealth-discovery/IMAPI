@@ -63,7 +63,7 @@ public class EntityController {
         summary = "Advanced entity search",
         description = "Performs an advanced entity search with multiple filter options"
 	)
-	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("advancedSearch");
 			return entityService.advancedSearch(request);
 

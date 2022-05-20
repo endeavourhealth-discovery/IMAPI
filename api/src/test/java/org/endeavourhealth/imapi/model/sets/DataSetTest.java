@@ -3,6 +3,10 @@ package org.endeavourhealth.imapi.model.sets;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.SortBy;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -13,6 +17,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 class DataSetTest {
@@ -21,10 +29,11 @@ class DataSetTest {
 
 
 	@Test
-	void testBuilders() throws IOException, DataFormatException {
+	void testBuilders() throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		DataSet dataSet;
 
 
+		/*
 		dataSet= query1();
 		output(dataSet,searchService);
 		dataSet= query2();
@@ -42,6 +51,27 @@ class DataSetTest {
 		dataSet= query9();
 		output(dataSet,searchService);
 
+		SearchRequest request= query10();
+		outputOS(request,searchService,"substancesByTerm");
+
+		 */
+
+
+
+	}
+
+	private SearchRequest query10() {
+		SearchRequest request= new SearchRequest();
+		request.setIndex("david");
+		request.setSize(20);
+		request.setPage(20);
+		request.setTermFilter("substance");
+		request.setIsA(List.of(SNOMED.NAMESPACE+"105590001"));
+		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
+		request.getSelect().add("iri");
+		request.getSelect().add("name");
+
+		return request;
 	}
 
 	private DataSet query9() {
@@ -225,6 +255,24 @@ class DataSetTest {
 		}
 
 		 */
+
+
+
+	}
+
+	private static void outputOS(SearchRequest request,SearchService searchService,String name) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+
+		ObjectMapper om= new ObjectMapper();
+		String json = om.writeValueAsString(request);
+		try (FileWriter wr = new FileWriter("c:\\examples\\querydefinitions\\" + name+ ".json")) {
+			wr.write(json);
+		}
+		List<SearchResultSummary> result= searchService.getEntitiesByTerm(request);
+		try (FileWriter wr = new FileWriter("c:\\examples\\queryresults\\" + name + "_result.json")) {
+			wr.write(om.writerWithDefaultPrettyPrinter().writeValueAsString(result));
+		}
+
+
 
 
 

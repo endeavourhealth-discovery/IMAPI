@@ -21,9 +21,28 @@ public class DataSet extends Heading {
 	private List<Select> groupBy;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
-
 	private String referenceDate;
 	private boolean activeOnly;
+	private int page;
+	private int pageSize;
+
+	public int getPage() {
+		return page;
+	}
+
+	public DataSet setPage(int page) {
+		this.page = page;
+		return this;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public DataSet setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+		return this;
+	}
 
 	public boolean isActiveOnly() {
 		return activeOnly;

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @JsonIgnoreProperties({"id"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchResultSummary {
     private String name;
     private String iri;
@@ -23,7 +25,9 @@ public class SearchResultSummary {
     private Integer weighting;
     private String match;
     private Set<String> key;
+    private Set<TTIriRef> isA= new HashSet<>();
     Set<SearchTermCode> termCode = new HashSet<>();
+
 
 
     public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer weighting, String match) {
@@ -40,6 +44,14 @@ public class SearchResultSummary {
     }
 
     public SearchResultSummary() {
+    }
+    public Set<TTIriRef> getIsA() {
+        return isA;
+    }
+
+    public SearchResultSummary setIsA(Set<TTIriRef> isA) {
+        this.isA = isA;
+        return this;
     }
 
     public String getName() {

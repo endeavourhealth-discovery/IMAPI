@@ -68,8 +68,12 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     @Override
     public void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
-        if (entity.get(RDFS.LABEL) != null && entity.get(IM.HAS_STATUS) == null)
-            entity.set(IM.HAS_STATUS, IM.ACTIVE);
+        if (entity.get(RDFS.LABEL) != null) {
+            if (entity.get(IM.HAS_STATUS) == null)
+                entity.set(IM.HAS_STATUS, IM.ACTIVE);
+            if (entity.get(IM.HAS_SCHEME)==null)
+                entity.set(IM.HAS_SCHEME,graph);
+        }
             if (entity.getCrud().equals(IM.UPDATE_PREDICATES))
                 updatePredicates(entity, graph);
             else if (entity.getCrud().equals(IM.ADD_QUADS))

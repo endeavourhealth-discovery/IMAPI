@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.sets;
+package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
-class DataSetTest {
+class IMQueryTest {
 	SearchService searchService = new SearchService();
 
 
@@ -50,21 +51,38 @@ class DataSetTest {
 		dataSet= query9();
 		output(dataSet,searchService);
 
+
 		SearchRequest request= query10();
 		outputOS(request,searchService,"substancesByTerm");
 
-		 */
+
+		dataSet= query11();
+		output(dataSet,searchService);
+
+ */
 
 
+	}
+
+	private DataSet query11() {
+		DataSet dataset= new DataSet()
+			.setName("Data model for entity")
+			.setDescription("Get the properties of an entity")
+			.setMainEntity(SHACL.NODESHAPE)
+			.setResultFormat(ResultFormat.OBJECT)
+			.setUsePrefixes(true)
+			.setSelect(new Select().addProperty(new PropertyObject().setBinding("*"))
+				.setFilter(new Filter()
+					.setEntityId(TTIriRef.iri(IM.NAMESPACE+"Entity"))));
+		return dataset;
 
 	}
 
 	private SearchRequest query10() {
 		SearchRequest request= new SearchRequest();
-		request.setIndex("david");
 		request.setSize(20);
-		request.setPage(20);
-		request.setTermFilter("substance");
+		request.setPage(1);
+		request.setTermFilter("amiloride");
 		request.setIsA(List.of(SNOMED.NAMESPACE+"105590001"));
 		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
 		request.getSelect().add("iri");
@@ -241,7 +259,7 @@ class DataSetTest {
 	}
 
 	private static void output(DataSet dataSet,SearchService searchService) throws IOException, DataFormatException {
-		/*
+
 		String json = dataSet.getasJson();
 		try (FileWriter wr = new FileWriter("c:\\examples\\querydefinitions\\" + dataSet.getName() + ".json")) {
 			wr.write(json);
@@ -252,8 +270,6 @@ class DataSetTest {
 		try (FileWriter wr = new FileWriter("c:\\examples\\queryresults\\" + dataSet.getName() + "_result.json")) {
 			wr.write(result.asJson());
 		}
-
-		 */
 
 
 

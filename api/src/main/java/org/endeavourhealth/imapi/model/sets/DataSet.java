@@ -25,6 +25,16 @@ public class DataSet extends Heading {
 	private boolean activeOnly;
 	private int page;
 	private int pageSize;
+	private TTIriRef mainEntity;
+
+	public TTIriRef getMainEntity() {
+		return mainEntity;
+	}
+
+	public DataSet setMainEntity(TTIriRef mainEntity) {
+		this.mainEntity = mainEntity;
+		return this;
+	}
 
 	public int getPage() {
 		return page;

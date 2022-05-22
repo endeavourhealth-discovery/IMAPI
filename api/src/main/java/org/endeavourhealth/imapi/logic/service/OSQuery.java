@@ -281,6 +281,8 @@ public class OSQuery {
 		String queryJson= bld.toString();
 
 		String url= System.getenv("OPENSEARCH_URL");
+		if (url==null)
+			throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
 		if (request.getIndex()!=null){
 			if (url.contains("_search")){
 				url=url.substring(0,url.substring(0,url.lastIndexOf("/")).lastIndexOf("/"));
@@ -289,7 +291,8 @@ public class OSQuery {
 		}
 
 
-		//String query= "{\"query\": "+ qry.toString()+"}";
+		if (System.getenv("OPENSEARCH_AUTH")==null)
+			throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
 		HttpRequest httpRequest = HttpRequest.newBuilder()
 			.uri(new URI(url+"/_search"))
 //				.timeout(Duration.of(10, ChronoUnit.SECONDS))

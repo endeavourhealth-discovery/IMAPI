@@ -152,8 +152,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	}
 
 	private void addSubtypes(TTEntity entity) throws IOException {
-		if (entity.getIri().equals("http://snomed.info/sct#105590001"))
-			System.out.println(entity.getIri());
 		if (entity.get(RDFS.SUBCLASSOF)!=null)
 			for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
 				subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");

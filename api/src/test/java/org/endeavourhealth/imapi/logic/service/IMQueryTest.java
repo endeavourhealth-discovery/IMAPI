@@ -59,9 +59,27 @@ class IMQueryTest {
 		dataSet= query11();
 		output(dataSet,searchService);
 
- */
+			dataSet= query12();
+		output(dataSet,searchService);
 
+	*/
 
+	}
+
+	private DataSet query12() {
+		DataSet dataSet= new DataSet()
+			.setName("Barts cerner codes not matched")
+			.setSelect(new Select()
+				.addProperty(new PropertyObject().setIri(RDFS.LABEL))
+				.addProperty(new PropertyObject().setIri(IM.CODE))
+				.setFilter(new Filter()
+					.addAnd(new Filter()
+						.setNotExist(true)
+						.setProperty(IM.MATCHED_TO))
+					.addAnd(new Filter()
+						.setProperty(IM.HAS_SCHEME)
+						.addValueConcept(IM.CODE_SCHEME_BARTS_CERNER))));
+		return dataSet;
 	}
 
 	private DataSet query11() {

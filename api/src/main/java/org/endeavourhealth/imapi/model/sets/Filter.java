@@ -64,6 +64,11 @@ public class Filter extends Heading {
 		return this;
 	}
 
+	public Filter addValueConcept(TTIriRef value){
+		ConceptRef cr= new ConceptRef(value.getIri(),value.getName());
+		addValueConcept(cr);
+		return this;
+	}
 	public Filter addValueNotConcept(ConceptRef value){
 		if (this.valueNotConcept==null)
 			this.valueNotConcept= new ArrayList<>();

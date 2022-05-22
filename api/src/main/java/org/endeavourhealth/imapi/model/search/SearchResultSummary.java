@@ -21,7 +21,6 @@ public class SearchResultSummary {
     private TTIriRef status;
     private TTIriRef scheme;
     private Set<TTIriRef> entityType= new HashSet<>();
-    private Set<TTIriRef> isDescendentOf = new HashSet<>();
     private Integer weighting;
     private String match;
     private Set<String> key;
@@ -38,7 +37,7 @@ public class SearchResultSummary {
         this.status = status;
         this.scheme = scheme;
         this.entityType = entityTypes;
-        this.isDescendentOf = isDescendentOf;
+        this.isA = isDescendentOf;
         this.weighting = weighting;
         this.match = match;
     }
@@ -124,14 +123,7 @@ public class SearchResultSummary {
         return this;
     }
 
-    public Set<TTIriRef> getIsDescendentOf() {
-        return isDescendentOf;
-    }
 
-    public SearchResultSummary setIsDescendentOf(Set<TTIriRef> isDescendentOf) {
-        this.isDescendentOf = isDescendentOf;
-        return this;
-    }
 
     public Integer getWeighting() {
         return weighting;

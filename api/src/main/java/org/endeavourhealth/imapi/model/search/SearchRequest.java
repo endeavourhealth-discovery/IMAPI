@@ -18,7 +18,6 @@ public class SearchRequest {
     private List<String> statusFilter = new ArrayList<>();
     private List<String> typeFilter = new ArrayList<>();
     private List<String> schemeFilter = new ArrayList<>();
-    private List<String> descendentFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
     private List<String> isA = new ArrayList<>();
     private int page = 1;
@@ -116,17 +115,7 @@ public class SearchRequest {
         return this;
     }
 
-    @Schema(name = "SetModel subtype filter",
-        description = "List of IRI's of which the entity must be a descendant",
-        example = "['http://endhealth.info/im#DiscoveryOntology']")
-    public List<String> getDescendentFilter() {
-        return descendentFilter;
-    }
 
-    public SearchRequest setDescendentFilter(List<String> descendentFilter) {
-        this.descendentFilter = descendentFilter;
-        return this;
-    }
 
     @Schema(name = "SetModel inheritance filter",
         description = "Marks the results if they are descendants of any of these entities, but does not filter by them",

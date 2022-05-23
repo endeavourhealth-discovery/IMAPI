@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
@@ -58,17 +59,19 @@ class IMQueryTest {
 
 		dataSet= query11();
 		output(dataSet,searchService);
-
 			dataSet= query12();
 		output(dataSet,searchService);
 
-	*/
+		 */
+
+
 
 	}
 
 	private DataSet query12() {
 		DataSet dataSet= new DataSet()
-			.setName("Barts cerner codes not matched")
+			.setName("Some codes not matched")
+			.setUsePrefixes(true)
 			.setSelect(new Select()
 				.addProperty(new PropertyObject().setIri(RDFS.LABEL))
 				.addProperty(new PropertyObject().setIri(IM.CODE))
@@ -284,9 +287,9 @@ class IMQueryTest {
 		}
 		ObjectMapper om= new ObjectMapper();
 		DataSet query= om.readValue(json,DataSet.class);
-		ResultNode result = searchService.queryIM(dataSet);
+		ObjectNode result = searchService.queryIM(dataSet);
 		try (FileWriter wr = new FileWriter("c:\\examples\\queryresults\\" + dataSet.getName() + "_result.json")) {
-			wr.write(result.asJson());
+			wr.write(om.writerWithDefaultPrettyPrinter().writeValueAsString(result));
 		}
 
 

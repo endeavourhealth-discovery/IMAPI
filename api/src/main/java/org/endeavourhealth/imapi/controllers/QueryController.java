@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.sets.DataSet;
-import org.endeavourhealth.imapi.model.sets.ResultNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +41,7 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a query on IM"
     )
-    public ResultNode queryIM(@RequestBody DataSet query) throws DataFormatException, JsonProcessingException {
+    public ObjectNode queryIM(@RequestBody DataSet query) throws DataFormatException, JsonProcessingException {
         LOG.debug("queryIM");
         return new SearchService().queryIM(query);
     }

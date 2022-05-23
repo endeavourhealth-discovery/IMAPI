@@ -1,5 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
@@ -8,7 +13,6 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
@@ -33,10 +37,12 @@ public class IMQuery {
 	private DataSet query;
 	private final Set<String> aliases = new HashSet<>();
 	private final int nestLevel=4;
-	private final Map<String, ResultNode> valueMap = new HashMap<>();
-	private final Map<Value, ResultNode> entityMap = new HashMap<>();
+	private final Map<String, ObjectNode> valueMap = new HashMap<>();
+	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
 	private final Set<String> predicates= new HashSet<>();
 	private final Set<String> usedSelect= new HashSet<>();
+	final ObjectMapper mapper = new ObjectMapper();
+
 
 	public Map<String, String> getVarProperty() {
 		return varProperty;
@@ -47,7 +53,7 @@ public class IMQuery {
 	}
 
 
-	public ResultNode queryIM(DataSet query) throws DataFormatException {
+	public ObjectNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
 		validate(query);
 		if (query.getReferenceDate() == null) {
 			String now = LocalDate.now().toString();
@@ -69,20 +75,26 @@ public class IMQuery {
 
 
 
-	private ResultNode goGraphSearch(String spq) {
+	private ObjectNode goGraphSearch(String spq) throws JsonProcessingException {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			ResultNode result = new ResultNode();
-			ResultNode context= new ResultNode();
-				result.put("@context", context);
+			ObjectNode result= mapper.createObjectNode();
+			ObjectNode context= mapper.createObjectNode();
+			//ObjectNode result = new ObjectNode();
+			//ObjectNode context= new ObjectNode();
+			result.set("@context", context);
 			if (query.isUsePrefixes()) {
 				for (TTPrefix prefix : prefixes.getPrefixes())
-					context.add(prefix.getPrefix(), prefix.getIri());
+					context.put(prefix.getPrefix(), prefix.getIri());
 			}
 			TupleQuery qry= conn.prepareTupleQuery(spq);
+			int count=0;
 			try (TupleQueryResult rs= qry.evaluate()){
 					while (rs.hasNext()){
+						count++;
 						BindingSet bs= rs.next();
 						bindResults(bs,result);
+					//	if (count % 100==0)
+						//	System.out.println(count);
 					}
 				}
 
@@ -421,13 +433,13 @@ public class IMQuery {
 		}
 		if (where.getAnd()!=null) {
 			for (Filter filter : where.getAnd()) {
-				whereProperty(whereQl, subject, level, filter);
+				where(whereQl, subject, level, filter);
 			}
 		}
 		if (where.getOptional()!=null){
 			for (Filter filter :where.getOptional()) {
 				whereQl.append("OPTIONAL {");
-				whereProperty(whereQl, originalSubject, level, filter);
+				where(whereQl, originalSubject, level, filter);
 				whereQl.append("}\n");
 			}
 		}
@@ -438,7 +450,7 @@ public class IMQuery {
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-				whereProperty(whereQl, subject, level, filter);
+				where(whereQl, subject, level, filter);
 				whereQl.append("}\n");
 			}
 		}
@@ -630,14 +642,14 @@ public class IMQuery {
 
 
 	private void bindResults(BindingSet bs,
-													 ResultNode result) {
+													 ObjectNode result) {
 
 		if (query.getResultFormat()==ResultFormat.OBJECT) {
 			bindObjects(bs,result);
 		}
 		else {
-			ResultNode node = new ResultNode();
-			result.add("entities", node);
+			ObjectNode node = mapper.createObjectNode();
+			addProperty(result,"entities",node);
 			Select select = query.getSelect();
 			for (PropertyObject property:select.getProperty()) {
 				String var = property.getBinding();
@@ -652,21 +664,24 @@ public class IMQuery {
 						else
 							value = bound.stringValue();
 						if (isId(var)) {
-							node.add("@id", value);
+							node.put("@id", value);
 						} else if (var.equals("entity")) {
-							node.add("@id", value);
+							node.put("@id", value);
 						} else {
 							String alias = property.getAlias();
 							if (alias != null) {
-								node.add(alias, value);
+								addProperty(node,alias, value);
 							} else {
 								String path = property.getIri();
 								if (!usedSelect.contains(path)) {
-									node.add(resultIri(path), value);
+									addProperty(node,resultIri(path), value);
 									predicates.add(path);
-								} else {
-									node.add(var, value);
 								}
+								else {
+									addProperty(node,var, value);
+								}
+
+
 							}
 						}
 					}
@@ -675,13 +690,30 @@ public class IMQuery {
 		}
 	}
 
-	private void bindObjects(BindingSet bs, ResultNode result) {
+	private void addProperty(ObjectNode node,String property,String value){
+		if (node.get(property)==null)
+			node.set(property,mapper.createArrayNode());
+		((ArrayNode) node.get(property)).add(value);
+	}
+
+	private void addProperty(ObjectNode node,String property,ObjectNode value){
+		if (node.get(property)==null)
+			node.set(property,mapper.createArrayNode());
+		((ArrayNode) node.get(property)).add(value);
+	}
+	private void addProperty(ObjectNode node,String property,JsonNode value){
+		if (node.get(property)==null)
+			node.set(property,mapper.createArrayNode());
+		((ArrayNode) node.get(property)).add(value);
+	}
+
+	private void bindObjects(BindingSet bs, ObjectNode result) {
 		Value entityValue= bs.getValue("entity");
-		ResultNode root= entityMap.get(entityValue);
+		ObjectNode root= entityMap.get(entityValue);
 		if (root==null){
-			root= new ResultNode();
+			root= mapper.createObjectNode();
 			root.put("@id",entityValue.stringValue());
-			result.add("entities",root);
+			addProperty(result,"entities",root);
 			entityMap.put(entityValue,root);
 		}
 		Select select = query.getSelect();
@@ -690,7 +722,7 @@ public class IMQuery {
 		}
 	}
 
-	private void bindObject(BindingSet bs, ResultNode node, PropertyObject propertyObject, String path, String subject, int level) {
+	private void bindObject(BindingSet bs, ObjectNode node, PropertyObject propertyObject, String path, String subject, int level) {
 		String var= propertyObject.getBinding();
 		if (var.equals("*")){
 			bindAllForObject(bs,node,path,subject,level);
@@ -711,14 +743,14 @@ public class IMQuery {
 		}
 
 		if (value.isIRI() || value.isBNode()) {
-			ResultNode subNode = valueMap.get(path+ (value.stringValue()));
+			ObjectNode subNode = valueMap.get(path+ (value.stringValue()));
 			if (subNode == null) {
-				subNode = new ResultNode();
+				subNode = mapper.createObjectNode();
 				valueMap.put(path + (value.stringValue()), subNode);
-				node.add(resultIri(property),subNode);
+				addProperty(node,resultIri(property),subNode);
 				predicates.add(property);
 				if (value.isIRI())
-					subNode.add("@id", resultIri(value.stringValue()));
+					addProperty(subNode,"@id", resultIri(value.stringValue()));
 			}
 			if (propertyObject.getObject() != null) {
 				level++;
@@ -727,14 +759,14 @@ public class IMQuery {
 				}
 			}
 		} else {
-			node.add(resultIri(property),value.stringValue());
+			addProperty(node,resultIri(property),value.stringValue());
 			predicates.add(property);
 		}
 
 	}
 
-	private void bindAllForObject(BindingSet bs, ResultNode rootNode, String path, String subject, int level) {
-		ResultNode node= rootNode;
+	private void bindAllForObject(BindingSet bs, ObjectNode rootNode, String path, String subject, int level) {
+		ObjectNode node= rootNode;
 		StringBuilder pathBuilder = new StringBuilder(path);
 		for (int i = level; i<nestLevel; i++){
 			Value prop= bs.getValue(subject+"_p"+i);
@@ -743,30 +775,30 @@ public class IMQuery {
 				String property= resultIri(prop.stringValue());
 				predicates.add(iri(property));
 				if (ob.isBNode()){
-					ResultNode obNode= valueMap.get(pathBuilder +(ob.stringValue()));
+					ObjectNode obNode= valueMap.get(pathBuilder +(ob.stringValue()));
 					if (obNode==null){
-						obNode= new ResultNode();
+						obNode= mapper.createObjectNode();
 						valueMap.put(pathBuilder +(ob.stringValue()),obNode);
 						predicates.add(property);
-						node.add(property,obNode);
+						addProperty(node,property,obNode);
 					}
 					pathBuilder.append(ob.stringValue());
 					node= obNode;
 				}
 				else if (ob.isIRI()) {
-					ResultNode obNode = valueMap.get(pathBuilder +(ob.stringValue()));
+					ObjectNode obNode = valueMap.get(pathBuilder +(ob.stringValue()));
 					if (obNode == null) {
-						obNode = new ResultNode();
-						obNode.add("@id", resultIri(ob.stringValue()));
+						obNode = mapper.createObjectNode();
+						addProperty(obNode,"@id", resultIri(ob.stringValue()));
 						valueMap.put(pathBuilder +(ob.stringValue()), obNode);
-						node.add(property,obNode);
+						addProperty(node,property,obNode);
 						predicates.add(property);
 					}
 					node=obNode;
 					pathBuilder.append(ob.stringValue());
 				}
 				else {
-					node.add(property,ob.stringValue());
+					addProperty(node,property,ob.stringValue());
 					predicates.add(property);
 
 				}
@@ -774,12 +806,12 @@ public class IMQuery {
 		}
 	}
 
-	private void bindAll(BindingSet bs, ResultNode result){
-		ResultNode node= new ResultNode();
-		result.add("entities",node);
+	private void bindAll(BindingSet bs, ObjectNode result){
+		ObjectNode node= mapper.createObjectNode();
+		addProperty(result,"entities",node);
 		for (String binding:bs.getBindingNames()){
 			if (bs.getValue(binding)!=null)
-				node.add(binding,bs.getValue(binding).stringValue());
+				addProperty(node,binding,bs.getValue(binding).stringValue());
 		}
 	}
 

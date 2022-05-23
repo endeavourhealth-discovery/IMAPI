@@ -102,11 +102,14 @@ public class IM {
   public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
   public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
   public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");
-  public static final TTIriRef SOURCE_EXTRACT = iri(NAMESPACE + "sourceExtract");
+  public static final TTIriRef SOURCE_SCHEMA = iri(NAMESPACE + "sourceSchema");
   public static final TTIriRef SOURCE_TABLE = iri(NAMESPACE + "sourceTable");
   public static final TTIriRef SOURCE_FIELD = iri(NAMESPACE + "sourceField");
   public static final TTIriRef SOURCE_CODE_SCHEME = iri(NAMESPACE + "sourceCodeScheme");
-  public static final TTIriRef SOURCE_PROPERTY = iri(NAMESPACE + "sourceProperty");
+  public static final TTIriRef SOURCE_VALUE = iri(NAMESPACE + "sourceValue");
+  public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
+  public static final TTIriRef SOURCE_HEADING= iri(NAMESPACE + "sourceHeading");
+  public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
 
 
 

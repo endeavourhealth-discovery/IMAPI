@@ -90,10 +90,10 @@ public class OSQuery {
 		List<SearchResultSummary> results ;
 
 		request.setPage(1);
-	  if (request.getTermFilter().length() < 3)
+	  if (term != null && term.length() < 3)
 			return codeIriQuery(request);
 
-		if (page == 1 &&(!term.contains(" "))) {
+		if (page == 1 && term != null && (!term.contains(" "))) {
 			if (term.contains(":")) {
 				String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
 				if (namespace != null)

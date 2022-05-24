@@ -23,9 +23,9 @@ public class Argument {
 	}
 
 	public Argument setValue(Object value) {
-		if (!(List.of(String.class,TTIriRef.class, Match.class,Boolean.class,
+		if (!(List.of(String.class,TTIriRef.class, Filter.class,Boolean.class,
 			Double.class,Float.class).contains(value.getClass())))
-			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Match clauses");
+			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Filter clauses");
 		this.value= value;
 		return this;
 	}

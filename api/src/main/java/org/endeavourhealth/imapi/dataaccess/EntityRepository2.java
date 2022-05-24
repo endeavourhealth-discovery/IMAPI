@@ -100,9 +100,11 @@ public class EntityRepository2 {
                 try (TupleQueryResult rs = qry.evaluate()) {
                     while (rs.hasNext()) {
                         BindingSet bs = rs.next();
-                        result.add(((Literal)bs.getValue("id")).stringValue());
+                        if (bs.getValue("id") != null)
+                            result.add((bs.getValue("id")).stringValue());
+
                         if (bs.getValue("legacyId") != null)
-                            result.add(((Literal)bs.getValue("legacyId")).stringValue());
+                            result.add((bs.getValue("legacyId")).stringValue());
                     }
                 }
             }
@@ -555,16 +557,16 @@ public class EntityRepository2 {
         initialiseBuilders();
         spql.add("SELECT ?concept ?id ?legacy ?legacyId")
             .add("WHERE {")
-            .add("  ?concept ?im1id ?id.")
+            .add("  {")
+            .add("      SELECT distinct ?concept");
+        whereClause(definition);
+        spql.add("  }")
+            .add("  OPTIONAL { ?concept ?im1id ?id. }")
             .add("  OPTIONAL {")
             .add("      ?legacy im:matchedTo ?concept.")
             .add("      ?legacy ?im1id ?legacyId.")
             .add("  }")
-            .add("  {")
-            .add("      SELECT distinct ?concept");
-        whereClause(definition);
-        spql.add("  }");
-        spql.add("}");
+            .add("}");
 
         return insertPrefixes() + spql.toString();
     }

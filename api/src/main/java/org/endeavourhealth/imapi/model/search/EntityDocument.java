@@ -22,6 +22,16 @@ public class EntityDocument {
 	Set<SearchTermCode> termCode = new HashSet<>();
 	Integer weighting;
 	String match;
+	Set<TTIriRef> isA= new HashSet<>();
+
+	public Set<TTIriRef> getIsA() {
+		return isA;
+	}
+
+	public EntityDocument setIsA(Set<TTIriRef> isA) {
+		this.isA = isA;
+		return this;
+	}
 
 	private List<TTIriRef> isDescendentOf = new ArrayList<>();
 

@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.model.*;
-import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -13,6 +12,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -193,6 +193,60 @@ public class EntityTripleRepository {
                 return rs.hasNext();
             }
         }
+    }
+
+    public Pageable<TTIriRef> findImmediateChildrenByIriWithCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+        List<TTIriRef> children = new ArrayList<>();
+        Pageable<TTIriRef> result = new Pageable<>();
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?count ?c ?cname")
+                .add("WHERE {")
+                .add("{ SELECT (COUNT(?c) as ?count) {")
+                .add("  ?c (rdfs:subClassOf|rdfs:subPropertyOf|im:isContainedIn|im:isChildOf) ?p }}")
+                .add("UNION ")
+                .add("{ SELECT ?c ?cname {")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
+                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+        if (schemeIris != null && !schemeIris.isEmpty()) {
+            sql
+                    .add(valueList("g", schemeIris));
+        }
+
+        if (!inactive)
+            sql
+                    .add("  OPTIONAL { ?c im:status ?s}")
+                    .add("  FILTER (?s != im:Inactive) .");
+
+        sql.add("}}}");
+
+        sql.add("ORDER BY ?cname");
+
+        if (rowNumber != null && pageSize != null) {
+            sql
+                    .add("LIMIT " + pageSize)
+                    .add("OFFSET " + rowNumber);
+        }
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("p", iri(parentIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                BindingSet bs = rs.next();
+                if(rowNumber==0){
+                    result.setTotalCount(((Literal) bs.getValue("count")).intValue());
+                }else{
+                    children.add(new TTIriRef(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
+                }
+                result.setPageSize(pageSize);
+                while (rs.hasNext()) {
+                    bs = rs.next();
+                    children.add(new TTIriRef(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
+
+                }
+                result.setResult(children);
+            }
+        }
+        return result;
     }
 
     public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {

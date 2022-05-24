@@ -101,28 +101,44 @@ public class IM {
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
     public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
 
+  //Context
+  public static final TTIriRef HAS_SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
+  public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
+  public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
+  public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");
+  public static final TTIriRef SOURCE_SCHEMA = iri(NAMESPACE + "sourceSchema");
+  public static final TTIriRef SOURCE_TABLE = iri(NAMESPACE + "sourceTable");
+  public static final TTIriRef SOURCE_FIELD = iri(NAMESPACE + "sourceField");
+  public static final TTIriRef SOURCE_CODE_SCHEME = iri(NAMESPACE + "sourceCodeScheme");
+  public static final TTIriRef SOURCE_VALUE = iri(NAMESPACE + "sourceValue");
+  public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
+  public static final TTIriRef SOURCE_HEADING= iri(NAMESPACE + "sourceHeading");
+  public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
 
-    //Graphs
-    public static final TTIriRef GRAPH_DISCOVERY = iri(IM.DOMAIN + "im#");
-    public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN + "icd10#");
-    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN + "emis#");
-    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN + "opcs4#");
-    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN + "tpp#");
-    public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN + "ods#");
-    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(DOMAIN + "prsb#");
-    public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN + "kpax#");
-    public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN + "kwp#");
-    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN + "vis#");
-    public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN + "bc#");
-    public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001 = TTIriRef.iri(DOMAIN + "nhsethnic2001#");
-    public static final TTIriRef GRAPH_IM1 = TTIriRef.iri(DOMAIN + "im1#");
-    public static final TTIriRef GRAPH_ENCOUNTERS = TTIriRef.iri(DOMAIN + "enc#");
-    public static final TTIriRef GRAPH_CONFIG = TTIriRef.iri(DOMAIN + "config#");
-    public static final TTIriRef GRAPH_CEG_QUERY = TTIriRef.iri(DOMAIN + "ceg/qry#");
-    public static final TTIriRef GRAPH_NHS_TFC = TTIriRef.iri(DOMAIN + "nhstfc#");
-    public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
-    public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
-    public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
+
+
+
+  //Graphs
+    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.DOMAIN+"im#");
+    public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN +"icd10#");
+    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN +"emis#");
+    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN +"opcs4#");
+    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN +"tpp#");
+    public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN +"ods#");
+    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(DOMAIN +"prsb#");
+    public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN +"kpax#");
+    public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kwp#");
+    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vis#");
+    public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
+    public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
+    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1#");
+    public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
+    public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
+    public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
+    public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
+    public static final TTIriRef GRAPH_STATS= TTIriRef.iri(DOMAIN +"stats#");
+   public static final TTIriRef GRAPH_DELTAS= TTIriRef.iri(DOMAIN +"deltas#");
+   public static final TTIriRef GRAPH_IMPERIAL_CERNER= TTIriRef.iri(DOMAIN +"ic#");
 
 
     // redant code schemes are now the same as graphs

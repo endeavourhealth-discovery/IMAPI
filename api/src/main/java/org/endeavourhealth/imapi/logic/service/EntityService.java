@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -102,6 +103,17 @@ public class EntityService {
         }
 
         return result;
+    }
+
+    public Pageable<TTIriRef> getImmediateChildrenWithCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (iri == null || iri.isEmpty())
+            return null;
+
+        int rowNumber = 0;
+        if (page != null && size != null)
+            rowNumber = (page - 1) * 10;
+
+        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris,rowNumber, size, inactive);
     }
 
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
@@ -178,7 +190,7 @@ public class EntityService {
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
 
-    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException {
+    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
         SearchService searchService = new SearchService();
         return searchService.getEntitiesByTerm(request);
 
@@ -990,21 +1002,23 @@ public class EntityService {
         return result;
     }
 
-    public TTEntity createEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
+    public TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Create");
         TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
-        entity.setCrud(IM.ADD_QUADS);
-        filerService.fileEntity(entity, graph);
+        entity.setCrud(IM.ADD_QUADS).setVersion(1);
+        filerService.fileEntity(entity, graph, agentName, null);
         return entity;
     }
 
-    public TTEntity updateEntity(TTEntity entity) throws TTFilerException, JsonProcessingException {
+    public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
         EntityValidator validator = new EntityValidator();
         validator.isValid(entity, this, "Update");
         TTIriRef graph = iri(IM.GRAPH_DISCOVERY.getIri(), IM.GRAPH_DISCOVERY.getName());
         entity.setCrud(IM.UPDATE_ALL);
-        filerService.fileEntity(entity, graph);
+        TTEntity usedEntity = getFullEntity(entity.getIri()).getEntity();
+        entity.setVersion(usedEntity.getVersion() + 1);
+        filerService.fileEntity(entity, graph, agentName, usedEntity);
         return entity;
     }
 

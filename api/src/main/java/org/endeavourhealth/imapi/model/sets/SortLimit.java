@@ -9,18 +9,18 @@ public class SortLimit {
 	TTIriRef orderBy;
 	Integer count;
 	Order direction;
-	private List<Match> must;
+	private List<Filter> must;
 
-	public List<Match> getTest() {
+	public List<Filter> getTest() {
 		return must;
 	}
 
-	public SortLimit setTest(List<Match> test) {
+	public SortLimit setTest(List<Filter> test) {
 		this.must = test;
 		return this;
 	}
 
-	public SortLimit addMust(Match test){
+	public SortLimit addMust(Filter test){
 		if (this.must==null)
 			this.must= new ArrayList<>();
 		this.must.add(test);

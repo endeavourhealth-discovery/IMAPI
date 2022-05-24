@@ -23,6 +23,22 @@ public class TTDocumentFilerRdf4j extends TTDocumentFiler {
         LOG.info("Done");
     }
 
+    public TTDocumentFilerRdf4j(String repo) {
+        LOG.info("Connecting");
+        if (repo.equals("config")) {
+            conn = ConnectionManager.getConfigConnection();
+        } else if (repo.equals("prov")) {
+            conn = ConnectionManager.getProvConnection();
+        } else {
+            conn = ConnectionManager.getIMConnection();
+        }
+
+        LOG.info("Initializing");
+        conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap);
+        instanceFiler = conceptFiler;   // Concepts & Instances filed in the same way
+        LOG.info("Done");
+    }
+
     @Override
     protected void startTransaction() throws TTFilerException {
         try {

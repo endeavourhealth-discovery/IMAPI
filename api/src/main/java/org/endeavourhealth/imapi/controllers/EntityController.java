@@ -45,6 +45,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping("api/entity")
 @CrossOrigin(origins = "*")
@@ -313,16 +315,16 @@ public class EntityController {
 
 	@PostMapping(value = "/create")
 	@PreAuthorize("hasAuthority('IMAdmin')")
-	public TTEntity createEntity(@RequestBody TTEntity entity) throws TTFilerException, JsonProcessingException {
+	public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
-		return entityService.createEntity(entity);
+		return entityService.createEntity(entity, request);
 	}
 
 	@PostMapping(value = "/update")
 	@PreAuthorize("hasAuthority('IMAdmin')")
-	public TTEntity updateEntity(@RequestBody TTEntity entity) throws TTFilerException, JsonProcessingException {
+	public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 		LOG.debug("updateEntity");
-		return entityService.updateEntity(entity);
+		return entityService.updateEntity(entity, request);
 	}
 
 	@GetMapping(value = "/public/graph")

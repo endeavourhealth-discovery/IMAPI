@@ -59,13 +59,39 @@ class IMQueryTest {
 
 		dataSet= query11();
 		output(dataSet,searchService);
+
 			dataSet= query12();
+		output(dataSet,searchService);
+
+
+
+
+		dataSet= query13();
 		output(dataSet,searchService);
 
 		 */
 
 
+	}
 
+	private DataSet query13() {
+		DataSet dataSet= new DataSet()
+			.setName("Some Barts cerner codes with context including a regex")
+			.setUsePrefixes(true)
+			.setResultFormat(ResultFormat.OBJECT)
+			.setSelect(new Select()
+				.addProperty(new PropertyObject(RDFS.LABEL))
+				.addProperty(new PropertyObject(IM.CODE))
+				.addProperty(new PropertyObject(IM.HAS_SOURCE_CONTEXT)
+					.setObject(new Select()
+						.addProperty(new PropertyObject().setBinding("*"))))
+				.setFilter(new Filter()
+					.setProperty(IM.HAS_SOURCE_CONTEXT)
+					.setValueObject(
+						new Filter()
+							.setProperty(IM.SOURCE_REGEX)
+					)));
+		return dataSet;
 	}
 
 	private DataSet query12() {

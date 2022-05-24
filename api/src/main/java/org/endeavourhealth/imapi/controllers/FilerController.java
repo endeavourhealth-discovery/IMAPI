@@ -28,24 +28,27 @@ public class FilerController {
 
     private final FilerService filerService = new FilerService();
     private final EntityService entityService = new EntityService();
+    private final RequestObjectService reqObjService = new RequestObjectService();
 
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public void fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
         LOG.debug("fileDocument");
-        filerService.fileDocument(document, request);
+        String agentName = reqObjService.getRequestAgentName(request);
+        filerService.fileDocument(document, agentName);
     }
 
     @PostMapping("file/entity")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public void fileEntity(@RequestBody TTEntity entity, @RequestBody TTIriRef graph, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
         LOG.debug("fileEntity");
+        String agentName = reqObjService.getRequestAgentName(request);
         TTEntity usedEntity = null;
         if (entityService.iriExists(entity.getIri())) {
             usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
             entity.setVersion(usedEntity.getVersion() + 1);
         }
-        filerService.fileEntity(entity, graph, request, usedEntity);
+        filerService.fileEntity(entity, graph, agentName, usedEntity);
     }
 
 

@@ -26,28 +26,25 @@ public class FilerService {
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
     private final TTEntityFiler entityProvFiler = new TTEntityFilerRdf4j(ConnectionManager.getProvConnection(), new HashMap<>());
     private final ProvService provService = new ProvService();
-    private final RequestObjectService reqObjService = new RequestObjectService();
     private final TTTransactionFiler transactionFiler = new TTTransactionFiler("");
     private final EntityService entityService = new EntityService();
 
-    public void fileTransactionDocument(TTDocument document, HttpServletRequest request) throws Exception {
+    public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {
         transactionFiler.fileTransaction(document);
-        fileProvDoc(document, request);
+        fileProvDoc(document, agentName);
     }
 
-    public void fileDocument(TTDocument document, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
+    public void fileDocument(TTDocument document, String agentName) throws TTFilerException, JsonProcessingException {
         documentFiler.fileDocument(document);
-        fileProvDoc(document, request);
+        fileProvDoc(document, agentName);
     }
 
-    public void fileEntity(TTEntity entity, TTIriRef graph, HttpServletRequest request, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
+    public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
         entityFiler.fileEntity(entity, graph);
-        String agentName = reqObjService.getRequestAgentName(request);
         fileProv(entity, graph, agentName, usedEntity);
     }
 
-    private void fileProvDoc(TTDocument document, HttpServletRequest request) throws JsonProcessingException, TTFilerException {
-        String agentName = reqObjService.getRequestAgentName(request);
+    private void fileProvDoc(TTDocument document, String agentName) throws JsonProcessingException, TTFilerException {
         for (TTEntity entity : document.getEntities()) {
             TTEntity usedEntity = null;
             if(entityService.iriExists(entity.getIri())) {

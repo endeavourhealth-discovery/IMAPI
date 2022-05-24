@@ -19,6 +19,7 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.FilerService;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -57,6 +58,7 @@ public class EntityController {
 
     private final EntityService entityService = new EntityService();
 	private final ConfigManager configManager = new ConfigManager();
+	private final RequestObjectService reqObjService = new RequestObjectService();
 
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
@@ -317,14 +319,16 @@ public class EntityController {
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
-		return entityService.createEntity(entity, request);
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.createEntity(entity, agentName);
 	}
 
 	@PostMapping(value = "/update")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 		LOG.debug("updateEntity");
-		return entityService.updateEntity(entity, request);
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.updateEntity(entity, agentName);
 	}
 
 	@GetMapping(value = "/public/graph")

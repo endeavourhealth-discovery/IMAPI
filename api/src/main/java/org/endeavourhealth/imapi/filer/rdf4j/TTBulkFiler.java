@@ -202,7 +202,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 						TTNode termCode = tc.asNode();
 						if (termCode.get(IM.CODE) != null) {
 							String code = termCode.get(IM.CODE).asLiteral().getValue();
-							codeCoreMap.write(code+"\t"+core.asIriRef().getIri());
+							codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
 						}
 						if (termCode.get(RDFS.LABEL) != null) {
 							String term = termCode.get(RDFS.LABEL).asLiteral().getValue();

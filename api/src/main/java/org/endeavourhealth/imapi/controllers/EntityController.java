@@ -444,7 +444,7 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/mappingSuggestions")
-	public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+	public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("getMappingSuggestions");
 		return entityService.advancedSearch(request);
 	}
@@ -474,29 +474,33 @@ public class EntityController {
 
 	@PostMapping("/task")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity createTask(@RequestBody TTEntity entity) throws Exception {
+	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
 		LOG.debug("createTask");
-		return entityService.saveTask(entity);
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.saveTask(entity, agentName);
 	}
 
 	@GetMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
-	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri) throws Exception {
+	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri, HttpServletRequest request) throws Exception {
 		LOG.debug("addTaskAction");
-		return entityService.addConceptToTask(entityIri, taskIri);
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.addConceptToTask(entityIri, taskIri, agentName);
 	}
 
 	@DeleteMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
-	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri) throws Exception {
+	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri, HttpServletRequest request) throws Exception {
 		LOG.debug("removeTaskAction");
-		return entityService.removeConceptFromTask(taskIri, removedActionIri);
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.removeConceptFromTask(taskIri, removedActionIri, agentName);
 	}
 
 	@PostMapping("/mapping")
 	@PreAuthorize("hasAuthority('IMAdmin')")
-	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings) throws Exception {
+	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings, HttpServletRequest request) throws Exception {
 		LOG.debug("addMapping");
-		return entityService.saveMapping(mappings);
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.saveMapping(mappings, agentName);
 	}
 }

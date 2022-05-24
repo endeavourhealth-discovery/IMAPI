@@ -59,7 +59,6 @@ public class EntityService {
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
-    private TTTransactionFiler ttTransactionFiler = new TTTransactionFiler("/dev/");
 
     public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
         return entityRepository2.getBundle(iri, predicates);
@@ -1022,32 +1021,32 @@ public class EntityService {
         return entity;
     }
 
-    public TTEntity saveTask(TTEntity entity) throws Exception {
+    public TTEntity saveTask(TTEntity entity, String agentName) throws Exception {
         entity.addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
-        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH));
+        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
-    public TTEntity addConceptToTask(String entityIri, String taskIri) throws Exception {
+    public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
         TTEntity entity = getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
         if (entity.get(IM.IN_TASK) == null) {
             entity.set(IM.IN_TASK, new TTArray());
         }
         entity.get(IM.IN_TASK).add(iri(taskIri));
-        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH));
+        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
 
-    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri) throws Exception {
+    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri, String agentName) throws Exception {
         TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null, EntityService.UNLIMITED).getEntity();
         entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
-        ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH));
+        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
         return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
     }
 
-    public List<TTEntity> saveMapping(Map<String, List<String>> mappings) throws Exception {
+    public List<TTEntity> saveMapping(Map<String, List<String>> mappings, String agentName) throws Exception {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
             TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
@@ -1056,7 +1055,7 @@ public class EntityService {
                 entity.get(IM.MATCHED_TO).add(iri(iri));
             }
             TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
-            ttTransactionFiler.fileTransaction(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph));
+            filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph), agentName);
             result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());
         }
         return result;

@@ -112,7 +112,7 @@ public class EntityService {
         if (page != null && size != null)
             rowNumber = (page - 1) * 10;
 
-        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris,rowNumber, size, inactive);
+        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris, rowNumber, size, inactive);
     }
 
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
@@ -260,9 +260,9 @@ public class EntityService {
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
-                if(direct){
+                if (direct) {
                     included.setType(MemberType.INCLUDED_SELF);
-                }else{
+                } else {
                     included.setType(MemberType.INCLUDED_DESC);
                 }
             } else {
@@ -285,7 +285,7 @@ public class EntityService {
 
         TTBundle bundle = getBundle(iri, predicates, UNLIMITED);
         TTArray result;
-        if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
+        if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
             result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
             direct = true;
         } else {
@@ -298,10 +298,9 @@ public class EntityService {
             else if (result.isNode())
                 members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
             else {
-                if(direct){
+                if (direct) {
                     members.add(getValueSetMemberFromArray(result, withHyperlinks));
-                }
-                else{
+                } else {
                     for (TTValue element : result.iterator()) {
                         if (element.isNode()) {
                             members.add(getValueSetMemberFromNode(element, withHyperlinks));
@@ -1050,14 +1049,17 @@ public class EntityService {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
             TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
+            if (entity.has(IM.HAS_STATUS)) {
+                entity.get(IM.HAS_STATUS).remove(IM.UNASSIGNED);
+            }
             entity.set(IM.MATCHED_TO, new TTArray());
             for (String iri : entry.getValue()) {
                 entity.get(IM.MATCHED_TO).add(iri(iri));
             }
-            TTIriRef graph = entity.getScheme() != null ? entity.getScheme() : IM.GRAPH;
-            filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(graph), agentName);
+            filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
             result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());
         }
+
         return result;
     }
 }

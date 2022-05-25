@@ -8,6 +8,16 @@ public class Argument {
 
 	String parameter;
 	Object value;
+	Function functionValue;
+
+	public Function getFunctionValue() {
+		return functionValue;
+	}
+
+	public Argument setFunctionValue(Function functionValue) {
+		this.functionValue = functionValue;
+		return this;
+	}
 
 	public String getParameter() {
 		return parameter;

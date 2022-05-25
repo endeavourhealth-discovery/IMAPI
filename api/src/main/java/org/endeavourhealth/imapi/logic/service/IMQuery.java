@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
@@ -93,8 +94,8 @@ public class IMQuery {
 						count++;
 						BindingSet bs= rs.next();
 						bindResults(bs,result);
-					//	if (count % 100==0)
-						//	System.out.println(count);
+				//	if (count % 100==0)
+					//		System.out.println(count);
 					}
 				}
 
@@ -691,9 +692,18 @@ public class IMQuery {
 	}
 
 	private void addProperty(ObjectNode node,String property,String value){
-		if (node.get(property)==null)
-			node.set(property,mapper.createArrayNode());
-		((ArrayNode) node.get(property)).add(value);
+		if (node.get(property)==null) {
+			node.set(property, mapper.createArrayNode());
+			((ArrayNode) node.get(property)).add(value);
+		}
+		ArrayNode already= (ArrayNode) node.get(property);
+		for (JsonNode n:already){
+			if (n.asText().equals(value))
+				return;
+		}
+		already.add(value);
+
+
 	}
 
 	private void addProperty(ObjectNode node,String property,ObjectNode value){

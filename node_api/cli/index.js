@@ -3,10 +3,7 @@ const { TextGenerator } = require("../src/model/text");
 
 
 function summarise(clause) {
-  // console.log("Input Clause \n", clause);
-  // let summary = TextGenerator.summarise(JSON.parse(clause))
-  console.log("test name");
-  // console.log(summary);
+  let summary = TextGenerator.summarise(JSON.parse(clause))
 }
 
 const printHelp = () => {

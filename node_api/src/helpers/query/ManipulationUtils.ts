@@ -6,17 +6,17 @@ export default class ManipulationUtils {
 
 
     //required in case JSON defintition contains illegal characters
-     public static  escapeCharacters = (str: string) => {
+    public static escapeCharacters = (str: string) => {
         return str
-        .replace(/[\n]/g, '\\n')
-          // .replace(/[\\]/g, '\\\\')
-          // .replace(/[\"]/g, '\\\"')
-          // .replace(/[\/]/g, '\\/')
-          // .replace(/[\b]/g, '\\b')
-          // .replace(/[\f]/g, '\\f')
-          // .replace(/[\r]/g, '\\r')
-          // .replace(/[\t]/g, '\\t');
-      };
+            .replace(/[\n]/g, '\\n')
+        // .replace(/[\\]/g, '\\\\')
+        // .replace(/[\"]/g, '\\\"')
+        // .replace(/[\/]/g, '\\/')
+        // .replace(/[\b]/g, '\\b')
+        // .replace(/[\f]/g, '\\f')
+        // .replace(/[\r]/g, '\\r')
+        // .replace(/[\t]/g, '\\t');
+    };
 
 
 
@@ -31,7 +31,7 @@ export default class ManipulationUtils {
 
     public static isTTIriRef(element: any): boolean {
         const keys = Object.keys(element);
-        const excludedKeys = ["and", "or", "property"]; 
+        const excludedKeys = ["and", "or", "property"];
         const isExcludedKeysPresent = !keys.some(key => excludedKeys.includes(key));
         return keys.includes("@id") && isExcludedKeysPresent;
     }

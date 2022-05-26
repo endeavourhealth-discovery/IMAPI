@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.search;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.endeavourhealth.imapi.model.sets.Select;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,16 +11,59 @@ import java.util.List;
     name="Search request",
     description = "Structure containing search request parameters and filters"
 )
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchRequest {
     private String termFilter;
     private String index="concept";
     private List<String> statusFilter = new ArrayList<>();
     private List<String> typeFilter = new ArrayList<>();
     private List<String> schemeFilter = new ArrayList<>();
-    private List<String> descendentFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
+    private List<String> isA = new ArrayList<>();
     private int page = 1;
     private int size = 20;
+    private int from;
+    private List<String> select = new ArrayList<>();
+
+    public int getFrom() {
+        return from;
+    }
+
+    public SearchRequest setFrom(int from) {
+        this.from = from;
+        return this;
+    }
+
+
+
+    @Schema(name = "field selections",
+    description = "list of fields or property paths from search result summary to return ",
+    example = "name, iri, entityType.@id")
+    public List<String> getSelect() {
+        return select;
+    }
+
+    public SearchRequest setSelect(List<String> select) {
+        this.select = select;
+        return this;
+    }
+
+    public SearchRequest addSelect(String select){
+        this.select.add(select);
+        return this;
+    }
+
+    @Schema(name = "is a  filter",
+      description = "List of IRIs that must be supertypes of the matches",
+      example = "Encounter record")
+    public List<String> getIsA() {
+        return isA;
+    }
+
+    public SearchRequest setIsA(List<String> isA) {
+        this.isA = isA;
+        return this;
+    }
 
     @Schema(name = "Term filter",
         description = "Plain text, space separated list of terms",
@@ -70,17 +115,7 @@ public class SearchRequest {
         return this;
     }
 
-    @Schema(name = "SetModel subtype filter",
-        description = "List of IRI's of which the entity must be a descendant",
-        example = "['http://endhealth.info/im#DiscoveryOntology']")
-    public List<String> getDescendentFilter() {
-        return descendentFilter;
-    }
 
-    public SearchRequest setDescendentFilter(List<String> descendentFilter) {
-        this.descendentFilter = descendentFilter;
-        return this;
-    }
 
     @Schema(name = "SetModel inheritance filter",
         description = "Marks the results if they are descendants of any of these entities, but does not filter by them",
@@ -126,4 +161,6 @@ public class SearchRequest {
         this.index = index;
         return this;
     }
+
+
 }

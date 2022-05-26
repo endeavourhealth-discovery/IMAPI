@@ -4,7 +4,6 @@ import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
@@ -256,13 +255,15 @@ public class EntityRepository {
         return result;
     }
 
-    public List<TTIriRef> findEntitiesByName(String name) {
-        List<TTIriRef> result = new ArrayList<>();
+    public List<TTEntity> findEntitiesByName(String name) {
+        List<TTEntity> result = new ArrayList<>();
 
         String spql = new StringJoiner(System.lineSeparator())
                 .add("select *")
                 .add("where {")
-                .add("  ?s rdfs:label ?name")
+                .add("  ?s rdfs:label ?name ;")
+                .add("  rdf:type ?type .")
+                .add("  ?type rdfs:label ?typeName .")
                 .add("}")
                 .toString();
 
@@ -272,13 +273,24 @@ public class EntityRepository {
             try (TupleQueryResult rs = qry.evaluate()) {
                 while(rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), name));
+                    Optional<TTEntity> optionalEntity= result.stream()
+                            .filter(entity -> bs.getValue("s").stringValue().equals(entity.getIri()))
+                            .findAny();
+                    if(optionalEntity.isEmpty()) {
+                        TTEntity entity = new TTEntity()
+                                .setIri(bs.getValue("s").stringValue())
+                                .setName(bs.getValue("name").stringValue())
+                                .addType(new TTIriRef(bs.getValue("type").stringValue(), bs.getValue("typeName").stringValue()));
+                        result.add(entity);
+                    } else {
+                        optionalEntity.get().addType(new TTIriRef(bs.getValue("type").stringValue(), bs.getValue("typeName").stringValue()));
+                    }
+
                 }
             }
         }
 
         return result;
-
     }
 
     public List<ParentDto> findParentHierarchies(String iri) {
@@ -302,6 +314,23 @@ public class EntityRepository {
             }
         }
 
+        return result;
+    }
+
+    public Boolean iriExists(String iri) {
+        Boolean result = false;
+
+        String spql = new StringJoiner(System.lineSeparator()).add("SELECT * WHERE { ?s ?p ?o.} limit 1").toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, spql);
+            qry.setBinding("s", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if(rs.hasNext()) {
+                    result = true;
+                }
+            }
+        }
         return result;
     }
 }

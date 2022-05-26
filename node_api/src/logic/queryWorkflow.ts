@@ -1,13 +1,10 @@
-import { Match } from './../model/sets/Match';
 import { DataSet } from '../model/sets/DataSet';
-import TTEntity from '../model/tripletree/TTEntity';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
 import { TextGenerator } from "../model/text";
-import { OntologyUtils, ManipulationUtils, SparqlSnippets } from '../helpers/query'
+import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
-import { IM, RDF, RDFS } from "../vocabulary"
 
 
 import _ from "lodash";

@@ -17,11 +17,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.service.FilerService;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -34,6 +36,8 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -42,6 +46,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("api/entity")
@@ -53,6 +59,7 @@ public class EntityController {
 
     private final EntityService entityService = new EntityService();
 	private final ConfigManager configManager = new ConfigManager();
+	private final RequestObjectService reqObjService = new RequestObjectService();
 
 	private static final String ATTACHMENT = "attachment;filename=\"";
 
@@ -61,7 +68,7 @@ public class EntityController {
         summary = "Advanced entity search",
         description = "Performs an advanced entity search with multiple filter options"
 	)
-	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException {
+	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("advancedSearch");
 			return entityService.advancedSearch(request);
 
@@ -116,8 +123,26 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-        return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
+		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri()), 0).getEntity();
+		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK);
+        return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
+
+	@GetMapping(value = "/public/childrenAndTotalCount")
+	public Pageable<TTIriRef> getEntityChildrenAndTotalCount(@RequestParam(name = "iri") String iri,
+															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+															 @RequestParam(name = "page", required = false) Integer page,
+															 @RequestParam(name = "size", required = false) Integer size) {
+		LOG.debug("getEntityChildrenAndTotalCount");
+		if (page == null && size == null) {
+			page = 1;
+			size = 10;
+		}
+		return entityService.getImmediateChildrenWithCount(iri, schemeIris, page, size, false);
+	}
+
+
+
 
 	@GetMapping("/public/exportConcept")
 	public HttpEntity<Object> exportConcept(@RequestParam String iri, @RequestParam String format) throws JsonProcessingException {
@@ -293,12 +318,20 @@ public class EntityController {
             new TTIriRef(":1911000252103", "Transfer event")));
 	}
 
-	@PostMapping
-	@PreAuthorize("isAuthenticated()")
-	public TTEntity createEntity(@RequestBody EntityDefinitionDto entityDto) {
+	@PostMapping(value = "/create")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
-//    	TODO convert entityDto to entity and save
-		return new TTEntity();
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.createEntity(entity, agentName);
+	}
+
+	@PostMapping(value = "/update")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
+		LOG.debug("updateEntity");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.updateEntity(entity, agentName);
 	}
 
 	@GetMapping(value = "/public/graph")
@@ -393,15 +426,27 @@ public class EntityController {
     }
 	
 	@GetMapping("/public/unassigned")
-	public List<UnassignedEntity> getUnassigned() {
+	public List<TTIriRef> getUnassigned() {
 		LOG.debug("getUnassigned");
 		return entityService.getUnassigned();
 	}
 
+	@GetMapping("/public/unmapped")
+	public List<TTIriRef> getUnmapped() {
+		LOG.debug("getUnmapped");
+		return entityService.getUnmapped();
+	}
+
+	@GetMapping("/public/unclassified")
+	public List<TTIriRef> getUnclassified() {
+		LOG.debug("getUnclassified");
+		return entityService.getUnclassified();
+	}
+
 	@GetMapping("/public/mappingSuggestions")
-	public List<TTIriRef> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+	public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("getMappingSuggestions");
-		return entityService.getMappingSuggestions(iri, name);
+		return entityService.advancedSearch(request);
 	}
 
     @PostMapping("/public/getNames")
@@ -419,5 +464,43 @@ public class EntityController {
 	public List<TTIriRef> getShortestPathBetweenNodes(@RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
 		LOG.debug("getShortestPathBetweenNodes");
 		return entityService.getShortestPathBetweenNodes(ancestor, descendant);
+	}
+
+	@GetMapping("/public/iriExists")
+	public Boolean iriExists(@RequestParam(name = "iri") String iri) {
+		LOG.debug("iriExists");
+		return entityService.iriExists(iri);
+	}
+
+	@PostMapping("/task")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
+		LOG.debug("createTask");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.saveTask(entity, agentName);
+	}
+
+	@GetMapping("/task/action")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri, HttpServletRequest request) throws Exception {
+		LOG.debug("addTaskAction");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.addConceptToTask(entityIri, taskIri, agentName);
+	}
+
+	@DeleteMapping("/task/action")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri, HttpServletRequest request) throws Exception {
+		LOG.debug("removeTaskAction");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.removeConceptFromTask(taskIri, removedActionIri, agentName);
+	}
+
+	@PostMapping("/mapping")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings, HttpServletRequest request) throws Exception {
+		LOG.debug("addMapping");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.saveMapping(mappings, agentName);
 	}
 }

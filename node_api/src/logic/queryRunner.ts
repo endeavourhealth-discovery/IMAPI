@@ -1,16 +1,16 @@
 import {MysqlService} from "../services/mysql.service";
 import {GraphdbService, iri} from "../services/graphdb.service";
-import {getField, getJoin, getTable} from "./dataModelMap";
 import {DataSet} from "../model/sets/DataSet";
-import {Match} from "../model/sets/Match";
 import {Sql} from "../model/sql/Sql";
 import {Table} from "../model/sql/Table";
 import {Join} from "../model/sql/Join";
 import {SimpleCondition} from "../model/sql/SimpleCondition";
 import {ConditionList} from "../model/sql/ConditionList";
-import {TTIri} from '../model/tripletree/TTIri';
 import {Condition} from '../model/sql/Condition';
 import {Argument} from '../model/sets/Argument';
+import {Filter} from '../model/sets/Filter';
+import {Select} from '../model/sets/Select';
+import {TTIriRef} from '../model/tripletree/TTIriRef';
 
 export default class QueryRunner {
   private mysql: MysqlService;
@@ -22,27 +22,42 @@ export default class QueryRunner {
     this.graph = new GraphdbService();
   }
 
-  public async runQuery(queryIri: string): Promise<any> {
+  public async runQuery(queryIri: string): Promise<any[]> {
     try {
       const definition: DataSet = await this.getDefinition(queryIri);
 
-/*      console.log("===== DEFINITION =================================================")
-      console.log(JSON.stringify(definition.match, null, 2));
-      console.log("==================================================================")*/
-
-      this.generateSql(definition.match);
+      this.generateSql(definition);
 /*      console.log("===== SQL ========================================================")
       console.log(JSON.stringify(this.sql, null, 2));
       console.log("==================================================================")*/
 
-      console.log(this.sql.toString());
+      console.log("DROPPING: " + this.sql.toDrop());
+      await this.mysql.execute(this.sql.toDrop());
 
+      // const refDate = new Date().toISOString().replace("T", " ").replace("Z", "");
+      const refDate = '2002-09-06 00:00:00';                                    // TODO: Specific date valid for test data
 
-      // return await this.mysql.test();
+      let sqlString: string = this.sql.toCreate();
+      sqlString = sqlString.replace(/\$ReferenceDate/g, refDate);
+      sqlString = sqlString.replace(/\$referenceDate/g, '"' + refDate + '"');   // TODO: Case within query definitions!?
+      console.log("CREATING: " + sqlString);
+      await this.mysql.execute(sqlString);
+
+      console.log("SELECTING: " + this.sql.toSelect());
+      const result = await this.mysql.execute(this.sql.toSelect());
+
+      console.log(result.length + " rows");
+
+      for(const r of result) {
+        console.log(r);
+      }
+
+      return result;
+
     } catch (e) {
       console.error("***** ERROR!!");
       console.log(e);
-      return {};
+      return [];
     }
   }
 
@@ -58,120 +73,180 @@ export default class QueryRunner {
     if (rs.length != 1)
       return { } as DataSet;
 
-    return JSON.parse(rs[0].def);
+     console.log("===== DEFINITION =================================================")
+     console.log(JSON.stringify(rs[0].def, null, 2));
+     console.log("==================================================================")
+
+    return rs[0].def;
   }
 
+  private generateSql(dataset: DataSet): void {
+    this.sql = new Sql(dataset['@id']);
+    this.sql.table = this.sql.getTable(dataset.select.entityType["@id"], "m");
 
-
-
-  private generateSql(match: Match): void {
-    this.sql = new Sql();
-    this.sql.table = getTable(match.entityType["@id"], "m");
-
-    this.processMatch(this.sql.table, this.sql.conditions, match);
+    this.processSelect(dataset.select);
   }
 
-  private processMatch(table: Table, conditions: Condition[], match: Match) {
-    if (match.valueObject) {
-      this.processValueObject(table, match.property["@id"], match.valueObject);
-    } else if (match.subsetOf) {
-      for (const s of match.subsetOf)
+  private processSelect(select: Select) {
+    this.processFilter(this.sql.table, this.sql.conditions, select.filter);
+  }
+
+  private processFilter(table: Table, conditions: Condition[], filter: Filter) {
+    if (filter.valueConcept) {
+      this.processValueConcept(table, conditions, filter);
+    } else if (filter.valueObject) {
+      this.processValueObject(table, filter.property["@id"], filter.valueObject);
+    } else if (filter.subsetOf) {
+      for (const s of filter.subsetOf)
         this.processSubsetOf(table, s);
-    } else if (match.valueIn) {
-      this.processValueIn(table, conditions, match);
-    } else if (match.valueCompare) {
-      this.processValueCompare(table, conditions, match);
-    } else if (match.notExist) {
-      this.processNotExist(table, conditions, match);
-    } else if (match.valueVar || match.and || match.or) {
+    } else if (filter.valueIn) {
+      this.processValueIn(table, conditions, filter);
+    } else if (filter.valueCompare) {
+      this.processValueCompare(table, conditions, filter);
+    } else if (filter.notExist) {
+      this.processNotExist(table, conditions, filter);
+    } else if (filter.valueVar || filter.and || filter.or) {
       // Globally handled (below)
     } else {
-      console.error("Unknown/no match type\n" + JSON.stringify(match, null, 2));
+      console.error("Unknown/no filter type\n" + JSON.stringify(filter, null, 2));
     }
 
-    if (match.valueVar)
-      this.sql.fields.push(this.getSubject(table, match) + " AS " + match.valueVar);
+    if (filter.valueVar)
+      this.sql.fields.push(this.getSubject(table, filter) + " AS " + filter.valueVar);
 
-    if (match.and)
-      this.getMatches(table, conditions, match.and, "AND");
+    if (filter.and)
+      this.getFilters(table, conditions, filter.and, "AND");
 
-    if (match.or)
-      this.getMatches(table, conditions, match.or, "OR");
+    if (filter.or)
+      this.getFilters(table, conditions, filter.or, "OR");
   }
 
-  private processValueIn(table: Table, conditions: Condition[], match: Match) {
-    const c = new SimpleCondition();
-    conditions.push(c);
-    c.subject = getField(table, match.property['@id'])
+  private processValueConcept(table: Table, conditions: Condition[], filter: Filter) {
+    // Direct comparison to a concept (list)
 
-    // TODO: Need to translate from IRIs to (v1) DBIDs
-    c.predicate = 'IN'
-    c.object = '(';
-    match.valueIn.forEach(v => {
-      c.object += '\n"' + v['@id'] + '"';
-    });
-    c.object += ')';
-  }
-
-  private processValueObject(parentTable: Table, propertyId: string, match: Match) {
-    const join: Join = getJoin(parentTable, propertyId, match.entityType["@id"], "t" + this.sql.joins.length);
-    this.sql.joins.push(join);
-
-    this.processMatch(join.table, join.conditions, match);
-  }
-
-  private processSubsetOf(parentTable: Table, queryIri: TTIri) {
     const join: Join = new Join();
-    join.table = getTable(queryIri['@id'], "t" + this.sql.joins.length);
-    join.on = getField(parentTable, "pk") + " = " + getField(join.table, "pk");
+    join.table = this.sql.getTable("http://endhealth.info/im#conceptTct", "t" + this.sql.joins.length);
+    if (filter.valueConcept.length == 1) {
+      join.on = this.sql.getField(join.table, "iri") + " = '" + filter.valueConcept[0]['@id'] + "'";
+    } else {
+      join.on = this.sql.getField(join.table, "iri") + " IN (" + JSON.stringify(filter.valueConcept) + ")";
+    }
+    this.sql.joins.splice(this.sql.joins.length-1, 0, join);
+
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = this.getSubject(table, filter);
+    c.predicate = " = ";
+    c.object = this.sql.getField(join.table, "child");
+
+  }
+
+  private processValueIn(table: Table, conditions: Condition[], filter: Filter) {
+    if (filter.property['@id'] == "http://endhealth.info/im#inResultSet") {
+      const join: Join = new Join();
+      join.table = this.sql.getTable(filter.valueIn[0]['@id'], "t" + this.sql.joins.length);
+      join.on = this.sql.getField(table, "pk") + " = " + this.sql.getField(join.table, "pk");
+
+      this.sql.joins.push(join);
+    } else if (filter.property['@id'] == "http://endhealth.info/im#concept") {
+      let vs: Join = new Join();
+      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+      vs.on = this.sql.getField(vs.table, "iri") + " = '" + filter.valueIn[0]['@id'] + "'";
+      this.sql.joins.push(vs);
+
+      let vsm: Join = new Join();
+      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+      vsm.on = this.sql.getField(vsm.table, "value_set") + " = " + this.sql.getField(vs.table, "pk") + " AND " + this.sql.getField(table, "http://endhealth.info/im#concept") + " = " + this.sql.getField(vsm.table, "member");
+      this.sql.joins.push(vsm);
+    } else if (filter.property['@id'] == "http://endhealth.info/im#code") {
+      let vs: Join = new Join();
+      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+      vs.on = this.sql.getField(vs.table, "iri") + " = '" + filter.valueIn[0]['@id'] + "'";
+      this.sql.joins.push(vs);
+
+      let vsm: Join = new Join();
+      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+      vsm.on = this.sql.getField(vsm.table, "value_set") + " = " + this.sql.getField(vs.table, "pk") + " AND " + this.sql.getField(table, "http://endhealth.info/im#concept") + " = " + this.sql.getField(vsm.table, "member");
+      this.sql.joins.push(vsm);
+
+    } else
+      throw "Unknown 'Value In' predicate [" + filter.property['@id'] + "]";
+
+  }
+
+  private processValueObject(parentTable: Table, propertyId: string, filter: Filter) {
+    const join: Join = this.sql.getJoin(parentTable, propertyId, filter.entityType["@id"], "t" + this.sql.joins.length);
+    this.sql.joins.push(join);
+
+    this.processFilter(join.table, join.conditions, filter);
+  }
+
+  private processSubsetOf(parentTable: Table, queryIri: TTIriRef) {
+    const join: Join = new Join();
+    join.table = this.sql.getTable(queryIri['@id'], "t" + this.sql.joins.length);
+    join.on = this.sql.getField(parentTable, "pk") + " = " + this.sql.getField(join.table, "pk");
 
     this.sql.joins.push(join);
   }
 
-  private processValueCompare(table: Table, conditions: Condition[], match: Match) {
+  private processValueCompare(table: Table, conditions: Condition[], filter: Filter) {
     const c = new SimpleCondition();
     conditions.push(c);
-    c.subject = this.getSubject(table, match);
-    c.predicate = this.getComparison(match.valueCompare.comparison);
-    c.object = match.valueCompare.valueData;
+    c.subject = this.getSubject(table, filter);
+    c.predicate = this.getComparison(filter.valueCompare.comparison);
+    c.object = "'" + filter.valueCompare.valueData + "'";
   }
 
-  private processNotExist(table: Table, conditions: Condition[], match: Match) {
+  private processNotExist(table: Table, conditions: Condition[], filter: Filter) {
     const c = new SimpleCondition();
     conditions.push(c);
-    c.subject = this.getSubject(table, match);
+    c.subject = this.getSubject(table, filter);
     c.predicate = 'IS'
     c.object = 'NULL';
   }
 
-  private getMatches(table: Table, conditions: Condition[], matches:Match[], operator: string) {
+  private getFilters(table: Table, conditions: Condition[], filters:Filter[], operator: string) {
     const result: ConditionList = new ConditionList();
-    conditions.push(result);
     result.operator = operator;
 
-    for(const match of matches) {
-      this.processMatch(table, result.conditions, match);
+    for(const filter of filters) {
+      this.processFilter(table, result.conditions, filter);
+    }
+
+    if (result.conditions.length == 0) {
+      console.log("================== FILTERS =======================");
+      console.log(JSON.stringify(filters, null, 2));
+      console.log("================== CONDITIONS =======================");
+      console.log(JSON.stringify(result, null, 2));
+      console.error("No filters found!");
+    } else {
+      conditions.push(result);
     }
 
     return result;
   }
 
 
-  private getSubject(table: Table, match: Match): string {
-    if (match.function)
-      return this.getFunction(table, match);
+  private getSubject(table: Table, filter: Filter): string {
+    if (filter.function)
+      return this.getFunction(table, filter);
     else
-      return getField(table, match.property['@id']);
+      return this.sql.getField(table, filter.property['@id']);
   }
 
-  private getFunction(table: Table, match: Match): string {
-    const fn = match.function.id['@id'];
+  private getFunction(table: Table, filter: Filter): string {
+    const fn = filter.function.id['@id'];
 
     if (fn === "http://endhealth.info/im#AgeFunction") {
       return "TIMESTAMPDIFF("
-        + this.getArgument(match.function.argument, "units") + ", "
-        + getField(table, match.property['@id']) + ", "
-        + this.getArgument(match.function.argument, "referenceDate") + ")";
+        + this.getArgument(filter.function.argument, "units") + ", "
+        + this.sql.getField(table, filter.property['@id']) + ", "
+        + this.getArgument(filter.function.argument, "referenceDate") + ")";
+    } else if (fn === "http://endhealth.info/im#TimeDifference") {
+      return "TIMESTAMPDIFF("
+        + this.getArgument(filter.function.argument, "units") + ", "
+        + this.getArgument(filter.function.argument, "firstDate") + ", "
+        + this.getArgument(filter.function.argument, "secondDate") + ")";
     } else {
       throw "Unknown function [" + fn + "]";
     }

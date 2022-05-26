@@ -20,10 +20,13 @@ public class ConceptRef extends TTIriRef{
 		return new ConceptRef(iri);
 	}
 
+	public static ConceptRef iri(TTIriRef iri) {
+		return new ConceptRef(iri.getIri(),iri.getName());
+	}
+
 	public static ConceptRef iri(String iri, String name) {
 		return new ConceptRef(iri, name);
 	}
-
 
 
 

@@ -8,5 +8,6 @@ public enum Comparison {
 	GREATER_THAN_OR_EQUAL,
 	MEMBER_OF,
 	NOT_EQUAL,
-	STARTS_WITH
+	STARTS_WITH,
+	LIKE
 }

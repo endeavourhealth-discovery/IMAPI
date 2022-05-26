@@ -37,6 +37,7 @@ import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -122,7 +123,9 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-        return entityService.getImmediateChildren(iri, schemeIris, page, size, false);
+		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri()), 0).getEntity();
+		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK);
+        return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 
 	@GetMapping(value = "/public/childrenAndTotalCount")
@@ -423,15 +426,27 @@ public class EntityController {
     }
 	
 	@GetMapping("/public/unassigned")
-	public List<UnassignedEntity> getUnassigned() {
+	public List<TTIriRef> getUnassigned() {
 		LOG.debug("getUnassigned");
 		return entityService.getUnassigned();
 	}
 
+	@GetMapping("/public/unmapped")
+	public List<TTIriRef> getUnmapped() {
+		LOG.debug("getUnmapped");
+		return entityService.getUnmapped();
+	}
+
+	@GetMapping("/public/unclassified")
+	public List<TTIriRef> getUnclassified() {
+		LOG.debug("getUnclassified");
+		return entityService.getUnclassified();
+	}
+
 	@GetMapping("/public/mappingSuggestions")
-	public List<TTIriRef> getMappingSuggestions(@RequestParam(name = "iri") String iri, @RequestParam(name = "name") String name) {
+	public List<SearchResultSummary> getMappingSuggestions(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("getMappingSuggestions");
-		return entityService.getMappingSuggestions(iri, name);
+		return entityService.advancedSearch(request);
 	}
 
     @PostMapping("/public/getNames")
@@ -455,5 +470,37 @@ public class EntityController {
 	public Boolean iriExists(@RequestParam(name = "iri") String iri) {
 		LOG.debug("iriExists");
 		return entityService.iriExists(iri);
+	}
+
+	@PostMapping("/task")
+	@PreAuthorize("isAuthenticated()")
+	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
+		LOG.debug("createTask");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.saveTask(entity, agentName);
+	}
+
+	@GetMapping("/task/action")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri, HttpServletRequest request) throws Exception {
+		LOG.debug("addTaskAction");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.addConceptToTask(entityIri, taskIri, agentName);
+	}
+
+	@DeleteMapping("/task/action")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri, HttpServletRequest request) throws Exception {
+		LOG.debug("removeTaskAction");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.removeConceptFromTask(taskIri, removedActionIri, agentName);
+	}
+
+	@PostMapping("/mapping")
+	@PreAuthorize("hasAuthority('IMAdmin')")
+	public List<TTEntity> addMapping(@RequestBody Map<String, List<String>> mappings, HttpServletRequest request) throws Exception {
+		LOG.debug("addMapping");
+		String agentName = reqObjService.getRequestAgentName(request);
+		return entityService.saveMapping(mappings, agentName);
 	}
 }

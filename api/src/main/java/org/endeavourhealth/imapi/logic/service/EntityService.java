@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.filer.TTTransactionFiler;
+import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -82,7 +84,6 @@ public class EntityService {
 
     public List<EntityReferenceNode> getImmediateChildren(String iri, List<String> schemeIris, Integer pageIndex, Integer pageSize,
                                                           boolean inactive) {
-
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
 
@@ -111,7 +112,7 @@ public class EntityService {
         if (page != null && size != null)
             rowNumber = (page - 1) * 10;
 
-        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris,rowNumber, size, inactive);
+        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris, rowNumber, size, inactive);
     }
 
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
@@ -259,9 +260,9 @@ public class EntityService {
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
-                if(direct){
+                if (direct) {
                     included.setType(MemberType.INCLUDED_SELF);
-                }else{
+                } else {
                     included.setType(MemberType.INCLUDED_DESC);
                 }
             } else {
@@ -284,7 +285,7 @@ public class EntityService {
 
         TTBundle bundle = getBundle(iri, predicates, UNLIMITED);
         TTArray result;
-        if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
+        if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
             result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
             direct = true;
         } else {
@@ -297,10 +298,9 @@ public class EntityService {
             else if (result.isNode())
                 members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
             else {
-                if(direct){
+                if (direct) {
                     members.add(getValueSetMemberFromArray(result, withHyperlinks));
-                }
-                else{
+                } else {
                     for (TTValue element : result.iterator()) {
                         if (element.isNode()) {
                             members.add(getValueSetMemberFromNode(element, withHyperlinks));
@@ -886,25 +886,42 @@ public class EntityService {
         return entityRepository.getPathBetweenNodes(descendant, ancestor);
     }
 
-    public List<UnassignedEntity> getUnassigned() {
-        List<UnassignedEntity> unassignedList = new ArrayList<>();
-        for (TTIriRef unassigned : entityRepository2.findUnassigned()) {
-            unassignedList.add(new UnassignedEntity().setIri(unassigned.getIri()).setName(unassigned.getName()).setSuggestions(new ArrayList<>()));
+    public List<TTIriRef> getUnassigned() {
+        List<TTIriRef> unassignedList = new ArrayList<>();
+        for (TTIriRef unmapped : entityRepository2.findUnassigned()) {
+            unassignedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
         }
         return unassignedList;
     }
 
-    public List<TTIriRef> getMappingSuggestions(String iri, String name) {
-        List<TTIriRef> iriRefs = entityRepository.findEntitiesByName(name);
-        iriRefs.removeIf(iriRef -> iriRef.getIri().equals(iri));
-        return iriRefs;
+    public List<TTIriRef> getUnmapped() {
+        List<TTIriRef> unmappedList = new ArrayList<>();
+        for (TTIriRef unmapped : entityRepository2.findUnmapped()) {
+            unmappedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
+        }
+        return unmappedList;
+    }
+
+    public List<TTIriRef> getUnclassified() {
+        List<TTIriRef> unclassifiedList = new ArrayList<>();
+        for (TTIriRef unmapped : entityRepository2.findUnclassified()) {
+            unclassifiedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
+        }
+        return unclassifiedList;
+    }
+
+    public List<TTEntity> getMappingSuggestions(String iri, String name) {
+        List<TTEntity> suggestions = entityRepository.findEntitiesByName(name);
+        suggestions.removeIf(iriRef -> iriRef.getIri().equals(iri));
+        return suggestions;
     }
 
     public Set<TTIriRef> getNames(Set<String> iris) {
         Set<TTIriRef> result = iris.stream().map(TTIriRef::new).collect(Collectors.toSet());
         entityRepository2.getNames(result);
         return result;
-}
+    }
+
     public List<List<TTIriRef>> getParentHierarchies(String iri) {
         ParentDto parentHierarchy = new ParentDto(iri, null, null);
         addParentHierarchiesRecursively(parentHierarchy);
@@ -922,7 +939,7 @@ public class EntityService {
         if (parent != null && parent.hasMultipleParents()) {
             parentHierarchies.remove(currentPath);
             for (ParentDto parentsParent : parent.getParents()) {
-                List<TTIriRef> path =  new ArrayList<>(currentPath);
+                List<TTIriRef> path = new ArrayList<>(currentPath);
                 path.add(new TTIriRef(parentsParent.getIri(), parentsParent.getName()));
                 parentHierarchies.add(path);
                 addParentHierarchiesRecursively(parentHierarchies, path, parentsParent);
@@ -1001,6 +1018,49 @@ public class EntityService {
         entity.setVersion(usedEntity.getVersion() + 1);
         filerService.fileEntity(entity, graph, agentName, usedEntity);
         return entity;
+    }
+
+    public TTEntity saveTask(TTEntity entity, String agentName) throws Exception {
+        entity.addType(IM.TASK)
+                .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
+        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
+        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
+    }
+
+    public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
+        TTEntity entity = getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
+        if (entity.get(IM.IN_TASK) == null) {
+            entity.set(IM.IN_TASK, new TTArray());
+        }
+        entity.get(IM.IN_TASK).add(iri(taskIri));
+        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
+        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
+    }
+
+
+    public TTEntity removeConceptFromTask(String taskIri, String removedActionIri, String agentName) throws Exception {
+        TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null, EntityService.UNLIMITED).getEntity();
+        entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
+        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
+        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
+    }
+
+    public List<TTEntity> saveMapping(Map<String, List<String>> mappings, String agentName) throws Exception {
+        List<TTEntity> result = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
+            TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
+            if (entity.has(IM.HAS_STATUS)) {
+                entity.get(IM.HAS_STATUS).remove(IM.UNASSIGNED);
+            }
+            entity.set(IM.MATCHED_TO, new TTArray());
+            for (String iri : entry.getValue()) {
+                entity.get(IM.MATCHED_TO).add(iri(iri));
+            }
+            filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
+            result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());
+        }
+
+        return result;
     }
 }
 

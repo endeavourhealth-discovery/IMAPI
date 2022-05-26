@@ -88,7 +88,7 @@ public class EntityController {
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
-		return entityService.getEntityByPredicateExclusions(iri, null).getEntity();
+		return entityService.getEntityByPredicateExclusions(iri, null, EntityService.UNLIMITED).getEntity();
 	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
@@ -538,6 +538,6 @@ public class EntityController {
 			@RequestParam(name = "predicates") Set<String> predicates)
 	{
 		LOG.debug("getEntityByPredicateExclusions");
-		return entityService.getEntityByPredicateExclusions(iri,predicates);
+		return entityService.getEntityByPredicateExclusions(iri,predicates, EntityService.UNLIMITED);
 	}
 }

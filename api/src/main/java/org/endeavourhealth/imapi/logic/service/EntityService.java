@@ -64,7 +64,7 @@ public class EntityService {
         return entityRepository2.getBundle(iri, predicates);
     }
 
-    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates) {
+    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
         if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
@@ -778,7 +778,7 @@ public class EntityService {
             predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri(), IM.HAS_MEMBER.getIri()));
         }
 
-        return getEntityByPredicateExclusions(iri, predicates);
+        return getEntityByPredicateExclusions(iri, predicates, EntityService.UNLIMITED);
     }
 
     public TTDocument getConcept(String iri) {

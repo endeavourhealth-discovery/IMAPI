@@ -61,7 +61,7 @@ public class EntityService {
         return entityRepository2.getBundle(iri, predicates);
     }
 
-    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
+    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
         if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
@@ -124,7 +124,7 @@ public class EntityService {
         return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
     }
 
-    public ExportValueSet getMembersWithTotalCount(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    public ExportValueSet getHasMember(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
 
         List<TTIriRef> hasMembers = getPartialWithTotalCount(iri,predicateList, schemeIris,page, size, inactive).getResult();
         TTArray array = new TTArray();
@@ -767,16 +767,17 @@ public class EntityService {
         try {
             predicates = configManager.getConfig(CONFIG.INFERRED_EXCLUDE_PREDICATES, new TypeReference<>() {
             });
+            predicates.add(IM.HAS_MEMBER.getIri());
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);
         }
 
         if (predicates == null) {
             LOG.warn("Config for inferredPredicates not set, reverting to default");
-            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri()));
+            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri(), IM.HAS_MEMBER.getIri()));
         }
 
-        return getEntityByPredicateExclusions(iri, predicates, UNLIMITED);
+        return getEntityByPredicateExclusions(iri, predicates);
     }
 
     public TTDocument getConcept(String iri) {

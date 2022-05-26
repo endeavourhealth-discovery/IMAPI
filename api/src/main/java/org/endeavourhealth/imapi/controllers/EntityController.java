@@ -83,7 +83,7 @@ public class EntityController {
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
-		return entityService.getEntityByPredicateExclusions(iri, null, EntityService.UNLIMITED).getEntity();
+		return entityService.getEntityByPredicateExclusions(iri, null).getEntity();
 	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
@@ -134,18 +134,18 @@ public class EntityController {
 		return entityService.getImmediateChildrenWithCount(iri, schemeIris, page, size, false);
 	}
 
-	@GetMapping(value = "/public/membersAndTotalCount")
-	public ExportValueSet getMembersAndTotalCount(@RequestParam(name = "iri") String iri,
+	@GetMapping(value = "/public/hasMember")
+	public ExportValueSet getHasMember(@RequestParam(name = "iri") String iri,
 												  @RequestParam(name = "predicate") String predicateIri,
 												  @RequestParam(name = "page", required = false) Integer page,
 												  @RequestParam(name = "size", required = false) Integer size,
 												  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris) {
-		LOG.debug("getMembersAndTotalCount");
+		LOG.debug("getHasMember");
 		if (page == null && size == null) {
 			page = 1;
 			size = 10;
 		}
-		return entityService.getMembersWithTotalCount(iri,predicateIri, schemeIris, page, size, false);
+		return entityService.getHasMember(iri,predicateIri, schemeIris, page, size, false);
 	}
 
 	@GetMapping(value = "/public/partialAndTotalCount")
@@ -478,4 +478,16 @@ public class EntityController {
 		LOG.debug("iriExists");
 		return entityService.iriExists(iri);
 	}
+
+	@GetMapping("/public/entityByPredicatesExclusions")
+	public TTBundle getEntityByPredicateExclusions(
+			@RequestParam(name = "iri") String iri,
+			@RequestParam(name = "predicates") Set<String> predicates)
+	{
+		LOG.debug("getEntityByPredicateExclusions");
+		return entityService.getEntityByPredicateExclusions(iri,predicates);
+	}
+
+
+
 }

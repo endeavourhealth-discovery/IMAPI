@@ -7,6 +7,8 @@ export default class ManipulationUtils {
 
     //required in case JSON defintition contains illegal characters
     public static escapeCharacters = (str: string) => {
+        console.log("str", str);
+        console.log("t", typeof(str));
         return str
             .replace(/[\n]/g, '\\n')
         // .replace(/[\\]/g, '\\\\')

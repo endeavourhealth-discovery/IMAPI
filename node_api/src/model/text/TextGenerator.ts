@@ -71,7 +71,7 @@ export class TextGenerator {
     }
 
 
-    public static summariseProperty(clause: any, currentPath?: string, lastItem?: boolean): any[] {
+    public static summariseProperty(clause: any, currentPath?: string, isLastItem?: boolean): any[] {
 
         clause = new Clause(clause)
         let { and, or, are, have, property, propertyId, valueCompare, valueFunction, valueFunctionId, comparison, valueData, valueIn0, valueNotIn0, valueConcept0, entity, test, orderById, sortLimit, count, sortDirection, testValueIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
@@ -80,7 +80,7 @@ export class TextGenerator {
 
         have = currentPath && (currentPath.startsWith("valueObject") || currentPath.startsWith("test")) ? null : have;
 
-        let commaOrSemiColon = lastItem == false ? "," : ";";
+        let commaOrSemiColon = isLastItem == false ? "," : ";";
 
         if (propertyId == IM.IN_RESULT_SET && valueIn0?.name) {
             sentence = [are, property.name, valueIn0.name];

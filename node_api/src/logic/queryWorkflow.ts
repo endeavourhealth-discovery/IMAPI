@@ -46,7 +46,9 @@ export default class QueryWorkflow {
     const rs = await this.graph.execute(stmt);
     if (rs.length != 1) return {} as any | DataSet;
 
-    const definition = ManipulationUtils.escapeCharacters(rs[0].def);
+    let definition: any = rs[0].def
+    // definition = ManipulationUtils.escapeCharacters(definition);
+
     return JSON.parse(definition);
 
   }
@@ -87,6 +89,16 @@ export default class QueryWorkflow {
   }
 
 
+
+  //populates .name if missing in TTIriRef
+  public async getRichDefinition(queryIri: string): Promise<any> {
+
+    let definition: any = await this.getDefinition(queryIri);
+    definition = await this.populateDefinition(definition);
+    return definition;
+
+  }
+
   public async getMeta(iris: string[]) {
 
     if (Array.isArray(iris) && iris.length > 0) {
@@ -111,16 +123,6 @@ export default class QueryWorkflow {
       this.showConsole && console.log("No iri query parameter provided in GET requests");
       return {};
     }
-  }
-
-  //populates .name if missing in TTIriRef
-  public async getRichDefinition(queryIri: string): Promise<any> {
-
-
-    let definition: any = await this.getDefinition(queryIri);
-    definition = await this.populateDefinition(definition);
-    return definition;
-
   }
 
 

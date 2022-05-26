@@ -86,7 +86,7 @@ export class GraphdbService {
             }
             // console.log("binding[b]", binding[b])
             // console.log("v", v)
-            binding[b] = JSON.parse(v);
+            binding[b] = v;
           }
         }
 

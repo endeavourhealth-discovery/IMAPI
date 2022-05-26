@@ -81,14 +81,14 @@ public class EntityController {
         LOG.debug("getPartialEntity");
         if (limit == null)
             limit = EntityService.UNLIMITED;
-        return entityService.getBundle(iri, predicates, limit).getEntity();
+        return entityService.getBundle(iri, predicates).getEntity();
     }
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
-		return entityService.getEntityByPredicateExclusions(iri, null, EntityService.UNLIMITED).getEntity();
+		return entityService.getEntityByPredicateExclusions(iri, null).getEntity();
 	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
@@ -104,7 +104,7 @@ public class EntityController {
         LOG.debug("getPartialEntityBundle");
         if (limit == null)
             limit = EntityService.UNLIMITED;
-        return entityService.getBundle(iri, predicates, limit);
+        return entityService.getBundle(iri, predicates);
     }
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
@@ -123,7 +123,7 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri()), 0).getEntity();
+		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri())).getEntity();
 		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK);
         return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
@@ -538,6 +538,6 @@ public class EntityController {
 			@RequestParam(name = "predicates") Set<String> predicates)
 	{
 		LOG.debug("getEntityByPredicateExclusions");
-		return entityService.getEntityByPredicateExclusions(iri,predicates, EntityService.UNLIMITED);
+		return entityService.getEntityByPredicateExclusions(iri,predicates);
 	}
 }

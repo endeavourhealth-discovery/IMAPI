@@ -131,7 +131,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
 			LOG.info("Extracting " + relationship.getIri());
 		TupleQuery stmt;
-		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelection ?child ?parent\n" +
+		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelect ?child ?parent\n" +
 				"where {?child <" + relationship.getIri() + "> ?parent }\n");
 
 		try (TupleQueryResult rs = stmt.evaluate()) {
@@ -145,6 +145,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 						if (relationship.equals(SNOMED.REPLACED_BY)) {
 							Set<String> replacements = replacementMap.computeIfAbsent(parent, k -> new HashSet<>());
 							replacements.add(child);
+
 						}
 					}
 			}
@@ -185,6 +186,9 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 		// Add self
 		closures.add(child);
 		counter++;
+
+
+
 
 		Set<String> parents = parentMap.get(child);
 		if (parents != null) {

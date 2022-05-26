@@ -75,8 +75,11 @@ public class FileRepository {
 		 if (codeIds.get(scheme)==null){
 			 fetchCodeIds(scheme);
 		 }
-		 if (codeIds.get(scheme).get(codeId)!=null)
-			 return codeIds.get(scheme).get(codeId).stream().map(TTIriRef::iri).collect(Collectors.toSet());
+		 if (codeIds.get(scheme).get(codeId)!=null) {
+			 Set<TTIriRef> result= new HashSet<>();
+			 codeIds.get(scheme).get(codeId).forEach(c-> result.add(TTIriRef.iri(c)));
+			 return result;
+		 }
 	 }
 	 return null;
 	}

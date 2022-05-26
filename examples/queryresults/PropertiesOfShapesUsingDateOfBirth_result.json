@@ -1,14 +1,6 @@
 {
   "entities" : [ {
     "sh:property" : [ {
-      "sh:order" : [ "9" ],
-      "sh:path" : [ {
-        "@id" : [ "im:fullName" ]
-      } ],
-      "sh:datatype" : [ {
-        "@id" : [ "xsd:string" ]
-      } ]
-    }, {
       "sh:order" : [ "1" ],
       "sh:path" : [ {
         "@id" : [ "im:dataController" ]
@@ -33,6 +25,30 @@
         "@id" : [ "im:Event" ]
       } ]
     }, {
+      "sh:order" : [ "21" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPGMSRegistrationDate" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:gpGMSRegistrationDate" ]
+      } ]
+    }, {
+      "sh:order" : [ "14" ],
+      "sh:path" : [ {
+        "@id" : [ "im:residences" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Concept" ]
+      } ]
+    }, {
+      "sh:order" : [ "16" ],
+      "sh:path" : [ {
+        "@id" : [ "im:dateOfDeath" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ]
+    }, {
       "sh:order" : [ "3" ],
       "sh:path" : [ {
         "@id" : [ "im:hasSubject" ]
@@ -52,36 +68,20 @@
         "@id" : [ "im:Person" ]
       } ]
     }, {
-      "sh:order" : [ "14" ],
-      "sh:path" : [ {
-        "@id" : [ "im:residences" ]
-      } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
-      } ]
-    }, {
-      "sh:order" : [ "18" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:AgeFunction" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:age" ]
-      } ]
-    }, {
-      "sh:order" : [ "20" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPRegistrationStatus" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:gpRegistrationStatus" ]
-      } ]
-    }, {
       "sh:order" : [ "5" ],
       "sh:path" : [ {
         "@id" : [ "im:statedGender" ]
       } ],
       "sh:class" : [ {
         "@id" : [ "im:905011000252108" ]
+      } ]
+    }, {
+      "sh:order" : [ "19" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPRegistrationType" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:gpRegistrationType" ]
       } ]
     }, {
       "sh:order" : [ "15" ],
@@ -92,12 +92,12 @@
         "@id" : [ "xsd:string" ]
       } ]
     }, {
-      "sh:order" : [ "21" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPGMSRegistrationDate" ]
-      } ],
+      "sh:order" : [ "17" ],
       "sh:path" : [ {
-        "@id" : [ "im:gpGMSRegistrationDate" ]
+        "@id" : [ "im:nhsNumber" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
       } ]
     }, {
       "sh:order" : [ "6" ],
@@ -116,6 +116,30 @@
         "@id" : [ "im:Concept" ]
       } ]
     }, {
+      "sh:order" : [ "18" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:AgeFunction" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:age" ]
+      } ]
+    }, {
+      "sh:order" : [ "22" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPRegisteredPractice" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:gpRegisteredPractice" ]
+      } ]
+    }, {
+      "sh:order" : [ "20" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPRegistrationStatus" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:gpRegistrationStatus" ]
+      } ]
+    }, {
       "sh:order" : [ "8" ],
       "sh:path" : [ {
         "@id" : [ "im:ethnicity" ]
@@ -124,9 +148,25 @@
         "@id" : [ "im:Concept" ]
       } ]
     }, {
+      "sh:order" : [ "9" ],
+      "sh:path" : [ {
+        "@id" : [ "im:fullName" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ]
+    }, {
       "sh:order" : [ "10" ],
       "sh:path" : [ {
         "@id" : [ "im:language" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Concept" ]
+      } ]
+    }, {
+      "sh:order" : [ "11" ],
+      "sh:path" : [ {
+        "@id" : [ "im:mainResidence" ]
       } ],
       "sh:class" : [ {
         "@id" : [ "im:Concept" ]
@@ -140,52 +180,12 @@
         "@id" : [ "im:Concept" ]
       } ]
     }, {
-      "sh:order" : [ "17" ],
-      "sh:path" : [ {
-        "@id" : [ "im:nhsNumber" ]
-      } ],
-      "sh:datatype" : [ {
-        "@id" : [ "xsd:string" ]
-      } ]
-    }, {
-      "sh:order" : [ "19" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPRegistrationType" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:gpRegistrationType" ]
-      } ]
-    }, {
-      "sh:order" : [ "11" ],
-      "sh:path" : [ {
-        "@id" : [ "im:mainResidence" ]
-      } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
-      } ]
-    }, {
-      "sh:order" : [ "16" ],
-      "sh:path" : [ {
-        "@id" : [ "im:dateOfDeath" ]
-      } ],
-      "sh:datatype" : [ {
-        "@id" : [ "xsd:string" ]
-      } ]
-    }, {
       "sh:order" : [ "13" ],
       "sh:path" : [ {
         "@id" : [ "im:relatedPersons" ]
       } ],
       "sh:class" : [ {
         "@id" : [ "im:Concept" ]
-      } ]
-    }, {
-      "sh:order" : [ "22" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPRegisteredPractice" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:gpRegisteredPractice" ]
       } ]
     } ],
     "im:id" : [ {
@@ -194,15 +194,15 @@
     "@id" : "http://endhealth.info/im#Person"
   }, {
     "sh:property" : [ {
-      "sh:order" : [ "5" ],
+      "sh:order" : [ "3" ],
       "sh:path" : [ {
-        "@id" : [ "im:statedGender" ]
+        "@id" : [ "im:hasSubject" ]
       } ],
       "sh:class" : [ {
-        "@id" : [ "im:905011000252108" ]
+        "@id" : [ "im:Person" ]
       } ],
       "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
+        "@id" : [ "im:Event" ]
       } ]
     }, {
       "sh:order" : [ "1" ],
@@ -218,28 +218,6 @@
         "@id" : [ "im:Event" ]
       } ]
     }, {
-      "sh:order" : [ "17" ],
-      "sh:path" : [ {
-        "@id" : [ "im:nhsNumber" ]
-      } ],
-      "sh:datatype" : [ {
-        "@id" : [ "xsd:string" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
-      "sh:order" : [ "22" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPRegisteredPractice" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:gpRegisteredPractice" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
       "sh:order" : [ "2" ],
       "sh:path" : [ {
         "@id" : [ "im:dateRecorded" ]
@@ -251,15 +229,15 @@
         "@id" : [ "im:Event" ]
       } ]
     }, {
-      "sh:order" : [ "3" ],
+      "sh:order" : [ "14" ],
       "sh:path" : [ {
-        "@id" : [ "im:hasSubject" ]
+        "@id" : [ "im:residences" ]
       } ],
       "sh:class" : [ {
-        "@id" : [ "im:Person" ]
+        "@id" : [ "im:Concept" ]
       } ],
       "rdfs:domain" : [ {
-        "@id" : [ "im:Event" ]
+        "@id" : [ "im:Person" ]
       } ]
     }, {
       "sh:order" : [ "4" ],
@@ -270,23 +248,12 @@
         "@id" : [ "im:Person" ]
       } ]
     }, {
-      "sh:order" : [ "15" ],
+      "sh:order" : [ "5" ],
       "sh:path" : [ {
-        "@id" : [ "im:dateOfBirth" ]
+        "@id" : [ "im:statedGender" ]
       } ],
-      "sh:datatype" : [ {
-        "@id" : [ "xsd:string" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
-      "sh:order" : [ "16" ],
-      "sh:path" : [ {
-        "@id" : [ "im:dateOfDeath" ]
-      } ],
-      "sh:datatype" : [ {
-        "@id" : [ "xsd:string" ]
+      "sh:class" : [ {
+        "@id" : [ "im:905011000252108" ]
       } ],
       "rdfs:domain" : [ {
         "@id" : [ "im:Person" ]
@@ -303,34 +270,12 @@
         "@id" : [ "im:Person" ]
       } ]
     }, {
-      "sh:order" : [ "18" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:AgeFunction" ]
-      } ],
+      "sh:order" : [ "13" ],
       "sh:path" : [ {
-        "@id" : [ "im:age" ]
+        "@id" : [ "im:relatedPersons" ]
       } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
-      "sh:order" : [ "19" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPRegistrationType" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:gpRegistrationType" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
-      "sh:order" : [ "20" ],
-      "sh:Function" : [ {
-        "@id" : [ "im:GPRegistrationStatus" ]
-      } ],
-      "sh:path" : [ {
-        "@id" : [ "im:gpRegistrationStatus" ]
+      "sh:class" : [ {
+        "@id" : [ "im:Concept" ]
       } ],
       "rdfs:domain" : [ {
         "@id" : [ "im:Person" ]
@@ -347,12 +292,45 @@
         "@id" : [ "im:Person" ]
       } ]
     }, {
-      "sh:order" : [ "12" ],
+      "sh:order" : [ "16" ],
       "sh:path" : [ {
-        "@id" : [ "im:pdsSensitive" ]
+        "@id" : [ "im:dateOfDeath" ]
       } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "17" ],
+      "sh:path" : [ {
+        "@id" : [ "im:nhsNumber" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "20" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPRegistrationStatus" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:gpRegistrationStatus" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "18" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:AgeFunction" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:age" ]
       } ],
       "rdfs:domain" : [ {
         "@id" : [ "im:Person" ]
@@ -380,39 +358,6 @@
         "@id" : [ "im:Person" ]
       } ]
     }, {
-      "sh:order" : [ "10" ],
-      "sh:path" : [ {
-        "@id" : [ "im:language" ]
-      } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
-      "sh:order" : [ "13" ],
-      "sh:path" : [ {
-        "@id" : [ "im:relatedPersons" ]
-      } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
-      "sh:order" : [ "11" ],
-      "sh:path" : [ {
-        "@id" : [ "im:mainResidence" ]
-      } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
-      } ],
-      "rdfs:domain" : [ {
-        "@id" : [ "im:Person" ]
-      } ]
-    }, {
       "sh:order" : [ "21" ],
       "sh:Function" : [ {
         "@id" : [ "im:GPGMSRegistrationDate" ]
@@ -424,9 +369,64 @@
         "@id" : [ "im:Person" ]
       } ]
     }, {
-      "sh:order" : [ "14" ],
+      "sh:order" : [ "19" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPRegistrationType" ]
+      } ],
       "sh:path" : [ {
-        "@id" : [ "im:residences" ]
+        "@id" : [ "im:gpRegistrationType" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "10" ],
+      "sh:path" : [ {
+        "@id" : [ "im:language" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Concept" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "15" ],
+      "sh:path" : [ {
+        "@id" : [ "im:dateOfBirth" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "22" ],
+      "sh:Function" : [ {
+        "@id" : [ "im:GPRegisteredPractice" ]
+      } ],
+      "sh:path" : [ {
+        "@id" : [ "im:gpRegisteredPractice" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "12" ],
+      "sh:path" : [ {
+        "@id" : [ "im:pdsSensitive" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Concept" ]
+      } ],
+      "rdfs:domain" : [ {
+        "@id" : [ "im:Person" ]
+      } ]
+    }, {
+      "sh:order" : [ "11" ],
+      "sh:path" : [ {
+        "@id" : [ "im:mainResidence" ]
       } ],
       "sh:class" : [ {
         "@id" : [ "im:Concept" ]
@@ -441,6 +441,14 @@
     "@id" : "http://endhealth.info/im#Patient"
   }, {
     "sh:property" : [ {
+      "sh:order" : [ "5" ],
+      "sh:path" : [ {
+        "@id" : [ "im:gender" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Concept" ]
+      } ]
+    }, {
       "sh:order" : [ "1" ],
       "sh:path" : [ {
         "@id" : [ "im:active_Inactive" ]
@@ -468,14 +476,6 @@
       "sh:order" : [ "4" ],
       "sh:path" : [ {
         "@id" : [ "im:fullName" ]
-      } ],
-      "sh:class" : [ {
-        "@id" : [ "im:Concept" ]
-      } ]
-    }, {
-      "sh:order" : [ "5" ],
-      "sh:path" : [ {
-        "@id" : [ "im:gender" ]
       } ],
       "sh:class" : [ {
         "@id" : [ "im:Concept" ]

@@ -40,6 +40,9 @@ public class Compare {
 			case ">":
 				this.comparison = Comparison.GREATER_THAN;
 				break;
+			case "like" :
+				this.comparison= Comparison.LIKE;
+				break;
 			default:
 				if (comp.startsWith("e"))
 					this.comparison = Comparison.EQUAL;

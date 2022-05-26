@@ -45,6 +45,16 @@ public class TTEntity extends TTNode implements Serializable {
         return (literal == null) ? null : literal.getValue();
     }
 
+    public TTEntity setVersion (int version) {
+        set(IM.VERSION, TTLiteral.literal(version));
+        return this;
+    }
+
+    public int getVersion() {
+        TTLiteral literal = getAsLiteral(IM.VERSION);
+        return (literal == null) ? 1 : literal.intValue();
+    }
+
     public TTEntity setDescription (String description) {
         set(RDFS.COMMENT, TTLiteral.literal(description));
         return this;

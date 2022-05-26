@@ -1,6 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
@@ -9,6 +14,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -32,10 +38,11 @@ public class IMQuery {
 	private DataSet query;
 	private final Set<String> aliases = new HashSet<>();
 	private final int nestLevel=4;
-	private final Map<String, ResultNode> valueMap = new HashMap<>();
-	private final Map<Value, ResultNode> entityMap = new HashMap<>();
+	private final Map<String, ObjectNode> valueMap = new HashMap<>();
+	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
 	private final Set<String> predicates= new HashSet<>();
 	private final Set<String> usedSelect= new HashSet<>();
+	final ObjectMapper mapper = new ObjectMapper();
 
 
 	public Map<String, String> getVarProperty() {
@@ -47,27 +54,48 @@ public class IMQuery {
 	}
 
 
-	public ResultNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+	public ObjectNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
 		validate(query);
-		ResultNode result = new ResultNode();
-		if (query.getReferenceDate()==null){
-			String now= LocalDate.now().toString();
+		if (query.getReferenceDate() == null) {
+			String now = LocalDate.now().toString();
 			query.setReferenceDate(now);
 		}
 		String spq = buildSparql(query);
+			return goGraphSearch(spq);
+	}
 
+
+
+	private String getInList(List<SearchResultSummary> osResult) {
+		List<String> inArray = new ArrayList<>();
+		for (SearchResultSummary res : osResult) {
+			inArray.add(iri(res.getIri()));
+		}
+		return Strings.join(inArray, ",");
+	}
+
+
+
+	private ObjectNode goGraphSearch(String spq) throws JsonProcessingException {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			ResultNode context= new ResultNode();
-				result.put("@context", context);
+			ObjectNode result= mapper.createObjectNode();
+			ObjectNode context= mapper.createObjectNode();
+			//ObjectNode result = new ObjectNode();
+			//ObjectNode context= new ObjectNode();
+			result.set("@context", context);
 			if (query.isUsePrefixes()) {
 				for (TTPrefix prefix : prefixes.getPrefixes())
-					context.add(prefix.getPrefix(), prefix.getIri());
+					context.put(prefix.getPrefix(), prefix.getIri());
 			}
 			TupleQuery qry= conn.prepareTupleQuery(spq);
+			int count=0;
 			try (TupleQueryResult rs= qry.evaluate()){
 					while (rs.hasNext()){
+						count++;
 						BindingSet bs= rs.next();
 						bindResults(bs,result);
+				//	if (count % 100==0)
+					//		System.out.println(count);
 					}
 				}
 
@@ -90,10 +118,8 @@ public class IMQuery {
 					}
 				}
 			}
-
 			return result;
 		}
-
 
 	}
 
@@ -104,7 +130,7 @@ public class IMQuery {
 	 * @return String of SPARQL
 	 **/
 
-	public String buildSparql(DataSet query) throws DataFormatException {
+	public String buildSparql(DataSet query) throws DataFormatException{
 		this.query = query;
 		if (query.getResultFormat()==null){
 			query.setResultFormat(inferResultFormat());
@@ -124,13 +150,12 @@ public class IMQuery {
 		select(selectQl, select,whereQl,0,"entity");
 		selectQl.append("\n");
 
-		//where(whereQl, "entity", 0, query.getMatch());
-		//whereSelect(whereQl,query.getSelect(),"entity",0);
 		whereQl.append("}");
 
 		selectQl.append(whereQl);
 		return selectQl.toString();
 	}
+
 
 
 
@@ -295,8 +320,7 @@ public class IMQuery {
 		if (predicate.contains(":")) {
 			if (predicate.substring(predicate.indexOf(":") + 1).equals("id"))
 				return true;
-			if (predicate.substring(predicate.indexOf(":") + 1).equals("iri"))
-				return true;
+			return predicate.substring(predicate.indexOf(":") + 1).equals("iri");
 		}
 		return false;
 	}
@@ -394,7 +418,7 @@ public class IMQuery {
 		if (where.getEntityType() != null) {
 			ConceptRef type = where.getEntityType();
 			if (type.isIncludeSubtypes()) {
-				whereQl.append(tabs).append("?").append("super_" + subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
+				whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
 				whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(subject).append(".\n");
 			} else if (type.isIncludeSupertypes()) {
 				whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
@@ -409,16 +433,14 @@ public class IMQuery {
 
 		}
 		if (where.getAnd()!=null) {
-			String andSubject=subject;
 			for (Filter filter : where.getAnd()) {
-				whereProperty(whereQl, andSubject, level, filter);
-				andSubject= filter.getValueVar();
+				where(whereQl, subject, level, filter);
 			}
 		}
 		if (where.getOptional()!=null){
 			for (Filter filter :where.getOptional()) {
 				whereQl.append("OPTIONAL {");
-				whereProperty(whereQl, originalSubject, level, filter);
+				where(whereQl, originalSubject, level, filter);
 				whereQl.append("}\n");
 			}
 		}
@@ -429,7 +451,7 @@ public class IMQuery {
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-				whereProperty(whereQl, subject, level, filter);
+				where(whereQl, subject, level, filter);
 				whereQl.append("}\n");
 			}
 		}
@@ -455,6 +477,7 @@ public class IMQuery {
 	 * @param where the where clause
 	 */
 	private void whereProperty(StringBuilder whereQl, String subject,int level, Filter where) throws DataFormatException {
+		//Open search?
 		if (where.isIncludeSubEntities()){
 			o++;
 			whereQl.append(tabs).append("?").append(subject)
@@ -468,7 +491,6 @@ public class IMQuery {
 			object = nextObject();
 			where.setValueVar(object);
 		}
-
 
 
 		varProperty.put(object,predicate);
@@ -526,7 +548,7 @@ public class IMQuery {
 			return value;
 		else {
 			try {
-				Calendar cal = DatatypeConverter.parseDateTime(value);
+				DatatypeConverter.parseDateTime(value);
 				if (!value.contains("^^xsd"))
 					value=value+"^^xsd:dateTime";
 				return value;
@@ -598,7 +620,7 @@ public class IMQuery {
 		if (comp== Comparison.LESS_THAN_OR_EQUAL)
 			return "<=";
 		else
-			throw new DataFormatException("Unknown comparison operator : "+ comp.toString());
+			throw new DataFormatException("comparison operator : "+ comp.toString()+" is not supported in graph query. use open search");
 	}
 
 
@@ -621,14 +643,14 @@ public class IMQuery {
 
 
 	private void bindResults(BindingSet bs,
-													 ResultNode result) {
+													 ObjectNode result) {
 
 		if (query.getResultFormat()==ResultFormat.OBJECT) {
 			bindObjects(bs,result);
 		}
 		else {
-			ResultNode node = new ResultNode();
-			result.add("entities", node);
+			ObjectNode node = mapper.createObjectNode();
+			addProperty(result,"entities",node);
 			Select select = query.getSelect();
 			for (PropertyObject property:select.getProperty()) {
 				String var = property.getBinding();
@@ -643,21 +665,24 @@ public class IMQuery {
 						else
 							value = bound.stringValue();
 						if (isId(var)) {
-							node.add("@id", value);
+							node.put("@id", value);
 						} else if (var.equals("entity")) {
-							node.add("@id", value);
+							node.put("@id", value);
 						} else {
 							String alias = property.getAlias();
 							if (alias != null) {
-								node.add(alias, value);
+								addProperty(node,alias, value);
 							} else {
 								String path = property.getIri();
 								if (!usedSelect.contains(path)) {
-									node.add(resultIri(path), value);
+									addProperty(node,resultIri(path), value);
 									predicates.add(path);
-								} else {
-									node.add(var, value);
 								}
+								else {
+									addProperty(node,var, value);
+								}
+
+
 							}
 						}
 					}
@@ -666,13 +691,39 @@ public class IMQuery {
 		}
 	}
 
-	private void bindObjects(BindingSet bs, ResultNode result) {
+	private void addProperty(ObjectNode node,String property,String value){
+		if (node.get(property)==null) {
+			node.set(property, mapper.createArrayNode());
+			((ArrayNode) node.get(property)).add(value);
+		}
+		ArrayNode already= (ArrayNode) node.get(property);
+		for (JsonNode n:already){
+			if (n.asText().equals(value))
+				return;
+		}
+		already.add(value);
+
+
+	}
+
+	private void addProperty(ObjectNode node,String property,ObjectNode value){
+		if (node.get(property)==null)
+			node.set(property,mapper.createArrayNode());
+		((ArrayNode) node.get(property)).add(value);
+	}
+	private void addProperty(ObjectNode node,String property,JsonNode value){
+		if (node.get(property)==null)
+			node.set(property,mapper.createArrayNode());
+		((ArrayNode) node.get(property)).add(value);
+	}
+
+	private void bindObjects(BindingSet bs, ObjectNode result) {
 		Value entityValue= bs.getValue("entity");
-		ResultNode root= entityMap.get(entityValue);
+		ObjectNode root= entityMap.get(entityValue);
 		if (root==null){
-			root= new ResultNode();
+			root= mapper.createObjectNode();
 			root.put("@id",entityValue.stringValue());
-			result.add("entities",root);
+			addProperty(result,"entities",root);
 			entityMap.put(entityValue,root);
 		}
 		Select select = query.getSelect();
@@ -681,7 +732,7 @@ public class IMQuery {
 		}
 	}
 
-	private void bindObject(BindingSet bs, ResultNode node, PropertyObject propertyObject, String path, String subject, int level) {
+	private void bindObject(BindingSet bs, ObjectNode node, PropertyObject propertyObject, String path, String subject, int level) {
 		String var= propertyObject.getBinding();
 		if (var.equals("*")){
 			bindAllForObject(bs,node,path,subject,level);
@@ -697,19 +748,19 @@ public class IMQuery {
 			return;
 
 		if (property==null) {
-			varProperty.get(var);
+			property=varProperty.get(var);
 			predicates.add(iri(property));
 		}
 
 		if (value.isIRI() || value.isBNode()) {
-			ResultNode subNode = valueMap.get(path+ (value.stringValue()));
+			ObjectNode subNode = valueMap.get(path+ (value.stringValue()));
 			if (subNode == null) {
-				subNode = new ResultNode();
+				subNode = mapper.createObjectNode();
 				valueMap.put(path + (value.stringValue()), subNode);
-				node.add(resultIri(property),subNode);
+				addProperty(node,resultIri(property),subNode);
 				predicates.add(property);
 				if (value.isIRI())
-					subNode.add("@id", resultIri(value.stringValue()));
+					addProperty(subNode,"@id", resultIri(value.stringValue()));
 			}
 			if (propertyObject.getObject() != null) {
 				level++;
@@ -718,45 +769,46 @@ public class IMQuery {
 				}
 			}
 		} else {
-			node.add(resultIri(property),value.stringValue());
+			addProperty(node,resultIri(property),value.stringValue());
 			predicates.add(property);
 		}
 
 	}
 
-	private void bindAllForObject(BindingSet bs, ResultNode rootNode, String path, String subject, int level) {
-		ResultNode node= rootNode;
-		for (int i=level; i<nestLevel;i++){
+	private void bindAllForObject(BindingSet bs, ObjectNode rootNode, String path, String subject, int level) {
+		ObjectNode node= rootNode;
+		StringBuilder pathBuilder = new StringBuilder(path);
+		for (int i = level; i<nestLevel; i++){
 			Value prop= bs.getValue(subject+"_p"+i);
 			Value ob= bs.getValue(subject+"_o"+i);
 			if (prop!=null){
 				String property= resultIri(prop.stringValue());
 				predicates.add(iri(property));
 				if (ob.isBNode()){
-					ResultNode obNode= valueMap.get(path+(ob.stringValue()));
+					ObjectNode obNode= valueMap.get(pathBuilder +(ob.stringValue()));
 					if (obNode==null){
-						obNode= new ResultNode();
-						valueMap.put(path+(ob.stringValue()),obNode);
+						obNode= mapper.createObjectNode();
+						valueMap.put(pathBuilder +(ob.stringValue()),obNode);
 						predicates.add(property);
-						node.add(property,obNode);
+						addProperty(node,property,obNode);
 					}
-					path = path+ (ob.stringValue());
+					pathBuilder.append(ob.stringValue());
 					node= obNode;
 				}
 				else if (ob.isIRI()) {
-					ResultNode obNode = valueMap.get(path+(ob.stringValue()));
+					ObjectNode obNode = valueMap.get(pathBuilder +(ob.stringValue()));
 					if (obNode == null) {
-						obNode = new ResultNode();
-						obNode.add("@id", resultIri(ob.stringValue()));
-						valueMap.put(path+(ob.stringValue()), obNode);
-						node.add(property,obNode);
+						obNode = mapper.createObjectNode();
+						addProperty(obNode,"@id", resultIri(ob.stringValue()));
+						valueMap.put(pathBuilder +(ob.stringValue()), obNode);
+						addProperty(node,property,obNode);
 						predicates.add(property);
 					}
 					node=obNode;
-					path = path+ ob.stringValue();
+					pathBuilder.append(ob.stringValue());
 				}
 				else {
-					node.add(property,ob.stringValue());
+					addProperty(node,property,ob.stringValue());
 					predicates.add(property);
 
 				}
@@ -764,12 +816,12 @@ public class IMQuery {
 		}
 	}
 
-	private void bindAll(BindingSet bs, ResultNode result){
-		ResultNode node= new ResultNode();
-		result.add("entities",node);
+	private void bindAll(BindingSet bs, ObjectNode result){
+		ObjectNode node= mapper.createObjectNode();
+		addProperty(result,"entities",node);
 		for (String binding:bs.getBindingNames()){
 			if (bs.getValue(binding)!=null)
-				node.add(binding,bs.getValue(binding).stringValue());
+				addProperty(node,binding,bs.getValue(binding).stringValue());
 		}
 	}
 

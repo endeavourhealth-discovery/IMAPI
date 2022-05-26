@@ -97,8 +97,24 @@ public class IM {
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
   public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
 
+  //Context
+  public static final TTIriRef HAS_SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
+  public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
+  public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
+  public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");
+  public static final TTIriRef SOURCE_SCHEMA = iri(NAMESPACE + "sourceSchema");
+  public static final TTIriRef SOURCE_TABLE = iri(NAMESPACE + "sourceTable");
+  public static final TTIriRef SOURCE_FIELD = iri(NAMESPACE + "sourceField");
+  public static final TTIriRef SOURCE_CODE_SCHEME = iri(NAMESPACE + "sourceCodeScheme");
+  public static final TTIriRef SOURCE_VALUE = iri(NAMESPACE + "sourceValue");
+  public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
+  public static final TTIriRef SOURCE_HEADING= iri(NAMESPACE + "sourceHeading");
+  public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
 
-    //Graphs
+
+
+
+  //Graphs
     public static final TTIriRef GRAPH_DISCOVERY= iri(IM.DOMAIN+"im#");
     public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN +"icd10#");
     public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN +"emis#");

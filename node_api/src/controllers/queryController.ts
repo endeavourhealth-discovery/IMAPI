@@ -25,8 +25,16 @@ export default class QueryController {
     this.router.get('/node_api/query/public/richDefinition', (req, res) => this.richDefinition(req, res));
     this.router.get('/node_api/query/public/querySummary', (req, res) => this.getQuerySummary(req, res))
     this.router.post('/node_api/query/public/querySummary', (req, res) => this.postQuerySummary(req, res))
+    this.router.post('/node_api/query/public/clauseSummary', (req, res) => this.postClauseSummary(req, res))
+    this.router.post('/node_api/query/public/test', (req, res) => this.test(req, res))
 
   }
+
+  async test(req: Request, res: Response) {
+    console.log("test", req.body)
+    res.send("test string here").end();
+  }
+
 
   /* #swagger.parameters['iri'] = {
      in: 'query',
@@ -52,17 +60,22 @@ export default class QueryController {
     res.send(data).end();
   }
 
+  async getQuerySummary(req: Request, res: Response) {
+    const data = await this.workflow.summariseQuery("get", req.query.iri as string)
+    res.send(data).end();
+    
+  }
   async postQuerySummary(req: Request, res: Response) {
-    res.setHeader('Content-Type', 'application/json')
     const data = await this.workflow.summariseQuery("post", req.body)
     res.send(data).end();
 
   }
-  async getQuerySummary(req: Request, res: Response) {
-    res.setHeader('Content-Type', 'application/json')
-    const data = await this.workflow.summariseQuery("get", req.query.iri as string)
+  async postClauseSummary(req: Request, res: Response) {
+    console.log(req.body)
+    const data = await this.workflow.summariseClause("post", req.body)
     res.send(data).end();
-
   }
+
+
 }
 

@@ -84,6 +84,8 @@ export class GraphdbService {
             if (v.startsWith('"')) {
               v = '"' + v.substring(1, v.length - 1).replace(/\"/g, '\\\"') + '"';
             }
+            // console.log("binding[b]", binding[b])
+            // console.log("v", v)
             binding[b] = JSON.parse(v);
           }
         }

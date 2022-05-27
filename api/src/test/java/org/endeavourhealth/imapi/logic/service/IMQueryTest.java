@@ -27,7 +27,7 @@ class IMQueryTest {
 	@Test
 	void testBuilders() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		Query query;
-
+/*
 		query= query1();
 		output(query,searchService);
 		query= query2();
@@ -60,7 +60,7 @@ class IMQueryTest {
 		query= query13();
 		output(query,searchService);
 
-
+*/
 
 	}
 

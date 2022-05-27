@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTTransactionFiler;
-import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -19,7 +17,6 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -32,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -243,7 +239,7 @@ public class EntityService {
         ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
         int memberCount = 0;
 
-        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri);
+        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri, limit);
 
 
         Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
@@ -270,30 +266,9 @@ public class EntityService {
         return result;
     }
 
-    private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) {
-        if (expandSets || expandMembers) {
-            for (ValueSetMember set : definedSetInclusions) {
-                ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, withHyperlinks, null, originalParentIri);
-                memberCount += individualResults.getMembers().size();
-                result.addAllMembers(individualResults.getMembers());
-            }
-        } else {
-            for (ValueSetMember set : definedSetInclusions) {
-                if (parentSetName == null) {
-                    set.setLabel("Subset - " + set.getEntity().getName());
-                } else {
-                    set.setLabel("Subset - " + parentSetName);
-                }
-                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), false, false, limit, withHyperlinks, set.getEntity().asIriRef().getName(), originalParentIri);
-                memberCount += setMembers.getMembers().size();
-                result.addAllMembers(setMembers.getMembers());
-            }
-        }
-        return memberCount;
-    }
+    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri, Integer limit) {
+        Set<ValueSetMember> definedMemberInclusions = getMembers(iri, withHyperlinks, limit);
 
-    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberInclusions = getMember(iri, Set.of(IM.DEFINITION.getIri()), withHyperlinks);
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
@@ -317,20 +292,29 @@ public class EntityService {
     }
 
 
-    private Set<ValueSetMember> getMember(String iri, Set<String> predicates, boolean withHyperlinks) {
+    private Set<ValueSetMember> getMembers(String iri, boolean withHyperlinks, Integer limit) {
         Set<ValueSetMember> members = new HashSet<>();
 
-        TTBundle bundle = getBundle(iri, predicates);
-        List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,10,false).getResult();
         TTArray result = new TTArray();
-
-        if (hasMembers.size() != 0){
-            for(TTIriRef member: hasMembers) {
-                result.add(member);
+        if(limit == null || limit == 0) {
+            TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
+            if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
+                result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
+                direct = true;
+            } else {
+                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
             }
-            direct = true;
         } else {
-            result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
+            if (!hasMembers.isEmpty()){
+                for(TTIriRef member: hasMembers) {
+                    result.add(member);
+                }
+                direct = true;
+            } else {
+                TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            }
         }
 
         if (result != null) {

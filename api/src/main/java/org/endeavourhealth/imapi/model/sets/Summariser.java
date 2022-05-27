@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DataSet of static methods that produce text summaries for shapes
+ * Query of static methods that produce text summaries for shapes
  *
  */
 public class Summariser {
@@ -22,13 +22,13 @@ public class Summariser {
 			"LESS_THAN_OR_EQUAL","<=",
 			"LESS_THAN",">");
 
-	public static String getSummary(Filter filter){
+	public static String getSummary(Match match){
 		StringBuilder summary= new StringBuilder();
-		summary.append(getVerb(filter.getProperty().getIri())).append(" ");
-		if (filter.getValueIn()!=null)
-			//summary.append(getValueIn(filter.getValueIn()));
-		if (filter.getValueCompare()!=null)
-			summary.append(getCompare(filter.getValueCompare()));
+		summary.append(getVerb(match.getProperty().getIri())).append(" ");
+		if (match.getInSet()!=null)
+			//summary.append(getValueIn(match.getValueIn()));
+		if (match.getValue()!=null)
+			summary.append(getCompare(match.getValue()));
 		return summary.toString();
 	}
 

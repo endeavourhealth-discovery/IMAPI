@@ -10,7 +10,17 @@ public class Compare {
 
 	Comparison comparison= Comparison.EQUAL;
 	String valueData;
+	String valueVariable;
+	String valueSelect;
 
+	public String getValueSelect() {
+		return valueSelect;
+	}
+
+	public Compare setValueSelect(String valueSelect) {
+		this.valueSelect = valueSelect;
+		return this;
+	}
 
 	public Comparison getComparison() {
 		return comparison;
@@ -68,23 +78,17 @@ public class Compare {
 	}
 
 
-	@JsonIgnore
-	public String getValue() {
-		return valueData;
-	}
-
 	public Compare setValueData(String valueData) {
 		this.valueData = valueData;
 		return this;
 	}
 
-
-	@JsonIgnore
-	public Compare setValue(String valueData) {
-		this.valueData = valueData;
-		return this;
+	public String getValueVariable() {
+		return valueVariable;
 	}
 
-
-
+	public Compare setValueVariable(String valueVariable) {
+		this.valueVariable = valueVariable;
+		return this;
+	}
 }

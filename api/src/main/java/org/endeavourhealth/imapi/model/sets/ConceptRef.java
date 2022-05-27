@@ -9,26 +9,24 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ConceptRef extends TTIriRef{
 
-
-
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
-
-
 
 	public static ConceptRef iri(String iri) {
 		return new ConceptRef(iri);
 	}
 
 	public static ConceptRef iri(TTIriRef iri) {
-		return new ConceptRef(iri.getIri(),iri.getName());
+		ConceptRef ref= new ConceptRef();
+		ref.setIri(iri.getIri());
+		if (iri.getName()!=null)
+			ref.setName(iri.getName());
+		return ref;
 	}
 
 	public static ConceptRef iri(String iri, String name) {
 		return new ConceptRef(iri, name);
 	}
-
-
 
 	public ConceptRef setIncludeSubtypes(boolean subtypes) {
 		this.includeSubtypes = subtypes;

@@ -1,7 +1,5 @@
 import { IM, RDF, RDFS } from "../../vocabulary"
 
-import { Comparison } from "../sets/Comparison"
-
 import { Helpers } from "./Helpers"
 const { a, isSingular } = Helpers;
 

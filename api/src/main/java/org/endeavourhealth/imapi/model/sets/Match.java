@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeSubEntities","includeMembers","graph"+ ",inverseOf","property","includeSubProperties"
 	,"isConcept","inValueSet","notInValueSet", "inRange","value","function","within","valueVar","match","isIndex","and","or","orderLimit","optional"})
@@ -39,6 +40,27 @@ public class Match extends Heading {
 	boolean notExist=false;
 	boolean isIndex;
 	boolean includeSubEntities;
+
+	public Match and(Consumer<Match> builder){
+		Match m= new Match();
+		this.addAnd(m);
+		builder.accept(m);
+		return this;
+	}
+
+	public Match or(Consumer<Match> builder){
+		Match m= new Match();
+		this.addOr(m);
+		builder.accept(m);
+		return this;
+	}
+
+	public Match optional(Consumer<Match> builder){
+		Match m= new Match();
+		this.addOptional(m);
+		builder.accept(m);
+		return this;
+	}
 
 
 	public TTIriRef getEntityInValueSet() {

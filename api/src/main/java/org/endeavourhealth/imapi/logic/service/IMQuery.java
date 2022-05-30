@@ -36,6 +36,8 @@ public class IMQuery {
 	private int o=0;
 	private Query query;
 	private final Set<String> aliases = new HashSet<>();
+	private final Set<String> selectBindings= new HashSet<>();
+
 	private final int nestLevel=4;
 	private final Map<String, ObjectNode> valueMap = new HashMap<>();
 	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
@@ -152,10 +154,37 @@ public class IMQuery {
 		whereQl.append("}");
 
 		selectQl.append(whereQl);
+		orderLimit(selectQl);
+		validateBindings();
 		return selectQl.toString();
 	}
 
+	private void validateBindings() throws DataFormatException {
+		if (!selectBindings.isEmpty()){
+			for (String binding:selectBindings)
+				if (varProperty.get(binding)==null)
+					throw new DataFormatException(binding +" binding in select statement not bound to value Var, use alias instead");
+		}
 
+	}
+
+	private void orderLimit(StringBuilder selectQl) {
+		if (query.getSelect()!=null){
+			if (query.getSelect().getOrderLimit()!=null){
+				OrderLimit order= query.getSelect().getOrderLimit();
+				selectQl.append("Order by ");
+				if (order.getDirection()==Order.DESCENDING)
+					selectQl.append("DESC(");
+				else
+					selectQl.append("ASC(");
+				if (order.getOrderBy().getAlias()!=null)
+					selectQl.append("?").append(order.getOrderBy().getAlias());
+				else
+					selectQl.append("?").append(order.getOrderBy().getAlias());
+				selectQl.append(")");
+			}
+		}
+	}
 
 
 	public String getDefaultPrefixes(){
@@ -873,8 +902,13 @@ public class IMQuery {
 	}
 
 	private void validateSelects(Query query,Select select) throws DataFormatException {
+		if (select.getOrderLimit()!=null)
+			if (select.getOrderLimit().getOrderBy().getAlias()==null)
+					throw new DataFormatException("Select order by must use  aliases");
 
 		for (PropertySelect property:select.getProperty()){
+			if (property.getBinding()!=null)
+				selectBindings.add(property.getBinding());
 			if (property.getIri()==null){
 				if (property.getBinding()==null) {
 					throw new DataFormatException("Missing property or wild card binding in select statement");

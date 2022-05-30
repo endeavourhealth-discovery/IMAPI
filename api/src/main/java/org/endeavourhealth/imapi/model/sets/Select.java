@@ -29,6 +29,27 @@ public class Select {
 	private List<String> groupBy;
 	private OrderLimit orderLimit;
 
+	public Select property(Consumer<PropertySelect> builder){
+		PropertySelect ps= new PropertySelect();
+		addProperty(ps);
+		builder.accept(ps);
+		return this;
+	}
+
+	public Select match(Consumer<Match> builder){
+		Match match= new Match();
+		this.match= match;
+		builder.accept(match);
+		return this;
+	}
+
+	public Select order(Consumer<OrderLimit> builder){
+		OrderLimit ol= new OrderLimit();
+		this.orderLimit= ol;
+		builder.accept(ol);
+		return this;
+	}
+
 
 
 

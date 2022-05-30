@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.function.Consumer;
 
-@JsonPropertyOrder({"iri","name","inverseOf","alias","object"})
+
+@JsonPropertyOrder({"iri","name","inverseOf","alias","binding","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertySelect extends TTIriRef {
 	private String binding;
@@ -14,6 +16,18 @@ public class PropertySelect extends TTIriRef {
 	private Select select;
 	boolean inverseOf=false;
 	Function function;
+
+	public PropertySelect select(Consumer<Select> builder){
+		this.select= new Select();
+		builder.accept(this.select);
+		return this;
+	}
+
+	public PropertySelect function(Consumer<Function> builder){
+		this.function= new Function();
+		builder.accept(this.function);
+		return this;
+	}
 
 	public Function getFunction() {
 		return function;

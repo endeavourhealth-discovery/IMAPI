@@ -28,6 +28,12 @@ public class Query extends Heading {
 	private int pageSize;
 	private TTIriRef mainEntity;
 
+	@JsonIgnore
+	public Query select(Consumer<Select> builder){
+		this.select= new Select();
+		builder.accept(this.select);
+		return this;
+	}
 
 	public TTIriRef getMainEntity() {
 		return mainEntity;

@@ -13,6 +13,7 @@ public class Heading extends TTIriRef {
 
 
 
+
 	public static Heading iri(String iri) {
 		return new Heading(iri);
 	}

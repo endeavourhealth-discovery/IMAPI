@@ -129,11 +129,11 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/public/childrenPaged")
-	public Pageable<EntityReferenceNode> getEntityChildrenAndTotalCount(@RequestParam(name = "iri") String iri,
+	public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri,
 															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
 															 @RequestParam(name = "page", required = false) Integer page,
 															 @RequestParam(name = "size", required = false) Integer size) {
-		LOG.debug("getEntityChildrenPagedAndTotalCount");
+		LOG.debug("getEntityChildrenPagedWithTotalCount");
 		if (page == null && size == null) {
 			page = 1;
 			size = 10;

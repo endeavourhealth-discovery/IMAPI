@@ -106,7 +106,7 @@ public class EntityService {
 
         int rowNumber = 0;
         if (page != null && size != null)
-            rowNumber = (page - 1) * 10;
+            rowNumber = (page - 1) * size;
 
         Pageable<TTIriRef> childrenAndTotalCount = entityTripleRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive);
         Pageable<EntityReferenceNode> result = new Pageable<>();
@@ -131,7 +131,7 @@ public class EntityService {
 
         int rowNumber = 0;
         if (page != null && size != null)
-            rowNumber = (page - 1) * 10;
+            rowNumber = (page - 1) * size;
 
         return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
     }

@@ -29,6 +29,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/v3/**").permitAll()
                 .anyRequest().authenticated();
         http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
         http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
@@ -45,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         StrictHttpFirewall firewall = new StrictHttpFirewall();
         firewall.setAllowUrlEncodedSlash(true);
         firewall.setAllowUrlEncodedDoubleSlash(true);
-        firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST"));
+        firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE"));
         return firewall;
     }
 

@@ -3,11 +3,28 @@
  */
 plugins {
     id 'war'
+    id "cz.habarta.typescript-generator" version "2.36.1070"
+}
+
+import cz.habarta.typescript.generator.JsonLibrary
+import cz.habarta.typescript.generator.TypeScriptFileType
+
+tasks {
+    generateTypeScript {
+        jsonLibrary = JsonLibrary.jackson2
+        outputFileType = TypeScriptFileType.implementationFile
+        classPatterns = [
+                'org.endeavourhealth.imapi.model.sets.*'
+        ]
+        outputFile = '../node_api/src/model/sets/Query.ts'
+        outputKind = 'module'
+    }
 }
 
 sonarqube {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
+        property 'sonar.exclusions', '**/parser/**, **/transforms/**/eqd/**'
     }
 }
 
@@ -16,29 +33,60 @@ war {
 }
 
 dependencies {
-    api project(':logic')
-
-    implementation libs.springWeb
-    implementation libs.springfoxSwagger
-    implementation libs.springfoxSwaggerUi
-    implementation libs.validation
+    implementation libs.antlr
+    implementation libs.apacheCollections4
+    implementation libs.apachePoi
+    implementation libs.apacheText
+    implementation libs.factPlusPlus
+    implementation libs.jacksonDatabind
+    implementation libs.logbackCore
+    implementation libs.logbackClassic
+    implementation libs.elasticsearch
+    implementation libs.owlApi
+    implementation libs.reactorCore
+    implementation libs.rdf4jQuery
+    implementation libs.rdf4jRepoApi
+    implementation libs.rdf4jRepoHttp
+    implementation libs.rdf4jRepoSail
+    implementation libs.rdf4jSailNative
+    implementation libs.slf4j
+    implementation libs.springContext
     implementation libs.springDataJpa
     implementation libs.springOauthServer
     implementation libs.springSecurity
-    implementation libs.testContainers
-    implementation libs.testContainersMySql
-    implementation libs.imGrammar
-    implementation libs.apachePoi
+    implementation libs.springStatemachine
+    implementation libs.springWeb
+    implementation libs.springdoc
+    implementation libs.validation
+    implementation libs.woodstox
+    implementation libs.awsS3
+    runtimeOnly libs.h2database
+    runtimeOnly libs.springDevTools
 
-    testImplementation libs.springTest
+    testImplementation libs.junitRunner
     testImplementation libs.mockito
+    testImplementation libs.springTest
     testImplementation libs.springTestSecurity
 
     providedCompile libs.springTomcat
-    providedCompile libs.mysql
 
+    compileOnly libs.jacksonAnnotations
     compileOnly libs.lombok
-    annotationProcessor  libs.lombok
+
+    annotationProcessor libs.jacksonAnnotations
+    annotationProcessor libs.lombok
+}
+
+publishing {
+    repositories {
+        maven {
+            url = uri('https://maven.discoverydataservice.net/artifactory/libs-snapshot')
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 description = 'Information Model API'

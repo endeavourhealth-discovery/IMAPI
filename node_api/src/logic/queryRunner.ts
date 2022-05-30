@@ -1,0 +1,376 @@
+import {MysqlService} from "../services/mysql.service";
+import {GraphdbService, iri} from "../services/graphdb.service";
+import {Query} from "../model/sets/Query";
+import {Sql} from "../model/sql/Sql";
+import {Table} from "../model/sql/Table";
+import {Join} from "../model/sql/Join";
+import {SimpleCondition} from "../model/sql/SimpleCondition";
+import {ConditionList} from "../model/sql/ConditionList";
+import {Condition} from '../model/sql/Condition';
+import {Match} from '../model/sets/Query';
+import {Select} from '../model/sets/Query';
+import {TTIriRef} from '../model/tripletree/TTIriRef';
+import {IM, SHACL} from '../vocabulary';
+
+export default class QueryRunner {
+  private mysql: MysqlService;
+  private graph: GraphdbService;
+  private sql: Sql;
+
+  constructor() {
+    this.mysql = new MysqlService();
+    this.graph = new GraphdbService();
+  }
+
+  public async runQuery(queryIri: string): Promise<any[]> {
+    try {
+      const definition: Query = await this.getDefinition(queryIri);
+
+      await this.generateSql(definition);
+/*      console.log("===== SQL ========================================================")
+      console.log(JSON.stringify(this.sql, null, 2));
+      console.log("==================================================================")*/
+
+      console.log("DROPPING: " + this.sql.toDrop());
+      await this.mysql.execute(this.sql.toDrop());
+
+      // const refDate = new Date().toISOString().replace("T", " ").replace("Z", "");
+      const refDate = '2002-09-06 00:00:00';                                    // TODO: Specific date valid for test data
+
+      let sqlString: string = this.sql.toCreate();
+      sqlString = sqlString.replace(/\$ReferenceDate/g, refDate);
+      sqlString = sqlString.replace(/\$referenceDate/g, '"' + refDate + '"');   // TODO: Case within query definitions!?
+      console.log("CREATING: " + sqlString);
+      await this.mysql.execute(sqlString);
+
+      console.log("SELECTING: " + this.sql.toSelect());
+      const result = await this.mysql.execute(this.sql.toSelect() + " LIMIT 5");
+
+      console.log(result.length + " rows");
+
+      for(const r of result) {
+        console.log(r);
+      }
+
+      return result;
+
+    } catch (e) {
+      console.error("***** ERROR!!");
+      console.log(e);
+      return [];
+    }
+  }
+
+   public async getDefinition(queryIri: string): Promise<Query> {
+    console.log("Loading " + queryIri);
+    const rs = await this.graph.execute(
+      "SELECT * WHERE { ?s ?p ?def }",
+      {
+        s: iri(queryIri),
+        p: iri("http://endhealth.info/im#definition")
+      });
+
+    if (rs.length != 1)
+      throw "Unable to load definition"
+
+     const def = JSON.parse(rs[0].def);
+
+     console.log("===== DEFINITION =================================================")
+     console.log(JSON.stringify(def, null, 2));
+     console.log("==================================================================")
+
+    return def;
+  }
+
+  private async generateSql(query: Query) {
+    this.sql = new Sql(query['@id']);
+    this.sql.table = this.sql.getTable(query.select.entityType["@id"], "m");
+
+    await this.processSelect(query.select);
+  }
+
+  private async processSelect(select: Select) {
+    await this.processFilter(this.sql.table, this.sql.conditions, select.match);
+  }
+
+  private async processFilter(table: Table, conditions: Condition[], match: Match) {
+    if (match.isConcept) {
+      await this.processValueConcept(table, conditions, match);
+/*    } else if (match.) {
+      await this.processValueObject(table, match.property["@id"], match.valueObject);*/
+    } else if (match.inSet) {
+      for (const s of match.inSet)
+        await this.processSubsetOf(table, s);
+/*    } else if (match.in) {
+      await this.processValueIn(table, conditions, match);*/
+    } else if (match.value) {
+      await this.processValueCompare(table, conditions, match);
+    } else if (match.notExist) {
+      await this.processNotExist(table, conditions, match);
+    } else if (match.valueVar || match.and || match.or) {
+      // Globally handled (below)
+    } else if (match.match) {
+      await this.processMatch(table, conditions, match);
+    } else {
+      console.error("Unknown/no filter type\n" + JSON.stringify(match, null, 2));
+    }
+
+    if (match.valueVar)
+      this.sql.fields.push(await this.getSubject(table, match) + " AS " + match.valueVar);
+
+    if (match.and)
+      await this.getFilters(table, conditions, match.and, "AND");
+
+    if (match.or)
+      await this.getFilters(table, conditions, match.or, "OR");
+  }
+
+  private async processValueConcept(table: Table, conditions: Condition[], match: Match) {
+    // Direct comparison to a concept (list)
+
+    const concept: Join = new Join();
+    concept.table = this.sql.getTable("http://endhealth.info/im#concept", "t" + this.sql.joins.length);
+    if (match.isConcept.length == 1) {
+      const im1Id: string = await this.getIM1Id(match.isConcept[0]['@id']);
+      concept.on = await this.getField(concept.table, "iri") + " = '" + im1Id + "'";
+    } else {
+      concept.on = await this.getField(concept.table, "iri") + " IN (" + JSON.stringify(match.isConcept) + ")";
+    }
+    this.sql.joins.splice(this.sql.joins.length-1, 0, concept);
+
+    const tct: Join = new Join();
+    tct.table = this.sql.getTable("http://endhealth.info/im#conceptTct", "t" + this.sql.joins.length);
+    tct.on = await this.getField(tct.table, "target") + " = " + await this.getField(concept.table, "dbid") + " AND " + await this.getField(tct.table, "property") + " = 11"; // TODO: Correct property!
+    this.sql.joins.splice(this.sql.joins.length-1, 0, tct);
+
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = await this.getSubject(table, match);
+    c.predicate = " = ";
+    c.object = await this.getField(tct.table, "source");
+
+  }
+
+/*  private async processValueIn(table: Table, conditions: Condition[], match: Match) {
+    if (match.property['@id'] == "http://endhealth.info/im#inResultSet") {
+      const join: Join = new Join();
+      join.table = this.sql.getTable(match.valueIn[0]['@id'], "t" + this.sql.joins.length);
+      join.on = await this.getField(table, "pk") + " = " + await this.getField(join.table, "pk");
+
+      this.sql.joins.push(join);
+    } else if (match.property['@id'] == "http://endhealth.info/im#concept") {
+      let vs: Join = new Join();
+      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+      vs.on = await this.getField(vs.table, "iri") + " = '" + match.valueIn[0]['@id'] + "'";
+      this.sql.joins.push(vs);
+
+      let vsm: Join = new Join();
+      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+      vsm.on = await this.getField(vsm.table, "value_set") + " = " + await this.getField(vs.table, "pk") + " AND " + await this.getField(table, "http://endhealth.info/im#concept") + " = " + await this.getField(vsm.table, "member");
+      this.sql.joins.push(vsm);
+    } else if (match.property['@id'] == "http://endhealth.info/im#code") {
+      let vs: Join = new Join();
+      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+      vs.on = await this.getField(vs.table, "iri") + " = '" + match.valueIn[0]['@id'] + "'";
+      this.sql.joins.push(vs);
+
+      let vsm: Join = new Join();
+      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+      vsm.on = await this.getField(vsm.table, "value_set") + " = " + await this.getField(vs.table, "pk") + " AND " + await this.getField(table, "http://endhealth.info/im#concept") + " = " + await this.getField(vsm.table, "member");
+      this.sql.joins.push(vsm);
+
+    } else
+      throw "Unknown 'Value In' predicate [" + match.property['@id'] + "]";
+
+  }*/
+
+  private async processValueObject(parentTable: Table, propertyId: string, match: Match) {
+    const join: Join = this.sql.getJoin(parentTable, propertyId, match.entityType["@id"], "t" + this.sql.joins.length);
+    this.sql.joins.push(join);
+
+    await this.processFilter(join.table, join.conditions, match);
+  }
+
+  private async processSubsetOf(parentTable: Table, queryIri: TTIriRef) {
+    const join: Join = new Join();
+    join.table = this.sql.getTable(queryIri['@id'], "t" + this.sql.joins.length);
+    join.on = await this.getField(parentTable, "pk") + " = " + await this.getField(join.table, "pk");
+    this.sql.joins.push(join);
+  }
+
+  private async processValueCompare(table: Table, conditions: Condition[], match: Match) {
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = await this.getSubject(table, match);
+    c.predicate = this.getComparison(match.value.comparison);
+    c.object = "'" + match.value.valueData + "'";
+  }
+
+  private async processNotExist(table: Table, conditions: Condition[], match: Match) {
+    const c = new SimpleCondition();
+    conditions.push(c);
+    c.subject = await this.getSubject(table, match);
+    c.predicate = 'IS'
+    c.object = 'NULL';
+  }
+
+  private async processMatch(table: Table, conditions: Condition[], match: Match) {
+    const join: Join = new Join();
+      join.table = this.sql.getTable(match.match.entityType['@id'], "t" + this.sql.joins.length);
+      join.on =  await this.getField(table, "pk") + " = " + await this.getField(join.table, match.property['@id']);
+
+      this.sql.joins.push(join);
+
+    return this.processFilter(join.table, conditions, match.match);
+  }
+
+  private async getFilters(table: Table, conditions: Condition[], matches:Match[], operator: string) {
+    const result: ConditionList = new ConditionList();
+    result.operator = operator;
+
+    for(const filter of matches) {
+      await this.processFilter(table, result.conditions, filter);
+    }
+
+    if (result.conditions.length == 0) {
+      console.log("================== FILTERS =======================");
+      console.log(JSON.stringify(matches, null, 2));
+      console.log("================== CONDITIONS =======================");
+      console.log(JSON.stringify(result, null, 2));
+      console.error("No filters found!");
+    } else {
+      conditions.push(result);
+    }
+
+    return result;
+  }
+
+
+  private async getSubject(table: Table, match: Match) {
+    if (match.function)
+      return this.getFunction(table, match);
+    else
+      return this.getField(table, match.property['@id']);
+  }
+
+  private async getFunction(table: Table, match: Match) {
+    const fn = match.function.id['@id'];
+
+    this.validateArguments(match);
+
+    if (fn === "http://endhealth.info/im#AgeFunction") {
+      return "TIMESTAMPDIFF("
+        + await this.getArgument(table, match, "units") + ", "
+        + await this.getField(table, match.property['@id']) + ", "
+        + await this.getArgument(table, match, "referenceDate") + ")";
+    } else if (fn === "http://endhealth.info/im#TimeDifference") {
+      return "TIMESTAMPDIFF("
+        + await this.getArgument(table, match, "units") + ", "
+        + await this.getArgument(table, match, "firstDate") + ", "
+        + await this.getArgument(table, match, "secondDate") + ")";
+    } else {
+      throw "Unknown function [" + fn + "]";
+    }
+  }
+
+  private validateArguments(match: Match) {
+    if (!match.valueVar)
+      return;
+
+    for(const a of match.function.argument) {
+      if (a.valueVariable == match.valueVar)
+        throw "Function uses self-referencing variable " + match.valueVar;
+    }
+  }
+
+  private async getArgument(table: Table, match: Match, name: string) {
+    for(const a of match.function.argument) {
+      if (a.parameter === name) {
+        if (a.valueVariable == '$this') {
+          return await this.getField(table, match.property['@id'])
+        } else {
+          return a.valueVariable;
+        }
+      }
+    }
+
+    throw "Unknown argument [" + name + "]";
+  }
+
+  private getComparison(c: string) {
+    switch (c) {
+      case "EQUAL": return "=";
+      case "GREATER_THAN": return ">";
+      case "GREATER_THAN_OR_EQUAL": return ">=";
+      case "LESS_THAN": return "<";
+      case "LESS_THAN_OR_EQUAL": return "<=";
+      case "NOT_EQUAL": return "<>";
+      case "MEMBER_OF": throw "Cannot compare \"Member of\"";
+      default: throw "Unknown comparator [" + c + "]";
+    }
+  }
+
+  private async getIM1Id(entity: string): Promise<string> {
+    // TODO: Temporary hard coded IM1 maps
+    if (entity == "http://endhealth.info/im#2751000252106")
+      return 'FHIR_RT_R';
+
+    const rs = await this.graph.execute(
+      "SELECT ?id WHERE { ?iri ?im1Id ?id }",
+      {
+        iri: iri(entity),
+        im1Id: iri(IM.IM1ID)
+      });
+
+    if (rs.length != 1)
+      throw "Unable to get IM1 ID for entity [" + entity + "]";
+
+    return rs[0].id;
+  }
+
+  private async getField(table: Table, fieldId: string){
+    const propType = await this.getPropertyType(table.id, fieldId);
+
+    if (propType.function) {
+      console.log(table.id + " - " + fieldId + " is a function: " + propType.function);
+    }
+
+    return this.sql.getField(table, fieldId);
+  }
+
+  private async getPropertyType(entity: string, property: string): Promise<any> {
+    if (!property)
+      throw { };
+
+    if (!property.startsWith("http"))
+      return { };
+
+    const spql = "select ?function ?type ?class " +
+      "where { " +
+      "    ?s  ?shprop ?bn . " +
+      "    ?bn ?shpath ?p . " +
+      "    OPTIONAL { ?bn ?shfun ?function  } " +
+      "    OPTIONAL { ?bn ?shdt  ?type  } " +
+      "    OPTIONAL { ?bn ?shcls ?class  } " +
+      "}";
+
+    const rs = await this.graph.execute(
+      spql,
+      {
+        s: iri(entity),
+        p: iri(property),
+        shprop: iri(SHACL.PROPERTY),
+        shfun: iri(SHACL.FUNCTION),
+        shpath: iri(SHACL.PATH),
+        shdt: iri(SHACL.DATATYPE),
+        shcls: iri(SHACL.CLASS)
+      });
+
+    if (rs.length != 1) {
+      console.log("Unable to get type of property [" + property + "] on entity [" + entity + "]");
+      return { };
+    }
+
+    return rs[0];
+  }
+}

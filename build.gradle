@@ -2,6 +2,7 @@ plugins {
     // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
     id 'groovy-gradle-plugin'
     id "org.sonarqube" version "3.3"
+    id 'java'
 }
 
 repositories {
@@ -20,12 +21,12 @@ sonarqube {
         property 'sonar.login', sonarLogin
         property 'sonar.host.url', 'https://sonarcloud.io'
         property 'sonar.junit.reportPaths', 'build/test-results/test/binary'
-        property 'sonar.exclusions', 'parser/**'
-        property 'sonar.coverage.exclusions', 'api/**, dataaccess-*/**, models/**, statemachine/**, transforms/**'
+        property 'sonar.exclusions', '**/imapi/parser/**, **/imapi/transforms/**/eqd/**'
+        property 'sonar.coverage.exclusions', '**/imapi/config/**, **/imapi/controllers/**, **/imapi/dataaccess/**, **/imapi/errorhandling/**, **/imapi/filer/**, **/imapi/vocabulary/**'
     }
 }
 
-check.finalizedBy 'sonarqube'
+build.finalizedBy 'sonarqube'
 
 allprojects {
     apply plugin: 'java-library'
@@ -48,6 +49,7 @@ allprojects {
         }
     }
 
+    build.finalizedBy 'publish'
     test.finalizedBy jacocoTestReport
 
     repositories {
@@ -68,5 +70,9 @@ allprojects {
             }
         }
     }
+}
+
+task myJavadocs(type: Javadoc) {
+    source = sourceSets.main.allJava
 }
 

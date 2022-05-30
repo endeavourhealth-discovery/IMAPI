@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.Tag;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
 import org.endeavourhealth.imapi.model.workflow.Task;
 import org.endeavourhealth.imapi.statemachine.StateMachineConfig;
@@ -20,10 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("workflow")
 @CrossOrigin(origins = "*")
-@Api(value="WorkflowController")
-@SwaggerDefinition(tags = {
-        @Tag(name = "Workflow Controller", description = "Main Workflow endpoint")
-})
+@Tag(name="WorkflowController")
 @RequestScope
 public class WorkflowController {
 

@@ -1,5 +1,10 @@
 package org.endeavourhealth.imapi.errorhandling;
 
+import org.apache.catalina.connector.ClientAbortException;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
+import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,8 +21,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
-import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
 //@Order(Ordered.HIGHEST_PRECEDENCE)
@@ -85,6 +90,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(error);
     }
 
+    @ExceptionHandler(ClientAbortException.class)
+    protected ResponseEntity<Object> handleClientAbortException(ClientAbortException ex, HttpServletRequest req, WebRequest request){
+        if("/api/entity/public/search".equals(req.getRequestURI())){
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return handleAll(ex,request);
+        }
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
         throw ex;
@@ -96,9 +110,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(error);
     }
 
-    @ExceptionHandler(UnknownFormatConversionException.class)
-    protected ResponseEntity<Object> handleUnknownFormatConversionException(UnknownFormatConversionException ex) {
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.UNKNOWN_FORMAT_CONVERSION_EXCEPTION);
+    @ExceptionHandler(EclFormatException.class)
+    protected ResponseEntity<Object> handleEclFormatException(EclFormatException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.ECL_FORMAT_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(OpenSearchException.class)
+    protected ResponseEntity<Object> handleOpenSearchException(OpenSearchException ex) {
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex, ErrorCodes.OPEN_SEARCH_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(TTFilerException.class)
+    protected ResponseEntity<Object> handleTTFilerException(TTFilerException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.TT_FILER_EXCEPTION);
         return buildResponseEntity(error);
     }
 

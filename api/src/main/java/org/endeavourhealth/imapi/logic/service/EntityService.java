@@ -100,15 +100,29 @@ public class EntityService {
         return result;
     }
 
-    public Pageable<TTIriRef> getImmediateChildrenWithCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
         if (iri == null || iri.isEmpty())
             return null;
 
         int rowNumber = 0;
         if (page != null && size != null)
-            rowNumber = (page - 1) * 10;
+            rowNumber = (page - 1) * size;
 
-        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris, rowNumber, size, inactive);
+        Pageable<TTIriRef> childrenAndTotalCount = entityTripleRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive);
+        Pageable<EntityReferenceNode> result = new Pageable<>();
+        result.setTotalCount(childrenAndTotalCount.getTotalCount());
+        List<EntityReferenceNode> nodes = new ArrayList<>();
+        for (TTIriRef c : childrenAndTotalCount.getResult()) {
+            EntityReferenceNode node = new EntityReferenceNode();
+            node.setIri(c.getIri());
+            node.setName(c.getName());
+            node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
+            node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
+            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
+            nodes.add(node);
+        }
+        result.setResult(nodes);
+        return result;
     }
 
     public Pageable<TTIriRef> getPartialWithTotalCount(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -117,7 +131,7 @@ public class EntityService {
 
         int rowNumber = 0;
         if (page != null && size != null)
-            rowNumber = (page - 1) * 10;
+            rowNumber = (page - 1) * size;
 
         return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
     }

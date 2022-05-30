@@ -195,7 +195,7 @@ public class EntityTripleRepository {
         }
     }
 
-    public Pageable<TTIriRef> findImmediateChildrenByIriWithCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())

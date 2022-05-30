@@ -42,8 +42,6 @@ export class GraphdbService {
     try {
       const client = await this.getRepo();
 
-      client.registerParser(new SparqlJsonResultParser());
-
       const stmt = new GetQueryPayload()
         .setQuery(sparql)
         .setQueryType(QueryType.SELECT)
@@ -66,8 +64,7 @@ export class GraphdbService {
             if (v.startsWith('"')) {
               v = v.substring(1, v.length - 1);
             }
-            // console.log("binding[b]", binding[b])
-            // console.log("v", v)
+
             binding[b] = v;
           }
         }
@@ -85,8 +82,10 @@ export class GraphdbService {
   }
 
   private async getRepo() {
-    if (this.repo == null)
+    if (this.repo == null) {
       await this.connect();
+      this.repo.registerParser(new SparqlJsonResultParser());
+    }
 
     return this.repo;
   }

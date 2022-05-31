@@ -1,7 +1,9 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -11,7 +13,6 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"iri","name","inverseOf","alias","binding","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertySelect extends TTIriRef {
-	private String binding;
 	private String alias;
 	private Select select;
 	boolean inverseOf=false;
@@ -85,20 +86,20 @@ public class PropertySelect extends TTIriRef {
 		return this;
 	}
 
-	public String getBinding() {
-		return binding;
-	}
 
-	public PropertySelect setBinding(String binding) {
-		this.binding = binding;
-		return this;
-	}
 
 	public String getAlias() {
 		return alias;
 	}
 
+	@JsonSetter
 	public PropertySelect setAlias(String alias) {
+		this.alias = alias;
+		return this;
+	}
+
+	@JsonIgnore
+	public PropertySelect alias(String alias) {
 		this.alias = alias;
 		return this;
 	}

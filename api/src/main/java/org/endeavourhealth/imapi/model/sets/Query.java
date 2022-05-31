@@ -108,6 +108,13 @@ public class Query extends Heading {
 		return this;
 	}
 
+	@Override
+	@JsonIgnore
+	public Query name(String name){
+		super.setName(name);
+		return this;
+	}
+
 	public Query setUsePrefixes(boolean usePrefixes) {
 		this.usePrefixes = usePrefixes;
 		return this;
@@ -121,6 +128,13 @@ public class Query extends Heading {
 		this.resultFormat = resultFormat;
 		return this;
 	}
+
+
+	public Query resultFormat(ResultFormat resultFormat) {
+		this.resultFormat = resultFormat;
+		return this;
+	}
+
 
 	public List<Select> getGroupBy() {
 		return groupBy;

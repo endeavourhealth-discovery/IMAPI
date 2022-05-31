@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -20,8 +21,8 @@ public class Match extends Heading {
 	private OrderLimit orderLimit;
 	private TTIriRef graph;
 	private ConceptRef entityType;
-	private TTIriRef entityId;
-	private TTIriRef entityInValueSet;
+	private ConceptRef entityId;
+	private ConceptRef entityInValueSet;
 
 	ConceptRef property;
 	Compare value;
@@ -31,15 +32,14 @@ public class Match extends Heading {
 	List<ConceptRef> isNotConcept;
 	Range inRange;
 	String entityVar;
-	String propertyVar;
-	String valueVar;
+
 	Match match;
 	Function function;
 	Within within;
 	boolean inverseOf=false;
 	boolean notExist=false;
 	boolean isIndex;
-	boolean includeSubEntities;
+
 
 	public Match and(Consumer<Match> builder){
 		Match m= new Match();
@@ -63,7 +63,7 @@ public class Match extends Heading {
 	}
 
 
-	public TTIriRef getEntityInValueSet() {
+	public ConceptRef getEntityInValueSet() {
 		return entityInValueSet;
 	}
 
@@ -72,6 +72,12 @@ public class Match extends Heading {
 	}
 
 	public Match setIsConcept(List<ConceptRef> valueConcept) {
+		this.isConcept = valueConcept;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match isConcept(List<ConceptRef> valueConcept) {
 		this.isConcept = valueConcept;
 		return this;
 	}
@@ -88,6 +94,7 @@ public class Match extends Heading {
 		addIsConcept(cr);
 		return this;
 	}
+
 	public Match addIsNotConcept(ConceptRef value){
 		if (this.isNotConcept ==null)
 			this.isNotConcept = new ArrayList<>();
@@ -104,8 +111,14 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public Match setEntityInValueSet(TTIriRef entityInValueSet) {
+	@JsonSetter
+	public Match setEntityInValueSet(ConceptRef entityInValueSet) {
 		this.entityInValueSet = entityInValueSet;
+		return this;
+	}
+
+	public Match setEntityInValueSet(TTIriRef entityInValueSet) {
+		this.entityInValueSet = new ConceptRef(entityInValueSet);
 		return this;
 	}
 
@@ -119,24 +132,8 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public String getPropertyVar() {
-		return propertyVar;
-	}
-
-	public Match setPropertyVar(String propertyVar) {
-		this.propertyVar = propertyVar;
-		return this;
-	}
 
 
-	public boolean isIncludeSubEntities() {
-		return includeSubEntities;
-	}
-
-	public Match setIncludeSubEntities(boolean includeSubEntities) {
-		this.includeSubEntities = includeSubEntities;
-		return this;
-	}
 
 	public Match setName(String name){
 		super.setName(name);
@@ -155,11 +152,17 @@ public class Match extends Heading {
 
 
 
-	public TTIriRef getEntityId() {
+	public ConceptRef getEntityId() {
 		return entityId;
 	}
 
 	public Match setEntityId(TTIriRef entityId) {
+		this.entityId = new ConceptRef(entityId);
+		return this;
+	}
+
+	@JsonSetter
+	public Match setEntityId(ConceptRef entityId) {
 		this.entityId = entityId;
 		return this;
 	}
@@ -194,9 +197,21 @@ public class Match extends Heading {
 		return this;
 	}
 
+	@JsonIgnore
+	public Match entityType(ConceptRef entityType) {
+		this.entityType = entityType;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match entityType(TTIriRef entityType) {
+		this.entityType = ConceptRef.iri(entityType);
+		return this;
+	}
+
 
 	public Match setEntityType(TTIriRef entityType) {
-		this.entityType = ConceptRef.iri(entityType);
+		this.entityType = new ConceptRef(entityType);
 		return this;
 	}
 
@@ -293,8 +308,23 @@ public class Match extends Heading {
 		return match;
 	}
 
+	@JsonSetter
 	public Match setMatch(Match match) {
 		this.match = match;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match match(Match match) {
+		this.match = match;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match match(Consumer<Match> builder){
+		Match match= new Match();
+		this.match= match;
+		builder.accept(match);
 		return this;
 	}
 
@@ -309,7 +339,6 @@ public class Match extends Heading {
 
 
 
-
 	public ConceptRef getProperty() {
 		return property;
 	}
@@ -317,6 +346,18 @@ public class Match extends Heading {
 	@JsonSetter
 	public Match setProperty(ConceptRef property) {
 		this.property = property;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match property(ConceptRef property) {
+		this.property = property;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match property(TTIriRef property) {
+		this.property = new ConceptRef(property);
 		return this;
 	}
 
@@ -378,15 +419,6 @@ public class Match extends Heading {
 	}
 
 
-
-	public String getValueVar() {
-		return valueVar;
-	}
-
-	public Match setValueVar(String valueVar) {
-		this.valueVar = valueVar;
-		return this;
-	}
 
 
 

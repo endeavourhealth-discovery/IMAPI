@@ -4,17 +4,36 @@ import { Keyspaces } from 'aws-sdk';
 
 export default class ManipulationUtils {
 
+
+    //required in case JSON defintition contains illegal characters
+    public static escapeCharacters = (str: string) => {
+        console.log("str", str);
+        console.log("t", typeof(str));
+        return str
+            .replace(/[\n]/g, '\\n')
+        // .replace(/[\\]/g, '\\\\')
+        // .replace(/[\"]/g, '\\\"')
+        // .replace(/[\/]/g, '\\/')
+        // .replace(/[\b]/g, '\\b')
+        // .replace(/[\f]/g, '\\f')
+        // .replace(/[\r]/g, '\\r')
+        // .replace(/[\t]/g, '\\t');
+    };
+
+
+
     /**
     * A callback function for Array.filter() that filters out duplicate items in an array e.g. use as Array.filter(onlyUnique);
     * @name onlyUnique
     **/
+
     public static onlyUnique(element: any, index: any, array: any): boolean {
         return array.indexOf(element) === index;
     }
 
     public static isTTIriRef(element: any): boolean {
         const keys = Object.keys(element);
-        const excludedKeys = ["and", "or", "property"]; 
+        const excludedKeys = ["and", "or", "property"];
         const isExcludedKeysPresent = !keys.some(key => excludedKeys.includes(key));
         return keys.includes("@id") && isExcludedKeysPresent;
     }

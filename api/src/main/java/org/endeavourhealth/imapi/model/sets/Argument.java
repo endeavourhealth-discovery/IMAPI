@@ -7,15 +7,15 @@ import java.util.List;
 public class Argument {
 
 	String parameter;
-	Object value;
-	Function functionValue;
+	String valueData;
+	String valueVariable;
 
-	public Function getFunctionValue() {
-		return functionValue;
+	public String getValueVariable() {
+		return valueVariable;
 	}
 
-	public Argument setFunctionValue(Function functionValue) {
-		this.functionValue = functionValue;
+	public Argument setValueVariable(String valueVariable) {
+		this.valueVariable = valueVariable;
 		return this;
 	}
 
@@ -28,15 +28,15 @@ public class Argument {
 		return this;
 	}
 
-	public Object getValue() {
-		return value;
+	public Object getValueData() {
+		return valueData;
 	}
 
-	public Argument setValue(Object value) {
-		if (!(List.of(String.class,TTIriRef.class, Filter.class,Boolean.class,
-			Double.class,Float.class).contains(value.getClass())))
-			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Filter clauses");
-		this.value= value;
+	public Argument setValueData(String valueData) {
+		if (!(List.of(String.class,TTIriRef.class, Match.class,Boolean.class,
+			Double.class,Float.class).contains(valueData.getClass())))
+			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Match clauses");
+		this.valueData = valueData;
 		return this;
 	}
 

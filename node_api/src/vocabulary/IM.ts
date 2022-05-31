@@ -12,6 +12,7 @@ export class IM {
   public static INHERITED_FROM = IM.NAMESPACE + "inheritedFrom";
 
   // mapping
+  public static IM1ID = IM.NAMESPACE + "im1Id";
   public static HAS_MAP = IM.NAMESPACE + "hasMap";
   public static ONE_OF = IM.NAMESPACE + "oneOf";
   public static MAP_ADVICE = IM.NAMESPACE + "mapAdvice";
@@ -52,6 +53,10 @@ export class IM {
 
   // other
   public static DEFINITION = IM.NAMESPACE + "definition";
+  public static IN_RESULT_SET = IM.NAMESPACE + "inResultSet";
+  public static EFFECTIVE_DATE = IM.NAMESPACE + "effectiveDate";
+  public static TIME_DIFFERENCE = IM.NAMESPACE + "TimeDifference";
+  public static OBSERVATION = IM.NAMESPACE + "Observation";
 
   public static PREFIXED = new class {
 

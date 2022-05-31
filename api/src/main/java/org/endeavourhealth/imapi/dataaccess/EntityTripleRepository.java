@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
@@ -194,7 +195,7 @@ public class EntityTripleRepository {
         }
     }
 
-    public Pageable<TTIriRef> findImmediateChildrenByIriWithCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -248,13 +249,67 @@ public class EntityTripleRepository {
         return result;
     }
 
+    public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri,String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+        List<TTIriRef> children = new ArrayList<>();
+        Pageable<TTIriRef> result = new Pageable<>();
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?count ?p ?pname")
+                .add("WHERE {")
+                .add("{ SELECT (COUNT(?p) as ?count) {")
+                .add("  ?c ?pr ?p }}")
+                .add("UNION ")
+                .add("{ SELECT ?p ?pname {")
+                .add("  ?c ?pr ?p .")
+                .add("?p rdfs:label ?pname .");
+        if (schemeIris != null && !schemeIris.isEmpty()) {
+            sql
+                    .add(valueList("g", schemeIris));
+        }
+
+        if (!inactive)
+            sql
+                    .add("  OPTIONAL { ?p im:status ?s}")
+                    .add("  FILTER (?s != im:Inactive) .");
+
+        sql.add("}}}");
+
+        sql.add("ORDER BY ?pname");
+
+        if (rowNumber != null && pageSize != null) {
+            sql
+                    .add("LIMIT " + pageSize)
+                    .add("OFFSET " + rowNumber);
+        }
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("c", iri(parentIri));
+            qry.setBinding("pr", iri( predicateIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                BindingSet bs = rs.next();
+                if(rowNumber==0){
+                    result.setTotalCount(((Literal) bs.getValue("count")).intValue());
+                }else{
+                    children.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
+                }
+                result.setPageSize(pageSize);
+                while (rs.hasNext()) {
+                    bs = rs.next();
+                    children.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
+
+                }
+                result.setResult(children);
+            }
+        }
+        return result;
+    }
+
     public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-                .add("SELECT ?c ?cname")
-                .add("WHERE {")
-                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
+                .add("SELECT DISTINCT ?c ?cname {")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
                 .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {

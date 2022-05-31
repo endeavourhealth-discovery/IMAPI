@@ -13,15 +13,15 @@ public class QueryGenerator {
     private Integer limit = null;
 
     public QueryGenerator getSelect(String iri) throws JsonProcessingException {
-        Filter json = loadProfile(iri);
+        Match json = loadProfile(iri);
 
         LOG.info("Generating Query");
         return generateQuery(json, "main");
     }
 
-    private Filter loadProfile(String iri) throws JsonProcessingException {
+    private Match loadProfile(String iri) throws JsonProcessingException {
         LOG.info("Loading query");
-        TTBundle bundle = svc.getBundle(iri, DataSet.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
+        TTBundle bundle = svc.getBundle(iri, Query.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
         TTArray def = bundle.getEntity().get(IM.DEFINITION);
         if (def == null)
@@ -31,16 +31,16 @@ public class QueryGenerator {
         LOG.info(query);
 
         LOG.info("Deserializing");
-        Filter json = new ObjectMapper().readValue(query, Filter.class);
+        Match json = new ObjectMapper().readValue(query, Match.class);
         LOG.info(json.toString());
 
         return json;
     }
 
-    private QueryGenerator generateQuery(DataSet profile, String alias) throws JsonProcessingException {
+    private QueryGenerator generateQuery(Query profile, String alias) throws JsonProcessingException {
         return this.generateQuery(profile, alias, false);
     }
-    private QueryGenerator generateQuery(DataSet profile, String alias, boolean pkOnly) throws JsonProcessingException {
+    private QueryGenerator generateQuery(Query profile, String alias, boolean pkOnly) throws JsonProcessingException {
         StringJoiner result = new StringJoiner(System.lineSeparator());
 
         try {
@@ -52,14 +52,14 @@ public class QueryGenerator {
                 .setAlias(alias);
 
             // fields.add(alias + "." + mainTable.getPk());
-            for (Filter matchProperty:profile.getMust()){
+            for (Match matchProperty:profile.getMust()){
                 if (matchProperty.getValueObject()!=null){
                     addJoin(mainTable, matchProperty);
                 }
                 else
                  conditions.add(getAnd(mainTable, matchProperty));
             }
-            for (Filter matchProperty:profile.getOr()){
+            for (Match matchProperty:profile.getOr()){
                     conditions.add(getOr(mainTable, matchProperty));
             }
 
@@ -68,8 +68,8 @@ public class QueryGenerator {
                 conditions.add(getOr(mainTable, profile.getOr()));
             }
 
-            if (profile instanceof Filter && ((Filter)profile).getSort()!=null) {
-                SortLimit sortLimit = ((Filter)profile).getSort();
+            if (profile instanceof Match && ((Match)profile).getSort()!=null) {
+                OrderLimit sortLimit = ((Match)profile).getSort();
                 String direction = sortLimit.getDirection() == null || sortLimit.getDirection() == Order.ASCENDING ? " ASC" : " DESC";
                 orderBy.add(QueryGenHelper.getTableField(mainTable, sortLimit.getOrderBy().getIri()) + direction);
                 if (sortLimit.getCount() != null)
@@ -110,7 +110,7 @@ public class QueryGenerator {
         return result.toString();
     }
 
-    private Table addJoin(Table parent, Filter matchProperty) throws JsonProcessingException {
+    private Table addJoin(Table parent, Match matchProperty) throws JsonProcessingException {
         Table table = createTable(matchProperty.getValueObject().getEntityType().getIri());
 
         StringJoiner join = new StringJoiner(System.lineSeparator());
@@ -128,18 +128,18 @@ public class QueryGenerator {
         return table;
     }
 
-    private String getAnd(Table table, List<Filter> matchProperties) throws JsonProcessingException {
+    private String getAnd(Table table, List<Match> matchProperties) throws JsonProcessingException {
         return String.join("\nAND ", getStatements(table, matchProperties));
     }
 
-    private String getOr(Table table, List<Filter> matchProperties) throws JsonProcessingException {
+    private String getOr(Table table, List<Match> matchProperties) throws JsonProcessingException {
         return String.join("\nOR ", getStatements(table, matchProperties));
     }
 
-    private List<String> getStatements(Table table, List<Filter> matchProperties) throws JsonProcessingException {
+    private List<String> getStatements(Table table, List<Match> matchProperties) throws JsonProcessingException {
         List<String> result = new ArrayList<>();
 
-        for(Filter matchProperty : matchProperties) {
+        for(Match matchProperty : matchProperties) {
             if (matchProperty.getProperty()!=null) {
                 String condition = getCondition(table, matchProperty);
                 if (condition != null)
@@ -158,12 +158,12 @@ public class QueryGenerator {
         return result;
     }
 
-    private String getCondition(Table table, Filter matchProperty) throws JsonProcessingException {
+    private String getCondition(Table table, Match matchProperty) throws JsonProcessingException {
         if (IM.HAS_PROFILE.equals(matchProperty.getProperty())) {
             // Subselect
             StringJoiner subselect = new StringJoiner(" ");
 
-            Filter profile = loadProfile(matchProperty.getValueIn().get(0).getIri());
+            Match profile = loadProfile(matchProperty.getValueIn().get(0).getIri());
             QueryGenerator sub = new QueryGenerator().generateQuery(profile, "sub", true);
 
             subselect.add(table.getAlias() + "." + table.getPk());
@@ -205,7 +205,7 @@ public class QueryGenerator {
         }
     }
 
-    private void subJoin(Table table, Filter matchProperty) throws JsonProcessingException {
+    private void subJoin(Table table, Match matchProperty) throws JsonProcessingException {
         Table sub = createTable(matchProperty.getEntityType().getIri());
         sub.setJoin(table.getAlias() + "." + table.getPk() + " = " + QueryGenHelper.getTableField(sub, matchProperty.getPathTo().getIri()));
 

@@ -3,7 +3,8 @@ import * as dotenv from "dotenv";
 
 import SearchController from './controllers/searchController';
 
-import bodyParser from 'body-parser';
+const bodyParser = require('body-parser');
+
 import EntityController from './controllers/entityController';
 import QueryController from './controllers/queryController';
 

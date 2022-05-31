@@ -13,29 +13,11 @@ export class GraphdbService {
   private repoConfig;
   private repo;
 
-  constructor() {
-    const timeout = process.env.GRAPH_TIMEOUT || 30000;
-    this.serverConfig = new ServerClientConfig(process.env.GRAPH_HOST)
-      .setTimeout(timeout)
-      .setHeaders({
-        'Accept': RDFMimeType.SPARQL_RESULTS_JSON
-      })
-      .setKeepAlive(true);
-
-    this.server = new ServerClient(this.serverConfig);
-
-    this.repoConfig = new RepositoryClientConfig(process.env.GRAPH_HOST)
-      .setEndpoints([process.env.GRAPH_HOST + '/repositories/' + process.env.GRAPH_REPO])
-      .setReadTimeout(timeout)
-      .setWriteTimeout(timeout);
-
-    this.repo = this.server.getRepository(process.env.GRAPH_REPO, this.repoConfig);
-  }
-
+  constructor() { }
 
   public async update(sparql: string): Promise<boolean> {
     try {
-      const client = await this.repo;
+      const client = await this.getRepo();
 
       client.registerParser(new SparqlJsonResultParser());
 
@@ -58,9 +40,7 @@ export class GraphdbService {
 
   public async execute(sparql: string, bindings?: any): Promise<any[]> {
     try {
-      const client = await this.repo;
-
-      client.registerParser(new SparqlJsonResultParser());
+      const client = await this.getRepo();
 
       const stmt = new GetQueryPayload()
         .setQuery(sparql)
@@ -84,7 +64,8 @@ export class GraphdbService {
             if (v.startsWith('"')) {
               v = v.substring(1, v.length - 1);
             }
-            binding[b] = JSON.parse(v);
+
+            binding[b] = v;
           }
         }
 
@@ -99,8 +80,37 @@ export class GraphdbService {
       return [];
     }
   }
+
+  private async getRepo() {
+    if (this.repo == null) {
+      await this.connect();
+      this.repo.registerParser(new SparqlJsonResultParser());
+    }
+
+    return this.repo;
+  }
+
+  private async connect() {
+    const timeout = process.env.GRAPH_TIMEOUT || 30000;
+    this.serverConfig = new ServerClientConfig(process.env.GRAPH_HOST)
+      .setTimeout(timeout)
+      .setHeaders({
+        'Accept': RDFMimeType.SPARQL_RESULTS_JSON
+      })
+      .setKeepAlive(true);
+
+    this.server = new ServerClient(this.serverConfig);
+
+    this.repoConfig = new RepositoryClientConfig(process.env.GRAPH_HOST)
+      .setEndpoints([process.env.GRAPH_HOST + '/repositories/' + process.env.GRAPH_REPO])
+      .setReadTimeout(timeout)
+      .setWriteTimeout(timeout);
+
+    this.repo = await this.server.getRepository(process.env.GRAPH_REPO, this.repoConfig);
+  }
+
 }
 
-export function iri(iri: string) {
-  return '<' + iri + '>';
+export function iri(url: string) {
+  return '<' + url + '>';
 }

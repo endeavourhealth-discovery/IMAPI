@@ -36,13 +36,7 @@ public class Function {
 		return this;
 	}
 
-	public Function addArgument(String parameter, Object value){
-		Argument arg= new Argument();
-		arg.setParameter(parameter);
-		arg.setValue(value);
-		addArgument(arg);
-		return this;
-	}
+
 
 	public Argument addArgument() {
 		if (this.argument==null)

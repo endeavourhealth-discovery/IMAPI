@@ -3,6 +3,22 @@
  */
 plugins {
     id 'war'
+    id "cz.habarta.typescript-generator" version "2.36.1070"
+}
+
+import cz.habarta.typescript.generator.JsonLibrary
+import cz.habarta.typescript.generator.TypeScriptFileType
+
+tasks {
+    generateTypeScript {
+        jsonLibrary = JsonLibrary.jackson2
+        outputFileType = TypeScriptFileType.implementationFile
+        classPatterns = [
+                'org.endeavourhealth.imapi.model.sets.*'
+        ]
+        outputFile = '../node_api/src/model/sets/Query.ts'
+        outputKind = 'module'
+    }
 }
 
 sonarqube {

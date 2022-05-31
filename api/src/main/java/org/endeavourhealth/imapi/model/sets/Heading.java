@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -10,6 +11,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 public class Heading extends TTIriRef {
 	private String var;
 	private String description;
+
 
 
 
@@ -30,6 +32,14 @@ public class Heading extends TTIriRef {
 		super.setName(name);
 		return this;
 	}
+
+
+	@JsonIgnore
+	public Heading name(String name){
+		super.setName(name);
+		return this;
+	}
+
 
 
 	public Heading(String iri) {

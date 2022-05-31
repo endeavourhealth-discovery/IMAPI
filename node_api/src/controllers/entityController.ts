@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import AuthMiddleware from '../middlewares/auth.middleware';
 import { GraphdbService } from '../services/graphdb.service';
 
-import {SparqlSnippets, OntologyUtils} from '../helpers/query'
+import { SparqlSnippets, OntologyUtils } from '../helpers/query'
 import TTEntity from '../model/tripletree/TTEntity'
 import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
 
@@ -114,7 +114,7 @@ export default class EntityController {
       const queryResult = await this.service.execute(query);
 
       const entity = new TTEntity(iri as string);
-      const predicates = {};   
+      const predicates = {};
 
       // populates response with queryResults
       queryResult.forEach(item => {

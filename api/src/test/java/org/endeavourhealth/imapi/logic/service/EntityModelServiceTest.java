@@ -74,7 +74,7 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity();
         when(entityRepository2.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
-        TTBundle actual = entityService.getBundle(null,null, 0);
+        TTBundle actual = entityService.getBundle(null,null);
         assertNotNull(actual);
         assertNotNull(actual.getEntity());
     }
@@ -84,7 +84,7 @@ class EntityModelServiceTest {
         TTEntity entity = new TTEntity();
         when(entityRepository2.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
-        TTBundle actual = entityService.getBundle("", null, 0);
+        TTBundle actual = entityService.getBundle("", null);
         assertNotNull(actual);
         assertNotNull(actual.getEntity());
     }

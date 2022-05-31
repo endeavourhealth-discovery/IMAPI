@@ -1,4 +1,4 @@
-import { Query } from '../model/sets/Query';
+import {Query} from 'im-library/dist/types/models/modules/AutoGen';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';

@@ -1,16 +1,14 @@
 import {MysqlService} from "../services/mysql.service";
 import {GraphdbService, iri} from "../services/graphdb.service";
-import {Query} from "../model/sets/Query";
 import {Sql} from "../model/sql/Sql";
 import {Table} from "../model/sql/Table";
 import {Join} from "../model/sql/Join";
 import {SimpleCondition} from "../model/sql/SimpleCondition";
 import {ConditionList} from "../model/sql/ConditionList";
 import {Condition} from '../model/sql/Condition';
-import {Match} from '../model/sets/Query';
-import {Select} from '../model/sets/Query';
 import {TTIriRef} from '../model/tripletree/TTIriRef';
-import {IM, SHACL} from '../vocabulary';
+import {IM, RDF, SHACL} from '../vocabulary';
+import {Query, Match, Select} from 'im-library/dist/types/models/modules/AutoGen';
 
 export default class QueryRunner {
   private mysql: MysqlService;
@@ -90,42 +88,40 @@ export default class QueryRunner {
   }
 
   private async processSelect(select: Select) {
-    await this.processFilter(this.sql.table, this.sql.conditions, select.match);
+    await this.processMatch(this.sql.table, this.sql.conditions, select.match);
   }
 
-  private async processFilter(table: Table, conditions: Condition[], match: Match) {
+  private async processMatch(table: Table, conditions: Condition[], match: Match) {
     if (match.isConcept) {
-      await this.processValueConcept(table, conditions, match);
-/*    } else if (match.) {
-      await this.processValueObject(table, match.property["@id"], match.valueObject);*/
+      await this.processIsConcept(table, conditions, match);
+    } else if (match.match) {
+      await this.processSubMatch(table, match.property["@id"], match.match);
     } else if (match.inSet) {
       for (const s of match.inSet)
-        await this.processSubsetOf(table, s);
-/*    } else if (match.in) {
-      await this.processValueIn(table, conditions, match);*/
+        await this.processInResultSet(table, s);
+    } else if (match.entityInValueSet) {
+      await this.processEntityInValueSet(table, conditions, match);
     } else if (match.value) {
       await this.processValueCompare(table, conditions, match);
     } else if (match.notExist) {
       await this.processNotExist(table, conditions, match);
-    } else if (match.valueVar || match.and || match.or) {
+    } else if (match.and || match.or) {
       // Globally handled (below)
-    } else if (match.match) {
-      await this.processMatch(table, conditions, match);
     } else {
       console.error("Unknown/no filter type\n" + JSON.stringify(match, null, 2));
     }
 
-    if (match.valueVar)
-      this.sql.fields.push(await this.getSubject(table, match) + " AS " + match.valueVar);
+/*    if (match.valueVar)
+      this.sql.fields.push(await this.getSubject(table, match) + " AS " + match.valueVar);*/
 
     if (match.and)
-      await this.getFilters(table, conditions, match.and, "AND");
+      await this.processBoolean(table, conditions, match.and, "AND");
 
     if (match.or)
-      await this.getFilters(table, conditions, match.or, "OR");
+      await this.processBoolean(table, conditions, match.or, "OR");
   }
 
-  private async processValueConcept(table: Table, conditions: Condition[], match: Match) {
+  private async processIsConcept(table: Table, conditions: Condition[], match: Match) {
     // Direct comparison to a concept (list)
 
     const concept: Join = new Join();
@@ -151,17 +147,17 @@ export default class QueryRunner {
 
   }
 
-/*  private async processValueIn(table: Table, conditions: Condition[], match: Match) {
+  private async processEntityInValueSet(table: Table, conditions: Condition[], match: Match) {
     if (match.property['@id'] == "http://endhealth.info/im#inResultSet") {
       const join: Join = new Join();
-      join.table = this.sql.getTable(match.valueIn[0]['@id'], "t" + this.sql.joins.length);
+      join.table = this.sql.getTable(match.entityInValueSet[0]['@id'], "t" + this.sql.joins.length);
       join.on = await this.getField(table, "pk") + " = " + await this.getField(join.table, "pk");
 
       this.sql.joins.push(join);
     } else if (match.property['@id'] == "http://endhealth.info/im#concept") {
       let vs: Join = new Join();
       vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
-      vs.on = await this.getField(vs.table, "iri") + " = '" + match.valueIn[0]['@id'] + "'";
+      vs.on = await this.getField(vs.table, "iri") + " = '" + match.entityInValueSet[0]['@id'] + "'";
       this.sql.joins.push(vs);
 
       let vsm: Join = new Join();
@@ -171,7 +167,7 @@ export default class QueryRunner {
     } else if (match.property['@id'] == "http://endhealth.info/im#code") {
       let vs: Join = new Join();
       vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
-      vs.on = await this.getField(vs.table, "iri") + " = '" + match.valueIn[0]['@id'] + "'";
+      vs.on = await this.getField(vs.table, "iri") + " = '" + match.entityInValueSet[0]['@id'] + "'";
       this.sql.joins.push(vs);
 
       let vsm: Join = new Join();
@@ -182,16 +178,16 @@ export default class QueryRunner {
     } else
       throw "Unknown 'Value In' predicate [" + match.property['@id'] + "]";
 
-  }*/
+  }
 
-  private async processValueObject(parentTable: Table, propertyId: string, match: Match) {
+  private async processSubMatch(parentTable: Table, propertyId: string, match: Match) {
     const join: Join = this.sql.getJoin(parentTable, propertyId, match.entityType["@id"], "t" + this.sql.joins.length);
     this.sql.joins.push(join);
 
-    await this.processFilter(join.table, join.conditions, match);
+    await this.processMatch(join.table, join.conditions, match);
   }
 
-  private async processSubsetOf(parentTable: Table, queryIri: TTIriRef) {
+  private async processInResultSet(parentTable: Table, queryIri: TTIriRef) {
     const join: Join = new Join();
     join.table = this.sql.getTable(queryIri['@id'], "t" + this.sql.joins.length);
     join.on = await this.getField(parentTable, "pk") + " = " + await this.getField(join.table, "pk");
@@ -214,22 +210,12 @@ export default class QueryRunner {
     c.object = 'NULL';
   }
 
-  private async processMatch(table: Table, conditions: Condition[], match: Match) {
-    const join: Join = new Join();
-      join.table = this.sql.getTable(match.match.entityType['@id'], "t" + this.sql.joins.length);
-      join.on =  await this.getField(table, "pk") + " = " + await this.getField(join.table, match.property['@id']);
-
-      this.sql.joins.push(join);
-
-    return this.processFilter(join.table, conditions, match.match);
-  }
-
-  private async getFilters(table: Table, conditions: Condition[], matches:Match[], operator: string) {
+  private async processBoolean(table: Table, conditions: Condition[], matches:Match[], operator: string) {
     const result: ConditionList = new ConditionList();
     result.operator = operator;
 
     for(const filter of matches) {
-      await this.processFilter(table, result.conditions, filter);
+      await this.processMatch(table, result.conditions, filter);
     }
 
     if (result.conditions.length == 0) {
@@ -254,33 +240,44 @@ export default class QueryRunner {
   }
 
   private async getFunction(table: Table, match: Match) {
-    const fn = match.function.id['@id'];
-
     this.validateArguments(match);
 
-    if (fn === "http://endhealth.info/im#AgeFunction") {
-      return "TIMESTAMPDIFF("
-        + await this.getArgument(table, match, "units") + ", "
-        + await this.getField(table, match.property['@id']) + ", "
-        + await this.getArgument(table, match, "referenceDate") + ")";
-    } else if (fn === "http://endhealth.info/im#TimeDifference") {
-      return "TIMESTAMPDIFF("
-        + await this.getArgument(table, match, "units") + ", "
-        + await this.getArgument(table, match, "firstDate") + ", "
-        + await this.getArgument(table, match, "secondDate") + ")";
+    if (match.property) {
+      const propType = await this.getPropertyType(table.id, match.property['@id']);
+      if (propType.function) {
+        console.log("!!!!PROPERTY IS A FUNCTION!!!!")
+        const fn = match.property['@id'];
+
+        if (fn === "http://endhealth.info/im#age") {
+          return "TIMESTAMPDIFF("
+            + await this.getArgument(table, match, "units") + ", "
+            + await this.getField(table, match.property['@id']) + ", "
+            + "$referenceDate)";
+        } else if (fn === "http://endhealth.info/im#TimeDifference") {
+          return "TIMESTAMPDIFF("
+            + await this.getArgument(table, match, "units") + ", "
+            + await this.getArgument(table, match, "firstDate") + ", "
+            + await this.getArgument(table, match, "secondDate") + ")";
+        } else {
+          throw "Unknown function [" + fn + "]";
+        }
+      } else {
+        console.error(match);
+        throw "Property [" + match.property['@id'] + "] of [" + table.id + "] is not a function";
+      }
     } else {
-      throw "Unknown function [" + fn + "]";
+      throw "Function has no property";
     }
   }
 
   private validateArguments(match: Match) {
-    if (!match.valueVar)
+/*    if (!match.valueVar)
       return;
 
     for(const a of match.function.argument) {
       if (a.valueVariable == match.valueVar)
         throw "Function uses self-referencing variable " + match.valueVar;
-    }
+    }*/
   }
 
   private async getArgument(table: Table, match: Match, name: string) {
@@ -329,29 +326,24 @@ export default class QueryRunner {
   }
 
   private async getField(table: Table, fieldId: string){
-    const propType = await this.getPropertyType(table.id, fieldId);
-
-    if (propType.function) {
-      console.log(table.id + " - " + fieldId + " is a function: " + propType.function);
-    }
-
     return this.sql.getField(table, fieldId);
   }
 
   private async getPropertyType(entity: string, property: string): Promise<any> {
     if (!property)
-      throw { };
+      throw "No property!!!";
 
     if (!property.startsWith("http"))
       return { };
 
-    const spql = "select ?function ?type ?class " +
-      "where { " +
-      "    ?s  ?shprop ?bn . " +
-      "    ?bn ?shpath ?p . " +
-      "    OPTIONAL { ?bn ?shfun ?function  } " +
-      "    OPTIONAL { ?bn ?shdt  ?type  } " +
-      "    OPTIONAL { ?bn ?shcls ?class  } " +
+    const spql =
+      "SELECT ?function ?type ?class\n" +
+      "WHERE {\n" +
+      "    ?s  " + iri(SHACL.PROPERTY) + " ?bn .\n" +
+      "    ?bn " + iri(SHACL.PATH) + " ?p .\n" +
+      "    OPTIONAL { BIND(EXISTS {?p " + iri(RDF.TYPE) + " ?shfun} AS ?function)  }\n" +
+      "    OPTIONAL { ?bn " + iri(SHACL.DATATYPE) + " ?type  }\n" +
+      "    OPTIONAL { ?bn " + iri(SHACL.CLASS) + " ?class  }\n" +
       "}";
 
     const rs = await this.graph.execute(
@@ -359,11 +351,6 @@ export default class QueryRunner {
       {
         s: iri(entity),
         p: iri(property),
-        shprop: iri(SHACL.PROPERTY),
-        shfun: iri(SHACL.FUNCTION),
-        shpath: iri(SHACL.PATH),
-        shdt: iri(SHACL.DATATYPE),
-        shcls: iri(SHACL.CLASS)
       });
 
     if (rs.length != 1) {

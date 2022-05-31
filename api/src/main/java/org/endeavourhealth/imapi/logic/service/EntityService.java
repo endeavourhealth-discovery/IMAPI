@@ -100,6 +100,18 @@ public class EntityService {
         return result;
     }
 
+    public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
+        if (null == iri) return new EntityReferenceNode();
+        EntityReferenceNode node = new EntityReferenceNode();
+        TTIriRef entityIriRef = getEntityReference(iri);
+        node.setIri(entityIriRef.getIri());
+        node.setName(entityIriRef.getName());
+        node.setType(entityTypeRepository.getEntityTypes(entityIriRef.getIri()));
+        node.setHasChildren(entityTripleRepository.hasChildren(entityIriRef.getIri(),null,false));
+        node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(entityIriRef.getIri(),null,false));
+        return node;
+    }
+
     public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
         if (iri == null || iri.isEmpty())
             return null;

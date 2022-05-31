@@ -128,6 +128,12 @@ public class EntityController {
         return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 
+	@GetMapping(value = "/public/asEntityReferenceNode")
+	public EntityReferenceNode getEntityAsEntityReferenceNode(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getEntityAsEntityReferenceNode");
+		return entityService.getEntityAsEntityReferenceNode(iri);
+	}
+
 	@GetMapping(value = "/public/childrenPaged")
 	public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri,
 															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,

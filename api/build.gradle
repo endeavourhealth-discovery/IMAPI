@@ -13,10 +13,14 @@ tasks {
     generateTypeScript {
         jsonLibrary = JsonLibrary.jackson2
         outputFileType = TypeScriptFileType.implementationFile
+        classes = [
+                'org.endeavourhealth.imapi.model.search.SearchRequest',
+                'org.endeavourhealth.imapi.model.search.SearchResponse'
+        ]
         classPatterns = [
                 'org.endeavourhealth.imapi.model.sets.*'
         ]
-        outputFile = '../node_api/src/model/sets/Query.ts'
+        outputFile = '../../IMLibrary/src/models/modules/AutoGen.ts'
         outputKind = 'module'
     }
 }

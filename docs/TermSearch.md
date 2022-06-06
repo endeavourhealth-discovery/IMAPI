@@ -28,7 +28,7 @@ Post body containing search request json e.g.
 
 In the above example the client is looking for matches of the term substance that are subclasses of the concept substance, and return iri, code and name
 
-###Search filter parameters
+###Search match parameters
 (n.b. prefix im: = http://endhealth.info/im#)
 
 

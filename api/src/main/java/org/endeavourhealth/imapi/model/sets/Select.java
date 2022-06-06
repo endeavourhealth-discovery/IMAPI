@@ -7,8 +7,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-@JsonPropertyOrder({"name","distinct","entityType","entityId","entityIn","filter","sum","average","max","distinct","property"})
+@JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","property","match",})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select {
 
@@ -19,13 +20,47 @@ public class Select {
 	private boolean average;
 	private boolean max;
 	private boolean count;
-	private List<PropertyObject> property;
-	private Filter filter;
+	private List<PropertySelect> property;
+	private Match match;
 	private boolean distinct;
 	private ConceptRef entityType;
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
 	private List<String> groupBy;
+	private OrderLimit orderLimit;
+
+	public Select property(Consumer<PropertySelect> builder){
+		PropertySelect ps= new PropertySelect();
+		addProperty(ps);
+		builder.accept(ps);
+		return this;
+	}
+
+	public Select match(Consumer<Match> builder){
+		Match match= new Match();
+		this.match= match;
+		builder.accept(match);
+		return this;
+	}
+
+	public Select order(Consumer<OrderLimit> builder){
+		OrderLimit ol= new OrderLimit();
+		this.orderLimit= ol;
+		builder.accept(ol);
+		return this;
+	}
+
+
+
+
+	public OrderLimit getOrderLimit() {
+		return orderLimit;
+	}
+
+	public Select setOrderLimit(OrderLimit orderLimit) {
+		this.orderLimit = orderLimit;
+		return this;
+	}
 
 	public List<String> getGroupBy() {
 		return groupBy;
@@ -89,16 +124,16 @@ public class Select {
 		return this;
 	}
 
-	public List<PropertyObject> getProperty() {
+	public List<PropertySelect> getProperty() {
 		return property;
 	}
 
-	public Select setProperty(List<PropertyObject> property) {
+	public Select setProperty(List<PropertySelect> property) {
 		this.property = property;
 		return this;
 	}
 
-	public Select addProperty(PropertyObject property){
+	public Select addProperty(PropertySelect property){
 		if (this.property==null)
 			this.property= new ArrayList<>();
 		this.property.add(property);
@@ -116,12 +151,12 @@ public class Select {
 
 
 
-	public Filter getFilter() {
-		return filter;
+	public Match getMatch() {
+		return match;
 	}
 
-	public Select setFilter(Filter filter) {
-		this.filter = filter;
+	public Select setMatch(Match match) {
+		this.match = match;
 		return this;
 	}
 

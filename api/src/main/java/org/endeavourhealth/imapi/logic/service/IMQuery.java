@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
@@ -35,8 +34,10 @@ public class IMQuery {
 	private final Map<String,String> varProperty = new HashMap<>();
 	private String tabs="";
 	private int o=0;
-	private DataSet query;
+	private Query query;
 	private final Set<String> aliases = new HashSet<>();
+	private final Set<String> selectBindings= new HashSet<>();
+
 	private final int nestLevel=4;
 	private final Map<String, ObjectNode> valueMap = new HashMap<>();
 	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
@@ -54,7 +55,7 @@ public class IMQuery {
 	}
 
 
-	public ObjectNode queryIM(DataSet query) throws DataFormatException, JsonProcessingException {
+	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
 		validate(query);
 		if (query.getReferenceDate() == null) {
 			String now = LocalDate.now().toString();
@@ -130,7 +131,7 @@ public class IMQuery {
 	 * @return String of SPARQL
 	 **/
 
-	public String buildSparql(DataSet query) throws DataFormatException{
+	public String buildSparql(Query query) throws DataFormatException{
 		this.query = query;
 		if (query.getResultFormat()==null){
 			query.setResultFormat(inferResultFormat());
@@ -153,10 +154,37 @@ public class IMQuery {
 		whereQl.append("}");
 
 		selectQl.append(whereQl);
+		orderLimit(selectQl);
+		validateBindings();
 		return selectQl.toString();
 	}
 
+	private void validateBindings() throws DataFormatException {
+		if (!selectBindings.isEmpty()){
+			for (String binding:selectBindings)
+				if (varProperty.get(binding)==null)
+					throw new DataFormatException(binding +" binding in select statement not bound to value Var, use alias instead");
+		}
 
+	}
+
+	private void orderLimit(StringBuilder selectQl) {
+		if (query.getSelect()!=null){
+			if (query.getSelect().getOrderLimit()!=null){
+				OrderLimit order= query.getSelect().getOrderLimit();
+				selectQl.append("Order by ");
+				if (order.getDirection()==Order.DESCENDING)
+					selectQl.append("DESC(");
+				else
+					selectQl.append("ASC(");
+				if (order.getOrderBy().getAlias()!=null)
+					selectQl.append("?").append(order.getOrderBy().getAlias());
+				else
+					selectQl.append("?").append(order.getOrderBy().getAlias());
+				selectQl.append(")");
+			}
+		}
+	}
 
 
 	public String getDefaultPrefixes(){
@@ -183,8 +211,8 @@ public class IMQuery {
 		if (query.getSelect()!=null){
 			Select select= query.getSelect();
 			if (select.getProperty()!=null)
-					for (PropertyObject pob: select.getProperty())
-				if (pob.getObject()!=null)
+					for (PropertySelect pob: select.getProperty())
+				if (pob.getSelect()!=null)
 					return ResultFormat.OBJECT;
 		}
 		return ResultFormat.RELATIONAL;
@@ -219,57 +247,44 @@ public class IMQuery {
 			else if (select.getEntityId().isIncludeSupertypes())
 				filterSubject= "sub_"+subject;
 		}
-		if (select.getFilter()!=null){
-			where(whereQl,filterSubject,level,select.getFilter());
+		if (select.getMatch()!=null){
+			where(whereQl,filterSubject,level,select.getMatch());
 		}
 		if (select.getProperty() != null) {
-			for (PropertyObject property : select.getProperty()) {
+			for (PropertySelect property : select.getProperty()) {
 				selectProperty(property, subject, selectQl, whereQl, level);
 			}
 		}
 	}
-	private void selectProperty(PropertyObject property, String subject,
-															StringBuilder selectQl,StringBuilder whereQl,int level) throws DataFormatException {
+	private void selectProperty(PropertySelect property, String subject,
+															StringBuilder selectQl, StringBuilder whereQl, int level) throws DataFormatException {
 				String path = property.getIri();
-				if (path==null)
-					path= "*";
-				if (path.equals("*")) {
-					property.setBinding("*");
-					fullSelect(selectQl, whereQl,level, subject);
-					if (property.getObject() != null) {
-						String object= nextObject();
-						select(selectQl, property.getObject(), whereQl, level + 1, object);
-					}
-				} else {
-					if (!isId(path)) {
-						String local= localName(path);
+					String object= property.getAlias();
+					if (property.getAlias()==null) {
+						String local = localName(path);
 						o++;
-						String object = local + "_" + o;
-						property.setBinding(object);
-						String alias = property.getAlias();
-						if (alias != null) {
-							if (aliases.contains(alias))
-								throw new DataFormatException("Cannot have two aliases of the same name in the same query : "
-									+ property.getAlias());
-							selectQl.append("(").append("?").append(object).append(" as ").append("?").append(alias).append(") ");
-							aliases.add(property.getAlias());
-						} else
-							selectQl.append("?").append(object).append(" ");
-						String inverse="";
-						if (property.isInverseOf())
-							inverse="^";
-						whereQl.append("OPTIONAL { ").append("?").append(subject)
-							.append(" ").append(inverse).append(iri(path)).append(" ?").append(object).append(".\n");
-						if (property.getObject() != null)
-							select(selectQl, property.getObject(), whereQl, level + 1, object);
+						object = local + "_" + o;
+						property.setAlias(object);
+					}
+					if (aliases.contains(object)) {
+						throw new DataFormatException("Cannot have two aliases of the same name in the same query : "
+							+ property.getAlias());
+					}
+					selectQl.append("?").append(object).append(" ");
+					String inverse = "";
+					if (property.isInverseOf())
+									inverse = "^";
+					whereQl.append("OPTIONAL { ").append("?").append(subject)
+						.append(" ").append(inverse).append(iri(path)).append(" ?").append(object).append(".\n");
+					if (property.getSelect() != null) {
+						select(selectQl, property.getSelect(), whereQl, level + 1, object);
 						whereQl.append("}\n");
 					}
 					else {
-						property.setBinding(subject);
-						selectQl.append("?").append(subject).append(" ");
-					}
+								selectQl.append("?").append(object).append(" ");
+							}
 
-				}
+
 	 }
 
 	 private String localName(String iri){
@@ -393,26 +408,33 @@ public class IMQuery {
 	 * @param where the where clause of the query
 	 */
 
-	private void where(StringBuilder whereQl, String subject, int level , Filter where) throws DataFormatException {
+	private void where(StringBuilder whereQl, String subject, int level , Match where) throws DataFormatException {
 		String originalSubject = subject;
 		if (where.isNotExist()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 		}
+		ConceptRef subjectRef= where.getEntityType();
+		if (subjectRef==null)
+			subjectRef= where.getEntityId();
+		if (subjectRef==null)
+			subjectRef= where.getEntityInValueSet();
 
 		whereGraph(whereQl, where);
 		if (subject.equals("entity"))
 			if (query.isActiveOnly())
 				whereQl.append("?").append(subject).append(" im:status im:Active.\n");
-		if (where.isIncludeSubEntities()) {
-			o++;
-			whereQl.append(tabs).append("?").append(subject)
-				.append(" im:isA ?")
-				.append("super_").append(subject).append(o).append(".\n");
-			subject = "super_" + subject + o;
+		if (subjectRef!=null) {
+			if (subjectRef.isIncludeSubtypes()) {
+				o++;
+				whereQl.append(tabs).append("?").append(subject)
+					.append(" im:isA ?")
+					.append("super_").append(subject).append(o).append(".\n");
+				subject = "super_" + subject + o;
+			}
 		}
 
-		if (where.getEntityIn() != null) {
-			TTIriRef entityIn = where.getEntityIn();
+		if (where.getEntityInValueSet() != null) {
+			TTIriRef entityIn = where.getEntityInValueSet();
 			whereQl.append(new SetToSparql().getExpansionSparql(subject, entityIn.getIri())).append("\n");
 		}
 		if (where.getEntityType() != null) {
@@ -433,25 +455,35 @@ public class IMQuery {
 
 		}
 		if (where.getAnd()!=null) {
-			for (Filter filter : where.getAnd()) {
-				where(whereQl, subject, level, filter);
+			for (Match match : where.getAnd()) {
+				if (subjectRef==null)
+				  where(whereQl, subject, level, match);
+				else
+					whereProperty(whereQl,subject,level,match);
 			}
 		}
 		if (where.getOptional()!=null){
-			for (Filter filter :where.getOptional()) {
+			for (Match match :where.getOptional()) {
 				whereQl.append("OPTIONAL {");
-				where(whereQl, originalSubject, level, filter);
+				if (subjectRef==null)
+					where(whereQl, originalSubject, level, match);
+				else
+					whereProperty(whereQl, originalSubject, level, match);
 				whereQl.append("}\n");
 			}
 		}
 		if (where.getOr()!=null){
 			boolean first=true;
-			for (Filter filter :where.getOr()) {
+			for (Match match :where.getOr()) {
 				if (!first)
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-				where(whereQl, subject, level, filter);
+				if (subjectRef==null)
+					where(whereQl, subject, level, match);
+				else
+					whereProperty(whereQl, subject, level, match);
+
 				whereQl.append("}\n");
 			}
 		}
@@ -476,20 +508,12 @@ public class IMQuery {
 	 * @param level the nested level built thus far to support nested selects
 	 * @param where the where clause
 	 */
-	private void whereProperty(StringBuilder whereQl, String subject,int level, Filter where) throws DataFormatException {
-		//Open search?
-		if (where.isIncludeSubEntities()){
-			o++;
-			whereQl.append(tabs).append("?").append(subject)
-				.append(" im:isA ?")
-				.append("super_").append(subject).append(o).append(".\n");
-			subject="super_"+subject+o;
-		}
+	private void whereProperty(StringBuilder whereQl, String subject,int level, Match where) throws DataFormatException {
 		String predicate= where.getProperty().getIri();
-		String object= where.getValueVar();
+		String object= where.getProperty().getAlias();
 		if (object==null) {
 			object = nextObject();
-			where.setValueVar(object);
+			where.getProperty().setAlias(object);
 		}
 
 
@@ -507,30 +531,31 @@ public class IMQuery {
 				.append(object).append(".\n");
 
 		}
-		if (where.getValueConcept()!=null) {
-			whereValueConcept(whereQl,object,where.getValueConcept());
+		if (where.getIsConcept()!=null) {
+			whereValueConcept(whereQl,object,where.getIsConcept());
 		}
-		else if (where.getValueObject()!=null){
+		else if (where.getMatch()!=null){
 			level++;
-			where(whereQl,object,level,where.getValueObject());
+			where(whereQl,object,level,where.getMatch());
 		}
-		else if (where.getValueCompare()!=null){
-			whereValueCompare(whereQl,object,where.getValueCompare());
+		else if (where.getValue()!=null){
+			whereValueCompare(whereQl,object,where.getValue());
 
 		}
-		else if (where.getValueIn()!=null){
-			whereValueIn(whereQl,object,where.getValueIn());
+		else if (where.getInSet()!=null){
+			whereValueIn(whereQl,object,where.getInSet());
 
 		}
 	}
 
 	private void whereValueCompare(StringBuilder whereQl, String object, Compare compare) throws DataFormatException {
+		String value= compare.getValueData()!=null ?compare.getValueData() : compare.getValueVariable();
 		if (compare.getComparison()==Comparison.STARTS_WITH){
 			whereQl.append(tabs).append("  filter (strStarts(?").append(object).append(" , ")
-				.append("\"").append(compare.getValue()).append("\"))\n");
+				.append("\"").append(value).append("\"))\n");
 		}
 		else {
-			String value= dataConverter(compare.getComparison(),compare.getValue());
+			 value= dataConverter(compare.getComparison(),value);
 			whereQl.append(tabs).append("  filter (?").append(object).append(spqlOperator(compare.getComparison()))
 				.append("\"").append(value).append("\")\n");
 		}
@@ -598,8 +623,16 @@ public class IMQuery {
 				whereQl.append(tabs).append("?").append(object).append(" im:isA ?")
 					.append(iri(in.getIri())).append(".");
 			} else if (in.isIncludeSupertypes()) {
-				whereQl.append(tabs).append("?").append(object).append(" ^im:isA ?")
-					.append(iri(in.getIri())).append(".");
+				if (in.isIncludeValueSets()){
+					whereQl.append(tabs).append("{?").append(object).append(" ^im:isA ?")
+						.append(iri(in.getIri())).append(".}");
+					whereQl.append(tabs).append("union {?").append(object).append(" ^im:hasMember ?")
+						.append(iri(in.getIri())).append(".}");
+				}
+				else {
+					whereQl.append(tabs).append("?").append(object).append(" ^im:isA ?")
+						.append(iri(in.getIri())).append(".");
+				}
 			} else {
 				whereQl.append(tabs).append(" filter (?").append(object).append(" = ")
 					.append(iri(in.getIri())).append(")");
@@ -625,7 +658,7 @@ public class IMQuery {
 
 
 
-	private void whereGraph(StringBuilder whereQl, Filter where) {
+	private void whereGraph(StringBuilder whereQl, Match where) {
 		if (where!=null) {
 			if (where.getGraph() != null) {
 				indent();
@@ -645,50 +678,52 @@ public class IMQuery {
 	private void bindResults(BindingSet bs,
 													 ObjectNode result) {
 
-		if (query.getResultFormat()==ResultFormat.OBJECT) {
-			bindObjects(bs,result);
-		}
-		else {
+		if (query.getResultFormat() == ResultFormat.OBJECT) {
+			bindObjects(bs, result);
+		} else {
 			ObjectNode node = mapper.createObjectNode();
-			addProperty(result,"entities",node);
+			addProperty(result, "entities", node);
 			Select select = query.getSelect();
-			for (PropertyObject property:select.getProperty()) {
-				String var = property.getBinding();
-				if (var.equals("*")) {
-					bindAll(bs, result);
-				} else {
-					Value bound = bs.getValue(var);
-					if (bound != null) {
-						String value;
-						if (bound.isIRI())
-							value = resultIri(bound.stringValue());
-						else
-							value = bound.stringValue();
-						if (isId(var)) {
-							node.put("@id", value);
-						} else if (var.equals("entity")) {
-							node.put("@id", value);
+			bindSelect(bs,node,select,result);
+
+
+		}
+	}
+
+	private void bindSelect(BindingSet bs, ObjectNode node, Select select,ObjectNode result) {
+		for (PropertySelect property : select.getProperty()) {
+			String var = property.getAlias();
+				Value bound = bs.getValue(var);
+				if (bound != null) {
+					String value;
+					if (bound.isIRI())
+						value = resultIri(bound.stringValue());
+					else
+						value = bound.stringValue();
+					if (isId(var)) {
+						node.put("@id", value);
+					} else if (var.equals("entity")) {
+						node.put("@id", value);
+					} else {
+						String alias = property.getAlias();
+						if (alias != null) {
+							addProperty(node, alias, value);
 						} else {
-							String alias = property.getAlias();
-							if (alias != null) {
-								addProperty(node,alias, value);
+							String path = property.getIri();
+							if (!usedSelect.contains(path)) {
+								addProperty(node, resultIri(path), value);
+								predicates.add(path);
 							} else {
-								String path = property.getIri();
-								if (!usedSelect.contains(path)) {
-									addProperty(node,resultIri(path), value);
-									predicates.add(path);
-								}
-								else {
-									addProperty(node,var, value);
-								}
-
-
+								addProperty(node, var, value);
 							}
 						}
 					}
+					if (property.getSelect() != null){
+						bindSelect(bs,node, property.getSelect(), result);
+					}
 				}
 			}
-		}
+
 	}
 
 	private void addProperty(ObjectNode node,String property,String value){
@@ -727,20 +762,16 @@ public class IMQuery {
 			entityMap.put(entityValue,root);
 		}
 		Select select = query.getSelect();
-		for (PropertyObject property:select.getProperty()) {
+		for (PropertySelect property:select.getProperty()) {
 			bindObject(bs, root, property, "", "entity", 0);
 		}
 	}
 
-	private void bindObject(BindingSet bs, ObjectNode node, PropertyObject propertyObject, String path, String subject, int level) {
-		String var= propertyObject.getBinding();
-		if (var.equals("*")){
-			bindAllForObject(bs,node,path,subject,level);
-			return;
-		}
+	private void bindObject(BindingSet bs, ObjectNode node, PropertySelect propertySelect, String path, String subject, int level) {
+		String var= propertySelect.getAlias();
 		String bsVar= var;
-		String alias= propertyObject.getAlias();
-		String property= propertyObject.getIri();
+		String alias= propertySelect.getAlias();
+		String property= propertySelect.getIri();
 		if (alias!=null)
 			bsVar=alias;
 		Value value=bs.getValue(bsVar);
@@ -762,9 +793,9 @@ public class IMQuery {
 				if (value.isIRI())
 					addProperty(subNode,"@id", resultIri(value.stringValue()));
 			}
-			if (propertyObject.getObject() != null) {
+			if (propertySelect.getSelect() != null) {
 				level++;
-				for (PropertyObject subProperty :propertyObject.getObject().getProperty()) {
+				for (PropertySelect subProperty : propertySelect.getSelect().getProperty()) {
 					bindObject(bs, subNode, subProperty,path+(value.stringValue()),var,level);
 				}
 			}
@@ -825,47 +856,62 @@ public class IMQuery {
 		}
 	}
 
-	private void validate(DataSet query) throws DataFormatException {
+	private void validate(Query query) throws DataFormatException {
 		if (query.getSelect() == null) {
 			query.setSelect(new Select()
 				.setDistinct(true)
-				.addProperty(new PropertyObject(IM.NAMESPACE+"id")));
+				.addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")
+					.setAlias("id")));
 		}
 		else {
 			if (query.getSelect().getProperty()==null){
-				query.getSelect().addProperty(new PropertyObject(IM.NAMESPACE+"id"));
+				query.getSelect().addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")
+					.setAlias("id"));
 			}
 			else {
 				boolean hasId= false;
-				for (PropertyObject property:query.getSelect().getProperty()){
-					if (property.getIri()==null)
-						if (property.getBinding()==null) {
-							property.setBinding("*");
-						}
+				for (PropertySelect property:query.getSelect().getProperty()){
 					if (property.getIri()!=null)
 						if (isId(property.getIri()))
 							hasId= true;
 				}
 				if (!hasId){
 					query.getSelect().getProperty()
-						.add(0,new PropertyObject(IM.NAMESPACE+"id"));
+						.add(0,new PropertySelect(IM.NAMESPACE+"id").setAlias("id"));
 				}
 			}
 		}
-		validateSelects(query.getSelect());
+		validateSelects(query,query.getSelect());
 
 
 	}
 
-	private void validateSelects(Select select) throws DataFormatException {
+	private void validateSelects(Query query,Select select) throws DataFormatException {
+		if (select.getOrderLimit()!=null)
+			if (select.getOrderLimit().getOrderBy().getAlias()==null)
+					throw new DataFormatException("Select order by must use  aliases");
 
-		for (PropertyObject property:select.getProperty()){
+		for (PropertySelect property:select.getProperty()){
+			if (property.getAlias()!=null)
+				selectBindings.add(property.getAlias());
 			if (property.getIri()==null){
-				if (property.getBinding()==null) {
+				if (property.getAlias()==null) {
 					throw new DataFormatException("Missing property or wild card binding in select statement");
 				}
 			}
+			else {
+				if (property.getAlias()==null) {
+					if (query.getResultFormat() != ResultFormat.OBJECT) {
+						if (property.getSelect()==null) {
+							throw new DataFormatException("For a flat select you must have an alias (binding variable) for the column : (" + property.getIri() + ")" +
+								" =or else use OBJECT result format");
+						}
 
+					}
+				}
+			}
+			if (property.getSelect()!=null)
+				validateSelects(query, property.getSelect());
 
 		}
 	}

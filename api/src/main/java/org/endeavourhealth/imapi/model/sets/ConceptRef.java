@@ -7,28 +7,36 @@ import java.util.HashSet;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class ConceptRef extends TTIriRef{
-
-
+public class ConceptRef extends Alias{
 
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
+	private boolean includeValueSets;
 
+	public boolean isIncludeValueSets() {
+		return includeValueSets;
+	}
 
+	public ConceptRef setIncludeValueSets(boolean includeValueSets) {
+		this.includeValueSets = includeValueSets;
+		return this;
+	}
 
 	public static ConceptRef iri(String iri) {
 		return new ConceptRef(iri);
 	}
 
 	public static ConceptRef iri(TTIriRef iri) {
-		return new ConceptRef(iri.getIri(),iri.getName());
+		ConceptRef ref= new ConceptRef();
+		ref.setIri(iri.getIri());
+		if (iri.getName()!=null)
+			ref.setName(iri.getName());
+		return ref;
 	}
 
 	public static ConceptRef iri(String iri, String name) {
 		return new ConceptRef(iri, name);
 	}
-
-
 
 	public ConceptRef setIncludeSubtypes(boolean subtypes) {
 		this.includeSubtypes = subtypes;
@@ -56,7 +64,13 @@ public class ConceptRef extends TTIriRef{
 	}
 	public ConceptRef(String iri, String name) {
 		super.setIri(iri);
-		super.setName(name);
+		if (name!=null)
+		 super.setName(name);
+	}
+	public ConceptRef(TTIriRef iriRef){
+		super.setIri(iriRef.getIri());
+		if (iriRef.getName()!=null)
+			super.setName(iriRef.getName());
 	}
 
 

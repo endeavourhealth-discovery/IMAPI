@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.filer.TTTransactionFiler;
-import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
@@ -19,7 +17,6 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.dto.UnassignedEntity;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -32,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -60,11 +56,11 @@ public class EntityService {
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
 
-    public TTBundle getBundle(String iri, Set<String> predicates, int limit) {
+    public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
     }
 
-    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates, int limit) {
+    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
         if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
@@ -104,16 +100,79 @@ public class EntityService {
         return result;
     }
 
-    public Pageable<TTIriRef> getImmediateChildrenWithCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    public EntityReferenceNode getEntityAsEntityReferenceNode(String iri) {
+        if (null == iri) return new EntityReferenceNode();
+        EntityReferenceNode node = new EntityReferenceNode();
+        TTIriRef entityIriRef = getEntityReference(iri);
+        node.setIri(entityIriRef.getIri());
+        node.setName(entityIriRef.getName());
+        node.setType(entityTypeRepository.getEntityTypes(entityIriRef.getIri()));
+        node.setHasChildren(entityTripleRepository.hasChildren(entityIriRef.getIri(),null,false));
+        node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(entityIriRef.getIri(),null,false));
+        return node;
+    }
+
+    public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
         if (iri == null || iri.isEmpty())
             return null;
 
         int rowNumber = 0;
         if (page != null && size != null)
-            rowNumber = (page - 1) * 10;
+            rowNumber = (page - 1) * size;
 
-        return entityTripleRepository.findImmediateChildrenByIriWithCount(iri, schemeIris, rowNumber, size, inactive);
+        Pageable<TTIriRef> childrenAndTotalCount = entityTripleRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive);
+        Pageable<EntityReferenceNode> result = new Pageable<>();
+        result.setTotalCount(childrenAndTotalCount.getTotalCount());
+        List<EntityReferenceNode> nodes = new ArrayList<>();
+        for (TTIriRef c : childrenAndTotalCount.getResult()) {
+            EntityReferenceNode node = new EntityReferenceNode();
+            node.setIri(c.getIri());
+            node.setName(c.getName());
+            node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
+            node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
+            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
+            nodes.add(node);
+        }
+        result.setResult(nodes);
+        return result;
     }
+
+    public Pageable<TTIriRef> getPartialWithTotalCount(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (iri == null || iri.isEmpty())
+            return null;
+
+        int rowNumber = 0;
+        if (page != null && size != null)
+            rowNumber = (page - 1) * size;
+
+        return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
+    }
+
+    public ExportValueSet getHasMember(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+
+        List<TTIriRef> hasMembers = getPartialWithTotalCount(iri,predicateList, schemeIris,page, size, inactive).getResult();
+        TTArray array = new TTArray();
+        for(TTIriRef member: hasMembers){
+            array.add(member);
+        }
+        Set<ValueSetMember> members = new HashSet<>();
+        members.add(getValueSetMemberFromArray(array, true));
+        for(ValueSetMember valueSetMember:members){
+            valueSetMember.setLabel("a_MemberIncluded");
+            valueSetMember.setType(MemberType.INCLUDED_SELF);
+            valueSetMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
+        }
+        ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
+
+        Map<String, ValueSetMember> processedMembers = processMembers(members, false, 0, 2000);
+
+        result.addAllMembers(processedMembers.values());
+
+        return result;
+    }
+
+
+
 
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
         return entityTripleRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
@@ -170,7 +229,7 @@ public class EntityService {
                 .distinct().collect(Collectors.toList());
 
         for (TTIriRef usage : usageRefs) {
-            TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.getIri()), 0).getEntity().getType();
+            TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.getIri())).getEntity().getType();
             usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
         }
 
@@ -206,7 +265,7 @@ public class EntityService {
         ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
         int memberCount = 0;
 
-        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri);
+        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri, limit);
 
 
         Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
@@ -224,7 +283,7 @@ public class EntityService {
         TTIriRef valueSet = entityRepository.getEntityReferenceByIri(iri);
         Set<String> definition = new HashSet<>();
         definition.add(IM.DEFINITION.getIri());
-        TTArray included = getBundle(iri, definition, UNLIMITED)
+        TTArray included = getBundle(iri, definition)
                 .getEntity()
                 .get(IM.DEFINITION.asIriRef());
         result.setIri(valueSet.getIri());
@@ -233,30 +292,9 @@ public class EntityService {
         return result;
     }
 
-    private int processExpansions(boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri, ExportValueSet result, int memberCount, Set<ValueSetMember> definedSetInclusions) {
-        if (expandSets || expandMembers) {
-            for (ValueSetMember set : definedSetInclusions) {
-                ExportValueSet individualResults = getValueSetMembers(set.getEntity().getIri(), expandMembers, expandSets, limit, withHyperlinks, null, originalParentIri);
-                memberCount += individualResults.getMembers().size();
-                result.addAllMembers(individualResults.getMembers());
-            }
-        } else {
-            for (ValueSetMember set : definedSetInclusions) {
-                if (parentSetName == null) {
-                    set.setLabel("Subset - " + set.getEntity().getName());
-                } else {
-                    set.setLabel("Subset - " + parentSetName);
-                }
-                ExportValueSet setMembers = getValueSetMembers(set.getEntity().getIri(), false, false, limit, withHyperlinks, set.getEntity().asIriRef().getName(), originalParentIri);
-                memberCount += setMembers.getMembers().size();
-                result.addAllMembers(setMembers.getMembers());
-            }
-        }
-        return memberCount;
-    }
+    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri, Integer limit) {
+        Set<ValueSetMember> definedMemberInclusions = getMembers(iri, withHyperlinks, limit);
 
-    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri) {
-        Set<ValueSetMember> definedMemberInclusions = getMember(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), withHyperlinks);
         for (ValueSetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
@@ -280,16 +318,29 @@ public class EntityService {
     }
 
 
-    private Set<ValueSetMember> getMember(String iri, Set<String> predicates, boolean withHyperlinks) {
+    private Set<ValueSetMember> getMembers(String iri, boolean withHyperlinks, Integer limit) {
         Set<ValueSetMember> members = new HashSet<>();
 
-        TTBundle bundle = getBundle(iri, predicates, UNLIMITED);
-        TTArray result;
-        if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
-            result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
-            direct = true;
+        TTArray result = new TTArray();
+        if(limit == null || limit == 0) {
+            TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
+            if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
+                result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
+                direct = true;
+            } else {
+                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            }
         } else {
-            result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
+            if (!hasMembers.isEmpty()){
+                for(TTIriRef member: hasMembers) {
+                    result.add(member);
+                }
+                direct = true;
+            } else {
+                TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            }
         }
 
         if (result != null) {
@@ -420,7 +471,7 @@ public class EntityService {
         List<String> excludedForSummary = Arrays.asList("None", RDFS.SUBCLASSOF.getIri(), "subtypes", IM.IS_CHILD_OF.getIri(), IM.HAS_CHILDREN.getIri(), "termCodes", "semanticProperties", "dataModelProperties");
         List<ComponentLayoutItem> filteredConfigs = configs.stream().filter(config -> !excludedForSummary.contains(config.getPredicate())).collect(Collectors.toList());
         List<String> predicates = filteredConfigs.stream().map(ComponentLayoutItem::getPredicate).collect(Collectors.toList());
-        return getBundle(iri, new HashSet<>(predicates), UNLIMITED).getEntity();
+        return getBundle(iri, new HashSet<>(predicates)).getEntity();
     }
 
     public DownloadDto getJsonDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
@@ -435,7 +486,7 @@ public class EntityService {
             downloadDto.setHasSubTypes(getImmediateChildren(iri, null, null, null, params.includeInactive()));
         }
         if (params.includeInferred()) {
-            downloadDto.setInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED).getEntity());
+            downloadDto.setInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri()))).getEntity());
         }
         if (params.includeProperties()) {
             downloadDto.setDataModelProperties(getDataModelProperties(iri));
@@ -447,10 +498,10 @@ public class EntityService {
             downloadDto.setTerms(getEntityTermCodes(iri));
         }
         if (params.includeIsChildOf()) {
-            downloadDto.setIsChildOf(getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity().get(IM.IS_CHILD_OF));
+            downloadDto.setIsChildOf(getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri()))).getEntity().get(IM.IS_CHILD_OF));
         }
         if (params.includeHasChildren()) {
-            downloadDto.setHasChildren(getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity().get(IM.HAS_CHILDREN));
+            downloadDto.setHasChildren(getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri()))).getEntity().get(IM.HAS_CHILDREN));
         }
 
         return downloadDto;
@@ -468,7 +519,7 @@ public class EntityService {
             xls.addHasSubTypes(getImmediateChildren(iri, null, null, null, params.includeInactive()));
         }
         if (params.includeInferred()) {
-            xls.addInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED));
+            xls.addInferred(getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri()))));
         }
         if (params.includeProperties()) {
             xls.addDataModelProperties(getDataModelProperties(iri));
@@ -479,12 +530,12 @@ public class EntityService {
         if (params.includeTerms()) {
             xls.addTerms(getEntityTermCodes(iri));
         }
-        TTEntity isChildOfEntity = getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri())), UNLIMITED).getEntity();
+        TTEntity isChildOfEntity = getBundle(iri, new HashSet<>(List.of(IM.IS_CHILD_OF.getIri()))).getEntity();
         TTArray isChildOfData = isChildOfEntity.get(TTIriRef.iri(IM.IS_CHILD_OF.getIri(), IM.IS_CHILD_OF.getName()));
         if (params.includeIsChildOf() && isChildOfData != null) {
             xls.addIsChildOf(isChildOfData.getElements());
         }
-        TTEntity hasChildrenEntity = getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri())), UNLIMITED).getEntity();
+        TTEntity hasChildrenEntity = getBundle(iri, new HashSet<>(List.of(IM.HAS_CHILDREN.getIri()))).getEntity();
         TTArray hasChildrenData = hasChildrenEntity.get(TTIriRef.iri(IM.HAS_CHILDREN.getIri(), IM.HAS_CHILDREN.getName()));
         if (params.includeHasChildren() && hasChildrenData != null) {
             xls.addHasChildren(hasChildrenData.getElements());
@@ -494,7 +545,7 @@ public class EntityService {
     }
 
     public List<DataModelProperty> getDataModelProperties(String iri) {
-        TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.getIri(), RDFS.LABEL.getIri()), UNLIMITED).getEntity();
+        TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.getIri(), RDFS.LABEL.getIri())).getEntity();
         return getDataModelProperties(entity);
     }
 
@@ -572,13 +623,13 @@ public class EntityService {
     }
 
     public GraphDto getGraphData(String iri) {
-        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.getIri(), RDFS.LABEL.getIri()), UNLIMITED).getEntity();
+        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.getIri(), RDFS.LABEL.getIri())).getEntity();
 
         GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
         GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
         GraphDto graphChildren = new GraphDto().setKey("0_1").setName("Subtypes");
 
-        TTBundle axioms = getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())), UNLIMITED);
+        TTBundle axioms = getBundle(iri, new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri())));
         List<GraphDto> axiomGraph = bundleToGraphDtos(axioms);
 
         List<GraphDto> dataModelProps = getDataModelProperties(iri).stream()
@@ -686,7 +737,7 @@ public class EntityService {
     }
 
     public EntityDefinitionDto getEntityDefinitionDto(String iri) {
-        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.getIri(), RDF.TYPE.getIri(), RDFS.LABEL.getIri(), RDFS.COMMENT.getIri(), IM.HAS_STATUS.getIri()), UNLIMITED).getEntity();
+        TTEntity entity = getBundle(iri, Set.of(RDFS.SUBCLASSOF.getIri(), RDF.TYPE.getIri(), RDFS.LABEL.getIri(), RDFS.COMMENT.getIri(), IM.HAS_STATUS.getIri())).getEntity();
         List<TTIriRef> types = entity.getType() == null ? new ArrayList<>()
                 : entity.getType().getElements().stream()
                 .map(t -> new TTIriRef(t.asIriRef().getIri(), t.asIriRef().getName()))
@@ -710,7 +761,7 @@ public class EntityService {
     public TTEntity getConceptShape(String iri) {
         if (iri == null || iri.isEmpty())
             return null;
-        TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri()), UNLIMITED).getEntity();
+        TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.getIri(), SHACL.OR.getIri(), RDF.TYPE.getIri())).getEntity();
         TTArray value = entity.get(RDF.TYPE);
         if (!value.getElements().contains(SHACL.NODESHAPE)) {
             return null;
@@ -727,20 +778,21 @@ public class EntityService {
         try {
             predicates = configManager.getConfig(CONFIG.INFERRED_EXCLUDE_PREDICATES, new TypeReference<>() {
             });
+            predicates.add(IM.HAS_MEMBER.getIri());
         } catch (Exception e) {
             LOG.warn("Error getting inferredPredicates config, reverting to default", e);
         }
 
         if (predicates == null) {
             LOG.warn("Config for inferredPredicates not set, reverting to default");
-            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri()));
+            predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri(), IM.HAS_MEMBER.getIri()));
         }
 
-        return getEntityByPredicateExclusions(iri, predicates, UNLIMITED);
+        return getEntityByPredicateExclusions(iri, predicates);
     }
 
     public TTDocument getConcept(String iri) {
-        TTBundle bundle = getBundle(iri, null, 0);
+        TTBundle bundle = getBundle(iri, null);
         TTDocument document = new TTDocument();
         List<Namespace> namespaces = entityTripleRepository.findNamespaces();
         TTContext context = new TTContext();
@@ -764,7 +816,7 @@ public class EntityService {
         }
         document.setContext(context);
         for (String iri : iris) {
-            TTBundle bundle = getBundle(iri, null, 0);
+            TTBundle bundle = getBundle(iri, null);
             document.addEntity(bundle.getEntity());
         }
         return document;
@@ -810,7 +862,7 @@ public class EntityService {
 
 
     public List<TTIriRef> getParentPath(String iri) {
-        TTEntity entity = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri())), 0).getEntity();
+        TTEntity entity = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri()))).getEntity();
         List<TTIriRef> parents = new ArrayList<>();
         getParentPathRecursive(iri, parents);
         Collections.reverse(parents);
@@ -827,7 +879,7 @@ public class EntityService {
     }
 
     public EntityReferenceNode getParentHierarchy(String iri) {
-        TTEntity child = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri(), RDFS.SUBCLASSOF.getIri(), IM.IS_CHILD_OF.getIri(), RDFS.SUBPROPERTYOF.getIri())), 0).getEntity();
+        TTEntity child = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri(), RDFS.SUBCLASSOF.getIri(), IM.IS_CHILD_OF.getIri(), RDFS.SUBPROPERTYOF.getIri()))).getEntity();
         EntityReferenceNode childNode = new EntityReferenceNode(child.getIri(), child.getName(), child.getType());
 
         if (child.has(IM.IS_CONTAINED_IN)) {
@@ -863,7 +915,7 @@ public class EntityService {
     private void getParentHierarchyRecursive(EntityReferenceNode child) {
         if (child.getParents() != null && !child.getParents().isEmpty()) {
             for (EntityReferenceNode parent : child.getParents()) {
-                TTEntity parentEntity = getBundle(parent.getIri(), new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri())), 0).getEntity();
+                TTEntity parentEntity = getBundle(parent.getIri(), new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri()))).getEntity();
                 EntityReferenceNode parentNode = new EntityReferenceNode(parentEntity.getIri(), parentEntity.getName(), parentEntity.getType());
                 EntityReferenceNode parentNodeRef = child.getParents().stream().filter(childParent -> childParent.getIri().equals(parentNode.getIri())).findFirst().orElse(null);
                 if (parentNodeRef != null) {
@@ -1024,31 +1076,31 @@ public class EntityService {
         entity.addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
+        return getEntityByPredicateExclusions(entity.getIri(), null).getEntity();
     }
 
     public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
-        TTEntity entity = getEntityByPredicateExclusions(entityIri, null, EntityService.UNLIMITED).getEntity();
+        TTEntity entity = getEntityByPredicateExclusions(entityIri, null).getEntity();
         if (entity.get(IM.IN_TASK) == null) {
             entity.set(IM.IN_TASK, new TTArray());
         }
         entity.get(IM.IN_TASK).add(iri(taskIri));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
+        return getEntityByPredicateExclusions(entity.getIri(), null).getEntity();
     }
 
 
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri, String agentName) throws Exception {
-        TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null, EntityService.UNLIMITED).getEntity();
+        TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null).getEntity();
         entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity();
+        return getEntityByPredicateExclusions(entity.getIri(), null).getEntity();
     }
 
     public List<TTEntity> saveMapping(Map<String, List<String>> mappings, String agentName) throws Exception {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
-            TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null, EntityService.UNLIMITED).getEntity();
+            TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null).getEntity();
             if (entity.has(IM.HAS_STATUS)) {
                 entity.get(IM.HAS_STATUS).remove(IM.UNASSIGNED);
             }
@@ -1057,7 +1109,7 @@ public class EntityService {
                 entity.get(IM.MATCHED_TO).add(iri(iri));
             }
             filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-            result.add(getEntityByPredicateExclusions(entity.getIri(), null, EntityService.UNLIMITED).getEntity());
+            result.add(getEntityByPredicateExclusions(entity.getIri(), null).getEntity());
         }
 
         return result;

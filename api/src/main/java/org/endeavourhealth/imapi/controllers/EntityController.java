@@ -81,14 +81,14 @@ public class EntityController {
         LOG.debug("getPartialEntity");
         if (limit == null)
             limit = EntityService.UNLIMITED;
-        return entityService.getBundle(iri, predicates, limit).getEntity();
+        return entityService.getBundle(iri, predicates).getEntity();
     }
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
-		return entityService.getEntityByPredicateExclusions(iri, null, EntityService.UNLIMITED).getEntity();
+		return entityService.getEntityByPredicateExclusions(iri, null).getEntity();
 	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
@@ -104,7 +104,7 @@ public class EntityController {
         LOG.debug("getPartialEntityBundle");
         if (limit == null)
             limit = EntityService.UNLIMITED;
-        return entityService.getBundle(iri, predicates, limit);
+        return entityService.getBundle(iri, predicates);
     }
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
@@ -123,22 +123,56 @@ public class EntityController {
             page = 1;
             size = EntityService.MAX_CHILDREN;
         }
-		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri()), 0).getEntity();
+		TTEntity entity = entityService.getBundle(iri, Set.of(RDF.TYPE.getIri())).getEntity();
 		boolean inactive = entity.getType() != null && entity.getType().contains(IM.TASK);
         return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
 	}
 
-	@GetMapping(value = "/public/childrenAndTotalCount")
-	public Pageable<TTIriRef> getEntityChildrenAndTotalCount(@RequestParam(name = "iri") String iri,
+	@GetMapping(value = "/public/asEntityReferenceNode")
+	public EntityReferenceNode getEntityAsEntityReferenceNode(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getEntityAsEntityReferenceNode");
+		return entityService.getEntityAsEntityReferenceNode(iri);
+	}
+
+	@GetMapping(value = "/public/childrenPaged")
+	public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(@RequestParam(name = "iri") String iri,
 															 @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
 															 @RequestParam(name = "page", required = false) Integer page,
 															 @RequestParam(name = "size", required = false) Integer size) {
-		LOG.debug("getEntityChildrenAndTotalCount");
+		LOG.debug("getEntityChildrenPagedWithTotalCount");
 		if (page == null && size == null) {
 			page = 1;
 			size = 10;
 		}
-		return entityService.getImmediateChildrenWithCount(iri, schemeIris, page, size, false);
+		return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false);
+	}
+
+	@GetMapping(value = "/public/hasMember")
+	public ExportValueSet getHasMember(@RequestParam(name = "iri") String iri,
+												  @RequestParam(name = "predicate") String predicateIri,
+												  @RequestParam(name = "page", required = false) Integer page,
+												  @RequestParam(name = "size", required = false) Integer size,
+												  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris) {
+		LOG.debug("getHasMember");
+		if (page == null && size == null) {
+			page = 1;
+			size = 10;
+		}
+		return entityService.getHasMember(iri,predicateIri, schemeIris, page, size, false);
+	}
+
+	@GetMapping(value = "/public/partialAndTotalCount")
+	public Pageable<TTIriRef> getPartialAndTotalCount(@RequestParam(name = "iri") String iri,
+													  @RequestParam(name = "predicate") String predicate,
+													  @RequestParam(name = "page", required = false) Integer page,
+													  @RequestParam(name = "size", required = false) Integer size,
+													  @RequestParam(name = "schemeIris", required = false) List<String> schemeIris) {
+		LOG.debug("getPartialAndTotalCount");
+		if (page == null && size == null) {
+			page = 1;
+			size = 10;
+		}
+		return entityService.getPartialWithTotalCount(iri,predicate, schemeIris, page, size, false);
 	}
 
 
@@ -502,5 +536,14 @@ public class EntityController {
 		LOG.debug("addMapping");
 		String agentName = reqObjService.getRequestAgentName(request);
 		return entityService.saveMapping(mappings, agentName);
+	}
+
+	@GetMapping("/public/entityByPredicatesExclusions")
+	public TTBundle getEntityByPredicateExclusions(
+			@RequestParam(name = "iri") String iri,
+			@RequestParam(name = "predicates") Set<String> predicates)
+	{
+		LOG.debug("getEntityByPredicateExclusions");
+		return entityService.getEntityByPredicateExclusions(iri,predicates);
 	}
 }

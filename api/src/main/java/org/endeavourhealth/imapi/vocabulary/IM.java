@@ -205,6 +205,10 @@ public class IM {
     public static final TTIriRef PRIVACY_LEVEL = iri(NAMESPACE + "privacyLevel");
     public static final TTIriRef IM1SCHEME = iri(NAMESPACE + "im1Scheme");
 
+    //Query
+  public static final TTIriRef VALUE_SELECT= iri(NAMESPACE+"valueSelect");
+  public static final TTIriRef VALUE_VARIABLE= iri(NAMESPACE+"valueVariable");
+
 
     private IM() {
     }

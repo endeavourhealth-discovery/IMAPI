@@ -1,4 +1,4 @@
-import { DataSet } from '../model/sets/DataSet';
+import {Query} from 'im-library/dist/types/models/modules/AutoGen';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
@@ -20,7 +20,7 @@ export default class QueryWorkflow {
   }
 
 
-  public async getEntity(entityIri: string): Promise<DataSet> {
+  public async getEntity(entityIri: string): Promise<Query> {
     this.showConsole && console.log("Loading iri: " + entityIri);
     const rs = await this.graph.execute(
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",
@@ -30,13 +30,13 @@ export default class QueryWorkflow {
       });
 
     if (rs.length != 1)
-      return {} as DataSet;
+      return {} as Query;
 
     return JSON.parse(rs[0]);
   }
 
 
-  public async getDefinition(queryIri: string): Promise<any | DataSet> {
+  public async getDefinition(queryIri: string): Promise<any | Query> {
     this.showConsole && console.log("Loading iri: " + queryIri);
 
     let s = iri(queryIri),
@@ -44,7 +44,7 @@ export default class QueryWorkflow {
       stmt = `SELECT * WHERE { ${s} ${p} ?def. } LIMIT 1`;
 
     const rs = await this.graph.execute(stmt);
-    if (rs.length != 1) return {} as any | DataSet;
+    if (rs.length != 1) return {} as any | Query;
 
     let definition: any = rs[0].def
     // definition = ManipulationUtils.escapeCharacters(definition);

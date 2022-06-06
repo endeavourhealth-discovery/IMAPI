@@ -80,11 +80,11 @@ export default class QueryRunner {
     return rs[0].def;
   }
 
-  private generateSql(dataset: DataSet): void {
+  public generateSql(dataset: DataSet): any {
     this.sql = new Sql(dataset['@id']);
     this.sql.table = this.sql.getTable(dataset.select.entityType["@id"], "m");
-
     this.processSelect(dataset.select);
+    return this;
   }
 
   private processSelect(select: Select) {

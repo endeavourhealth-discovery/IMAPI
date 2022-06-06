@@ -1,4 +1,4 @@
-// const { TextGenerator } = require("../model/text");
+// const { TextGenerator } = require(".../helpers/text");
 const { TextGenerator } = require("../src/model/text");
 
 

@@ -2,7 +2,7 @@ import { DataSet } from '../model/sets/DataSet';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
-import { TextGenerator } from "../model/text";
+import { TextGenerator } from "../helpers/text";
 import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
 

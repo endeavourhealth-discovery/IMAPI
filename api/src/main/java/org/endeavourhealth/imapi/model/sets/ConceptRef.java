@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -12,6 +13,17 @@ public class ConceptRef extends Alias{
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
 	private boolean includeValueSets;
+
+
+	public ConceptRef setName(String name){
+		super.setName(name);
+		return this;
+	}
+
+	public ConceptRef setAlias(String alias){
+		super.setAlias(alias);
+		return this;
+	}
 
 	public boolean isIncludeValueSets() {
 		return includeValueSets;

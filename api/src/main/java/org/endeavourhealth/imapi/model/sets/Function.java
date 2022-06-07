@@ -1,13 +1,16 @@
 package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+
+@JsonPropertyOrder({"iri","name","argument"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Function {
-	TTIriRef id;
+public class Function extends TTIriRef{
 	String name;
 	List<Argument> argument;
 
@@ -36,6 +39,13 @@ public class Function {
 		return this;
 	}
 
+	public Function argument(Consumer<Argument> builder) {
+		Argument argument= new Argument();
+		addArgument(argument);
+		builder.accept(argument);
+		return this;
+	}
+
 
 
 	public Argument addArgument() {
@@ -46,12 +56,9 @@ public class Function {
 		return newArg;
 	}
 
-	public TTIriRef getId() {
-		return id;
-	}
 
-	public Function setId(TTIriRef id) {
-		this.id = id;
+	public Function setIri(TTIriRef iri) {
+		super.setIri(iri.getIri());
 		return this;
 	}
 }

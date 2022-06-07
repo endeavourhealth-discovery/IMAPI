@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.model.sets.ConceptRef;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,12 +16,19 @@ public class SetToSparql {
 	private String tabs="   ";
 
 
-	public String getExpansionSparql(String entityVar,String iri) {
+	public String getExpansionSparql(String entityVar, String iri) {
 
 		Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
 		TTEntity entity = entityRepo.getEntityPredicates(iri, predicates, 0).getEntity();
+		StringBuilder subQuery = new StringBuilder();
+		if (entity.get(IM.HAS_MEMBER)!=null){
+			subQuery.append("?").append(entityVar).append(" ")
+				.append("<").append(IM.IS_A.getIri())
+				.append("> ?member.\n").append("?member ^<")
+				.append(IM.HAS_MEMBER.getIri()).append("> <").append(iri).append(">.\n");
+			return subQuery.toString();
+		}
 		if (entity.get(IM.DEFINITION)!=null) {
-			StringBuilder subQuery = new StringBuilder();
 			subQuery.append(tabs).append("\n{ SELECT ?"+entityVar+"\n");
 			subQuery.append(tabs).append("WHERE {");
 			getExpansionWhere(entity.get(IM.DEFINITION), subQuery);

@@ -129,7 +129,7 @@ export default class QueryWorkflow {
   private async populateDefinition(definition: any): Promise<any> {
     // find all TTIriRefs in definition
     const jsonQuery = `$..[?(@.@id)]`;
-    let IriRefs = jp.nodes(definition?.select?.filter, jsonQuery);
+    let IriRefs = jp.nodes(definition?.match?.filter, jsonQuery);
     if (IriRefs.length == 0) return {};
 
     IriRefs = IriRefs.filter(ref => isTTIriRef(ref.value)); // excludes objects which match the jsonQuery but  are operators/clauses instead of IriRefs 

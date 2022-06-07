@@ -26,22 +26,18 @@ export default class QueryController {
     this.router.get('/node_api/query/public/querySummary', (req, res) => this.getQuerySummary(req, res))
     this.router.post('/node_api/query/public/querySummary', (req, res) => this.postQuerySummary(req, res))
     this.router.post('/node_api/query/public/clauseSummary', (req, res) => this.postClauseSummary(req, res))
-    this.router.get('/node_api/query/public/getSQL', (req, res) => this.getSQL(req, res))
+    // this.router.get('/node_api/query/public/getSQL', (req, res) => this.getSQL(req, res))
 
   }
 
-  async getSQL(req: Request, res: Response) {
-    const data = await this.workflow.getDefinition(req.query.iri as string);
-    const sql =  this.runner.generateSql(data).sql.toCreate;
-    res.send(sql).end();
-  }
+  // async getSQL(req: Request, res: Response) {
+  //   const data = await this.workflow.getDefinition(req.query.iri as string);
+  //   const sql =  this.runner.generateSql(data).sql.toCreate;
+  //   res.send(sql).end();
+  // }
 
 
-  /* #swagger.parameters['iri'] = {
-     in: 'query',
-     description: 'The Iri of the query you want to run. Example: "urn:uuid:40a4a1f1-b768-4db8-a8a6-6df744935d97',
-  } 
-  */
+
   async runQuery(req: Request, res: Response) {
 
     const data = await this.runner.runQuery(req.query.iri as string);

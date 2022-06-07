@@ -25,7 +25,7 @@ export class TextGenerator {
 
 
         clause = new Clause(clause)
-        let { and, or, are, have, property, propertyId, valueCompare, valueFunction, valueFunctionId, comparison, valueData, valueIn0, valueNotIn0, valueConcept0, entity, test, orderById, sortLimit, count, direction, orderBy, testValueIn, sortDirection, testValueIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
+        let { and, or, are, have, property, propertyId, value, valueFunction, valueFunctionId, comparison, valueData, valueIn0, valueNotIn0, valueConcept0, entity, test, orderById, sortLimit, count, direction, orderBy, testValueIn, sortDirection, testValueIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
 
         let sentence: any[] = [];
 
@@ -72,7 +72,7 @@ export class TextGenerator {
     public static summariseProperty(clause: any, currentPath?: string, isLastItem?: boolean): any[] {
 
         clause = new Clause(clause)
-        let { and, or, are, have, property, propertyId, valueCompare, valueFunction, valueFunctionId, comparison, valueData, valueIn0, valueNotIn0, valueConcept0, entity, test, orderById, sortLimit, count, sortDirection, testValueIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
+        let { and, or, are, have, property, propertyId, value, valueFunction, valueFunctionId, comparison, valueData, valueIn0, valueNotIn0, valueConcept0, entity, test, orderById, sortLimit, count, sortDirection, testValueIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
         let sentence: any[] = [];
 
 
@@ -89,7 +89,7 @@ export class TextGenerator {
 
         } else if (valueConcept0) {
             sentence = [have, a(property), property.name, "that is", valueConcept0?.name + commaOrSemiColon];
-        } else if (valueCompare && valueFunctionId == IM.TIME_DIFFERENCE) {
+        } else if (value && valueFunctionId == IM.TIME_DIFFERENCE) {
             let beforeAfter = (secondDate.value == "the Reference Date") ? "before" : "after";
             units.value = isSingular(valueData) ? wordMap[units.value]['singular'] : wordMap[units.value]['plural']
             let compare = comparison;
@@ -100,7 +100,7 @@ export class TextGenerator {
 
             sentence = [have, a(property), property.name, "that is", compare, value, units.value, beforeAfter, secondDate.value + commaOrSemiColon]
 
-        } else if (valueCompare) {
+        } else if (value) {
             sentence = [have, a(property), property.name, "that is", comparison, valueData + commaOrSemiColon]
         }
         else if (property?.name) {

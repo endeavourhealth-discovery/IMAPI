@@ -13,8 +13,6 @@ export class GraphdbService {
   private repoConfig;
   private repo;
 
-  constructor() { }
-
   public async update(sparql: string): Promise<boolean> {
     try {
       const client = await this.getRepo();
@@ -57,18 +55,6 @@ export class GraphdbService {
 
       const result: any[] = [];
       rs.on('data', (binding) => {
-        for (const b of Object.keys(binding)) {
-          // Horrible Literal fix
-          if (binding[b].constructor.name === 'Literal') {
-            let v: string = binding[b].id;
-            if (v.startsWith('"')) {
-              v = v.substring(1, v.length - 1);
-            }
-
-            binding[b] = v;
-          }
-        }
-
         result.push(binding);
       });
       await new Promise(done => rs.on('end', done));

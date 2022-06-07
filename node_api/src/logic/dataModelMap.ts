@@ -59,11 +59,11 @@ export const dataModelMap = {
     name: "person",
     fields: {
       pk: "id",
-      "http://endhealth.info/im#gpPatientType": "function",           // TODO: Needs to be patient_type function!?
-      "http://endhealth.info/im#gpRegistrationStatus": "function",   // TODO: Needs to be registrations_status function!?
-      "http://endhealth.info/im#gpGMSRegistrationDate": "function",   // TODO: Needs to be registrations_status function!?
-      "http://endhealth.info/im#dateOfBirth": "date_of_birth",
-      "http://endhealth.info/im#age": "function"
+      "http://endhealth.info/im#gpPatientType": "gpPatientType()",            // TODO: Needs to be patient_type function!?
+      "http://endhealth.info/im#gpRegistrationStatus": "gpRegStat()",         // TODO: Needs to be registrations_status function!?
+      "http://endhealth.info/im#gpGMSRegistrationDate": "gpGMSRegStat()",     // TODO: Needs to be registrations_status function!?
+      "http://endhealth.info/im#organisation": "organization_id",
+      "http://endhealth.info/im#dateOfBirth": "date_of_birth"
     },
     joins: {
       "http://endhealth.info/im#isSubjectOf": {
@@ -80,7 +80,8 @@ export const dataModelMap = {
       "http://endhealth.info/im#isSubjectOf": "person_id",
       "http://endhealth.info/im#patientType": "registration_type_concept_id",
       "http://endhealth.info/im#effectiveDate": "date_registered",
-      "http://endhealth.info/im#endDate": "date_registered_end"
+      "http://endhealth.info/im#endDate": "date_registered_end",
+      "http://endhealth.info/im#organisation": "organization_id"
     }
   },
   "http://endhealth.info/im#Observation": {

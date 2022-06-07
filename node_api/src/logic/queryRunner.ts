@@ -60,25 +60,25 @@ export default class QueryRunner {
   }
 
    public async getDefinition(queryIri: string): Promise<Query> {
-    console.log("Loading " + queryIri);
-    const rs = await this.graph.execute(
-      "SELECT * WHERE { ?s ?p ?def }",
-      {
-        s: iri(queryIri),
-        p: iri("http://endhealth.info/im#definition")
-      });
+     console.log("Loading " + queryIri);
+     const rs = await this.graph.execute(
+       "SELECT * WHERE { ?s ?p ?def }",
+       {
+         s: iri(queryIri),
+         p: iri("http://endhealth.info/im#definition")
+       });
 
-    if (rs.length != 1)
-      throw "Unable to load definition"
+     if (rs.length != 1)
+       throw new Error("Unable to load definition");
 
-     const def = JSON.parse(rs[0].def);
+     const def = JSON.parse(rs[0].def.value);
 
      console.log("===== DEFINITION =================================================")
      console.log(JSON.stringify(def, null, 2));
      console.log("==================================================================")
 
-    return def;
-  }
+     return def;
+   }
 
   private async generateSql(query: Query) {
     this.sql = new Sql(query['@id']);
@@ -97,10 +97,9 @@ export default class QueryRunner {
     } else if (match.match) {
       await this.processSubMatch(table, match.property["@id"], match.match);
     } else if (match.inSet) {
-      for (const s of match.inSet)
-        await this.processInResultSet(table, s);
+      await this.processInSet(table, match);
     } else if (match.entityInValueSet) {
-      await this.processEntityInValueSet(table, conditions, match);
+      await this.processEntityInValueSet(table, match, match.entityInValueSet);
     } else if (match.value) {
       await this.processValueCompare(table, conditions, match);
     } else if (match.notExist) {
@@ -132,12 +131,12 @@ export default class QueryRunner {
     } else {
       concept.on = await this.getField(concept.table, "iri") + " IN (" + JSON.stringify(match.isConcept) + ")";
     }
-    this.sql.joins.splice(this.sql.joins.length-1, 0, concept);
+    this.sql.joins.push(concept);
 
     const tct: Join = new Join();
     tct.table = this.sql.getTable("http://endhealth.info/im#conceptTct", "t" + this.sql.joins.length);
     tct.on = await this.getField(tct.table, "target") + " = " + await this.getField(concept.table, "dbid") + " AND " + await this.getField(tct.table, "property") + " = 11"; // TODO: Correct property!
-    this.sql.joins.splice(this.sql.joins.length-1, 0, tct);
+    this.sql.joins.push(tct);
 
     const c = new SimpleCondition();
     conditions.push(c);
@@ -147,17 +146,17 @@ export default class QueryRunner {
 
   }
 
-  private async processEntityInValueSet(table: Table, conditions: Condition[], match: Match) {
+  private async processEntityInValueSet(table: Table, match: Match, setIri: TTIriRef) {
     if (match.property['@id'] == "http://endhealth.info/im#inResultSet") {
       const join: Join = new Join();
-      join.table = this.sql.getTable(match.entityInValueSet[0]['@id'], "t" + this.sql.joins.length);
+      join.table = this.sql.getTable(setIri['@id'], "t" + this.sql.joins.length);
       join.on = await this.getField(table, "pk") + " = " + await this.getField(join.table, "pk");
 
       this.sql.joins.push(join);
     } else if (match.property['@id'] == "http://endhealth.info/im#concept") {
       let vs: Join = new Join();
       vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
-      vs.on = await this.getField(vs.table, "iri") + " = '" + match.entityInValueSet[0]['@id'] + "'";
+      vs.on = await this.getField(vs.table, "iri") + " = '" + setIri['@id'] + "'";
       this.sql.joins.push(vs);
 
       let vsm: Join = new Join();
@@ -167,7 +166,7 @@ export default class QueryRunner {
     } else if (match.property['@id'] == "http://endhealth.info/im#code") {
       let vs: Join = new Join();
       vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
-      vs.on = await this.getField(vs.table, "iri") + " = '" + match.entityInValueSet[0]['@id'] + "'";
+      vs.on = await this.getField(vs.table, "iri") + " = '" + setIri['@id'] + "'";
       this.sql.joins.push(vs);
 
       let vsm: Join = new Join();
@@ -176,7 +175,7 @@ export default class QueryRunner {
       this.sql.joins.push(vsm);
 
     } else
-      throw "Unknown 'Value In' predicate [" + match.property['@id'] + "]";
+      throw new Error("Unknown 'Value In' predicate [" + match.property['@id'] + "]");
 
   }
 
@@ -187,11 +186,10 @@ export default class QueryRunner {
     await this.processMatch(join.table, join.conditions, match);
   }
 
-  private async processInResultSet(parentTable: Table, queryIri: TTIriRef) {
-    const join: Join = new Join();
-    join.table = this.sql.getTable(queryIri['@id'], "t" + this.sql.joins.length);
-    join.on = await this.getField(parentTable, "pk") + " = " + await this.getField(join.table, "pk");
-    this.sql.joins.push(join);
+  private async processInSet(parentTable: Table, match: Match) {
+    for (const set of match.inSet) {
+      await this.processEntityInValueSet(parentTable, match, set);
+    }
   }
 
   private async processValueCompare(table: Table, conditions: Condition[], match: Match) {
@@ -233,65 +231,83 @@ export default class QueryRunner {
 
 
   private async getSubject(table: Table, match: Match) {
-    if (match.function)
-      return this.getFunction(table, match);
-    else
-      return this.getField(table, match.property['@id']);
-  }
-
-  private async getFunction(table: Table, match: Match) {
-    this.validateArguments(match);
 
     if (match.property) {
       const propType = await this.getPropertyType(table.id, match.property['@id']);
-      if (propType.function) {
-        console.log("!!!!PROPERTY IS A FUNCTION!!!!")
-        const fn = match.property['@id'];
-
-        if (fn === "http://endhealth.info/im#age") {
-          return "TIMESTAMPDIFF("
-            + await this.getArgument(table, match, "units") + ", "
-            + await this.getField(table, match.property['@id']) + ", "
-            + "$referenceDate)";
-        } else if (fn === "http://endhealth.info/im#TimeDifference") {
-          return "TIMESTAMPDIFF("
-            + await this.getArgument(table, match, "units") + ", "
-            + await this.getArgument(table, match, "firstDate") + ", "
-            + await this.getArgument(table, match, "secondDate") + ")";
-        } else {
-          throw "Unknown function [" + fn + "]";
-        }
+      if (propType.function.value === "true") {
+        return this.getFunction(table, match);
       } else {
-        console.error(match);
-        throw "Property [" + match.property['@id'] + "] of [" + table.id + "] is not a function";
+        return this.getField(table, match.property['@id']);
       }
     } else {
-      throw "Function has no property";
+      throw new Error("Function has no property");
     }
   }
 
-  private validateArguments(match: Match) {
-/*    if (!match.valueVar)
-      return;
+  private async getFunction(table: Table, match: Match) {
+    console.log('!!!!PROPERTY [' + table.id + '][' + match.property['@id'] + '] IS A FUNCTION!!!!')
+    const fn = match.property['@id'];
 
-    for(const a of match.function.argument) {
-      if (a.valueVariable == match.valueVar)
-        throw "Function uses self-referencing variable " + match.valueVar;
-    }*/
+    if (fn === 'http://endhealth.info/im#age') {
+      return 'TIMESTAMPDIFF('
+        + await this.getArgument(table, match, 'units') + ', '
+        + await this.getField(table, 'http://endhealth.info/im#dateOfBirth') + ', '
+        + '$referenceDate)';
+    } else if (fn === 'http://endhealth.info/im#TimeDifference') {
+      return 'TIMESTAMPDIFF('
+        + await this.getArgument(table, match, 'units') + ', '
+        + await this.getArgument(table, match, 'firstDate') + ', '
+        + await this.getArgument(table, match, 'secondDate') + ')';
+    } else if (fn === 'http://endhealth.info/im#gpPatientType') {
+      const subSelectTable = this.sql.getTable('http://endhealth.info/im#GPRegistration', 'sub')
+      return '(SELECT '
+        + await this.getField(subSelectTable, 'http://endhealth.info/im#patientType')
+        + ' FROM ' + subSelectTable.name + ' AS ' + subSelectTable.alias
+        + ' WHERE ' + await this.getField(subSelectTable, 'http://endhealth.info/im#isSubjectOf') + ' = ' + await this.getField(table, 'pk')
+        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#organisation') + ' = ' + await this.getField(table, 'http://endhealth.info/im#organisation')
+        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate') + ' <= $referenceDate '
+        + ' AND ( ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' > $referenceDate '
+        + ' OR ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' IS NULL )'
+        + ')';
+    } else if (fn === 'http://endhealth.info/im#gpRegistrationStatus') {
+      const subSelectTable = this.sql.getTable('http://endhealth.info/im#GPRegistration', 'sub')
+      return '(SELECT '
+        + await this.getField(subSelectTable, 'http://endhealth.info/im#patientType')
+        + ' FROM ' + subSelectTable.name + ' AS ' + subSelectTable.alias
+        + ' WHERE ' + await this.getField(subSelectTable, 'http://endhealth.info/im#isSubjectOf') + ' = ' + await this.getField(table, 'pk')
+        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#organisation') + ' = ' + await this.getField(table, 'http://endhealth.info/im#organisation')
+        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate') + ' <= $referenceDate '
+        + ' AND ( ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' > $referenceDate '
+        + ' OR ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' IS NULL )'
+        + ')';
+    } else if (fn === 'http://endhealth.info/im#gpGMSRegistrationDate') {
+      const subSelectTable = this.sql.getTable('http://endhealth.info/im#GPRegistration', 'sub')
+      return '(SELECT '
+        + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate')
+        + ' FROM ' + subSelectTable.name + ' AS ' + subSelectTable.alias
+        + ' WHERE ' + await this.getField(subSelectTable, 'http://endhealth.info/im#isSubjectOf') + ' = ' + await this.getField(table, 'pk')
+        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#organisation') + ' = ' + await this.getField(table, 'http://endhealth.info/im#organisation')
+        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate') + ' <= $referenceDate '
+        + ' AND ( ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' > $referenceDate '
+        + ' OR ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' IS NULL )'
+        + ')';
+    } else {
+      throw new Error('Unknown function [' + fn + ']');
+    }
   }
 
   private async getArgument(table: Table, match: Match, name: string) {
     for(const a of match.function.argument) {
       if (a.parameter === name) {
         if (a.valueVariable == '$this') {
-          return await this.getField(table, match.property['@id'])
+          return this.getField(table, match.property['@id'])
         } else {
-          return a.valueVariable;
+          return a.valueData;
         }
       }
     }
 
-    throw "Unknown argument [" + name + "]";
+    throw new Error("Unknown argument [" + name + "]");
   }
 
   private getComparison(c: string) {
@@ -302,8 +318,8 @@ export default class QueryRunner {
       case "LESS_THAN": return "<";
       case "LESS_THAN_OR_EQUAL": return "<=";
       case "NOT_EQUAL": return "<>";
-      case "MEMBER_OF": throw "Cannot compare \"Member of\"";
-      default: throw "Unknown comparator [" + c + "]";
+      case "MEMBER_OF": throw new Error("Cannot compare \"Member of\"");
+      default: throw new Error("Unknown comparator [" + c + "]");
     }
   }
 
@@ -320,7 +336,7 @@ export default class QueryRunner {
       });
 
     if (rs.length != 1)
-      throw "Unable to get IM1 ID for entity [" + entity + "]";
+      throw new Error("Unable to get IM1 ID for entity [" + entity + "]");
 
     return rs[0].id;
   }
@@ -331,7 +347,7 @@ export default class QueryRunner {
 
   private async getPropertyType(entity: string, property: string): Promise<any> {
     if (!property)
-      throw "No property!!!";
+      throw new Error("No property!!!");
 
     if (!property.startsWith("http"))
       return { };
@@ -341,7 +357,7 @@ export default class QueryRunner {
       "WHERE {\n" +
       "    ?s  " + iri(SHACL.PROPERTY) + " ?bn .\n" +
       "    ?bn " + iri(SHACL.PATH) + " ?p .\n" +
-      "    OPTIONAL { BIND(EXISTS {?p " + iri(RDF.TYPE) + " ?shfun} AS ?function)  }\n" +
+      "    OPTIONAL { BIND(EXISTS {?p " + iri(RDF.TYPE) + " " + iri(SHACL.FUNCTION) + "} AS ?function)  }\n" +
       "    OPTIONAL { ?bn " + iri(SHACL.DATATYPE) + " ?type  }\n" +
       "    OPTIONAL { ?bn " + iri(SHACL.CLASS) + " ?class  }\n" +
       "}";

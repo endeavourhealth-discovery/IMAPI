@@ -127,9 +127,11 @@ export default class QueryWorkflow {
 
 
   private async populateDefinition(definition: any): Promise<any> {
+    // console.log("definition", definition);
+
     // find all TTIriRefs in definition
     const jsonQuery = `$..[?(@.@id)]`;
-    let IriRefs = jp.nodes(definition?.match?.filter, jsonQuery);
+    let IriRefs = jp.nodes(definition?.select?.match, jsonQuery);
     if (IriRefs.length == 0) return {};
 
     IriRefs = IriRefs.filter(ref => isTTIriRef(ref.value)); // excludes objects which match the jsonQuery but  are operators/clauses instead of IriRefs 
@@ -137,14 +139,13 @@ export default class QueryWorkflow {
     // get all entities from database for TTIriRefs
     const iris = IriRefs.map(item => item.value["@id"]);
     const meta = await this.getMeta(iris) as any[];
-    // console.log("meta", meta)
 
     // populate TTIriRefs with name where missing.
     IriRefs.forEach((item: any) => {
       if (!item?.value?.name) {
         const path = jp.stringify(item.path).substring(2) + ".name";
         const entity = meta.find(entity => entity?.id?.id == item.value["@id"])
-        entity ? _.set(definition?.select?.filter, path, entity?.name) : null;
+        entity ? _.set(definition?.select?.match, path, entity?.name) : null;
       }
     })
     return definition;
@@ -162,14 +163,14 @@ export default class QueryWorkflow {
 
     //matchClause = any object with a "property" key
     const jsonQuery = `$..[?(@.property)]`;    // const jsonQuery = `$..[? (@.@id)]`
-    let matchClauses = jp.nodes(definition?.select?.filter, jsonQuery);
+    let matchClauses = jp.nodes(definition?.select?.match, jsonQuery);
     matchClauses = matchClauses.filter(excludedPaths);
 
     // add summary to match clauses
     const addSummary = (clause: any) => {
       const summary = TextGenerator.summarise(clause.value) || "";
       const path = jp.stringify(clause.path).substring(2) + "name";
-      summary ? _.set(definition?.select?.filter, path, summary) : null;
+      summary ? _.set(definition?.select?.match, path, summary) : null;
       this.showConsole && console.log(`### summary of clause(${path}): `, summary);
     };
     matchClauses.forEach(addSummary)
@@ -186,7 +187,6 @@ export default class QueryWorkflow {
     this.showConsole && console.log(`definition`, definition);
 
     const summary = TextGenerator.summarise(definition) || "";
-    // summary ? definition['name'] = summary : null;
     this.showConsole && console.log(`### summary of clause `, summary);
     return summary;
   }

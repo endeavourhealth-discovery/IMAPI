@@ -40,7 +40,7 @@ export default class ManipulationUtils {
 
 
     public static excludedPaths(clause: any): boolean {
-        const excludedPathProperties = ["test", "valueObject"]
+        const excludedPathProperties = ["test", "match"]
         return !excludedPathProperties.some(path => clause.path.includes(path));
     }
 

@@ -64,7 +64,7 @@ export class Clause {
 
     //special getters that are not defined in PathMap.json
     get exists(): boolean {
-        const exists = this?.definition?.notExist != true && this?.definition?.valueObject?.notExist != true;
+        const exists = this?.definition?.notExist != true && this?.definition?.match?.notExist != true;
         return exists
     }
 
@@ -72,8 +72,8 @@ export class Clause {
         return wordMap["are"][this.exists.toString()];
     }
 
-    get have(): string {
-        return wordMap["have"][this.exists.toString()];
+    get has(): string {
+        return wordMap["has"][this.exists.toString()];
     }
 
 }

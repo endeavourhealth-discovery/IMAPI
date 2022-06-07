@@ -43,6 +43,7 @@ public class IM {
     public static final TTIriRef SETMODEL = iri(NAMESPACE + "SetModel");
     public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
+  public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
 
 
     //Collection predicates
@@ -197,7 +198,7 @@ public class IM {
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
-    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
+     public static final TTIriRef ORDER = iri(NAMESPACE + "order");
 
     //im1
     public static final TTIriRef IM1ID = iri(NAMESPACE + "im1Id");
@@ -208,6 +209,7 @@ public class IM {
     //Query
   public static final TTIriRef VALUE_SELECT= iri(NAMESPACE+"valueSelect");
   public static final TTIriRef VALUE_VARIABLE= iri(NAMESPACE+"valueVariable");
+  public static final TTIriRef PLACEHOLDER= iri(NAMESPACE+"placeHolder");
 
 
     private IM() {

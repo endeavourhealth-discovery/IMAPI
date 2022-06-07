@@ -4,13 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"name","iri","description","notExist","entityType","entityId","subsetOf","includeSubEntities","includeMembers","graph"+ ",inverseOf","property","includeSubProperties"
+@JsonPropertyOrder({"name","iri","description","subselect","notExist","entityType","entityId","entityInSet","includeSubEntities","includeMembers","graph"+ ",inverseOf","property","includeSubProperties"
 	,"isConcept","inValueSet","notInValueSet", "inRange","value","function","within","valueVar","match","isIndex","and","or","orderLimit","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Heading {
@@ -22,14 +24,19 @@ public class Match extends Heading {
 	private TTIriRef graph;
 	private ConceptRef entityType;
 	private ConceptRef entityId;
-	private ConceptRef entityInValueSet;
+	private List<ConceptRef> entityInSet;
+	private List<ConceptRef> entityNotInSet;
+	private Select subselect;
+
+
 
 	ConceptRef property;
 	Compare value;
-	List<TTIriRef> inSet;
-	List<TTIriRef> notInSet;
+	List<ConceptRef> inSet;
+	List<ConceptRef> notInSet;
 	List<ConceptRef> isConcept;
 	List<ConceptRef> isNotConcept;
+	List<Argument> argument;
 	Range inRange;
 	String entityVar;
 
@@ -40,11 +47,86 @@ public class Match extends Heading {
 	boolean notExist=false;
 	boolean isIndex;
 
+	public Select getSubselect() {
+		return subselect;
+	}
+
+	@JsonSetter
+	public Match setSubselect(Select subselect) {
+		this.subselect = subselect;
+		return this;
+	}
+
+	@JsonIgnore
+	public Match subselect(Consumer<Select> builder){
+		Select select= new Select();
+		this.subselect = select;
+		builder.accept(select);
+		return this;
+	}
+
+	public List<Argument> getArgument() {
+		return argument;
+	}
+
+	public Match setArgument(List<Argument> argument) {
+		this.argument = argument;
+		return this;
+	}
+
+	public Match addArgument(Argument argument){
+		if (this.argument==null)
+			this.argument= new ArrayList<>();
+		this.argument.add(argument);
+		return this;
+	}
+
+	public List<ConceptRef> getEntityNotInSet() {
+		return entityNotInSet;
+	}
+
+	@JsonSetter
+	public Match setEntityNotInSet(List<ConceptRef> entityNotInSet) {
+		this.entityNotInSet = entityNotInSet;
+		return this;
+	}
+
+	public Match addEntityNotInSet(ConceptRef notin){
+		if (this.entityNotInSet==null)
+			this.entityNotInSet= new ArrayList<>();
+		this.entityNotInSet.add(notin);
+		return this;
+	}
+
+	public Match addEntityNotInSet(TTIriRef notin){
+		addEntityNotInSet(new ConceptRef(notin));
+		return this;
+	}
+
+	public Match addEntityInSet(ConceptRef in){
+		if (this.entityInSet==null)
+			this.entityInSet= new ArrayList<>();
+		this.entityInSet.add(in);
+		return this;
+	}
+
+	public Match addEntityInSet(TTIriRef notin){
+		addEntityInSet(new ConceptRef(notin));
+		return this;
+	}
 
 	public Match and(Consumer<Match> builder){
 		Match m= new Match();
 		this.addAnd(m);
 		builder.accept(m);
+		return this;
+	}
+
+	@JsonIgnore
+	public Match value(Consumer<Compare> builder){
+		Compare c= new Compare();
+		this.setValue(c);
+		builder.accept(c);
 		return this;
 	}
 
@@ -63,8 +145,8 @@ public class Match extends Heading {
 	}
 
 
-	public ConceptRef getEntityInValueSet() {
-		return entityInValueSet;
+	public List<ConceptRef> getEntityInSet() {
+		return entityInSet;
 	}
 
 	public List<ConceptRef> getIsConcept() {
@@ -112,15 +194,11 @@ public class Match extends Heading {
 	}
 
 	@JsonSetter
-	public Match setEntityInValueSet(ConceptRef entityInValueSet) {
-		this.entityInValueSet = entityInValueSet;
+	public Match setEntityInSet(List<ConceptRef> entityInSet) {
+		this.entityInSet = entityInSet;
 		return this;
 	}
 
-	public Match setEntityInValueSet(TTIriRef entityInValueSet) {
-		this.entityInValueSet = new ConceptRef(entityInValueSet);
-		return this;
-	}
 
 
 	public String getEntityVar() {
@@ -272,8 +350,15 @@ public class Match extends Heading {
 		return within;
 	}
 
+	@JsonSetter
 	public Match setWithin(Within within) {
 		this.within = within;
+		return this;
+	}
+	@JsonIgnore
+	public Match within(Consumer<Within> builder){
+		this.within= new Within();
+		builder.accept(this.within);
 		return this;
 	}
 
@@ -378,10 +463,17 @@ public class Match extends Heading {
 	}
 
 
-	public List<TTIriRef> getInSet() {
+	public List<ConceptRef> getInSet() {
 		return inSet;
 	}
 	public Match addInSet(TTIriRef value){
+		if (this.inSet ==null)
+			this.inSet = new ArrayList<>();
+		this.inSet.add(new ConceptRef(value));
+		return this;
+	}
+
+	public Match addInSet(ConceptRef value){
 		if (this.inSet ==null)
 			this.inSet = new ArrayList<>();
 		this.inSet.add(value);
@@ -391,20 +483,27 @@ public class Match extends Heading {
 	public Match addNotInSet(TTIriRef value){
 		if (this.notInSet ==null)
 			this.notInSet = new ArrayList<>();
+		this.notInSet.add(new ConceptRef(value));
+		return this;
+	}
+
+	public Match addNotInSet(ConceptRef value){
+		if (this.notInSet ==null)
+			this.notInSet = new ArrayList<>();
 		this.notInSet.add(value);
 		return this;
 	}
 
-	public Match setInSet(List<TTIriRef> inSet) {
+	public Match setInSet(List<ConceptRef> inSet) {
 		this.inSet = inSet;
 		return this;
 	}
 
-	public List<TTIriRef> getNotInSet() {
+	public List<ConceptRef> getNotInSet() {
 		return notInSet;
 	}
 
-	public Match setNotInSet(List<TTIriRef> notInSet) {
+	public Match setNotInSet(List<ConceptRef> notInSet) {
 		this.notInSet = notInSet;
 		return this;
 	}
@@ -426,11 +525,27 @@ public class Match extends Heading {
 		return function;
 	}
 
+	@JsonSetter
 	public Match setFunction(Function function) {
 		this.function = function;
 		return this;
 	}
 
+	@JsonIgnore
+	public String getasJson() throws JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+	}
+
+	@JsonIgnore
+	public Match function(Consumer<Function> builder){
+		this.function= new Function();
+		builder.accept(this.function);
+		return this;
+	}
 
 
 

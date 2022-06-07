@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -9,10 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * A property of a select statement with option for iri and alias and supports nested selects for object format
+ */
 @JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","property","match",})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select {
-
 
 
 	private String name;
@@ -26,9 +29,14 @@ public class Select {
 	private ConceptRef entityType;
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
-	private List<String> groupBy;
+	private List<PropertySelect> groupBy;
 	private OrderLimit orderLimit;
 
+	/**
+	 * Lambda approach to setting property selects
+	 * @param builder the lambda expression
+	 * @return this for chaining
+	 */
 	public Select property(Consumer<PropertySelect> builder){
 		PropertySelect ps= new PropertySelect();
 		addProperty(ps);
@@ -36,6 +44,23 @@ public class Select {
 		return this;
 	}
 
+	/**
+	 * Quick way of setting property iris without nesting as a list
+	 * @param properties list of iris for property select
+	 * @return this for chaining
+	 */
+	@JsonIgnore
+	public Select property(List<TTIriRef> properties){
+		for (TTIriRef iri:properties)
+			this.addProperty(new PropertySelect(iri));
+		return this;
+	}
+
+	/**
+	 * Lambda approach for setting match clause
+	 * @param builder lambda expression
+	 * @return this for chaining
+	 */
 	public Select match(Consumer<Match> builder){
 		Match match= new Match();
 		this.match= match;
@@ -43,6 +68,11 @@ public class Select {
 		return this;
 	}
 
+	/**
+	 * Lambda approach for setting order and limit
+	 * @param builder lambda expression
+	 * @return this for chaining
+	 */
 	public Select order(Consumer<OrderLimit> builder){
 		OrderLimit ol= new OrderLimit();
 		this.orderLimit= ol;
@@ -62,16 +92,16 @@ public class Select {
 		return this;
 	}
 
-	public List<String> getGroupBy() {
+	public List<PropertySelect> getGroupBy() {
 		return groupBy;
 	}
 
-	public Select setGroupBy(List<String> groupBy) {
+	public Select setGroupBy(List<PropertySelect> groupBy) {
 		this.groupBy = groupBy;
 		return this;
 	}
 
-	public Select addGroupBy(String group){
+	public Select addGroupBy(PropertySelect group){
 		if (this.groupBy==null)
 			this.groupBy= new ArrayList<>();
 		groupBy.add(group);

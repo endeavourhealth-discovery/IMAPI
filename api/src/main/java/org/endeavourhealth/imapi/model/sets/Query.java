@@ -19,7 +19,6 @@ public class Query extends Heading {
 	private Select select;
 
 	private List<Select> subselect;
-	private List<Select> groupBy;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
 	private String referenceDate;
@@ -132,23 +131,6 @@ public class Query extends Heading {
 
 	public Query resultFormat(ResultFormat resultFormat) {
 		this.resultFormat = resultFormat;
-		return this;
-	}
-
-
-	public List<Select> getGroupBy() {
-		return groupBy;
-	}
-
-	public Query setGroupBy(List<Select> groupBy) {
-		this.groupBy = groupBy;
-		return this;
-	}
-
-	public Query addGroupBy(Select group){
-		if (this.groupBy==null)
-			this.groupBy= new ArrayList<>();
-		this.groupBy.add(group);
 		return this;
 	}
 

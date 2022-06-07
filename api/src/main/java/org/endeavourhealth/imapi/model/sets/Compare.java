@@ -1,17 +1,20 @@
 package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.Locale;
 import java.util.zip.DataFormatException;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Compare {
 
 	Comparison comparison= Comparison.EQUAL;
 	String valueData;
 	String valueVariable;
 	String valueSelect;
+
 
 	public String getValueSelect() {
 		return valueSelect;
@@ -26,10 +29,12 @@ public class Compare {
 		return comparison;
 	}
 
+	@JsonSetter
 	public Compare setComparison(Comparison comparison) {
 		this.comparison = comparison;
 		return this;
 	}
+
 
 	@JsonSetter
 	public Compare setComparison(String comp) throws DataFormatException {

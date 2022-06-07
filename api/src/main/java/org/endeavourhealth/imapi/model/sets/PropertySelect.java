@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 
@@ -21,6 +22,16 @@ public class PropertySelect extends TTIriRef {
 	public PropertySelect select(Consumer<Select> builder){
 		this.select= new Select();
 		builder.accept(this.select);
+		return this;
+	}
+
+	@JsonIgnore
+	public PropertySelect select(List<TTIriRef> properties){
+		Select select= new Select();
+		this.setSelect(select);
+		for (TTIriRef iri:properties){
+			select.addProperty(new PropertySelect(iri));
+		}
 		return this;
 	}
 

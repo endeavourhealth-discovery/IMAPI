@@ -67,7 +67,7 @@ export const dataModelMap = {
     },
     joins: {
       "http://endhealth.info/im#isSubjectOf": {
-        "http://endhealth.info/im#GPRegistration": "{child}.patient_id = {parent}.id",
+        "http://endhealth.info/im#GPRegistration": "{child}.person_id = {parent}.id AND {child}.organization_id = {parent}.organization_id",
         "http://endhealth.info/im#Observation": "{child}.patient_id = {parent}.id",
         "http://endhealth.info/im#MedicationRequest": "{child}.patient_id = {parent}.id"
       }
@@ -79,6 +79,7 @@ export const dataModelMap = {
     fields: {
       "http://endhealth.info/im#isSubjectOf": "person_id",
       "http://endhealth.info/im#patientType": "registration_type_concept_id",
+      "http://endhealth.info/im#registrationStatus": "registration_status_concept_id",
       "http://endhealth.info/im#effectiveDate": "date_registered",
       "http://endhealth.info/im#endDate": "date_registered_end",
       "http://endhealth.info/im#organisation": "organization_id"

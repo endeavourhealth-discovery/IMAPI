@@ -78,8 +78,8 @@ export class Sql extends Join {
     join.on = parent.joins[relationshipId][childId];
 
     join.on = join.on
-      .replace("{child}", join.table.alias)
-      .replace("{parent}", parent.alias);
+      .replace(/{child}/g, join.table.alias)
+      .replace(/{parent}/g, parent.alias);
 
     return join;
   }

@@ -71,14 +71,22 @@ content-type: application/json
 
 GET http://localhost:3000/node_api/query/public/run?iri=http://endhealth.info/im#Q_RegisteredGMS
 
-
 ###
 
 GET http://localhost:3000/node_api/query/public/run?iri=urn%3Auuid%3A6d517466-813b-46a8-b848-aaf5a4fbdcbf
 
-
 ###
-
 
 GET http://localhost:3000/node_api/query/public/run?iri=urn%3Auuid%3A7d9a0a98-4df8-4748-8940-061a5148293c
 
+###
+
+GET http://localhost:3000/node_api/query/public/getSQL?iri=http://endhealth.info/im#Q_RegisteredGMS
+
+###
+
+GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A6d517466-813b-46a8-b848-aaf5a4fbdcbf
+
+###
+
+GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A7d9a0a98-4df8-4748-8940-061a5148293c

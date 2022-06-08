@@ -26,17 +26,14 @@ export default class QueryController {
     this.router.get('/node_api/query/public/querySummary', (req, res) => this.getQuerySummary(req, res))
     this.router.post('/node_api/query/public/querySummary', (req, res) => this.postQuerySummary(req, res))
     this.router.post('/node_api/query/public/clauseSummary', (req, res) => this.postClauseSummary(req, res))
-    // this.router.get('/node_api/query/public/getSQL', (req, res) => this.getSQL(req, res))
+    this.router.get('/node_api/query/public/getSQL', (req, res) => this.getSQL(req, res))
 
   }
 
-  // async getSQL(req: Request, res: Response) {
-  //   const data = await this.workflow.getDefinition(req.query.iri as string);
-  //   const sql =  this.runner.generateSql(data).sql.toCreate;
-  //   res.send(sql).end();
-  // }
-
-
+  async getSQL(req: Request, res: Response) {
+    const sql =  await this.runner.generateSQL(req.query.iri as string);
+    res.send(sql).end();
+  }
 
   async runQuery(req: Request, res: Response) {
 

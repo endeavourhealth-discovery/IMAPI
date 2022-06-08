@@ -20,6 +20,20 @@ export default class QueryRunner {
     this.graph = new GraphdbService();
   }
 
+  public async generateSQL(queryIri: string): Promise<string> {
+    try {
+      const definition: Query = await this.getDefinition(queryIri);
+
+      await this.generateSql(definition);
+
+      return this.sql.toCreate();
+    } catch (e) {
+      console.error("***** ERROR!!");
+      console.log(e);
+      return 'Error generating SQL';
+    }
+  }
+
   public async runQuery(queryIri: string): Promise<any[]> {
     try {
       const definition: Query = await this.getDefinition(queryIri);

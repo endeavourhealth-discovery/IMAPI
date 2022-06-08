@@ -32,29 +32,41 @@
         "responses": {}
       }
     },
-    "/api/query/public/run": {
+    "/node_api/query/public/run": {
       "get": {
         "description": "",
         "parameters": [],
         "responses": {}
       }
     },
-    "/api/query/public/definition": {
+    "/node_api/query/public/definition": {
       "get": {
         "description": "",
         "parameters": [],
         "responses": {}
       }
     },
-    "/api/query/public/richDefinition": {
+    "/node_api/query/public/richDefinition": {
       "get": {
         "description": "",
         "parameters": [],
         "responses": {}
       }
     },
-    "/api/query/public/summariseClause": {
+    "/node_api/query/public/querySummary": {
       "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      },
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "/node_api/query/public/clauseSummary": {
+      "post": {
         "description": "",
         "parameters": [],
         "responses": {}

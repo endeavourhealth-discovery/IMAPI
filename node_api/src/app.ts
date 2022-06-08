@@ -4,7 +4,7 @@ import * as https from 'https';
 import * as fs from 'fs';
 // import swaggerAutogen from 'swagger-autogen';
 const swaggerUi = require('swagger-ui-express')
-const swaggerFile = require('../swagger_output.json')
+const swaggerFile = require('./swagger_output.json')
 
 class App {
   public app: Application

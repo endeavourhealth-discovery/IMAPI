@@ -19,8 +19,7 @@ export default class QueryWorkflow {
     this.graph = new GraphdbService();
   }
 
-
-  public async getEntity(entityIri: string): Promise<Query> {
+  public async getDefinition(entityIri: string): Promise<Query> {
     this.showConsole && console.log("Loading iri: " + entityIri);
     const rs = await this.graph.execute(
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",
@@ -32,27 +31,8 @@ export default class QueryWorkflow {
     if (rs.length != 1)
       return {} as Query;
 
-    return JSON.parse(rs[0]);
+    return JSON.parse(rs[0].def.value);
   }
-
-
-  public async getDefinition(queryIri: string): Promise<any | Query> {
-    this.showConsole && console.log("Loading iri: " + queryIri);
-
-    let s = iri(queryIri),
-      p = iri("http://endhealth.info/im#definition"),
-      stmt = `SELECT * WHERE { ${s} ${p} ?def. } LIMIT 1`;
-
-    const rs = await this.graph.execute(stmt);
-    if (rs.length != 1) return {} as any | Query;
-
-    let definition: any = rs[0].def
-    // definition = ManipulationUtils.escapeCharacters(definition);
-
-    return JSON.parse(definition);
-
-  }
-
 
   public async allEntities(iris: string[]) {
 

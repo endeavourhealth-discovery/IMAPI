@@ -7,7 +7,7 @@ files:
     destination: /opt/nodeapi/
   - source: /node_api/package.json
     destination: /opt/nodeapi/
-  - source: /node_api/swagger_output.json
+  - source: /node_api/src/swagger_output.json
     destination: /opt/nodeapi/
 hooks:
   BeforeInstall:

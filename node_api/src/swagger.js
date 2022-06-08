@@ -11,7 +11,7 @@ const doc = {
     schemes: ['http'],
   };
   
-  const outputFile = './swagger_output.json';
+  const outputFile = './src/swagger_output.json';
   const endpointsFiles = ['./src/controllers/entityController.ts', './src/controllers/queryController.ts', './src/controllers/searchController.ts'];
   
 

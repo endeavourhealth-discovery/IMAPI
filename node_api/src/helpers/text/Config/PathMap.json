@@ -9,7 +9,7 @@
     "units": "function.argument[0]",
     "firstDate": "function.argument[1]",
     "secondDate": "function.argument[2].valueVariable",
-    "valueFunctionId": "function.id.@id",
+    "valueFunctionId": "function.@id",
     "valueData": "value.valueData",
     "matchInSet": "match.inSet",
     "isConcept0": "isConcept[0]",

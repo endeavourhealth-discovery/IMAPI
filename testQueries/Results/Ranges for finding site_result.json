@@ -1,0 +1,18 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "sn" : "http://snomed.info/sct#",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "label"
+  },
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#442083009",
+    "im:id" : [ {
+      "@id" : [ "sn:442083009" ]
+    } ],
+    "rdfs:label" : [ "Anatomical or acquired body structure (body structure)" ]
+  } ]
+}

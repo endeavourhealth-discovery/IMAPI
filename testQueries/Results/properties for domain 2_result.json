@@ -1,0 +1,84 @@
+{
+  "@context" : {
+    "http://www.w3.org/2000/01/rdf-schema#label" : "label"
+  },
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#127489000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has active ingredient (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#762949000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has precise active ingredient (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#411116001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has manufactured dose form (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#766939001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Plays role (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#766952006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Count of base of active ingredient (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#733723002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has concentration strength denominator value (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#733722007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has concentration strength denominator unit (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#732943007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has basis of strength substance (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#733724008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has concentration strength numerator value (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#733725009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has concentration strength numerator unit (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#732944001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has presentation strength numerator value (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#732946004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has presentation strength denominator value (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#732947008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has presentation strength denominator unit (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#732945000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has presentation strength numerator unit (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#763032000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has unit of presentation (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#766953001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Count of active ingredient (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#766954007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Count of base and modification pair (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#774158006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has product name (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#774159003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has supplier (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#774160008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Contains clinical drug (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#774161007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has pack size (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#774163005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has pack size unit (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#860779006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has ingredient characteristic (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#860781008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Has product characteristic (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#320081000221109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Unit of presentation size quantity (attribute)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#320091000221107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Unit of presentation size unit (attribute)" ]
+  } ]
+}

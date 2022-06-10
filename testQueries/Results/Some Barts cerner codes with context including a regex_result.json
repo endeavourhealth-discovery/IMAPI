@@ -1,0 +1,51 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "sn" : "http://snomed.info/sct#",
+    "http://endhealth.info/im#sourceContext" : "source context",
+    "http://endhealth.info/im#sourceSystem" : "source system",
+    "http://endhealth.info/im#sourceField" : "source field",
+    "http://endhealth.info/im#sourceTable" : "source table",
+    "http://endhealth.info/im#code" : "code",
+    "http://endhealth.info/im#sourceSchema" : "source extract",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "label",
+    "http://endhealth.info/im#sourceHeading" : "source heading"
+  },
+  "entities" : [ {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "im:id" : [ {
+      "@id" : [ "http://endhealth.info/bc#PF4" ]
+    } ],
+    "rdfs:label" : [ "Original code : CM_PF4_Negative(Barts Cerner)", "Original code : CM_PF4_Positive(Barts Cerner)" ],
+    "im:code" : [ "CM_PF4_Negative", "CM_PF4_Positive" ],
+    "im:sourceContext" : [ {
+      "im:sourceHeading" : [ "316081942" ],
+      "im:sourceSystem" : [ "CM_Sys_Cerner" ],
+      "im:sourceTable" : [ "CLEVE" ],
+      "im:sourceField" : [ "EVENT_CD" ],
+      "im:sourceSchema" : [ "CDE" ]
+    }, {
+      "im:sourceHeading" : [ "316081942" ],
+      "im:sourceSystem" : [ "CM_Sys_Cerner" ],
+      "im:sourceTable" : [ "CLEVE" ],
+      "im:sourceField" : [ "EVENT_CD" ],
+      "im:sourceSchema" : [ "CDE" ]
+    }, {
+      "im:sourceHeading" : [ "316081992" ],
+      "im:sourceSystem" : [ "CM_Sys_Cerner" ],
+      "im:sourceTable" : [ "CLEVE" ],
+      "im:sourceField" : [ "EVENT_CD" ],
+      "im:sourceSchema" : [ "CDE" ]
+    }, {
+      "im:sourceHeading" : [ "316081992" ],
+      "im:sourceSystem" : [ "CM_Sys_Cerner" ],
+      "im:sourceTable" : [ "CLEVE" ],
+      "im:sourceField" : [ "EVENT_CD" ],
+      "im:sourceSchema" : [ "CDE" ]
+    } ]
+  } ]
+}

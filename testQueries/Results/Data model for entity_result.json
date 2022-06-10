@@ -1,0 +1,175 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "sn" : "http://snomed.info/sct#",
+    "http://www.w3.org/ns/shacl#minCount" : "min count",
+    "http://www.w3.org/ns/shacl#property" : "property",
+    "http://www.w3.org/ns/shacl#datatype" : "datatype",
+    "http://www.w3.org/ns/shacl#maxCount" : "max count",
+    "http://www.w3.org/ns/shacl#class" : "class",
+    "http://www.w3.org/ns/shacl#path" : "path"
+  },
+  "entities" : [ {
+    "@id" : "http://endhealth.info/im#Entity",
+    "im:id" : [ {
+      "@id" : [ "im:Entity" ]
+    } ],
+    "sh:property" : [ {
+      "sh:path" : [ {
+        "@id" : [ "rdf:type" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:status" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Status" ]
+      } ],
+      "sh:minCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:label" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ],
+      "sh:minCount" : [ "1" ],
+      "sh:maxCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:scheme" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Graph" ]
+      } ],
+      "sh:minCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:comment" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:string" ]
+      } ],
+      "sh:minCount" : [ "1" ],
+      "sh:maxCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:domain" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:range" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:subClassOf" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:subPropertyOf" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:matchedTo" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:sourceContext" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:SourceContext" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:isA" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:status" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Status" ]
+      } ],
+      "sh:minCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:scheme" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:Graph" ]
+      } ],
+      "sh:minCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:domain" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:range" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:subClassOf" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "rdfs:subPropertyOf" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:matchedTo" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:sourceContext" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:SourceContext" ]
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : [ "im:isA" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "rdfs:Resource" ]
+      } ]
+    } ]
+  } ]
+}

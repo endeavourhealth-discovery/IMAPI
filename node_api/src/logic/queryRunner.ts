@@ -6,9 +6,8 @@ import {Join} from "../model/sql/Join";
 import {SimpleCondition} from "../model/sql/SimpleCondition";
 import {ConditionList} from "../model/sql/ConditionList";
 import {Condition} from '../model/sql/Condition';
-import {TTIriRef} from '../model/tripletree/TTIriRef';
 import {IM, RDF, SHACL} from '../vocabulary';
-import {Query, Match, Select} from 'im-library/dist/types/models/modules/AutoGen';
+import {Query, Match, Select, Function} from 'im-library/dist/types/models/modules/AutoGen';
 
 export default class QueryRunner {
   private mysql: MysqlService;
@@ -111,9 +110,9 @@ export default class QueryRunner {
     } else if (match.match) {
       await this.processSubMatch(table, match.property["@id"], match.match);
     } else if (match.inSet) {
-      await this.processInSet(table, match);
-    } else if (match.entityInValueSet) {
-      await this.processEntityInValueSet(table, match, match.entityInValueSet);
+      await this.processInSets(table, match);
+    } else if (match.entityInSet) {
+      await this.processEntityInResultSet(table, match);
     } else if (match.value) {
       await this.processValueCompare(table, conditions, match);
     } else if (match.notExist) {
@@ -160,39 +159,6 @@ export default class QueryRunner {
 
   }
 
-  private async processEntityInValueSet(table: Table, match: Match, setIri: TTIriRef) {
-    if (match.property['@id'] == "http://endhealth.info/im#inResultSet") {
-      const join: Join = new Join();
-      join.table = this.sql.getTable(setIri['@id'], "t" + this.sql.joins.length);
-      join.on = await this.getField(table, "pk") + " = " + await this.getField(join.table, "pk");
-
-      this.sql.joins.push(join);
-    } else if (match.property['@id'] == "http://endhealth.info/im#concept") {
-      let vs: Join = new Join();
-      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
-      vs.on = await this.getField(vs.table, "iri") + " = '" + setIri['@id'] + "'";
-      this.sql.joins.push(vs);
-
-      let vsm: Join = new Join();
-      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
-      vsm.on = await this.getField(vsm.table, "value_set") + " = " + await this.getField(vs.table, "pk") + " AND " + await this.getField(table, "http://endhealth.info/im#concept") + " = " + await this.getField(vsm.table, "member");
-      this.sql.joins.push(vsm);
-    } else if (match.property['@id'] == "http://endhealth.info/im#code") {
-      let vs: Join = new Join();
-      vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
-      vs.on = await this.getField(vs.table, "iri") + " = '" + setIri['@id'] + "'";
-      this.sql.joins.push(vs);
-
-      let vsm: Join = new Join();
-      vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
-      vsm.on = await this.getField(vsm.table, "value_set") + " = " + await this.getField(vs.table, "pk") + " AND " + await this.getField(table, "http://endhealth.info/im#concept") + " = " + await this.getField(vsm.table, "member");
-      this.sql.joins.push(vsm);
-
-    } else
-      throw new Error("Unknown 'Value In' predicate [" + match.property['@id'] + "]");
-
-  }
-
   private async processSubMatch(parentTable: Table, propertyId: string, match: Match) {
     const join: Join = this.sql.getJoin(parentTable, propertyId, match.entityType["@id"], "t" + this.sql.joins.length);
     this.sql.joins.push(join);
@@ -200,9 +166,41 @@ export default class QueryRunner {
     await this.processMatch(join.table, join.conditions, match);
   }
 
-  private async processInSet(parentTable: Table, match: Match) {
-    for (const set of match.inSet) {
-      await this.processEntityInValueSet(parentTable, match, set);
+  private async processEntityInResultSet(table: Table, match: Match) {
+    for (const setIri of match.entityInSet) {
+      const join: Join = new Join();
+      join.table = this.sql.getTable(setIri['@id'], "t" + this.sql.joins.length);
+      join.on = await this.getField(table, "pk") + " = " + await this.getField(join.table, "pk");
+
+      this.sql.joins.push(join);
+    }
+  }
+
+  private async processInSets(table: Table, match: Match) {
+    for (const setIri of match.inSet) {
+      if (match.property['@id'] == "http://endhealth.info/im#concept") {
+        let vs: Join = new Join();
+        vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+        vs.on = await this.getField(vs.table, "iri") + " = '" + setIri['@id'] + "'";
+        this.sql.joins.push(vs);
+
+        let vsm: Join = new Join();
+        vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+        vsm.on = await this.getField(vsm.table, "value_set") + " = " + await this.getField(vs.table, "pk") + " AND " + await this.getField(table, "http://endhealth.info/im#concept") + " = " + await this.getField(vsm.table, "member");
+        this.sql.joins.push(vsm);
+      } else if (match.property['@id'] == "http://endhealth.info/im#code") {
+        let vs: Join = new Join();
+        vs.table = this.sql.getTable("http://endhealth.info/im#ValueSet", "t" + this.sql.joins.length);
+        vs.on = await this.getField(vs.table, "iri") + " = '" + setIri['@id'] + "'";
+        this.sql.joins.push(vs);
+
+        let vsm: Join = new Join();
+        vsm.table = this.sql.getTable("http://endhealth.info/im#ValueSetMember", "t" + this.sql.joins.length);
+        vsm.on = await this.getField(vsm.table, "value_set") + " = " + await this.getField(vs.table, "pk") + " AND " + await this.getField(table, "http://endhealth.info/im#concept") + " = " + await this.getField(vsm.table, "member");
+        this.sql.joins.push(vsm);
+
+      } else
+        throw new Error("Unknown 'Value In' predicate [" + match.property['@id'] + "]");
     }
   }
 
@@ -244,77 +242,89 @@ export default class QueryRunner {
   }
 
 
-  private async getSubject(table: Table, match: Match) {
+  private async getSubject(table: Table, match: Match):Promise<string> {
 
     if (match.property) {
       const propType = await this.getPropertyType(table.id, match.property['@id']);
-      if (propType.function.value === "true") {
-        return this.getFunction(table, match);
-      } else {
-        return this.getField(table, match.property['@id']);
+      let subject = (propType.function.value === "true")
+        ? await this.getFunctionProperty(table, match)
+        : await this.getField(table, match.property['@id']);
+
+      if (match.function && match.function['@id']) {
+        subject = await this.getFunction(match.function, subject);
       }
+
+      return subject;
+
     } else {
       throw new Error("Function has no property");
     }
   }
 
-  private async getFunction(table: Table, match: Match) {
-    console.log('!!!!PROPERTY [' + table.id + '][' + match.property['@id'] + '] IS A FUNCTION!!!!')
+  private async getFunction(fn: Function, subject: string):Promise<string> {
+    if (fn['@id'] === 'http://endhealth.info/im#TimeDifference') {
+      return 'TIMESTAMPDIFF('
+        + await this.getArgument(fn, subject, 'units') + ', '
+        + await this.getArgument(fn, subject, 'firstDate') + ', '
+        + await this.getArgument(fn, subject, 'secondDate') + ')';
+    } else {
+      throw new Error("Unknown function [" + JSON.stringify(fn) + "]");
+    }
+  }
+
+  private async getFunctionProperty(table: Table, match: Match) {
     const fn = match.property['@id'];
 
     if (fn === 'http://endhealth.info/im#age') {
       return 'TIMESTAMPDIFF('
-        + await this.getArgument(table, match, 'units') + ', '
+        + await this.getArgument(match.function, match.property['@id'], 'units') + ', '
         + await this.getField(table, 'http://endhealth.info/im#dateOfBirth') + ', '
         + '$referenceDate)';
-    } else if (fn === 'http://endhealth.info/im#TimeDifference') {
-      return 'TIMESTAMPDIFF('
-        + await this.getArgument(table, match, 'units') + ', '
-        + await this.getArgument(table, match, 'firstDate') + ', '
-        + await this.getArgument(table, match, 'secondDate') + ')';
     } else if (fn === 'http://endhealth.info/im#gpPatientType') {
-      const subSelectTable = this.sql.getTable('http://endhealth.info/im#GPRegistration', 'sub')
-      return '(SELECT '
-        + await this.getField(subSelectTable, 'http://endhealth.info/im#patientType')
-        + ' FROM ' + subSelectTable.name + ' AS ' + subSelectTable.alias
-        + ' WHERE ' + await this.getField(subSelectTable, 'http://endhealth.info/im#isSubjectOf') + ' = ' + await this.getField(table, 'pk')
-        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#organisation') + ' = ' + await this.getField(table, 'http://endhealth.info/im#organisation')
-        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate') + ' <= $referenceDate '
-        + ' AND ( ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' > $referenceDate '
-        + ' OR ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' IS NULL )'
+      const join: Join = this.sql.getJoin(table, 'http://endhealth.info/im#isSubjectOf', 'http://endhealth.info/im#GPRegistration', 't' + this.sql.joins.length)
+
+      this.sql.joins.push(join);
+      join.table.name = '(\n\tSELECT *\n\tFROM ' + join.table.name + ' AS ' + join.table.alias
+        + '\n\tWHERE ' + await this.getField(join.table, 'http://endhealth.info/im#effectiveDate') + ' <= "$ReferenceDate" '
+        + '\n\tAND ( ' + await this.getField(join.table, 'http://endhealth.info/im#endDate') + ' > "$ReferenceDate" '
+        + '\n\tOR ' + await this.getField(join.table, 'http://endhealth.info/im#endDate') + ' IS NULL )'
         + ')';
+
+      return this.getField(join.table, 'http://endhealth.info/im#patientType');
     } else if (fn === 'http://endhealth.info/im#gpRegistrationStatus') {
-      const subSelectTable = this.sql.getTable('http://endhealth.info/im#GPRegistration', 'sub')
-      return '(SELECT '
-        + await this.getField(subSelectTable, 'http://endhealth.info/im#patientType')
-        + ' FROM ' + subSelectTable.name + ' AS ' + subSelectTable.alias
-        + ' WHERE ' + await this.getField(subSelectTable, 'http://endhealth.info/im#isSubjectOf') + ' = ' + await this.getField(table, 'pk')
-        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#organisation') + ' = ' + await this.getField(table, 'http://endhealth.info/im#organisation')
-        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate') + ' <= $referenceDate '
-        + ' AND ( ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' > $referenceDate '
-        + ' OR ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' IS NULL )'
+      const join: Join = this.sql.getJoin(table, 'http://endhealth.info/im#isSubjectOf', 'http://endhealth.info/im#GPRegistration', 't' + this.sql.joins.length)
+
+      this.sql.joins.push(join);
+      join.table.name = '(\n\tSELECT *\n\tFROM ' + join.table.name + ' AS ' + join.table.alias
+        + '\n\tWHERE ' + await this.getField(join.table, 'http://endhealth.info/im#effectiveDate') + ' <= "$ReferenceDate" '
+        + '\n\tAND ( ' + await this.getField(join.table, 'http://endhealth.info/im#endDate') + ' > "$ReferenceDate" '
+        + '\n\tOR ' + await this.getField(join.table, 'http://endhealth.info/im#endDate') + ' IS NULL )'
         + ')';
+
+      return this.getField(join.table, 'http://endhealth.info/im#registrationStatus');
     } else if (fn === 'http://endhealth.info/im#gpGMSRegistrationDate') {
-      const subSelectTable = this.sql.getTable('http://endhealth.info/im#GPRegistration', 'sub')
-      return '(SELECT '
-        + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate')
-        + ' FROM ' + subSelectTable.name + ' AS ' + subSelectTable.alias
-        + ' WHERE ' + await this.getField(subSelectTable, 'http://endhealth.info/im#isSubjectOf') + ' = ' + await this.getField(table, 'pk')
-        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#organisation') + ' = ' + await this.getField(table, 'http://endhealth.info/im#organisation')
-        + ' AND ' + await this.getField(subSelectTable, 'http://endhealth.info/im#effectiveDate') + ' <= $referenceDate '
-        + ' AND ( ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' > $referenceDate '
-        + ' OR ' + await this.getField(subSelectTable, 'http://endhealth.info/im#endDate') + ' IS NULL )'
+      const join: Join = this.sql.getJoin(table, 'http://endhealth.info/im#isSubjectOf', 'http://endhealth.info/im#GPRegistration', 't' + this.sql.joins.length)
+
+      this.sql.joins.push(join);
+      join.table.name = '(\n\tSELECT *\n\tFROM ' + join.table.name + ' AS ' + join.table.alias
+        + '\n\tWHERE ' + await this.getField(join.table, 'http://endhealth.info/im#effectiveDate') + ' <= "$ReferenceDate" '
+        + '\n\tAND ( ' + await this.getField(join.table, 'http://endhealth.info/im#endDate') + ' > "$ReferenceDate" '
+        + '\n\tOR ' + await this.getField(join.table, 'http://endhealth.info/im#endDate') + ' IS NULL )'
         + ')';
+
+      return this.getField(join.table, 'http://endhealth.info/im#effectiveDate');
     } else {
-      throw new Error('Unknown function [' + fn + ']');
+      throw new Error('Unknown function property [' + fn + ']');
     }
   }
 
-  private async getArgument(table: Table, match: Match, name: string) {
-    for(const a of match.function.argument) {
+  private async getArgument(fn: Function, property: string, name: string) {
+    for(const a of fn.argument) {
       if (a.parameter === name) {
         if (a.valueVariable == '$this') {
-          return this.getField(table, match.property['@id'])
+          return property;
+        } else if (a.valueVariable) {
+          return a.valueVariable;
         } else {
           return a.valueData;
         }
@@ -352,7 +362,7 @@ export default class QueryRunner {
     if (rs.length != 1)
       throw new Error("Unable to get IM1 ID for entity [" + entity + "]");
 
-    return rs[0].id;
+    return rs[0].id.value;
   }
 
   private async getField(table: Table, fieldId: string){

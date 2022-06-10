@@ -1,4 +1,4 @@
-import {Query} from 'im-library/dist/types/models/modules/AutoGen';
+import { Query } from 'im-library/dist/types/models/modules/AutoGen';
 import { GraphdbService, iri } from '../services/graphdb.service';
 
 import jp from 'jsonpath';
@@ -106,6 +106,7 @@ export default class QueryWorkflow {
   }
 
 
+  //populates all TTIriRefs with names 
   private async populateDefinition(definition: any): Promise<any> {
     // console.log("definition", definition);
 
@@ -125,7 +126,8 @@ export default class QueryWorkflow {
       if (!item?.value?.name) {
         const path = jp.stringify(item.path).substring(2) + ".name";
         const entity = meta.find(entity => entity?.id?.id == item.value["@id"])
-        entity ? _.set(definition?.select?.match, path, entity?.name) : null;
+        const name = entity?.name?.value || entity?.name;
+        entity ? _.set(definition?.select?.match, path, name) : null;
       }
     })
     return definition;

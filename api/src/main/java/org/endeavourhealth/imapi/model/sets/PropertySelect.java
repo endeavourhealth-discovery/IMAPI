@@ -13,11 +13,20 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri","name","inverseOf","alias","binding","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class PropertySelect extends TTIriRef {
-	private String alias;
+public class PropertySelect extends ConceptRef {
 	private Select select;
 	boolean inverseOf=false;
 	Function function;
+	private String wildVar;
+
+	public String getWildVar() {
+		return wildVar;
+	}
+
+	public PropertySelect setWildVar(String wildVar) {
+		this.wildVar = wildVar;
+		return this;
+	}
 
 	public PropertySelect select(Consumer<Select> builder){
 		this.select= new Select();
@@ -66,6 +75,7 @@ public class PropertySelect extends TTIriRef {
 		super.setIri(iri);
 		super.setName(name);
 	}
+	@Override
 	public PropertySelect setIri(String iri){
 		if (iri.equals("id"))
 			iri= IM.NAMESPACE+"id";
@@ -99,19 +109,15 @@ public class PropertySelect extends TTIriRef {
 
 
 
-	public String getAlias() {
-		return alias;
-	}
-
 	@JsonSetter
 	public PropertySelect setAlias(String alias) {
-		this.alias = alias;
+		super.setAlias(alias);
 		return this;
 	}
 
 	@JsonIgnore
 	public PropertySelect alias(String alias) {
-		this.alias = alias;
+		super.setAlias(alias);
 		return this;
 	}
 

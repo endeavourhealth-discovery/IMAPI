@@ -16,6 +16,16 @@ public class Argument {
 	private String valueVariable;
 	private Select valueSelect;
 	private ConceptRef valueProperty;
+	private TTIriRef valueType;
+
+	public TTIriRef getValueType() {
+		return valueType;
+	}
+
+	public Argument setValueType(TTIriRef valueType) {
+		this.valueType = valueType;
+		return this;
+	}
 
 	public ConceptRef getValueProperty() {
 		return valueProperty;

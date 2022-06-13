@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.filer.TTImportByType;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -44,17 +45,7 @@ public class Select {
 		return this;
 	}
 
-	/**
-	 * Quick way of setting property iris without nesting as a list
-	 * @param properties list of iris for property select
-	 * @return this for chaining
-	 */
-	@JsonIgnore
-	public Select property(List<TTIriRef> properties){
-		for (TTIriRef iri:properties)
-			this.addProperty(new PropertySelect(iri));
-		return this;
-	}
+
 
 	/**
 	 * Lambda approach for setting match clause
@@ -158,8 +149,16 @@ public class Select {
 		return property;
 	}
 
+	@JsonSetter
 	public Select setProperty(List<PropertySelect> property) {
 		this.property = property;
+		return this;
+	}
+
+	public Select addProperties(List<TTIriRef> properties){
+		for (TTIriRef property:properties){
+			this.addProperty(new PropertySelect(property));
+		}
 		return this;
 	}
 

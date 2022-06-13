@@ -101,6 +101,7 @@ public class IM {
     //Sets
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
     public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
+  public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
 
   //Context
   public static final TTIriRef HAS_SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
@@ -210,6 +211,8 @@ public class IM {
   public static final TTIriRef VALUE_SELECT= iri(NAMESPACE+"valueSelect");
   public static final TTIriRef VALUE_VARIABLE= iri(NAMESPACE+"valueVariable");
   public static final TTIriRef PLACEHOLDER= iri(NAMESPACE+"placeHolder");
+  public static final TTIriRef SELECT= iri(NAMESPACE+"select");
+  public static final TTIriRef MATCH= iri(NAMESPACE+"match");
 
 
     private IM() {

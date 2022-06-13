@@ -7,11 +7,15 @@
       "@id" : "http://www.w3.org/ns/shacl#NodeShape"
     },
     "property" : [ {
+      "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    }, {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     }, {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#comment"
     }, {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+    }, {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
     }, {
       "@id" : "http://endhealth.info/im#isContainedIn"
     }, {
@@ -24,11 +28,11 @@
         }, {
           "@id" : "http://www.w3.org/ns/shacl#class"
         }, {
-          "@id" : "http://www.w3.org/ns/shacl#node"
-        }, {
           "@id" : "http://www.w3.org/ns/shacl#minCount"
         }, {
           "@id" : "http://www.w3.org/ns/shacl#maxCount"
+        }, {
+          "@id" : "http://endhealth.info/im#dateOfBirth"
         } ]
       }
     } ],

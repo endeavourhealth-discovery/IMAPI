@@ -5,8 +5,8 @@
   "select" : {
     "distinct" : true,
     "entityType" : {
-      "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
-      "includeSubtypes" : true
+      "includeSubtypes" : true,
+      "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
     },
     "property" : [ {
       "@id" : "http://endhealth.info/im#id",
@@ -23,8 +23,8 @@
         "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
       },
       "isConcept" : [ {
-        "@id" : "http://snomed.info/sct#674814021000119106",
-        "includeSupertypes" : true
+        "includeSupertypes" : true,
+        "@id" : "http://snomed.info/sct#674814021000119106"
       } ]
     }
   },

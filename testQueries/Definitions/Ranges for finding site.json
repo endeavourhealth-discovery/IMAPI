@@ -11,8 +11,8 @@
         "@id" : "http://www.w3.org/2000/01/rdf-schema#range"
       },
       "isConcept" : [ {
-        "@id" : "http://snomed.info/sct#363698007",
-        "includeSupertypes" : true
+        "includeSupertypes" : true,
+        "@id" : "http://snomed.info/sct#363698007"
       } ],
       "inverseOf" : true
     }

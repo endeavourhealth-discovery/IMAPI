@@ -33,18 +33,18 @@
             "@id" : "http://www.w3.org/ns/shacl#path"
           },
           "isConcept" : [ {
-            "@id" : "http://endhealth.info/im#dataModelProperty",
-            "includeSubtypes" : true
+            "includeSubtypes" : true,
+            "@id" : "http://endhealth.info/im#dataModelProperty"
           } ]
         }, {
           "property" : {
             "@id" : "http://www.w3.org/ns/shacl#class"
           },
           "isConcept" : [ {
-            "@id" : "http://snomed.info/sct#160401003",
             "name" : "Night visit",
             "includeSupertypes" : true,
-            "includeValueSets" : true
+            "includeValueSets" : true,
+            "@id" : "http://snomed.info/sct#160401003"
           } ]
         } ]
       }

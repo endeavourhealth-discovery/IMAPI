@@ -3,8 +3,8 @@
   "description" : "name and address of organisations with post code starting with EW1",
   "select" : {
     "entityType" : {
-      "@id" : "http://endhealth.info/im#Organisation",
-      "name" : "Organisation"
+      "name" : "Organisation",
+      "@id" : "http://endhealth.info/im#Organisation"
     },
     "property" : [ {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
@@ -20,6 +20,7 @@
     } ],
     "match" : {
       "property" : {
+        "alias" : "address",
         "@id" : "http://endhealth.info/im#address"
       },
       "match" : {
@@ -27,7 +28,6 @@
           "@id" : "http://endhealth.info/im#postCode"
         },
         "value" : {
-          "comparison" : "EQUAL",
           "valueData" : "E1W 3DP"
         }
       }

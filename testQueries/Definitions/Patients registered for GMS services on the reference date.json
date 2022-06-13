@@ -4,13 +4,13 @@
   "description" : "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.",
   "select" : {
     "entityType" : {
-      "@id" : "http://endhealth.info/im#Person",
-      "name" : "Person"
+      "name" : "Person",
+      "@id" : "http://endhealth.info/im#Person"
     },
     "match" : {
       "property" : {
-        "@id" : "http://endhealth.info/im#isSubjectOf",
-        "name" : "has GP registration"
+        "name" : "has GP registration",
+        "@id" : "http://endhealth.info/im#isSubjectOf"
       },
       "match" : {
         "entityType" : {
@@ -22,8 +22,8 @@
             "@id" : "http://endhealth.info/im#patientType"
           },
           "isConcept" : [ {
-            "@id" : "http://endhealth.info/im#2751000252106",
-            "name" : "Regular GMS patient"
+            "name" : "Regular GMS patient",
+            "@id" : "http://endhealth.info/im#2751000252106"
           } ]
         }, {
           "name" : "start of registration is before the reference date",

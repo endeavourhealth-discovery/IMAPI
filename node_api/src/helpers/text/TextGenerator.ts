@@ -112,15 +112,35 @@ export class TextGenerator {
             TextGenerator.showConsole && console.log("### Template used: valueData && valueFunction")
 
 
-            let beforeAfter = (secondDate.value == "the Reference Date") ? "before" : "after";
+            let isSecondDateThis = secondDate == "$this"
+            let beforeAfter = (secondDate.value == "the Reference Date" || Helpers.isNegative(valueData)) ? "before" : "after";
             units.valueData = isSingular(valueData) ? wordMap[units.valueData]['singular'] : wordMap[units.valueData]['plural']
-            let compare = comparison;
-            let value = valueData
-            if (value.substring(0, 1) == "-") value = value.substring(1, value.length)
-            if (Helpers.isNegative(valueData) && comparison == "more than or equal to") compare = "less than or equal to";
-            if (Helpers.isNegative(valueData) && comparison == "less than or equal to") compare = "more than or equal to";
+            let _comparison = comparison;
+            let _valueData = valueData
+            let _date;
 
-            sentence = [has, a(property), property?.name, "that is", compare, value, units?.valueData, beforeAfter, secondDate + commaOrSemiColon]
+            if (_valueData.substring(0, 1) == "-") _valueData = _valueData.substring(1, _valueData.length)
+
+            const flipComparison = (comparison: string) => {
+                switch (comparison) {
+                    case "more than or equal to":
+                        return "less than or equal to";
+                    case "less than or equal to":
+                        return "more than or equal to";
+                    case "more than":
+                        return "less than";
+                    case "less than":
+                        return "more than";
+                    default:
+                        return comparison;
+                }
+            }
+
+            //flips the comparison
+            if (isSecondDateThis) _comparison = flipComparison(_comparison);;
+            if (Helpers.isNegative(valueData)) _comparison = flipComparison(_comparison);;
+
+            sentence = [has, a(property), property?.name, "that is", _comparison, _valueData, units?.valueData, beforeAfter, "the Reference Date" + commaOrSemiColon]
 
         } else if (value) {
             TextGenerator.showConsole && console.log("### Template used: valueCompare")

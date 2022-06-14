@@ -213,7 +213,7 @@ public class IM {
   public static final TTIriRef PLACEHOLDER= iri(NAMESPACE+"placeHolder");
   public static final TTIriRef SELECT= iri(NAMESPACE+"select");
   public static final TTIriRef MATCH= iri(NAMESPACE+"match");
-  public static final TTIriRef QUERY_DEFINITON= iri(NAMESPACE+"query");
+  public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE+"query");
 
 
     private IM() {

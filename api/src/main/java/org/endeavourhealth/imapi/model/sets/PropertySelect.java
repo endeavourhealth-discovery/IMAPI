@@ -17,16 +17,7 @@ public class PropertySelect extends ConceptRef {
 	private Select select;
 	boolean inverseOf=false;
 	Function function;
-	private String wildVar;
 
-	public String getWildVar() {
-		return wildVar;
-	}
-
-	public PropertySelect setWildVar(String wildVar) {
-		this.wildVar = wildVar;
-		return this;
-	}
 
 	public PropertySelect select(Consumer<Select> builder){
 		this.select= new Select();

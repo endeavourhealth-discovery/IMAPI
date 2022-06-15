@@ -60,13 +60,15 @@ public class EntityService {
         return entityRepository2.getBundle(iri, predicates);
     }
 
-    public TTBundle getEntityByPredicateExclusions(String iri, Set<String> excludePredicates) {
+    public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
-        if (excludePredicates != null && excludePredicates.contains(RDFS.LABEL.getIri())) {
+        if (excludePredicates != null) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
                     .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             bundle.setPredicates(filtered);
+        }
+        if (excludePredicates.contains(RDFS.LABEL.getIri())) {
             bundle.getEntity().set(RDFS.LABEL, (TTValue) null);
         }
         return bundle;
@@ -788,7 +790,7 @@ public class EntityService {
             predicates = new HashSet<>(Arrays.asList(RDFS.SUBCLASSOF.getIri(), IM.ROLE_GROUP.getIri(), IM.HAS_MEMBER.getIri()));
         }
 
-        return getEntityByPredicateExclusions(iri, predicates);
+        return getBundleByPredicateExclusions(iri, predicates);
     }
 
     public TTDocument getConcept(String iri) {
@@ -1076,31 +1078,31 @@ public class EntityService {
         entity.addType(IM.TASK)
                 .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getEntityByPredicateExclusions(entity.getIri(), null).getEntity();
+        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
     }
 
     public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
-        TTEntity entity = getEntityByPredicateExclusions(entityIri, null).getEntity();
+        TTEntity entity = getBundleByPredicateExclusions(entityIri, null).getEntity();
         if (entity.get(IM.IN_TASK) == null) {
             entity.set(IM.IN_TASK, new TTArray());
         }
         entity.get(IM.IN_TASK).add(iri(taskIri));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getEntityByPredicateExclusions(entity.getIri(), null).getEntity();
+        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
     }
 
 
     public TTEntity removeConceptFromTask(String taskIri, String removedActionIri, String agentName) throws Exception {
-        TTEntity entity = getEntityByPredicateExclusions(removedActionIri, null).getEntity();
+        TTEntity entity = getBundleByPredicateExclusions(removedActionIri, null).getEntity();
         entity.set(IM.IN_TASK, entityRepository2.findFilteredInTask(removedActionIri, taskIri));
         filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getEntityByPredicateExclusions(entity.getIri(), null).getEntity();
+        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
     }
 
     public List<TTEntity> saveMapping(Map<String, List<String>> mappings, String agentName) throws Exception {
         List<TTEntity> result = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : mappings.entrySet()) {
-            TTEntity entity = getEntityByPredicateExclusions(entry.getKey(), null).getEntity();
+            TTEntity entity = getBundleByPredicateExclusions(entry.getKey(), null).getEntity();
             if (entity.has(IM.HAS_STATUS)) {
                 entity.get(IM.HAS_STATUS).remove(IM.UNASSIGNED);
             }
@@ -1109,7 +1111,7 @@ public class EntityService {
                 entity.get(IM.MATCHED_TO).add(iri(iri));
             }
             filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-            result.add(getEntityByPredicateExclusions(entity.getIri(), null).getEntity());
+            result.add(getBundleByPredicateExclusions(entity.getIri(), null).getEntity());
         }
 
         return result;

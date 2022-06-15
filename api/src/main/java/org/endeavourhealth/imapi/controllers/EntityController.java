@@ -88,7 +88,7 @@ public class EntityController {
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
-		return entityService.getEntityByPredicateExclusions(iri, null).getEntity();
+		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
 	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")

@@ -76,7 +76,7 @@ public class IM {
     public static final TTIriRef DRAFT = iri(NAMESPACE + "Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE + "Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE + "Inactive");
-    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE + "1261000252108");
+    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE + "definitionalStatus");
     public static final TTIriRef SUFFICIENTLY_DEFINED = iri(NAMESPACE + "1251000252106");
     public static final TTIriRef NECESSARY_NOT_SUFFICIENT = iri(NAMESPACE + "2771000252102");
     public static final TTIriRef UNASSIGNED = iri(NAMESPACE + "Unassigned");

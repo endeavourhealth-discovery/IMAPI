@@ -1116,5 +1116,9 @@ public class EntityService {
 
         return result;
     }
+
+    public List<TTEntity> getActions(String taskIri) {
+        return entityRepository2.getActions(taskIri);
+    }
 }
 

@@ -515,13 +515,20 @@ public class EntityController {
 	}
 
 	@GetMapping("/task/action")
+	@PreAuthorize("isAuthenticated()")
+	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri) throws Exception {
+		LOG.debug("getTaskActions");
+		return entityService.getActions(taskIri);
+	}
+
+	@PostMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity addTaskAction(@RequestParam(name = "entityIri") String entityIri, @RequestParam(name = "taskIri") String taskIri, HttpServletRequest request) throws Exception {
 		LOG.debug("addTaskAction");
 		String agentName = reqObjService.getRequestAgentName(request);
 		return entityService.addConceptToTask(entityIri, taskIri, agentName);
 	}
-
+	
 	@DeleteMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri, HttpServletRequest request) throws Exception {

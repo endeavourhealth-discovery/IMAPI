@@ -11,6 +11,7 @@
     "http://www.w3.org/ns/shacl#property" : "property",
     "http://www.w3.org/2000/01/rdf-schema#comment" : "comment",
     "http://www.w3.org/ns/shacl#datatype" : "datatype",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : "type",
     "http://www.w3.org/ns/shacl#maxCount" : "max count",
     "http://www.w3.org/2000/01/rdf-schema#subClassOf" : "subClassOf",
     "http://www.w3.org/2000/01/rdf-schema#label" : "label",
@@ -21,6 +22,11 @@
     "@id" : "http://endhealth.info/im#Person",
     "im:id" : [ {
       "@id" : [ "im:Person" ]
+    } ],
+    "rdf:type" : [ {
+      "@id" : [ "rdfs:Class" ]
+    }, {
+      "@id" : [ "sh:NodeShape" ]
     } ],
     "rdfs:label" : [ "Person (entry type)" ],
     "rdfs:comment" : [ "Record of the core details of  a person client patient or service linking to core properties of the person such as demographics or states" ],

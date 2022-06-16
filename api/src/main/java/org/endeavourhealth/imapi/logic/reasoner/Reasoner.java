@@ -422,8 +422,13 @@ public class Reasoner {
    private static boolean hasProperty(List<TTValue> subProperties, TTIriRef path) {
       if (subProperties!=null){
          for (TTValue prop: subProperties) {
-            if (prop.asNode().get(SHACL.PATH).asIriRef().equals(path))
-               return true;
+            if (prop.asNode().get(SHACL.PATH)!=null) {
+               if (prop.asNode().get(SHACL.PATH).asIriRef().equals(path))
+                  return true;
+            }
+            else    if (prop.asNode().get(SHACL.INVERSEPATH)!=null)
+               if (prop.asNode().get(SHACL.INVERSEPATH).asIriRef().equals(path))
+                  return true;
          }
       }
       return false;

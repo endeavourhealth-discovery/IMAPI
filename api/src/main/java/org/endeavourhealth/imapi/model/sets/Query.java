@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.endeavourhealth.imapi.model.sets.Query.getJson;
+
 @JsonPropertyOrder ({"iri","name","description","mainEntity","var","resultFormat","subset","distinct","activeOnly","referenceDate","select","groupBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Heading {
@@ -176,11 +178,15 @@ public class Query extends Heading {
 
 	@JsonIgnore
 	public String getasJson() throws JsonProcessingException {
+		return Query.getJson(this);
+	}
+
+	public static String getJson(Object object) throws JsonProcessingException {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
 	}
 
 

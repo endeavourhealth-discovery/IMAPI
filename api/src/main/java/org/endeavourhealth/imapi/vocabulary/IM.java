@@ -76,7 +76,7 @@ public class IM {
     public static final TTIriRef DRAFT = iri(NAMESPACE + "Draft");
     public static final TTIriRef ACTIVE = iri(NAMESPACE + "Active");
     public static final TTIriRef INACTIVE = iri(NAMESPACE + "Inactive");
-    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE + "1261000252108");
+    public static final TTIriRef DEFINITIONAL_STATUS = iri(NAMESPACE + "definitionalStatus");
     public static final TTIriRef SUFFICIENTLY_DEFINED = iri(NAMESPACE + "1251000252106");
     public static final TTIriRef NECESSARY_NOT_SUFFICIENT = iri(NAMESPACE + "2771000252102");
     public static final TTIriRef UNASSIGNED = iri(NAMESPACE + "Unassigned");
@@ -101,6 +101,7 @@ public class IM {
     //Sets
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
     public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
+  public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
 
   //Context
   public static final TTIriRef HAS_SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
@@ -210,6 +211,9 @@ public class IM {
   public static final TTIriRef VALUE_SELECT= iri(NAMESPACE+"valueSelect");
   public static final TTIriRef VALUE_VARIABLE= iri(NAMESPACE+"valueVariable");
   public static final TTIriRef PLACEHOLDER= iri(NAMESPACE+"placeHolder");
+  public static final TTIriRef SELECT= iri(NAMESPACE+"select");
+  public static final TTIriRef MATCH= iri(NAMESPACE+"match");
+  public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE+"query");
 
 
     private IM() {

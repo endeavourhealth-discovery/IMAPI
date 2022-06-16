@@ -88,7 +88,7 @@ public class EntityController {
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
-		return entityService.getEntityByPredicateExclusions(iri, null).getEntity();
+		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
 	}
 
 	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
@@ -538,12 +538,21 @@ public class EntityController {
 		return entityService.saveMapping(mappings, agentName);
 	}
 
-	@GetMapping("/public/entityByPredicatesExclusions")
-	public TTBundle getEntityByPredicateExclusions(
+	@GetMapping("/public/entityByPredicateExclusions")
+	public TTEntity getEntityByPredicateExclusions(
 			@RequestParam(name = "iri") String iri,
 			@RequestParam(name = "predicates") Set<String> predicates)
 	{
 		LOG.debug("getEntityByPredicateExclusions");
-		return entityService.getEntityByPredicateExclusions(iri,predicates);
+		return entityService.getBundleByPredicateExclusions(iri,predicates).getEntity();
+	}
+
+	@GetMapping("/public/bundleByPredicateExclusions")
+	public TTBundle getBundleByPredicateExclusions(
+		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "predicates") Set<String> predicates
+	) {
+		LOG.debug("getBundleByPredicateExclusions");
+		return entityService.getBundleByPredicateExclusions(iri,predicates);
 	}
 }

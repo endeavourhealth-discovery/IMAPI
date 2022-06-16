@@ -38,7 +38,7 @@ public class IMQuery {
 	private int o=0;
 	private Query query;
 	private final Set<String> aliases = new HashSet<>();
-
+	private boolean wildProperty;
 
 	private final Map<String, ObjectNode> valueMap = new HashMap<>();
 	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
@@ -228,28 +228,31 @@ public class IMQuery {
 			where(whereQl,filterSubject,level,select.getMatch());
 		}
 		if (select.getProperty() != null) {
+			wildProperty= false;
 			for (PropertySelect property : select.getProperty()) {
-
 				selectProperty(property, subject, selectQl, whereQl, level);
 			}
+			if (wildProperty)
+				if (select.getProperty().size()>2)
+					throw new DataFormatException("Select statement contains both * and a property. Must be either or");
 		}
 	}
 	private void selectProperty(PropertySelect property, String subject,
 															StringBuilder selectQl, StringBuilder whereQl, int level) throws DataFormatException {
 				String path = property.getIri();
 				String object= property.getAlias();
+				if (object!=null)
+				if (object.equals("*"))
+					throw new DataFormatException("Wild card (*) not supported due to combinatorial explosion potential in graph");
 				if (path==null) {
-					if (object == null)
-						throw new DataFormatException("Select without property or alias");
-					else
-						if (matchVarProperty.get(object) == null) {
-						  throw new DataFormatException("Select without property with alias that doesnt match any match clause");
-						}
-						else {
+						if (object == null)
+							throw new DataFormatException("Select without property or alias");
+						else if (matchVarProperty.get(object) == null) {
+							throw new DataFormatException("Select without property with alias that doesnt match any match clause");
+						} else {
 							property.setIri(matchVarProperty.get(object));
-							path= property.getIri();
+							path = property.getIri();
 						}
-
 				}
 					if (object!=null)
 						if (object.equals("entity"))
@@ -272,8 +275,8 @@ public class IMQuery {
 						boolean optional= !hasFilter(property);
 						if (optional)
 						    whereQl.append("OPTIONAL { ");
-						whereQl.append("?").append(subject)
-							.append(" ").append(inverse).append(iri(path)).append(" ?").append(object).append(".\n");
+						 whereQl.append("?").append(subject)
+							  .append(" ").append(inverse).append(iri(path)).append(" ?").append(object).append(".\n");
 						if (property.getSelect() != null) {
 							select(selectQl, property.getSelect(), whereQl, level + 1, object);
 						}

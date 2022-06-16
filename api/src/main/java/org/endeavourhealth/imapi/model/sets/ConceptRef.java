@@ -8,12 +8,21 @@ import java.util.List;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class ConceptRef extends Alias{
+public class ConceptRef extends TTIriRef{
 
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
 	private boolean includeValueSets;
+	private String alias;
 
+	public String getAlias() {
+		return alias;
+	}
+
+	public ConceptRef setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
 
 	public ConceptRef setName(String name){
 		super.setName(name);
@@ -21,7 +30,7 @@ public class ConceptRef extends Alias{
 	}
 
 	public ConceptRef setAlias(String alias){
-		super.setAlias(alias);
+		this.alias= alias;
 		return this;
 	}
 

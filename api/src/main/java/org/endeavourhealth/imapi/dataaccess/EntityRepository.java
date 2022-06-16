@@ -170,7 +170,8 @@ public class EntityRepository {
         for (org.eclipse.rdf4j.model.Statement st : gs) {
             i++;
             if (i%100==0) {
-                LOG.debug(String.format("%d %s %s %s", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue()));
+                String message = String.format("%d %s %s %s", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue());
+                LOG.debug(message);
             }
            populateEntity(st, entity,valueMap);
         }
@@ -201,30 +202,33 @@ public class EntityRepository {
             if (predicate.equals(RDFS.LABEL))
                 ttValue.asIriRef().setName(value.stringValue());
         } else {
-            TTNode node = valueMap.get(subject).asNode();
-            if (value.isLiteral()) {
-                node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue(), ((Literal)value).getDatatype().stringValue()));
-            } else if (value.isIRI()) {
-                TTIriRef objectIri = null;
-                if (valueMap.get(value) != null)
-                    objectIri = valueMap.get(value).asIriRef();
-                if (objectIri == null)
-                    objectIri = TTIriRef.iri(value.stringValue());
-                if (node.get(predicate) == null)
-                    node.set(predicate, objectIri);
-                else
-                    node.addObject(predicate, objectIri);
-                valueMap.putIfAbsent(value, objectIri);
-            } else if (value.isBNode()) {
-                TTNode ob = new TTNode();
-                if (node.get(predicate) == null)
-                    node.set(predicate, ob);
-                else
-                    node.addObject(predicate, ob);
-                valueMap.put(value, ob);
-            }
+            processNode(value, valueMap, subject, st, predicate);
         }
+    }
 
+    private static void processNode(Value value, Map<Value, TTValue> valueMap, Resource subject, Statement st, TTIriRef predicate) {
+        TTNode node = valueMap.get(subject).asNode();
+        if (value.isLiteral()) {
+            node.set(TTIriRef.iri(st.getPredicate().stringValue()), TTLiteral.literal(value.stringValue(), ((Literal)value).getDatatype().stringValue()));
+        } else if (value.isIRI()) {
+            TTIriRef objectIri = null;
+            if (valueMap.get(value) != null)
+                objectIri = valueMap.get(value).asIriRef();
+            if (objectIri == null)
+                objectIri = TTIriRef.iri(value.stringValue());
+            if (node.get(predicate) == null)
+                node.set(predicate, objectIri);
+            else
+                node.addObject(predicate, objectIri);
+            valueMap.putIfAbsent(value, objectIri);
+        } else if (value.isBNode()) {
+            TTNode ob = new TTNode();
+            if (node.get(predicate) == null)
+                node.set(predicate, ob);
+            else
+                node.addObject(predicate, ob);
+            valueMap.put(value, ob);
+        }
     }
 
 

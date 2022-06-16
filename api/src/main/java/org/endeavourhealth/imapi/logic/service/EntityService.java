@@ -67,9 +67,9 @@ public class EntityService {
                     .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             bundle.setPredicates(filtered);
-        }
-        if (excludePredicates.contains(RDFS.LABEL.getIri())) {
-            bundle.getEntity().set(RDFS.LABEL, (TTValue) null);
+            if (excludePredicates.contains(RDFS.LABEL.getIri())) {
+                bundle.getEntity().set(RDFS.LABEL, (TTValue) null);
+            }
         }
         return bundle;
     }

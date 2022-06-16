@@ -946,10 +946,10 @@ public class EntityService {
         return unassignedList;
     }
 
-    public List<TTIriRef> getUnmapped() {
-        List<TTIriRef> unmappedList = new ArrayList<>();
-        for (TTIriRef unmapped : entityRepository2.findUnmapped()) {
-            unmappedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
+    public List<TTEntity> getUnmapped(String term, List<String> status, List<String> scheme, List<String> type, Integer usage, Integer limit) {
+        List<TTEntity> unmappedList = new ArrayList<>();
+        if (term.isBlank()) {
+            return entityRepository2.findUnmapped(status, scheme, type, usage, limit);
         }
         return unmappedList;
     }

@@ -951,32 +951,81 @@ public class EntityRepository2 {
         return result;
     }
 
-    public List<TTIriRef> findUnmapped() {
-        List<TTIriRef> result = new ArrayList<>();
+    public List<TTEntity> findUnmapped(List<String> status, List<String> scheme, List<String> type, Integer usage, Integer limit) {
+        List<TTEntity> result = new ArrayList<>();
 
         StringJoiner query = new StringJoiner("\n");
         query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
         query.add("PREFIX im: <http://endhealth.info/im#>");
+        query.add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>");
         query.add("PREFIX sn: <http://snomed.info/sct#>");
-        query.add("SELECT DISTINCT ?s ?name {");
-        query.add("?s ?p ?o .");
-        query.add("?s im:scheme sn: .");
-        query.add("?s rdfs:label ?name .");
-        query.add("FILTER NOT EXISTS {");
-        query.add("?s im:matchedTo ?o2 ");
+
+        query.add("SELECT DISTINCT ?s ?name ?scheme ?schemeName ?type ?typeName ?status ?statusName ?usage ?code {");
+        query.add(" GRAPH ?g {");
+        query.add("  ?s im:scheme ?scheme ;");
+        query.add("   rdfs:label ?name ;");
+        query.add("   im:usageTotal ?usage ;");
+        query.add("   rdf:type ?type ;");
+        query.add("   im:code ?code ;");
+        query.add("   im:status ?status .");
+        query.add(" }");
+        query.add("?scheme rdfs:label ?schemeName .");
+        query.add("?type rdfs:label ?typeName .");
+        query.add("?status rdfs:label ?statusName .");
+        query.add(" FILTER NOT EXISTS {");
+        query.add("  ?s (sn:370124000|im:hasMap|im:matchedTo) ?o2");
+        query.add(" }");
+
+        if (null != usage) {
+            query.add(" FILTER (?usage > " + usage + ")");
+        }
+
+        if (null != status && !status.isEmpty()) {
+            ArrayList<String> statusIris = new ArrayList<>();
+            for (String statusIri: status) {
+                statusIris.add("<" + statusIri + ">");
+            }
+            query.add(" FILTER (?status IN (" + String.join(", ", statusIris) + "))");
+        }
+
+        if (null != scheme && !scheme.isEmpty()) {
+            ArrayList<String> schemeIris = new ArrayList<>();
+            for (String schemeIri: scheme) {
+                schemeIris.add("<" + schemeIri + ">");
+            }
+            query.add(" FILTER (?scheme IN (" + String.join(", ", schemeIris) + "))");
+        }
+
+        if (null != type && !type.isEmpty()) {
+            ArrayList<String> typeIris = new ArrayList<>();
+            for (String typeIri: type) {
+                typeIris.add("<" + typeIri + ">");
+            }
+            query.add(" FILTER (?type IN (" + String.join(", ", typeIris) + "))");
+        }
+
         query.add("}");
-        query.add("FILTER NOT EXISTS {");
-        query.add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o3 ");
-        query.add("}");
-        query.add("}");
-        query.add("LIMIT 1000");
+        query.add("ORDER BY DESC(?usage)");
+
+        if (null != limit) {
+            query.add("LIMIT " + limit);
+        }
+        System.out.println(query);
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                    result.add(new TTEntity()
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("name").stringValue())
+                            .setCode(bs.getValue("code").stringValue())
+                            .setScheme(iri(bs.getValue("scheme").stringValue(), bs.getValue("schemeName").stringValue()))
+                            .setStatus(iri(bs.getValue("status").stringValue(), bs.getValue("statusName").stringValue()))
+                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                            .setType(new TTArray().add(iri(bs.getValue("type").stringValue(), bs.getValue("typeName").stringValue())))
+                    );
                 }
             }
         }

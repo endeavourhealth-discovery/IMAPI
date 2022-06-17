@@ -167,7 +167,8 @@ public class EntityTripleRepository {
                     )
                 );
             }
-            LOG.debug(String.format("Finished (%d rows)", result.size()));
+            String message = String.format("Finished (%d rows)", result.size());
+            LOG.debug(message);
         }
     }
 
@@ -394,7 +395,8 @@ public class EntityTripleRepository {
                     BindingSet bs = rs.next();
                     result.add(new TTIriRef(bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
                 }
-                LOG.debug("Finished ({} rows)", result.size());
+                String message = String.format("Finished ({} rows)", result.size());
+                LOG.debug(message);
             }
         }
         return result;
@@ -500,9 +502,9 @@ public class EntityTripleRepository {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     Tpl tpl = new Tpl()
-                            .setDbid(row++)
-                            .setParent(parent)
-                            .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
+                        .setDbid(row++)
+                        .setParent(parent)
+                        .setPredicate(TTIriRef.iri(getString(bs, "p"), getString(bs, "pname")));
 
                     triples.add(tpl);
                     Value object = bs.getValue("o");

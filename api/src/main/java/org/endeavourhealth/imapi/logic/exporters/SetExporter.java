@@ -82,7 +82,7 @@ public class SetExporter {
                 }
             }
 
-            members.addAll(entityRepository2.getSetDbids(iri, entity.get(IM.DEFINITION)));
+            members.addAll(entityRepository2.getSetDbids(entity.get(IM.DEFINITION)));
         }
         return members;
     }

@@ -53,7 +53,7 @@ public class SetRepository {
         predicates.add(IM.IS_CONTAINED_IN.getIri());
         predicates.add(RDFS.LABEL.getIri());
 
-        TTBundle entityPredicates = entityTripleRepository.getEntityPredicates(setIri, predicates, 0);
+        TTBundle entityPredicates = entityTripleRepository.getEntityPredicates(setIri, predicates);
         return entityPredicates.getEntity();
     }
 

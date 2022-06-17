@@ -61,7 +61,7 @@ public class ExcelSetExporter {
      */
     public XSSFWorkbook getSetAsExcel(String setIri,boolean legacy) throws DataFormatException {
         Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri(),IM.HAS_MEMBER.getIri());
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates, 0).getEntity();
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates).getEntity();
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
@@ -78,7 +78,7 @@ public class ExcelSetExporter {
             addAllMemberIris(memberList, setIri);
             memberList.remove(setIri);
             for (String memberIri : memberList) {
-                TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates, 0).getEntity();
+                TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates).getEntity();
                 addCoreExpansionToWorkBook(expandedSets, codesAddedToWorkbook, member);
                 if (legacy)
                     addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);

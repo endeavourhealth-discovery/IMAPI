@@ -50,7 +50,7 @@ public class SetService {
      */
     public Set<EntitySummary> evaluateConceptSet(String conceptSetIri, boolean includeLegacy) {
         LOG.debug("Load definition");
-        TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()), EntityService.UNLIMITED);
+        TTBundle conceptSetBundle = entityTripleRepository.getEntityPredicates(conceptSetIri, Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri()));
 
         return evaluateDefinition(conceptSetBundle.getEntity().get(IM.DEFINITION).asValue(), includeLegacy);
     }

@@ -342,11 +342,11 @@ public class FileRepository {
 		return dataPath+"\\"+fileType+".txt";
 	}
 
-	public static String getDataPath() {
+	public String getDataPath() {
 		return dataPath;
 	}
 
-	public static void setDataPath(String dataPath) {
-		FileRepository.dataPath = dataPath;
+	public void setDataPath(String dataPath) {
+		this.dataPath = dataPath;
 	}
 }

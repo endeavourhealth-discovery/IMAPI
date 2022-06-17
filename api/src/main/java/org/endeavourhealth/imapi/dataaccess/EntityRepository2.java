@@ -18,10 +18,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
 
-    private String CONCEPT = "concept";
-    private String SCHEME = "scheme";
-    private String LEGACY = "legacy";
-    private String LABEL = "label";
     private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
     private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
     private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
@@ -50,10 +46,10 @@ public class EntityRepository2 {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     CoreLegacyCode cl = new CoreLegacyCode();
-                    String concept= bs.getValue(CONCEPT).stringValue();
+                    String concept= bs.getValue("concept").stringValue();
                     Value name= bs.getValue("name");
                     Value code = bs.getValue("code");
-                    Value scheme= bs.getValue(SCHEME);
+                    Value scheme= bs.getValue("scheme");
                     Value schemeName= bs.getValue("schemeName");
                     cl.setIri(concept);
                     if (name!=null)
@@ -63,7 +59,7 @@ public class EntityRepository2 {
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
                     if (includeLegacy) {
-                        Value legIri= bs.getValue(LEGACY);
+                        Value legIri= bs.getValue("legacy");
                         Value lc = bs.getValue("legacyCode");
                         Value lt = bs.getValue("legacyName");
                         Value ls = bs.getValue("legacyScheme");
@@ -265,7 +261,7 @@ public class EntityRepository2 {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("term", Values.literal(term));
-            qry.setBinding(SCHEME, Values.iri(scheme));
+            qry.setBinding("scheme", Values.iri(scheme));
             return getConceptRefsFromResult(qry);
         }
     }
@@ -287,7 +283,7 @@ public class EntityRepository2 {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("code", Values.literal(code));
-            qry.setBinding(SCHEME, Values.iri(scheme));
+            qry.setBinding("scheme", Values.iri(scheme));
             return getConceptRefsFromResult(qry);
         }
     }
@@ -331,11 +327,11 @@ public class EntityRepository2 {
             try (TupleQueryResult gs = qry.evaluate()) {
                 while (gs.hasNext()) {
                     BindingSet bs = gs.next();
-                    String legacy= bs.getValue(LEGACY).stringValue();
+                    String legacy= bs.getValue("legacy").stringValue();
                     maps.putIfAbsent(legacy, new HashSet<>());
-                    maps.get(legacy).add(bs.getValue(CONCEPT).stringValue());
-                    if (bs.getValue(LABEL) != null)
-                        concept.setName(bs.getValue(LABEL).stringValue());
+                    maps.get(legacy).add(bs.getValue("concept").stringValue());
+                    if (bs.getValue("label") != null)
+                        concept.setName(bs.getValue("label").stringValue());
 
                 }
             }
@@ -354,7 +350,7 @@ public class EntityRepository2 {
             .add("    ");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            qry.setBinding(LEGACY, Values.iri(legacy));
+            qry.setBinding("legacy", Values.iri(legacy));
             return getConceptRefsFromResult(qry);
         }
     }
@@ -364,9 +360,9 @@ public class EntityRepository2 {
         try (TupleQueryResult gs = qry.evaluate()) {
             while (gs.hasNext()) {
                 BindingSet bs = gs.next();
-                concept = TTIriRef.iri(bs.getValue(CONCEPT).stringValue());
-                if (bs.getValue(LABEL) != null)
-                    concept.setName(bs.getValue(LABEL).stringValue());
+                concept = TTIriRef.iri(bs.getValue("concept").stringValue());
+                if (bs.getValue("label") != null)
+                    concept.setName(bs.getValue("label").stringValue());
 
             }
         }
@@ -380,9 +376,9 @@ public class EntityRepository2 {
                 BindingSet bs = gs.next();
                 if (results==null)
                     results= new HashSet<>();
-                TTIriRef concept = TTIriRef.iri(bs.getValue(CONCEPT).stringValue());
-                if (bs.getValue(LABEL) != null)
-                    concept.setName(bs.getValue(LABEL).stringValue());
+                TTIriRef concept = TTIriRef.iri(bs.getValue("concept").stringValue());
+                if (bs.getValue("label") != null)
+                    concept.setName(bs.getValue("label").stringValue());
                 results.add(concept);
 
             }

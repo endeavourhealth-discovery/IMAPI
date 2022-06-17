@@ -189,7 +189,7 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public Set<TTIriRef> getCoreFromCode(String code,List<String> schemes){
-        StringJoiner sql = new StringJoiner("\n")
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
@@ -225,7 +225,7 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public Set<TTIriRef> getCoreFromCodeId(String codeId,List<String> schemes){
-        StringJoiner sql = new StringJoiner("\n")
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
@@ -250,7 +250,7 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public Set<TTIriRef> getCoreFromLegacyTerm(String term,String scheme){
-        StringJoiner sql = new StringJoiner("\n")
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label")
@@ -274,8 +274,10 @@ public class EntityRepository2 {
      */
 
     public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) {
-        StringJoiner sql= new StringJoiner("\n").add(IM_PREFIX).add(RDFS_PREFIX);
-         sql.add("select ?concept ?label")
+        StringJoiner sql= new StringJoiner(System.lineSeparator())
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("select ?concept ?label")
              .add("where { graph ?scheme {")
              .add("?tc im:code ?code.")
              .add("?concept im:hasTermCode ?tc.}")
@@ -295,7 +297,7 @@ public class EntityRepository2 {
      */
     public TTIriRef getReferenceFromCoreTerm(String term){
         List<String> schemes = List.of(IM.NAMESPACE, SNOMED.NAMESPACE);
-        StringJoiner sql= new StringJoiner("\n")
+        StringJoiner sql= new StringJoiner(System.lineSeparator())
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
@@ -314,7 +316,7 @@ public class EntityRepository2 {
     }
 
     public Map<String,Set<String>> getAllMatchedLegacy(){
-        StringJoiner sql= new StringJoiner("\n")
+        StringJoiner sql= new StringJoiner(System.lineSeparator())
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add(RDF_PREFIX)
@@ -340,7 +342,7 @@ public class EntityRepository2 {
     }
 
     public Set<TTIriRef> getMatchedCore(String legacy){
-        StringJoiner sql= new StringJoiner("\n")
+        StringJoiner sql= new StringJoiner(System.lineSeparator())
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label")
@@ -392,7 +394,7 @@ public class EntityRepository2 {
         boolean excludePredicates
     ) {
         int  depth= 5;
-        StringJoiner sql = new StringJoiner("\n");
+        StringJoiner sql = new StringJoiner(System.lineSeparator());
         sql.add(RDFS_PREFIX);
         sql.add("CONSTRUCT {")
             .add("  ?entity ?1predicate ?1Level.")
@@ -498,16 +500,18 @@ public class EntityRepository2 {
      */
     public String getExpansionAsGraph(TTArray definition, boolean includeLegacy) {
         Map<String, String> prefixMap = new HashMap<>();
-        StringJoiner spql = new StringJoiner("\n").add(IM_PREFIX).add(RDFS_PREFIX);
-        spql.add("CONSTRUCT {?concept rdfs:label ?name.")
-                .add("?concept im:code ?code.")
-                .add("?concept im:scheme ?legacyScheme")
-                .add("?concept im:schemeName ?schemeName.");
+        StringJoiner spql = new StringJoiner(System.lineSeparator())
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("CONSTRUCT {?concept rdfs:label ?name.")
+            .add("?concept im:code ?code.")
+            .add("?concept im:scheme ?legacyScheme")
+            .add("?concept im:schemeName ?schemeName.");
         if (includeLegacy) {
             spql.add("?legacy rdfs:label ?legacyName.")
-                    .add("?legacy im:code ?legacyCode.")
-                    .add("?legacy im:scheme ?legacyScheme")
-                    .add("?legacy im:legacySchemeName ?legacySchemeName.");
+                .add("?legacy im:code ?legacyCode.")
+                .add("?legacy im:scheme ?legacyScheme")
+                .add("?legacy im:legacySchemeName ?legacySchemeName.");
         }
         spql.add("}");
         spql.add("WHERE {");
@@ -528,7 +532,8 @@ public class EntityRepository2 {
      */
     public String getExpansionAsSelect(TTArray definition, boolean includeLegacy) {
         Map<String, String> prefixMap = new HashMap<>();
-        StringJoiner spql = new StringJoiner("\n").add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
+        StringJoiner spql = new StringJoiner(System.lineSeparator())
+            .add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
         if (includeLegacy)
             spql.add("?legacy ?legacyName ?legacyCode ?legacyScheme ?legacySchemeName");
         spql.add("WHERE {");
@@ -543,7 +548,8 @@ public class EntityRepository2 {
 
     private String getIm1ExpansionAsSelect(TTArray definition) {
         Map<String, String> prefixMap = new HashMap<>();
-        StringJoiner spql = new StringJoiner("\n").add(IM_PREFIX)
+        StringJoiner spql = new StringJoiner(System.lineSeparator())
+            .add(IM_PREFIX)
             .add("SELECT ?concept ?id ?legacy ?legacyId")
             .add("WHERE {")
             .add("  {")
@@ -602,7 +608,7 @@ public class EntityRepository2 {
     }
 
     private void addNames(boolean includeLegacy, StringJoiner spql, Map<String, String> prefixMap ) {
-        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name.\n" +
+        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name." +
             "?concept im:code ?code");
         spql.add(" OPTIONAL {?scheme rdfs:label ?schemeName}}");
         if (includeLegacy) {
@@ -725,15 +731,17 @@ public class EntityRepository2 {
                 .append(">\n");
         }
         String spqlString = spql.toString();
-        return new StringJoiner("\n").add(sb.toString()).add(spqlString);
+        return new StringJoiner(System.lineSeparator())
+            .add(sb.toString())
+            .add(spqlString);
     }
 
     public boolean isSet(String iri) {
-        StringJoiner sql = new StringJoiner("\n");
-        sql.add(RDF_PREFIX);
-        sql.add("SELECT * WHERE {");
-        sql.add("?s rdf:type ?o .");
-        sql.add("}");
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+            .add(RDF_PREFIX)
+            .add("SELECT * WHERE {")
+            .add("?s rdf:type ?o .")
+            .add("}");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("s", Values.iri(iri));
@@ -751,13 +759,13 @@ public class EntityRepository2 {
     public List<String> getMemberIris(String iri) {
         List<String> result = new ArrayList<>();
 
-        StringJoiner sql = new StringJoiner("\n");
-        sql.add(IM_PREFIX);
-        sql.add(SH_PREFIX);
-        sql.add("SELECT ?o2 WHERE {");
-        sql.add("?s im:definition ?o .");
-        sql.add("?o (sh:or|sh:and) ?o2 .");
-        sql.add("}");
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+            .add(IM_PREFIX)
+            .add(SH_PREFIX)
+            .add("SELECT ?o2 WHERE {")
+            .add("?s im:definition ?o .")
+            .add("?o (sh:or|sh:and) ?o2 .")
+            .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -785,7 +793,7 @@ public class EntityRepository2 {
             return names;
 
        String iriTokens = iris.stream().map(i -> "<"+ i.getIri()+">").collect(Collectors.joining(","));
-       StringJoiner sql = new StringJoiner("\n");
+       StringJoiner sql = new StringJoiner(System.lineSeparator());
        sql.add("SELECT ?iri ?label")
          .add("WHERE {")
          .add("?iri rdfs:label ?label")
@@ -859,7 +867,7 @@ public class EntityRepository2 {
     }
 
     private String getLinkedShapeSql() {
-        return new StringJoiner("\n")
+        return new StringJoiner(System.lineSeparator())
             .add(RDF_PREFIX)
             .add(RDFS_PREFIX)
             .add(IM_PREFIX)
@@ -883,13 +891,13 @@ public class EntityRepository2 {
     public List<TTIriRef> findUnassigned() {
         List<TTIriRef> result = new ArrayList<>();
 
-        StringJoiner query = new StringJoiner("\n");
-        query.add(RDFS_PREFIX + "\n");
-        query.add(IM_PREFIX + "\n");
-        query.add("SELECT * WHERE {");
-        query.add("?s im:status im:Unassigned .");
-        query.add("?s rdfs:label ?name .");
-        query.add("}");
+        StringJoiner query = new StringJoiner(System.lineSeparator())
+            .add(RDFS_PREFIX + "\n")
+            .add(IM_PREFIX + "\n")
+            .add("SELECT * WHERE {")
+            .add("?s im:status im:Unassigned .")
+            .add("?s rdfs:label ?name .")
+            .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
@@ -906,17 +914,17 @@ public class EntityRepository2 {
     public List<TTIriRef> findUnclassified() {
         List<TTIriRef> result = new ArrayList<>();
 
-        StringJoiner query = new StringJoiner("\n");
-        query.add(RDFS_PREFIX);
-        query.add(IM_PREFIX);
-        query.add(SN_PREFIX);
-        query.add("SELECT ?s ?name {");
-        query.add("GRAPH sn: {");
-        query.add("?s im:scheme sn: ;");
-        query.add("    rdfs:label ?name .");
-        query.add("}");
-        query.add("MINUS { ?s (sn:370124000|rdfs:subClassOf|im:isContainedIn|rdfs:subPropertyOf) ?o }");
-        query.add("} LIMIT 1000");
+        StringJoiner query = new StringJoiner(System.lineSeparator())
+            .add(RDFS_PREFIX)
+            .add(IM_PREFIX)
+            .add(SN_PREFIX)
+            .add("SELECT ?s ?name {")
+            .add("GRAPH sn: {")
+            .add("?s im:scheme sn: ;")
+            .add("    rdfs:label ?name .")
+            .add("}")
+            .add("MINUS { ?s (sn:370124000|rdfs:subClassOf|im:isContainedIn|rdfs:subPropertyOf) ?o }")
+            .add("} LIMIT 1000");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
@@ -934,22 +942,22 @@ public class EntityRepository2 {
     public List<TTIriRef> findUnmapped() {
         List<TTIriRef> result = new ArrayList<>();
 
-        StringJoiner query = new StringJoiner("\n");
-        query.add(RDFS_PREFIX);
-        query.add(IM_PREFIX);
-        query.add(SN_PREFIX);
-        query.add("SELECT DISTINCT ?s ?name {");
-        query.add("?s ?p ?o .");
-        query.add("?s im:scheme sn: .");
-        query.add("?s rdfs:label ?name .");
-        query.add("FILTER NOT EXISTS {");
-        query.add("?s im:matchedTo ?o2 ");
-        query.add("}");
-        query.add("FILTER NOT EXISTS {");
-        query.add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o3 ");
-        query.add("}");
-        query.add("}");
-        query.add("LIMIT 1000");
+        StringJoiner query = new StringJoiner(System.lineSeparator())
+            .add(RDFS_PREFIX)
+            .add(IM_PREFIX)
+            .add(SN_PREFIX)
+            .add("SELECT DISTINCT ?s ?name {")
+            .add("?s ?p ?o .")
+            .add("?s im:scheme sn: .")
+            .add("?s rdfs:label ?name .")
+            .add("FILTER NOT EXISTS {")
+            .add("?s im:matchedTo ?o2 ")
+            .add("}")
+            .add("FILTER NOT EXISTS {")
+            .add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o3 ")
+            .add("}")
+            .add("}")
+            .add("LIMIT 1000");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
@@ -960,21 +968,20 @@ public class EntityRepository2 {
                 }
             }
         }
-
         return result;
     }
 
     public TTArray findFilteredInTask(String actionIri, String taskIri) {
         TTArray ttArray = new TTArray();
 
-        StringJoiner query = new StringJoiner("\n");
-        query.add(RDFS_PREFIX)
-                .add(IM_PREFIX)
-                .add("SELECT * {")
-                .add("?actionIri im:inTask ?task .")
-                .add("?task rdfs:label ?taskName .")
-                .add("FILTER (?task != ?taskIri)")
-                .add("}");
+        StringJoiner query = new StringJoiner(System.lineSeparator())
+            .add(RDFS_PREFIX)
+            .add(IM_PREFIX)
+            .add("SELECT * {")
+            .add("?actionIri im:inTask ?task .")
+            .add("?task rdfs:label ?taskName .")
+            .add("FILTER (?task != ?taskIri)")
+            .add("}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
@@ -987,7 +994,6 @@ public class EntityRepository2 {
                 }
             }
         }
-
         return ttArray;
     }
 }

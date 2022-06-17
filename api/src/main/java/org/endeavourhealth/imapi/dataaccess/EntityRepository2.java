@@ -193,26 +193,29 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public Set<TTIriRef> getCoreFromCode(String code,List<String> schemes){
-        StringBuilder sql = new StringBuilder(IM_PREFIX + "\n" + RDFS_PREFIX + "\n" + "select ?concept ?label\n");
+        StringJoiner sql = new StringJoiner("\n")
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("select ?concept ?label");
         for (String scheme:schemes){
-            sql.append("from <").append(scheme).append(">\n");
+            sql.add("from <").add(scheme).add(">");
         }
-          sql.append("where {  {\n")
-            .append(" ?concept im:code ?code.\n")
-            .append("    filter (isIri(?concept))\n")
-            .append(" ?concept rdfs:label ?label.}\n")
-            .append("  UNION{?concept im:hasTermCode ?node.\n")
-            .append("        ?node im:code ?code.\n")
-            .append("          filter not exists { ?concept im:matchedTo ?core}\n")
-            .append("        ?concept rdfs:label ?label}\n")
-            .append("  UNION {?legacy im:hasTermCode ?node.\n")
-            .append("         ?node im:code ?code.\n")
-            .append("          ?legacy im:matchedTo ?concept.\n")
-            .append("         ?concept rdfs:label ?label.}\n")
-            .append("   UNION {?legacy im:codeId ?code.\n")
-            .append("          ?legacy im:matchedTo ?concept.\n")
-            .append("          ?concept rdfs:label ?label.}\n")
-            .append("}");
+          sql.add("where {  {")
+            .add(" ?concept im:code ?code.")
+            .add("    filter (isIri(?concept))")
+            .add(" ?concept rdfs:label ?label.}")
+            .add("  UNION{?concept im:hasTermCode ?node.")
+            .add("        ?node im:code ?code.")
+            .add("          filter not exists { ?concept im:matchedTo ?core}")
+            .add("        ?concept rdfs:label ?label}")
+            .add("  UNION {?legacy im:hasTermCode ?node.")
+            .add("         ?node im:code ?code.")
+            .add("          ?legacy im:matchedTo ?concept.")
+            .add("         ?concept rdfs:label ?label.}")
+            .add("   UNION {?legacy im:codeId ?code.")
+            .add("          ?legacy im:matchedTo ?concept.")
+            .add("          ?concept rdfs:label ?label.}")
+            .add("}");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("code", Values.literal(code));
@@ -226,14 +229,17 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public Set<TTIriRef> getCoreFromCodeId(String codeId,List<String> schemes){
-        StringBuilder sql = new StringBuilder(IM_PREFIX + "\n" + RDFS_PREFIX + "\n" + "select ?concept ?label\n");
+        StringJoiner sql = new StringJoiner("\n")
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("select ?concept ?label");
         for (String scheme:schemes){
-            sql.append("from <").append(scheme).append(">\n");
+            sql.add("from <").add(scheme).add(">");
         }
-        sql.append("where {  ")
-          .append(" ?legacy im:codeId ?codeId.\n")
-          .append(" ?legacy im:matchedTo ?concept.")
-          .append(" ?concept rdfs:label ?label.}\n");
+        sql.add("where {  ")
+          .add(" ?legacy im:codeId ?codeId.")
+          .add(" ?legacy im:matchedTo ?concept.")
+          .add(" ?concept rdfs:label ?label.}");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -248,11 +254,14 @@ public class EntityRepository2 {
      * @return iri and name of entity
      */
     public Set<TTIriRef> getCoreFromLegacyTerm(String term,String scheme){
-        StringBuilder sql = new StringBuilder(IM_PREFIX + "\n" + RDFS_PREFIX + "\n" + "select ?concept ?label\n");
-        sql.append("where { graph ?scheme {\n");
-        sql.append("?legacy rdfs:label ?term.\n");
-        sql.append("?legacy im:matchedTo ?concept.}\n");
-        sql.append("{?concept rdfs:label ?label} }");
+        StringJoiner sql = new StringJoiner("\n")
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("select ?concept ?label")
+            .add("where { graph ?scheme {")
+            .add("?legacy rdfs:label ?term.")
+            .add("?legacy im:matchedTo ?concept.}")
+            .add("{?concept rdfs:label ?label} }");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("term", Values.literal(term));
@@ -269,12 +278,12 @@ public class EntityRepository2 {
      */
 
     public Set<TTIriRef> getReferenceFromTermCode(String code, String scheme) {
-        StringBuilder sql= new StringBuilder(IM_PREFIX + "\n" + RDFS_PREFIX + "\n");
-         sql.append("select ?concept ?label\n")
-             .append("where { graph ?scheme {\n")
-             .append("?tc im:code ?code.\n")
-             .append("?concept im:hasTermCode ?tc.}\n")
-             .append("{?concept rdfs:label ?label} }");
+        StringJoiner sql= new StringJoiner("\n").add(IM_PREFIX).add(RDFS_PREFIX);
+         sql.add("select ?concept ?label")
+             .add("where { graph ?scheme {")
+             .add("?tc im:code ?code.")
+             .add("?concept im:hasTermCode ?tc.}")
+             .add("{?concept rdfs:label ?label} }");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("code", Values.literal(code));
@@ -290,15 +299,17 @@ public class EntityRepository2 {
      */
     public TTIriRef getReferenceFromCoreTerm(String term){
         List<String> schemes = List.of(IM.NAMESPACE, SNOMED.NAMESPACE);
-        StringBuilder sql= new StringBuilder(IM_PREFIX + "\n" + RDFS_PREFIX + "\n")
-            .append("select ?concept ?label\n");
+        StringJoiner sql= new StringJoiner("\n")
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("select ?concept ?label");
         for (String scheme:schemes)
-            sql.append("from <"+scheme+">\n")
-                .append("where { {\n")
-                .append("?concept rdfs:label ?term.")
-                .append("filter(isIri(?concept))}\n")
-                .append("union { ?concept im:hasTermCode ?tc.")
-                .append("?tc rdfs:label ?term.} }");
+            sql.add("from <"+scheme+">")
+                .add("where { {")
+                .add("?concept rdfs:label ?term.")
+                .add("filter(isIri(?concept))}")
+                .add("union { ?concept im:hasTermCode ?tc.")
+                .add("?tc rdfs:label ?term.} }");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding("term", Values.literal(term));
@@ -307,9 +318,12 @@ public class EntityRepository2 {
     }
 
     public Map<String,Set<String>> getAllMatchedLegacy(){
-        StringBuilder sql= new StringBuilder(IM_PREFIX + "\n"+ RDFS_PREFIX + "\n"+ RDF_PREFIX + "\n")
-            .append("select ?legacy ?concept\n")
-            .append("where {?legacy im:matchedTo ?concept.}\n");
+        StringJoiner sql= new StringJoiner("\n")
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add(RDF_PREFIX)
+            .add("select ?legacy ?concept")
+            .add("where {?legacy im:matchedTo ?concept.}");
         Map<String,Set<String>> maps= new HashMap<>();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -330,12 +344,14 @@ public class EntityRepository2 {
     }
 
     public Set<TTIriRef> getMatchedCore(String legacy){
-        StringBuilder sql= new StringBuilder(IM_PREFIX + "\n" + RDFS_PREFIX + "\n")
-            .append("select ?concept ?label\n")
-            .append("where {\n")
-            .append("    ?legacy im:matchedTo ?concept.\n")
-            .append("    ?concept rdfs:label ?label}\n")
-            .append("    ");
+        StringJoiner sql= new StringJoiner("\n")
+            .add(IM_PREFIX)
+            .add(RDFS_PREFIX)
+            .add("select ?concept ?label")
+            .add("where {")
+            .add("    ?legacy im:matchedTo ?concept.")
+            .add("    ?concept rdfs:label ?label}")
+            .add("    ");
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
             qry.setBinding(LEGACY, Values.iri(legacy));
@@ -485,6 +501,7 @@ public class EntityRepository2 {
      * @return A string of SPARQL
      */
     public String getExpansionAsGraph(TTArray definition, boolean includeLegacy) {
+        Map<String, String> prefixMap = new HashMap<>();
         StringJoiner spql = new StringJoiner("\n").add(IM_PREFIX).add(RDFS_PREFIX);
         spql.add("CONSTRUCT {?concept rdfs:label ?name.")
                 .add("?concept im:code ?code.")
@@ -498,10 +515,11 @@ public class EntityRepository2 {
         }
         spql.add("}");
         spql.add("WHERE {");
-        addNames(includeLegacy);
+        addNames(includeLegacy, spql, prefixMap);
         spql.add("{SELECT distinct ?concept");
-        whereClause(definition);
+        whereClause(definition, spql, prefixMap);
         spql.add("}");
+        spql = insertPrefixes(spql, prefixMap);
         return spql.toString();
     }
 
@@ -513,26 +531,28 @@ public class EntityRepository2 {
      * @return String containing the sparql query
      */
     public String getExpansionAsSelect(TTArray definition, boolean includeLegacy) {
+        Map<String, String> prefixMap = new HashMap<>();
         StringJoiner spql = new StringJoiner("\n").add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
         if (includeLegacy)
             spql.add("?legacy ?legacyName ?legacyCode ?legacyScheme ?legacySchemeName");
         spql.add("WHERE {");
-        addNames(includeLegacy);
+        addNames(includeLegacy, spql, prefixMap);
         spql.add("{SELECT distinct ?concept");
-        whereClause(definition);
+        whereClause(definition, spql, prefixMap);
         spql.add("}");
         spql.add("}");
+        spql = insertPrefixes(spql, prefixMap);
         return spql.toString();
     }
 
-
     private String getIm1ExpansionAsSelect(TTArray definition) {
+        Map<String, String> prefixMap = new HashMap<>();
         StringJoiner spql = new StringJoiner("\n").add(IM_PREFIX)
             .add("SELECT ?concept ?id ?legacy ?legacyId")
             .add("WHERE {")
             .add("  {")
             .add("      SELECT distinct ?concept");
-        spql.add(whereClause(definition));
+        whereClause(definition, spql, prefixMap);
         spql.add("  }")
             .add("  OPTIONAL { ?concept ?im1id ?id. }")
             .add("  OPTIONAL {")
@@ -540,61 +560,53 @@ public class EntityRepository2 {
             .add("      ?legacy ?im1id ?legacyId.")
             .add("  }")
             .add("}");
+        spql = insertPrefixes(spql, prefixMap);
         return spql.toString();
     }
 
-    private String whereClause(TTArray definition) {
-        StringJoiner spql = new StringJoiner("\n").add("WHERE {");
-        spql.add(graphWherePattern(definition));
+    private void whereClause(TTArray definition, StringJoiner spql, Map<String, String> prefixMap) {
+        spql.add("WHERE {");
+        graphWherePattern(definition, spql, prefixMap);
         spql.add("}");
-        return spql.toString();
     }
 
-    private String graphWherePattern(TTArray definition) {
-        StringJoiner spql = new StringJoiner("\n");
+    private void graphWherePattern(TTArray definition, StringJoiner spql,Map<String, String> prefixMap) {
         if (definition.isIriRef()) {
-            spql.add(simpleSuperClass(definition.asIriRef()));
+            simpleSuperClass(definition.asIriRef(), spql, prefixMap);
         } else if (definition.asNode().get(SHACL.OR) != null) {
-            spql.add(orClause(definition.asNode().get(SHACL.OR)));
+            orClause(definition.asNode().get(SHACL.OR), spql, prefixMap);
 
         } else if (definition.asNode().get(SHACL.AND) != null) {
-            AndClause hasRoles = andClause(definition.asNode().get(SHACL.AND), true);
-            spql.add(hasRoles.getAndClause());
-            if (hasRoles.getHasRoles()) {
-                spql.add(andClause(definition.asNode().get(SHACL.AND), false).getAndClause());
+            Boolean hasRoles = andClause(definition.asNode().get(SHACL.AND), true, spql, prefixMap);
+            if (hasRoles) {
+                andClause(definition.asNode().get(SHACL.AND), false, spql, prefixMap);
             }
         }
-        return spql.toString();
     }
 
-
-    private String orClause(TTArray ors) {
-        StringJoiner spql =  new StringJoiner("\n").add("{");
+    private void orClause(TTArray ors, StringJoiner spql, Map<String, String> prefixMap) {
+        spql.add("{");
         StringBuilder values = new StringBuilder();
         for (TTValue superClass : ors.getElements()) {
             if (superClass.isIriRef())
-                values.append(getShort(superClass.asIriRef().getIri())).append(" ");
+                values.append(getShort(superClass.asIriRef().getIri(), prefixMap)).append(" ");
         }
         if (!values.toString().equals("")) {
-            spql.add("{ ?concept " + isa() + " ?superClass.");
+            spql.add("{ ?concept " + isa(prefixMap) + " ?superClass.");
             values = new StringBuilder("VALUES ?superClass {" + values + "}");
             spql.add(values.toString());
-
             spql.add("}");
         }
-
         for (TTValue complexClass : ors.getElements()) {
             if (complexClass.isNode()) {
-
-                addUnion(complexClass.asNode());
+                addUnion(complexClass.asNode(), spql, prefixMap);
             }
         }
         spql.add("}");
-        return spql.toString();
     }
 
-    private String addNames(boolean includeLegacy) {
-        StringJoiner spql = new StringJoiner("\n").add(RDFS_PREFIX).add(IM_PREFIX).add("GRAPH ?scheme {?concept rdfs:label ?name.\n" +
+    private void addNames(boolean includeLegacy, StringJoiner spql, Map<String, String> prefixMap ) {
+        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name.\n" +
             "?concept im:code ?code");
         spql.add(" OPTIONAL {?scheme rdfs:label ?schemeName}}");
         if (includeLegacy) {
@@ -604,141 +616,120 @@ public class EntityRepository2 {
                 .add("?legacy im:code ?legacyCode.")
                 .add("OPTIONAL {?legacyScheme rdfs:label ?legacySchemeName}}}");
         }
-        return spql.toString();
     }
 
-    private String simpleSuperClass(TTIriRef superClass) {
-        StringJoiner spql = new StringJoiner("?concept " + isa() + " " + getShort(superClass.asIriRef().getIri()) + ".");
-        return spql.toString();
+    private void simpleSuperClass(TTIriRef superClass, StringJoiner spql, Map<String,String> prefixMap) {
+        spql.add("?concept " + isa(prefixMap) + " " + getShort(superClass.asIriRef().getIri(), prefixMap) + ".");
     }
 
-    private String addUnion(TTNode union) {
-        StringJoiner spql = new StringJoiner("\n");
+    private void addUnion(TTNode union, StringJoiner spql, Map<String, String> prefixMap) {
         if (union.get(SHACL.AND) != null) {
             spql.add("UNION {");
-            AndClause hasRoles = andClause(union.get(SHACL.AND), true);
-            spql.add(hasRoles.getAndClause());
+            Boolean hasRoles = andClause(union.get(SHACL.AND), true, spql, prefixMap);
             spql.add("}");
-            if (hasRoles.getHasRoles()) {
+            if (hasRoles) {
                 spql.add("UNION {");
-                andClause(union.get(SHACL.AND), false);
+                andClause(union.get(SHACL.AND), false, spql, prefixMap);
                 spql.add("}");
             }
         } else {
             spql.add("UNION {");
-            roles(union, true); //adds a set of roles from a group.
+            roles(union, true, spql, prefixMap); //adds a set of roles from a group.
             spql.add("}");
             spql.add("UNION {");
-            roles(union, false);
+            roles(union, false, spql, prefixMap);
             spql.add("}");
         }
-        return spql.toString();
     }
 
-    private String roles(TTNode node, boolean group) {
-        StringJoiner spql = new StringJoiner("\n");
+    private void roles(TTNode node, boolean group, StringJoiner spql, Map<String, String> prefixMap) {
         int count = 1;
         for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
             count++;
             String obj = "?o_" + count;
             String pred = "?p_" + count;
-            spql.add(obj + " " + isa() + " " + getShort(entry.getValue().asIriRef().getIri()) + ".");
-            spql.add(pred + " " + isa() + " " + getShort(entry.getKey().getIri()) + ".");
+            spql.add(obj + " " + isa(prefixMap) + " " + getShort(entry.getValue().asIriRef().getIri(), prefixMap) + ".");
+            spql.add(pred + " " + isa(prefixMap) + " " + getShort(entry.getKey().getIri(), prefixMap) + ".");
             if (group) {
                 spql.add("?roleGroup " + pred + " " + obj + ".");
                 spql.add(" FILTER (isBlank(?roleGroup))");
-                spql.add("?superMember " + getShort(IM.ROLE_GROUP.getIri(), "im") + " ?roleGroup.");
+                spql.add("?superMember " + getShort(IM.ROLE_GROUP.getIri(), "im", prefixMap) + " ?roleGroup.");
             } else {
                 spql.add("?superMember " + pred + " " + obj + ".");
                 spql.add("  FILTER (isIri(?superMember))");
             }
         }
-        spql.add("?concept " + getShort(IM.IS_A.getIri(), "im") + " ?superMember.");
-        return spql.toString();
+        spql.add("?concept " + getShort(IM.IS_A.getIri(), "im", prefixMap) + " ?superMember.");
     }
 
 
-    private String getShort(String iri) {
+    private String getShort(String iri, Map<String, String> prefixMap) {
         if (iri.contains("#")) {
             String prefix = iri.substring(0, iri.lastIndexOf("#"));
             prefix = prefix.substring(prefix.lastIndexOf("/") + 1);
+            prefixMap.put(iri.substring(0, iri.lastIndexOf("#") + 1), prefix);
             return prefix + ":" + iri.substring(iri.lastIndexOf("#") + 1);
         }
         return "<" + iri + ">";
     }
 
-    private String getShort(String iri, String prefix) {
+    private String getShort(String iri, String prefix, Map<String, String> prefixMap) {
+        prefixMap.put(iri.substring(0, iri.lastIndexOf("#") + 1), prefix);
         return prefix + ":" + iri.substring(iri.lastIndexOf("#") + 1);
     }
 
-    public class AndClause {
-        private Boolean hasRoles;
-        private String andClause;
-
-        public Boolean getHasRoles() {
-            return hasRoles;
-        }
-
-        public AndClause setHasRoles(Boolean hasRoles) {
-            this.hasRoles = hasRoles;
-            return this;
-        }
-
-        public String getAndClause() {
-            return andClause;
-        }
-
-        public AndClause setAndClause(String andClause) {
-            this.andClause = andClause;
-            return this;
-        }
-
-        public AndClause() {};
-    }
-
-    private AndClause andClause(TTArray and, boolean group) {
+    private Boolean andClause(TTArray and, boolean group, StringJoiner spql, Map<String, String> prefixMap) {
         boolean hasRoles = false;
-        StringJoiner spql = new StringJoiner("\n");
         for (TTValue inter : and.getElements()) {
             if (inter.isNode() && inter.asNode().get(SHACL.NOT) == null) {
-                spql.add(roles(inter.asNode(), group));
+                roles(inter.asNode(), group, spql, prefixMap);
                 hasRoles = true;
             }
         }
         for (TTValue inter : and.getElements()) {
             if (inter.isIriRef()) {
-                spql.add(simpleSuperClass(inter.asIriRef()));
+                simpleSuperClass(inter.asIriRef(), spql, prefixMap);
             }
         }
         for (TTValue inter : and.getElements()) {
             if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
-                spql.add(notClause(inter.asNode().get(SHACL.NOT).asValue()));
+                notClause(inter.asNode().get(SHACL.NOT).asValue(), spql, prefixMap);
         }
-        AndClause result = new AndClause().setAndClause(spql.toString()).setHasRoles(hasRoles);
-        return result;
+        return hasRoles;
     }
 
-    private String isa() {
-        return getShort(IM.IS_A.getIri());
+    private String isa(Map<String, String> prefixMap) {
+        return getShort(IM.IS_A.getIri(), prefixMap);
     }
 
-    private String notClause(TTValue not) {
-        StringJoiner spql = new StringJoiner("\n").add("MINUS {");
+    private void notClause(TTValue not, StringJoiner spql, Map<String,String> prefixMap) {
+        spql.add("MINUS {");
         if (not.isIriRef())
-            spql.add(simpleSuperClass(not.asIriRef()));
+            simpleSuperClass(not.asIriRef(),spql, prefixMap);
         else if (not.isNode()) {
             if (not.asNode().get(SHACL.OR) != null) {
-                spql.add(orClause(not.asNode().get(SHACL.OR)));
+                orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
             } else if (not.asNode().get(SHACL.AND) != null) {
-                AndClause hasRoles = andClause(not.asNode().get(SHACL.AND), true);
-                spql.add(hasRoles.getAndClause());
-                if (hasRoles.getHasRoles()) {
-                    spql.add(andClause(not.asNode().get(SHACL.AND), false).getAndClause());
+                Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
+                if (hasRoles) {
+                    andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
                 }
             }
         }
         spql.add("}");
-        return spql.toString();
+    }
+
+    private StringJoiner insertPrefixes(StringJoiner spql, Map<String, String> prefixMap) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : prefixMap.entrySet()) {
+            sb.append("PREFIX ")
+                .append(entry.getValue())
+                .append(": <")
+                .append(entry.getKey())
+                .append(">\n");
+        }
+        String spqlString = spql.toString();
+        return new StringJoiner("\n").add(sb.toString()).add(spqlString);
     }
 
     public boolean isSet(String iri) {
@@ -872,22 +863,24 @@ public class EntityRepository2 {
     }
 
     private String getLinkedShapeSql() {
-        return RDF_PREFIX + "\n" +
-            RDFS_PREFIX + "\n" +
-            IM_PREFIX + "\n" +
-            SH_PREFIX + "\n" +
-            "Construct {\n" +
-            "    ?s ?p ?o.\n" +
-            "    ?sub ?p2 ?o2.\n" +
-            "    ?o2 ?p3 ?o3.\n" +
-            "}\n" +
-            "where { ?s ?p ?o.\n" +
-            "    filter (?s= ?shape)\n" +
-            "    ?s (sh:property|sh:node)+ ?sub.\n" +
-            "    ?sub ?p2 ?o2.\n" +
-            "    Optional { ?o2 ?p3 ?o3\n" +
-            "        filter (isBlank(?o2))}\n" +
-            "}";
+        return new StringJoiner("\n")
+            .add(RDF_PREFIX)
+            .add(RDFS_PREFIX)
+            .add(IM_PREFIX)
+            .add(SH_PREFIX)
+            .add("Construct {")
+            .add("    ?s ?p ?o.")
+            .add("    ?sub ?p2 ?o2.")
+            .add("    ?o2 ?p3 ?o3.")
+            .add("}")
+            .add("where { ?s ?p ?o.")
+            .add("    filter (?s= ?shape)")
+            .add("    ?s (sh:property|sh:node)+ ?sub.")
+            .add("    ?sub ?p2 ?o2.")
+            .add("    Optional { ?o2 ?p3 ?o3")
+            .add("        filter (isBlank(?o2))}")
+            .add("}")
+            .toString();
     }
 
 

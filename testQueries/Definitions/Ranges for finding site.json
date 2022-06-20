@@ -3,11 +3,9 @@
   "description" : "retrieves the high level concepts allowable as values of the attribute finding side",
   "resultFormat" : "OBJECT",
   "select" : {
-    "property" : [
-      {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-      }
-    ],
+    "property" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ],
     "match" : {
       "property" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#range"

@@ -104,7 +104,7 @@ public class IM {
   public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
 
   //Context
-  public static final TTIriRef HAS_SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
+  public static final TTIriRef SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
   public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
   public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
   public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");

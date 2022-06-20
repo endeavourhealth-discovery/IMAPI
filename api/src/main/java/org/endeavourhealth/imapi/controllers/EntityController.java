@@ -74,7 +74,7 @@ public class EntityController {
     @GetMapping(value = "/public/partial", produces = "application/json")
     public TTEntity getPartialEntity(
 		@RequestParam(name = "iri") String iri,
-	 	@RequestParam(name = "predicate") Set<String> predicates
+	 	@RequestParam(name = "predicates") Set<String> predicates
 	) {
         LOG.debug("getPartialEntity");
         return entityService.getBundle(iri, predicates).getEntity();
@@ -96,7 +96,7 @@ public class EntityController {
     @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(
 		@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "predicate") Set<String> predicates
+		@RequestParam(name = "predicates") Set<String> predicates
 	) {
         LOG.debug("getPartialEntityBundle");
         return entityService.getBundle(iri, predicates);

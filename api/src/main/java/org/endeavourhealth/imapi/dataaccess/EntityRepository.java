@@ -170,8 +170,7 @@ public class EntityRepository {
         for (org.eclipse.rdf4j.model.Statement st : gs) {
             i++;
             if (i%100==0) {
-                String message = String.format("%d %s %s %s", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue());
-                LOG.debug(message);
+                LOG.debug("{} {} {} {}", i, st.getSubject().stringValue(), st.getPredicate().stringValue(), st.getObject().stringValue());
             }
            populateEntity(st, entity,valueMap);
         }

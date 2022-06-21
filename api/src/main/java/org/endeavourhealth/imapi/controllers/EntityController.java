@@ -8,8 +8,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -30,6 +32,7 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
+import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -190,7 +193,7 @@ public class EntityController {
 		String filename = entity.getName() + " " + LocalDate.now();
 		HttpHeaders headers = new HttpHeaders();
 		TTDocument document = entityService.getConcept(iri);
-		return entityService.getObjectHttpEntity(format, filename, headers, document);
+		return getObjectHttpEntity(format, filename, headers, document);
 	}
 
 	@GetMapping("/public/exportList")
@@ -202,7 +205,7 @@ public class EntityController {
 		String filename = "Concept List "+ LocalDate.now();
 		HttpHeaders headers = new HttpHeaders();
 		TTDocument document = entityService.getConceptList(iris);
-		return entityService.getObjectHttpEntity(format, filename, headers, document);
+		return getObjectHttpEntity(format, filename, headers, document);
 	}
 
 	@GetMapping("/public/exportGraph")
@@ -215,7 +218,27 @@ public class EntityController {
 		String filename = entity.getName() + " concept list "+ LocalDate.now();
 		HttpHeaders headers = new HttpHeaders();
 		TTDocument document = entityService.getConceptListByGraph(iri);
-		return entityService.getObjectHttpEntity(format, filename, headers, document);
+		return getObjectHttpEntity(format, filename, headers, document);
+	}
+
+	private HttpEntity<Object> getObjectHttpEntity(String format, String filename, HttpHeaders headers, TTDocument document) throws JsonProcessingException {
+		String ATTACHMENT = "attachment";
+		if ("turtle".equals(format)) {
+			TTToTurtle ttToTurtle = new TTToTurtle();
+			String turtle = ttToTurtle.transformDocument(document);
+			headers.setContentType(MediaType.TEXT_PLAIN);
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".txt\"");
+			return new HttpEntity<>(turtle, headers);
+		} else {
+			ObjectMapper objectMapper = new ObjectMapper();
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
+			return new HttpEntity<>(json, headers);
+		}
 	}
 
 	@GetMapping(value = "/public/download")

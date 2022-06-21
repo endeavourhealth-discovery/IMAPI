@@ -1002,6 +1002,8 @@ public class EntityRepository2 {
                 typeIris.add("<" + typeIri + ">");
             }
             query.add(" FILTER (?type IN (" + String.join(", ", typeIris) + "))");
+        } else {
+            query.add("FILTER (?g NOT IN (im:, sn:))");
         }
 
         query.add("}");

@@ -528,7 +528,7 @@ public class EntityController {
 		String agentName = reqObjService.getRequestAgentName(request);
 		return entityService.addConceptToTask(entityIri, taskIri, agentName);
 	}
-	
+
 	@DeleteMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity removeTaskAction(@RequestParam(name = "taskIri") String taskIri, @RequestParam(name = "removedActionIri") String removedActionIri, HttpServletRequest request) throws Exception {

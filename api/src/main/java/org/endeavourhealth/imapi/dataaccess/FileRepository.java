@@ -1,7 +1,10 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import org.endeavourhealth.imapi.controllers.EntityController;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -12,6 +15,8 @@ import java.util.stream.Collectors;
 
 public class FileRepository {
 
+	private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
+
 	private final Map<String,Map<String,Set<String>>> codeCoreMap= new HashMap<>();
 	private final Map<String,Map<String,Set<String>>> termCoreMap= new HashMap<>();
 	private final Map<String,Map<String,Set<String>>> codes= new HashMap<>();
@@ -19,7 +24,7 @@ public class FileRepository {
 	private final Map<String,Map<String,String>> termCodes= new HashMap<>();
 	private final Map<String,Map<String,Set<String>>> codeIds = new HashMap<>();
 	private final Map<String,String> coreIris= new HashMap<>();
-	private static String dataPath;
+	private String dataPath;
 
 	public FileRepository(String dataPath){
 		this.dataPath=dataPath;
@@ -46,9 +51,12 @@ public class FileRepository {
 		}
 	}
 
-	public void fetchRelationships(Map<String, Set<String>> parentMap,
-																				Map<String,Set<String>> replacementMap,
-																				Set<String> blockingIris) throws IOException{
+	public void fetchRelationships(
+		Map<String,
+		Set<String>> parentMap,
+		Map<String,Set<String>> replacementMap,
+		Set<String> blockingIris
+	) throws IOException{
 		String fileName= getFile("SubTypes");
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
 			String line = reader.readLine();
@@ -81,7 +89,7 @@ public class FileRepository {
 			 return result;
 		 }
 	 }
-	 return null;
+	 return Collections.emptySet();
 	}
 
 
@@ -97,7 +105,7 @@ public class FileRepository {
 		if (coreTerms.get(term)!=null)
 		  return TTIriRef.iri(coreTerms.get(term));
 		else
-			return null;
+			return new TTIriRef();
 		}
 
 
@@ -113,7 +121,7 @@ public class FileRepository {
 			return concepts;
 		}
 		else
-			return null;
+			return Collections.emptySet();
 	}
 
 
@@ -132,9 +140,9 @@ public class FileRepository {
 				String[] fields = line.split("\t");
 				String legacy=fields[0];
 				if (fields.length<2){
-					System.out.println("invalid line "+ line);
+					LOG.info("invalid line "+ line);
 					String x= reader.readLine();
-					System.out.println(x);
+					LOG.info(x);
 					line=line+x;
 					fields= line.split("\t");
 				}
@@ -170,10 +178,10 @@ public class FileRepository {
 					return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 				}
 			}
-			return null;
+			return Collections.emptySet();
 		} catch (Exception e) {
-			System.err.println("unable to retrieve core from code : "+ e.getMessage());
-			return null;
+			LOG.error("unable to retrieve core from code : "+ e.getMessage());
+			return Collections.emptySet();
 		}
 	}
 
@@ -183,7 +191,7 @@ public class FileRepository {
 		if (termCoreMap.get(scheme).get(originalTerm)!=null)
 			return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 		else
-			return null;
+			return Collections.emptySet();
 	}
 	public Set<String> getCodes(String scheme) throws IOException {
 		if (codes.get(scheme)==null)
@@ -205,7 +213,7 @@ public class FileRepository {
 	}
 
 
-	public void fetchCodeMap(String scheme) throws FileNotFoundException, IOException {
+	public void fetchCodeMap(String scheme) throws IOException {
 		Map<String,Set<String>> codeSet= codes.computeIfAbsent(scheme, s-> new HashMap<>());
 		String fileName= getSchemeFile("CodeMap",scheme);
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -222,7 +230,7 @@ public class FileRepository {
 		}
 	}
 
-	public void fetchCodeIds(String scheme) throws FileNotFoundException, IOException {
+	public void fetchCodeIds(String scheme) throws IOException {
 	Map<String,Set<String>> codeSet= codeIds.computeIfAbsent(scheme, s-> new HashMap<>());
 	String fileName= getSchemeFile("CodeIds",scheme);
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -307,7 +315,7 @@ public class FileRepository {
 		return codeCoreMap.get(scheme);
 	}
 
-	public void fetchTermCoreMap(String scheme) throws FileNotFoundException, IOException {
+	public void fetchTermCoreMap(String scheme) throws IOException {
 		Map<String,Set<String>> coreMap= termCoreMap.computeIfAbsent(scheme, s-> new HashMap<>());
 		String fileName= getSchemeFile("TermCoreMap",scheme);
 		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -334,11 +342,11 @@ public class FileRepository {
 		return dataPath+"\\"+fileType+".txt";
 	}
 
-	public static String getDataPath() {
+	public String getDataPath() {
 		return dataPath;
 	}
 
-	public static void setDataPath(String dataPath) {
-		FileRepository.dataPath = dataPath;
+	public void setDataPath(String dataPath) {
+		this.dataPath = dataPath;
 	}
 }

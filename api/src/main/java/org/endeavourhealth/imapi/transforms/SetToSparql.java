@@ -19,7 +19,7 @@ public class SetToSparql {
 	public String getExpansionSparql(String entityVar, String iri) {
 
 		Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
-		TTEntity entity = entityRepo.getEntityPredicates(iri, predicates, 0).getEntity();
+		TTEntity entity = entityRepo.getEntityPredicates(iri, predicates).getEntity();
 		StringBuilder subQuery = new StringBuilder();
 		if (entity.get(IM.HAS_MEMBER)!=null){
 			subQuery.append("?").append(entityVar).append(" ")

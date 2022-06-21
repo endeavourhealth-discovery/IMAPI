@@ -71,7 +71,7 @@ public class SetExporter {
         Set<String> members = new HashSet<>();
 
         for(String iri : setIris){
-            TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), 0).getEntity();
+            TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri())).getEntity();
 
             // Inject direct members into definition
             if (entity.get(IM.HAS_MEMBER) != null) {
@@ -82,7 +82,7 @@ public class SetExporter {
                 }
             }
 
-            members.addAll(entityRepository2.getSetDbids(iri, entity.get(IM.DEFINITION)));
+            members.addAll(entityRepository2.getSetDbids(entity.get(IM.DEFINITION)));
         }
         return members;
     }

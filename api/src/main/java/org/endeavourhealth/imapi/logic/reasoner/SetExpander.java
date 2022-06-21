@@ -33,7 +33,7 @@ public class SetExpander {
 		for (String iri:sets){
 			LOG.info("Updating members of "+ iri);
 			//get the definition
-			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()),0);
+			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
 			List<CoreLegacyCode> members= repo2.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION),false);
 			updateMembers(iri,members);

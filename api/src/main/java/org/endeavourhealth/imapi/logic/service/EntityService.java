@@ -1122,25 +1122,5 @@ public class EntityService {
 
         return result;
     }
-
-    public HttpEntity<Object> getObjectHttpEntity(String format, String filename, HttpHeaders headers, TTDocument document) throws JsonProcessingException {
-        String ATTACHMENT = "attachment";
-        if ("turtle".equals(format)) {
-            TTToTurtle ttToTurtle = new TTToTurtle();
-            String turtle = ttToTurtle.transformDocument(document);
-            headers.setContentType(MediaType.TEXT_PLAIN);
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".txt\"");
-            return new HttpEntity<>(turtle, headers);
-        } else {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-            String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
-            return new HttpEntity<>(json, headers);
-        }
-    }
 }
 

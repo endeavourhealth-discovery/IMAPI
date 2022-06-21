@@ -124,13 +124,6 @@ public class FileRepository {
 			return Collections.emptySet();
 	}
 
-
-
-
-
-
-
-
 	public Map<String, Set<String>> getAllMatchedLegacy() throws IOException{
 		Map<String,Set<String>> legacyMap= new HashMap<>();
 		String fileName=getFile("LegacyCore");
@@ -180,7 +173,7 @@ public class FileRepository {
 			}
 			return Collections.emptySet();
 		} catch (Exception e) {
-			LOG.error("unable to retrieve core from code : "+ e.getMessage());
+			LOG.error("unable to retrieve core from code : {}", e.getMessage());
 			return Collections.emptySet();
 		}
 	}

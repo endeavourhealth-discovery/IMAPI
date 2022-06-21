@@ -167,8 +167,7 @@ public class EntityTripleRepository {
                     )
                 );
             }
-            String message = String.format("Finished (%d rows)", result.size());
-            LOG.debug(message);
+            LOG.debug("Finished ({} rows) ", result.size());
         }
     }
 
@@ -368,7 +367,7 @@ public class EntityTripleRepository {
                     BindingSet bs = rs.next();
                     result.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
                 }
-                LOG.debug(String.format("Finished (%d rows)", result.size()));
+                LOG.debug("Finished ({} rows)", result.size());
             }
         }
         return result;
@@ -395,8 +394,7 @@ public class EntityTripleRepository {
                     BindingSet bs = rs.next();
                     result.add(new TTIriRef(bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
                 }
-                String message = String.format("Finished ({} rows)", result.size());
-                LOG.debug(message);
+                LOG.debug("Finished ({} rows)", result.size());
             }
         }
         return result;

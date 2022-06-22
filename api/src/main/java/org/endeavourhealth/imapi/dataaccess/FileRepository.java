@@ -89,7 +89,7 @@ public class FileRepository {
 			 return result;
 		 }
 	 }
-	 return Collections.emptySet();
+	 return null;
 	}
 
 
@@ -105,7 +105,7 @@ public class FileRepository {
 		if (coreTerms.get(term)!=null)
 		  return TTIriRef.iri(coreTerms.get(term));
 		else
-			return new TTIriRef();
+			return null;
 		}
 
 
@@ -121,7 +121,7 @@ public class FileRepository {
 			return concepts;
 		}
 		else
-			return Collections.emptySet();
+			return null;
 	}
 
 	public Map<String, Set<String>> getAllMatchedLegacy() throws IOException{
@@ -171,10 +171,10 @@ public class FileRepository {
 					return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 				}
 			}
-			return Collections.emptySet();
+			return null;
 		} catch (Exception e) {
 			LOG.error("unable to retrieve core from code : {}", e.getMessage());
-			return Collections.emptySet();
+			return null;
 		}
 	}
 
@@ -184,7 +184,7 @@ public class FileRepository {
 		if (termCoreMap.get(scheme).get(originalTerm)!=null)
 			return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 		else
-			return Collections.emptySet();
+			return null;
 	}
 	public Set<String> getCodes(String scheme) throws IOException {
 		if (codes.get(scheme)==null)

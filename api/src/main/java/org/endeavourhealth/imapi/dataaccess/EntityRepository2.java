@@ -194,7 +194,7 @@ public class EntityRepository2 {
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
         for (String scheme:schemes){
-            sql.add("from <").add(scheme).add(">");
+            sql.add("from <" + scheme + ">");
         }
           sql.add("where {  {")
             .add(" ?concept im:code ?code.")
@@ -230,7 +230,7 @@ public class EntityRepository2 {
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
         for (String scheme:schemes){
-            sql.add("from <").add(scheme).add(">");
+            sql.add("from <" + scheme + ">");
         }
         sql.add("where {  ")
           .add(" ?legacy im:codeId ?codeId.")

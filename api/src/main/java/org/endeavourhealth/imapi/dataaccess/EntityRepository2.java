@@ -942,27 +942,26 @@ public class EntityRepository2 {
     public List<TTEntity> findUnmapped(List<String> status, List<String> scheme, List<String> type, Integer usage, Integer limit) {
         List<TTEntity> result = new ArrayList<>();
 
-        StringJoiner query = new StringJoiner("\n");
-        query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
-        query.add("PREFIX im: <http://endhealth.info/im#>");
-        query.add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>");
-        query.add("PREFIX sn: <http://snomed.info/sct#>");
-
-        query.add("SELECT DISTINCT ?s ?name ?scheme ?schemeName ?type ?typeName ?status ?statusName ?usage ?code {");
-        query.add(" GRAPH ?g {");
-        query.add("  ?s im:scheme ?scheme ;");
-        query.add("   rdfs:label ?name ;");
-        query.add("   im:usageTotal ?usage ;");
-        query.add("   rdf:type ?type ;");
-        query.add("   im:code ?code ;");
-        query.add("   im:status ?status .");
-        query.add(" }");
-        query.add("?scheme rdfs:label ?schemeName .");
-        query.add("?type rdfs:label ?typeName .");
-        query.add("?status rdfs:label ?statusName .");
-        query.add(" FILTER NOT EXISTS {");
-        query.add("  ?s (sn:370124000|im:hasMap|im:matchedTo) ?o2");
-        query.add(" }");
+        StringJoiner query = new StringJoiner(System.lineSeparator())
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("PREFIX sn: <http://snomed.info/sct#>")
+                .add("SELECT DISTINCT ?s ?name ?scheme ?schemeName ?type ?typeName ?status ?statusName ?usage ?code {")
+                .add(" GRAPH ?g {")
+                .add("  ?s im:scheme ?scheme ;")
+                .add("   rdfs:label ?name ;")
+                .add("   im:usageTotal ?usage ;")
+                .add("   rdf:type ?type ;")
+                .add("   im:code ?code ;")
+                .add("   im:status ?status .")
+                .add(" }")
+                .add("?scheme rdfs:label ?schemeName .")
+                .add("?type rdfs:label ?typeName .")
+                .add("?status rdfs:label ?statusName .")
+                .add(" FILTER NOT EXISTS {")
+                .add("  ?s (sn:370124000|im:hasMap|im:matchedTo) ?o2")
+                .add(" }");
 
         if (null != usage) {
             query.add(" FILTER (?usage > " + usage + ")");
@@ -994,8 +993,7 @@ public class EntityRepository2 {
             query.add("FILTER (?g NOT IN (im:, sn:))");
         }
 
-        query.add("}");
-        query.add("ORDER BY DESC(?usage)");
+        query.add("}").add("ORDER BY DESC(?usage)");
 
         if (null != limit) {
             query.add("LIMIT " + limit);

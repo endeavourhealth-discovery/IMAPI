@@ -25,7 +25,7 @@ export default class QueryWorkflow {
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",
       {
         s: iri(entityIri),
-        p: iri("http://endhealth.info/im#definition")
+        p: iri("http://endhealth.info/im#query")
       });
 
     if (rs.length != 1)

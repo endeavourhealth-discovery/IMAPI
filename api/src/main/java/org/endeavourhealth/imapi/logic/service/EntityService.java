@@ -61,6 +61,7 @@ public class EntityService {
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
     private EntityRepository2 entityRepository2 = new EntityRepository2();
+    private SearchService searchService = new SearchService();
 
     public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
@@ -257,9 +258,7 @@ public class EntityService {
     }
 
     public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
-        SearchService searchService = new SearchService();
         return searchService.getEntitiesByTerm(request);
-
     }
 
     public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {

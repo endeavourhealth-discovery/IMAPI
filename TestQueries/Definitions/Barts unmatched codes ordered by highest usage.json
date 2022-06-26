@@ -1,0 +1,31 @@
+{
+  "name" : "Barts unmatched codes ordered by highest usage",
+  "resultFormat" : "OBJECT",
+  "select" : {
+    "property" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://endhealth.info/im#usageTotal",
+      "alias" : "usage"
+    } ],
+    "match" : [ {
+      "property" : [ {
+        "@id" : "http://endhealth.info/im#matchedTo",
+        "notExist" : true
+      }, {
+        "@id" : "http://endhealth.info/im#scheme",
+        "isConcept" : [ {
+          "@id" : "http://endhealth.info/bc#"
+        } ]
+      } ]
+    } ],
+    "orderLimit" : {
+      "orderBy" : {
+        "@id" : "http://endhealth.info/im#usageTotal",
+        "alias" : "usage"
+      },
+      "direction" : "DESCENDING"
+    }
+  },
+  "usePrefixes" : true
+}

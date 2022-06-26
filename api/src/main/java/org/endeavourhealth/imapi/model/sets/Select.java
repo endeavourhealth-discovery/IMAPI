@@ -25,13 +25,14 @@ public class Select {
 	private boolean max;
 	private boolean count;
 	private List<PropertySelect> property;
-	private Match match;
+	private List<Match> match;
 	private boolean distinct;
 	private ConceptRef entityType;
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
 	private List<PropertySelect> groupBy;
 	private OrderLimit orderLimit;
+
 
 	/**
 	 * Lambda approach to setting property selects
@@ -47,17 +48,7 @@ public class Select {
 
 
 
-	/**
-	 * Lambda approach for setting match clause
-	 * @param builder lambda expression
-	 * @return this for chaining
-	 */
-	public Select match(Consumer<Match> builder){
-		Match match= new Match();
-		this.match= match;
-		builder.accept(match);
-		return this;
-	}
+
 
 	/**
 	 * Lambda approach for setting order and limit
@@ -180,12 +171,26 @@ public class Select {
 
 
 
-	public Match getMatch() {
+	public List<Match> getMatch() {
 		return match;
 	}
 
-	public Select setMatch(Match match) {
+	public Select setMatch(List<Match> match) {
 		this.match = match;
+		return this;
+	}
+
+	public Select addMatch(Match match){
+		if (this.match==null)
+			this.match= new ArrayList<>();
+		this.match.add(match);
+		return this;
+	}
+
+	public Select match(Consumer<Match> builder){
+		Match match= new Match();
+		this.addMatch(match);
+		builder.accept(match);
 		return this;
 	}
 

@@ -12,74 +12,143 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"name","iri","description","subselect","notExist","entityType","entityId","entityInSet","includeSubEntities","includeMembers","graph"+ ",inverseOf","property","includeSubProperties"
+@JsonPropertyOrder({"name","iri","description","pathTo","entityFrom","notExist","entityType","entityId","entityInSet","includeSubEntities","includeMembers","graph"+ ",inverseOf","property","includeSubProperties"
 	,"isConcept","inValueSet","notInValueSet", "inRange","value","function","within","valueVar","match","isIndex","and","or","orderLimit","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Heading {
 
-	private List<Match> and;
 	private List<Match> or;
-	private List<Match> optional;
-	private OrderLimit orderLimit;
+	private List<Match> and;
 	private TTIriRef graph;
 	private ConceptRef entityType;
 	private ConceptRef entityId;
 	private List<ConceptRef> entityInSet;
 	private List<ConceptRef> entityNotInSet;
-	private Select subselect;
-
-
-
-	ConceptRef property;
-	Compare value;
-	List<ConceptRef> inSet;
-	List<ConceptRef> notInSet;
-	List<ConceptRef> isConcept;
-	List<ConceptRef> isNotConcept;
-	List<Argument> argument;
-	Range inRange;
-	String entityVar;
-
-	Match match;
-	Function function;
-	Within within;
-	boolean inverseOf=false;
-	boolean notExist=false;
+	private String entityVar;
+	private List<PropertyValue> property;
+	private List<PropertyValue> orProperty;
+	private boolean notExist;
+	private List<ConceptRef> pathTo;
 	boolean isIndex;
+	private OrderLimit orderLimit;
+	private List<PropertyValue> testProperty;
 
-	public Select getSubselect() {
-		return subselect;
+	public List<PropertyValue> getTestProperty() {
+		return testProperty;
 	}
 
 	@JsonSetter
-	public Match setSubselect(Select subselect) {
-		this.subselect = subselect;
+	public Match setTestProperty(List<PropertyValue> test) {
+		this.testProperty = test;
+		return this;
+	}
+
+	public Match addTestProperty(PropertyValue test){
+		if (this.testProperty==null)
+			this.testProperty= new ArrayList<>();
+		this.testProperty.add(test);
 		return this;
 	}
 
 	@JsonIgnore
-	public Match subselect(Consumer<Select> builder){
-		Select select= new Select();
-		this.subselect = select;
-		builder.accept(select);
+	public Match testProperty(Consumer<PropertyValue> builder){
+		PropertyValue test= new PropertyValue();
+		this.addTestProperty(test);
+		builder.accept(test);
 		return this;
 	}
 
-	public List<Argument> getArgument() {
-		return argument;
-	}
-
-	public Match setArgument(List<Argument> argument) {
-		this.argument = argument;
+	/**
+	 * Lambda approach for setting order and limit
+	 * @param builder lambda expression
+	 * @return this for chaining
+	 */
+	public Match order(Consumer<OrderLimit> builder){
+		OrderLimit ol= new OrderLimit();
+		this.orderLimit= ol;
+		builder.accept(ol);
 		return this;
 	}
 
-	public Match addArgument(Argument argument){
-		if (this.argument==null)
-			this.argument= new ArrayList<>();
-		this.argument.add(argument);
+
+
+
+	public OrderLimit getOrderLimit() {
+		return orderLimit;
+	}
+
+	public Match setOrderLimit(OrderLimit orderLimit) {
+		this.orderLimit = orderLimit;
 		return this;
 	}
+
+
+	public List<Match> getAnd() {
+		return and;
+	}
+
+	@JsonSetter
+	public Match setAnd(List<Match> and) {
+		this.and = and;
+		return this;
+	}
+
+
+
+
+	public List<ConceptRef> getPathTo() {
+		return pathTo;
+	}
+
+	@JsonSetter
+	public Match setPathTo(List<ConceptRef> pathTo) {
+		this.pathTo = pathTo;
+		return this;
+	}
+	public Match addPathTo(ConceptRef pathTo) {
+		if (this.pathTo==null)
+			this.pathTo= new ArrayList<>();
+		this.pathTo.add(pathTo);
+		return this;
+	}
+
+
+	public List<PropertyValue> getOrProperty() {
+		return orProperty;
+	}
+
+	public Match setOrProperty(List<PropertyValue> orProperty) {
+		this.orProperty = orProperty;
+		return this;
+	}
+
+	public Match addOrProperty(PropertyValue or){
+		if (this.orProperty==null)
+			this.orProperty = new ArrayList<>();
+		this.orProperty.add(or);
+		return this;
+	}
+
+	public Match orProperty(Consumer<PropertyValue> builder){
+		PropertyValue pv= new PropertyValue();
+		this.addOrProperty(pv);
+		builder.accept(pv);
+		return this;
+	}
+
+	public boolean isNotExist() {
+		return notExist;
+	}
+
+	public Match setNotExist(boolean notExist) {
+		this.notExist = notExist;
+		return this;
+	}
+
+
+
+
+
 
 	public List<ConceptRef> getEntityNotInSet() {
 		return entityNotInSet;
@@ -115,20 +184,7 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public Match and(Consumer<Match> builder){
-		Match m= new Match();
-		this.addAnd(m);
-		builder.accept(m);
-		return this;
-	}
 
-	@JsonIgnore
-	public Match value(Consumer<Compare> builder){
-		Compare c= new Compare();
-		this.setValue(c);
-		builder.accept(c);
-		return this;
-	}
 
 	public Match or(Consumer<Match> builder){
 		Match m= new Match();
@@ -137,61 +193,14 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public Match optional(Consumer<Match> builder){
-		Match m= new Match();
-		this.addOptional(m);
-		builder.accept(m);
-		return this;
-	}
 
 
 	public List<ConceptRef> getEntityInSet() {
 		return entityInSet;
 	}
 
-	public List<ConceptRef> getIsConcept() {
-		return isConcept;
-	}
 
-	public Match setIsConcept(List<ConceptRef> valueConcept) {
-		this.isConcept = valueConcept;
-		return this;
-	}
 
-	@JsonIgnore
-	public Match isConcept(List<ConceptRef> valueConcept) {
-		this.isConcept = valueConcept;
-		return this;
-	}
-
-	public Match addIsConcept(ConceptRef value){
-		if (this.isConcept==null)
-			this.isConcept= new ArrayList<>();
-		this.isConcept.add(value);
-		return this;
-	}
-
-	public Match addIsConcept(TTIriRef value){
-		ConceptRef cr= new ConceptRef(value.getIri(),value.getName());
-		addIsConcept(cr);
-		return this;
-	}
-
-	public Match addIsNotConcept(ConceptRef value){
-		if (this.isNotConcept ==null)
-			this.isNotConcept = new ArrayList<>();
-		this.isNotConcept.add(value);
-		return this;
-	}
-
-	public List<ConceptRef> getIsNotConcept() {
-		return isNotConcept;
-	}
-
-	public Match setIsNotConcept(List<ConceptRef> isNotConcept) {
-		this.isNotConcept = isNotConcept;
-		return this;
-	}
 
 	@JsonSetter
 	public Match setEntityInSet(List<ConceptRef> entityInSet) {
@@ -245,14 +254,6 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public OrderLimit getOrderLimit() {
-		return orderLimit;
-	}
-
-	public Match setOrderLimit(OrderLimit orderLimit) {
-		this.orderLimit = orderLimit;
-		return this;
-	}
 
 
 	public TTIriRef getGraph() {
@@ -293,21 +294,6 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public List<Match> getAnd() {
-		return and;
-	}
-
-	public Match setAnd(List<Match> and) {
-		this.and = and;
-		return this;
-	}
-
-	public Match addAnd(Match must){
-		if (this.and ==null)
-			this.and = new ArrayList<>();
-		this.and.add(must);
-		return this;
-	}
 
 	public List<Match> getOr() {
 		return or;
@@ -325,18 +311,11 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public List<Match> getOptional() {
-		return optional;
-	}
 
-	public Match setOptional(List<Match> optional) {
-		this.optional = optional;
-		return this;
-	}
-	public Match addOptional(Match may){
-		if (this.optional ==null)
-			this.optional = new ArrayList<>();
-		this.optional.add(may);
+	public Match addAnd(Match match){
+		if (this.and ==null)
+			this.and = new ArrayList<>();
+		this.and.add(match);
 		return this;
 	}
 
@@ -346,30 +325,7 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public Within getWithin() {
-		return within;
-	}
 
-	@JsonSetter
-	public Match setWithin(Within within) {
-		this.within = within;
-		return this;
-	}
-	@JsonIgnore
-	public Match within(Consumer<Within> builder){
-		this.within= new Within();
-		builder.accept(this.within);
-		return this;
-	}
-
-	public boolean isNotExist() {
-		return notExist;
-	}
-
-	public Match setNotExist(boolean notExist) {
-		this.notExist = notExist;
-		return this;
-	}
 
 	public Match(String iri) {
 		super(iri);
@@ -379,36 +335,10 @@ public class Match extends Heading {
 
 
 
-
-	public boolean isInverseOf() {
-		return inverseOf;
-	}
-
-	public Match setInverseOf(boolean inverseOf) {
-		this.inverseOf = inverseOf;
-		return this;
-	}
-
-	public Match getMatch() {
-		return match;
-	}
-
-	@JsonSetter
-	public Match setMatch(Match match) {
-		this.match = match;
-		return this;
-	}
-
 	@JsonIgnore
-	public Match match(Match match) {
-		this.match = match;
-		return this;
-	}
-
-	@JsonIgnore
-	public Match match(Consumer<Match> builder){
+	public Match and(Consumer<Match> builder){
 		Match match= new Match();
-		this.match= match;
+		this.addAnd(match);
 		builder.accept(match);
 		return this;
 	}
@@ -416,120 +346,35 @@ public class Match extends Heading {
 
 
 
-	public Match setValue(Comparison comp, String value) {
-		setValue(new Compare().setComparison(comp).setValueData(value));
-		return this;
-	}
 
-
-
-
-	public ConceptRef getProperty() {
+	public List<PropertyValue> getProperty() {
 		return property;
 	}
 
 	@JsonSetter
-	public Match setProperty(ConceptRef property) {
+	public Match setProperty(List<PropertyValue> property) {
 		this.property = property;
 		return this;
 	}
 
+	public Match addProperty(PropertyValue pv){
+		if (this.property ==null)
+			this.property = new ArrayList<>();
+		this.property.add(pv);
+		return this;
+	}
+
+
 	@JsonIgnore
-	public Match property(ConceptRef property) {
-		this.property = property;
-		return this;
-	}
-
-	@JsonIgnore
-	public Match property(TTIriRef property) {
-		this.property = new ConceptRef(property);
-		return this;
-	}
-
-	public Match setProperty(TTIriRef property) {
-		this.property = ConceptRef.iri(property.getIri());
-		if (property.getName()!=null)
-			this.property.setName(property.getName());
-		return this;
-	}
-
-	public Compare getValue() {
-		return value;
-	}
-
-	public Match setValue(Compare value) {
-		this.value = value;
-		return this;
-	}
-
-
-	public List<ConceptRef> getInSet() {
-		return inSet;
-	}
-	public Match addInSet(TTIriRef value){
-		if (this.inSet ==null)
-			this.inSet = new ArrayList<>();
-		this.inSet.add(new ConceptRef(value));
-		return this;
-	}
-
-	public Match addInSet(ConceptRef value){
-		if (this.inSet ==null)
-			this.inSet = new ArrayList<>();
-		this.inSet.add(value);
-		return this;
-	}
-
-	public Match addNotInSet(TTIriRef value){
-		if (this.notInSet ==null)
-			this.notInSet = new ArrayList<>();
-		this.notInSet.add(new ConceptRef(value));
-		return this;
-	}
-
-	public Match addNotInSet(ConceptRef value){
-		if (this.notInSet ==null)
-			this.notInSet = new ArrayList<>();
-		this.notInSet.add(value);
-		return this;
-	}
-
-	public Match setInSet(List<ConceptRef> inSet) {
-		this.inSet = inSet;
-		return this;
-	}
-
-	public List<ConceptRef> getNotInSet() {
-		return notInSet;
-	}
-
-	public Match setNotInSet(List<ConceptRef> notInSet) {
-		this.notInSet = notInSet;
-		return this;
-	}
-
-	public Range getInRange() {
-		return inRange;
-	}
-
-	public Match setInRange(Range inRange) {
-		this.inRange = inRange;
+	public Match property(Consumer<PropertyValue> builder) {
+		PropertyValue pv= new PropertyValue();
+		this.addProperty(pv);
+		builder.accept(pv);
 		return this;
 	}
 
 
 
-
-
-	public Function getFunction() {
-		return function;
-	}
-
-	@JsonSetter
-	public Match setFunction(Function function) {
-		this.function = function;
-		return this;
-	}
 
 	@JsonIgnore
 	public String getasJson() throws JsonProcessingException {
@@ -538,13 +383,6 @@ public class Match extends Heading {
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-	}
-
-	@JsonIgnore
-	public Match function(Consumer<Function> builder){
-		this.function= new Function();
-		builder.accept(this.function);
-		return this;
 	}
 
 

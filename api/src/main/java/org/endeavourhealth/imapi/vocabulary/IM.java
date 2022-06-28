@@ -84,6 +84,7 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE + "hasMap");
     public static final TTIriRef MAPPED_TO = iri(NAMESPACE + "mappedTo");
+  public static final TTIriRef HAS_NUMERIC = iri(NAMESPACE + "hasNumericValue");
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
     public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE + "hasTermCode");

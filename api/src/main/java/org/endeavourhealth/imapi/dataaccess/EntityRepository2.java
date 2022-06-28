@@ -9,6 +9,8 @@ import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,18 +19,13 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityRepository2 {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityRepository2.class);
 
     private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
     private String RDFS_PREFIX = "PREFIX rdfs: <" + RDFS.NAMESPACE + ">";
     private String RDF_PREFIX = "PREFIX rdf: <" + RDF.NAMESPACE + ">";
     private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE + ">";
     private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE + ">";
-
-    public Set<String> getSetDbids(TTArray definition) {
-        Set<String> result = new HashSet<>();
-        addExpansionDbids(definition, result);
-        return result;
-    }
 
     /**
      * Gets the (definition based) expansion set for a concept set
@@ -46,58 +43,45 @@ public class EntityRepository2 {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     CoreLegacyCode cl = new CoreLegacyCode();
-                    String concept= bs.getValue("concept").stringValue();
-                    Value name= bs.getValue("name");
+                    String concept = bs.getValue("concept").stringValue();
+                    Value name = bs.getValue("name");
                     Value code = bs.getValue("code");
-                    Value scheme= bs.getValue("scheme");
-                    Value schemeName= bs.getValue("schemeName");
+                    Value scheme = bs.getValue("scheme");
+                    Value schemeName = bs.getValue("schemeName");
+                    Value im1Id = bs.getValue("im1Id");
                     cl.setIri(concept);
-                    if (name!=null)
+                    if (name != null)
                         cl.setTerm(name.stringValue());
-                    if (code!=null) {
+                    if (code != null) {
                         cl.setCode(code.stringValue());
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
+                    if (im1Id != null)
+                        cl.setIm1Id(im1Id.stringValue());
                     if (includeLegacy) {
-                        Value legIri= bs.getValue("legacy");
+                        Value legIri = bs.getValue("legacy");
                         Value lc = bs.getValue("legacyCode");
                         Value lt = bs.getValue("legacyName");
                         Value ls = bs.getValue("legacyScheme");
                         Value lsn = bs.getValue("legacySchemeName");
-                        if (legIri!=null)
+                        Value lid = bs.getValue("legacyIm1Id");
+                        if (legIri != null)
                             cl.setLegacyIri(legIri.stringValue());
-                        if (lc!=null)
+                        if (lc != null)
                             cl.setLegacyCode(lc.stringValue());
-                        if (lt!=null)
+                        if (lt != null)
                             cl.setLegacyTerm(lt.stringValue());
-                        if (ls!=null)
-                            cl.setLegacyScheme(iri(ls.stringValue(),lsn.stringValue()));
-                        }
+                        if (ls != null)
+                            cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
+                        if (lid != null)
+                            cl.setLegacyIm1Id(lid.stringValue());
+                    }
+
                     result.add(cl);
                 }
             }
         }
         return result;
-    }
-
-    private void addExpansionDbids(TTArray definition, Set<String> result) {
-        if (definition != null) {
-            String sql = getIm1ExpansionAsSelect(definition);
-            try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-                TupleQuery qry = conn.prepareTupleQuery(sql);
-                qry.setBinding("im1id", Values.iri(IM.IM1ID.getIri()));
-                try (TupleQueryResult rs = qry.evaluate()) {
-                    while (rs.hasNext()) {
-                        BindingSet bs = rs.next();
-                        if (bs.getValue("id") != null)
-                            result.add((bs.getValue("id")).stringValue());
-
-                        if (bs.getValue("legacyId") != null)
-                            result.add((bs.getValue("legacyId")).stringValue());
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -533,35 +517,15 @@ public class EntityRepository2 {
     public String getExpansionAsSelect(TTArray definition, boolean includeLegacy) {
         Map<String, String> prefixMap = new HashMap<>();
         StringJoiner spql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?concept ?name ?code ?scheme ?schemeName ");
+            .add("SELECT ?concept ?name ?code ?scheme ?schemeName ?im1Id ");
         if (includeLegacy)
-            spql.add("?legacy ?legacyName ?legacyCode ?legacyScheme ?legacySchemeName");
+            spql.add("?legacy ?legacyName ?legacyCode ?legacyScheme ?legacySchemeName ?legacyIm1Id");
         spql.add("WHERE {");
         addNames(includeLegacy, spql, prefixMap);
         spql.add("{SELECT distinct ?concept");
         whereClause(definition, spql, prefixMap);
         spql.add("}");
         spql.add("}");
-        spql = insertPrefixes(spql, prefixMap);
-        return spql.toString();
-    }
-
-    private String getIm1ExpansionAsSelect(TTArray definition) {
-        Map<String, String> prefixMap = new HashMap<>();
-        StringJoiner spql = new StringJoiner(System.lineSeparator())
-            .add(IM_PREFIX)
-            .add("SELECT ?concept ?id ?legacy ?legacyId")
-            .add("WHERE {")
-            .add("  {")
-            .add("      SELECT distinct ?concept");
-        whereClause(definition, spql, prefixMap);
-        spql.add("  }")
-            .add("  OPTIONAL { ?concept ?im1id ?id. }")
-            .add("  OPTIONAL {")
-            .add("      ?legacy im:matchedTo ?concept.")
-            .add("      ?legacy ?im1id ?legacyId.")
-            .add("  }")
-            .add("}");
         spql = insertPrefixes(spql, prefixMap);
         return spql.toString();
     }
@@ -608,14 +572,16 @@ public class EntityRepository2 {
     }
 
     private void addNames(boolean includeLegacy, StringJoiner spql, Map<String, String> prefixMap ) {
-        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name." +
-            "?concept im:code ?code");
+        spql.add("GRAPH ?scheme {?concept " + getShort(RDFS.LABEL.getIri(), "rdfs", prefixMap) + " ?name.")
+            .add("?concept im:code ?code")
+            .add(" OPTIONAL {?concept im:im1Id ?im1Id}");
         spql.add(" OPTIONAL {?scheme rdfs:label ?schemeName}}");
         if (includeLegacy) {
             spql.add("OPTIONAL {GRAPH ?legacyScheme {")
                 .add("?legacy im:matchedTo ?concept.")
                 .add("OPTIONAL {?legacy rdfs:label ?legacyName.}")
                 .add("?legacy im:code ?legacyCode.")
+                .add("OPTIONAL {?legacy im:im1Id ?legacyIm1Id}")
                 .add("OPTIONAL {?legacyScheme rdfs:label ?legacySchemeName}}}");
         }
     }
@@ -776,9 +742,39 @@ public class EntityRepository2 {
                     String iriValue = bs.getValue("o2").stringValue();
                     try {
                         Values.iri(iriValue);
-                        result.add(bs.getValue("o2").stringValue());
+                        result.add(iriValue);
                     } catch (IllegalArgumentException ignored) {
                         //Do nothing
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public Set<String> getSubsets(String setIri) {
+        Set<String> result = new HashSet<>();
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+            .add(IM_PREFIX)
+            .add("SELECT ?subset WHERE {")
+            .add("?subset ?issubset ?set .")
+            .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("set", Values.iri(setIri));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.getIri()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String subsetIri = bs.getValue("subset").stringValue();
+                    try {
+                        Values.iri(subsetIri);
+                        result.add(subsetIri);
+                    } catch (IllegalArgumentException ignored) {
+                        LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, setIri);
                     }
                 }
             }

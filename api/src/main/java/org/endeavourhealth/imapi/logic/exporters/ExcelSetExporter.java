@@ -69,15 +69,15 @@ public class ExcelSetExporter {
         String ecl = getEcl(entity);
         String ttl = getTtl(entity);
         addDefinitionToWorkbook(ecl, ttl);
-        if (hasSubset(entity.getIri())) {
+
+        Set<String> subsets = repo.getSubsets(entity.getIri());
+
+        if (!subsets.isEmpty()) {
             Set<String> codesAddedToWorkbook = new HashSet<>();
             Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
-            List<String> memberList = new ArrayList<>();
             Set<String> expandedSets = new HashSet<>();
             Set<String> legacyExpandedSets = new HashSet<>();
-            addAllMemberIris(memberList, setIri);
-            memberList.remove(setIri);
-            for (String memberIri : memberList) {
+            for (String memberIri : subsets) {
                 TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates).getEntity();
                 addCoreExpansionToWorkBook(expandedSets, codesAddedToWorkbook, member);
                 if (legacy)
@@ -93,20 +93,18 @@ public class ExcelSetExporter {
     }
 
     private String getEcl(TTEntity entity) throws DataFormatException {
-        if (entity.get(IM.DEFINITION) == null) {
-            if (entity.get(IM.HAS_MEMBER)==null)
-                return null;
-        }
+        if (entity.get(IM.DEFINITION) == null && entity.get(IM.HAS_MEMBER) == null)
+            return null;
+
         String ecl;
-        if (entity.get(IM.HAS_MEMBER)!=null){
-            ecl="";
-            TTNode orNode= new TTNode();
-            entity.addObject(IM.DEFINITION,orNode);
-            for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
-                orNode.addObject(SHACL.OR,value);
+        if (entity.get(IM.HAS_MEMBER) != null) {
+            ecl = "";
+            TTNode orNode = new TTNode();
+            entity.addObject(IM.DEFINITION, orNode);
+            for (TTValue value : entity.get(IM.HAS_MEMBER).getElements()) {
+                orNode.addObject(SHACL.OR, value);
             }
-        }
-        else {
+        } else {
             ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
         }
 
@@ -135,12 +133,12 @@ public class ExcelSetExporter {
         if (!expandedSets.contains(entity.getIri())) {
             List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
             for (CoreLegacyCode cl : expansion) {
-                        Row row = addRow(sheet);
-                        String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                        String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
-                        addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
-                        legacyIrisAddedToWorkbook.add(cl.getLegacyIri());
-                    }
+                Row row = addRow(sheet);
+                String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
+                addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
+                legacyIrisAddedToWorkbook.add(cl.getLegacyIri());
+            }
             sheet.autoSizeColumn(3);
             expandedSets.add(entity.getIri());
         }
@@ -217,20 +215,4 @@ public class ExcelSetExporter {
             }
         }
     }
-
-    private void addAllMemberIris(List<String> allIris, String iri) {
-        if (repo.isSet(iri) && hasSubset(iri)) {
-            List<String> memberList = repo.getMemberIris(iri);
-            for (String subsetIri : memberList) {
-                addAllMemberIris(allIris, subsetIri);
-            }
-        }
-        allIris.add(iri);
-    }
-
-    private boolean hasSubset(String iri) {
-        List<String> memberList = repo.getMemberIris(iri);
-        return memberList.stream().anyMatch(member -> repo.isSet(member));
-    }
-
 }

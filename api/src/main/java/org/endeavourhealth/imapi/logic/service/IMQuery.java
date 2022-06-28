@@ -225,7 +225,9 @@ public class IMQuery {
 				filterSubject= "sub_"+subject;
 		}
 		if (select.getMatch()!=null){
-			where(whereQl,filterSubject,level,select.getMatch());
+			for (Match m:select.getMatch()) {
+				where(whereQl, filterSubject, level, m);
+			}
 		}
 		if (select.getProperty() != null) {
 			wildProperty= false;
@@ -388,6 +390,18 @@ public class IMQuery {
 		whereQl.append(new SetToSparql().getExpansionSparql(subject, entityIn.getIri())).append("\n");
 	}
 
+	private String getPropertyPath(List<ConceptRef> path){
+		StringBuilder result= new StringBuilder();
+		boolean first=true;
+		for (ConceptRef p:path){
+			if (!first)
+				result.append(" / ");
+			result.append(iri(p.getIri()));
+			first=false;
+		}
+		return result.toString();
+	}
+
 
 
 	/**
@@ -399,6 +413,12 @@ public class IMQuery {
 	 */
 
 	private void where(StringBuilder whereQl, String subject, int level , Match where) throws DataFormatException {
+		if (where.getPathTo()!=null){
+			o++;
+			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
+				.append(" ").append("?").append(subject+o).append(".\n");
+			subject= subject+o;
+		}
 		String originalSubject = subject;
 		if (where.isNotExist()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
@@ -455,22 +475,10 @@ public class IMQuery {
 		}
 		if (where.getAnd()!=null) {
 			for (Match match : where.getAnd()) {
-				if (subjectRef==null)
 				  where(whereQl, subject, level, match);
-				else
-					whereProperty(whereQl,subject,level,match);
 			}
 		}
-		if (where.getOptional()!=null){
-			for (Match match :where.getOptional()) {
-				whereQl.append("OPTIONAL {");
-				if (subjectRef==null)
-					where(whereQl, originalSubject, level, match);
-				else
-					whereProperty(whereQl, originalSubject, level, match);
-				whereQl.append("}\n");
-			}
-		}
+
 		if (where.getOr()!=null){
 			boolean first=true;
 			for (Match match :where.getOr()) {
@@ -478,16 +486,15 @@ public class IMQuery {
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-				if (subjectRef==null)
 					where(whereQl, subject, level, match);
-				else
-					whereProperty(whereQl, subject, level, match);
 
 				whereQl.append("}\n");
 			}
 		}
 		if (where.getProperty()!=null){
-			whereProperty(whereQl,subject,level,where);
+			for (PropertyValue pv:where.getProperty()) {
+				whereProperty(whereQl, subject, level, where, pv);
+			}
 		}
 		if (where.isNotExist())
 			whereQl.append("}\n");
@@ -507,20 +514,32 @@ public class IMQuery {
 	 * @param level the nested level built thus far to support nested selects
 	 * @param where the where clause
 	 */
-	private void whereProperty(StringBuilder whereQl, String subject,int level, Match where) throws DataFormatException {
-		String predicate= where.getProperty().getIri();
-		String object= where.getProperty().getAlias();
+	private void whereProperty(StringBuilder whereQl, String subject,int level, Match where,PropertyValue pv) throws DataFormatException {
+		if (pv.getPathTo()!=null){
+			o++;
+			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
+				.append(" ").append("?").append(subject+o).append(".\n");
+			subject= subject+o;
+		}
+		if (pv.isOptional()){
+				whereQl.append("OPTIONAL {");
+		}
+		if (pv.isNotExist()){
+			whereQl.append("FILTER NOT EXISTS {");
+		}
+		String predicate= pv.getIri();
+		String object= pv.getAlias();
 		if (object==null) {
 			object = nextObject();
-			where.getProperty().setAlias(object);
+			pv.setAlias(object);
 		}
 
 
 		matchVarProperty.put(object,predicate);
 		String inverse="";
-		if (where.isInverseOf())
+		if (pv.isInverseOf())
 			inverse="^";
-		if (where.getProperty().isIncludeSubtypes()) {
+		if (pv.isIncludeSubtypes()) {
 			whereQl.append(tabs).append("?").append(subject).append(" ").append(inverse).append("?p").append(object).append(" ?")
 				.append(object).append(".\n");
 			whereQl.append(tabs).append("?p").append(object).append(" im:isA ").append(iri(predicate)).append(".\n");
@@ -530,21 +549,24 @@ public class IMQuery {
 				.append(object).append(".\n");
 
 		}
-		if (where.getIsConcept()!=null) {
-			whereValueConcept(whereQl,object,where.getIsConcept());
+		if (pv.getIsConcept()!=null) {
+			whereValueConcept(whereQl,object,pv.getIsConcept());
 		}
-		else if (where.getMatch()!=null){
-			level++;
-			where(whereQl,object,level,where.getMatch());
-		}
-		else if (where.getValue()!=null){
-			whereValueCompare(whereQl,object,where.getValue());
+		else if (pv.getValue()!=null){
+			whereValueCompare(whereQl,object,pv.getValue());
 
 		}
-		else if (where.getInSet()!=null){
-			whereValueIn(whereQl,object,where.getInSet());
-
+		else if (pv.getInSet()!=null){
+			whereValueIn(whereQl,object,pv.getInSet());
 		}
+		else if (pv.getMatch()!=null){
+			where(whereQl,object,level++,pv.getMatch());
+		}
+		if (pv.isOptional()){
+			whereQl.append("}\n");
+		}
+		if (pv.isNotExist())
+			whereQl.append("}");
 	}
 
 	private void whereValueCompare(StringBuilder whereQl, String object, Compare compare) throws DataFormatException {

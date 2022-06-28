@@ -70,8 +70,7 @@ public class EntityController {
 	)
 	public List<SearchResultSummary> advancedSearch(@RequestBody SearchRequest request) throws OpenSearchException, URISyntaxException, IOException, ExecutionException, InterruptedException, DataFormatException {
 		LOG.debug("advancedSearch");
-			return entityService.advancedSearch(request);
-
+		return entityService.advancedSearch(request);
 	}
 
     @GetMapping(value = "/public/partial", produces = "application/json")

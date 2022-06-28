@@ -1,0 +1,31 @@
+{
+  "name" : "Concepts with source context with target Properties of properties that are not yet data model paths",
+  "select" : {
+    "property" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://endhealth.info/im#sourceContext",
+      "select" : {
+        "property" : [ {
+          "@id" : "http://endhealth.info/im#targetProperty"
+        } ]
+      }
+    } ],
+    "match" : [ {
+      "pathTo" : [ {
+        "@id" : "http://endhealth.info/im#sourceContext"
+      } ],
+      "property" : [ {
+        "@id" : "http://endhealth.info/im#targetProperty",
+        "match" : {
+          "notExist" : true,
+          "property" : [ {
+            "@id" : "http://www.w3.org/ns/shacl#path",
+            "inverseOf" : true
+          } ]
+        }
+      } ]
+    } ]
+  },
+  "usePrefixes" : true
+}

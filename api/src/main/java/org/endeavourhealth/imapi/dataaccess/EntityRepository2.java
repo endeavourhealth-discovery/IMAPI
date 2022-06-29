@@ -783,6 +783,38 @@ public class EntityRepository2 {
         return result;
     }
 
+    public Set<TTIriRef> getIsSubsetOf(String subsetIri) {
+        Set<TTIriRef> result = new HashSet<>();
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add(IM_PREFIX)
+                .add("SELECT ?set ?name WHERE {")
+                .add("?subset ?issubset ?set .")
+                .add("?set ?label ?name .")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("subset", Values.iri(subsetIri));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.getIri()));
+            qry.setBinding("label", Values.iri(RDFS.LABEL.getIri()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String setIri = bs.getValue("set").stringValue();
+                    String setName = bs.getValue("name").stringValue();
+                    try {
+                        result.add(new TTIriRef(setIri,setName));
+                    } catch (IllegalArgumentException ignored) {
+                        LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, setIri);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
    public static Map<String,String> getIriNames(RepositoryConnection conn,Set<TTIriRef> iris){
        Map<String,String> names= new HashMap<>();
         if (iris == null || iris.isEmpty())

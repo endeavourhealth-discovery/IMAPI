@@ -6,5 +6,6 @@ public enum MemberType {
     SUBSET,
     EXPANDED,
     COMPLEX,
-    INCLUDED_SELF
+    INCLUDED_SELF,
+    IS_SUBSET_OF
 }

@@ -619,6 +619,10 @@ public class EntityService {
 
         if (property.asNode().has(SHACL.CLASS))
             pv.setType(property.asNode().get(SHACL.CLASS).asIriRef());
+        if (property.asNode().has(SHACL.NODE))
+            pv.setType(property.asNode().get(SHACL.NODE).asIriRef());
+        if (property.asNode().has(OWL.CLASS))
+            pv.setType(property.asNode().get(OWL.CLASS).asIriRef());
         if (property.asNode().has(SHACL.DATATYPE))
             pv.setType(property.asNode().get(SHACL.DATATYPE).asIriRef());
         if (property.asNode().has(SHACL.FUNCTION))

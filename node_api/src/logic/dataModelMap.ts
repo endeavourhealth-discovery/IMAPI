@@ -89,7 +89,7 @@ export const dataModelMap = {
     name: "observation",
     pk: "id",
     fields: {
-      "http://endhealth.info/im#effectiveDate": "effective_date",
+      "http://endhealth.info/im#effectiveDate": "clinical_effective_date",
       "http://endhealth.info/im#concept": "non_core_concept_id",
     }
   },

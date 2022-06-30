@@ -201,7 +201,7 @@ public class EntityTripleRepository {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?count ?c ?cname")
+            .add("SELECT DISTINCT ?count ?c ?cname")
             .add("WHERE {")
             .add("{ SELECT (COUNT(?c) as ?count) {")
             .add("  ?c (rdfs:subClassOf|rdfs:subPropertyOf|im:isContainedIn|im:isChildOf) ?p }}")

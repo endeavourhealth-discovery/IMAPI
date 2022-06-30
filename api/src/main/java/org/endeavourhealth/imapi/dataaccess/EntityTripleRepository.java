@@ -175,7 +175,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?c")
             .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
+            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -204,10 +204,10 @@ public class EntityTripleRepository {
             .add("SELECT DISTINCT ?count ?c ?cname")
             .add("WHERE {")
             .add("{ SELECT (COUNT(?c) as ?count) {")
-            .add("  ?c (rdfs:subClassOf|rdfs:subPropertyOf|im:isContainedIn|im:isChildOf) ?p }}")
+            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p }}")
             .add("UNION ")
             .add("{ SELECT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
+            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?cname } .");
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -299,7 +299,7 @@ public class EntityTripleRepository {
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT DISTINCT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
+            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -337,7 +337,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT DISTINCT ?p ?pname")
             .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
+            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {

@@ -322,7 +322,31 @@ public class EntityService {
             }
             included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
         }
+
+        Set<ValueSetMember> sets = getIsSubsetOf(iri);
+
+        for (ValueSetMember set : sets){
+            set.setLabel("isSubsetOf");
+            set.setType(MemberType.IS_SUBSET_OF);
+            definedMemberInclusions.add(set);
+        }
+
         return definedMemberInclusions;
+    }
+
+    private Set<ValueSetMember> getIsSubsetOf(String iri) {
+        Set<TTIriRef> isSubsetOf = entityRepository2.getIsSubsetOf(iri);
+        Set<ValueSetMember> sets= new HashSet<>();
+        TTArray result = new TTArray();
+
+        if (isSubsetOf != null) {
+            for(TTIriRef set : isSubsetOf)
+            {
+                result.add(new TTIriRef(set.getIri(),set.getName()));
+            }
+        }
+        getValueSetMember(true, sets, result);
+        return sets;
     }
 
 
@@ -350,7 +374,11 @@ public class EntityService {
                 result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
             }
         }
+        getValueSetMember(withHyperlinks, members, result);
+        return members;
+    }
 
+    private void getValueSetMember(boolean withHyperlinks, Set<ValueSetMember> members, TTArray result) {
         if (result != null) {
             if (result.isIriRef())
                 members.add(getValueSetMemberFromIri(result.asIriRef(), withHyperlinks));
@@ -370,7 +398,6 @@ public class EntityService {
                 }
             }
         }
-        return members;
     }
 
     private ValueSetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {

@@ -635,4 +635,24 @@ public class EntityTripleRepository {
             }
         }
     }
+
+    public int getOrderNumber(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?order {")
+                .add("?s im:order ?order")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("s", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return Integer.parseInt(bs.getValue("order").stringValue());
+                }
+            }
+        }
+
+        return 0;
+    }
 }

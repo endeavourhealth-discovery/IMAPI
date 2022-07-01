@@ -325,10 +325,12 @@ public class EntityService {
 
         Set<ValueSetMember> sets = getIsSubsetOf(iri);
 
-        for (ValueSetMember set : sets){
-            set.setLabel("isSubsetOf");
-            set.setType(MemberType.IS_SUBSET_OF);
-            definedMemberInclusions.add(set);
+        if(!sets.isEmpty()){
+            for (ValueSetMember set : sets){
+                set.setLabel("isSubsetOf");
+                set.setType(MemberType.IS_SUBSET_OF);
+                definedMemberInclusions.add(set);
+            }
         }
 
         return definedMemberInclusions;
@@ -356,22 +358,24 @@ public class EntityService {
         TTArray result = new TTArray();
         if(limit == null || limit == 0) {
             TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
-            if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
+            if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
+                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            } else {
                 result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
                 direct = true;
-            } else {
-                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
             }
         } else {
-            List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
-            if (!hasMembers.isEmpty()){
-                for(TTIriRef member: hasMembers) {
-                    result.add(member);
-                }
-                direct = true;
-            } else {
-                TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+            TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+            if(bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null){
                 result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            } else {
+                List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
+                if(!hasMembers.isEmpty()){
+                    for(TTIriRef member: hasMembers) {
+                        result.add(member);
+                    }
+                    direct = true;
+                }
             }
         }
         getValueSetMember(withHyperlinks, members, result);

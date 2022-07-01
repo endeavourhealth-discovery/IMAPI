@@ -49,6 +49,7 @@ public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
     private static final FilerService filerService = new FilerService();
     private boolean direct = false;
+    private boolean desc = false;
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
@@ -308,7 +309,7 @@ public class EntityService {
                 included.setLabel("a_MemberIncluded");
                 if (direct) {
                     included.setType(MemberType.INCLUDED_SELF);
-                } else {
+                } else if (desc) {
                     included.setType(MemberType.INCLUDED_DESC);
                 }
             } else {
@@ -360,7 +361,8 @@ public class EntityService {
             TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
             if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
                 result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
-            } else {
+                desc = true;
+            } else if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
                 result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
                 direct = true;
             }
@@ -368,6 +370,7 @@ public class EntityService {
             TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
             if(bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null){
                 result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+                desc = true;
             } else {
                 List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
                 if(!hasMembers.isEmpty()){

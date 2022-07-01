@@ -43,7 +43,7 @@ public class IM {
     public static final TTIriRef SETMODEL = iri(NAMESPACE + "SetModel");
     public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
-  public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
 
 
     //Collection predicates
@@ -84,7 +84,7 @@ public class IM {
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE + "hasMap");
     public static final TTIriRef MAPPED_TO = iri(NAMESPACE + "mappedTo");
-  public static final TTIriRef HAS_NUMERIC = iri(NAMESPACE + "hasNumericValue");
+    public static final TTIriRef HAS_NUMERIC = iri(NAMESPACE + "hasNumericValue");
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
     public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE + "hasTermCode");
@@ -102,46 +102,44 @@ public class IM {
     //Sets
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
     public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
-  public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
+    public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
 
-  //Context
-  public static final TTIriRef SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
-  public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
-  public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
-  public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");
-  public static final TTIriRef SOURCE_SCHEMA = iri(NAMESPACE + "sourceSchema");
-  public static final TTIriRef SOURCE_TABLE = iri(NAMESPACE + "sourceTable");
-  public static final TTIriRef SOURCE_FIELD = iri(NAMESPACE + "sourceField");
-  public static final TTIriRef SOURCE_CODE_SCHEME = iri(NAMESPACE + "sourceCodeScheme");
-  public static final TTIriRef SOURCE_VALUE = iri(NAMESPACE + "sourceValue");
-  public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
-  public static final TTIriRef SOURCE_HEADING= iri(NAMESPACE + "sourceHeading");
-  public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
-
-
+    //Context
+    public static final TTIriRef SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
+    public static final TTIriRef SOURCE_CONTEXT_TYPE = iri(NAMESPACE + "SourceContext");
+    public static final TTIriRef SOURCE_PUBLISHER = iri(NAMESPACE + "sourcePublisher");
+    public static final TTIriRef SOURCE_SYSTEM = iri(NAMESPACE + "sourceSystem");
+    public static final TTIriRef SOURCE_SCHEMA = iri(NAMESPACE + "sourceSchema");
+    public static final TTIriRef SOURCE_TABLE = iri(NAMESPACE + "sourceTable");
+    public static final TTIriRef SOURCE_FIELD = iri(NAMESPACE + "sourceField");
+    public static final TTIriRef SOURCE_CODE_SCHEME = iri(NAMESPACE + "sourceCodeScheme");
+    public static final TTIriRef SOURCE_VALUE = iri(NAMESPACE + "sourceValue");
+    public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
+    public static final TTIriRef SOURCE_HEADING = iri(NAMESPACE + "sourceHeading");
+    public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
 
 
-  //Graphs
-    public static final TTIriRef GRAPH_DISCOVERY= iri(IM.DOMAIN+"im#");
-    public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN +"icd10#");
-    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN +"emis#");
-    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN +"opcs4#");
-    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN +"tpp#");
-    public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN +"ods#");
-    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(DOMAIN +"prsb#");
-    public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN +"kpax#");
-    public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN +"kwp#");
-    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN +"vis#");
-    public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN +"bc#");
-    public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001= TTIriRef.iri(DOMAIN +"nhsethnic2001#");
-    public static final TTIriRef GRAPH_IM1= TTIriRef.iri(DOMAIN +"im1#");
-    public static final TTIriRef GRAPH_ENCOUNTERS= TTIriRef.iri(DOMAIN +"enc#");
-    public static final TTIriRef GRAPH_CONFIG= TTIriRef.iri(DOMAIN +"config#");
-    public static final TTIriRef GRAPH_CEG_QUERY= TTIriRef.iri(DOMAIN +"ceg/qry#");
-    public static final TTIriRef GRAPH_NHS_TFC= TTIriRef.iri(DOMAIN +"nhstfc#");
-    public static final TTIriRef GRAPH_STATS= TTIriRef.iri(DOMAIN +"stats#");
-   public static final TTIriRef GRAPH_DELTAS= TTIriRef.iri(DOMAIN +"deltas#");
-   public static final TTIriRef GRAPH_IMPERIAL_CERNER= TTIriRef.iri(DOMAIN +"ic#");
+    //Graphs
+    public static final TTIriRef GRAPH_DISCOVERY = iri(IM.DOMAIN + "im#");
+    public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN + "icd10#");
+    public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN + "emis#");
+    public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN + "opcs4#");
+    public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN + "tpp#");
+    public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN + "ods#");
+    public static final TTIriRef GRAPH_PRSB = TTIriRef.iri(DOMAIN + "prsb#");
+    public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN + "kpax#");
+    public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN + "kwp#");
+    public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN + "vis#");
+    public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN + "bc#");
+    public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001 = TTIriRef.iri(DOMAIN + "nhsethnic2001#");
+    public static final TTIriRef GRAPH_IM1 = TTIriRef.iri(DOMAIN + "im1#");
+    public static final TTIriRef GRAPH_ENCOUNTERS = TTIriRef.iri(DOMAIN + "enc#");
+    public static final TTIriRef GRAPH_CONFIG = TTIriRef.iri(DOMAIN + "config#");
+    public static final TTIriRef GRAPH_CEG_QUERY = TTIriRef.iri(DOMAIN + "ceg/qry#");
+    public static final TTIriRef GRAPH_NHS_TFC = TTIriRef.iri(DOMAIN + "nhstfc#");
+    public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
+    public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
+    public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
 
 
     // redant code schemes are now the same as graphs
@@ -200,7 +198,7 @@ public class IM {
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
-     public static final TTIriRef ORDER = iri(NAMESPACE + "order");
+    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
 
     //im1
     public static final TTIriRef IM1ID = iri(NAMESPACE + "im1Id");
@@ -209,13 +207,27 @@ public class IM {
     public static final TTIriRef IM1SCHEME = iri(NAMESPACE + "im1Scheme");
 
     //Query
-  public static final TTIriRef VALUE_SELECT= iri(NAMESPACE+"valueSelect");
-  public static final TTIriRef VALUE_VARIABLE= iri(NAMESPACE+"valueVariable");
-  public static final TTIriRef PLACEHOLDER= iri(NAMESPACE+"placeHolder");
-  public static final TTIriRef SELECT= iri(NAMESPACE+"select");
-  public static final TTIriRef MATCH= iri(NAMESPACE+"match");
-  public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE+"query");
+    public static final TTIriRef VALUE_SELECT = iri(NAMESPACE + "valueSelect");
+    public static final TTIriRef VALUE_VARIABLE = iri(NAMESPACE + "valueVariable");
+    public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
+    public static final TTIriRef SELECT = iri(NAMESPACE + "select");
+    public static final TTIriRef MATCH = iri(NAMESPACE + "match");
+    public static final TTIriRef QUERY_DEFINITION = iri(NAMESPACE + "query");
+    public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
+    // ODS
+    public static final String ORGANISATION_NAMESPACE = "http://org.endhealth.info/im#";
+    public static final String LOCATION_NAMESPACE = "http://loc.endhealth.info/im#";
+    public static final TTIriRef ADDRESS_CLASS = iri(NAMESPACE + "Address");
+    public static final TTIriRef ADDRESS = iri(NAMESPACE + "address");
+    public static final TTIriRef ADDRESS_LINE_1 = iri(NAMESPACE + "addressLine1");
+    public static final TTIriRef ADDRESS_LINE_2 = iri(NAMESPACE + "addressLine2");
+    public static final TTIriRef ADDRESS_LINE_3 = iri(NAMESPACE + "addressLine3");
+    public static final TTIriRef LOCALITY = iri(NAMESPACE + "locality");
+    public static final TTIriRef REGION = iri(NAMESPACE + "region");
+    public static final TTIriRef POST_CODE = iri(NAMESPACE + "postCode");
+    public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
+    public static final TTIriRef UPRN = iri(NAMESPACE + "#uprn");
 
     private IM() {
     }

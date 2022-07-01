@@ -201,7 +201,7 @@ public class EntityTripleRepository {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?count ?c ?cname")
+            .add("SELECT DISTINCT ?count ?c ?cname")
             .add("WHERE {")
             .add("{ SELECT (COUNT(?c) as ?count) {")
             .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p }}")
@@ -634,5 +634,25 @@ public class EntityTripleRepository {
                 return rs.hasNext();
             }
         }
+    }
+
+    public int getOrderNumber(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?order {")
+                .add("?s im:order ?order")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("s", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return Integer.parseInt(bs.getValue("order").stringValue());
+                }
+            }
+        }
+
+        return 0;
     }
 }

@@ -32,6 +32,32 @@ public class Match extends Heading {
 	boolean isIndex;
 	private OrderLimit orderLimit;
 	private List<PropertyValue> testProperty;
+	private List<Argument> argument;
+
+	public List<Argument> getArgument() {
+		return argument;
+	}
+
+	@JsonSetter
+	public Match setArgument(List<Argument> argument) {
+		this.argument = argument;
+		return this;
+	}
+
+	public Match addArgument(Argument argument){
+		if (this.argument==null)
+			this.argument = new ArrayList<>();
+		this.argument.add(argument);
+		return this;
+	}
+
+	@JsonIgnore
+	public Match argument(Consumer<Argument> builder){
+		Argument arg= new Argument();
+		this.addArgument(arg);
+		builder.accept(arg);
+		return this;
+	}
 
 	public List<PropertyValue> getTestProperty() {
 		return testProperty;

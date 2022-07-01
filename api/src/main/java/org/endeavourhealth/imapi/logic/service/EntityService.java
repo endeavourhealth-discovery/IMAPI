@@ -103,6 +103,7 @@ public class EntityService {
             node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
             node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
             node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
+            node.setOrderNumber(entityTripleRepository.getOrderNumber(c.getIri()));
             result.add(node);
         }
 

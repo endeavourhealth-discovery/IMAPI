@@ -8,19 +8,13 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +29,8 @@ public class ExcelSetExporter {
 
     private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+
+    private SetExporter setExporter = new SetExporter();
 
     private XSSFWorkbook workbook;
     private XSSFFont font;
@@ -59,34 +55,27 @@ public class ExcelSetExporter {
      * @return
      * @throws DataFormatException
      */
-    public XSSFWorkbook getSetAsExcel(String setIri,boolean legacy) throws DataFormatException {
-        Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri(),IM.HAS_MEMBER.getIri());
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates).getEntity();
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy) throws DataFormatException {
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
+
+        if (!entity.has(IM.DEFINITION))
+            entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();
 
         String ecl = getEcl(entity);
         String ttl = getTtl(entity);
         addDefinitionToWorkbook(ecl, ttl);
 
-        Set<String> subsets = repo.getSubsets(entity.getIri());
+        if (core || legacy) {
+            Set<CoreLegacyCode> members = setExporter.getExpandedSetMembers(setIri, legacy);
 
-        if (!subsets.isEmpty()) {
-            Set<String> codesAddedToWorkbook = new HashSet<>();
-            Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
-            Set<String> expandedSets = new HashSet<>();
-            Set<String> legacyExpandedSets = new HashSet<>();
-            for (String memberIri : subsets) {
-                TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates).getEntity();
-                addCoreExpansionToWorkBook(expandedSets, codesAddedToWorkbook, member);
-                if (legacy)
-                    addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);
-            }
-        } else {
-            addCoreExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
+            if (core)
+                addCoreExpansionToWorkBook(members);
+
             if (legacy)
-                addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
+                addLegacyExpansionToWorkBook(members);
         }
 
         return workbook;
@@ -98,12 +87,7 @@ public class ExcelSetExporter {
 
         String ecl;
         if (entity.get(IM.HAS_MEMBER) != null) {
-            ecl = "";
-            TTNode orNode = new TTNode();
-            entity.addObject(IM.DEFINITION, orNode);
-            for (TTValue value : entity.get(IM.HAS_MEMBER).getElements()) {
-                orNode.addObject(SHACL.OR, value);
-            }
+            ecl = TTToECL.getExpressionConstraint(entity.get(IM.HAS_MEMBER), true);
         } else {
             ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
         }
@@ -115,13 +99,13 @@ public class ExcelSetExporter {
         TTToTurtle turtleConverter = new TTToTurtle();
         List<Namespace> namespaces = entityTripleRepository.findNamespaces();
         TTContext context = new TTContext();
-        for(Namespace namespace : namespaces){
+        for (Namespace namespace : namespaces) {
             context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
         }
         return turtleConverter.transformEntity(entity, context);
     }
 
-    private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyIrisAddedToWorkbook, TTEntity entity) {
+    private void addLegacyExpansionToWorkBook(Set<CoreLegacyCode> members) {
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
@@ -130,22 +114,18 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(2, 2500);
         sheet.setColumnWidth(4, 20000);
 
-        if (!expandedSets.contains(entity.getIri())) {
-            List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
-            for (CoreLegacyCode cl : expansion) {
-                Row row = addRow(sheet);
-                String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
-                addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
-                legacyIrisAddedToWorkbook.add(cl.getLegacyIri());
-            }
-            sheet.autoSizeColumn(3);
-            expandedSets.add(entity.getIri());
+        for (CoreLegacyCode cl : members) {
+            Row row = addRow(sheet);
+            String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+            String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
+            addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
         }
-
+        sheet.autoSizeColumn(3);
     }
 
-    private void addCoreExpansionToWorkBook(Set<String> expandedSets, Set<String> codesAddedToWorkbook, TTEntity entity) {
+    private void addCoreExpansionToWorkBook(Set<CoreLegacyCode> members) {
+        Set<String> addedCoreIris = new HashSet<>();
+
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
         addHeaders(sheet, headerStyle, "code", "term", "extension");
@@ -153,19 +133,14 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(1, 20000);
         sheet.setColumnWidth(2, 2500);
 
-        if (!expandedSets.contains(entity.getIri())) {
-            List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), false);
-            for (CoreLegacyCode cl : expansion) {
-                if (!codesAddedToWorkbook.contains(cl.getIri())) {
-                    Row row = addRow(sheet);
-                    String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                    addCells(row, cl.getCode(), cl.getTerm(), isExtension);
-                    codesAddedToWorkbook.add(cl.getIri());
-                }
+        for (CoreLegacyCode cl : members) {
+            if (!addedCoreIris.contains(cl.getIri())) {
+                Row row = addRow(sheet);
+                String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                addCells(row, cl.getCode(), cl.getTerm(), isExtension);
+                addedCoreIris.add(cl.getIri());
             }
-            expandedSets.add(entity.getIri());
         }
-
     }
 
     private void addDefinitionToWorkbook(String ecl, String ttl) {

@@ -342,7 +342,7 @@ public class EntityService {
         Set<ValueSetMember> sets= new HashSet<>();
         TTArray result = new TTArray();
 
-        if (isSubsetOf != null) {
+        if (!isSubsetOf.isEmpty()) {
             for(TTIriRef set : isSubsetOf)
             {
                 result.add(new TTIriRef(set.getIri(),set.getName()));
@@ -386,21 +386,15 @@ public class EntityService {
     }
 
     private void getValueSetMember(boolean withHyperlinks, Set<ValueSetMember> members, TTArray result) {
-        if (result != null) {
-            if (result.isIriRef())
-                members.add(getValueSetMemberFromIri(result.asIriRef(), withHyperlinks));
-            else if (result.isNode())
-                members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
-            else {
-                if (direct) {
-                    members.add(getValueSetMemberFromArray(result, withHyperlinks));
-                } else {
-                    for (TTValue element : result.iterator()) {
-                        if (element.isNode()) {
-                            members.add(getValueSetMemberFromNode(element, withHyperlinks));
-                        } else if (element.isIriRef()) {
-                            members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
-                        }
+        if (result != null && !result.isEmpty()) {
+            if (direct) {
+                members.add(getValueSetMemberFromArray(result, withHyperlinks));
+            } else {
+                for (TTValue element : result.iterator()) {
+                    if (element.isNode()) {
+                        members.add(getValueSetMemberFromNode(element, withHyperlinks));
+                    } else if (element.isIriRef()) {
+                        members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
                     }
                 }
             }

@@ -19,6 +19,7 @@ public class PropertySelect extends ConceptRef {
 	Function function;
 
 
+
 	public PropertySelect select(Consumer<Select> builder){
 		this.select= new Select();
 		builder.accept(this.select);

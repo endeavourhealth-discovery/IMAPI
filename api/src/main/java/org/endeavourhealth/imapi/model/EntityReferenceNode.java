@@ -15,7 +15,8 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
     private boolean hasChildren;
     private boolean hasGrandChildren;
     private TTArray type;
-    
+    private int orderNumber;
+
     public EntityReferenceNode() {
     }
 
@@ -47,6 +48,15 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
 
         this.parents.add(parent);
 
+        return this;
+    }
+
+    public int getOrderNumber() {
+        return orderNumber;
+    }
+
+    public EntityReferenceNode setOrderNumber(int order) {
+        this.orderNumber = order;
         return this;
     }
 

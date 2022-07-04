@@ -175,7 +175,7 @@ public class EntityTripleRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?c")
             .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
+            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?name } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -201,13 +201,13 @@ public class EntityTripleRepository {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?count ?c ?cname")
+            .add("SELECT DISTINCT ?count ?c ?cname")
             .add("WHERE {")
             .add("{ SELECT (COUNT(?c) as ?count) {")
-            .add("  ?c (rdfs:subClassOf|rdfs:subPropertyOf|im:isContainedIn|im:isChildOf) ?p }}")
+            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p }}")
             .add("UNION ")
             .add("{ SELECT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn|im:isChildOf) ?p .")
+            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?cname } .");
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
@@ -299,7 +299,7 @@ public class EntityTripleRepository {
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT DISTINCT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask) ?p .")
+            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?c rdfs:label ?cname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -335,9 +335,9 @@ public class EntityTripleRepository {
         List<TTIriRef> result = new ArrayList<>();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?p ?pname")
+            .add("SELECT DISTINCT ?p ?pname")
             .add("WHERE {")
-            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?p .")
+            .add("  ?c (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf) ?p .")
             .add("GRAPH ?g { ?p rdfs:label ?pname } .");
 
         if (schemeIris != null && !schemeIris.isEmpty()) {
@@ -634,5 +634,25 @@ public class EntityTripleRepository {
                 return rs.hasNext();
             }
         }
+    }
+
+    public int getOrderNumber(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+                .add("SELECT ?order {")
+                .add("?s im:order ?order")
+                .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("s", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return Integer.parseInt(bs.getValue("order").stringValue());
+                }
+            }
+        }
+
+        return 0;
     }
 }

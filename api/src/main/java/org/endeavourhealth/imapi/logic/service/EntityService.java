@@ -49,6 +49,7 @@ public class EntityService {
     private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
     private static final FilerService filerService = new FilerService();
     private boolean direct = false;
+    private boolean desc = false;
 
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
@@ -103,6 +104,7 @@ public class EntityService {
             node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
             node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
             node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
+            node.setOrderNumber(entityTripleRepository.getOrderNumber(c.getIri()));
             result.add(node);
         }
 
@@ -307,7 +309,7 @@ public class EntityService {
                 included.setLabel("a_MemberIncluded");
                 if (direct) {
                     included.setType(MemberType.INCLUDED_SELF);
-                } else {
+                } else if (desc) {
                     included.setType(MemberType.INCLUDED_DESC);
                 }
             } else {
@@ -321,7 +323,33 @@ public class EntityService {
             }
             included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
         }
+
+        Set<ValueSetMember> sets = getIsSubsetOf(iri);
+
+        if(!sets.isEmpty()){
+            for (ValueSetMember set : sets){
+                set.setLabel("isSubsetOf");
+                set.setType(MemberType.IS_SUBSET_OF);
+                definedMemberInclusions.add(set);
+            }
+        }
+
         return definedMemberInclusions;
+    }
+
+    private Set<ValueSetMember> getIsSubsetOf(String iri) {
+        Set<TTIriRef> isSubsetOf = entityRepository2.getIsSubsetOf(iri);
+        Set<ValueSetMember> sets= new HashSet<>();
+        TTArray result = new TTArray();
+
+        if (!isSubsetOf.isEmpty()) {
+            for(TTIriRef set : isSubsetOf)
+            {
+                result.add(new TTIriRef(set.getIri(),set.getName()));
+            }
+        }
+        getValueSetMember(true, sets, result);
+        return sets;
     }
 
 
@@ -331,45 +359,46 @@ public class EntityService {
         TTArray result = new TTArray();
         if(limit == null || limit == 0) {
             TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
-            if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
+            if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
+                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+                desc = true;
+            } else if(bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null){
                 result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
                 direct = true;
-            } else {
-                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
             }
         } else {
-            List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
-            if (!hasMembers.isEmpty()){
-                for(TTIriRef member: hasMembers) {
-                    result.add(member);
-                }
-                direct = true;
-            } else {
-                TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+            TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+            if(bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null){
                 result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+                desc = true;
+            } else {
+                List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri,IM.HAS_MEMBER.getIri(),null,0,limit,false).getResult();
+                if(!hasMembers.isEmpty()){
+                    for(TTIriRef member: hasMembers) {
+                        result.add(member);
+                    }
+                    direct = true;
+                }
             }
         }
+        getValueSetMember(withHyperlinks, members, result);
+        return members;
+    }
 
-        if (result != null) {
-            if (result.isIriRef())
-                members.add(getValueSetMemberFromIri(result.asIriRef(), withHyperlinks));
-            else if (result.isNode())
-                members.add(getValueSetMemberFromNode(result.asNode(), withHyperlinks));
-            else {
-                if (direct) {
-                    members.add(getValueSetMemberFromArray(result, withHyperlinks));
-                } else {
-                    for (TTValue element : result.iterator()) {
-                        if (element.isNode()) {
-                            members.add(getValueSetMemberFromNode(element, withHyperlinks));
-                        } else if (element.isIriRef()) {
-                            members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
-                        }
+    private void getValueSetMember(boolean withHyperlinks, Set<ValueSetMember> members, TTArray result) {
+        if (result != null && !result.isEmpty()) {
+            if (direct) {
+                members.add(getValueSetMemberFromArray(result, withHyperlinks));
+            } else {
+                for (TTValue element : result.iterator()) {
+                    if (element.isNode()) {
+                        members.add(getValueSetMemberFromNode(element, withHyperlinks));
+                    } else if (element.isIriRef()) {
+                        members.add(getValueSetMemberFromIri(element.asIriRef(), withHyperlinks));
                     }
                 }
             }
         }
-        return members;
     }
 
     private ValueSetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {
@@ -592,6 +621,10 @@ public class EntityService {
 
         if (property.asNode().has(SHACL.CLASS))
             pv.setType(property.asNode().get(SHACL.CLASS).asIriRef());
+        if (property.asNode().has(SHACL.NODE))
+            pv.setType(property.asNode().get(SHACL.NODE).asIriRef());
+        if (property.asNode().has(OWL.CLASS))
+            pv.setType(property.asNode().get(OWL.CLASS).asIriRef());
         if (property.asNode().has(SHACL.DATATYPE))
             pv.setType(property.asNode().get(SHACL.DATATYPE).asIriRef());
         if (property.asNode().has(SHACL.FUNCTION))

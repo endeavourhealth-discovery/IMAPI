@@ -59,6 +59,7 @@ public class EntityRepository2 {
         if (includeLegacy) {
             spql.add("    OPTIONAL {")
                 .add("        ?legacy im:matchedTo ?concept;")
+                .add("                rdfs:label ?legacyName;")
                 .add("                im:code ?legacyCode;")
                 .add("                im:scheme ?legacyScheme.")
                 .add("        ?legacyScheme rdfs:label ?legacySchemeName .")

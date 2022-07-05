@@ -115,7 +115,7 @@ public class SetExporter {
                         .toString()
                 );
 
-                im1Ids.add(member.getIm1Id());
+                im1Ids.add(member.getLegacyIm1Id());
             }
         }
         return results;

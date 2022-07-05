@@ -2,11 +2,10 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.SetService;
+import org.endeavourhealth.imapi.logic.service.ECLService;
 import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -17,8 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
@@ -33,43 +30,8 @@ public class SetController {
     private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
 
     private final EntityService entityService = new EntityService();
-    private final SetService setService = new SetService();
+    private final ECLService setService = new ECLService();
     private final SetExporter setExporter = new SetExporter();
-
-	@GetMapping(value = "/public/download")
-    @Operation(
-        summary = "Download set",
-        description = "Returns a download for a set"
-    )
-	public HttpEntity<Object> downloadSet(@RequestParam(name = "iri") String iri,
-                                          @RequestParam(name = "expandMembers") boolean expanded,
-                                          @RequestParam(name = "v1") boolean v1) throws IOException {
-        LOG.debug("downloadSet");
-
-        TTIriRef entity = entityService.getEntityReference(iri);
-        String filename = entity.getName() + " " + LocalDate.now();
-
-        Workbook wb = setService.getExcelDownload(iri, expanded, v1);
-
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            wb.write(outputStream);
-            wb.close();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(new MediaType("application", "force-download"));
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".xlsx\"");
-
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
-        }
-    }
-
-    @GetMapping(value = "/public/evaluate")
-    @Operation(
-        summary = "Evaluate set",
-        description = "Evaluates a given set"
-    )
-    public Set<EntitySummary> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) {
-	    return setService.evaluateConceptSet(iri, includeLegacy);
-    }
 
     @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
     @Operation(
@@ -78,7 +40,7 @@ public class SetController {
     )
     public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
         try {
-            return setService.evaluateDefinition(ecl, includeLegacy);
+            return setService.evaluateECL(ecl, includeLegacy);
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }

@@ -107,4 +107,17 @@ public class CoreLegacyCode {
         this.legacyIm1Id = legacyIm1Id;
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CoreLegacyCode that = (CoreLegacyCode) o;
+        return Objects.equals(iri, that.iri) && Objects.equals(legacyIri, that.legacyIri);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(iri, legacyIri);
+    }
 }

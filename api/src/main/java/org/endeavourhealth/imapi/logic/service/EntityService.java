@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -23,16 +21,12 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
-import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -158,30 +152,6 @@ public class EntityService {
 
         return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
     }
-
-    public ExportValueSet getHasMember(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
-
-        List<TTIriRef> hasMembers = getPartialWithTotalCount(iri,predicateList, schemeIris,page, size, inactive).getResult();
-        TTArray array = new TTArray();
-        for(TTIriRef member: hasMembers){
-            array.add(member);
-        }
-        Set<ValueSetMember> members = new HashSet<>();
-        members.add(getValueSetMemberFromArray(array, true));
-        for(ValueSetMember valueSetMember:members){
-            valueSetMember.setLabel("a_MemberIncluded");
-            valueSetMember.setType(MemberType.INCLUDED_SELF);
-            valueSetMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
-        }
-        ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
-
-        Map<String, ValueSetMember> processedMembers = processMembers(members, false, 0, 2000);
-
-        result.addAllMembers(processedMembers.values());
-
-        return result;
-    }
-
 
 
 
@@ -461,39 +431,16 @@ public class EntityService {
             memberHashMap.put(member.getEntity().getIri() + "/" + member.getCode(), member);
             if (expand) {
                 setRepository
-                        .expandMember(member.getEntity().getIri(), limit)
-                        .forEach(m -> {
-                            m.setLabel("MemberExpanded");
-                            m.setType(MemberType.EXPANDED);
-                            memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
-                        });
+                    .expandMember(member.getEntity().getIri(), limit)
+                    .forEach(m -> {
+                        m.setLabel("MemberExpanded");
+                        m.setType(MemberType.EXPANDED);
+                        memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
+                    });
             }
         }
         return memberHashMap;
     }
-
-    public ValueSetMembership isValuesetMember(String valueSetIri, String memberIri) {
-        if (valueSetIri == null || valueSetIri.isEmpty() || memberIri == null || memberIri.isEmpty())
-            return null;
-        ValueSetMembership result = new ValueSetMembership();
-        Set<TTIriRef> included = getMemberIriRefs(valueSetIri, IM.DEFINITION);
-
-        for (TTIriRef m : included) {
-            Optional<ValueSetMember> match = setRepository.expandMember(m.getIri()).stream()
-                    .filter(em -> em.getEntity().asIriRef().getIri().equals(memberIri)).findFirst();
-            if (match.isPresent()) {
-                result.setIncludedBy(m);
-                break;
-            }
-        }
-        return result;
-    }
-
-    private Set<TTIriRef> getMemberIriRefs(String valueSetIri, TTIriRef predicate) {
-        return entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(valueSetIri, predicate.getIri());
-
-    }
-
     public List<TermCode> getEntityTermCodes(String iri) {
         if (iri == null || iri.isEmpty())
             return Collections.emptyList();
@@ -528,7 +475,7 @@ public class EntityService {
             downloadDto.setDataModelProperties(getDataModelProperties(iri));
         }
         if (params.includeMembers()) {
-            downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
+            // downloadDto.setMembers(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
         }
         if (params.includeTerms()) {
             downloadDto.setTerms(getEntityTermCodes(iri));
@@ -561,7 +508,7 @@ public class EntityService {
             xls.addDataModelProperties(getDataModelProperties(iri));
         }
         if (params.includeMembers()) {
-            xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
+            // xls.addMembersSheet(getValueSetMembers(iri, params.expandMembers(), params.expandSubsets(), null, false));
         }
         if (params.includeTerms()) {
             xls.addTerms(getEntityTermCodes(iri));
@@ -634,21 +581,6 @@ public class EntityService {
         if (property.asNode().has(SHACL.MINCOUNT))
             pv.setMinExclusive(property.asNode().get(SHACL.MINCOUNT).asLiteral().getValue());
         return pv;
-    }
-
-    public String valueSetMembersCSV(String iri, boolean expandMember, boolean expandSubset) {
-        ExportValueSet exportValueSet = getValueSetMembers(iri, expandMember, expandSubset, null, false);
-        StringBuilder valueSetMembers = new StringBuilder();
-        valueSetMembers.append("Inc\\Exc\\IncSubset\tValueSetIri\tValueSetName\tMemberIri\tMemberTerm\tMemberCode\tMemberSchemeIri\tMemberSchemeName\n");
-
-        if (exportValueSet == null)
-            return valueSetMembers.toString();
-
-        for (ValueSetMember inc : exportValueSet.getMembers()) {
-            appendValueSet(exportValueSet, valueSetMembers, inc);
-        }
-
-        return valueSetMembers.toString();
     }
 
     private void appendValueSet(ExportValueSet exportValueSet, StringBuilder valueSetMembers, ValueSetMember setMember) {
@@ -883,11 +815,11 @@ public class EntityService {
         return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean legacy) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy) throws DataFormatException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri, legacy);
+        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy);
     }
 
     /**

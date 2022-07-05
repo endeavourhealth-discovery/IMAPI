@@ -34,51 +34,91 @@ public class EntityRepository2 {
      * @param includeLegacy flag whether to include legacy codes
      * @return A set of Core codes and their legacy codes
      */
-    public List<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
-        List<CoreLegacyCode> result = new ArrayList<>();
+    public Set<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
         String sql = getExpansionAsSelect(definition, includeLegacy);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
-            try (TupleQueryResult rs = qry.evaluate()) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    CoreLegacyCode cl = new CoreLegacyCode();
-                    String concept = bs.getValue("concept").stringValue();
-                    Value name = bs.getValue("name");
-                    Value code = bs.getValue("code");
-                    Value scheme = bs.getValue("scheme");
-                    Value schemeName = bs.getValue("schemeName");
-                    Value im1Id = bs.getValue("im1Id");
-                    cl.setIri(concept);
-                    if (name != null)
-                        cl.setTerm(name.stringValue());
-                    if (code != null) {
-                        cl.setCode(code.stringValue());
-                        cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
-                    }
-                    if (im1Id != null)
-                        cl.setIm1Id(im1Id.stringValue());
-                    if (includeLegacy) {
-                        Value legIri = bs.getValue("legacy");
-                        Value lc = bs.getValue("legacyCode");
-                        Value lt = bs.getValue("legacyName");
-                        Value ls = bs.getValue("legacyScheme");
-                        Value lsn = bs.getValue("legacySchemeName");
-                        Value lid = bs.getValue("legacyIm1Id");
-                        if (legIri != null)
-                            cl.setLegacyIri(legIri.stringValue());
-                        if (lc != null)
-                            cl.setLegacyCode(lc.stringValue());
-                        if (lt != null)
-                            cl.setLegacyTerm(lt.stringValue());
-                        if (ls != null)
-                            cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
-                        if (lid != null)
-                            cl.setLegacyIm1Id(lid.stringValue());
-                    }
+            return getCoreLegacyCodesForSparql(qry, includeLegacy);
+        }
+    }
 
-                    result.add(cl);
+    public Set<CoreLegacyCode> getSetMembers(String setIri, boolean includeLegacy) {
+        StringJoiner spql = new StringJoiner(System.lineSeparator())
+            .add("PREFIX im: <" + IM.NAMESPACE + ">")
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("select * where { ")
+            .add("    ?setIri im:hasMember ?concept .")
+            .add("    ?concept rdfs:label ?name;")
+            .add("       im:code ?code;")
+            .add("       im:scheme ?scheme.")
+            .add("    ?scheme rdfs:label ?schemeName .")
+            .add("    OPTIONAL {")
+            .add("        ?concept im:im1Id ?im1Id .")
+            .add("    }");
+
+        if (includeLegacy) {
+            spql.add("    OPTIONAL {")
+                .add("        ?legacy im:matchedTo ?concept;")
+                .add("                rdfs:label ?legacyName;")
+                .add("                im:code ?legacyCode;")
+                .add("                im:scheme ?legacyScheme.")
+                .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
+                .add("        OPTIONAL {")
+                .add("            ?legacy im:im1Id ?legacyIm1Id .")
+                .add("        }")
+                .add("    }");
+        }
+
+        spql.add("}  ");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
+            qry.setBinding("setIri", Values.iri(setIri));
+            return getCoreLegacyCodesForSparql(qry, includeLegacy);
+        }
+    }
+
+    private Set<CoreLegacyCode> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy) {
+        Set<CoreLegacyCode> result = new HashSet<>();
+        try (TupleQueryResult rs = qry.evaluate()) {
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+                CoreLegacyCode cl = new CoreLegacyCode();
+                String concept = bs.getValue("concept").stringValue();
+                Value name = bs.getValue("name");
+                Value code = bs.getValue("code");
+                Value scheme = bs.getValue("scheme");
+                Value schemeName = bs.getValue("schemeName");
+                Value im1Id = bs.getValue("im1Id");
+                cl.setIri(concept);
+                if (name != null)
+                    cl.setTerm(name.stringValue());
+                if (code != null) {
+                    cl.setCode(code.stringValue());
+                    cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                 }
+                if (im1Id != null)
+                    cl.setIm1Id(im1Id.stringValue());
+                if (includeLegacy) {
+                    Value legIri = bs.getValue("legacy");
+                    Value lc = bs.getValue("legacyCode");
+                    Value lt = bs.getValue("legacyName");
+                    Value ls = bs.getValue("legacyScheme");
+                    Value lsn = bs.getValue("legacySchemeName");
+                    Value lid = bs.getValue("legacyIm1Id");
+                    if (legIri != null)
+                        cl.setLegacyIri(legIri.stringValue());
+                    if (lc != null)
+                        cl.setLegacyCode(lc.stringValue());
+                    if (lt != null)
+                        cl.setLegacyTerm(lt.stringValue());
+                    if (ls != null)
+                        cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
+                    if (lid != null)
+                        cl.setLegacyIm1Id(lid.stringValue());
+                }
+
+                result.add(cl);
             }
         }
         return result;

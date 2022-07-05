@@ -12,12 +12,9 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -46,9 +43,7 @@ public class SetExporter {
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
-        Set<String> setIris = getSetsRecursive(setIri);
-
-        Set<CoreLegacyCode> members = getExpandedSetMembers(setIris);
+        Set<CoreLegacyCode> members = getExpandedSetMembers(setIri, true);
 
         return generateTSV(setIri, name, members);
     }
@@ -69,26 +64,26 @@ public class SetExporter {
         return setIris;
     }
 
-    private Set<CoreLegacyCode> getExpandedSetMembers(Set<String> setIris) {
+    public Set<CoreLegacyCode> getExpandedSetMembers(String setIri, boolean includeLegacy) {
+        Set<String> setIris = getSetsRecursive(setIri);
+
         LOG.trace("Expanding members for sets...");
-        Set<CoreLegacyCode> members = new HashSet<>();
+        Set<CoreLegacyCode> result = new HashSet<>();
 
-        for(String iri : setIris){
+        for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
-            TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri())).getEntity();
 
-            // Inject direct members into definition
-            if (entity.get(IM.HAS_MEMBER) != null) {
-                TTNode orNode = new TTNode();
-                entity.addObject(IM.DEFINITION,orNode);
-                for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
-                    orNode.addObject(SHACL.OR,value);
-                }
+            Set<CoreLegacyCode> members = entityRepository2.getSetMembers(iri, includeLegacy);
+
+            if (members != null && !members.isEmpty()) {
+                result.addAll(members);
+            } else {
+                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
+                result.addAll(entityRepository2.getSetExpansion(entity.get(IM.DEFINITION), includeLegacy));
             }
-
-            members.addAll(entityRepository2.getSetExpansion(entity.get(IM.DEFINITION), true));
         }
-        return members;
+
+        return result;
     }
 
     private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {

@@ -13,17 +13,13 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMembership;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -31,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -56,9 +51,6 @@ class EntityModelServiceTest {
 
     @Mock
     EntityTctRepository entityTctRepository;
-
-    @Mock
-    SetRepository SetRepository;
 
     @Mock
     TermCodeRepository termCodeRepository;
@@ -88,40 +80,6 @@ class EntityModelServiceTest {
         assertNotNull(actual);
         assertNotNull(actual.getEntity());
     }
-
-//    @Test
-//    void getEntityPredicates_notNullIriPredicates() {
-//        List<Tpl> tplList= new ArrayList<>();
-//        tplList.add(new Tpl()
-//                .setDbid(1)
-//                .setPredicate(RDFS.LABEL)
-//                .setLiteral("Adverse reaction to Amlodipine Besilate"));
-//        tplList.add(new Tpl()
-//                .setDbid(2)
-//                .setPredicate(IM.IS_A)
-//                .setObject(iri("http://endhealth.info/im#25451000252115")));
-//        tplList.add(new Tpl()
-//                .setDbid(3)
-//                .setPredicate(IM.ROLE_GROUP).setFunctional(false));
-//        tplList.add(new Tpl()
-//                .setDbid(7)
-//                .setPredicate(IM.ROLE).setFunctional(false)
-//                .setParent(3));
-//        tplList.add(new Tpl()
-//                .setDbid(8)
-//                .setPredicate(OWL.ONPROPERTY)
-//                .setParent(7)
-//                .setObject(iri("http://endhealth.info/im#25451000252115")));
-//        tplList.add(new Tpl()
-//                .setDbid(9)
-//                .setPredicate(OWL.SOMEVALUESFROM)
-//                .setParent(7)
-//                .setObject(iri("http://endhealth.info/im#25451000252115")));
-//
-//        when(entityTripleRepository.getTriplesRecursive(any(), anySet(), anyInt())).thenReturn(tplList);
-//        TTEntity actual = entityService.getEntityPredicates("http://endhealth.info/im#25451000252115",SetModel.of(IM.IS_A.getIri(),RDFS.LABEL.getIri()), 0).getEntity();
-//        assertNotNull(actual);
-//    }
 
     @Test
     void getEntityReference_NullIri() {
@@ -387,279 +345,6 @@ class EntityModelServiceTest {
         assertEquals(0, actual);
     }
 
-//    @Test
-//    void advancedSearch_NullRequest() {
-//        List<SearchResultSummary> actual = entityService.advancedSearch(null);
-//
-//        assertNotNull(actual);
-//    }
-//
-//    @Test
-//    void advancedSearch_NullTermFilter() {
-//        SearchRequest searchRequest = new SearchRequest().setTermFilter(null);
-//
-//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-//
-//        assertNotNull(actual);
-//    }
-//
-//    @Test
-//    void advancedSearch_EmptyTermFilter() {
-//        SearchRequest searchRequest = new SearchRequest().setTermFilter("");
-//
-//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-//
-//        assertNotNull(actual);
-//    }
-//
-//    @Test
-//    void advancedSearch_NullSchemeFilter() {
-//        SearchRequest searchRequest = new SearchRequest()
-//                .setTermFilter("Encounter")
-//                .setSchemeFilter(null);
-//
-//        SearchResultSummary entitySearch = new SearchResultSummary()
-//                .setIri("http://endhealth.info/im#25451000252115")
-//                .setName("Adverse reaction to Amlodipine Besilate")
-//                .setDescription(null)
-//                .setCode("25451000252115")
-//                .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
-//                .setStatus(iri("http://endhealth.info/im#Active", "Active"));
-//        when(entitySearchRepository.advancedSearch(any()))
-//                .thenReturn(Collections.singletonList(entitySearch));
-//
-//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-//
-//        assertNotNull(actual);
-//    }
-//
-//    @Test
-//    void advancedSearch_NotNullSchemeFilter() {
-//        SearchRequest searchRequest = new SearchRequest()
-//                .setTermFilter("Encounter")
-//                .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
-//        "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
-//
-//        SearchResultSummary entitySearch = new SearchResultSummary()
-//            .setIri("http://endhealth.info/im#25451000252115")
-//            .setName("Adverse reaction to Amlodipine Besilate")
-//            .setDescription(null)
-//            .setCode("25451000252115")
-//            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
-//            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
-//        when(entitySearchRepository.advancedSearch(any()))
-//            .thenReturn(Collections.singletonList(entitySearch));
-//
-//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-//
-//        assertNotNull(actual);
-//    }
-//
-//    @Test
-//    void advancedSearch_NotNullMarkIfDescendentOf() {
-//        SearchRequest searchRequest = new SearchRequest()
-//                .setTermFilter("Encounter")
-//                .setMarkIfDescendentOf(Arrays.asList(":DiscoveryCommonDataModel", ":SemanticEntity", ":VSET_ValueSet"))
-//                .setSchemeFilter(Arrays.asList("http://endhealth.info/im#891071000252105",
-//                        "http://endhealth.info/im#891101000252101", "http://endhealth.info/im#891111000252103"));
-//
-//        SearchResultSummary entitySearch = new SearchResultSummary()
-//            .setIri("http://endhealth.info/im#25451000252115")
-//            .setName("Adverse reaction to Amlodipine Besilate")
-//            .setDescription(null)
-//            .setCode("25451000252115")
-//            .setScheme(iri("http://endhealth.info/im#891071000252105", "Discovery code"))
-//            .setStatus(iri("http://endhealth.info/im#Active", "Active"));
-//        when(entitySearchRepository.advancedSearch(any()))
-//            .thenReturn(Collections.singletonList(entitySearch));
-//
-//        List<SearchResultSummary> actual = entityService.advancedSearch(searchRequest);
-//
-//        assertNotNull(actual);
-//    }
-
-    @Test
-    void getValueSetMembers_NullIri() {
-        ExportValueSet actual = entityService.getValueSetMembers(null, true,false, null, true);
-
-        assertNull(actual);
-
-    }
-
-    @Test
-    void getValueSetMembers_EmptyIri() {
-        ExportValueSet actual = entityService.getValueSetMembers("", true,false, null, true);
-
-        assertNull(actual);
-
-    }
-
-    private static Stream<Arguments> provideGetValueSetMembers() {
-        return Stream.of(
-                Arguments.of(false, true, null),
-                Arguments.of(false, false, "parent"),
-                Arguments.of(true, true, "parent"),
-                Arguments.of(false, false, null)
-        );
-    }
-
-//    @Test
-//    void getValueSetMembers_ExpandMemberTrue() {
-//        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-//        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-//
-//        List<Tpl> included = new ArrayList<>();
-//        included.add(new Tpl()
-//                .setDbid(2)
-//                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-//                .setLiteral("Included")
-//                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-//        included.add(new Tpl()
-//                .setDbid(1)
-//                .setPredicate(iri("http://endhealth.info/im#definition")));
-//
-//
-//        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-//            .thenReturn(included);
-//
-//        ValueSetMember includedSet = new ValueSetMember()
-//                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-//
-//
-//        List<ValueSetMember> valueSetMembers = new ArrayList<>();
-//        valueSetMembers.add(new ValueSetMember()
-//                .setEntity(iri("http://endhealth.info/im#25451000252115","Adverse reaction to Amlodipine Besilate")));
-//        when(SetRepository.expandMember(any(),anyInt())).thenReturn(valueSetMembers);
-//
-//        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), true, false, 0, true, null, valueSetIri.getIri());
-//
-//        assertNotNull(actual);
-//
-//    }
-
-//    @ParameterizedTest
-//    @MethodSource("provideGetValueSetMembers")
-//    void getValueSetMembers_ExpandSubsetTrue(boolean expandMembers, boolean expandSubsets, String parentSetName) {
-//        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-//        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-//
-//        List<Tpl> included = new ArrayList<>();
-//        included.add(new Tpl()
-//                .setDbid(2)
-//                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-//                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-//        included.add(new Tpl()
-//                .setDbid(1)
-//                .setPredicate(iri("http://endhealth.info/im#definition")));
-//
-//
-//        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-//                .thenReturn(included);
-//
-//
-//        ValueSetMember includedSet = new ValueSetMember()
-//                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-//
-//
-//        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), expandMembers, expandSubsets, 0, true, parentSetName, valueSetIri.getIri());
-//
-//        assertNotNull(actual);
-//
-//    }
-
-//    @Test
-//    void getValueSetMembers_NotEqualOriginalParentIriExpandSetTrue() {
-//        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-//        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-//
-//        List<Tpl> included = new ArrayList<>();
-//        included.add(new Tpl()
-//                .setDbid(2)
-//                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-//                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-//        included.add(new Tpl()
-//                .setDbid(1)
-//                .setPredicate(iri("http://endhealth.info/im#definition")));
-//
-//
-//        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-//                .thenReturn(included);
-//
-//
-//        ValueSetMember includedSet = new ValueSetMember()
-//                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-//
-//        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, true, 0, true,null, "http://endhealth.info/im#25451000252115");
-//
-//        assertNotNull(actual);
-//
-//    }
-
-//    @Test
-//    void getValueSetMembers_NotEqualOriginalParentIriExpandSetFalse() {
-//        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-//        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-//
-//        List<Tpl> included = new ArrayList<>();
-//        included.add(new Tpl()
-//                .setDbid(2)
-//                .setObject(iri("http://endhealth.info/im#IncludedMember","Included member"))
-//                .setPredicate(iri("http://www.w3.org/ns/shacl#or")));
-//        included.add(new Tpl()
-//                .setDbid(1)
-//                .setPredicate(iri("http://endhealth.info/im#definition")));
-//
-//
-//        when(entityTripleRepository.getTriplesRecursive(eq("http://endhealth.info/im#ValueSet"), eq(Collections.singleton(IM.DEFINITION.getIri())),anyInt()))
-//                .thenReturn(included);
-//
-//
-//        ValueSetMember includedSet = new ValueSetMember()
-//                .setEntity(iri("http://endhealth.info/im#IncludedSet","Included set"));
-//
-//        ExportValueSet actual = entityService.getValueSetMembers(valueSetIri.getIri(), false, false, 0, true, null, "http://endhealth.info/im#25451000252115");
-//
-//        assertNotNull(actual);
-//
-//    }
-
-
-    @Test
-    void isValuesetMember_NullIriAndMember() {
-        ValueSetMembership actual = entityService.isValuesetMember(null, null);
-
-        assertNull(actual);
-    }
-
-    @Test
-    void isValuesetMember_EmptyIriAndMember() {
-        ValueSetMembership actual = entityService.isValuesetMember("", "");
-
-        assertNull(actual);
-    }
-
-    @Test
-    void isValuesetMember_NotNullIriAndHasMember() {
-        TTIriRef ttIriRef1 = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-
-        TTIriRef ttIriRef2 = new TTIriRef()
-                .setIri("http://endhealth.info/im#25451000252115")
-                .setName("Adverse reaction to Amlodipine Besilate");
-        when(entityTripleRepository.getObjectIriRefsBySubjectAndPredicate(any(),eq(IM.DEFINITION.getIri())))
-                .thenReturn(Collections.singleton(ttIriRef1));
-
-        ValueSetMember valueSetMember1 = new ValueSetMember()
-                .setEntity(iri(IM.DEFINITION.getIri()));
-        when(SetRepository.expandMember(ttIriRef1.getIri())).thenReturn(Collections.singletonList(valueSetMember1));
-
-        ValueSetMembership actual = entityService.isValuesetMember("http://endhealth.info/im#25451000252115",
-                IM.DEFINITION.getIri());
-
-        assertNotNull(actual);
-    }
-
     @Test
     void getEntityTermCodes_NullIri() {
         List<TermCode> actual = entityService.getEntityTermCodes(null);
@@ -711,48 +396,6 @@ class EntityModelServiceTest {
                 .setIri("http://endhealth.info/im#25451000252115")
                 .set(SHACL.PROPERTY, new TTArray().add(new TTNode()))
         );
-        assertNotNull(actual);
-    }
-
-    @Test
-    void valueSetMembersCSV_NullIri() {
-        String actual = entityService.valueSetMembersCSV(null, true,true);
-        assertNotNull(actual);
-    }
-
-    @Test
-    void valueSetMembersCSV_NotNullIriExpandTrue() {
-        TTIriRef valueSetIri = iri("http://endhealth.info/im#ValueSet", "Value set");
-        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri );
-
-        TTEntity entity = new TTEntity()
-            .set(IM.DEFINITION, new TTNode()
-                .set(SHACL.OR, new TTArray()
-                    .add(iri("http://endhealth.info/im#member1", "Member 1"))
-                    .add(iri("http://endhealth.info/im#member2", "Member 2"))
-                )
-            );
-        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-
-        String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), true, true);
-        assertNotNull(actual);
-    }
-
-    @Test
-    void valueSetMembersCSV_NotNullIriExpandFalse() {
-        TTIriRef valueSetIri = new TTIriRef().setIri("http://endhealth.info/im#ValueSet").setName("Value set");
-        when(entityRepository.getEntityReferenceByIri(any())).thenReturn(valueSetIri);
-
-        TTEntity entity = new TTEntity()
-            .set(IM.DEFINITION, new TTNode()
-                .set(SHACL.OR, new TTArray()
-                    .add(iri("http://endhealth.info/im#member1", "Member 1"))
-                    .add(iri("http://endhealth.info/im#member2", "Member 2"))
-                )
-            );
-        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
-
-        String actual = entityService.valueSetMembersCSV(valueSetIri.getIri(), false, false);
         assertNotNull(actual);
     }
 
@@ -1214,13 +857,13 @@ class EntityModelServiceTest {
 
     @Test
     void getSetExport_NullIri() throws DataFormatException {
-        XSSFWorkbook actual = entityService.getSetExport(null,true);
+        XSSFWorkbook actual = entityService.getSetExport(null, true, true);
         assertNull(actual);
     }
 
     @Test
     void getSetExport_EmptyIri() throws DataFormatException {
-        XSSFWorkbook actual = entityService.getSetExport("",true);
+        XSSFWorkbook actual = entityService.getSetExport("", true, true);
         assertNull(actual);
     }
 }

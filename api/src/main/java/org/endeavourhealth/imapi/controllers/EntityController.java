@@ -148,22 +148,6 @@ public class EntityController {
 		return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false);
 	}
 
-	@GetMapping(value = "/public/hasMember")
-	public ExportValueSet getHasMember(
-		@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "predicate") String predicateIri,
-		@RequestParam(name = "page", required = false) Integer page,
-		@RequestParam(name = "size", required = false) Integer size,
-		@RequestParam(name = "schemeIris", required = false) List<String> schemeIris
-	) {
-		LOG.debug("getHasMember");
-		if (page == null && size == null) {
-			page = 1;
-			size = 10;
-		}
-		return entityService.getHasMember(iri,predicateIri, schemeIris, page, size, false);
-	}
-
 	@GetMapping(value = "/public/partialAndTotalCount")
 	public Pageable<TTIriRef> getPartialAndTotalCount(
 		@RequestParam(name = "iri") String iri,
@@ -331,15 +315,6 @@ public class EntityController {
 		return entityService.getValueSetMembersAsNode(iri, expandMembers, expandSubsets, limit);
 	}
 
-	@GetMapping(value = "/public/members", produces = { "text/csv" })
-	public String valueSetMembersCSV(@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "expandedMember", required = false) boolean expandedMember,
-		@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset
-	) {
-        LOG.debug("valueSetMembersCSV");
-        return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
-	}
-
 	@GetMapping(value = "/public/referenceSuggestions")
 	public List<TTIriRef> getSuggestions(
 		@RequestParam(name="keyword") String keyword,
@@ -415,25 +390,11 @@ public class EntityController {
 	@GetMapping("/public/setExport")
 	public HttpEntity<Object> getSetExport(
 		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "core") boolean core,
 		@RequestParam(name = "legacy") boolean legacy
 	) throws DataFormatException, IOException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri,legacy);
-		HttpHeaders headers = new HttpHeaders();
-
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			workbook.write(outputStream);
-			workbook.close();
-			headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport.xlsx\"");
-
-			return new HttpEntity<>(outputStream.toByteArray(), headers);
-		}
-	}
-	@GetMapping("/public/setExport/core")
-	public HttpEntity<Object> getSetExportCore(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
-		LOG.debug("getSetExportCore");
-		XSSFWorkbook workbook = entityService.getSetExport(iri,false);
+		XSSFWorkbook workbook = entityService.getSetExport(iri, core, legacy);
 		HttpHeaders headers = new HttpHeaders();
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

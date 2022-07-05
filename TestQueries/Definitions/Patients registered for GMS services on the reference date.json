@@ -1,49 +1,61 @@
 {
-  "@id" : "http://endhealth.info/im#Q_RegisteredGMS",
-  "name" : "Patients registered for GMS services on the reference date",
-  "description" : "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.",
-  "select" : {
-    "entityType" : {
-      "name" : "Person",
-      "@id" : "http://endhealth.info/im#Person"
+  "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+  "name": "Patients registered for GMS services on the reference date",
+  "description": "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.",
+  "select": {
+    "entityType": {
+      "name": "Person",
+      "@id": "http://endhealth.info/im#Person"
     },
-    "match" : [ {
-      "property" : [ {
-        "name" : "has GP registration",
-        "@id" : "http://endhealth.info/im#isSubjectOf",
-        "match" : {
-          "entityType" : {
-            "@id" : "http://endhealth.info/im#GPRegistration"
-          },
-          "property" : [ {
-            "name" : "patient type is regular GMS Patient",
-            "@id" : "http://endhealth.info/im#patientType",
-            "isConcept" : [ {
-              "name" : "Regular GMS patient",
-              "@id" : "http://endhealth.info/im#2751000252106"
-            } ]
-          }, {
-            "name" : "start of registration is before the reference date",
-            "@id" : "http://endhealth.info/im#effectiveDate",
-            "value" : {
-              "comparison" : "LESS_THAN_OR_EQUAL",
-              "valueData" : "$ReferenceDate"
+    "match": [
+      {
+        "property": [
+          {
+            "name": "has GP registration",
+            "@id": "http://endhealth.info/im#isSubjectOf",
+            "match": {
+              "entityType": {
+                "@id": "http://endhealth.info/im#GPRegistration"
+              },
+              "property": [
+                {
+                  "name": "patient type is regular GMS Patient",
+                  "@id": "http://endhealth.info/im#patientType",
+                  "isConcept": [
+                    {
+                      "name": "Regular GMS patient",
+                      "@id": "http://endhealth.info/im#2751000252106"
+                    }
+                  ]
+                },
+                {
+                  "name": "start of registration is before the reference date",
+                  "@id": "http://endhealth.info/im#effectiveDate",
+                  "value": {
+                    "comparison": "LESS_THAN_OR_EQUAL",
+                    "valueData": "$ReferenceDate"
+                  }
+                }
+              ],
+              "orProperty": [
+                {
+                  "name": "the registration has not ended ",
+                  "@id": "http://endhealth.info/im#endDate",
+                  "notExist": true
+                },
+                {
+                  "name": "the end of registration is after the reference date",
+                  "@id": "http://endhealth.info/im#endDate",
+                  "value": {
+                    "comparison": "GREATER_THAN",
+                    "valueData": "$ReferenceDate"
+                  }
+                }
+              ]
             }
-          } ],
-          "orProperty" : [ {
-            "name" : "the registration has not ended ",
-            "@id" : "http://endhealth.info/im#endDate",
-            "notExist" : true
-          }, {
-            "name" : "the end of registration is after the reference date",
-            "@id" : "http://endhealth.info/im#endDate",
-            "value" : {
-              "comparison" : "GREATER_THAN",
-              "valueData" : "$ReferenceDate"
-            }
-          } ]
-        }
-      } ]
-    } ]
+          }
+        ]
+      }
+    ]
   }
 }

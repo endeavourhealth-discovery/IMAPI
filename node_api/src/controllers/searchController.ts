@@ -1,4 +1,4 @@
-import express, {Request, Response} from 'express';
+import express, { Request, Response } from 'express';
 import axios from 'axios';
 
 export default class SearchController {
@@ -44,95 +44,95 @@ export default class SearchController {
 
   private buildCodeKeyQuery(searchRequest: any): any {
     return this.wrapBoolQuery({
-              filter: this.getFilters(searchRequest),
-              should: [
-                {
-                  term: {
-                    code: {
-                      value: searchRequest.termFilter,
-                      boost: 2
-                    }
-                  }
-                },
-                {
-                  term: {
-                    key: {
-                      value: searchRequest.termFilter.toLowerCase(),
-                      boost: 1
-                    },
-                  }
-                }
-              ],
-              minimum_should_match: 1,
-            });
+      filter: this.getFilters(searchRequest),
+      should: [
+        {
+          term: {
+            code: {
+              value: searchRequest.termFilter,
+              boost: 2
+            }
+          }
+        },
+        {
+          term: {
+            key: {
+              value: searchRequest.termFilter.toLowerCase(),
+              boost: 1
+            },
+          }
+        }
+      ],
+      minimum_should_match: 1,
+    });
   }
 
-  private buildSimpleTermCodeMatch(searchRequest:any): any {
+  private buildSimpleTermCodeMatch(searchRequest: any): any {
     // Fix prefixes if contains ":"
 
     return this.wrapBoolQuery({
-              filter: this.getFilters(searchRequest),
-              should: [
-                {
-                  match_phrase: {
-                    "termCode.term": {
-                      query: searchRequest.termFilter,
-                      boost: 1.5
-                    }
-                  }
-                },
-                {
-                  match_phrase_prefix: {
-                    "termCode.term": {
-                      query: searchRequest.termFilter,
-                      boost: 0.5
-                    }
-                  }
-                },
-                {
-                  term: {
-                    code: {
-                      value: searchRequest.termFilter,
-                      boost: 2
-                    }
-                  }
-                },
-                {
-                  term: {
-                    iri: {
-                      value: searchRequest.termFilter,
-                      boost: 2
-                    }
-                  }
-                }
-              ],
-              minimum_should_match: 1,
-            });
+      filter: this.getFilters(searchRequest),
+      should: [
+        {
+          match_phrase: {
+            "termCode.term": {
+              query: searchRequest.termFilter,
+              boost: 1.5
+            }
+          }
+        },
+        {
+          match_phrase_prefix: {
+            "termCode.term": {
+              query: searchRequest.termFilter,
+              boost: 0.5
+            }
+          }
+        },
+        {
+          term: {
+            code: {
+              value: searchRequest.termFilter,
+              boost: 2
+            }
+          }
+        },
+        {
+          term: {
+            iri: {
+              value: searchRequest.termFilter,
+              boost: 2
+            }
+          }
+        }
+      ],
+      minimum_should_match: 1,
+    });
   }
 
   private buildSimpleTermMatch(searchRequest: any): any {
     return this.wrapBoolQuery({
-              filter: this.getFilters(searchRequest),
-              should: [
-                {
-                  match_phrase: {
-                    "termCode.term": {
-                      query: searchRequest.termFilter,
-                      boost: 1.5
-                    }
-                  }
-                },
-                {
-                  match_phrase_prefix: {
-                    "termCode.term": {
-                      query: searchRequest.termFilter,
-                      boost: 0.5
-                    }
-                  }
-                }
-              ],
-              minimum_should_match: 1,
-            });
+      filter: this.getFilters(searchRequest),
+      should: [
+        {
+          match_phrase: {
+            "termCode.term": {
+              query: searchRequest.termFilter,
+              boost: 1.5
+            }
+          }
+        },
+        {
+          match_phrase_prefix: {
+            "termCode.term": {
+              query: searchRequest.termFilter,
+              boost: 0.5
+            }
+          }
+        }
+      ],
+      minimum_should_match: 1,
+    });
   }
 
   private buildMultiWordMatch(searchRequest: any): any {
@@ -151,11 +151,11 @@ export default class SearchController {
       });
     }
 
-    return this.wrapBoolQuery( {
-              filter: this.getFilters(searchRequest),
-              must: musts,
-              minimum_should_match: 1,
-            });
+    return this.wrapBoolQuery({
+      filter: this.getFilters(searchRequest),
+      must: musts,
+      minimum_should_match: 1,
+    });
   }
 
   private wrapBoolQuery(boolQuery: any): any {
@@ -199,8 +199,8 @@ export default class SearchController {
     return filter;
   }
 
-  private getFilter(key: string, values: string[]){
-    const result = { "terms" : {} };
+  private getFilter(key: string, values: string[]) {
+    const result = { "terms": {} };
     result.terms[key] = values;
     return result;
   }

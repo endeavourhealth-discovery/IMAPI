@@ -1,10 +1,11 @@
 import Graphdb from 'graphdb';
 
-const {ServerClientConfig, ServerClient} = Graphdb.server;
-const {RDFMimeType} = Graphdb.http;
-const {RepositoryClientConfig} = Graphdb.repository;
-const {GetQueryPayload, QueryType} = Graphdb.query;
-const {SparqlJsonResultParser} = Graphdb.parser;
+const { ServerClientConfig, ServerClient } = Graphdb.server;
+const { RDFMimeType } = Graphdb.http;
+const { RepositoryClientConfig } = Graphdb.repository;
+const { GetQueryPayload, QueryType, UpdateQueryPayload } = Graphdb.query;
+const { QueryContentType } = Graphdb.http;
+const { SparqlJsonResultParser } = Graphdb.parser;
 
 export class GraphdbService {
   private serverConfig;
@@ -12,30 +13,32 @@ export class GraphdbService {
   private repoConfig;
   private repo;
 
-  constructor() {
-    const timeout = process.env.GRAPH_TIMEOUT || 30000;
-    this.serverConfig = new ServerClientConfig(process.env.GRAPH_HOST)
-      .setTimeout(timeout)
-      .setHeaders({
-        'Accept': RDFMimeType.SPARQL_RESULTS_JSON
-      })
-      .setKeepAlive(true);
+  public async update(sparql: string): Promise<boolean> {
+    try {
+      const client = await this.getRepo();
 
-    this.server = new ServerClient(this.serverConfig);
+      client.registerParser(new SparqlJsonResultParser());
 
-    this.repoConfig = new RepositoryClientConfig(process.env.GRAPH_HOST)
-      .setEndpoints([process.env.GRAPH_HOST + '/repositories/' + process.env.GRAPH_REPO])
-      .setReadTimeout(timeout)
-      .setWriteTimeout(timeout);
+      const stmt = new UpdateQueryPayload()
+        .setQuery(sparql)
+        .setContentType(QueryContentType.X_WWW_FORM_URLENCODED)
+        .setInference(true)
+        .setTimeout(5);
 
-    this.repo = this.server.getRepository(process.env.GRAPH_REPO, this.repoConfig);
+      return client.update(stmt).then(() => {
+        return true;
+      });
+
+    } catch (e) {
+      console.error("********* ERROR!!")
+      console.error(e);
+      return false;
+    }
   }
 
   public async execute(sparql: string, bindings?: any): Promise<any[]> {
     try {
-      const client = await this.repo;
-
-      client.registerParser(new SparqlJsonResultParser());
+      const client = await this.getRepo();
 
       const stmt = new GetQueryPayload()
         .setQuery(sparql)
@@ -52,17 +55,6 @@ export class GraphdbService {
 
       const result: any[] = [];
       rs.on('data', (binding) => {
-        for(const b of Object.keys(binding)) {
-          // Horrible Literal fix
-          if (binding[b].constructor.name === 'Literal') {
-            let v: string = binding[b].id;
-            if (v.startsWith('"')) {
-              v = '"' + v.substring(1, v.length - 1).replace(/\"/g, '\\\"') + '"';
-            }
-            binding[b] = JSON.parse(v);
-          }
-        }
-
         result.push(binding);
       });
       await new Promise(done => rs.on('end', done));
@@ -74,8 +66,37 @@ export class GraphdbService {
       return [];
     }
   }
+
+  private async getRepo() {
+    if (this.repo == null) {
+      await this.connect();
+      this.repo.registerParser(new SparqlJsonResultParser());
+    }
+
+    return this.repo;
+  }
+
+  private async connect() {
+    const timeout = process.env.GRAPH_TIMEOUT || 30000;
+    this.serverConfig = new ServerClientConfig(process.env.GRAPH_HOST)
+      .setTimeout(timeout)
+      .setHeaders({
+        'Accept': RDFMimeType.SPARQL_RESULTS_JSON
+      })
+      .setKeepAlive(true);
+
+    this.server = new ServerClient(this.serverConfig);
+
+    this.repoConfig = new RepositoryClientConfig(process.env.GRAPH_HOST)
+      .setEndpoints([process.env.GRAPH_HOST + '/repositories/' + process.env.GRAPH_REPO])
+      .setReadTimeout(timeout)
+      .setWriteTimeout(timeout);
+
+    this.repo = await this.server.getRepository(process.env.GRAPH_REPO, this.repoConfig);
+  }
+
 }
 
-export function iri(iri: string) {
-  return '<' + iri + '>';
+export function iri(url: string) {
+  return '<' + url + '>';
 }

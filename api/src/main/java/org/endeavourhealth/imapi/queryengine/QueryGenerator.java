@@ -21,7 +21,7 @@ public class QueryGenerator {
 
     private Match loadProfile(String iri) throws JsonProcessingException {
         LOG.info("Loading query");
-        TTBundle bundle = svc.getBundle(iri, DataSet.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
+        TTBundle bundle = svc.getBundle(iri, Query.of(IM.DEFINITION.getIri()), EntityService.UNLIMITED);
 
         TTArray def = bundle.getEntity().get(IM.DEFINITION);
         if (def == null)
@@ -37,10 +37,10 @@ public class QueryGenerator {
         return json;
     }
 
-    private QueryGenerator generateQuery(DataSet profile, String alias) throws JsonProcessingException {
+    private QueryGenerator generateQuery(Query profile, String alias) throws JsonProcessingException {
         return this.generateQuery(profile, alias, false);
     }
-    private QueryGenerator generateQuery(DataSet profile, String alias, boolean pkOnly) throws JsonProcessingException {
+    private QueryGenerator generateQuery(Query profile, String alias, boolean pkOnly) throws JsonProcessingException {
         StringJoiner result = new StringJoiner(System.lineSeparator());
 
         try {
@@ -69,7 +69,7 @@ public class QueryGenerator {
             }
 
             if (profile instanceof Match && ((Match)profile).getSort()!=null) {
-                SortLimit sortLimit = ((Match)profile).getSort();
+                OrderLimit sortLimit = ((Match)profile).getSort();
                 String direction = sortLimit.getDirection() == null || sortLimit.getDirection() == Order.ASCENDING ? " ASC" : " DESC";
                 orderBy.add(QueryGenHelper.getTableField(mainTable, sortLimit.getOrderBy().getIri()) + direction);
                 if (sortLimit.getCount() != null)

@@ -1,13 +1,67 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.List;
+import java.util.function.Consumer;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Argument {
 
-	String parameter;
-	Object value;
+	private String parameter;
+	private String valueData;
+	private String valueVariable;
+	private Select valueSelect;
+	private ConceptRef valueProperty;
+	private TTIriRef valueType;
+
+	public TTIriRef getValueType() {
+		return valueType;
+	}
+
+	public Argument setValueType(TTIriRef valueType) {
+		this.valueType = valueType;
+		return this;
+	}
+
+	public ConceptRef getValueProperty() {
+		return valueProperty;
+	}
+
+	public Argument setValueProperty(ConceptRef valueProperty) {
+		this.valueProperty = valueProperty;
+		return this;
+	}
+
+	public Select getValueSelect() {
+		return valueSelect;
+	}
+
+	@JsonSetter
+	public Argument setValueSelect(Select valueSelect) {
+		this.valueSelect = valueSelect;
+		return this;
+	}
+
+	@JsonIgnore
+	public Argument valueSelect(Consumer<Select> builder){
+		Select select= new Select();
+		this.valueSelect= select;
+		builder.accept(select);
+		return this;
+	}
+
+	public String getValueVariable() {
+		return valueVariable;
+	}
+
+	public Argument setValueVariable(String valueVariable) {
+		this.valueVariable = valueVariable;
+		return this;
+	}
 
 	public String getParameter() {
 		return parameter;
@@ -18,15 +72,12 @@ public class Argument {
 		return this;
 	}
 
-	public Object getValue() {
-		return value;
+	public Object getValueData() {
+		return valueData;
 	}
 
-	public Argument setValue(Object value) {
-		if (!(List.of(String.class,TTIriRef.class, Match.class,Boolean.class,
-			Double.class,Float.class).contains(value.getClass())))
-			throw new IllegalArgumentException("Argument values must be strings, booleans, numbers,floats or Match clauses");
-		this.value= value;
+	public Argument setValueData(String valueData) {
+		this.valueData = valueData;
 		return this;
 	}
 

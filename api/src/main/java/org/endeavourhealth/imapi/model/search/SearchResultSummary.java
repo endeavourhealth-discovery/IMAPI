@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchResultSummary {
     private String name;
     private String iri;
@@ -19,11 +21,12 @@ public class SearchResultSummary {
     private TTIriRef status;
     private TTIriRef scheme;
     private Set<TTIriRef> entityType= new HashSet<>();
-    private Set<TTIriRef> isDescendentOf = new HashSet<>();
     private Integer weighting;
     private String match;
     private Set<String> key;
+    private Set<TTIriRef> isA= new HashSet<>();
     Set<SearchTermCode> termCode = new HashSet<>();
+
 
 
     public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer weighting, String match) {
@@ -34,12 +37,20 @@ public class SearchResultSummary {
         this.status = status;
         this.scheme = scheme;
         this.entityType = entityTypes;
-        this.isDescendentOf = isDescendentOf;
+        this.isA = isDescendentOf;
         this.weighting = weighting;
         this.match = match;
     }
 
     public SearchResultSummary() {
+    }
+    public Set<TTIriRef> getIsA() {
+        return isA;
+    }
+
+    public SearchResultSummary setIsA(Set<TTIriRef> isA) {
+        this.isA = isA;
+        return this;
     }
 
     public String getName() {
@@ -112,14 +123,7 @@ public class SearchResultSummary {
         return this;
     }
 
-    public Set<TTIriRef> getIsDescendentOf() {
-        return isDescendentOf;
-    }
 
-    public SearchResultSummary setIsDescendentOf(Set<TTIriRef> isDescendentOf) {
-        this.isDescendentOf = isDescendentOf;
-        return this;
-    }
 
     public Integer getWeighting() {
         return weighting;

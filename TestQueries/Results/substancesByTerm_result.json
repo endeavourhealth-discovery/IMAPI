@@ -1,0 +1,16 @@
+[ {
+  "name" : "Amiloride (substance)",
+  "iri" : "http://snomed.info/sct#387503008",
+  "match" : "Amiloride (substance)",
+  "termCode" : null
+}, {
+  "name" : "Amiloride hydrochloride (substance)",
+  "iri" : "http://snomed.info/sct#387516008",
+  "match" : "Amiloride hydrochloride (substance)",
+  "termCode" : null
+}, {
+  "name" : "Amiloride hydrochloride dihydrate (substance)",
+  "iri" : "http://snomed.info/sct#412082007",
+  "match" : "Amiloride hydrochloride dihydrate (substance)",
+  "termCode" : null
+} ]

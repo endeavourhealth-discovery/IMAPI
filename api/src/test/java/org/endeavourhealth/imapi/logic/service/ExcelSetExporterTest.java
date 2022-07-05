@@ -4,6 +4,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
+import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -17,8 +18,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.zip.DataFormatException;
 
@@ -26,12 +27,15 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(JUnitPlatform.class)
 public class ExcelSetExporterTest {
+
+    @InjectMocks
+    SetExporter setExporter;
+
     @InjectMocks
     ExcelSetExporter excelSetExporter;
 
@@ -43,16 +47,21 @@ public class ExcelSetExporterTest {
 
     @Test
     void getSetExport_NotNullIriNoConcept() throws DataFormatException {
-        when(entityTripleRepository.getEntityPredicates(any(), anySet(), anyInt())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115",true);
+        when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true);
         assertNotNull(actual);
     }
 
     @Test
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException {
-        when(entityTripleRepository.getEntityPredicates(any(), anySet(), anyInt())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-        when(entityRepository2.getSetExpansion(any(), anyBoolean())).thenReturn(new ArrayList<>());
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115",true);
+        when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
+        when(entityRepository2.getSetExpansion(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(entityRepository2.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(entityRepository2.getSubsets(anyString())).thenReturn(new HashSet<>());
+        ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
+
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true);
+
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());
     }

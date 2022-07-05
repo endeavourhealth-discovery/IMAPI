@@ -81,4 +81,13 @@ public class TTArray implements Serializable {
         isList = list;
         return this;
     }
+    @Override
+    public boolean equals(Object object){
+        if (getElements().size()==1) {
+            if (!(object instanceof TTArray))
+            if (getElements().get(0).equals(object))
+                return true;
+        }
+        return super.equals(object);
+    }
 }

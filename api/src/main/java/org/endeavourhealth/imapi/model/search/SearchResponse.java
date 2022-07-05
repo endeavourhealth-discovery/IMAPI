@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.search;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class SearchResponse {
     private Integer page;
     private Integer count;

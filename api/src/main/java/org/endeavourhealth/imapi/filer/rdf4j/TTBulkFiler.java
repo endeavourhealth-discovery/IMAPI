@@ -2,10 +2,7 @@ package org.endeavourhealth.imapi.filer.rdf4j;
 
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -109,6 +106,12 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 					if (counter % 100000 == 0)
 						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
+					if (entity.get(RDFS.LABEL) != null) {
+						if (entity.get(IM.HAS_STATUS) == null)
+							entity.set(IM.HAS_STATUS, IM.ACTIVE);
+						if (entity.get(IM.HAS_SCHEME)==null)
+							entity.set(IM.HAS_SCHEME, TTIriRef.iri(graph));
+					}
 
 					List<String> quadList = converter.transformEntity(entity, entityGraph);
 					for (String quad : quadList) {
@@ -199,7 +202,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 						TTNode termCode = tc.asNode();
 						if (termCode.get(IM.CODE) != null) {
 							String code = termCode.get(IM.CODE).asLiteral().getValue();
-							codeCoreMap.write(code+"\t"+core.asIriRef().getIri());
+							codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
 						}
 						if (termCode.get(RDFS.LABEL) != null) {
 							String term = termCode.get(RDFS.LABEL).asLiteral().getValue();

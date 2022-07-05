@@ -3,6 +3,26 @@
  */
 plugins {
     id 'war'
+    id "cz.habarta.typescript-generator" version "2.36.1070"
+}
+
+import cz.habarta.typescript.generator.JsonLibrary
+import cz.habarta.typescript.generator.TypeScriptFileType
+
+tasks {
+    generateTypeScript {
+        jsonLibrary = JsonLibrary.jackson2
+        outputFileType = TypeScriptFileType.implementationFile
+        classes = [
+                'org.endeavourhealth.imapi.model.search.SearchRequest',
+                'org.endeavourhealth.imapi.model.search.SearchResponse'
+        ]
+        classPatterns = [
+                'org.endeavourhealth.imapi.model.sets.*'
+        ]
+        outputFile = '../../IMLibrary/src/models/modules/AutoGen.ts'
+        outputKind = 'module'
+    }
 }
 
 sonarqube {
@@ -44,8 +64,6 @@ dependencies {
     implementation libs.validation
     implementation libs.woodstox
     implementation libs.awsS3
-    implementation libs.jsonSimple
-
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
 

@@ -153,7 +153,28 @@ public class EntityService {
         return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
     }
 
+    public ExportValueSet getHasMember(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
 
+        List<TTIriRef> hasMembers = getPartialWithTotalCount(iri,predicateList, schemeIris,page, size, inactive).getResult();
+        TTArray array = new TTArray();
+        for(TTIriRef member: hasMembers){
+            array.add(member);
+        }
+        Set<ValueSetMember> members = new HashSet<>();
+        members.add(getValueSetMemberFromArray(array, true));
+        for(ValueSetMember valueSetMember:members){
+            valueSetMember.setLabel("a_MemberIncluded");
+            valueSetMember.setType(MemberType.INCLUDED_SELF);
+            valueSetMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
+        }
+        ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
+
+        Map<String, ValueSetMember> processedMembers = processMembers(members, false, 0, 2000);
+
+        result.addAllMembers(processedMembers.values());
+
+        return result;
+    }
 
     private List<TTIriRef> getChildren(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
         return entityTripleRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
@@ -815,11 +836,11 @@ public class EntityService {
         return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy);
+        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy, flat);
     }
 
     /**

@@ -109,18 +109,31 @@ export class TextGenerator {
 
             text = [
                 ...TextGenerator.template(and[0], "orderLimit"),
-                ...TextGenerator.template(and[0].property[0], "of_inSet"),
+                ...TextGenerator.template(and[0].property[0], "inSet", ["of"]),
                 ...TextGenerator.template(and[1].property[0], "followedBy", and[1]?.notExist),
                 ...TextGenerator.template(and[1], "orderLimit"),
-                ...TextGenerator.template(and[1].property[0], "of_inSet"),
+                ...TextGenerator.template(and[1].property[0], "inSet", ["of"]),
             ]
 
         } else {
             // summarise any clause in a specific order (oderLimit, then properties: concept, then value, then date, then other properties)
+            // text = TextGenerator.template(and[0], "orderLimit");
+
+            //todo: improve concept matching / create external function
+
+
+            let mustBe = clause.definition?.testProperty ? "must be" : "";
+
             text = [
                 ...TextGenerator.template(clause.definition, "orderLimit"),
-                ...TextGenerator.summarisePropertiesInOrder(clause.definition.property, "orderLimit"),
-                //todo summarise properyTest using above function?
+                ...TextGenerator.summarisePropertiesInOrder(clause.definition.property, ["of"]),
+                mustBe,
+                ...TextGenerator.summarisePropertiesInOrder(clause.definition?.testProperty, ["must be"]),
+                // ...TextGenerator.template(clause.definition.property[0], conceptTemplate)
+                // ...TextGenerator.template(clause.definition.property[0], conceptTemplate)
+                // ...TextGenerator.template(and[1].property[0], "followedBy", and[1]?.notExist),
+                // ...TextGenerator.template(and[1], "orderLimit"),
+                // ...TextGenerator.template(and[1].property[0], "ofInSet"),
             ]
 
         }
@@ -128,30 +141,34 @@ export class TextGenerator {
 
     }
 
-    public static summarisePropertiesInOrder(properties: any, templatePrefix?: string, templateSuffix?: string): any {
+    public static summarisePropertiesInOrder(properties: any, variants?: any[]): any {
+        let _properties = _.cloneDeep(properties);
+
+        // console.log("templatePrefix", templatePrefix)
+
         let propertyOrder: any[] = [
-            { propertyIri: IM.CONCEPT, templatePrefix: "of_", templateSuffix: "" },
-            { propertyIri: IM.CODE, templatePrefix: "of_", templateSuffix: "" },
-            { propertyIri: IM.VALUE, templatePrefix: "", templateSuffix: "" },
-            { propertyIri: IM.EFFECTIVE_DATE, templatePrefix: "", templateSuffix: "" },
-            { propertyIri: "", templatePrefix: "", templateSuffix: "" }
+            { propertyIri: IM.CONCEPT },
+            { propertyIri: IM.CODE, },
+            { propertyIri: IM.VALUE },
+            { propertyIri: IM.EFFECTIVE_DATE },
+            { propertyIri: "", }
         ];
 
         let text: any[] = [];
 
-        if (Array.isArray(properties) && properties.length > 0) {
+        if (Array.isArray(_properties) && _properties.length > 0) {
 
-            while (properties.length > 0) {
+            while (_properties.length > 0) {
                 propertyOrder.forEach((propertyOrderItem: any) => {
                     // propertyIri specified in PropertyOrder or any property if iri is emppty string
                     let property;
 
                     if (propertyOrderItem?.propertyIri == "") {
-                        property = properties.pop();
+                        property = _properties.pop();
                     } else {
-                        property = properties.find((p: any, i: number) => {
+                        property = _properties.find((p: any, i: number) => {
                             if (p['@id'] == propertyOrderItem?.propertyIri) {
-                                properties.splice(i, 1);
+                                _properties.splice(i, 1);
                                 return true;
                             }
                         })
@@ -160,11 +177,21 @@ export class TextGenerator {
                     if (property) {
                         let conceptKeys = ["isConcept", "inSet", "notInSet"];
                         let conceptKey = Object.keys(property).find((key: string) => conceptKeys.includes(key));
-                        let templateName = conceptKey ? propertyOrderItem.templatePrefix + conceptKey + propertyOrderItem.templateSuffix : "";
-                        text = [...text, ...TextGenerator.template(property, templateName)]
+                        // let templateName = conceptKey ? propertyOrderItem.templatePrefix + conceptKey + propertyOrderItem.templateSuffix : "";
+
+                        let and = variants && variants.includes("must be") && text.length > 0 ? "and" : "";
+
+
+                        text = [...text, and, ...TextGenerator.template(property, conceptKey, variants)]
                     }
 
+
+
+                    // text = conceptTemplate 
+                    // ? [...text, ...TextGenerator.template(property, conceptTemplate)]
+                    // : [...text, ...TextGenerator.template(property, templatePrefix, templateSuffix)]
                 })
+                // return TextGenerator.summarise(clause)
             }
         }
 
@@ -172,7 +199,7 @@ export class TextGenerator {
     }
 
 
-    public static template(clause: any, templateName?: string, notExist?: boolean, isPlural?: boolean): any {
+    public static template(clause: any, templateName?: string, variants?: any[], parentNotExist?: boolean, isPlural?: boolean): any {
         TextGenerator.showConsole && console.log("###summariseProperty() - template", templateName, " - Clause ", clause)
 
 
@@ -180,42 +207,48 @@ export class TextGenerator {
 
 
         const propertyClause = new Clause(clause) as any;
-        const { orderLimit, orderById, direction, count, isConcept, property, functionId, id, propertyName, inSet, notInSet, inSet0, value, comparison, valueData, functionArg1, units, firstDate, secondDate } = propertyClause;
+        const { notExist, orderLimit, orderById, direction, count, isConcept, property, functionId, id, propertyName, inSet, notInSet, inSet0, value, comparison, valueData, functionArg1, units, firstDate, secondDate } = propertyClause;
 
 
         //properted of linked entities
-        if (templateName == "of_inSet" || templateName == "inSet") {
+        if (templateName == "inSet") {
             TextGenerator.showConsole && console.log("### TemplateName inSet")
 
-            let isOf = templateName == "of_inSet" ? "of" : "";
+            let isOf = variants && variants.includes("of") ? "of" : "";
             let names = inSet?.length > 1 ? `${inSet[0].name} or ${inSet[1].name}` : inSet[0].name;
             text = [isOf, names];
 
-        } else if (templateName == "of_isConcept" || templateName == "isConcept") {
+        } else if (templateName == "isConcept") {
             TextGenerator.showConsole && console.log("### TemplateName isConcept")
 
-            let isOf = templateName == "of_isConcept" ? "of" : "";
+            let isOf = variants && variants.includes("of") ? "of" : "";
             let names = isConcept?.length > 1 ? `${isConcept[0].name} or ${isConcept[1].name}` : isConcept[0].name;
             text = [isOf, names];
 
         }
         else if (templateName == "followedBy") {
             TextGenerator.showConsole && console.log("### TemplateName followedBy")
-            let is = notExist || notInSet ? "is not" : "is";
+            let is = parentNotExist || notInSet ? "is not" : "is";
             text = [is, "followed by"];
+
 
             //direct properties of main entity
         } else if (templateName == "orderLimit") {
-
             //any/latest/earliest/highest/lowest
             let anyLatestHighest;
+
             if (orderById == IM.EFFECTIVE_DATE && direction == "descending") {
                 anyLatestHighest = "latest";
             } else if (orderById == IM.EFFECTIVE_DATE && direction == "ascending") {
                 anyLatestHighest = "earliest";
             } else {
+                // anyLatestHighest = notExist ? "no" : "any";
                 anyLatestHighest = "any";
             }
+
+            // anyLatestHighest = anyLatestHighest != "no" && notExist ? "no" + anyLatestHighest : anyLatestHighest;
+
+
 
             //latest [quantity] entry/entries. If quantity = 1 it is silenced 
             let quantity = count > 1 ? count : "";
@@ -289,28 +322,11 @@ export class TextGenerator {
             TextGenerator.showConsole && console.log("### Template value")
 
             let is = notExist ? "is not" : "is";
-            text = [propertyName, is, comparison, valueData]
+            is = variants && variants.includes("must be") ? "" : is;
+            text = [is, comparison, valueData]
         }
 
         return text
 
     }
-
-
-
-    // }
-
-
-
-
-    // if (Array.isArray(clause) && clause.length > 0) {
-    //     clause.forEach((property: any) => {
-
-
-
-
-    //     })
-    // }
-
-
 }

@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import QueryRunner from '../logic/queryRunner';
 import QueryWorkflow from '../logic/queryWorkflow';
 
-
 import TTEntity from '../model/tripletree/TTEntity'
 
 
@@ -21,14 +20,21 @@ export default class QueryController {
   private initRoutes() {
 
     this.router.get('/node_api/query/public/run', (req, res) => this.runQuery(req, res));
+    this.router.get('/node_api/query/public/localDefinition', (req, res) => this.localDefinition(req, res))
     this.router.get('/node_api/query/public/definition', (req, res) => this.definition(req, res));
     this.router.get('/node_api/query/public/richDefinition', (req, res) => this.richDefinition(req, res));
     this.router.get('/node_api/query/public/querySummary', (req, res) => this.getQuerySummary(req, res))
     this.router.post('/node_api/query/public/querySummary', (req, res) => this.postQuerySummary(req, res))
-    this.router.post('/node_api/query/public/clauseSummary', (req, res) => this.postClauseSummary(req, res))
+    // this.router.post('/node_api/query/public/clauseSummary', (req, res) => this.postClauseSummary(req, res))
     this.router.get('/node_api/query/public/getSQL', (req, res) => this.getSQL(req, res))
 
   }
+
+  async localDefinition(req: Request, res: Response) {
+    const data = await this.workflow.getLocalDefinition(req.query.iri as string);
+    res.send(data).end();
+  }
+
 
   async getSQL(req: Request, res: Response) {
     const sql =  await this.runner.generateSQL(req.query.iri as string);
@@ -64,11 +70,11 @@ export default class QueryController {
     res.send(data).end();
 
   }
-  async postClauseSummary(req: Request, res: Response) {
-    console.log(req.body)
-    const data = await this.workflow.summariseClause("post", req.body)
-    res.send(data).end();
-  }
+  // async postClauseSummary(req: Request, res: Response) {
+  //   console.log(req.body)
+  //   const data = await this.workflow.summariseClause("post", req.body)
+  //   res.send(data).end();
+  // }
 
 
 }

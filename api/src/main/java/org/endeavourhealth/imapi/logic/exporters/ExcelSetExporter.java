@@ -15,9 +15,11 @@ import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 
@@ -55,7 +57,7 @@ public class ExcelSetExporter {
      * @return
      * @throws DataFormatException
      */
-    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy) throws DataFormatException {
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy, boolean flat) throws DataFormatException {
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
@@ -74,8 +76,12 @@ public class ExcelSetExporter {
             if (core)
                 addCoreExpansionToWorkBook(members);
 
-            if (legacy)
-                addLegacyExpansionToWorkBook(members);
+            if (legacy) {
+                if (flat)
+                    addLegacyExpansionToWorkBookFlat(members);
+                else
+                    addLegacyExpansionToWorkBook(members);
+            }
         }
 
         return workbook;
@@ -106,6 +112,15 @@ public class ExcelSetExporter {
     }
 
     private void addLegacyExpansionToWorkBook(Set<CoreLegacyCode> members) {
+        List<CoreLegacyCode> sortedMembers = members
+            .stream()
+            .sorted(Comparator
+                .comparing(CoreLegacyCode::getCode)
+                .thenComparing(CoreLegacyCode::getLegacyCode)
+                .thenComparing(CoreLegacyCode::getLegacyIri)
+            )
+            .collect(Collectors.toList());
+
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
@@ -114,17 +129,63 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(2, 2500);
         sheet.setColumnWidth(4, 20000);
 
-        for (CoreLegacyCode cl : members) {
+        Set<String> addedLegacyIris = new HashSet<>();
+        for (CoreLegacyCode cl : sortedMembers) {
             Row row = addRow(sheet);
             String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
             String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
-            addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
+            if (cl.getLegacyIri() != null && !addedLegacyIris.contains(cl.getLegacyIri())) {
+                addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
+                addedLegacyIris.add(cl.getLegacyIri());
+            } else {
+                addCells(row, cl.getCode(), cl.getTerm(), isExtension);
+            }
+        }
+        sheet.autoSizeColumn(3);
+    }
+
+    private void addLegacyExpansionToWorkBookFlat(Set<CoreLegacyCode> members) {
+        List<CoreLegacyCode> sortedMembers = members
+            .stream()
+            .sorted(Comparator
+                .comparing(CoreLegacyCode::getCode)
+                .thenComparing(CoreLegacyCode::getLegacyCode)
+                .thenComparing(CoreLegacyCode::getLegacyIri)
+            )
+            .collect(Collectors.toList());
+
+        Sheet sheet = workbook.getSheet("Full expansion");
+        if (null == sheet) sheet = workbook.createSheet("Full expansion");
+        addHeaders(sheet, headerStyle, "code", "term", "scheme");
+        sheet.setColumnWidth(0, 5000);
+        sheet.setColumnWidth(1, 25000);
+        sheet.setColumnWidth(2, 2500);
+
+        Set<String> addedIris = new HashSet<>();
+        for (CoreLegacyCode cl : sortedMembers) {
+            if (cl.getIri() != null && !addedIris.contains(cl.getIri())) {
+                Row row = addRow(sheet);
+                String scheme = cl.getScheme() == null ? "" : cl.getScheme().getIri();
+                addCells(row, cl.getCode(), cl.getTerm(), scheme);
+                addedIris.add(cl.getIri());
+            }
+        }
+        for (CoreLegacyCode cl : sortedMembers) {
+            if (cl.getLegacyIri() != null && !addedIris.contains(cl.getLegacyIri())) {
+                Row row = addRow(sheet);
+                String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
+                addCells(row, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
+                addedIris.add(cl.getLegacyIri());
+            }
         }
         sheet.autoSizeColumn(3);
     }
 
     private void addCoreExpansionToWorkBook(Set<CoreLegacyCode> members) {
-        Set<String> addedCoreIris = new HashSet<>();
+        List<CoreLegacyCode> sortedMembers = members
+            .stream()
+            .sorted(Comparator.comparing(CoreLegacyCode::getCode))
+            .collect(Collectors.toList());
 
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
@@ -133,7 +194,8 @@ public class ExcelSetExporter {
         sheet.setColumnWidth(1, 20000);
         sheet.setColumnWidth(2, 2500);
 
-        for (CoreLegacyCode cl : members) {
+        Set<String> addedCoreIris = new HashSet<>();
+        for (CoreLegacyCode cl : sortedMembers) {
             if (!addedCoreIris.contains(cl.getIri())) {
                 Row row = addRow(sheet);
                 String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";

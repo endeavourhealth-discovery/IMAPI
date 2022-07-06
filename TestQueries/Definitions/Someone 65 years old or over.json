@@ -1,25 +1,33 @@
 {
-  "name" : "Someone 65 years old or over",
-  "select" : {
-    "property" : [ {
-      "@id" : "http://endhealth.info/im#fullName",
-      "alias" : "fullName"
-    } ],
-    "match" : [ {
-      "entityType" : {
-        "@id" : "http://endhealth.info/im#Person"
-      },
-      "property" : [ {
-        "@id" : "http://endhealth.info/im#age",
-        "value" : {
-          "comparison" : "GREATER_THAN_OR_EQUAL",
-          "valueData" : "65"
+  "name": "Someone 65 years old or over",
+  "select": {
+    "property": [
+      {
+        "@id": "http://endhealth.info/im#fullName",
+        "alias": "fullName"
+      }
+    ],
+    "match": [
+      {
+        "entityType": {
+          "@id": "http://endhealth.info/im#Person"
         },
-        "argument" : [ {
-          "parameter" : "units",
-          "valueData" : "YEARS"
-        } ]
-      } ]
-    } ]
+        "property": [
+          {
+            "@id": "http://endhealth.info/im#age",
+            "value": {
+              "comparison": "GREATER_THAN_OR_EQUAL",
+              "valueData": "65"
+            },
+            "argument": [
+              {
+                "parameter": "units",
+                "valueData": "YEARS"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

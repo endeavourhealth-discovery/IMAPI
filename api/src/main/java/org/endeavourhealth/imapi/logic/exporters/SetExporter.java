@@ -89,11 +89,13 @@ public class SetExporter {
     private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
         LOG.trace("Generating output...");
 
+        Set<String> im1Ids = new HashSet<>();
+
         StringJoiner results = new StringJoiner(System.lineSeparator());
         results.add("vsId\tvsName\tmemberDbid");
 
         for(CoreLegacyCode member : members) {
-            if (member.getIm1Id() != null)
+            if (member.getIm1Id() != null && !im1Ids.contains(member.getIm1Id())) {
                 results.add(
                     new StringJoiner("\t")
                         .add(setIri)
@@ -101,7 +103,10 @@ public class SetExporter {
                         .add(member.getIm1Id())
                         .toString()
                 );
-            if (member.getLegacyIm1Id() != null)
+
+                im1Ids.add(member.getIm1Id());
+            }
+            if (member.getLegacyIm1Id() != null && !im1Ids.contains(member.getLegacyIm1Id())) {
                 results.add(
                     new StringJoiner("\t")
                         .add(setIri)
@@ -109,6 +114,9 @@ public class SetExporter {
                         .add(member.getLegacyIm1Id())
                         .toString()
                 );
+
+                im1Ids.add(member.getLegacyIm1Id());
+            }
         }
         return results;
     }

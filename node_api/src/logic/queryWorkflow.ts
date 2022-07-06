@@ -5,8 +5,6 @@ import jp from 'jsonpath';
 import { TextGenerator } from "../helpers/text";
 import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
-
-
 import _ from "lodash";
 
 
@@ -19,8 +17,17 @@ export default class QueryWorkflow {
     this.graph = new GraphdbService();
   }
 
+
+  public async getLocalDefinition(queryIri: string): Promise<any> {
+    const queries = require("../examples/queries.json") || null;
+    const query = queries ? queries.find(item => item["@id"] == queryIri) : ""
+    console.log(queryIri, query)
+    return query;
+  }
+
   public async getDefinition(entityIri: string): Promise<Query> {
     this.showConsole && console.log("Loading iri: " + entityIri);
+
     const rs = await this.graph.execute(
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",
       {
@@ -143,35 +150,86 @@ export default class QueryWorkflow {
 
     this.showConsole && console.log(`definition`, definition);
 
-    //matchClause = any object with a "property" key
-    const jsonQuery = `$..[?(@.property)]`;    // const jsonQuery = `$..[? (@.@id)]`
-    let matchClauses = jp.nodes(definition?.select?.match, jsonQuery);
-    matchClauses = matchClauses.filter(excludedPaths);
+    //matchClause = an object with "property" key
+    const jsonQuery = `$..[?(@.property || @.pathTo)]`;    // const jsonQuery = `$..[? (@.@id)]`
+    let clauses = QueryWorkflow.findClauses(definition?.select?.match);
+    console.log("clauses", clauses)
 
     // add summary to match clauses
-    const addSummary = (clause: any) => {
-      const summary = TextGenerator.summarise(clause.value) || "";
-      const path = jp.stringify(clause.path).substring(2) + "name";
-      summary ? _.set(definition?.select?.match, path, summary) : null;
-      this.showConsole && console.log(`### summary of clause(${path}): `, summary);
-    };
-    matchClauses.forEach(addSummary)
+    clauses.forEach(item => {
+      const textPath = item.path + ".displayText";
+      const htmlPath = item.path + ".displayHTML";
+      const { text, html } = TextGenerator.summarise(item.value) || "";
+      // const htmlSummary = TextGenerator.htmlSummary(item.value) || "";
+      text ? _.set(definition?.select?.match, textPath, text) : null;
+      // htmlSummary ? _.set(definition?.select?.match, htmlPath, htmlSummary) : null;
+      console.log(`### summary of clause(${textPath}): `, text);
+    })
+    this.showConsole && console.log(`### Definition with displayText + HTML: \n`, _.cloneDeep(definition));
     return definition;
 
   }
 
 
-  public async summariseClause(type: string = "get", payload: any): Promise<any> {
-    const definition: any =
-      (type == "post")
-        ? payload //this.populateDefinition(payload) 
-        : payload;
-    this.showConsole && console.log(`definition`, definition);
+  // public async summariseClause(type: string = "get", payload: any): Promise<any> {
+  //   const definition: any =
+  //     (type == "post")
+  //       ? payload //this.populateDefinition(payload) 
+  //       : payload;
+  //   this.showConsole && console.log(`definition`, definition);
 
-    const summary = TextGenerator.summarise(definition) || "";
-    this.showConsole && console.log(`### summary of clause `, summary);
-    return summary;
+  //   const summary = TextGenerator.summarise(definition) || "";
+  //   this.showConsole && console.log(`### summary of clause `, summary);
+  //   return summary;
+  // }
+
+  //returns jsonPath for all clauses (properties or matchClauses) that need need displayText / displayHT
+  public static findClauses(matchClause: any): any {
+    let result: any[] = [];
+    const visited = new Set();
+    const queuedPaths = [""];
+    const getChildren = (path: string) => {
+      return path == "" ? matchClause : _.get(matchClause, path);
+    }
+
+
+
+    const clauseIsAdded = (path: string, clause: any): boolean => {
+      //datamodel entities are translated at the level of the matchClause
+      if (Object.keys(clause).some(key => key == "pathTo")) {
+        result.push({ path: path, value: clause })
+        return true;
+      } else if (Object.keys(clause).some(key => key == "property")) {
+        clause?.property.forEach((property: any, index: number) => {
+          result.push({ path: `${path}.property[${index}]`, value: property })
+        })
+        return true;
+      }
+      return false;
+    };
+
+
+    while (queuedPaths.length > 0) {
+      const currentPath = queuedPaths.shift();
+      const children = getChildren(currentPath as string);
+      const isArray = Array.isArray(children);
+
+      if (isArray && children.length > 0) {
+
+        children.forEach((child: any, index: number) => {
+          //if a child contains a clause needing translation it is added  adds to final results.
+          // otherwise it's children are added to the queue for inspection 
+          if (clauseIsAdded(`${currentPath}[${index}]`, child) == false) {
+            if (child?.or) queuedPaths.push(`${currentPath}[${index}].or`)
+            if (child?.and) queuedPaths.push(`${currentPath}[${index}].and`)
+          }
+        })
+      }
+
+    }
+    return result;
   }
+
 
 
 

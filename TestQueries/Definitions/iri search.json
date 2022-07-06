@@ -1,1 +1,14 @@
-{"termFilter":"im:ModellingClass","statusFilter":["http://endhealth.info/im#Active"],"schemeFilter":["http://endhealth.info/im#","http://snomed.info/sct#"],"select":["iri","name"]}
+{
+  "termFilter": "im:ModellingClass",
+  "statusFilter": [
+    "http://endhealth.info/im#Active"
+  ],
+  "schemeFilter": [
+    "http://endhealth.info/im#",
+    "http://snomed.info/sct#"
+  ],
+  "select": [
+    "iri",
+    "name"
+  ]
+}

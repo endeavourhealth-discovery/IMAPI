@@ -815,11 +815,11 @@ public class EntityService {
         return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy);
+        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy, flat);
     }
 
     /**

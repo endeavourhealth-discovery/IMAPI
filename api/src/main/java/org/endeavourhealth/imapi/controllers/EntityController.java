@@ -148,6 +148,22 @@ public class EntityController {
 		return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false);
 	}
 
+    @GetMapping(value = "/public/hasMember")
+    public ExportValueSet getHasMember(
+        @RequestParam(name = "iri") String iri,
+        @RequestParam(name = "predicate") String predicateIri,
+        @RequestParam(name = "page", required = false) Integer page,
+        @RequestParam(name = "size", required = false) Integer size,
+        @RequestParam(name = "schemeIris", required = false) List<String> schemeIris
+    ) {
+        LOG.debug("getHasMember");
+        if (page == null && size == null) {
+            page = 1;
+            size = 10;
+        }
+        return entityService.getHasMember(iri,predicateIri, schemeIris, page, size, false);
+    }
+
 	@GetMapping(value = "/public/partialAndTotalCount")
 	public Pageable<TTIriRef> getPartialAndTotalCount(
 		@RequestParam(name = "iri") String iri,

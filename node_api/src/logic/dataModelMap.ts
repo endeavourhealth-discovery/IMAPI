@@ -59,6 +59,7 @@ export const dataModelMap = {
     name: "person",
     fields: {
       pk: "id",
+      "http://endhealth.info/im#age": "age()",                                // TODO: Needs to be patient_type function!?
       "http://endhealth.info/im#gpPatientType": "gpPatientType()",            // TODO: Needs to be patient_type function!?
       "http://endhealth.info/im#gpRegistrationStatus": "gpRegStat()",         // TODO: Needs to be registrations_status function!?
       "http://endhealth.info/im#gpGMSRegistrationDate": "gpGMSRegStat()",     // TODO: Needs to be registrations_status function!?

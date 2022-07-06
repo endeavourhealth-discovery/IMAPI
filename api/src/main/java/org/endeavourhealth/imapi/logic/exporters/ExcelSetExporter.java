@@ -57,7 +57,7 @@ public class ExcelSetExporter {
      * @return
      * @throws DataFormatException
      */
-    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy) throws DataFormatException {
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy, boolean flat) throws DataFormatException {
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
@@ -76,8 +76,12 @@ public class ExcelSetExporter {
             if (core)
                 addCoreExpansionToWorkBook(members);
 
-            if (legacy)
-                addLegacyExpansionToWorkBook(members);
+            if (legacy) {
+                if (flat)
+                    addLegacyExpansionToWorkBookFlat(members);
+                else
+                    addLegacyExpansionToWorkBook(members);
+            }
         }
 
         return workbook;
@@ -135,6 +139,43 @@ public class ExcelSetExporter {
                 addedLegacyIris.add(cl.getLegacyIri());
             } else {
                 addCells(row, cl.getCode(), cl.getTerm(), isExtension);
+            }
+        }
+        sheet.autoSizeColumn(3);
+    }
+
+    private void addLegacyExpansionToWorkBookFlat(Set<CoreLegacyCode> members) {
+        List<CoreLegacyCode> sortedMembers = members
+            .stream()
+            .sorted(Comparator
+                .comparing(CoreLegacyCode::getCode)
+                .thenComparing(CoreLegacyCode::getLegacyCode)
+                .thenComparing(CoreLegacyCode::getLegacyIri)
+            )
+            .collect(Collectors.toList());
+
+        Sheet sheet = workbook.getSheet("Full expansion");
+        if (null == sheet) sheet = workbook.createSheet("Full expansion");
+        addHeaders(sheet, headerStyle, "code", "term", "scheme");
+        sheet.setColumnWidth(0, 5000);
+        sheet.setColumnWidth(1, 25000);
+        sheet.setColumnWidth(2, 2500);
+
+        Set<String> addedIris = new HashSet<>();
+        for (CoreLegacyCode cl : sortedMembers) {
+            if (cl.getIri() != null && !addedIris.contains(cl.getIri())) {
+                Row row = addRow(sheet);
+                String scheme = cl.getScheme() == null ? "" : cl.getScheme().getIri();
+                addCells(row, cl.getCode(), cl.getTerm(), scheme);
+                addedIris.add(cl.getIri());
+            }
+        }
+        for (CoreLegacyCode cl : sortedMembers) {
+            if (cl.getLegacyIri() != null && !addedIris.contains(cl.getLegacyIri())) {
+                Row row = addRow(sheet);
+                String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
+                addCells(row, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
+                addedIris.add(cl.getLegacyIri());
             }
         }
         sheet.autoSizeColumn(3);

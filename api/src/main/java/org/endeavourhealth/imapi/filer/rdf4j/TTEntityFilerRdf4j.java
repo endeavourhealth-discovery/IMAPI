@@ -88,7 +88,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     @Override
-    public void updateTct(TTDocument document) throws TTFilerException {
+    public void updateTct(TTEntity entity) throws TTFilerException {
         Update deleteIsas = conn.prepareUpdate("DELETE {?entity <" + IM.IS_A.getIri() + "> ?super.}\n" +
                 "where {?entity <" + IM.IS_A.getIri() + "> ?super}");
 
@@ -102,12 +102,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                 .add("filter (?p in (" + inList + "))")
                 .add("?superType <" + IM.IS_A.getIri() + "> ?superIsa.}");
         Update addIsas = conn.prepareUpdate(sql.toString());
-        for (TTEntity entity : document.getEntities()) {
-            deleteIsas.setBinding("entity", iri(entity.getIri()));
-            deleteIsas.execute();
-            addIsas.setBinding("entity", iri(entity.getIri()));
-            addIsas.execute();
-        }
+        deleteIsas.setBinding("entity", iri(entity.getIri()));
+        deleteIsas.execute();
+        addIsas.setBinding("entity", iri(entity.getIri()));
+        addIsas.execute();
     }
 
 

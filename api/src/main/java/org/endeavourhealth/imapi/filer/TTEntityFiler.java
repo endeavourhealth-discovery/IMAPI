@@ -6,5 +6,5 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public interface TTEntityFiler {
     void fileEntity(TTEntity entity, TTIriRef graph) throws TTFilerException;
-    void updateTct(TTDocument document) throws TTFilerException;
+    void updateTct(TTEntity entity) throws TTFilerException;
 }

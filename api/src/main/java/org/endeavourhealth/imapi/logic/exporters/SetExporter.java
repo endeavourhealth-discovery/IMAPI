@@ -10,13 +10,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
+import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,62 +43,80 @@ public class SetExporter {
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
-        Set<String> setIris = getSets(setIri);
-
-        Set<String> members = getMembers(setIris);
+        Set<CoreLegacyCode> members = getExpandedSetMembers(setIri, true);
 
         return generateTSV(setIri, name, members);
     }
 
-    private Set<String> getSets(String setIri) {
+    private Set<String> getSetsRecursive(String setIri) {
         LOG.trace("Getting set list...");
         Set<String> setIris = new HashSet<>();
-        setIris.add(setIri);
 
-        List<String> subsets = entityRepository2.getMemberIris(setIri);
-        for(String member : subsets){
-            if(entityRepository2.isSet(member)){
-                setIris.add(member);
+        Set<String> subsets = entityRepository2.getSubsets(setIri);
+
+        if (subsets.isEmpty())
+            setIris.add(setIri);
+        else {
+            for (String subset :subsets) {
+                setIris.addAll(getSetsRecursive(subset));
             }
         }
         return setIris;
     }
 
-    private Set<String> getMembers(Set<String> setIris) {
-        LOG.trace("Getting members for sets...");
-        Set<String> members = new HashSet<>();
+    public Set<CoreLegacyCode> getExpandedSetMembers(String setIri, boolean includeLegacy) {
+        Set<String> setIris = getSetsRecursive(setIri);
 
-        for(String iri : setIris){
-            TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()), 0).getEntity();
+        LOG.trace("Expanding members for sets...");
+        Set<CoreLegacyCode> result = new HashSet<>();
 
-            // Inject direct members into definition
-            if (entity.get(IM.HAS_MEMBER) != null) {
-                TTNode orNode = new TTNode();
-                entity.addObject(IM.DEFINITION,orNode);
-                for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
-                    orNode.addObject(SHACL.OR,value);
-                }
+        for(String iri : setIris) {
+            LOG.trace("Processing set [{}]...", iri);
+
+            Set<CoreLegacyCode> members = entityRepository2.getSetMembers(iri, includeLegacy);
+
+            if (members != null && !members.isEmpty()) {
+                result.addAll(members);
+            } else {
+                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
+                result.addAll(entityRepository2.getSetExpansion(entity.get(IM.DEFINITION), includeLegacy));
             }
-
-            members.addAll(entityRepository2.getSetDbids(iri, entity.get(IM.DEFINITION)));
         }
-        return members;
+
+        return result;
     }
 
-    private StringJoiner generateTSV(String setIri, String name, Set<String> members) {
+    private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
         LOG.trace("Generating output...");
+
+        Set<String> im1Ids = new HashSet<>();
 
         StringJoiner results = new StringJoiner(System.lineSeparator());
         results.add("vsId\tvsName\tmemberDbid");
 
-        for(String member : members) {
+        for(CoreLegacyCode member : members) {
+            if (member.getIm1Id() != null && !im1Ids.contains(member.getIm1Id())) {
                 results.add(
                     new StringJoiner("\t")
                         .add(setIri)
                         .add(name)
-                        .add(member)
+                        .add(member.getIm1Id())
                         .toString()
                 );
+
+                im1Ids.add(member.getIm1Id());
+            }
+            if (member.getLegacyIm1Id() != null && !im1Ids.contains(member.getLegacyIm1Id())) {
+                results.add(
+                    new StringJoiner("\t")
+                        .add(setIri)
+                        .add(name)
+                        .add(member.getLegacyIm1Id())
+                        .toString()
+                );
+
+                im1Ids.add(member.getLegacyIm1Id());
+            }
         }
         return results;
     }

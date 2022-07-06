@@ -28,11 +28,6 @@ public class SearchService {
 	private final TTIriRef PROPNAME= TTIriRef.iri(IM.NAMESPACE+"propName");
 	private final TTIriRef OBNAME= TTIriRef.iri(IM.NAMESPACE+"obName");
 
-
-
-
-
-
 	/**
 	 * Queries any IM entity using the query model
 	 * @param query data model entity object to populate
@@ -41,11 +36,7 @@ public class SearchService {
 	 */
 	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
 		return new IMQuery().queryIM(query);
-
 	}
-
-
-
 
 	/**
 	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied
@@ -55,13 +46,8 @@ public class SearchService {
 	 */
 	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws URISyntaxException,
 		IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
-		List<SearchResultSummary> result= new OSQuery().multiPhaseQuery(request);
-		return result;
-
-
+		return new OSQuery().multiPhaseQuery(request);
 	}
-
-
 }
 
 

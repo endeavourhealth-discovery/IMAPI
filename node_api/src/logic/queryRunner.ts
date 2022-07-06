@@ -78,7 +78,7 @@ export default class QueryRunner {
        "SELECT * WHERE { ?s ?p ?def }",
        {
          s: iri(queryIri),
-         p: iri("http://endhealth.info/im#definition")
+         p: iri("http://endhealth.info/im#query")
        });
 
      if (rs.length != 1)
@@ -117,6 +117,8 @@ export default class QueryRunner {
       await this.processValueCompare(table, conditions, match);
     } else if (match.notExist) {
       await this.processNotExist(table, conditions, match);
+/*    } else if (match.subselect) {
+      await this.processSubMatch(table, match.subselect.property['@id'], match.subselect.match);*/
     } else if (match.and || match.or) {
       // Globally handled (below)
     } else {
@@ -235,18 +237,18 @@ export default class QueryRunner {
       console.log(JSON.stringify(result, null, 2));
       console.error("No filters found!");
     } else {
-      conditions.push(result);
+      // conditions.push(result);
+      this.sql.conditions.push(result);
     }
 
     return result;
   }
 
-
   private async getSubject(table: Table, match: Match):Promise<string> {
 
     if (match.property) {
       const propType = await this.getPropertyType(table.id, match.property['@id']);
-      let subject = (propType.function.value === "true")
+      let subject = (propType.function && propType.function.value === "true")
         ? await this.getFunctionProperty(table, match)
         : await this.getField(table, match.property['@id']);
 
@@ -255,8 +257,12 @@ export default class QueryRunner {
       }
 
       return subject;
+    } else if (match.subselect) {
 
+      console.log("== SUBSELECT ==")
+      return "==SUBSELECT==";
     } else {
+      console.error(match);
       throw new Error("Function has no property");
     }
   }

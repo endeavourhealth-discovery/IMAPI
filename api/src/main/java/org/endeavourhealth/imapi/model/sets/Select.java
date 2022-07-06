@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.filer.TTImportByType;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -24,13 +25,14 @@ public class Select {
 	private boolean max;
 	private boolean count;
 	private List<PropertySelect> property;
-	private Match match;
+	private List<Match> match;
 	private boolean distinct;
 	private ConceptRef entityType;
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
 	private List<PropertySelect> groupBy;
 	private OrderLimit orderLimit;
+
 
 	/**
 	 * Lambda approach to setting property selects
@@ -44,29 +46,9 @@ public class Select {
 		return this;
 	}
 
-	/**
-	 * Quick way of setting property iris without nesting as a list
-	 * @param properties list of iris for property select
-	 * @return this for chaining
-	 */
-	@JsonIgnore
-	public Select property(List<TTIriRef> properties){
-		for (TTIriRef iri:properties)
-			this.addProperty(new PropertySelect(iri));
-		return this;
-	}
 
-	/**
-	 * Lambda approach for setting match clause
-	 * @param builder lambda expression
-	 * @return this for chaining
-	 */
-	public Select match(Consumer<Match> builder){
-		Match match= new Match();
-		this.match= match;
-		builder.accept(match);
-		return this;
-	}
+
+
 
 	/**
 	 * Lambda approach for setting order and limit
@@ -158,8 +140,16 @@ public class Select {
 		return property;
 	}
 
+	@JsonSetter
 	public Select setProperty(List<PropertySelect> property) {
 		this.property = property;
+		return this;
+	}
+
+	public Select addProperties(List<TTIriRef> properties){
+		for (TTIriRef property:properties){
+			this.addProperty(new PropertySelect(property));
+		}
 		return this;
 	}
 
@@ -181,12 +171,26 @@ public class Select {
 
 
 
-	public Match getMatch() {
+	public List<Match> getMatch() {
 		return match;
 	}
 
-	public Select setMatch(Match match) {
+	public Select setMatch(List<Match> match) {
 		this.match = match;
+		return this;
+	}
+
+	public Select addMatch(Match match){
+		if (this.match==null)
+			this.match= new ArrayList<>();
+		this.match.add(match);
+		return this;
+	}
+
+	public Select match(Consumer<Match> builder){
+		Match match= new Match();
+		this.addMatch(match);
+		builder.accept(match);
 		return this;
 	}
 

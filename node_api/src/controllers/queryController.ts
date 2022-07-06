@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, {NextFunction, Request, Response} from 'express';
 import QueryRunner from '../logic/queryRunner';
 import QueryWorkflow from '../logic/queryWorkflow';
 
@@ -11,6 +11,8 @@ export default class QueryController {
   private runner: QueryRunner;
   private workflow: QueryWorkflow;
 
+
+
   constructor() {
     this.initRoutes();
     this.runner = new QueryRunner();
@@ -18,64 +20,76 @@ export default class QueryController {
   }
 
   private initRoutes() {
-
-    this.router.get('/node_api/query/public/run', (req, res) => this.runQuery(req, res));
-    this.router.get('/node_api/query/public/localDefinition', (req, res) => this.localDefinition(req, res))
-    this.router.get('/node_api/query/public/definition', (req, res) => this.definition(req, res));
-    this.router.get('/node_api/query/public/richDefinition', (req, res) => this.richDefinition(req, res));
-    this.router.get('/node_api/query/public/querySummary', (req, res) => this.getQuerySummary(req, res))
-    this.router.post('/node_api/query/public/querySummary', (req, res) => this.postQuerySummary(req, res))
-    // this.router.post('/node_api/query/public/clauseSummary', (req, res) => this.postClauseSummary(req, res))
-    this.router.get('/node_api/query/public/getSQL', (req, res) => this.getSQL(req, res))
-
+        this.router.get('/node_api/query/public/run', (req, res, next) => this.runQuery(req, res, next));
+        this.router.get('/node_api/query/public/definition', (req, res, next) => this.definition(req, res, next));
+        this.router.get('/node_api/query/public/richDefinition', (req, res, next) => this.richDefinition(req, res, next));
+        this.router.get('/node_api/query/public/querySummary', (req, res, next) => this.getQuerySummary(req, res, next))
+        // this.router.post('/node_api/query/public/querySummary', (req, res, next) => this.postQuerySummary(req, res, next))
+        // this.router.post('/node_api/query/public/clauseSummary', (req, res, next) => this.postClauseSummary(req, res, next))
+        this.router.get('/node_api/query/public/getSQL', (req, res, next) => this.getSQL(req, res, next))
   }
 
-  async localDefinition(req: Request, res: Response) {
-    const data = await this.workflow.getLocalDefinition(req.query.iri as string);
-    res.send(data).end();
+  async getSQL(req: Request, res: Response, next: NextFunction) {
+    try {
+      const sql = await this.runner.generateSQL(req.query.iri as string);
+      res.send(sql).end();
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async runQuery(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.runner.runQuery(req.query.iri as string);
+      res.send(data);
+      res.end();
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async definition(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.workflow.getDefinition(req.query.iri as string);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
   }
 
 
-  async getSQL(req: Request, res: Response) {
-    const sql =  await this.runner.generateSQL(req.query.iri as string);
-    res.send(sql).end();
+  async richDefinition(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.workflow.getRichDefinition(req.query.iri as string);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
   }
 
-  async runQuery(req: Request, res: Response) {
-
-    const data = await this.runner.runQuery(req.query.iri as string);
-    res.send(data);
-    res.end();
+  async getQuerySummary(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.workflow.summariseQuery("get", req.query.iri as string)
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
   }
 
-
-  async definition(req: Request, res: Response) {
-    const data = await this.workflow.getDefinition(req.query.iri as string);
-    res.send(data).end();
-  }
-
-
-  async richDefinition(req: Request, res: Response) {
-    const data = await this.workflow.getRichDefinition(req.query.iri as string);
-    res.send(data).end();
-  }
-
-  async getQuerySummary(req: Request, res: Response) {
-    const data = await this.workflow.summariseQuery("get", req.query.iri as string)
-    res.send(data).end();
-    
-  }
-  async postQuerySummary(req: Request, res: Response) {
-    const data = await this.workflow.summariseQuery("post", req.body)
-    res.send(data).end();
-
-  }
   // async postClauseSummary(req: Request, res: Response) {
   //   console.log(req.body)
   //   const data = await this.workflow.summariseClause("post", req.body)
   //   res.send(data).end();
   // }
 
-
+  // async postClauseSummary(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     console.log(req.body)
+  //     const data = await this.workflow.summariseClause("post", req.body)
+  //     res.send(data).end();
+  //   } catch (e) {
+  //     next(e);
+  //   }
+  // }
 }
 

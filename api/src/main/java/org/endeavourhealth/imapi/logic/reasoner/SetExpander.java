@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -33,16 +32,16 @@ public class SetExpander {
 		for (String iri:sets){
 			LOG.info("Updating members of "+ iri);
 			//get the definition
-			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()),0);
+			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
-			List<CoreLegacyCode> members= repo2.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION),false);
+			Set<CoreLegacyCode> members= repo2.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION),false);
 			updateMembers(iri,members);
 
 		}
 
 	}
 
-	private void updateMembers(String iri,List<CoreLegacyCode> members) {
+	private void updateMembers(String iri,Set<CoreLegacyCode> members) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}"+
 				"\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}";

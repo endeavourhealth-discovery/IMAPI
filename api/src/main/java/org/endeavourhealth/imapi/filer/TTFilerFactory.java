@@ -7,7 +7,16 @@ public class TTFilerFactory {
     private static boolean skipDeletes=false;
     private static boolean bulk = false;
     private static int privacyLevel=0;
+    private static boolean transactional= false;
     private TTFilerFactory() {}
+
+    public static boolean isTransactional() {
+        return transactional;
+    }
+
+    public static void setTransactional(boolean transactional) {
+        TTFilerFactory.transactional = transactional;
+    }
 
     public static boolean isSkipDeletes() {
         return skipDeletes;

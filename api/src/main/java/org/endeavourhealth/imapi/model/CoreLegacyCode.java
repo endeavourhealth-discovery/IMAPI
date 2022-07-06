@@ -14,6 +14,10 @@ public class CoreLegacyCode {
 	private String legacyTerm;
 	private TTIriRef legacyScheme;
 
+    private String im1Id;
+
+    private String legacyIm1Id;
+
 	public String getCode() {
 		return code;
 	}
@@ -85,4 +89,35 @@ public class CoreLegacyCode {
 		this.legacyIri = legacyIri;
 		return this;
 	}
+
+    public String getIm1Id() {
+        return im1Id;
+    }
+
+    public CoreLegacyCode setIm1Id(String im1Id) {
+        this.im1Id = im1Id;
+        return this;
+    }
+
+    public String getLegacyIm1Id() {
+        return legacyIm1Id;
+    }
+
+    public CoreLegacyCode setLegacyIm1Id(String legacyIm1Id) {
+        this.legacyIm1Id = legacyIm1Id;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CoreLegacyCode that = (CoreLegacyCode) o;
+        return Objects.equals(iri, that.iri) && Objects.equals(legacyIri, that.legacyIri);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(iri, legacyIri);
+    }
 }

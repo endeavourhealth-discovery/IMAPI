@@ -42,7 +42,7 @@ public class TTTransactionFiler {
      */
     public void fileTransaction(TTDocument transaction) throws Exception {
         if (transaction.getCrud() == null)
-            throw new TTFilerException("Transaction must have crud setting");
+            transaction.setCrud(IM.ADD_QUADS);
         else if (!List.of(IM.UPDATE_ALL, IM.UPDATE_PREDICATES, IM.ADD_QUADS, IM.DELETE_ALL).contains(transaction.getCrud()))
             throw new TTFilerException("Invalid crud transaction, must be im:UpdateAll,im:UpdatePredicates, or im:addQuads");
         checkDeletes(transaction);
@@ -72,7 +72,6 @@ public class TTTransactionFiler {
                 manager.loadDocument(new File(transactionLogs.get(logNumber)));
                 filer.startTransaction();
                 filer.fileInsideTraction(manager.getDocument());
-                filer.updateTct(manager.getDocument());
                 filer.commit();
             }
         }
@@ -114,8 +113,8 @@ public class TTTransactionFiler {
             try {
                 filer.startTransaction();
                 filer.fileInsideTraction(document);
-                filer.updateTct(document);
-                writeLog(document);
+               if (logPath!=null)
+                   writeLog(document);
                 filer.commit();
             } catch (Exception e) {
                 e.printStackTrace();

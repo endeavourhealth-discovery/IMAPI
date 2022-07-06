@@ -14,7 +14,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchRequest {
     private String termFilter;
-    private String index="concept";
+    private String index = "concept";
     private List<String> statusFilter = new ArrayList<>();
     private List<String> typeFilter = new ArrayList<>();
     private List<String> schemeFilter = new ArrayList<>();
@@ -24,6 +24,8 @@ public class SearchRequest {
     private int size = 20;
     private int from;
     private List<String> select = new ArrayList<>();
+    private String sortField;
+    private String sortDirection;
 
     public int getFrom() {
         return from;
@@ -33,8 +35,6 @@ public class SearchRequest {
         this.from = from;
         return this;
     }
-
-
 
     @Schema(name = "field selections",
     description = "list of fields or property paths from search result summary to return ",
@@ -162,5 +162,21 @@ public class SearchRequest {
         return this;
     }
 
+    public String getSortField() {
+        return sortField;
+    }
 
+    public SearchRequest setSortField(String sortField) {
+        this.sortField = sortField;
+        return this;
+    }
+
+    public String getSortDirection() {
+        return sortDirection;
+    }
+
+    public SearchRequest setSortDirection(String sortDirection) {
+        this.sortDirection = sortDirection;
+        return this;
+    }
 }

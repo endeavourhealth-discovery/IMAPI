@@ -117,24 +117,58 @@ export class TextGenerator {
 
         } else {
             // summarise any clause in a specific order (oderLimit, then properties: concept, then value, then date, then other properties)
-            // text = TextGenerator.template(and[0], "orderLimit");
-
-            //todo: improve concept matching / create external function
-            let conceptKeys = ["isConcept", "inSet", "notInSet"];
-            let conceptKey = Object.keys(clause?.definition?.property[0]).find((key: string) => conceptKeys.includes(key));
-            let conceptTemplate = conceptKey ? "of" + conceptKey.charAt(0).toUpperCase() + conceptKey.slice(1) : "";
-
             text = [
                 ...TextGenerator.template(clause.definition, "orderLimit"),
-                ...TextGenerator.template(clause.definition.property[0], conceptTemplate)
-                // ...TextGenerator.template(and[1].property[0], "followedBy", and[1]?.notExist),
-                // ...TextGenerator.template(and[1], "orderLimit"),
-                // ...TextGenerator.template(and[1].property[0], "ofInSet"),
+                ...TextGenerator.summarisePropertiesInOrder(clause.definition.property, "orderLimit"),
+                //todo summarise properyTest using above function?
             ]
 
         }
         return text;
 
+    }
+
+    public static summarisePropertiesInOrder(properties: any, templatePrefix?: string, templateSuffix?: string): any {
+        let propertyOrder: any[] = [
+            { propertyIri: IM.CONCEPT, templatePrefix: "of_", templateSuffix: "" },
+            { propertyIri: IM.CODE, templatePrefix: "of_", templateSuffix: "" },
+            { propertyIri: IM.VALUE, templatePrefix: "", templateSuffix: "" },
+            { propertyIri: IM.EFFECTIVE_DATE, templatePrefix: "", templateSuffix: "" },
+            { propertyIri: "", templatePrefix: "", templateSuffix: "" }
+        ];
+
+        let text: any[] = [];
+
+        if (Array.isArray(properties) && properties.length > 0) {
+
+            while (properties.length > 0) {
+                propertyOrder.forEach((propertyOrderItem: any) => {
+                    // propertyIri specified in PropertyOrder or any property if iri is emppty string
+                    let property;
+
+                    if (propertyOrderItem?.propertyIri == "") {
+                        property = properties.pop();
+                    } else {
+                        property = properties.find((p: any, i: number) => {
+                            if (p['@id'] == propertyOrderItem?.propertyIri) {
+                                properties.splice(i, 1);
+                                return true;
+                            }
+                        })
+                    }
+
+                    if (property) {
+                        let conceptKeys = ["isConcept", "inSet", "notInSet"];
+                        let conceptKey = Object.keys(property).find((key: string) => conceptKeys.includes(key));
+                        let templateName = conceptKey ? propertyOrderItem.templatePrefix + conceptKey + propertyOrderItem.templateSuffix : "";
+                        text = [...text, ...TextGenerator.template(property, templateName)]
+                    }
+
+                })
+            }
+        }
+
+        return text.length > 0 ? text : "";
     }
 
 
@@ -146,7 +180,7 @@ export class TextGenerator {
 
 
         const propertyClause = new Clause(clause) as any;
-        const { orderLimit, orderById, direction, count, isConcept, property, id, propertyName, inSet, notInSet, inSet0, value, comparison, valueData, functionArg1 } = propertyClause;
+        const { orderLimit, orderById, direction, count, isConcept, property, functionId, id, propertyName, inSet, notInSet, inSet0, value, comparison, valueData, functionArg1, units, firstDate, secondDate } = propertyClause;
 
 
         //properted of linked entities
@@ -157,10 +191,10 @@ export class TextGenerator {
             let names = inSet?.length > 1 ? `${inSet[0].name} or ${inSet[1].name}` : inSet[0].name;
             text = [isOf, names];
 
-        } else if (templateName == "of_IsConcept" || templateName == "isConcept") {
+        } else if (templateName == "of_isConcept" || templateName == "isConcept") {
             TextGenerator.showConsole && console.log("### TemplateName isConcept")
 
-            let isOf = templateName == "of_IsConcept" ? "of" : "";
+            let isOf = templateName == "of_isConcept" ? "of" : "";
             let names = isConcept?.length > 1 ? `${isConcept[0].name} or ${isConcept[1].name}` : isConcept[0].name;
             text = [isOf, names];
 
@@ -205,12 +239,57 @@ export class TextGenerator {
             text = [propertyName, is, inSet[0].name]
 
 
-        } else if (value) {
+        } else if (value && functionArg1) {
             TextGenerator.showConsole && console.log("### Template value")
 
             let is = notExist ? "is not" : "is";
             let units = isSingular(valueData) ? wordMap[functionArg1]['singular'] : wordMap[functionArg1]['plural']
             text = [propertyName, is, comparison, valueData, units]
+
+        } else if (value && functionId == IM.TIME_DIFFERENCE) {
+            TextGenerator.showConsole && console.log("### Template TIME_DIFFERENCE")
+
+            let is = notExist ? "is not" : "is";
+
+
+
+            let isSecondDateThis = secondDate.value == "$this"
+            let beforeAfter = (secondDate.value == "the Reference Date" || Helpers.isNegative(valueData)) ? "after" : "before";
+            units.valueData = isSingular(valueData) ? wordMap[units.valueData]['singular'] : wordMap[units.valueData]['plural']
+            let _comparison = comparison;
+            let _valueData = valueData
+            let _date;
+
+
+            if (_valueData.substring(0, 1) == "-") _valueData = _valueData.substring(1, _valueData.length)
+
+            const flipComparison = (comparison: string) => {
+                switch (comparison) {
+                    case "more than or equal to":
+                        return "less than or equal to";
+                    case "less than or equal to":
+                        return "more than or equal to";
+                    case "more than":
+                        return "less than";
+                    case "less than":
+                        return "more than";
+                    default:
+                        return comparison;
+                }
+            }
+
+            // if (isSecondDateThis) _comparison = flipComparison(_comparison);;
+            // if (Helpers.isNegative(_valueData)) _comparison = flipComparison(_comparison);;
+            // if (Helpers.isNegative(_valueData) && comparison == "less than or equal to") _comparison = "more than or equal to";
+
+            text = ["in the", _valueData, units?.valueData, beforeAfter, "the Reference Date"]
+        }
+
+        else if (value) {
+            TextGenerator.showConsole && console.log("### Template value")
+
+            let is = notExist ? "is not" : "is";
+            text = [propertyName, is, comparison, valueData]
         }
 
         return text

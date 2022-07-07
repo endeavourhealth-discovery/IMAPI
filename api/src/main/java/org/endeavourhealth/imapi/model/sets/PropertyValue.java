@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"displayText","name","iri","alias","pathTo","includeSubTypes","inverseOf","includeSubProperties"
+@JsonPropertyOrder({"displayText","pathTo","name","iri","alias","includeSubTypes","inverseOf","includeSubProperties"
 	,"isConcept","inValueSet","notInValueSet", "inRange","value","function","within","valueVar","valueMatch","isIndex","and","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyValue  extends ConceptRef{

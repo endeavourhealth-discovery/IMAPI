@@ -1015,7 +1015,7 @@ public class EntityRepository2 {
                 .add("PREFIX im: <http://endhealth.info/im#>")
                 .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
                 .add("PREFIX sn: <http://snomed.info/sct#>")
-                .add("SELECT DISTINCT ?s ?name ?scheme ?schemeName ?type ?typeName ?status ?statusName ?usage ?code {")
+                .add("SELECT DISTINCT ?s ?name ?usage {")
                 .add(" GRAPH ?g {")
                 .add("  ?s im:scheme ?scheme ;")
                 .add("   rdfs:label ?name ;")
@@ -1075,11 +1075,7 @@ public class EntityRepository2 {
                     result.add(new TTEntity()
                             .setIri(bs.getValue("s").stringValue())
                             .setName(bs.getValue("name").stringValue())
-                            .setCode(bs.getValue("code").stringValue())
-                            .setScheme(iri(bs.getValue("scheme").stringValue(), bs.getValue("schemeName").stringValue()))
-                            .setStatus(iri(bs.getValue("status").stringValue(), bs.getValue("statusName").stringValue()))
                             .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
-                            .setType(new TTArray().add(iri(bs.getValue("type").stringValue(), bs.getValue("typeName").stringValue())))
                     );
                 }
             }
@@ -1117,24 +1113,24 @@ public class EntityRepository2 {
         List<TTEntity> result = new ArrayList<>();
 
         StringJoiner query = new StringJoiner("\n");
-        query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>");
-        query.add("PREFIX im: <http://endhealth.info/im#>");
-        query.add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>");
-
-        query.add("SELECT DISTINCT ?s ?name ?scheme ?schemeName ?type ?typeName ?status ?statusName ?usage ?code {");
-        query.add(" GRAPH ?g {");
-        query.add("  ?s im:inTask ?taskIri ;");
-        query.add("   im:scheme ?scheme ;");
-        query.add("   rdfs:label ?name ;");
-        query.add("   im:usageTotal ?usage ;");
-        query.add("   rdf:type ?type ;");
-        query.add("   im:code ?code ;");
-        query.add("   im:status ?status .");
-        query.add(" }");
-        query.add(" ?scheme rdfs:label ?schemeName .");
-        query.add(" ?type rdfs:label ?typeName .");
-        query.add(" ?status rdfs:label ?statusName .");
-        query.add("}");
+        query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("SELECT DISTINCT ?s ?name ?usage {")
+                .add(" GRAPH ?g {")
+                .add("  ?s im:inTask ?taskIri ;")
+                .add("   im:scheme ?scheme ;")
+                .add("   rdfs:label ?name ;")
+                .add("   im:usageTotal ?usage ;")
+                .add("   rdf:type ?type ;")
+                .add("   im:code ?code ;")
+                .add("   im:status ?status .")
+                .add(" }")
+                .add(" ?scheme rdfs:label ?schemeName .")
+                .add(" ?type rdfs:label ?typeName .")
+                .add(" ?status rdfs:label ?statusName .")
+                .add("}")
+                .add("ORDER BY DESC(?usage)");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
@@ -1145,11 +1141,7 @@ public class EntityRepository2 {
                     result.add(new TTEntity()
                             .setIri(bs.getValue("s").stringValue())
                             .setName(bs.getValue("name").stringValue())
-                            .setCode(bs.getValue("code").stringValue())
-                            .setScheme(iri(bs.getValue("scheme").stringValue(), bs.getValue("schemeName").stringValue()))
-                            .setStatus(iri(bs.getValue("status").stringValue(), bs.getValue("statusName").stringValue()))
                             .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
-                            .setType(new TTArray().add(iri(bs.getValue("type").stringValue(), bs.getValue("typeName").stringValue())))
                     );
                 }
             }

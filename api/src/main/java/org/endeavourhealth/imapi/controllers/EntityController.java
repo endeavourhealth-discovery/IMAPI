@@ -413,12 +413,6 @@ public class EntityController {
 		return entityService.getParentPath(iri);
 	}
 
-	@GetMapping("/public/parentHierarchy")
-	public EntityReferenceNode getParentHierarchy(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getParentHierarchy");
-		return entityService.getParentHierarchy(iri);
-	}
-
     @GetMapping("/public/pathBetweenNodes")
     public List<TTIriRef> getPathBetweenNodes(
 		@RequestParam(name = "descendant") String descendant,
@@ -476,14 +470,6 @@ public class EntityController {
 	public Boolean iriExists(@RequestParam(name = "iri") String iri) {
 		LOG.debug("iriExists");
 		return entityService.iriExists(iri);
-	}
-
-	@PostMapping("/task")
-	@PreAuthorize("isAuthenticated()")
-	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
-		LOG.debug("createTask");
-		String agentName = reqObjService.getRequestAgentName(request);
-		return entityService.saveTask(entity, agentName);
 	}
 
 	@GetMapping("/task/action")

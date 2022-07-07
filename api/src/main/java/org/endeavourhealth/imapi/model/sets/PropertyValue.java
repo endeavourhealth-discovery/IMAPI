@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"name","iri","alias","pathTo","includeSubTypes","inverseOf","includeSubProperties"
+@JsonPropertyOrder({"displayText","name","iri","alias","pathTo","includeSubTypes","inverseOf","includeSubProperties"
 	,"isConcept","inValueSet","notInValueSet", "inRange","value","function","within","valueVar","valueMatch","isIndex","and","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyValue  extends ConceptRef{
@@ -28,6 +28,16 @@ public class PropertyValue  extends ConceptRef{
 	boolean inverseOf=false;
 	boolean notExist=false;
 	private List<Argument> argument;
+	private String displayText;
+
+	public String getDisplayText() {
+		return displayText;
+	}
+
+	public PropertyValue setDisplayText(String displayText) {
+		this.displayText = displayText;
+		return this;
+	}
 
 	public List<ConceptRef> getPathTo() {
 		return pathTo;

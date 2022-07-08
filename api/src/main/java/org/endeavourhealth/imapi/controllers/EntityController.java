@@ -439,12 +439,6 @@ public class EntityController {
 		return entityService.getParentPath(iri);
 	}
 
-	@GetMapping("/public/parentHierarchy")
-	public EntityReferenceNode getParentHierarchy(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getParentHierarchy");
-		return entityService.getParentHierarchy(iri);
-	}
-
     @GetMapping("/public/pathBetweenNodes")
     public List<TTIriRef> getPathBetweenNodes(
 		@RequestParam(name = "descendant") String descendant,
@@ -461,9 +455,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/unmapped")
-	public List<TTIriRef> getUnmapped() {
+	public List<TTEntity> getUnmapped(@RequestParam(name = "term") Optional<String> term, @RequestParam(name = "status") Optional<List<String>> status, @RequestParam(name = "scheme") Optional<List<String>> scheme, @RequestParam(name = "type") Optional<List<String>> type, @RequestParam(name = "usage") Optional<Integer> usage, @RequestParam(name = "limit") Optional<Integer> limit) {
 		LOG.debug("getUnmapped");
-		return entityService.getUnmapped();
+		return entityService.getUnmapped(term.orElse(""), status.orElse(new ArrayList<>()), scheme.orElse(new ArrayList<>()), type.orElse(new ArrayList<>()), usage.orElse(null), limit.orElse(100));
 	}
 
 	@GetMapping("/public/unclassified")
@@ -504,15 +498,14 @@ public class EntityController {
 		return entityService.iriExists(iri);
 	}
 
-	@PostMapping("/task")
+	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
-		LOG.debug("createTask");
-		String agentName = reqObjService.getRequestAgentName(request);
-		return entityService.saveTask(entity, agentName);
+	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri) throws Exception {
+		LOG.debug("getTaskActions");
+		return entityService.getActions(taskIri);
 	}
 
-	@GetMapping("/task/action")
+	@PostMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity addTaskAction(
 		@RequestParam(name = "entityIri") String entityIri,

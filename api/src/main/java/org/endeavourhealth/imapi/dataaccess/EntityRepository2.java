@@ -1007,32 +1007,76 @@ public class EntityRepository2 {
         return result;
     }
 
-    public List<TTIriRef> findUnmapped() {
-        List<TTIriRef> result = new ArrayList<>();
+    public List<TTEntity> findUnmapped(List<String> status, List<String> scheme, List<String> type, Integer usage, Integer limit) {
+        List<TTEntity> result = new ArrayList<>();
 
         StringJoiner query = new StringJoiner(System.lineSeparator())
-            .add(RDFS_PREFIX)
-            .add(IM_PREFIX)
-            .add(SN_PREFIX)
-            .add("SELECT DISTINCT ?s ?name {")
-            .add("?s ?p ?o .")
-            .add("?s im:scheme sn: .")
-            .add("?s rdfs:label ?name .")
-            .add("FILTER NOT EXISTS {")
-            .add("?s im:matchedTo ?o2 ")
-            .add("}")
-            .add("FILTER NOT EXISTS {")
-            .add("?s (rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf) ?o3 ")
-            .add("}")
-            .add("}")
-            .add("LIMIT 1000");
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("PREFIX sn: <http://snomed.info/sct#>")
+                .add("SELECT DISTINCT ?s ?name ?usage {")
+                .add(" GRAPH ?g {")
+                .add("  ?s im:scheme ?scheme ;")
+                .add("   rdfs:label ?name ;")
+                .add("   im:usageTotal ?usage ;")
+                .add("   rdf:type ?type ;")
+                .add("   im:code ?code ;")
+                .add("   im:status ?status .")
+                .add(" }")
+                .add("?scheme rdfs:label ?schemeName .")
+                .add("?type rdfs:label ?typeName .")
+                .add("?status rdfs:label ?statusName .")
+                .add(" FILTER NOT EXISTS {")
+                .add("  ?s (sn:370124000|im:hasMap|im:matchedTo) ?o2")
+                .add(" }");
+
+        if (null != usage) {
+            query.add(" FILTER (?usage > " + usage + ")");
+        }
+
+        if (null != status && !status.isEmpty()) {
+            ArrayList<String> statusIris = new ArrayList<>();
+            for (String statusIri: status) {
+                statusIris.add("<" + statusIri + ">");
+            }
+            query.add(" FILTER (?status IN (" + String.join(", ", statusIris) + "))");
+        }
+
+        if (null != scheme && !scheme.isEmpty()) {
+            ArrayList<String> schemeIris = new ArrayList<>();
+            for (String schemeIri: scheme) {
+                schemeIris.add("<" + schemeIri + ">");
+            }
+            query.add(" FILTER (?scheme IN (" + String.join(", ", schemeIris) + "))");
+        }
+
+        if (null != type && !type.isEmpty()) {
+            ArrayList<String> typeIris = new ArrayList<>();
+            for (String typeIri: type) {
+                typeIris.add("<" + typeIri + ">");
+            }
+            query.add(" FILTER (?type IN (" + String.join(", ", typeIris) + "))");
+        } else {
+            query.add("FILTER (?g NOT IN (im:, sn:))");
+        }
+
+        query.add("}").add("ORDER BY DESC(?usage)");
+
+        if (null != limit) {
+            query.add("LIMIT " + limit);
+        }
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(query.toString());
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                    result.add(new TTEntity()
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("name").stringValue())
+                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                    );
                 }
             }
         }
@@ -1063,6 +1107,47 @@ public class EntityRepository2 {
             }
         }
         return ttArray;
+    }
+
+    public List<TTEntity> getActions(String taskIri) {
+        List<TTEntity> result = new ArrayList<>();
+
+        StringJoiner query = new StringJoiner("\n");
+        query.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("SELECT DISTINCT ?s ?name ?usage {")
+                .add(" GRAPH ?g {")
+                .add("  ?s im:inTask ?taskIri ;")
+                .add("   im:scheme ?scheme ;")
+                .add("   rdfs:label ?name ;")
+                .add("   im:usageTotal ?usage ;")
+                .add("   rdf:type ?type ;")
+                .add("   im:code ?code ;")
+                .add("   im:status ?status .")
+                .add(" }")
+                .add(" ?scheme rdfs:label ?schemeName .")
+                .add(" ?type rdfs:label ?typeName .")
+                .add(" ?status rdfs:label ?statusName .")
+                .add("}")
+                .add("ORDER BY DESC(?usage)");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(query.toString());
+            qry.setBinding("taskIri", Values.iri(taskIri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTEntity()
+                            .setIri(bs.getValue("s").stringValue())
+                            .setName(bs.getValue("name").stringValue())
+                            .set(IM.USAGE_TOTAL, TTLiteral.literal(bs.getValue("usage").stringValue()))
+                    );
+                }
+            }
+        }
+
+        return result;
     }
 }
 

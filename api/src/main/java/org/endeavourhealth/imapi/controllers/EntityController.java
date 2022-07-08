@@ -18,6 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.service.ConceptService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -81,6 +82,14 @@ public class EntityController {
         LOG.debug("getPartialEntity");
         return entityService.getBundle(iri, predicates).getEntity();
     }
+
+	@GetMapping(value = "/SnomedConceptGenerator", produces = "application/json")
+	public TTIriRef getSnomedConcept(
+		@RequestParam(name = "namespace") String namespace
+	) throws Exception {
+		LOG.debug("getSnomedConcept");
+		return new ConceptService().createConcept(namespace);
+	}
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")

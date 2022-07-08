@@ -34,9 +34,10 @@ public class ConceptService {
 
 	private void updateIncrement(Integer from) throws Exception {
 		TTDocument document = new TTDocument()
+			.setCrud(IM.UPDATE_PREDICATES)
 			.setGraph(IM.CODE_SCHEME_DISCOVERY)
 			.addEntity(new TTEntity()
-				.setCrud(IM.ADD_QUADS)
+				.setCrud(IM.UPDATE_PREDICATES)
 				.setIri(IM.NAMESPACE+"SnomedConceptGenerator")
 				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
 		TTTransactionFiler filer= new TTTransactionFiler(null);

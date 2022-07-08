@@ -60,7 +60,6 @@ public abstract class TTDocumentFiler implements AutoCloseable {
             TTIriRef entityGraph= entity.getGraph();
             if (entityGraph==null)
                 entityGraph= document.getGraph();
-            entity.setCrud(document.getCrud());
             if (document.getGraph()==null)
                 document.setGraph(entity.getGraph());
             if (entity.get(IM.PRIVACY_LEVEL)!=null)

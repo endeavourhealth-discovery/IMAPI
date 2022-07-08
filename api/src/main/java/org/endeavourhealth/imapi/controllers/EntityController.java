@@ -83,7 +83,7 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
-	@GetMapping(value = "/SnomedConceptGenerator", produces = "application/json")
+	@GetMapping(value = "/public/SnomedConceptGenerator", produces = "application/json")
 	public TTIriRef getSnomedConcept(
 		@RequestParam(name = "namespace") String namespace
 	) throws Exception {

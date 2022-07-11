@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -17,10 +18,12 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
+import org.endeavourhealth.imapi.transforms.TTToClassObject;
 import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
@@ -30,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -60,6 +64,20 @@ public class EntityService {
 
     public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
+    }
+    public String getAsPlainJson(String iri) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+        TTBundle bundle= entityRepository2.getBundle(iri);
+        Class<?> cls;
+        String entityType= bundle.getEntity().getType().get(0).asIriRef().getIri();
+        switch (entityType){
+            case (IM.NAMESPACE+"FormGenerator") :
+                cls=FormGenerator.class;
+                break;
+            default:
+                throw new NoSuchMethodException(" entity type "+ entityType+" is not supported as a POJO class");
+
+        }
+        return new ObjectMapper().writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(),cls));
     }
 
     public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {

@@ -122,7 +122,7 @@ public class TTManager {
     */
    public TTDocument loadDocument(File inputFile) throws IOException {
       ObjectMapper objectMapper = new ObjectMapper();
-      document = objectMapper.readValue(inputFile, TTDocument.class);
+      document = objectMapper.readValue(inputFile,TTDocument.class);
       return document;
    }
 

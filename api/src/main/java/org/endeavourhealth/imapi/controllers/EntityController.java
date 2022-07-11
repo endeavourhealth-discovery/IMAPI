@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
@@ -25,6 +26,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -83,7 +85,7 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
-	@GetMapping(value = "/SnomedConceptGenerator", produces = "application/json")
+	@GetMapping(value = "/snomedConceptGenerator", produces = "application/json")
 	public TTIriRef getSnomedConcept(
 		@RequestParam(name = "namespace") String namespace
 	) throws Exception {
@@ -112,6 +114,14 @@ public class EntityController {
         LOG.debug("getPartialEntityBundle");
         return entityService.getBundle(iri, predicates);
     }
+
+	@GetMapping(value = "/public/entityAsPlainJson", produces = "application/json")
+	public String getForm(
+		@RequestParam(name = "iri") String iri
+	) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+		LOG.debug("getEntityAsPlainJson");
+		return entityService.getAsPlainJson(iri);
+	}
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
     public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) {

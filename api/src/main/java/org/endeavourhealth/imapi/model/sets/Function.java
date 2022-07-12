@@ -14,28 +14,28 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Function extends TTIriRef{
 	List<Argument> argument;
-	private Map<TTIriRef,TTIriRef> conceptMap;
-	private TTIriRef defaultConcept;
+	private Map<String,String> conceptMap;
+	private String defaultConcept;
 
-	public TTIriRef getDefaultConcept() {
+	public String getDefaultConcept() {
 		return defaultConcept;
 	}
 
-	public Function setDefaultConcept(TTIriRef defaultConcept) {
+	public Function setDefaultConcept(String defaultConcept) {
 		this.defaultConcept = defaultConcept;
 		return this;
 	}
 
-	public Map<TTIriRef, TTIriRef> getConceptMap() {
+	public Map<String, String> getConceptMap() {
 		return conceptMap;
 	}
 
-	public Function setConceptMap(Map<TTIriRef, TTIriRef> conceptMap) {
+	public Function setConceptMap(Map<String, String> conceptMap) {
 		this.conceptMap = conceptMap;
 		return this;
 	}
 
-	public Function addToConceptMap(TTIriRef from,TTIriRef to){
+	public Function addToConceptMap(String from,String to){
 		if (this.conceptMap==null)
 			this.conceptMap= new HashMap<>();
 		this.conceptMap.put(from,to);

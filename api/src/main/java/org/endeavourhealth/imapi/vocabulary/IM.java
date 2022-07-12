@@ -44,6 +44,7 @@ public class IM {
     public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
     public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
+    public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
 
 
     //Collection predicates

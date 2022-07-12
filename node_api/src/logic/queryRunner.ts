@@ -7,7 +7,7 @@ import {SimpleCondition} from "../model/sql/SimpleCondition";
 import {ConditionList} from "../model/sql/ConditionList";
 import {Condition} from '../model/sql/Condition';
 import {IM, RDF, SHACL} from '../vocabulary';
-import {Query, Match, Select, Function, PropertyValue} from 'im-library/dist/types/models/modules/AutoGen';
+import {Query, Match, Select, Function, PropertyValue, Argument} from 'im-library/dist/types/models/modules/AutoGen';
 
 export default class QueryRunner {
   private mysql: MysqlService;
@@ -68,6 +68,7 @@ export default class QueryRunner {
     } catch (e) {
       console.error("***** ERROR!!");
       console.log(e);
+
       return [];
     }
   }
@@ -86,9 +87,12 @@ export default class QueryRunner {
 
      const def = JSON.parse(rs[0].def.value);
 
-     console.log("===== DEFINITION =================================================")
+     console.log("Loaded " + def.name);
+
+
+/*     console.log("===== DEFINITION =================================================")
      console.log(JSON.stringify(def, null, 2));
-     console.log("==================================================================")
+     console.log("==================================================================")*/
 
      return def;
    }
@@ -200,7 +204,10 @@ export default class QueryRunner {
     conditions.push(c);
     c.subject = await this.getSubject(table, property);
     c.predicate = this.getComparison(property.value.comparison);
-    c.object = "'" + property.value.valueData + "'";
+    if (property.value.valueData)
+      c.object = "'" + property.value.valueData + "'";
+    else
+      c.object = '$' + property.value.valueVariable;
   }
 
   private getComparison(c: string) {
@@ -283,7 +290,7 @@ export default class QueryRunner {
         : await this.getField(table, property['@id']);
 
       if (property.function && property.function['@id']) {
-        subject = await this.getFunction(property);
+        subject = await this.getFunction(table, property);
       }
 
       return subject;
@@ -352,7 +359,7 @@ export default class QueryRunner {
 
     if (fn === 'http://endhealth.info/im#age') {
       return 'TIMESTAMPDIFF('
-        + await this.getArgument(property, 'units') + ', '
+        + await this.getArgument(table, property['@id'], property.argument, 'units') + ', '
         + await this.getField(table, 'http://endhealth.info/im#dateOfBirth') + ', '
         + '$referenceDate)';
     } else if (fn === 'http://endhealth.info/im#gpPatientType') {
@@ -393,11 +400,11 @@ export default class QueryRunner {
     }
   }
 
-  private async getArgument(property: PropertyValue, name: string) {
-    for(const a of property.argument) {
+  private async getArgument(table:Table, property: string, args: Argument[], name: string) {
+    for(const a of args) {
       if (a.parameter === name) {
         if (a.valueVariable == '$this') {
-          return property;
+          return await this.getField(table, property);
         } else if (a.valueVariable) {
           return a.valueVariable;
         } else {
@@ -409,12 +416,12 @@ export default class QueryRunner {
     throw new Error("Unknown argument [" + name + "]");
   }
 
-  private async getFunction(property: PropertyValue):Promise<string> {
+  private async getFunction(table: Table, property: PropertyValue):Promise<string> {
     if (property.function['@id'] === 'http://endhealth.info/im#TimeDifference') {
       return 'TIMESTAMPDIFF('
-        + await this.getArgument(property, 'units') + ', '
-        + await this.getArgument(property, 'firstDate') + ', '
-        + await this.getArgument(property, 'secondDate') + ')';
+        + await this.getArgument(table, property['@id'], property.function.argument, 'units') + ', '
+        + await this.getArgument(table, property['@id'], property.function.argument, 'firstDate') + ', '
+        + await this.getArgument(table, property['@id'], property.function.argument, 'secondDate') + ')';
     } else {
       throw new Error("Unknown function [" + JSON.stringify(property.function, null, 2) + "]");
     }

@@ -20,7 +20,11 @@ export class Sql extends Join {
   }
 
   public toCreate(): string {
-    let result = "CREATE TABLE IF NOT EXISTS " + dataModelMap[this.id].name + "\n"
+    const table = dataModelMap[this.id];
+    if (!table)
+      throw "Id not in data model map [" + this.id + "]";
+
+    let result = "CREATE TABLE IF NOT EXISTS " + table.name + "\n"
       + "SELECT m." + this.table.fields.pk;
 
     for (let f = 0; f < this.fields.length; f++) {

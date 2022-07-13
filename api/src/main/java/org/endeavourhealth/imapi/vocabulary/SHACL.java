@@ -13,6 +13,7 @@ public class SHACL {
    public static final TTIriRef MAXINCLUSIVE= iri(NAMESPACE +"maxInclusive");
    public static final TTIriRef MAXEXCLUSIVE= iri(NAMESPACE +"maxExclusive");
    public static final TTIriRef PROPERTY= iri(NAMESPACE +"property");
+   public static final TTIriRef PROPERTY_GROUP= iri(NAMESPACE +"propertyGroup");
    public static final TTIriRef MINCOUNT= iri(NAMESPACE +"minCount");
    public static final TTIriRef MAXCOUNT= iri(NAMESPACE +"maxCount");
    public static final TTIriRef HASVALUE= iri(NAMESPACE +"hasValue");
@@ -40,6 +41,7 @@ public class SHACL {
    public static final TTIriRef SPARQL_TARGET= iri(NAMESPACE +"SPARQLTarget");
    public static final TTIriRef FUNCTION= iri(NAMESPACE +"Function");
    public static final TTIriRef RETURN_TYPE= iri(NAMESPACE +"returnType");
+   public static final TTIriRef GROUP= iri(NAMESPACE +"group");
 
 
 

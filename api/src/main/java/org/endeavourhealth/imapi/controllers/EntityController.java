@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
@@ -18,12 +19,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.service.ConceptService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -82,6 +85,14 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
+	@GetMapping(value = "/snomedConceptGenerator", produces = "application/json")
+	public TTIriRef getSnomedConcept(
+		@RequestParam(name = "namespace") String namespace
+	) throws Exception {
+		LOG.debug("getSnomedConcept");
+		return new ConceptService().createConcept(namespace);
+	}
+
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
@@ -103,6 +114,14 @@ public class EntityController {
         LOG.debug("getPartialEntityBundle");
         return entityService.getBundle(iri, predicates);
     }
+
+	@GetMapping(value = "/public/entityAsPlainJson", produces = "application/json")
+	public String getForm(
+		@RequestParam(name = "iri") String iri
+	) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+		LOG.debug("getEntityAsPlainJson");
+		return entityService.getAsPlainJson(iri);
+	}
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
     public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) {
@@ -430,12 +449,6 @@ public class EntityController {
 		return entityService.getParentPath(iri);
 	}
 
-	@GetMapping("/public/parentHierarchy")
-	public EntityReferenceNode getParentHierarchy(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getParentHierarchy");
-		return entityService.getParentHierarchy(iri);
-	}
-
     @GetMapping("/public/pathBetweenNodes")
     public List<TTIriRef> getPathBetweenNodes(
 		@RequestParam(name = "descendant") String descendant,
@@ -452,9 +465,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/unmapped")
-	public List<TTIriRef> getUnmapped() {
+	public List<TTEntity> getUnmapped(@RequestParam(name = "term") Optional<String> term, @RequestParam(name = "status") Optional<List<String>> status, @RequestParam(name = "scheme") Optional<List<String>> scheme, @RequestParam(name = "type") Optional<List<String>> type, @RequestParam(name = "usage") Optional<Integer> usage, @RequestParam(name = "limit") Optional<Integer> limit) {
 		LOG.debug("getUnmapped");
-		return entityService.getUnmapped();
+		return entityService.getUnmapped(term.orElse(""), status.orElse(new ArrayList<>()), scheme.orElse(new ArrayList<>()), type.orElse(new ArrayList<>()), usage.orElse(null), limit.orElse(100));
 	}
 
 	@GetMapping("/public/unclassified")
@@ -495,15 +508,14 @@ public class EntityController {
 		return entityService.iriExists(iri);
 	}
 
-	@PostMapping("/task")
+	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
-		LOG.debug("createTask");
-		String agentName = reqObjService.getRequestAgentName(request);
-		return entityService.saveTask(entity, agentName);
+	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri) throws Exception {
+		LOG.debug("getTaskActions");
+		return entityService.getActions(taskIri);
 	}
 
-	@GetMapping("/task/action")
+	@PostMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity addTaskAction(
 		@RequestParam(name = "entityIri") String entityIri,

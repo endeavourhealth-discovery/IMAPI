@@ -156,7 +156,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                 "        ?o1 ?p2 ?o2.\n" +
                 "        ?o2 ?p3 ?o3.\n" +
                 "        ?o3 ?p4 ?o4.}\n" +
-                "where { graph <" + graph + "> {\n" +
+                "where { graph <" + graph.getIri() + "> {\n" +
                 "    {?concept ?p1 ?o1.\n" +
                 "    filter(?p1 in(" + predList + "))\n" +
                 "    OPTIONAL {?o1 ?p2 ?o2.\n" +
@@ -166,7 +166,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                 "            filter (isBlank(?o2))\n" +
                 "            OPTIONAL {?o3 ?p4 ?o4.\n" +
                 "                filter(!isBlank(?o3))}}\n" +
-                "        }} }\n";
+                "        }} }}\n";
         Update deletePredicates = conn.prepareUpdate(spq);
         deletePredicates.setBinding("concept", valueFactory.createIRI(entity.getIri()));
         try {

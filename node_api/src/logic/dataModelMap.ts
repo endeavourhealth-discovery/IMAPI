@@ -53,6 +53,12 @@ export const dataModelMap = {
       pk: "id"
     }
   },
+  "urn:uuid:951b62db-4e81-4fcd-8cf7-0e71c28d30e9" : {
+    name: "APL_CVD_HT_v1-0_Search_PID",
+    fields: {
+      pk: "id"
+    }
+  },
 
   // Clinical tables
   "http://endhealth.info/im#Person" : {
@@ -62,7 +68,7 @@ export const dataModelMap = {
       "http://endhealth.info/im#age": "age()",                                // TODO: Needs to be patient_type function!?
       "http://endhealth.info/im#gpPatientType": "gpPatientType()",            // TODO: Needs to be patient_type function!?
       "http://endhealth.info/im#gpRegistrationStatus": "gpRegStat()",         // TODO: Needs to be registrations_status function!?
-      "http://endhealth.info/im#gpGMSRegistrationDate": "gpGMSRegStat()",     // TODO: Needs to be registrations_status function!?
+      "http://endhealth.info/im#gpGMSRegistrationDate": "gms_reg_date",     // TODO: Needs to be registrations_status function!?
       "http://endhealth.info/im#organisation": "organization_id",
       "http://endhealth.info/im#dateOfBirth": "date_of_birth"
     },

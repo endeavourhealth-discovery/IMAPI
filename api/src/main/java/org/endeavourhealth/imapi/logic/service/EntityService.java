@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -17,10 +18,12 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
+import org.endeavourhealth.imapi.transforms.TTToClassObject;
 import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
@@ -30,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -60,6 +64,20 @@ public class EntityService {
 
     public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
+    }
+    public String getAsPlainJson(String iri) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+        TTBundle bundle= entityRepository2.getBundle(iri);
+        Class<?> cls;
+        String entityType= bundle.getEntity().getType().get(0).asIriRef().getIri();
+        switch (entityType){
+            case (IM.NAMESPACE+"FormGenerator") :
+                cls=FormGenerator.class;
+                break;
+            default:
+                throw new NoSuchMethodException(" entity type "+ entityType+" is not supported as a POJO class");
+
+        }
+        return new ObjectMapper().writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(),cls));
     }
 
     public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
@@ -871,62 +889,6 @@ public class EntityService {
         }
     }
 
-    public EntityReferenceNode getParentHierarchy(String iri) {
-        TTEntity child = getBundle(iri, new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri(), RDFS.SUBCLASSOF.getIri(), IM.IS_CHILD_OF.getIri(), RDFS.SUBPROPERTYOF.getIri()))).getEntity();
-        EntityReferenceNode childNode = new EntityReferenceNode(child.getIri(), child.getName(), child.getType());
-
-        if (child.has(IM.IS_CONTAINED_IN)) {
-            for (TTValue ttvalue : child.get(IM.IS_CONTAINED_IN).getElements()) {
-                childNode.addParent(new EntityReferenceNode(ttvalue.asIriRef().getIri()));
-            }
-        }
-
-        if (child.has(RDFS.SUBCLASSOF)) {
-            for (TTValue ttvalue : child.get(RDFS.SUBCLASSOF).getElements()) {
-                childNode.addParent(new EntityReferenceNode(ttvalue.asIriRef().getIri()));
-            }
-        }
-
-        if (child.has(IM.IS_CHILD_OF)) {
-            for (TTValue ttvalue : child.get(IM.IS_CHILD_OF).getElements()) {
-                childNode.addParent(new EntityReferenceNode(ttvalue.asIriRef().getIri()));
-            }
-        }
-
-        if (child.has(RDFS.SUBPROPERTYOF)) {
-            for (TTValue ttvalue : child.get(RDFS.SUBPROPERTYOF).getElements()) {
-                childNode.addParent(new EntityReferenceNode(ttvalue.asIriRef().getIri()));
-            }
-        }
-
-
-        getParentHierarchyRecursive(childNode);
-
-        return childNode;
-    }
-
-    private void getParentHierarchyRecursive(EntityReferenceNode child) {
-        if (child.getParents() != null && !child.getParents().isEmpty()) {
-            for (EntityReferenceNode parent : child.getParents()) {
-                TTEntity parentEntity = getBundle(parent.getIri(), new HashSet<>(List.of(RDFS.LABEL.getIri(), RDF.TYPE.getIri(), IM.IS_CONTAINED_IN.getIri()))).getEntity();
-                EntityReferenceNode parentNode = new EntityReferenceNode(parentEntity.getIri(), parentEntity.getName(), parentEntity.getType());
-                EntityReferenceNode parentNodeRef = child.getParents().stream().filter(childParent -> childParent.getIri().equals(parentNode.getIri())).findFirst().orElse(null);
-                if (parentNodeRef != null) {
-                    parentNodeRef.setType(parentNode.getType()).setParents(parentNode.getParents()).setName(parentNode.getName());
-                } else {
-                    child.addParent(parentNode);
-                }
-                if (parentEntity.get(IM.IS_CONTAINED_IN) != null) {
-                    for (TTValue ttvalue : parentEntity.get(IM.IS_CONTAINED_IN).getElements()) {
-                        parentNode.addParent(new EntityReferenceNode(ttvalue.asIriRef().getIri()));
-                    }
-
-                    getParentHierarchyRecursive(parentNode);
-                }
-            }
-        }
-    }
-
     public List<TTIriRef> getPathBetweenNodes(String descendant, String ancestor) {
         return entityRepository.getPathBetweenNodes(descendant, ancestor);
     }
@@ -939,10 +901,10 @@ public class EntityService {
         return unassignedList;
     }
 
-    public List<TTIriRef> getUnmapped() {
-        List<TTIriRef> unmappedList = new ArrayList<>();
-        for (TTIriRef unmapped : entityRepository2.findUnmapped()) {
-            unmappedList.add(new TTIriRef().setIri(unmapped.getIri()).setName(unmapped.getName()));
+    public List<TTEntity> getUnmapped(String term, List<String> status, List<String> scheme, List<String> type, Integer usage, Integer limit) {
+        List<TTEntity> unmappedList = new ArrayList<>();
+        if (term.isBlank()) {
+            return entityRepository2.findUnmapped(status, scheme, type, usage, limit);
         }
         return unmappedList;
     }
@@ -1065,13 +1027,6 @@ public class EntityService {
         return entity;
     }
 
-    public TTEntity saveTask(TTEntity entity, String agentName) throws Exception {
-        entity.addType(IM.TASK)
-                .set(IM.IS_CONTAINED_IN, iri(IM.NAMESPACE + "Tasks"));
-        filerService.fileTransactionDocument(new TTDocument().addEntity(entity).setCrud(IM.UPDATE_ALL).setGraph(IM.GRAPH), agentName);
-        return getBundleByPredicateExclusions(entity.getIri(), null).getEntity();
-    }
-
     public TTEntity addConceptToTask(String entityIri, String taskIri, String agentName) throws Exception {
         TTEntity entity = getBundleByPredicateExclusions(entityIri, null).getEntity();
         if (entity.get(IM.IN_TASK) == null) {
@@ -1106,6 +1061,10 @@ public class EntityService {
         }
 
         return result;
+    }
+
+    public List<TTEntity> getActions(String taskIri) {
+        return entityRepository2.getActions(taskIri);
     }
 }
 

@@ -3,15 +3,16 @@ package org.endeavourhealth.imapi.model.sets;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-
-import static org.endeavourhealth.imapi.model.sets.Query.getJson;
 
 @JsonPropertyOrder ({"iri","name","description","mainEntity","var","resultFormat","subset","distinct","activeOnly","referenceDate","select","groupBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -23,11 +24,44 @@ public class Query extends Heading {
 	private List<Select> subselect;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
-	private String referenceDate;
 	private boolean activeOnly;
 	private int page;
 	private int pageSize;
 	private TTIriRef mainEntity;
+	private Match ask;
+	private Map<String,String> variables = new HashMap<>();
+
+	public Map<String, String> getVariables() {
+		return variables;
+	}
+
+	public Query setVariables(Map<String, String> variables) {
+		this.variables = variables;
+		return this;
+	}
+
+	@JsonIgnore
+	public Query putVariable(String key,String value){
+		this.variables.put(key,value);
+		return this;
+	}
+
+	public Match getAsk() {
+		return ask;
+	}
+
+	@JsonSetter
+	public Query setAsk(Match ask) {
+		this.ask = ask;
+		return this;
+	}
+	@JsonIgnore
+	public Query ask(Consumer<Match> builder){
+		Match ask= new Match();
+		this.ask= ask;
+		builder.accept(ask);
+		return this;
+	}
 
 	@JsonIgnore
 	public Query select(Consumer<Select> builder){
@@ -72,14 +106,6 @@ public class Query extends Heading {
 		return this;
 	}
 
-	public String getReferenceDate() {
-		return referenceDate;
-	}
-
-	public Query setReferenceDate(String referenceDate) {
-		this.referenceDate = referenceDate;
-		return this;
-	}
 
 
 	@Override

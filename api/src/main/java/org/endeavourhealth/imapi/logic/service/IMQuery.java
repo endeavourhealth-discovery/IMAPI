@@ -9,6 +9,7 @@ import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -16,6 +17,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.imapi.transforms.SetToSparql;
@@ -54,12 +56,29 @@ public class IMQuery {
 
 	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
 		validate(query);
-		if (query.getReferenceDate() == null) {
+		if (query.getVariables().get("$referenceDate") == null) {
 			String now = LocalDate.now().toString();
-			query.setReferenceDate(now);
+			query.getVariables().put("$referenceDate",now);
 		}
 		String spq = buildSparql(query);
 			return goGraphSearch(spq);
+	}
+
+	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
+		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
+		if (entity==null)
+			throw new DataFormatException("Entity "+ iri+" is unknown");
+		if (entity.get(IM.MATCH)==null)
+			throw new DataFormatException("Entity "+ iri+" is not a match query");
+		this.query= new ObjectMapper().readValue(entity.get(IM.MATCH).asLiteral().getValue(),Query.class);
+		query.setVariables(variables);
+		if (query.getVariables().get("$referenceDate") == null) {
+			String now = LocalDate.now().toString();
+			query.getVariables().put("$referenceDate",now);
+		}
+		String spq = buildSparql(query);
+		return goBooleanGraphSearch(spq);
+
 	}
 
 
@@ -70,6 +89,14 @@ public class IMQuery {
 			inArray.add(iri(res.getIri()));
 		}
 		return Strings.join(inArray, ",");
+	}
+
+	private boolean goBooleanGraphSearch(String spq){
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+			BooleanQuery qry = conn.prepareBooleanQuery(spq);
+			return qry.evaluate();
+		}
+
 	}
 
 
@@ -88,7 +115,6 @@ public class IMQuery {
 			TupleQuery qry= conn.prepareTupleQuery(spq);
 			try (TupleQueryResult rs= qry.evaluate()){
 					while (rs.hasNext()){
-
 						BindingSet bs= rs.next();
 						bindResults(bs,result);
 
@@ -126,32 +152,50 @@ public class IMQuery {
 	 * @return String of SPARQL
 	 **/
 
-	public String buildSparql(Query query) throws DataFormatException{
+	public String buildSparql(Query query) throws DataFormatException {
 		this.query = query;
-
-
-		StringBuilder selectQl = new StringBuilder();
-		selectQl.append(getDefaultPrefixes());
-		Select select= query.getSelect();
-		selectQl.append("SELECT ");
-		if (query.getResultFormat() == ResultFormat.OBJECT||select.isDistinct()) {
-			selectQl.append("distinct ");
+		if (query.getAsk()!=null){
+			return buildAskSparql(query);
 		}
-		selectQl.append("?entity ");
+		else
+			return buildSelectSparql(query);
+	}
 
-		StringBuilder whereQl = new StringBuilder();
-		whereQl.append("WHERE {");
+	private String buildAskSparql(Query query) throws DataFormatException {
+		StringBuilder askQl = new StringBuilder();
+		askQl.append("ASK {");
+		Match match= query.getAsk();
+		String entity= query.getVariables().get("$this");
+		match.setEntityId(TTIriRef.iri(entity));
+		where(askQl, "entity",1, match);
+		askQl.append("}");
+		return askQl.toString();
+	}
 
 
+	private String buildSelectSparql(Query query) throws DataFormatException {
 
-		select(selectQl, select,whereQl,0,"entity");
-		selectQl.append("\n");
+	StringBuilder selectQl = new StringBuilder();
+			selectQl.append(getDefaultPrefixes());
+			Select select = query.getSelect();
+			selectQl.append("SELECT ");
+			if (query.getResultFormat() == ResultFormat.OBJECT || select.isDistinct()) {
+				selectQl.append("distinct ");
+			}
+			selectQl.append("?entity ");
 
-		whereQl.append("}");
+			StringBuilder whereQl = new StringBuilder();
+			whereQl.append("WHERE {");
 
-		selectQl.append(whereQl);
-		orderLimit(selectQl);
-		return selectQl.toString();
+			select(selectQl, select, whereQl, 0, "entity");
+			selectQl.append("\n");
+
+			whereQl.append("}");
+
+			selectQl.append(whereQl);
+			orderLimit(selectQl);
+			return selectQl.toString();
+
 	}
 
 
@@ -611,13 +655,19 @@ public class IMQuery {
 
 	private String resolveReference(String value) throws DataFormatException {
 		String result=value;
-		if (value.equalsIgnoreCase("$referencedate")) {
-			result = query.getReferenceDate();
+		if (value.equals("$referenceDate")) {
+			result = query.getVariables().get(value);
 			if (result == null)
 				result = LocalDate.now().toString();
 			return result;
 		}
-		throw new DataFormatException("unknown parameter variable "+ value);
+		else {
+			result= query.getVariables().get(value);
+			if (result!=null)
+				return result;
+			else
+				throw new DataFormatException("unknown parameter variable "+ value);
+		}
 	}
 
 
@@ -866,7 +916,10 @@ public class IMQuery {
 		if (query.getResultFormat()==null){
 			query.setResultFormat(ResultFormat.OBJECT);
 		}
-		if (query.getSelect() == null) {
+		if (query.getAsk()!=null){
+			return;
+		}
+		else 	if (query.getSelect() == null) {
 			query.setSelect(new Select()
 				.setDistinct(true)
 				.addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")

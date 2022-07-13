@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -34,6 +35,19 @@ public class QueryController {
          */
         return null;
     }
+    @GetMapping(value = "/public/booleanQueryIM", produces = "text/plain")
+    @Operation(
+      summary = "Boolean query IM",
+      description = "SPARQL ASK query passing in iri of query entity and map of query variables- value"
+    )
+    public String booleanQuery(
+      @RequestParam(name = "iri") String iri,
+      @RequestParam()Map<String,String> testVariables) throws DataFormatException, JsonProcessingException {
+        LOG.debug("booleanQueryIM");
+        return new SearchService().booleanQueryIM(iri, testVariables)==true ?"true" : "false";
+    }
+
+
 
 
     @PostMapping( "/public/queryIM")

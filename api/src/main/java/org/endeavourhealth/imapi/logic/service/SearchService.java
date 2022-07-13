@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -36,6 +37,10 @@ public class SearchService {
 	 */
 	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
 		return new IMQuery().queryIM(query);
+	}
+
+	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
+		return new IMQuery().booleanQueryIM(iri,variables);
 	}
 
 	/**

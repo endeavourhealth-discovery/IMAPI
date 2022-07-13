@@ -34,6 +34,8 @@ public class Match extends Heading {
 	private List<PropertyValue> testProperty;
 	private String displayText;
 
+
+
 	public String getDisplayText() {
 		return displayText;
 	}

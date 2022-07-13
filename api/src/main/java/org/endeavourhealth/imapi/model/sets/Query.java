@@ -30,6 +30,16 @@ public class Query extends Heading {
 	private TTIriRef mainEntity;
 	private Match ask;
 	private Map<String,String> variables = new HashMap<>();
+	private String textSearch;
+
+	public String getTextSearch() {
+		return textSearch;
+	}
+
+	public Query setTextSearch(String textSearch) {
+		this.textSearch = textSearch;
+		return this;
+	}
 
 	public Map<String, String> getVariables() {
 		return variables;
@@ -43,6 +53,12 @@ public class Query extends Heading {
 	@JsonIgnore
 	public Query putVariable(String key,String value){
 		this.variables.put(key,value);
+		return this;
+	}
+
+	@JsonIgnore
+	public Query addVariable(String key,String value){
+		this.putVariable(key,value);
 		return this;
 	}
 

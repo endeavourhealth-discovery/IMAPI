@@ -48,6 +48,20 @@ public class QueryController {
     }
 
 
+    @GetMapping(value = "/public/queryByIri", produces = "application/json")
+    @Operation(
+      summary = "Queries the IM using a query entity iri",
+      description = "SPARQL select query passing in iri of query entity and map of query variables- value for text pass 'text=theterm' "
+    )
+    public ObjectNode queryByIri(
+      @RequestParam(name = "iri") String iri,
+      @RequestParam()Map<String,String> testVariables) throws DataFormatException, JsonProcessingException {
+        LOG.debug("queryByIri");
+        return new SearchService().queryIM(iri,testVariables);
+
+    }
+
+
 
 
     @PostMapping( "/public/queryIM")

@@ -35,17 +35,16 @@ public class IMQuery {
 	private TTContext prefixes;
 	private final Map<String,String> matchVarProperty = new HashMap<>();
 	private final Map<String,String> selectVarProperty = new HashMap<>();
-	private final Map<String,String> pathMap= new HashMap<>();
 	private String tabs="";
 	private int o=0;
 	private Query query;
 	private final Set<String> aliases = new HashSet<>();
-	private boolean wildProperty;
 
 	private final Map<String, ObjectNode> valueMap = new HashMap<>();
 	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
 	private final Set<String> predicates= new HashSet<>();
 	final ObjectMapper mapper = new ObjectMapper();
+	private boolean fuzzy =false;
 
 
 
@@ -68,18 +67,36 @@ public class IMQuery {
 		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
 		if (entity==null)
 			throw new DataFormatException("Entity "+ iri+" is unknown");
-		if (entity.get(IM.MATCH)==null)
-			throw new DataFormatException("Entity "+ iri+" is not a match query");
+		if (entity.get(IM.ASK)==null)
+			throw new DataFormatException("Entity "+ iri+" is not aN ASK query");
 		this.query= new ObjectMapper().readValue(entity.get(IM.MATCH).asLiteral().getValue(),Query.class);
+		query.setVariables(variables);
+		if (query.getVariables().get("$referenceDate") == null) {
+			String now = LocalDate.now().toString();
+			query.getVariables().put("$referenceDate", now);
+		}
+		String spq = buildSparql(query);
+		return goBooleanGraphSearch(spq);
+
+	}
+
+	public ObjectNode queryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
+		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
+		if (entity==null)
+			throw new DataFormatException("Entity "+ iri+" is unknown");
+		if (entity.get(IM.SELECT)==null)
+			throw new DataFormatException("Entity "+ iri+" is not a select query");
+		this.query= new ObjectMapper().readValue(entity.get(IM.SELECT).asLiteral().getValue(),Query.class);
 		query.setVariables(variables);
 		if (query.getVariables().get("$referenceDate") == null) {
 			String now = LocalDate.now().toString();
 			query.getVariables().put("$referenceDate",now);
 		}
 		String spq = buildSparql(query);
-		return goBooleanGraphSearch(spq);
+		return goGraphSearch(spq);
 
 	}
+
 
 
 
@@ -101,7 +118,7 @@ public class IMQuery {
 
 
 
-	private ObjectNode goGraphSearch(String spq) throws JsonProcessingException {
+	private ObjectNode goGraphSearch(String spq) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			ObjectNode result= mapper.createObjectNode();
 			ObjectNode context= mapper.createObjectNode();
@@ -177,6 +194,10 @@ public class IMQuery {
 
 	StringBuilder selectQl = new StringBuilder();
 			selectQl.append(getDefaultPrefixes());
+			if (query.getVariables().get("text")!=null){
+				selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
+					.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
+			}
 			Select select = query.getSelect();
 			selectQl.append("SELECT ");
 			if (query.getResultFormat() == ResultFormat.OBJECT || select.isDistinct()) {
@@ -186,6 +207,17 @@ public class IMQuery {
 
 			StringBuilder whereQl = new StringBuilder();
 			whereQl.append("WHERE {");
+
+			if (query.getVariables().get("text")!=null){
+				String text= query.getVariables().get("text");
+				whereQl.append("[] a con-inst:im_fts;\n")
+					.append("       con:query \"label:");
+				if (!fuzzy)
+					whereQl.append(text).append("*\" ;\n");
+				else
+					whereQl.append(text).append("~\";\n");
+				whereQl.append("       con:entities ?entity.\n");
+			}
 
 			select(selectQl, select, whereQl, 0, "entity");
 			selectQl.append("\n");
@@ -274,13 +306,9 @@ public class IMQuery {
 			}
 		}
 		if (select.getProperty() != null) {
-			wildProperty= false;
 			for (PropertySelect property : select.getProperty()) {
 				selectProperty(property, subject, selectQl, whereQl, level);
 			}
-			if (wildProperty)
-				if (select.getProperty().size()>2)
-					throw new DataFormatException("Select statement contains both * and a property. Must be either or");
 		}
 	}
 	private void selectProperty(PropertySelect property, String subject,
@@ -288,8 +316,8 @@ public class IMQuery {
 				String path = property.getIri();
 				String object= property.getAlias();
 				if (object!=null)
-				if (object.equals("*"))
-					throw new DataFormatException("Wild card (*) not supported due to combinatorial explosion potential in graph");
+					if (object.equals("*"))
+						throw new DataFormatException("Wild card (*) not supported due to combinatorial explosion potential in graph");
 				if (path==null) {
 						if (object == null)
 							throw new DataFormatException("Select without property or alias");
@@ -327,7 +355,7 @@ public class IMQuery {
 							select(selectQl, property.getSelect(), whereQl, level + 1, object);
 						}
 						if (optional)
-						whereQl.append("}\n");
+							whereQl.append("}\n");
 					}
 	 }
 
@@ -460,7 +488,7 @@ public class IMQuery {
 		if (where.getPathTo()!=null){
 			o++;
 			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
-				.append(" ").append("?").append(subject+o).append(".\n");
+				.append(" ").append("?").append(subject).append(o).append(".\n");
 			subject= subject+o;
 		}
 		String originalSubject = subject;
@@ -562,7 +590,7 @@ public class IMQuery {
 		if (pv.getPathTo()!=null){
 			o++;
 			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
-				.append(" ").append("?").append(subject+o).append(".\n");
+				.append(" ").append("?").append(subject).append(o).append(".\n");
 			subject= subject+o;
 		}
 		if (pv.isOptional()){
@@ -654,7 +682,7 @@ public class IMQuery {
 	}
 
 	private String resolveReference(String value) throws DataFormatException {
-		String result=value;
+		String result;
 		if (value.equals("$referenceDate")) {
 			result = query.getVariables().get(value);
 			if (result == null)
@@ -685,7 +713,7 @@ public class IMQuery {
 		}
 	}
 
-	private void whereValueConcept(StringBuilder whereQl, String object,List<ConceptRef> refs){
+	private void whereValueConcept(StringBuilder whereQl, String object,List<ConceptRef> refs) throws DataFormatException {
 		int conceptCount=refs.size();
 		boolean superTypes= false;
 		boolean subTypes= false;
@@ -693,7 +721,17 @@ public class IMQuery {
 		String testObject="test_"+object;
 		List<String> inList= new ArrayList<>();
 		for (ConceptRef ref:refs) {
-			inList.add(iri(ref.getIri()));
+			if (ref.getIri()!=null) {
+				inList.add(iri(ref.getIri()));
+			}
+			else if (ref.getAlias()!=null){
+				String refIri= query.getVariables().get(ref.getAlias());
+				if (refIri==null)
+				 refIri= query.getVariables().get(ref.getAlias().replace("$",""));
+				if (refIri==null)
+					throw new DataFormatException("Query has concept value as variable not passed into query");
+				inList.add(iri(refIri));
+			}
 			if (ref.isIncludeValueSets())
 				valueSets= true;
 			if (ref.isIncludeSubtypes())

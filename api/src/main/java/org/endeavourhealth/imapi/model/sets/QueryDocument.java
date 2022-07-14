@@ -8,48 +8,33 @@ import java.util.List;
 /**
  * A collection of query definitions for use in query and reporting or model transformation
  */
-public class SetDocument {
+public class QueryDocument {
 	private TTIriRef id;
 	private List<Query> query;
 	private List<Query> profile;
 
-	public List<Query> getDataSet() {
+	public List<Query> getQuery() {
 		return query;
 	}
 
-	public SetDocument setDataSet(List<Query> query) {
+	public QueryDocument setQuery(List<Query> query) {
 		this.query = query;
 		return this;
 	}
 
-	public SetDocument addDataSet(Query set){
+	public QueryDocument addQuery(Query set){
 		if (this.query ==null)
 			this.query = new ArrayList<>();
 		this.query.add(set);
 		return this;
 	}
 
-	public List<Query> getProfile() {
-		return profile;
-	}
-
-	public SetDocument setProfile(List<Query> profile) {
-		this.profile = profile;
-		return this;
-	}
-
-	public SetDocument addProfile(Query profile){
-		if (this.profile==null)
-			this.profile= new ArrayList<>();
-		this.profile.add(profile);
-		return this;
-	}
 
 	public TTIriRef getId() {
 		return id;
 	}
 
-	public SetDocument setId(TTIriRef id) {
+	public QueryDocument setId(TTIriRef id) {
 		this.id = id;
 		return this;
 	}

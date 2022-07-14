@@ -214,7 +214,6 @@ public class IM {
     public static final TTIriRef SELECT = iri(NAMESPACE + "select");
     public static final TTIriRef MATCH = iri(NAMESPACE + "match");
     public static final TTIriRef ASK= iri(NAMESPACE + "ask");
-    public static final TTIriRef QUERY_DEFINITION = iri(NAMESPACE + "query");
     public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
     // ODS

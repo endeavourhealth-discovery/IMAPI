@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.sets.Query;
+import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -48,18 +49,6 @@ public class QueryController {
     }
 
 
-    @GetMapping(value = "/public/queryByIri", produces = "application/json")
-    @Operation(
-      summary = "Queries the IM using a query entity iri",
-      description = "SPARQL select query passing in iri of query entity and map of query variables- value for text pass 'text=theterm' "
-    )
-    public ObjectNode queryByIri(
-      @RequestParam(name = "iri") String iri,
-      @RequestParam()Map<String,String> testVariables) throws DataFormatException, JsonProcessingException {
-        LOG.debug("queryByIri");
-        return new SearchService().queryIM(iri,testVariables);
-
-    }
 
 
 
@@ -69,8 +58,8 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a query on IM"
     )
-    public ObjectNode queryIM(@RequestBody Query query) throws DataFormatException, JsonProcessingException {
+    public ObjectNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         LOG.debug("queryIM");
-        return new SearchService().queryIM(query);
+        return new SearchService().queryIM(queryRequest);
     }
 }

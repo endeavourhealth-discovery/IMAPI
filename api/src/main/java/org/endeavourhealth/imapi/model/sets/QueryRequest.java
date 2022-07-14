@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.sets;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.function.Consumer;
 
@@ -15,6 +16,26 @@ public class QueryRequest {
 	private String textSearch;
 	private String focusVariable;
 	private Query query;
+	private TTIriRef queryIri;
+	private String referenceDate;
+
+	public TTIriRef getQueryIri() {
+		return queryIri;
+	}
+
+	public QueryRequest setQueryIri(TTIriRef queryIri) {
+		this.queryIri = queryIri;
+		return this;
+	}
+
+	public String getReferenceDate() {
+		return referenceDate;
+	}
+
+	public QueryRequest setReferenceDate(String referenceDate) {
+		this.referenceDate = referenceDate;
+		return this;
+	}
 
 	public int getPage() {
 		return page;
@@ -70,7 +91,7 @@ public class QueryRequest {
 	}
 
 	@JsonIgnore
-	String getJson(Object object) throws JsonProcessingException {
+	public String getJson() throws JsonProcessingException {
 		return Query.getJson(this);
 	}
 }

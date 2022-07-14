@@ -10,30 +10,19 @@ import java.util.List;
  * POJO equivalent of an entity of type query
  */
 public class QueryEntity extends Heading{
-	private Query select;
-	private Query ask;
+	private Query query;
 
-	public Query getSelect() {
-		return select;
+	public Query getQuery() {
+		return query;
 	}
 
-	public QueryEntity setSelect(Query select) {
-		this.select = select;
+	public QueryEntity setQuery(Query query) {
+		this.query = query;
 		return this;
 	}
-
-	public Query getAsk() {
-		return ask;
-	}
-
-	public QueryEntity setAsk(Query ask) {
-		this.ask = ask;
-		return this;
-	}
-
 
 	@JsonIgnore
-	public String getasJson() throws JsonProcessingException {
+	public String getJson() throws JsonProcessingException {
 		return Query.getJson(this);
 	}
 }

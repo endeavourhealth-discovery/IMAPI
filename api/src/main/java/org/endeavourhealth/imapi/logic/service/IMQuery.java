@@ -45,6 +45,7 @@ public class IMQuery {
 	private final Set<String> predicates= new HashSet<>();
 	final ObjectMapper mapper = new ObjectMapper();
 	private boolean fuzzy =false;
+	private QueryRequest queryRequest;
 
 
 
@@ -53,44 +54,54 @@ public class IMQuery {
 	}
 
 
-	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
-		validate(query);
-		if (query.getVariables().get("$referenceDate") == null) {
-			String now = LocalDate.now().toString();
-			query.getVariables().put("$referenceDate",now);
-		}
-		String spq = buildSparql(query);
+	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		this.queryRequest= queryRequest;
+		if (queryRequest.getQueryIri()!=null)
+			return queryByIri(queryRequest.getQueryIri());
+		else {
+			this.query= queryRequest.getQuery();
+			if (query==null)
+				throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object");
+			validate(query);
+			checkReferenceDate();
+			String spq = buildSparql(query);
 			return goGraphSearch(spq);
+		}
+	}
+
+	private void checkReferenceDate(){
+		if (queryRequest.getReferenceDate()==null){
+			String now = LocalDate.now().toString();
+			queryRequest.setReferenceDate(now);
+		}
+
 	}
 
 	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
 		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
 		if (entity==null)
 			throw new DataFormatException("Entity "+ iri+" is unknown");
-		if (entity.get(IM.ASK)==null)
+		if (entity.get(IM.QUERY_DEFINITION)==null)
 			throw new DataFormatException("Entity "+ iri+" is not aN ASK query");
-		this.query= new ObjectMapper().readValue(entity.get(IM.MATCH).asLiteral().getValue(),Query.class);
-		query.setVariables(variables);
-		if (query.getVariables().get("$referenceDate") == null) {
-			String now = LocalDate.now().toString();
-			query.getVariables().put("$referenceDate", now);
-		}
+		this.queryRequest= new QueryRequest();
+		this.query= new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+		checkReferenceDate();
+
 		String spq = buildSparql(query);
 		return goBooleanGraphSearch(spq);
 
 	}
 
-	public ObjectNode queryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
-		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
+	private ObjectNode queryByIri(TTIriRef iri) throws DataFormatException, JsonProcessingException {
+		TTEntity entity= new EntityService().getFullEntity(iri.getIri()).getEntity();
 		if (entity==null)
-			throw new DataFormatException("Entity "+ iri+" is unknown");
-		if (entity.get(IM.SELECT)==null)
-			throw new DataFormatException("Entity "+ iri+" is not a select query");
-		this.query= new ObjectMapper().readValue(entity.get(IM.SELECT).asLiteral().getValue(),Query.class);
-		query.setVariables(variables);
-		if (query.getVariables().get("$referenceDate") == null) {
+			throw new DataFormatException("Entity "+ iri.getIri()+" is unknown");
+		if (entity.get(IM.QUERY_DEFINITION)==null)
+			throw new DataFormatException("Entity "+ iri.getIri()+" is not a select query");
+		this.query= new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+		if (queryRequest.getReferenceDate()==null){
 			String now = LocalDate.now().toString();
-			query.getVariables().put("$referenceDate",now);
+			queryRequest.setReferenceDate(now);
 		}
 		String spq = buildSparql(query);
 		return goGraphSearch(spq);
@@ -182,7 +193,9 @@ public class IMQuery {
 		StringBuilder askQl = new StringBuilder();
 		askQl.append("ASK {");
 		Match match= query.getAsk();
-		String entity= query.getVariables().get("$this");
+		String entity= queryRequest.getFocusVariable();
+		if (entity==null)
+			throw new DataFormatException("Query request does not contain the focus entity");
 		match.setEntityId(TTIriRef.iri(entity));
 		where(askQl, "entity",1, match);
 		askQl.append("}");
@@ -194,7 +207,7 @@ public class IMQuery {
 
 	StringBuilder selectQl = new StringBuilder();
 			selectQl.append(getDefaultPrefixes());
-			if (query.getVariables().get("text")!=null){
+			if (queryRequest.getTextSearch()!=null){
 				selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
 					.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
 			}
@@ -208,8 +221,8 @@ public class IMQuery {
 			StringBuilder whereQl = new StringBuilder();
 			whereQl.append("WHERE {");
 
-			if (query.getVariables().get("text")!=null){
-				String text= query.getVariables().get("text");
+			if (queryRequest.getTextSearch()!=null){
+				String text= queryRequest.getTextSearch();
 				whereQl.append("[] a con-inst:im_fts;\n")
 					.append("       con:query \"label:");
 				if (!fuzzy)
@@ -491,7 +504,6 @@ public class IMQuery {
 				.append(" ").append("?").append(subject).append(o).append(".\n");
 			subject= subject+o;
 		}
-		String originalSubject = subject;
 		if (where.isNotExist()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 		}
@@ -682,19 +694,18 @@ public class IMQuery {
 	}
 
 	private String resolveReference(String value) throws DataFormatException {
-		String result;
-		if (value.equals("$referenceDate")) {
-			result = query.getVariables().get(value);
-			if (result == null)
-				result = LocalDate.now().toString();
-			return result;
-		}
-		else {
-			result= query.getVariables().get(value);
-			if (result!=null)
-				return result;
+		try {
+			if (value.equalsIgnoreCase("$referenceDate")) {
+				return queryRequest.getReferenceDate();
+			}
+			else if (value.equals("$" + queryRequest.getFocusVariable())) {
+				return queryRequest.getFocusVariable();
+			}
 			else
-				throw new DataFormatException("unknown parameter variable "+ value);
+				throw new DataFormatException("unknown parameter variable " + value+". ");
+		}
+		catch (Exception e) {
+			throw new DataFormatException("unknown parameter variable " + value);
 		}
 	}
 
@@ -725,9 +736,7 @@ public class IMQuery {
 				inList.add(iri(ref.getIri()));
 			}
 			else if (ref.getAlias()!=null){
-				String refIri= query.getVariables().get(ref.getAlias());
-				if (refIri==null)
-				 refIri= query.getVariables().get(ref.getAlias().replace("$",""));
+				String refIri= resolveReference(ref.getAlias());
 				if (refIri==null)
 					throw new DataFormatException("Query has concept value as variable not passed into query");
 				inList.add(iri(refIri));

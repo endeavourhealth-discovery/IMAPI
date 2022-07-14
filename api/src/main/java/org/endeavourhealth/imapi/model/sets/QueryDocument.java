@@ -10,19 +10,18 @@ import java.util.List;
  */
 public class QueryDocument {
 	private TTIriRef id;
-	private List<Query> query;
-	private List<Query> profile;
+	private List<QueryEntity> query;
 
-	public List<Query> getQuery() {
+	public List<QueryEntity> getQuery() {
 		return query;
 	}
 
-	public QueryDocument setQuery(List<Query> query) {
+	public QueryDocument setQuery(List<QueryEntity> query) {
 		this.query = query;
 		return this;
 	}
 
-	public QueryDocument addQuery(Query set){
+	public QueryDocument addQuery(QueryEntity set){
 		if (this.query ==null)
 			this.query = new ArrayList<>();
 		this.query.add(set);

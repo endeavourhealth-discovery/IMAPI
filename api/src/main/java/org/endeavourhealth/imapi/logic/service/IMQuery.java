@@ -34,7 +34,6 @@ import java.util.zip.DataFormatException;
 public class IMQuery {
 	private TTContext prefixes;
 	private final Map<String,String> matchVarProperty = new HashMap<>();
-	private final Map<String,String> selectVarProperty = new HashMap<>();
 	private String tabs="";
 	private int o=0;
 	private Query query;
@@ -193,7 +192,7 @@ public class IMQuery {
 		StringBuilder askQl = new StringBuilder();
 		askQl.append("ASK {");
 		Match match= query.getAsk();
-		String entity= queryRequest.getFocusVariable();
+		String entity= queryRequest.getFocusVariables().get("this");
 		if (entity==null)
 			throw new DataFormatException("Query request does not contain the focus entity");
 		match.setEntityId(TTIriRef.iri(entity));
@@ -222,14 +221,8 @@ public class IMQuery {
 			whereQl.append("WHERE {");
 
 			if (queryRequest.getTextSearch()!=null){
-				String text= queryRequest.getTextSearch();
-				whereQl.append("[] a con-inst:im_fts;\n")
-					.append("       con:query \"label:");
-				if (!fuzzy)
-					whereQl.append(text).append("*\" ;\n");
-				else
-					whereQl.append(text).append("~\";\n");
-				whereQl.append("       con:entities ?entity.\n");
+				textSearch(whereQl);
+
 			}
 
 			select(selectQl, select, whereQl, 0, "entity");
@@ -237,14 +230,34 @@ public class IMQuery {
 
 			whereQl.append("}");
 
-			selectQl.append(whereQl);
+			selectQl.append(whereQl).append("\n");
 			orderLimit(selectQl);
 			return selectQl.toString();
 
 	}
 
+	private void textSearch(StringBuilder whereQl) {
+		String text= queryRequest.getTextSearch();
+		whereQl.append("[] a con-inst:im_fts;\n")
+			.append("       con:query \"label:");
+		String[] words= text.split(" ");
+		for (int i=0; i<words.length; i++){
+			words[i]= words[i]+ ((!fuzzy) ?"*" : "~");
+		}
+		String searchText= String.join(" && ",words);
+		whereQl.append("(").append(searchText).append(")").append("\" ;\n");
+		whereQl.append("       con:entities ?entity.\n");
+	}
+
 
 	private void orderLimit(StringBuilder selectQl) {
+		if (queryRequest.getTextSearch()!=null){
+			String labelAlias= getLabelAlias(query.getSelect());
+			if (labelAlias!=null)
+				selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelAlias)
+					.append("),\"").append(queryRequest.getTextSearch().split(" ")[0])
+					.append("\")) ASC(strlen(?").append(labelAlias).append("))\n");
+		}
 		if (query.getSelect()!=null){
 			if (query.getSelect().getOrderLimit()!=null){
 				OrderLimit order= query.getSelect().getOrderLimit();
@@ -258,8 +271,28 @@ public class IMQuery {
 				else
 					selectQl.append("?").append(order.getOrderBy().getAlias());
 				selectQl.append(")");
+				return;
 			}
 		}
+		if (queryRequest.getPage()!=null) {
+			if (queryRequest.getPageSize() != null) {
+				selectQl.append("LIMIT ").append(queryRequest.getPageSize()).append("\n");
+				if (queryRequest.getPage() > 1)
+					selectQl.append("OFFSET ").append((queryRequest.getPage() - 1) * (queryRequest.getPageSize())).append("\n");
+			}
+		}
+	}
+
+	private String getLabelAlias(Select select) {
+		if (select!=null){
+			if (select.getProperty()!=null)
+				for (PropertySelect prop:select.getProperty()){
+					if (prop.getIri().equals(RDFS.LABEL.getIri())){
+						return prop.getAlias();
+					}
+				}
+		}
+		return null;
 	}
 
 
@@ -439,35 +472,31 @@ public class IMQuery {
 
 
 
-	private void whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl) {
+	private String whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl) {
+		String matchSubject= subject;
 		if (entityId.isIncludeSubtypes()) {
-			whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append("super_").append(subject).append(".\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append("super_").append(subject)
-				.append("=").append(iri(entityId.getIri())).append(") \n");
+			matchSubject= "super_"+subject;
+			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
+		} else if (entityId.isIncludeSupertypes()) {
+			matchSubject= "sub_"+subject;
+			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append(matchSubject).append(".\n");
 		}
-		else if (entityId.isIncludeSupertypes()) {
-			whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append("sub_").append(subject).append(".\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append("sub_").append(subject)
+			whereQl.append(tabs).append("\tfilter (").append("?").append(matchSubject)
 				.append("=").append(iri(entityId.getIri())).append(") \n");
-		}
-		else {
-			whereQl.append(tabs).append("?").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append(subject)
-				.append("=").append(iri(entityId.getIri())).append(") \n");
-		}
+		return matchSubject;
 	}
 
-	private void whereEntityType(String subject,ConceptRef entityType, StringBuilder whereQl) {
+	private String whereEntityType(String subject,ConceptRef entityType, StringBuilder whereQl) {
+		String matchSubject= subject;
 		if (entityType.isIncludeSubtypes()) {
-			whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
-			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append("super_").append(subject).append(".\n");
+			matchSubject= "super_"+subject;
+			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
 		} else if (entityType.isIncludeSupertypes()) {
-			whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
-			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append("sub_").append(subject).append(".\n");
-		} else
-			whereQl.append(tabs).append("?").append(subject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
+			matchSubject= "sub_"+subject;
+			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append(matchSubject).append(".\n");
+		}
+		whereQl.append(tabs).append("?").append(matchSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
+		return matchSubject;
 	}
 
 
@@ -498,6 +527,7 @@ public class IMQuery {
 	 */
 
 	private void where(StringBuilder whereQl, String subject, int level , Match where) throws DataFormatException {
+		String matchSubject=subject;
 		if (where.getPathTo()!=null){
 			o++;
 			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
@@ -507,24 +537,14 @@ public class IMQuery {
 		if (where.isNotExist()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 		}
-		ConceptRef subjectRef= where.getEntityType();
-		if (subjectRef==null)
-			subjectRef= where.getEntityId();
+
 
 
 		whereGraph(whereQl, where);
 		if (subject.equals("entity"))
 			if (query.isActiveOnly())
 				whereQl.append("?").append(subject).append(" im:status im:Active.\n");
-		if (subjectRef!=null) {
-			if (subjectRef.isIncludeSubtypes()) {
-				o++;
-				whereQl.append(tabs).append("?").append(subject)
-					.append(" im:isA ?")
-					.append("super_").append(subject).append(o).append(".\n");
-				subject = "super_" + subject + o;
-			}
-		}
+
 
 		if (where.getEntityInSet() != null) {
 			boolean first = true;
@@ -541,25 +561,15 @@ public class IMQuery {
 			}
 		}
 		if (where.getEntityType() != null) {
-			ConceptRef type = where.getEntityType();
-			if (type.isIncludeSubtypes()) {
-				whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
-				whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(subject).append(".\n");
-			} else if (type.isIncludeSupertypes()) {
-				whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
-				whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append(subject).append(".\n");
-			} else
-				whereQl.append(tabs).append("?").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
+			matchSubject= whereEntityType(subject,where.getEntityType(),whereQl);
 		}
-		else if (where.getEntityId() != null) {
-			whereQl.append(tabs).append("?").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append(subject)
-				.append("=").append(iri(where.getEntityId().getIri())).append(") ");
+		else if (where.getEntityId()!=null) {
+			matchSubject = whereEntityId(subject, where.getEntityId(), whereQl);
+		}
 
-		}
 		if (where.getAnd()!=null) {
 			for (Match match : where.getAnd()) {
-				  where(whereQl, subject, level, match);
+				  where(whereQl, matchSubject, level, match);
 			}
 		}
 
@@ -570,14 +580,14 @@ public class IMQuery {
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-					where(whereQl, subject, level, match);
+					where(whereQl, matchSubject, level, match);
 
 				whereQl.append("}\n");
 			}
 		}
 		if (where.getProperty()!=null){
 			for (PropertyValue pv:where.getProperty()) {
-				whereProperty(whereQl, subject, level, where, pv);
+				whereProperty(whereQl, matchSubject, level, where, pv);
 			}
 		}
 		if (where.isNotExist())
@@ -698,11 +708,14 @@ public class IMQuery {
 			if (value.equalsIgnoreCase("$referenceDate")) {
 				return queryRequest.getReferenceDate();
 			}
-			else if (value.equals("$" + queryRequest.getFocusVariable())) {
-				return queryRequest.getFocusVariable();
+			else {
+				value= value.replace("$","");
+			if (queryRequest.getFocusVariables().get(value)!=null) {
+					return queryRequest.getFocusVariables().get(value);
+				}
+				else
+					throw new DataFormatException("unknown parameter variable " + value+". ");
 			}
-			else
-				throw new DataFormatException("unknown parameter variable " + value+". ");
 		}
 		catch (Exception e) {
 			throw new DataFormatException("unknown parameter variable " + value);
@@ -932,7 +945,7 @@ public class IMQuery {
 			return;
 
 		if (property==null) {
-			property=selectVarProperty.get(var);
+			property=matchVarProperty.get(var);
 			predicates.add(iri(property));
 		}
 

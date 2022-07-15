@@ -5,19 +5,43 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * Wrapper class for a query containing the run time parameters for passing into the query
  */
 public class QueryRequest {
-	private int page;
-	private int pageSize;
+	private Integer page;
+	private Integer pageSize;
 	private String textSearch;
-	private String focusVariable;
+	private Map<String,String> focusVariables = new HashMap<>();
 	private Query query;
 	private TTIriRef queryIri;
 	private String referenceDate;
+
+	public Map<String, String> getFocusVariables() {
+		return focusVariables;
+	}
+
+	public QueryRequest setFocusVariables(Map<String, String> focusVariables) {
+		this.focusVariables = focusVariables;
+		return this;
+	}
+
+	@JsonIgnore
+	public QueryRequest putFocusVariable(String variable,String value){
+		focusVariables.put(variable,value);
+		return this;
+	}
+
+	@JsonIgnore
+	public QueryRequest addFocusVariable(String variable,String value){
+		putFocusVariable(variable,value);
+		return this;
+	}
 
 	public TTIriRef getQueryIri() {
 		return queryIri;
@@ -37,20 +61,20 @@ public class QueryRequest {
 		return this;
 	}
 
-	public int getPage() {
+	public Integer getPage() {
 		return page;
 	}
 
-	public QueryRequest setPage(int page) {
+	public QueryRequest setPage(Integer page) {
 		this.page = page;
 		return this;
 	}
 
-	public int getPageSize() {
+	public Integer getPageSize() {
 		return pageSize;
 	}
 
-	public QueryRequest setPageSize(int pageSize) {
+	public QueryRequest setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
 		return this;
 	}
@@ -64,14 +88,7 @@ public class QueryRequest {
 		return this;
 	}
 
-	public String getFocusVariable() {
-		return focusVariable;
-	}
 
-	public QueryRequest setFocusVariable(String focusVariable) {
-		this.focusVariable = focusVariable;
-		return this;
-	}
 
 	public Query getQuery() {
 		return query;

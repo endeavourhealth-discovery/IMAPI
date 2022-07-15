@@ -144,28 +144,37 @@
     }, {
       "sh:path" : [ {
         "@id" : [ "im:age" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "xsd:integer" ]
       } ]
     }, {
       "sh:path" : [ {
         "@id" : [ "im:gpPatientType" ]
+      } ],
+      "sh:class" : [ {
+        "@id" : [ "im:1861000252107" ]
       } ]
     }, {
       "sh:path" : [ {
-        "@id" : [ "im:gpRegistrationStatus" ]
+        "@id" : [ "im:gpRegisteredStatus" ]
       } ],
       "sh:class" : [ {
-        "@id" : [ "im:1000171000252101" ]
+        "@id" : [ "im:1012561000252102" ]
       } ]
     }, {
       "sh:path" : [ {
         "@id" : [ "im:gpGMSRegistrationDate" ]
+      } ],
+      "sh:datatype" : [ {
+        "@id" : [ "im:DateTime" ]
       } ]
     }, {
       "sh:path" : [ {
         "@id" : [ "im:gpGMSRegisteredPractice" ]
       } ],
-      "sh:datatype" : [ {
-        "@id" : [ "im:DateTime" ]
+      "sh:class" : [ {
+        "@id" : [ "im:Organisation" ]
       } ]
     } ]
   }, {

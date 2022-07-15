@@ -27,6 +27,7 @@ import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
+import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -561,5 +562,13 @@ public class EntityController {
 	) {
 		LOG.debug("getBundleByPredicateExclusions");
 		return entityService.getBundleByPredicateExclusions(iri,predicates);
+	}
+
+	@GetMapping("/public/shapeFromType")
+	public TTIriRef getShapeFromType(
+		@RequestParam(name = "iri") String iri
+	) {
+		LOG.debug("getShapeFromType");
+		return entityService.getShapeFromType(iri);
 	}
 }

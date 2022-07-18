@@ -7,16 +7,42 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"iri","name","inverseOf","alias","binding","function","select"})
+@JsonPropertyOrder({"iri","name","inverseOf","alias","argument","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertySelect extends ConceptRef {
 	private Select select;
 	boolean inverseOf=false;
+	List<Argument> argument;
 	Function function;
+
+	public List<Argument> getArgument() {
+		return argument;
+	}
+
+	@JsonSetter
+	public PropertySelect setArgument(List<Argument> argument) {
+		this.argument = argument;
+		return this;
+	}
+
+	public PropertySelect addArgument(Argument argument){
+		if (this.argument==null)
+			this.argument= new ArrayList<>();
+		this.argument.add(argument);
+		return this;
+	}
+
+	public PropertySelect argument(Consumer<Argument> builder){
+		Argument arg= new Argument();
+		this.addArgument(arg);
+		builder.accept(arg);
+		return this;
+	}
 
 
 

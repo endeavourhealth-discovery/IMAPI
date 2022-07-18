@@ -196,7 +196,7 @@ public class IMQuery {
 		if (entity==null)
 			throw new DataFormatException("Query request does not contain the focus entity");
 		match.setEntityId(TTIriRef.iri(entity));
-		where(askQl, "entity",1, match);
+		where(askQl, "entity",1, match,null);
 		askQl.append("}");
 		return askQl.toString();
 	}
@@ -328,27 +328,19 @@ public class IMQuery {
 	 */
 	private void select(StringBuilder selectQl, Select select,StringBuilder whereQl,
 											int level,String subject) throws DataFormatException {
-		String filterSubject= subject;
+		String matchSubject= subject;
 		if (select.getEntityIn() != null) {
 			whereEntityIn(subject, select.getEntityIn(), whereQl);
 		}
 		if (select.getEntityType() != null) {
-			whereEntityType(subject, select.getEntityType(), whereQl);
-			if (select.getEntityType().isIncludeSubtypes())
-				filterSubject= "super_"+subject;
-			else if (select.getEntityType().isIncludeSupertypes())
-				filterSubject= "sub_"+ subject;
+			matchSubject= whereEntityType(subject, select.getEntityType(), whereQl,null);
 		}
 		else if (select.getEntityId() != null) {
-			whereEntityId(subject, select.getEntityId(), whereQl);
-			if (select.getEntityId().isIncludeSubtypes())
-				filterSubject= "super_"+ subject;
-			else if (select.getEntityId().isIncludeSupertypes())
-				filterSubject= "sub_"+subject;
+			matchSubject= whereEntityId(subject, select.getEntityId(), whereQl,null);
 		}
 		if (select.getMatch()!=null){
 			for (Match m:select.getMatch()) {
-				where(whereQl, filterSubject, level, m);
+				where(whereQl, matchSubject, level, m,select);
 			}
 		}
 		if (select.getProperty() != null) {
@@ -472,30 +464,38 @@ public class IMQuery {
 
 
 
-	private String whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl) {
+	private String whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl,Select select) {
+		if (select!=null)
+			if (select.getEntityId()!=null)
+				if (entityId.equals(select.getEntityId()))
+					return subject;
 		String matchSubject= subject;
+		String superSubject= subject;
 		if (entityId.isIncludeSubtypes()) {
-			matchSubject= "super_"+subject;
+			matchSubject= "match"+subject;
+			superSubject= "super"+subject;
 			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
-		} else if (entityId.isIncludeSupertypes()) {
-			matchSubject= "sub_"+subject;
-			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append(matchSubject).append(".\n");
+			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
 		}
-			whereQl.append(tabs).append("\tfilter (").append("?").append(matchSubject)
+			whereQl.append(tabs).append("\tfilter (").append("?").append(superSubject)
 				.append("=").append(iri(entityId.getIri())).append(") \n");
 		return matchSubject;
 	}
 
-	private String whereEntityType(String subject,ConceptRef entityType, StringBuilder whereQl) {
+	private String whereEntityType(String subject,ConceptRef entityType, StringBuilder whereQl,Select select) {
+		if (select!=null)
+			if (select.getEntityType()!=null)
+				if (entityType.equals(select.getEntityType()))
+					return subject;
 		String matchSubject= subject;
+		String superSubject= subject;
 		if (entityType.isIncludeSubtypes()) {
-			matchSubject= "super_"+subject;
+			matchSubject= "match"+subject;
+			superSubject= "super"+subject;
 			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
-		} else if (entityType.isIncludeSupertypes()) {
-			matchSubject= "sub_"+subject;
-			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append(matchSubject).append(".\n");
+			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
 		}
-		whereQl.append(tabs).append("?").append(matchSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
+		whereQl.append(tabs).append("?").append(superSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
 		return matchSubject;
 	}
 
@@ -526,7 +526,7 @@ public class IMQuery {
 	 * @param where the where clause of the query
 	 */
 
-	private void where(StringBuilder whereQl, String subject, int level , Match where) throws DataFormatException {
+	private void where(StringBuilder whereQl, String subject, int level , Match where,Select select) throws DataFormatException {
 		String matchSubject=subject;
 		if (where.getPathTo()!=null){
 			o++;
@@ -561,15 +561,15 @@ public class IMQuery {
 			}
 		}
 		if (where.getEntityType() != null) {
-			matchSubject= whereEntityType(subject,where.getEntityType(),whereQl);
+			matchSubject= whereEntityType(subject,where.getEntityType(),whereQl,select);
 		}
 		else if (where.getEntityId()!=null) {
-			matchSubject = whereEntityId(subject, where.getEntityId(), whereQl);
+			matchSubject = whereEntityId(subject, where.getEntityId(), whereQl,select);
 		}
 
 		if (where.getAnd()!=null) {
 			for (Match match : where.getAnd()) {
-				  where(whereQl, matchSubject, level, match);
+				  where(whereQl, matchSubject, level, match,select);
 			}
 		}
 
@@ -580,7 +580,7 @@ public class IMQuery {
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-					where(whereQl, matchSubject, level, match);
+					where(whereQl, matchSubject, level, match,select);
 
 				whereQl.append("}\n");
 			}
@@ -644,7 +644,7 @@ public class IMQuery {
 
 		}
 		if (pv.getIsConcept()!=null) {
-			whereValueConcept(whereQl,object,pv.getIsConcept());
+			whereIsConcept(whereQl,object,pv.getIsConcept());
 		}
 		else if (pv.getValue()!=null){
 			whereValueCompare(whereQl,object,pv.getValue());
@@ -654,7 +654,7 @@ public class IMQuery {
 			whereValueIn(whereQl,object,pv.getInSet());
 		}
 		else if (pv.getMatch()!=null){
-			where(whereQl,object,level++,pv.getMatch());
+			where(whereQl,object,level++,pv.getMatch(),null);
 		}
 		if (pv.isOptional()){
 			whereQl.append("}\n");
@@ -737,11 +737,10 @@ public class IMQuery {
 		}
 	}
 
-	private void whereValueConcept(StringBuilder whereQl, String object,List<ConceptRef> refs) throws DataFormatException {
+	private void whereIsConcept(StringBuilder whereQl, String object,List<ConceptRef> refs) throws DataFormatException {
 		int conceptCount=refs.size();
 		boolean superTypes= false;
 		boolean subTypes= false;
-		boolean valueSets= false;
 		String testObject="test_"+object;
 		List<String> inList= new ArrayList<>();
 		for (ConceptRef ref:refs) {
@@ -754,8 +753,6 @@ public class IMQuery {
 					throw new DataFormatException("Query has concept value as variable not passed into query");
 				inList.add(iri(refIri));
 			}
-			if (ref.isIncludeValueSets())
-				valueSets= true;
 			if (ref.isIncludeSubtypes())
 				subTypes= true;
 			if (ref.isIncludeSupertypes())
@@ -776,33 +773,14 @@ public class IMQuery {
 						.append(in).append("))\n");
 		}
 		else if (superTypes) {
-				if (valueSets){
-					whereQl.append(tabs).append("{?").append(object).append(" ^im:isA ?")
-						.append(testObject).append(".}\n");
-					whereQl.append(tabs).append("union {?").append(object).append(" im:hasMember ?")
-						.append(iri(testObject)).append(".}\n");
-				}
-				else {
-					whereQl.append(tabs).append("?").append(object).append(" ^im:isA ?")
-						.append(iri(testObject)).append(".\n");
-				}
-			if (conceptCount==1) {
+					whereQl.append(tabs).append("?").append(testObject).append(" ^im:isA ?")
+						.append(iri(object)).append(".\n");
+			   if (conceptCount==1) {
 				whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
 					.append(in).append(")\n");
-			}
-			else
-				whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")
-					.append(in).append("))\n");
-		}
-		else if (valueSets) {
-			whereQl.append(tabs).append("union {?").append(object).append(" im:hasMember ?")
-				.append(iri(testObject)).append(".}\n");
-			if (conceptCount==1) {
-				whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
-					.append(in).append(")\n");
-			}
-			else
-				whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")
+				 }
+				 else
+					 whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")
 					.append(in).append("))\n");
 		}
 		else {

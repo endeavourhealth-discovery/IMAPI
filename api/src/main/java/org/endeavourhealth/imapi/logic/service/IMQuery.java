@@ -773,8 +773,8 @@ public class IMQuery {
 						.append(in).append("))\n");
 		}
 		else if (superTypes) {
-					whereQl.append(tabs).append("?").append(testObject).append(" ^im:isA ?")
-						.append(iri(object)).append(".\n");
+					whereQl.append(tabs).append("?").append(object).append(" ^im:isA ?")
+						.append(iri(testObject)).append(".\n");
 			   if (conceptCount==1) {
 				whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
 					.append(in).append(")\n");

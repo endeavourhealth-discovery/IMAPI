@@ -2,7 +2,12 @@ package org.endeavourhealth.imapi.model.forms;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 @JsonPropertyOrder({"label","comment","name","order","minCount","maxCount","componentType","path","dataType","class","node",
 "function","entity","value","validation","search"})
@@ -18,13 +23,39 @@ public class PropertyShape {
 	private TTIriRef datatype;
 	private TTIriRef clazz;
 	private TTIriRef node;
-	private TTIriRef function;
 	private TTIriRef isIri;
 	private String isNumericValue;
 	private String isTextValue;
 	private TTIriRef componentType;
 	private TTIriRef validation;
 	private TTIriRef search;
+	private TTIriRef function;
+	private List<FormArgument> argument;
+
+	public List<FormArgument> getArgument() {
+		return argument;
+	}
+
+	@JsonSetter
+	public PropertyShape setArgument(List<FormArgument> argument) {
+		this.argument = argument;
+		return this;
+	}
+
+	public PropertyShape addArgument(FormArgument arg){
+		if (this.argument==null)
+			this.argument= new ArrayList<>();
+		this.argument.add(arg);
+		return this;
+	}
+
+	public PropertyShape argument(Consumer<FormArgument> builder){
+		FormArgument arg= new FormArgument();
+		this.addArgument(arg);
+		builder.accept(arg);
+		return this;
+
+	}
 
 	public TTIriRef getFunction() {
 		return function;

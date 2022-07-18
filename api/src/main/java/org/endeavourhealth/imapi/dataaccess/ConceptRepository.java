@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -13,7 +15,7 @@ import org.endeavourhealth.imapi.transforms.SnomedConcept;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 public class ConceptRepository {
-	public TTIriRef createConcept(String namespace) throws Exception {
+	public ObjectNode createConcept(String namespace) throws Exception {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			String sql="select ?increment where {<"+ IM.NAMESPACE+"SnomedConceptGenerator>"+" <"+
 				IM.NAMESPACE+"hasIncrementalFrom> ?increment}";
@@ -23,7 +25,7 @@ public class ConceptRepository {
 				Integer from= Integer.parseInt(rs.next().getValue("increment").stringValue());
 				updateIncrement(from);
 				String concept= SnomedConcept.createConcept(from,false);
-				return TTIriRef.iri(namespace+concept);
+				return new ObjectMapper().createObjectNode().put("@id",namespace+concept);
 			}
 		}
 		return null;

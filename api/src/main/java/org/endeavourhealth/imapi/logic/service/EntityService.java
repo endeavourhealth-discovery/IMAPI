@@ -19,6 +19,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
+import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.sets.QueryEntity;
@@ -1077,6 +1078,11 @@ public class EntityService {
         }
 
         return result;
+    }
+
+    public TTIriRef getShapeFromType(String iri) {
+        if (null != iri) return entityTripleRepository.getShapeFromType(iri);
+        else return null;
     }
 
     public List<TTEntity> getActions(String taskIri) {

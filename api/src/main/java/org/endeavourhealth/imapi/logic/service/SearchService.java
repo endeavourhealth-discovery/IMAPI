@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.Query;
+import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -31,17 +32,27 @@ public class SearchService {
 
 	/**
 	 * Queries any IM entity using the query model
-	 * @param query data model entity object to populate
-	 * @return a generic JSONDocument containing the results and including predicate map
+	 * @param queryRequest Query inside a request with parameters
+	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
-		return new IMQuery().queryIM(query);
+	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		return new IMQuery().queryIM(queryRequest);
 	}
 
+	/**
+	 * Validation true or false query of the IM
+	 * @param iri iri of the query
+	 * @param variables a map of parameter value pairs  '$this' for the value being validated
+	 * @return a boolean true or false
+	 * @throws DataFormatException
+	 * @throws JsonProcessingException
+	 */
 	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
 		return new IMQuery().booleanQueryIM(iri,variables);
 	}
+
+
 
 	/**
 	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied

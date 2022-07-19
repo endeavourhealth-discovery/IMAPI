@@ -1,0 +1,30 @@
+{
+  "page" : 2,
+  "pageSize" : 10,
+  "textSearch" : "ches wall",
+  "query" : {
+    "name" : "Ranges for finding site with chest term",
+    "description" : "retrieves the high level concepts allowable as values of the attribute finding side",
+    "resultFormat" : "OBJECT",
+    "activeOnly" : true,
+    "select" : {
+      "property" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      } ],
+      "match" : [ {
+        "entityType" : {
+          "includeSubtypes" : true,
+          "@id" : "http://endhealth.info/im#Concept"
+        },
+        "property" : [ {
+          "@id" : "http://www.w3.org/2000/01/rdf-schema#range",
+          "inverseOf" : true,
+          "isConcept" : [ {
+            "@id" : "http://snomed.info/sct#363698007"
+          } ]
+        } ]
+      } ]
+    },
+    "usePrefixes" : true
+  }
+}

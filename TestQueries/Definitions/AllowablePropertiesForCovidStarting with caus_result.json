@@ -1,0 +1,35 @@
+{
+  "textSearch" : "causative",
+  "query" : {
+    "name" : "AllowablePropertiesForCovidStarting with caus",
+    "description" : "'using property domains get the allowable properties from the supertypes of this concept",
+    "activeOnly" : true,
+    "select" : {
+      "distinct" : true,
+      "entityType" : {
+        "includeSubtypes" : true,
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "property" : [ {
+        "@id" : "http://endhealth.info/im#id",
+        "alias" : "id"
+      }, {
+        "@id" : "http://endhealth.info/im#code",
+        "alias" : "code"
+      }, {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
+        "alias" : "term"
+      } ],
+      "match" : [ {
+        "property" : [ {
+          "@id" : "http://www.w3.org/2000/01/rdf-schema#domain",
+          "isConcept" : [ {
+            "includeSupertypes" : true,
+            "@id" : "http://snomed.info/sct#674814021000119106"
+          } ]
+        } ]
+      } ]
+    },
+    "usePrefixes" : true
+  }
+}

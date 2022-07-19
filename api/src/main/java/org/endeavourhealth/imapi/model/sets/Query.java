@@ -25,26 +25,10 @@ public class Query extends Heading {
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
 	private boolean activeOnly;
-	private int page;
-	private int pageSize;
 	private TTIriRef mainEntity;
 	private Match ask;
-	private Map<String,String> variables = new HashMap<>();
 
-	public Map<String, String> getVariables() {
-		return variables;
-	}
 
-	public Query setVariables(Map<String, String> variables) {
-		this.variables = variables;
-		return this;
-	}
-
-	@JsonIgnore
-	public Query putVariable(String key,String value){
-		this.variables.put(key,value);
-		return this;
-	}
 
 	public Match getAsk() {
 		return ask;
@@ -79,23 +63,7 @@ public class Query extends Heading {
 		return this;
 	}
 
-	public int getPage() {
-		return page;
-	}
 
-	public Query setPage(int page) {
-		this.page = page;
-		return this;
-	}
-
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	public Query setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-		return this;
-	}
 
 	public boolean isActiveOnly() {
 		return activeOnly;
@@ -203,7 +171,7 @@ public class Query extends Heading {
 	}
 
 	@JsonIgnore
-	public String getasJson() throws JsonProcessingException {
+	public String getJson() throws JsonProcessingException {
 		return Query.getJson(this);
 	}
 

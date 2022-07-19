@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.sets.Query;
+import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -50,13 +51,15 @@ public class QueryController {
 
 
 
+
+
     @PostMapping( "/public/queryIM")
     @Operation(
       summary = "Query IM",
       description = "Runs a query on IM"
     )
-    public ObjectNode queryIM(@RequestBody Query query) throws DataFormatException, JsonProcessingException {
+    public ObjectNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         LOG.debug("queryIM");
-        return new SearchService().queryIM(query);
+        return new SearchService().queryIM(queryRequest);
     }
 }

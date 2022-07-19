@@ -111,6 +111,11 @@ public class PropertyValue  extends ConceptRef{
 		return this;
 	}
 
+	public PropertyValue setIncludeSubtypes(boolean subs){
+		super.setIncludeSubtypes(subs);
+		return this;
+	}
+
 	public PropertyValue setAlias(String alias){
 		super.setAlias(alias);
 		return this;

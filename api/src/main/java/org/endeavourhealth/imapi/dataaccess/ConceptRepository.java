@@ -25,7 +25,10 @@ public class ConceptRepository {
 				Integer from= Integer.parseInt(rs.next().getValue("increment").stringValue());
 				updateIncrement(from);
 				String concept= SnomedConcept.createConcept(from,false);
-				return new ObjectMapper().createObjectNode().put("@id",namespace+concept);
+				ObjectMapper om= new ObjectMapper();
+				ObjectNode iri= om.createObjectNode();
+				iri.put("@id",namespace+concept);
+				return om.createObjectNode().set("iri",iri);
 			}
 		}
 		return null;

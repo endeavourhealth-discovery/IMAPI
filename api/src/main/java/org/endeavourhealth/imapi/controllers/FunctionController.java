@@ -26,13 +26,13 @@ public class FunctionController {
 	private static final Logger LOG = LoggerFactory.getLogger(FunctionController.class);
 
 
-	@GetMapping( "/callFunction")
+	@GetMapping( "/public/callFunction")
 	@Operation(
 		summary = "function",
-		description = "Runs a function IM"
+		description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
 	)
 	public ObjectNode callFunction(	@RequestParam(name = "iri") String iri,
-																	 @RequestParam(name = "arguments") Map<String,String> arguments) throws Exception {
+																	 @RequestBody(required = false) Map<String,String> arguments) throws Exception {
 		LOG.debug("callFunction");
 		return new FunctionService().callFunction(iri,arguments);
 	}

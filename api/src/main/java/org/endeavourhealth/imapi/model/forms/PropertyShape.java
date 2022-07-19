@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.forms;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.sets.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"label","comment","name","order","minCount","maxCount","componentType","path","dataType","class","node",
-"function","entity","value","validation","search"})
+"function","validation","search","argument","valueVariable","isIri","isTextValue","isNumericValue"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
 	private String label;
@@ -30,27 +31,37 @@ public class PropertyShape {
 	private TTIriRef validation;
 	private TTIriRef search;
 	private TTIriRef function;
-	private List<FormArgument> argument;
+	private List<Argument> argument;
+	private String valueVariable;
 
-	public List<FormArgument> getArgument() {
+	public String getValueVariable() {
+		return valueVariable;
+	}
+
+	public PropertyShape setValueVariable(String valueVariable) {
+		this.valueVariable = valueVariable;
+		return this;
+	}
+
+	public List<Argument> getArgument() {
 		return argument;
 	}
 
 	@JsonSetter
-	public PropertyShape setArgument(List<FormArgument> argument) {
+	public PropertyShape setArgument(List<Argument> argument) {
 		this.argument = argument;
 		return this;
 	}
 
-	public PropertyShape addArgument(FormArgument arg){
+	public PropertyShape addArgument(Argument arg){
 		if (this.argument==null)
 			this.argument= new ArrayList<>();
 		this.argument.add(arg);
 		return this;
 	}
 
-	public PropertyShape argument(Consumer<FormArgument> builder){
-		FormArgument arg= new FormArgument();
+	public PropertyShape argument(Consumer<Argument> builder){
+		Argument arg= new Argument();
 		this.addArgument(arg);
 		builder.accept(arg);
 		return this;

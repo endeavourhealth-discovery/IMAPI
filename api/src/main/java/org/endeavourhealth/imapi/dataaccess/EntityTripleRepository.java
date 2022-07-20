@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -654,5 +655,27 @@ public class EntityTripleRepository {
         }
 
         return 0;
+    }
+
+    public TTIriRef getShapeFromType(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+            .add("SELECT ?s2")
+            .add("WHERE {")
+            .add("?s <http://www.w3.org/ns/shacl#targetClass> ?iri .")
+            .add("?s2 im:targetShape ?s .")
+            .add("}")
+            .add("LIMIT 1");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("iri", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return new TTIriRef(bs.getValue("s2").stringValue());
+                }
+            }
+        }
+        return null;
     }
 }

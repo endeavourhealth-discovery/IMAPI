@@ -1,8 +1,11 @@
 package org.endeavourhealth.imapi.model.sets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.List;
 
 /** Extends TTIriRef with optional variable, alias, and description
  * for use in dynamic data modelling
@@ -11,9 +14,57 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 public class Heading extends TTIriRef {
 	private String var;
 	private String description;
+	private TTIriRef status;
+	private TTIriRef scheme;
+	private String label;
+	private List<TTIriRef> type;
+	private List<TTIriRef> isContainedIn;
 
 
+	public TTIriRef getStatus() {
+		return status;
+	}
 
+	public Heading setStatus(TTIriRef status) {
+		this.status = status;
+		return this;
+	}
+
+	public TTIriRef getScheme() {
+		return scheme;
+	}
+
+	public Heading setScheme(TTIriRef scheme) {
+		this.scheme = scheme;
+		return this;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public Heading setLabel(String label) {
+		this.label = label;
+		return this;
+	}
+
+	public List<TTIriRef> getType() {
+		return type;
+	}
+
+	public Heading setType(List<TTIriRef> type) {
+		this.type = type;
+		return this;
+	}
+
+	public List<TTIriRef> getIsContainedIn() {
+		return isContainedIn;
+	}
+
+	public Heading setIsContainedIn(List<TTIriRef> isContainedIn) {
+		this.isContainedIn = isContainedIn;
+		return this;
+	}
 
 	public static Heading iri(String iri) {
 		return new Heading(iri);
@@ -67,6 +118,7 @@ public class Heading extends TTIriRef {
 	}
 
 
+	@JsonProperty("description")
 	public String getDescription() {
 		return description;
 	}

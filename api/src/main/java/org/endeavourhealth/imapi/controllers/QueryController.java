@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.sets.Query;
+import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -34,6 +36,21 @@ public class QueryController {
          */
         return null;
     }
+    @GetMapping(value = "/public/booleanQueryIM", produces = "text/plain")
+    @Operation(
+      summary = "Boolean query IM",
+      description = "SPARQL ASK query passing in iri of query entity and map of query variables- value"
+    )
+    public String booleanQuery(
+      @RequestParam(name = "iri") String iri,
+      @RequestParam()Map<String,String> testVariables) throws DataFormatException, JsonProcessingException {
+        LOG.debug("booleanQueryIM");
+        return new SearchService().booleanQueryIM(iri, testVariables)==true ?"true" : "false";
+    }
+
+
+
+
 
 
     @PostMapping( "/public/queryIM")
@@ -41,8 +58,8 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a query on IM"
     )
-    public ObjectNode queryIM(@RequestBody Query query) throws DataFormatException, JsonProcessingException {
+    public ObjectNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         LOG.debug("queryIM");
-        return new SearchService().queryIM(query);
+        return new SearchService().queryIM(queryRequest);
     }
 }

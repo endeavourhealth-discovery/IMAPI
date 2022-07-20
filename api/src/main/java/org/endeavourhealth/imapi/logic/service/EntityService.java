@@ -19,8 +19,10 @@ import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
+import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.sets.QueryEntity;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
@@ -65,6 +67,18 @@ public class EntityService {
     public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
     }
+
+    /**
+     * Returns the entity with local predicate names as plain json including json literals
+     * <p> Works only for known POJO classes in order to resolve the RDF cardinality problem</p>
+     * @param iri iri of the entity
+     * @return string of json
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws JsonProcessingException
+     */
     public String getAsPlainJson(String iri) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
         TTBundle bundle= entityRepository2.getBundle(iri);
         Class<?> cls;
@@ -72,6 +86,9 @@ public class EntityService {
         switch (entityType){
             case (IM.NAMESPACE+"FormGenerator") :
                 cls=FormGenerator.class;
+                break;
+            case (IM.NAMESPACE+"Query") :
+                cls= QueryEntity.class;
                 break;
             default:
                 throw new NoSuchMethodException(" entity type "+ entityType+" is not supported as a POJO class");
@@ -1061,6 +1078,11 @@ public class EntityService {
         }
 
         return result;
+    }
+
+    public TTIriRef getShapeFromType(String iri) {
+        if (null != iri) return entityTripleRepository.getShapeFromType(iri);
+        else return null;
     }
 
     public List<TTEntity> getActions(String taskIri) {

@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.endeavourhealth.imapi.model.sets.Select;
 
@@ -102,6 +104,12 @@ public class SearchRequest {
         this.typeFilter = typeFilter;
         return this;
     }
+    public SearchRequest addType(String type){
+        if (this.getTypeFilter()==null)
+            this.setTypeFilter(new ArrayList<>());
+        this.getTypeFilter().add(type);
+        return this;
+    }
 
     @Schema(name = "Code scheme filter",
         description = "List of code scheme IRI's",
@@ -178,5 +186,13 @@ public class SearchRequest {
     public SearchRequest setSortDirection(String sortDirection) {
         this.sortDirection = sortDirection;
         return this;
+    }
+
+    public String getJson() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
     }
 }

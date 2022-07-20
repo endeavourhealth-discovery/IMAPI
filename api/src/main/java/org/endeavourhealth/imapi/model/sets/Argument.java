@@ -15,24 +15,16 @@ public class Argument {
 	private String valueData;
 	private String valueVariable;
 	private Select valueSelect;
-	private ConceptRef valueProperty;
-	private TTIriRef valueType;
+	private ConceptRef valueIri;
 
-	public TTIriRef getValueType() {
-		return valueType;
-	}
 
-	public Argument setValueType(TTIriRef valueType) {
-		this.valueType = valueType;
-		return this;
-	}
 
 	public ConceptRef getValueProperty() {
-		return valueProperty;
+		return valueIri;
 	}
 
 	public Argument setValueProperty(ConceptRef valueProperty) {
-		this.valueProperty = valueProperty;
+		this.valueIri = valueProperty;
 		return this;
 	}
 

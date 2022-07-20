@@ -9,6 +9,7 @@ import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -16,6 +17,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.imapi.transforms.SetToSparql;
@@ -32,18 +34,17 @@ import java.util.zip.DataFormatException;
 public class IMQuery {
 	private TTContext prefixes;
 	private final Map<String,String> matchVarProperty = new HashMap<>();
-	private final Map<String,String> selectVarProperty = new HashMap<>();
-	private final Map<String,String> pathMap= new HashMap<>();
 	private String tabs="";
 	private int o=0;
 	private Query query;
 	private final Set<String> aliases = new HashSet<>();
-	private boolean wildProperty;
 
 	private final Map<String, ObjectNode> valueMap = new HashMap<>();
 	private final Map<Value, ObjectNode> entityMap = new HashMap<>();
 	private final Set<String> predicates= new HashSet<>();
 	final ObjectMapper mapper = new ObjectMapper();
+	private boolean fuzzy =false;
+	private QueryRequest queryRequest;
 
 
 
@@ -52,15 +53,62 @@ public class IMQuery {
 	}
 
 
-	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
-		validate(query);
-		if (query.getReferenceDate() == null) {
-			String now = LocalDate.now().toString();
-			query.setReferenceDate(now);
+	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		this.queryRequest= queryRequest;
+		if (queryRequest.getQueryIri()!=null)
+			this.query= getQueryByIri(queryRequest.getQueryIri());
+		else {
+			this.query = queryRequest.getQuery();
 		}
-		String spq = buildSparql(query);
-			return goGraphSearch(spq);
+			if (query==null)
+				throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object");
+			ObjectNode result= new OSQuery().openSearchQuery(queryRequest);
+			if (result!=null)
+				return result;
+			else {
+				validate(query);
+				checkReferenceDate();
+				String spq = buildSparql(query);
+				return goGraphSearch(spq);
+			}
 	}
+
+	private void checkReferenceDate(){
+		if (queryRequest.getReferenceDate()==null){
+			String now = LocalDate.now().toString();
+			queryRequest.setReferenceDate(now);
+		}
+
+	}
+
+
+
+	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
+		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
+		if (entity==null)
+			throw new DataFormatException("Entity "+ iri+" is unknown");
+		if (entity.get(IM.QUERY_DEFINITION)==null)
+			throw new DataFormatException("Entity "+ iri+" is not aN ASK query");
+		this.queryRequest= new QueryRequest();
+		this.query= new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+		checkReferenceDate();
+
+		String spq = buildSparql(query);
+		return goBooleanGraphSearch(spq);
+
+	}
+
+	private Query getQueryByIri(TTIriRef iri) throws DataFormatException, JsonProcessingException {
+		TTEntity entity= new EntityService().getFullEntity(iri.getIri()).getEntity();
+		if (entity==null)
+			throw new DataFormatException("Entity "+ iri.getIri()+" is unknown");
+		if (entity.get(IM.QUERY_DEFINITION)==null)
+			throw new DataFormatException("Entity "+ iri.getIri()+" is not a select query");
+		return new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+
+
+	}
+
 
 
 
@@ -72,9 +120,17 @@ public class IMQuery {
 		return Strings.join(inArray, ",");
 	}
 
+	private boolean goBooleanGraphSearch(String spq){
+		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+			BooleanQuery qry = conn.prepareBooleanQuery(spq);
+			return qry.evaluate();
+		}
+
+	}
 
 
-	private ObjectNode goGraphSearch(String spq) throws JsonProcessingException {
+
+	private ObjectNode goGraphSearch(String spq) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			ObjectNode result= mapper.createObjectNode();
 			ObjectNode context= mapper.createObjectNode();
@@ -88,7 +144,6 @@ public class IMQuery {
 			TupleQuery qry= conn.prepareTupleQuery(spq);
 			try (TupleQueryResult rs= qry.evaluate()){
 					while (rs.hasNext()){
-
 						BindingSet bs= rs.next();
 						bindResults(bs,result);
 
@@ -126,36 +181,85 @@ public class IMQuery {
 	 * @return String of SPARQL
 	 **/
 
-	public String buildSparql(Query query) throws DataFormatException{
+	public String buildSparql(Query query) throws DataFormatException {
 		this.query = query;
-
-
-		StringBuilder selectQl = new StringBuilder();
-		selectQl.append(getDefaultPrefixes());
-		Select select= query.getSelect();
-		selectQl.append("SELECT ");
-		if (query.getResultFormat() == ResultFormat.OBJECT||select.isDistinct()) {
-			selectQl.append("distinct ");
+		if (query.getAsk()!=null){
+			return buildAskSparql(query);
 		}
-		selectQl.append("?entity ");
+		else
+			return buildSelectSparql(query);
+	}
 
-		StringBuilder whereQl = new StringBuilder();
-		whereQl.append("WHERE {");
+	private String buildAskSparql(Query query) throws DataFormatException {
+		StringBuilder askQl = new StringBuilder();
+		askQl.append("ASK {");
+		Match match= query.getAsk();
+		String entity= queryRequest.getArgument().get("this");
+		if (entity==null)
+			throw new DataFormatException("Query request does not contain the focus entity");
+		match.setEntityId(TTIriRef.iri(entity));
+		where(askQl, "entity",1, match,null);
+		askQl.append("}");
+		return askQl.toString();
+	}
 
 
+	private String buildSelectSparql(Query query) throws DataFormatException {
 
-		select(selectQl, select,whereQl,0,"entity");
-		selectQl.append("\n");
+	StringBuilder selectQl = new StringBuilder();
+			selectQl.append(getDefaultPrefixes());
+			if (queryRequest.getTextSearch()!=null){
+				selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
+					.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
+			}
+			Select select = query.getSelect();
+			selectQl.append("SELECT ");
+			if (query.getResultFormat() == ResultFormat.OBJECT || select.isDistinct()) {
+				selectQl.append("distinct ");
+			}
+			selectQl.append("?entity ");
 
-		whereQl.append("}");
+			StringBuilder whereQl = new StringBuilder();
+			whereQl.append("WHERE {");
 
-		selectQl.append(whereQl);
-		orderLimit(selectQl);
-		return selectQl.toString();
+			if (queryRequest.getTextSearch()!=null){
+				textSearch(whereQl);
+
+			}
+
+			select(selectQl, select, whereQl, 0, "entity");
+			selectQl.append("\n");
+
+			whereQl.append("}");
+
+			selectQl.append(whereQl).append("\n");
+			orderLimit(selectQl);
+			return selectQl.toString();
+
+	}
+
+	private void textSearch(StringBuilder whereQl) {
+		String text= queryRequest.getTextSearch();
+		whereQl.append("[] a con-inst:im_fts;\n")
+			.append("       con:query \"label:");
+		String[] words= text.split(" ");
+		for (int i=0; i<words.length; i++){
+			words[i]= words[i]+ ((!fuzzy) ?"*" : "~");
+		}
+		String searchText= String.join(" && ",words);
+		whereQl.append("(").append(searchText).append(")").append("\" ;\n");
+		whereQl.append("       con:entities ?entity.\n");
 	}
 
 
 	private void orderLimit(StringBuilder selectQl) {
+		if (queryRequest.getTextSearch()!=null){
+			String labelAlias= getLabelAlias(query.getSelect());
+			if (labelAlias!=null)
+				selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelAlias)
+					.append("),\"").append(queryRequest.getTextSearch().split(" ")[0])
+					.append("\")) ASC(strlen(?").append(labelAlias).append("))\n");
+		}
 		if (query.getSelect()!=null){
 			if (query.getSelect().getOrderLimit()!=null){
 				OrderLimit order= query.getSelect().getOrderLimit();
@@ -169,8 +273,28 @@ public class IMQuery {
 				else
 					selectQl.append("?").append(order.getOrderBy().getAlias());
 				selectQl.append(")");
+				return;
 			}
 		}
+		if (queryRequest.getPage()!=null) {
+			if (queryRequest.getPageSize() != null) {
+				selectQl.append("LIMIT ").append(queryRequest.getPageSize()).append("\n");
+				if (queryRequest.getPage() > 1)
+					selectQl.append("OFFSET ").append((queryRequest.getPage() - 1) * (queryRequest.getPageSize())).append("\n");
+			}
+		}
+	}
+
+	private String getLabelAlias(Select select) {
+		if (select!=null){
+			if (select.getProperty()!=null)
+				for (PropertySelect prop:select.getProperty()){
+					if (prop.getIri().equals(RDFS.LABEL.getIri())){
+						return prop.getAlias();
+					}
+				}
+		}
+		return null;
 	}
 
 
@@ -206,37 +330,25 @@ public class IMQuery {
 	 */
 	private void select(StringBuilder selectQl, Select select,StringBuilder whereQl,
 											int level,String subject) throws DataFormatException {
-		String filterSubject= subject;
+		String matchSubject= subject;
 		if (select.getEntityIn() != null) {
 			whereEntityIn(subject, select.getEntityIn(), whereQl);
 		}
 		if (select.getEntityType() != null) {
-			whereEntityType(subject, select.getEntityType(), whereQl);
-			if (select.getEntityType().isIncludeSubtypes())
-				filterSubject= "super_"+subject;
-			else if (select.getEntityType().isIncludeSupertypes())
-				filterSubject= "sub_"+ subject;
+			matchSubject= whereEntityType(subject, select.getEntityType(), whereQl,null);
 		}
 		else if (select.getEntityId() != null) {
-			whereEntityId(subject, select.getEntityId(), whereQl);
-			if (select.getEntityId().isIncludeSubtypes())
-				filterSubject= "super_"+ subject;
-			else if (select.getEntityId().isIncludeSupertypes())
-				filterSubject= "sub_"+subject;
+			matchSubject= whereEntityId(subject, select.getEntityId(), whereQl,null);
 		}
 		if (select.getMatch()!=null){
 			for (Match m:select.getMatch()) {
-				where(whereQl, filterSubject, level, m);
+				where(whereQl, matchSubject, level, m,select);
 			}
 		}
 		if (select.getProperty() != null) {
-			wildProperty= false;
 			for (PropertySelect property : select.getProperty()) {
 				selectProperty(property, subject, selectQl, whereQl, level);
 			}
-			if (wildProperty)
-				if (select.getProperty().size()>2)
-					throw new DataFormatException("Select statement contains both * and a property. Must be either or");
 		}
 	}
 	private void selectProperty(PropertySelect property, String subject,
@@ -244,8 +356,8 @@ public class IMQuery {
 				String path = property.getIri();
 				String object= property.getAlias();
 				if (object!=null)
-				if (object.equals("*"))
-					throw new DataFormatException("Wild card (*) not supported due to combinatorial explosion potential in graph");
+					if (object.equals("*"))
+						throw new DataFormatException("Wild card (*) not supported due to combinatorial explosion potential in graph");
 				if (path==null) {
 						if (object == null)
 							throw new DataFormatException("Select without property or alias");
@@ -283,7 +395,7 @@ public class IMQuery {
 							select(selectQl, property.getSelect(), whereQl, level + 1, object);
 						}
 						if (optional)
-						whereQl.append("}\n");
+							whereQl.append("}\n");
 					}
 	 }
 
@@ -354,35 +466,39 @@ public class IMQuery {
 
 
 
-	private void whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl) {
+	private String whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl,Select select) {
+		if (select!=null)
+			if (select.getEntityId()!=null)
+				if (entityId.equals(select.getEntityId()))
+					return subject;
+		String matchSubject= subject;
+		String superSubject= subject;
 		if (entityId.isIncludeSubtypes()) {
-			whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append("super_").append(subject).append(".\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append("super_").append(subject)
-				.append("=").append(iri(entityId.getIri())).append(") \n");
+			matchSubject= "match"+subject;
+			superSubject= "super"+subject;
+			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
+			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
 		}
-		else if (entityId.isIncludeSupertypes()) {
-			whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append("sub_").append(subject).append(".\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append("sub_").append(subject)
+			whereQl.append(tabs).append("\tfilter (").append("?").append(superSubject)
 				.append("=").append(iri(entityId.getIri())).append(") \n");
-		}
-		else {
-			whereQl.append(tabs).append("?").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append(subject)
-				.append("=").append(iri(entityId.getIri())).append(") \n");
-		}
+		return matchSubject;
 	}
 
-	private void whereEntityType(String subject,ConceptRef entityType, StringBuilder whereQl) {
+	private String whereEntityType(String subject,ConceptRef entityType, StringBuilder whereQl,Select select) {
+		if (select!=null)
+			if (select.getEntityType()!=null)
+				if (entityType.equals(select.getEntityType()))
+					return subject;
+		String matchSubject= subject;
+		String superSubject= subject;
 		if (entityType.isIncludeSubtypes()) {
-			whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
-			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append("super_").append(subject).append(".\n");
-		} else if (entityType.isIncludeSupertypes()) {
-			whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
-			whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append("sub_").append(subject).append(".\n");
-		} else
-			whereQl.append(tabs).append("?").append(subject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
+			matchSubject= "match"+subject;
+			superSubject= "super"+subject;
+			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
+			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
+		}
+		whereQl.append(tabs).append("?").append(superSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
+		return matchSubject;
 	}
 
 
@@ -412,35 +528,25 @@ public class IMQuery {
 	 * @param where the where clause of the query
 	 */
 
-	private void where(StringBuilder whereQl, String subject, int level , Match where) throws DataFormatException {
+	private void where(StringBuilder whereQl, String subject, int level , Match where,Select select) throws DataFormatException {
+		String matchSubject=subject;
 		if (where.getPathTo()!=null){
 			o++;
 			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
-				.append(" ").append("?").append(subject+o).append(".\n");
+				.append(" ").append("?").append(subject).append(o).append(".\n");
 			subject= subject+o;
 		}
-		String originalSubject = subject;
 		if (where.isNotExist()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 		}
-		ConceptRef subjectRef= where.getEntityType();
-		if (subjectRef==null)
-			subjectRef= where.getEntityId();
+
 
 
 		whereGraph(whereQl, where);
 		if (subject.equals("entity"))
 			if (query.isActiveOnly())
 				whereQl.append("?").append(subject).append(" im:status im:Active.\n");
-		if (subjectRef!=null) {
-			if (subjectRef.isIncludeSubtypes()) {
-				o++;
-				whereQl.append(tabs).append("?").append(subject)
-					.append(" im:isA ?")
-					.append("super_").append(subject).append(o).append(".\n");
-				subject = "super_" + subject + o;
-			}
-		}
+
 
 		if (where.getEntityInSet() != null) {
 			boolean first = true;
@@ -457,25 +563,15 @@ public class IMQuery {
 			}
 		}
 		if (where.getEntityType() != null) {
-			ConceptRef type = where.getEntityType();
-			if (type.isIncludeSubtypes()) {
-				whereQl.append(tabs).append("?").append("super_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
-				whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(subject).append(".\n");
-			} else if (type.isIncludeSupertypes()) {
-				whereQl.append(tabs).append("?").append("sub_").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
-				whereQl.append(tabs).append("?").append(subject).append(" ^im:isA ").append("?").append(subject).append(".\n");
-			} else
-				whereQl.append(tabs).append("?").append(subject).append(" rdf:type ").append(iri(where.getEntityType().getIri())).append(".\n");
+			matchSubject= whereEntityType(subject,where.getEntityType(),whereQl,select);
 		}
-		else if (where.getEntityId() != null) {
-			whereQl.append(tabs).append("?").append(subject).append(" rdf:type ?any.\n");
-			whereQl.append(tabs).append("\tfilter (").append("?").append(subject)
-				.append("=").append(iri(where.getEntityId().getIri())).append(") ");
+		else if (where.getEntityId()!=null) {
+			matchSubject = whereEntityId(subject, where.getEntityId(), whereQl,select);
+		}
 
-		}
 		if (where.getAnd()!=null) {
 			for (Match match : where.getAnd()) {
-				  where(whereQl, subject, level, match);
+				  where(whereQl, matchSubject, level, match,select);
 			}
 		}
 
@@ -486,14 +582,14 @@ public class IMQuery {
 					whereQl.append("UNION ");
 				first=false;
 				whereQl.append(" {");
-					where(whereQl, subject, level, match);
+					where(whereQl, matchSubject, level, match,select);
 
 				whereQl.append("}\n");
 			}
 		}
 		if (where.getProperty()!=null){
 			for (PropertyValue pv:where.getProperty()) {
-				whereProperty(whereQl, subject, level, where, pv);
+				whereProperty(whereQl, matchSubject, level, where, pv);
 			}
 		}
 		if (where.isNotExist())
@@ -518,7 +614,7 @@ public class IMQuery {
 		if (pv.getPathTo()!=null){
 			o++;
 			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
-				.append(" ").append("?").append(subject+o).append(".\n");
+				.append(" ").append("?").append(subject).append(o).append(".\n");
 			subject= subject+o;
 		}
 		if (pv.isOptional()){
@@ -550,7 +646,7 @@ public class IMQuery {
 
 		}
 		if (pv.getIsConcept()!=null) {
-			whereValueConcept(whereQl,object,pv.getIsConcept());
+			whereIsConcept(whereQl,object,pv.getIsConcept());
 		}
 		else if (pv.getValue()!=null){
 			whereValueCompare(whereQl,object,pv.getValue());
@@ -560,7 +656,7 @@ public class IMQuery {
 			whereValueIn(whereQl,object,pv.getInSet());
 		}
 		else if (pv.getMatch()!=null){
-			where(whereQl,object,level++,pv.getMatch());
+			where(whereQl,object,level++,pv.getMatch(),null);
 		}
 		if (pv.isOptional()){
 			whereQl.append("}\n");
@@ -610,14 +706,22 @@ public class IMQuery {
 	}
 
 	private String resolveReference(String value) throws DataFormatException {
-		String result=value;
-		if (value.equalsIgnoreCase("$referencedate")) {
-			result = query.getReferenceDate();
-			if (result == null)
-				result = LocalDate.now().toString();
-			return result;
+		try {
+			if (value.equalsIgnoreCase("$referenceDate")) {
+				return queryRequest.getReferenceDate();
+			}
+			else {
+				value= value.replace("$","");
+			if (queryRequest.getArgument().get(value)!=null) {
+					return queryRequest.getArgument().get(value);
+				}
+				else
+					throw new DataFormatException("unknown parameter variable " + value+". ");
+			}
 		}
-		throw new DataFormatException("unknown parameter variable "+ value);
+		catch (Exception e) {
+			throw new DataFormatException("unknown parameter variable " + value);
+		}
 	}
 
 
@@ -635,17 +739,22 @@ public class IMQuery {
 		}
 	}
 
-	private void whereValueConcept(StringBuilder whereQl, String object,List<ConceptRef> refs){
+	private void whereIsConcept(StringBuilder whereQl, String object,List<ConceptRef> refs) throws DataFormatException {
 		int conceptCount=refs.size();
 		boolean superTypes= false;
 		boolean subTypes= false;
-		boolean valueSets= false;
 		String testObject="test_"+object;
 		List<String> inList= new ArrayList<>();
 		for (ConceptRef ref:refs) {
-			inList.add(iri(ref.getIri()));
-			if (ref.isIncludeValueSets())
-				valueSets= true;
+			if (ref.getIri()!=null) {
+				inList.add(iri(ref.getIri()));
+			}
+			else if (ref.getAlias()!=null){
+				String refIri= resolveReference(ref.getAlias());
+				if (refIri==null)
+					throw new DataFormatException("Query has concept value as variable not passed into query");
+				inList.add(iri(refIri));
+			}
 			if (ref.isIncludeSubtypes())
 				subTypes= true;
 			if (ref.isIncludeSupertypes())
@@ -666,33 +775,14 @@ public class IMQuery {
 						.append(in).append("))\n");
 		}
 		else if (superTypes) {
-				if (valueSets){
-					whereQl.append(tabs).append("{?").append(object).append(" ^im:isA ?")
-						.append(testObject).append(".}\n");
-					whereQl.append(tabs).append("union {?").append(object).append(" im:hasMember ?")
-						.append(iri(testObject)).append(".}\n");
-				}
-				else {
 					whereQl.append(tabs).append("?").append(object).append(" ^im:isA ?")
 						.append(iri(testObject)).append(".\n");
-				}
-			if (conceptCount==1) {
+			   if (conceptCount==1) {
 				whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
 					.append(in).append(")\n");
-			}
-			else
-				whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")
-					.append(in).append("))\n");
-		}
-		else if (valueSets) {
-			whereQl.append(tabs).append("union {?").append(object).append(" im:hasMember ?")
-				.append(iri(testObject)).append(".}\n");
-			if (conceptCount==1) {
-				whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
-					.append(in).append(")\n");
-			}
-			else
-				whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")
+				 }
+				 else
+					 whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")
 					.append(in).append("))\n");
 		}
 		else {
@@ -835,7 +925,7 @@ public class IMQuery {
 			return;
 
 		if (property==null) {
-			property=selectVarProperty.get(var);
+			property=matchVarProperty.get(var);
 			predicates.add(iri(property));
 		}
 
@@ -866,7 +956,10 @@ public class IMQuery {
 		if (query.getResultFormat()==null){
 			query.setResultFormat(ResultFormat.OBJECT);
 		}
-		if (query.getSelect() == null) {
+		if (query.getAsk()!=null){
+			return;
+		}
+		else 	if (query.getSelect() == null) {
 			query.setSelect(new Select()
 				.setDistinct(true)
 				.addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")

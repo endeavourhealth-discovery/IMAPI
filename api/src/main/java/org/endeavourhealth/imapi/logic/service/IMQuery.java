@@ -56,16 +56,21 @@ public class IMQuery {
 	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
 		this.queryRequest= queryRequest;
 		if (queryRequest.getQueryIri()!=null)
-			return queryByIri(queryRequest.getQueryIri());
+			this.query= getQueryByIri(queryRequest.getQueryIri());
 		else {
-			this.query= queryRequest.getQuery();
+			this.query = queryRequest.getQuery();
+		}
 			if (query==null)
 				throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object");
-			validate(query);
-			checkReferenceDate();
-			String spq = buildSparql(query);
-			return goGraphSearch(spq);
-		}
+			ObjectNode result= new OSQuery().openSearchQuery(queryRequest);
+			if (result!=null)
+				return result;
+			else {
+				validate(query);
+				checkReferenceDate();
+				String spq = buildSparql(query);
+				return goGraphSearch(spq);
+			}
 	}
 
 	private void checkReferenceDate(){
@@ -75,6 +80,8 @@ public class IMQuery {
 		}
 
 	}
+
+
 
 	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
 		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
@@ -91,19 +98,14 @@ public class IMQuery {
 
 	}
 
-	private ObjectNode queryByIri(TTIriRef iri) throws DataFormatException, JsonProcessingException {
+	private Query getQueryByIri(TTIriRef iri) throws DataFormatException, JsonProcessingException {
 		TTEntity entity= new EntityService().getFullEntity(iri.getIri()).getEntity();
 		if (entity==null)
 			throw new DataFormatException("Entity "+ iri.getIri()+" is unknown");
 		if (entity.get(IM.QUERY_DEFINITION)==null)
 			throw new DataFormatException("Entity "+ iri.getIri()+" is not a select query");
-		this.query= new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
-		if (queryRequest.getReferenceDate()==null){
-			String now = LocalDate.now().toString();
-			queryRequest.setReferenceDate(now);
-		}
-		String spq = buildSparql(query);
-		return goGraphSearch(spq);
+		return new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+
 
 	}
 
@@ -192,7 +194,7 @@ public class IMQuery {
 		StringBuilder askQl = new StringBuilder();
 		askQl.append("ASK {");
 		Match match= query.getAsk();
-		String entity= queryRequest.getFocusVariables().get("this");
+		String entity= queryRequest.getArgument().get("this");
 		if (entity==null)
 			throw new DataFormatException("Query request does not contain the focus entity");
 		match.setEntityId(TTIriRef.iri(entity));
@@ -710,8 +712,8 @@ public class IMQuery {
 			}
 			else {
 				value= value.replace("$","");
-			if (queryRequest.getFocusVariables().get(value)!=null) {
-					return queryRequest.getFocusVariables().get(value);
+			if (queryRequest.getArgument().get(value)!=null) {
+					return queryRequest.getArgument().get(value);
 				}
 				else
 					throw new DataFormatException("unknown parameter variable " + value+". ");

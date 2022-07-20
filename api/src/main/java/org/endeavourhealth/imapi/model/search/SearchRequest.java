@@ -104,6 +104,12 @@ public class SearchRequest {
         this.typeFilter = typeFilter;
         return this;
     }
+    public SearchRequest addType(String type){
+        if (this.getTypeFilter()==null)
+            this.setTypeFilter(new ArrayList<>());
+        this.getTypeFilter().add(type);
+        return this;
+    }
 
     @Schema(name = "Code scheme filter",
         description = "List of code scheme IRI's",

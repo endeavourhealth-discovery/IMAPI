@@ -12,6 +12,7 @@ public class LuceneIndexer {
 
 	public void buildIndexes(){
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()){
+			dropIndex(conn);
 			String sql="PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n" +
 				"PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n" +
 				"\n" +
@@ -49,6 +50,18 @@ public class LuceneIndexer {
 			Update upd= conn.prepareUpdate(sql);
 			upd.execute();
 		}
+	}
+
+	private void dropIndex(RepositoryConnection conn) {
+		String spq="PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n" +
+			"PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n" +
+			"\n" +
+			"INSERT DATA {\n" +
+			"    con-inst:im_fts con:dropConnector [].}";
+		LOG.info("Dropping lucene index...");
+		Update upd= conn.prepareUpdate(spq);
+		upd.execute();
+
 	}
 
 }

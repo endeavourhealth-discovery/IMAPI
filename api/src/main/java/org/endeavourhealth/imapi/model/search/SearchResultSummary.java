@@ -105,6 +105,8 @@ public class SearchResultSummary {
         return this;
     }
 
+
+
     public TTIriRef getScheme() {
         return scheme;
     }
@@ -120,6 +122,13 @@ public class SearchResultSummary {
 
     public SearchResultSummary setEntityType(Set<TTIriRef> entityType) {
         this.entityType = entityType;
+        return this;
+    }
+
+    public SearchResultSummary addEntityType(TTIriRef entityType) {
+        if (this.entityType==null)
+            this.entityType= new HashSet<>();
+        this.entityType.add(entityType);
         return this;
     }
 

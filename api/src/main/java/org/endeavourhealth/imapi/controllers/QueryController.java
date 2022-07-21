@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.Query;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
@@ -56,10 +58,21 @@ public class QueryController {
     @PostMapping( "/public/queryIM")
     @Operation(
       summary = "Query IM",
-      description = "Runs a query on IM"
+      description = "Runs a generic query on IM"
     )
     public ObjectNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         LOG.debug("queryIM");
         return new SearchService().queryIM(queryRequest);
+    }
+
+
+    @PostMapping( "/public/entityQuery")
+    @Operation(
+      summary = "Query IM returning a standard entity summary response",
+      description = "Runs a generic query on IM but limited to a standard list of entity summaries as a response"
+    )
+    public List<SearchResultSummary> entityQueryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+        LOG.debug("queryIM");
+        return new SearchService().entityQuery(queryRequest);
     }
 }

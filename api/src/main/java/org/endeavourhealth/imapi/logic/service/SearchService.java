@@ -40,6 +40,17 @@ public class SearchService {
 		return new IMQuery().queryIM(queryRequest);
 	}
 
+
+	/**
+	 * Queries for a standard entity summary any IM entity using the query model
+	 * @param queryRequest Query inside a request with parameters
+	 * @return a SearchResultSummary array containing the results in a format defined by the selecr staement and including predicate map
+	 * @throws DataFormatException if query format is invalid
+	 */
+	public List<SearchResultSummary> entityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		return new IMQuery().entityQuery(queryRequest);
+	}
+
 	/**
 	 * Validation true or false query of the IM
 	 * @param iri iri of the query

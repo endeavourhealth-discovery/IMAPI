@@ -1088,5 +1088,13 @@ public class EntityService {
     public List<TTEntity> getActions(String taskIri) {
         return entityRepository2.getActions(taskIri);
     }
+
+    public List<TTIriRef> getProperties() {
+        return entityRepository.getProperties();
+    }
+
+    public List<TTIriRef> getClasses() {
+        return entityRepository.getClasses();
+    }
 }
 

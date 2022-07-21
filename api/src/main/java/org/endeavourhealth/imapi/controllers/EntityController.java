@@ -391,7 +391,7 @@ public class EntityController {
 	    LOG.debug("getDataModelProperties");
 		return entityService.getDataModelProperties(iri);
 	}
-	
+
 	@GetMapping("/public/definition")
 	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getEntityDefinitionDto");
@@ -451,7 +451,7 @@ public class EntityController {
         LOG.debug("getPathBetweenNodes");
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
-	
+
 	@GetMapping("/public/unassigned")
 	public List<TTIriRef> getUnassigned() {
 		LOG.debug("getUnassigned");
@@ -564,4 +564,16 @@ public class EntityController {
 		LOG.debug("getShapeFromType");
 		return entityService.getShapeFromType(iri);
 	}
+
+	@GetMapping("/public/properties")
+	public List<TTIriRef> getProperties() {
+		LOG.debug("getProperties");
+		return entityService.getProperties();
+	}
+
+    @GetMapping("/public/classes")
+    public List<TTIriRef> getClasses() {
+        LOG.debug("getClasses");
+        return entityService.getClasses();
+    }
 }

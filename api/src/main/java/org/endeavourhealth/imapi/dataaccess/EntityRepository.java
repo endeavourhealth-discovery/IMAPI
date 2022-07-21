@@ -336,4 +336,50 @@ public class EntityRepository {
         }
         return result;
     }
+
+    public List<TTIriRef> getProperties() {
+        List<TTIriRef> result = new ArrayList<>();
+
+        String spql = new StringJoiner(System.lineSeparator())
+                .add("select ?s ?name {")
+                .add("  ?s rdf:type rdf:Property ;")
+                .add("  rdfs:label ?name .")
+                .add("}")
+                .toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, spql);
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public List<TTIriRef> getClasses() {
+        List<TTIriRef> result = new ArrayList<>();
+
+        String spql = new StringJoiner(System.lineSeparator())
+                .add("select ?s ?name {")
+                .add("  ?s rdf:type rdfs:Class ;")
+                .add("  rdfs:label ?name .")
+                .add("}")
+                .toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, spql);
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    result.add(new TTIriRef(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+                }
+            }
+        }
+
+        return result;
+    }
 }

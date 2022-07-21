@@ -957,31 +957,11 @@ public class IMQuery {
 			query.setResultFormat(ResultFormat.OBJECT);
 		}
 		if (query.getAsk()!=null){
+			validateMatch(query.getAsk(),null);
 			return;
 		}
 		else 	if (query.getSelect() == null) {
-			query.setSelect(new Select()
-				.setDistinct(true)
-				.addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")
-					.setAlias("id")));
-		}
-		else {
-			if (query.getSelect().getProperty()==null){
-				query.getSelect().addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")
-					.setAlias("id"));
-			}
-			else {
-				boolean hasId= false;
-				for (PropertySelect property:query.getSelect().getProperty()){
-					if (property.getIri()!=null)
-						if (isId(property.getIri()))
-							hasId= true;
-				}
-				if (!hasId){
-					query.getSelect().getProperty()
-						.add(0,new PropertySelect(IM.NAMESPACE+"id").setAlias("entity"));
-				}
-			}
+			throw new DataFormatException("Query must have an ask or a select");
 		}
 		validateSelects(query,query.getSelect());
 
@@ -989,6 +969,12 @@ public class IMQuery {
 	}
 
 	private void validateSelects(Query query,Select select) throws DataFormatException {
+			if (select.getMatch()!=null) {
+				for (Match match : select.getMatch()) {
+					validateMatch(match, select);
+				}
+			}
+
 		if (select.getOrderLimit()!=null)
 			if (select.getOrderLimit().getOrderBy().getAlias()==null)
 					throw new DataFormatException("Select order by must use  aliases");
@@ -1014,6 +1000,36 @@ public class IMQuery {
 				validateSelects(query, property.getSelect());
 
 		}
+	}
+
+	private void validateMatch(Match match,Select select) throws DataFormatException {
+		if (match.getOr()!=null){
+			for (Match or:match.getOr())
+				validateMatch(or,select);
+		}
+		else if (match.getAnd()!=null){
+			for (Match and:match.getAnd())
+				validateMatch(and,select);
+		}
+		else 	if (match.getProperty()==null) {
+			if (match.getEntityId()==null)
+				throw new DataFormatException("Match clause that has no properties must have an entity id");
+			if (select==null){
+				throw new DataFormatException("Match clause must have properties");
+			}
+			if (select.getProperty()==null)
+			  throw new DataFormatException("Match clause must be boolean or have at least one property in select clause");
+			for (PropertySelect prop:select.getProperty()){
+				if (prop.getIri()==null){
+					throw new DataFormatException("Select property should have iri if the match clause has no properties");
+				}
+				PropertyValue pv= new PropertyValue();
+				pv.setIri(prop.getIri());
+				match.addProperty(pv);
+			}
+		}
+
+
 	}
 
 

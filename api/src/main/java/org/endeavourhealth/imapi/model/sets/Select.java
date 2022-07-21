@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 /**
  * A property of a select statement with option for iri and alias and supports nested selects for object format
  */
-@JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","property","match",})
+@JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","pathTo","property","match",})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select {
 
@@ -24,6 +24,7 @@ public class Select {
 	private boolean average;
 	private boolean max;
 	private boolean count;
+	private List<ConceptRef> pathTo;
 	private List<PropertySelect> property;
 	private List<Match> match;
 	private boolean distinct;
@@ -46,6 +47,23 @@ public class Select {
 		return this;
 	}
 
+
+
+	public List<ConceptRef> getPathTo() {
+		return pathTo;
+	}
+
+	@JsonSetter
+	public Select setPathTo(List<ConceptRef> pathTo) {
+		this.pathTo = pathTo;
+		return this;
+	}
+	public Select addPathTo(ConceptRef pathTo) {
+		if (this.pathTo==null)
+			this.pathTo= new ArrayList<>();
+		this.pathTo.add(pathTo);
+		return this;
+	}
 
 
 

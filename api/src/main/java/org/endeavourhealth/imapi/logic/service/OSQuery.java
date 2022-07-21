@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -11,8 +13,10 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -355,6 +359,181 @@ public class OSQuery {
         String finalTerm = term;
         initialList.sort(Comparator.comparing((SearchResultSummary sr) -> !sr.getMatch().toLowerCase(Locale.ROOT).startsWith(finalTerm))
                 .thenComparing(sr -> sr.getMatch().length()));
+
+    }
+
+    /**
+     * An open search query using IMQ- Returns null if query cannot be done via open search.
+     * <p>Application logic should try IM direct if null is returned</p>
+     * @param queryRequest Query request object containing any textSearch term, paging and a query.
+     * @return ObjectNode as determined by select statement
+     * @throws DataFormatException if content of query definition is invalid
+     */
+
+    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws DataFormatException {
+       if (queryRequest.getTextSearch()==null)
+           return null;
+       Query query= queryRequest.getQuery();
+
+       if (query.getSelect()!=null){
+           for (PropertySelect prop:query.getSelect().getProperty()) {
+               if (prop.getIri() != null) {
+                   if (!propIsSupported(prop.getIri()))
+                       return null;
+               }
+               if (prop.getSelect() != null)
+                   return null;
+           }
+           List<Match> matches= query.getSelect().getMatch();
+           if (matches!=null){
+               for (Match match:matches){
+                   if (match.getProperty()!=null){
+                       for (PropertyValue pv:match.getProperty()){
+                           if (!propIsSupported(pv.getIri()))
+                               return null;
+                       }
+                   }
+               }
+           }
+       }
+       SearchRequest searchRequest= convertIMToOS(queryRequest);
+       List<SearchResultSummary> results= multiPhaseQuery(searchRequest);
+       if (results.isEmpty())
+           return null;
+       else
+        return   convertOSResult(results,query);
+
+    }
+
+    private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode result = om.createObjectNode();
+        ArrayNode resultNodes = om.createArrayNode();
+        result.set("entities", resultNodes);
+        for (SearchResultSummary searchResult : searchResults) {
+            ObjectNode resultNode = om.createObjectNode();
+            resultNodes.add(resultNode);
+            resultNode.put("@id", searchResult.getIri());
+            for (PropertySelect prop : query.getSelect().getProperty()) {
+                if (prop.getIri() != null) {
+                    String field = prop.getIri();
+                    if (prop.getAlias() != null)
+                        field = prop.getAlias();
+                    switch (prop.getIri()) {
+                        case (RDFS.NAMESPACE + "label"):
+                            resultNode.put(field, searchResult.getName());
+                            break;
+                        case (RDFS.NAMESPACE + "comment"):
+                            if (searchResult.getDescription() != null)
+                                resultNode.put(field, searchResult.getDescription());
+                            break;
+                        case (IM.NAMESPACE + "code"):
+                            resultNode.put(field, searchResult.getCode());
+                            break;
+                        case (IM.NAMESPACE + "status"):
+                            resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                            break;
+                        case (IM.NAMESPACE + "scheme"):
+                            resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                            break;
+                        case (RDFS.NAMESPACE + "type"):
+                            resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
+                            break;
+                        case (IM.NAMESPACE + "weighting"):
+                            resultNode.put(field, searchResult.getWeighting());
+                        default:
+
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private ObjectNode fromIri(TTIriRef iri,ObjectMapper om){
+        ObjectNode node= om.createObjectNode();
+        node.put("@id",iri.getIri());
+        if (iri.getName()!=null)
+            node.put("name",iri.getName());
+        return node;
+    }
+    private ArrayNode arrayFromIri(Set<TTIriRef> iris,ObjectMapper om){
+
+        ArrayNode arrayNode= om.createArrayNode();
+        for (TTIriRef iri:iris) {
+            ObjectNode node = om.createObjectNode();
+            node.put("@id", iri.getIri());
+            if (iri.getName() != null)
+                node.put("name", iri.getName());
+            arrayNode.add(node);
+        }
+        return arrayNode;
+    }
+
+
+
+    private SearchRequest convertIMToOS(QueryRequest imRequest) {
+        SearchRequest request = new SearchRequest();
+        request.setPage(imRequest.getPage());
+        request.setSize(imRequest.getPageSize());
+        request.setTermFilter(imRequest.getTextSearch());
+        Query query = imRequest.getQuery();
+        request.addSelect("iri");
+        request.addSelect("name");
+        if (query.isActiveOnly())
+            request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
+        if (query.getSelect() != null) {
+            for (PropertySelect prop : query.getSelect().getProperty()) {
+                if (prop.getIri() != null) {
+                    switch (prop.getIri()) {
+                        case (RDFS.NAMESPACE + "comment"):
+                            request.addSelect("description");
+                            break;
+                        case (IM.NAMESPACE + "code"):
+                            request.addSelect("code");
+                            break;
+                        case (IM.NAMESPACE + "status"):
+                            request.addSelect("status");
+                            break;
+                        case (IM.NAMESPACE + "scheme"):
+                            request.addSelect("scheme");
+                            break;
+                        case (RDFS.NAMESPACE + "type"):
+                            request.addSelect("entityType");
+                            break;
+                        case (IM.NAMESPACE + "weighting"):
+                            request.addSelect("weighting");
+                        default:
+                    }
+                }
+            }
+            List<Match> matches = query.getSelect().getMatch();
+            for (Match match:matches){
+                if (match.getEntityType()!=null) {
+                    request.addType(match.getEntityType().getIri());
+                }
+                if (match.getEntityId()!=null)
+                    request.setIsA(List.of(match.getEntityId().getIri()));
+            }
+        }
+        return request;
+    }
+
+    private static boolean propIsSupported(String iri) {
+        if (iri==null)
+            return false;
+        switch (iri) {
+            case (RDFS.NAMESPACE+"label") :
+            case (RDFS.NAMESPACE+"comment") :
+            case (IM.NAMESPACE+"code") :
+            case (IM.NAMESPACE+"status") :
+            case (IM.NAMESPACE+"scheme") :
+            case (RDFS.NAMESPACE+"type") :
+            case (IM.NAMESPACE+"weighting") :
+                return true;
+            default :
+                return false;
+        }
 
     }
 

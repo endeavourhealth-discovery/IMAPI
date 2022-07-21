@@ -56,13 +56,9 @@ public class Reasoner {
          if (c.isType(OWL.DATATYPEPROPERTY))
             c.setType(new TTArray().add(RDF.PROPERTY));
          if (c.get(IM.IS_A)!=null) {
-            if (c.isType(RDF.PROPERTY)) {
-               c.set(RDFS.SUBPROPERTYOF, c.get(IM.IS_A));
-            } else {
                c.set(RDFS.SUBCLASSOF, c.get(IM.IS_A));
             }
-            c.getPredicateMap().remove(IM.IS_A);
-         }
+         c.getPredicateMap().remove(IM.IS_A);
          c.getPredicateMap().remove(OWL.EQUIVALENTCLASS);
          c.getPredicateMap().remove(OWL.PROPERTYCHAIN);
       }
@@ -329,7 +325,7 @@ public class Reasoner {
    }
 
    private void inheritRanges(TTEntity property, TTEntityMap propertyMap) {
-      for (TTValue superProp:property.get(RDFS.SUBPROPERTYOF).getElements()){
+      for (TTValue superProp:property.get(RDFS.SUBCLASSOF).getElements()){
          TTIriRef superIri= superProp.asIriRef();
          TTEntity superEntity= propertyMap.getEntity(superIri.getIri());
          inheritDomains(superEntity, propertyMap);
@@ -339,7 +335,7 @@ public class Reasoner {
    }
 
    private void inheritDomains(TTEntity property, TTEntityMap propertyMap) {
-      for (TTValue superProp:property.get(RDFS.SUBPROPERTYOF).getElements()){
+      for (TTValue superProp:property.get(RDFS.SUBCLASSOF).getElements()){
          TTIriRef superIri= superProp.asIriRef();
          TTEntity superEntity= propertyMap.getEntity(superIri.getIri());
          inheritDomains(superEntity, propertyMap);

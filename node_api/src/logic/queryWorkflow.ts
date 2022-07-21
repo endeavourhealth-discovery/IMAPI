@@ -6,6 +6,7 @@ import { TextGenerator } from "../helpers/text";
 import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
 import _ from "lodash";
+import { v4 } from "uuid";
 
 
 export default class QueryWorkflow {
@@ -167,6 +168,51 @@ export default class QueryWorkflow {
     })
     this.showConsole && console.log(`### Definition with displayText + HTML: \n`, _.cloneDeep(definition));
     return definition;
+
+  }
+
+
+  public async extractClauses(type: string = "get", payload: any): Promise<any> {
+
+    // const definition: DataSet =
+    const definition: any =
+      (type == "get")
+        ? await this.getRichDefinition(payload)
+        : payload;
+
+    this.showConsole && console.log(`definition`, definition);
+
+    //matchClause = an object with "property" key
+    const jsonQuery = `$..[?(@.property || @.pathTo)]`;    // const jsonQuery = `$..[? (@.@id)]`
+    let clauses = QueryWorkflow.findClauses(definition?.select?.match);
+    console.log("clauses", clauses)
+
+    // add summary to match clauses
+    clauses = clauses.map(item => {
+      const path = item.path;
+      const { text, html } = TextGenerator.summarise(item.value) || "";
+      // const htmlSummary = TextGenerator.htmlSummary(item.value) || "";
+      // text ? _.set(definition?.select?.match, textPath, text) : null;
+      // htmlSummary ? _.set(definition?.select?.match, htmlPath, htmlSummary) : null;
+      console.log(`### summary of clause(${path}): `, text);
+
+      return {
+        "@id": `urn:uuid:${v4()}`,
+        "rdfs:label": text,
+        "rdfs:comment": "",
+        "rdf:type": [
+          {
+            "@id": `http://endhealth.info/im#matchClause`,
+            "name": "Match Clause"
+          },
+        ],
+        "im:matchClause": item.value
+      }
+      
+
+    })
+    this.showConsole && console.log(`### Definition with displayText + HTML: \n`, _.cloneDeep(definition));
+    return clauses;
 
   }
 

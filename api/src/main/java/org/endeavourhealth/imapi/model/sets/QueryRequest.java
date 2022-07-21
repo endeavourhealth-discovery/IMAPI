@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -17,29 +16,29 @@ public class QueryRequest {
 	private Integer page;
 	private Integer pageSize;
 	private String textSearch;
-	private Map<String,String> focusVariables = new HashMap<>();
+	private Map<String,String> argument = new HashMap<>();
 	private Query query;
 	private TTIriRef queryIri;
 	private String referenceDate;
 
-	public Map<String, String> getFocusVariables() {
-		return focusVariables;
+	public Map<String, String> getArgument() {
+		return argument;
 	}
 
-	public QueryRequest setFocusVariables(Map<String, String> focusVariables) {
-		this.focusVariables = focusVariables;
+	public QueryRequest setArgument(Map<String, String> argument) {
+		this.argument = argument;
 		return this;
 	}
 
 	@JsonIgnore
-	public QueryRequest putFocusVariable(String variable,String value){
-		focusVariables.put(variable,value);
+	public QueryRequest putArgument(String variable,String value){
+		argument.put(variable,value);
 		return this;
 	}
 
 	@JsonIgnore
-	public QueryRequest addFocusVariable(String variable,String value){
-		putFocusVariable(variable,value);
+	public QueryRequest addArgument(String variable,String value){
+		putArgument(variable,value);
 		return this;
 	}
 

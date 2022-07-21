@@ -56,16 +56,21 @@ public class IMQuery {
 	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
 		this.queryRequest= queryRequest;
 		if (queryRequest.getQueryIri()!=null)
-			return queryByIri(queryRequest.getQueryIri());
+			this.query= getQueryByIri(queryRequest.getQueryIri());
 		else {
-			this.query= queryRequest.getQuery();
+			this.query = queryRequest.getQuery();
+		}
 			if (query==null)
 				throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object");
-			validate(query);
-			checkReferenceDate();
-			String spq = buildSparql(query);
-			return goGraphSearch(spq);
-		}
+			ObjectNode result= new OSQuery().openSearchQuery(queryRequest);
+			if (result!=null)
+				return result;
+			else {
+				validate(query);
+				checkReferenceDate();
+				String spq = buildSparql(query);
+				return goGraphSearch(spq);
+			}
 	}
 
 	private void checkReferenceDate(){
@@ -75,6 +80,8 @@ public class IMQuery {
 		}
 
 	}
+
+
 
 	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
 		TTEntity entity= new EntityService().getFullEntity(iri).getEntity();
@@ -91,19 +98,14 @@ public class IMQuery {
 
 	}
 
-	private ObjectNode queryByIri(TTIriRef iri) throws DataFormatException, JsonProcessingException {
+	private Query getQueryByIri(TTIriRef iri) throws DataFormatException, JsonProcessingException {
 		TTEntity entity= new EntityService().getFullEntity(iri.getIri()).getEntity();
 		if (entity==null)
 			throw new DataFormatException("Entity "+ iri.getIri()+" is unknown");
 		if (entity.get(IM.QUERY_DEFINITION)==null)
 			throw new DataFormatException("Entity "+ iri.getIri()+" is not a select query");
-		this.query= new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
-		if (queryRequest.getReferenceDate()==null){
-			String now = LocalDate.now().toString();
-			queryRequest.setReferenceDate(now);
-		}
-		String spq = buildSparql(query);
-		return goGraphSearch(spq);
+		return new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+
 
 	}
 
@@ -192,7 +194,7 @@ public class IMQuery {
 		StringBuilder askQl = new StringBuilder();
 		askQl.append("ASK {");
 		Match match= query.getAsk();
-		String entity= queryRequest.getFocusVariables().get("this");
+		String entity= queryRequest.getArgument().get("this");
 		if (entity==null)
 			throw new DataFormatException("Query request does not contain the focus entity");
 		match.setEntityId(TTIriRef.iri(entity));
@@ -710,8 +712,8 @@ public class IMQuery {
 			}
 			else {
 				value= value.replace("$","");
-			if (queryRequest.getFocusVariables().get(value)!=null) {
-					return queryRequest.getFocusVariables().get(value);
+			if (queryRequest.getArgument().get(value)!=null) {
+					return queryRequest.getArgument().get(value);
 				}
 				else
 					throw new DataFormatException("unknown parameter variable " + value+". ");
@@ -955,31 +957,11 @@ public class IMQuery {
 			query.setResultFormat(ResultFormat.OBJECT);
 		}
 		if (query.getAsk()!=null){
+			validateMatch(query.getAsk(),null);
 			return;
 		}
 		else 	if (query.getSelect() == null) {
-			query.setSelect(new Select()
-				.setDistinct(true)
-				.addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")
-					.setAlias("id")));
-		}
-		else {
-			if (query.getSelect().getProperty()==null){
-				query.getSelect().addProperty(new PropertySelect().setIri(IM.NAMESPACE+"id")
-					.setAlias("id"));
-			}
-			else {
-				boolean hasId= false;
-				for (PropertySelect property:query.getSelect().getProperty()){
-					if (property.getIri()!=null)
-						if (isId(property.getIri()))
-							hasId= true;
-				}
-				if (!hasId){
-					query.getSelect().getProperty()
-						.add(0,new PropertySelect(IM.NAMESPACE+"id").setAlias("entity"));
-				}
-			}
+			throw new DataFormatException("Query must have an ask or a select");
 		}
 		validateSelects(query,query.getSelect());
 
@@ -987,6 +969,12 @@ public class IMQuery {
 	}
 
 	private void validateSelects(Query query,Select select) throws DataFormatException {
+			if (select.getMatch()!=null) {
+				for (Match match : select.getMatch()) {
+					validateMatch(match, select);
+				}
+			}
+
 		if (select.getOrderLimit()!=null)
 			if (select.getOrderLimit().getOrderBy().getAlias()==null)
 					throw new DataFormatException("Select order by must use  aliases");
@@ -1012,6 +1000,36 @@ public class IMQuery {
 				validateSelects(query, property.getSelect());
 
 		}
+	}
+
+	private void validateMatch(Match match,Select select) throws DataFormatException {
+		if (match.getOr()!=null){
+			for (Match or:match.getOr())
+				validateMatch(or,select);
+		}
+		else if (match.getAnd()!=null){
+			for (Match and:match.getAnd())
+				validateMatch(and,select);
+		}
+		else 	if (match.getProperty()==null) {
+			if (match.getEntityId()==null)
+				throw new DataFormatException("Match clause that has no properties must have an entity id");
+			if (select==null){
+				throw new DataFormatException("Match clause must have properties");
+			}
+			if (select.getProperty()==null)
+			  throw new DataFormatException("Match clause must be boolean or have at least one property in select clause");
+			for (PropertySelect prop:select.getProperty()){
+				if (prop.getIri()==null){
+					throw new DataFormatException("Select property should have iri if the match clause has no properties");
+				}
+				PropertyValue pv= new PropertyValue();
+				pv.setIri(prop.getIri());
+				match.addProperty(pv);
+			}
+		}
+
+
 	}
 
 

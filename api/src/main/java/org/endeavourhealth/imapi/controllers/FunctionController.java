@@ -6,13 +6,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.FunctionService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.function.FunctionRequest;
 import org.endeavourhealth.imapi.model.sets.Query;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
@@ -26,15 +29,15 @@ public class FunctionController {
 	private static final Logger LOG = LoggerFactory.getLogger(FunctionController.class);
 
 
-	@GetMapping( "/public/callFunction")
+	@PostMapping( "/public/callFunction")
 	@Operation(
 		summary = "function",
 		description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
 	)
-	public ObjectNode callFunction(	@RequestParam(name = "iri") String iri,
-																	 @RequestBody(required = false) Map<String,String> arguments) throws Exception {
+	public ObjectNode callFunction(
+		@RequestBody FunctionRequest function) throws Exception {
 		LOG.debug("callFunction");
-		return new FunctionService().callFunction(iri,arguments);
+		return new FunctionService().callFunction(function.getFunctionIri(),function.getArguments());
 	}
 }
 

@@ -15,16 +15,25 @@ public class Argument {
 	private String valueData;
 	private String valueVariable;
 	private Select valueSelect;
-	private ConceptRef valueIri;
+	private String valueIri;
+	private String valueText;
 
 
-
-	public ConceptRef getValueProperty() {
+	public String getValueIri() {
 		return valueIri;
 	}
 
-	public Argument setValueProperty(ConceptRef valueProperty) {
-		this.valueIri = valueProperty;
+	public Argument setValueIri(String valueIri) {
+		this.valueIri = valueIri;
+		return this;
+	}
+
+	public String getValueText() {
+		return valueText;
+	}
+
+	public Argument setValueText(String valueText) {
+		this.valueText = valueText;
 		return this;
 	}
 

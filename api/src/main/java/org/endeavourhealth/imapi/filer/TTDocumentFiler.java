@@ -68,7 +68,8 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                 fileEntity(entity, entityGraph);
                 updateTct(entity);
                 i++;
-                LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(),entityGraph.getIri());
+                if (i %100== 0)
+                 LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(),entityGraph.getIri());
 
         }
     }

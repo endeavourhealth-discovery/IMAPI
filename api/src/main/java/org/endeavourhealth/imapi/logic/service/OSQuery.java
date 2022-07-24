@@ -473,9 +473,12 @@ public class OSQuery {
 
 
     private SearchRequest convertIMToOS(QueryRequest imRequest) {
+
         SearchRequest request = new SearchRequest();
-        request.setPage(imRequest.getPage());
-        request.setSize(imRequest.getPageSize());
+        if (imRequest.getPage()!=null)
+         request.setPage(imRequest.getPage());
+        if (imRequest.getPageSize()!=null)
+            request.setSize(imRequest.getPageSize());
         request.setTermFilter(imRequest.getTextSearch());
         Query query = imRequest.getQuery();
         request.addSelect("iri");

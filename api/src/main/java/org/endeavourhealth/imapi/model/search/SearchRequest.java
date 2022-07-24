@@ -1,10 +1,11 @@
 package org.endeavourhealth.imapi.model.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.endeavourhealth.imapi.model.sets.Select;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,7 @@ public class SearchRequest {
         return this;
     }
 
+    @JsonIgnore
     public SearchRequest addSelect(String select){
         this.select.add(select);
         return this;
@@ -188,11 +190,5 @@ public class SearchRequest {
         return this;
     }
 
-    public String getJson() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-    }
+
 }

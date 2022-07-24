@@ -648,6 +648,7 @@ public class IMQuery {
 			whereQl.append("?").append(subject).append(" ").append(getPropertyPath(where.getPathTo()))
 				.append(" ").append("?").append(subject).append(o).append(".\n");
 			subject= subject+o;
+			matchSubject= subject;
 		}
 		if (where.isNotExist()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
@@ -1093,27 +1094,27 @@ public class IMQuery {
 		if (select.getOrderLimit()!=null)
 			if (select.getOrderLimit().getOrderBy().getAlias()==null)
 					throw new DataFormatException("Select order by must use  aliases");
+		if (select.getProperty()!=null) {
+			for (PropertySelect property : select.getProperty()) {
+				if (property.getIri() == null) {
+					if (property.getAlias() == null) {
+						throw new DataFormatException("Missing property  in select statement");
+					}
+				} else {
+					if (property.getAlias() == null) {
+						if (query.getResultFormat() != ResultFormat.OBJECT) {
+							if (property.getSelect() == null) {
+								throw new DataFormatException("For a flat select you must have an alias (binding variable) for the column : (" + property.getIri() + ")" +
+									" =or else use OBJECT result format");
+							}
 
-		for (PropertySelect property:select.getProperty()){
-			if (property.getIri()==null){
-				if (property.getAlias()==null) {
-					throw new DataFormatException("Missing property  in select statement");
-				}
-			}
-			else {
-				if (property.getAlias()==null) {
-					if (query.getResultFormat() != ResultFormat.OBJECT) {
-						if (property.getSelect()==null) {
-							throw new DataFormatException("For a flat select you must have an alias (binding variable) for the column : (" + property.getIri() + ")" +
-								" =or else use OBJECT result format");
 						}
-
 					}
 				}
-			}
-			if (property.getSelect()!=null)
-				validateSelects(query, property.getSelect());
+				if (property.getSelect() != null)
+					validateSelects(query, property.getSelect());
 
+			}
 		}
 	}
 

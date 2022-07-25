@@ -94,12 +94,13 @@ public class IMQuery {
 	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult) throws JsonProcessingException {
 		List<SearchResultSummary> result = new ArrayList<>();
 		ArrayNode entities = (ArrayNode) genericResult.get("entities");
+		if (entities!=null){
 		for (Iterator<JsonNode> it = entities.elements(); it.hasNext(); ) {
 			JsonNode entity = it.next();
-			SearchResultSummary summary= new SearchResultSummary();
+			SearchResultSummary summary = new SearchResultSummary();
 			result.add(summary);
 			Iterator<Map.Entry<String, JsonNode>> fields = entity.fields();
-			while(fields.hasNext()) {
+			while (fields.hasNext()) {
 				Map.Entry<String, JsonNode> field = fields.next();
 				String fieldName = field.getKey();
 				JsonNode fieldValue = field.getValue();
@@ -128,6 +129,7 @@ public class IMQuery {
 					default:
 				}
 			}
+		}
 		}
 		return result;
 	}

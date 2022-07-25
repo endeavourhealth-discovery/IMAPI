@@ -873,6 +873,7 @@ public class IMQuery {
 				subTypes= true;
 			if (ref.isIncludeSupertypes())
 				superTypes=true;
+
 		}
 		String in= Strings.join(inList,",");
 		if (query.isActiveOnly())

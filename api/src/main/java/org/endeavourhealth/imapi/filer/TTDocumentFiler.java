@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.filer;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -57,6 +58,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                     entity.setCrud(document.getCrud());
                 }
             }
+
             TTIriRef entityGraph= entity.getGraph();
             if (entityGraph==null)
                 entityGraph= document.getGraph();

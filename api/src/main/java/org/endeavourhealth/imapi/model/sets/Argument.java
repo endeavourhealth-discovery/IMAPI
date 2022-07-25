@@ -15,15 +15,15 @@ public class Argument {
 	private String valueData;
 	private String valueVariable;
 	private Select valueSelect;
-	private String valueIri;
+	private TTIriRef valueIri;
 	private String valueText;
 
 
-	public String getValueIri() {
+	public TTIriRef getValueIri() {
 		return valueIri;
 	}
 
-	public Argument setValueIri(String valueIri) {
+	public Argument setValueIri(TTIriRef valueIri) {
 		this.valueIri = valueIri;
 		return this;
 	}

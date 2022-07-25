@@ -325,7 +325,7 @@ public class OSQuery {
             }
             source.setTermCode(null);
         }
-        if (!searchResults.isEmpty() && null == request.getSortField())
+        if (!searchResults.isEmpty())
             sort(searchResults, request.getTermFilter());
         return searchResults;
     }

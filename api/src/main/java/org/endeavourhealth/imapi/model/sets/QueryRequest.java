@@ -16,7 +16,7 @@ public class QueryRequest {
 	private Integer page;
 	private Integer pageSize;
 	private String textSearch;
-	private Map<String,String> argument = new HashMap<>();
+	private Map<String,String> argument;
 	private Query query;
 	private TTIriRef queryIri;
 	private String referenceDate;
@@ -25,6 +25,7 @@ public class QueryRequest {
 		return argument;
 	}
 
+	@JsonSetter
 	public QueryRequest setArgument(Map<String, String> argument) {
 		this.argument = argument;
 		return this;
@@ -32,6 +33,8 @@ public class QueryRequest {
 
 	@JsonIgnore
 	public QueryRequest putArgument(String variable,String value){
+		if (this.argument==null)
+			this.argument= new HashMap<>();
 		argument.put(variable,value);
 		return this;
 	}

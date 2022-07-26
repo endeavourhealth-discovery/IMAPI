@@ -115,7 +115,7 @@ public class TTTransactionFiler {
     private void fileAsDocument(TTDocument document) throws Exception {
         try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported
             try {
-                filer.startTransaction();
+               filer.startTransaction();
                 filer.fileInsideTraction(document);
                if (logPath!=null)
                    writeLog(document);

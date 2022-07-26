@@ -193,7 +193,7 @@ public class IM {
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE + "counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE + "hasContext");
-    public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
+    //public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE + "displayOrder");
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");

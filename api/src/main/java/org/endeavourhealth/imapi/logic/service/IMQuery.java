@@ -588,11 +588,15 @@ public class IMQuery {
 					return subject;
 		String matchSubject= subject;
 		String superSubject= subject;
+
 		if (entityId.isIncludeSubtypes()) {
 			matchSubject= "match"+subject;
 			superSubject= "super"+subject;
 			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
 			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
+			boolean excludeSelf= entityId.isExcludeSelf();
+			if (excludeSelf)
+				whereQl.append("filter (?").append(subject).append("!=<"+entityId.getIri()+">)");
 		}
 			whereQl.append(tabs).append("\tfilter (").append("?").append(superSubject)
 				.append("=").append(iri(entityId.getIri())).append(") \n");
@@ -611,6 +615,9 @@ public class IMQuery {
 			superSubject= "super"+subject;
 			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
 			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
+			boolean excludeSelf= entityType.isExcludeSelf();
+			if (excludeSelf)
+				whereQl.append("filter (?").append(subject).append("!=<"+entityType.getIri()+">)");
 		}
 		whereQl.append(tabs).append("?").append(superSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
 		return matchSubject;
@@ -861,6 +868,7 @@ public class IMQuery {
 		boolean subTypes= false;
 		String testObject="test_"+object;
 		List<String> inList= new ArrayList<>();
+		List<String> notSelfList= new ArrayList<>();
 		for (ConceptRef ref:refs) {
 			if (ref.getIri()!=null) {
 				inList.add(iri(ref.getIri()));
@@ -870,6 +878,9 @@ public class IMQuery {
 				if (refIri==null)
 					throw new DataFormatException("Query has concept value as variable not passed into query");
 				inList.add(iri(refIri));
+				boolean excludeSelf= ref.isExcludeSelf();
+				if (excludeSelf)
+					notSelfList.add(iri(refIri));
 			}
 			if (ref.isIncludeSubtypes())
 				subTypes= true;
@@ -886,6 +897,10 @@ public class IMQuery {
 				if (conceptCount==1) {
 					whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
 						.append(in).append(")\n");
+					if (!notSelfList.isEmpty()) {
+						String notSelf= Strings.join(notSelfList,",");
+						whereQl.append("filter (?").append(object).append("not in (").append(notSelf).append("))\n");
+					}
 				}
 				else
 					whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")

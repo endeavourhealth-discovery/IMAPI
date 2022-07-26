@@ -1,0 +1,18 @@
+{
+  "textSearch" : "ches pain",
+  "query" : {
+    "activeOnly" : true,
+    "select" : {
+      "property" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
+        "alias" : "name"
+      } ],
+      "match" : [ {
+        "entityId" : {
+          "includeSubtypes" : true,
+          "@id" : "http://snomed.info/sct#404684003"
+        }
+      } ]
+    }
+  }
+}

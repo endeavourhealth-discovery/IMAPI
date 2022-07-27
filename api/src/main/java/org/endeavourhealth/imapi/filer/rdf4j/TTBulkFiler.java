@@ -221,7 +221,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 		termCoreMap.write(term+"\t"+ core+"\n");
 		byte[] arr=term.getBytes(StandardCharsets.UTF_8);
-		if (!(arr.length== term.length())){
+		if (arr.length != term.length()){
 			StringBuilder newTerm= new StringBuilder();
 			for (byte b : arr) {
 				if (b > 0)

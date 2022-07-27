@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.List;

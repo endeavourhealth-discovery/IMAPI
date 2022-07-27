@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,7 +90,7 @@ public class IMQuery {
 		return select;
 	}
 
-	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult) throws JsonProcessingException {
+	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult) {
 		List<SearchResultSummary> result = new ArrayList<>();
 		ArrayNode entities = (ArrayNode) genericResult.get("entities");
 		if (entities!=null){

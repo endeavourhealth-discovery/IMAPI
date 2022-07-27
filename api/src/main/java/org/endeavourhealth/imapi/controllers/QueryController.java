@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.sets.Query;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class QueryController {
       @RequestParam(name = "iri") String iri,
       @RequestParam()Map<String,String> testVariables) throws DataFormatException, JsonProcessingException {
         LOG.debug("booleanQueryIM");
-        return new SearchService().booleanQueryIM(iri, testVariables)==true ?"true" : "false";
+        return new SearchService().booleanQueryIM(iri, testVariables) ?"true" : "false";
     }
 
 

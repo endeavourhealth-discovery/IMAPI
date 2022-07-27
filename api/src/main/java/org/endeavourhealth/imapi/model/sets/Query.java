@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder ({"iri","name","description","mainEntity","var","resultFormat","subset","distinct","activeOnly","referenceDate","select","groupBy"})

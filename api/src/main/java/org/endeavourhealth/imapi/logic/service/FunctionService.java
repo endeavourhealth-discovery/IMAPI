@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Map;

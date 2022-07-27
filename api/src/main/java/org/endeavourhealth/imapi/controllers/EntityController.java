@@ -19,15 +19,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.FunctionService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.forms.FormGenerator;
-import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -504,7 +501,7 @@ public class EntityController {
 
 	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri) throws Exception {
+	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri){
 		LOG.debug("getTaskActions");
 		return entityService.getActions(taskIri);
 	}

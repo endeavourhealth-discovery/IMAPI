@@ -14,7 +14,6 @@ import org.endeavourhealth.imapi.model.EntitySummary;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.RDFS;

@@ -37,10 +37,10 @@ public class QueryGenHelper {
                 default: throw new IllegalArgumentException("Unknown entity property [" + entityIri + "].[" + propertyIri + "]");
             }
         } else if ("http://endhealth.info/im#Person".equals(entityIri)) {
-            switch (propertyIri) {
-                case "http://endhealth.info/im#age": return "TIMESTAMPDIFF(YEAR, " + prefix + "date_of_birth, $ReferenceDate)";
-                default: throw new IllegalArgumentException("Unknown entity property [" + entityIri + "].[" + propertyIri + "]");
+            if ("http://endhealth.info/im#age".equals(propertyIri)) {
+                return "TIMESTAMPDIFF(YEAR, " + prefix + "date_of_birth, $ReferenceDate)";
             }
+            throw new IllegalArgumentException("Unknown entity property [" + entityIri + "].[" + propertyIri + "]");
         } else if ("http://endhealth.info/im#PersonDetails".equals(entityIri)) {
             switch (propertyIri) {
                 case "http://endhealth.info/im#age": return "TIMESTAMPDIFF(YEAR, " + prefix + "date_of_birth, $ReferenceDate)";

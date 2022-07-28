@@ -19,7 +19,6 @@ import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
-import org.endeavourhealth.imapi.model.forms.PropertyShape;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.sets.QueryEntity;
@@ -978,7 +977,7 @@ public class EntityService {
 
     private void addParentHierarchiesRecursively(ParentDto parent) {
         List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
-        if (parents.size() != 0) {
+        if (!parents.isEmpty()) {
             parent.setParents(parents);
             for (ParentDto parentsParent : parents) {
                 addParentHierarchiesRecursively(parentsParent);
@@ -998,7 +997,7 @@ public class EntityService {
             }
         });
 
-        if (paths.size() != 0) {
+        if (!paths.isEmpty()) {
             shortestPath = paths.get(paths.size() - 1);
             int index = indexOf(shortestPath, ancestor);
             shortestPath = shortestPath.subList(0, index == shortestPath.size() ? index : index + 1);
@@ -1020,8 +1019,7 @@ public class EntityService {
     }
 
     public boolean iriExists(String iri) {
-        Boolean result = entityRepository.iriExists(iri);
-        return result;
+        return entityRepository.iriExists(iri);
     }
 
     public TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {

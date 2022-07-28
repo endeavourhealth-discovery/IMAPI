@@ -41,10 +41,6 @@ public class TTTransactionFiler {
      * @throws TTFilerException if invalid data content
      */
     public void fileTransaction(TTDocument transaction) throws Exception {
-        if (transaction.getCrud() == null)
-            transaction.setCrud(IM.ADD_QUADS);
-        else if (!List.of(IM.UPDATE_ALL, IM.UPDATE_PREDICATES, IM.ADD_QUADS, IM.DELETE_ALL).contains(transaction.getCrud()))
-            throw new TTFilerException("Invalid crud transaction, must be im:UpdateAll,im:UpdatePredicates, or im:addQuads");
         checkDeletes(transaction);
         fileAsDocument(transaction);
     }
@@ -80,8 +76,16 @@ public class TTTransactionFiler {
 
     private void checkDeletes(TTDocument transaction) throws TTFilerException {
         Map<String, Set<String>> toCheck = new HashMap<>();
-        if (transaction.getCrud().equals(IM.UPDATE_ALL)) {
             for (TTEntity entity : transaction.getEntities()) {
+                if (entity.getCrud()==null) {
+                    if (transaction.getCrud() != null) {
+                        entity.setCrud(transaction.getCrud());
+                    }
+                    else
+                        entity.setCrud(IM.UPDATE_ALL);
+                }
+
+                if (entity.getCrud()== IM.UPDATE_ALL) {
                 if (entity.getGraph() == null && transaction.getGraph() == null)
                     throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
                 String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
@@ -111,7 +115,7 @@ public class TTTransactionFiler {
     private void fileAsDocument(TTDocument document) throws Exception {
         try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported
             try {
-                filer.startTransaction();
+               filer.startTransaction();
                 filer.fileInsideTraction(document);
                if (logPath!=null)
                    writeLog(document);

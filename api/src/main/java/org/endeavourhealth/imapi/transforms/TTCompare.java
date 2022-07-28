@@ -4,8 +4,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
-import java.util.Iterator;
-
 /**
  * Uitilities to compare Triple tree objects examning only predicates and values, ignoring entity IRI
  * or private properties
@@ -35,9 +33,7 @@ public class TTCompare {
 	private static boolean isNull(Object from, Object to){
 		if (from==null&&to!=null)
 			return true;
-		if (to==null&&from!=null)
-			return true;
-		return false;
+		return to == null && from != null;
 	}
 
 	/**

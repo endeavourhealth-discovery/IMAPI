@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.model.function;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashMap;
 import java.util.Map;

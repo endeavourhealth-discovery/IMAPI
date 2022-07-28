@@ -41,12 +41,11 @@ public class SetReducer {
 			throw new InvalidAttributesException("No set members to reduce");
 		}
 		else {
-				sql = GetMemberSql();
+				sql = getMemberSql();
 				originalSize = set.get(IM.HAS_MEMBER).size();
 		}
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			List<String> members = new ArrayList<>();
-			TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+			TupleQuery qry = conn.prepareTupleQuery(sql);
 			qry.setBinding("set", Values.iri(set.getIri()));
 			try (TupleQueryResult rs = qry.evaluate()) {
 				if (!rs.hasNext())
@@ -67,7 +66,7 @@ public class SetReducer {
 		return set;
 	}
 
-	private String GetMemberSql() {
+	private String getMemberSql() {
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add("PREFIX im: <http://endhealth.info/im#>")
 			.add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")

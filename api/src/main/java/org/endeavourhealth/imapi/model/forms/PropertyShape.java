@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"label","comment","name","order","minCount","maxCount","componentType","path","dataType","class","node",
-"function","validation","search","argument","valueVariable","isIri","isTextValue","isNumericValue"})
+"function","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
 	private String label;
@@ -33,6 +33,16 @@ public class PropertyShape {
 	private TTIriRef function;
 	private List<Argument> argument;
 	private String valueVariable;
+	private List<TTIriRef> select;
+
+	public List<TTIriRef> getSelect() {
+		return select;
+	}
+
+	public PropertyShape setSelect(List<TTIriRef> select) {
+		this.select = select;
+		return this;
+	}
 
 	public String getValueVariable() {
 		return valueVariable;

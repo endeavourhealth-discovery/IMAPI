@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,15 +90,16 @@ public class IMQuery {
 		return select;
 	}
 
-	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult) throws JsonProcessingException {
+	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult) {
 		List<SearchResultSummary> result = new ArrayList<>();
 		ArrayNode entities = (ArrayNode) genericResult.get("entities");
+		if (entities!=null){
 		for (Iterator<JsonNode> it = entities.elements(); it.hasNext(); ) {
 			JsonNode entity = it.next();
-			SearchResultSummary summary= new SearchResultSummary();
+			SearchResultSummary summary = new SearchResultSummary();
 			result.add(summary);
 			Iterator<Map.Entry<String, JsonNode>> fields = entity.fields();
-			while(fields.hasNext()) {
+			while (fields.hasNext()) {
 				Map.Entry<String, JsonNode> field = fields.next();
 				String fieldName = field.getKey();
 				JsonNode fieldValue = field.getValue();
@@ -128,6 +128,7 @@ public class IMQuery {
 					default:
 				}
 			}
+		}
 		}
 		return result;
 	}
@@ -586,11 +587,15 @@ public class IMQuery {
 					return subject;
 		String matchSubject= subject;
 		String superSubject= subject;
+
 		if (entityId.isIncludeSubtypes()) {
 			matchSubject= "match"+subject;
 			superSubject= "super"+subject;
 			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
 			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
+			boolean excludeSelf= entityId.isExcludeSelf();
+			if (excludeSelf)
+				whereQl.append("filter (?").append(subject).append("!=<"+entityId.getIri()+">)");
 		}
 			whereQl.append(tabs).append("\tfilter (").append("?").append(superSubject)
 				.append("=").append(iri(entityId.getIri())).append(") \n");
@@ -609,6 +614,9 @@ public class IMQuery {
 			superSubject= "super"+subject;
 			whereQl.append(tabs).append("?").append(subject).append(" im:isA ").append("?").append(matchSubject).append(".\n");
 			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
+			boolean excludeSelf= entityType.isExcludeSelf();
+			if (excludeSelf)
+				whereQl.append("filter (?").append(subject).append("!=<"+entityType.getIri()+">)");
 		}
 		whereQl.append(tabs).append("?").append(superSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
 		return matchSubject;
@@ -859,6 +867,7 @@ public class IMQuery {
 		boolean subTypes= false;
 		String testObject="test_"+object;
 		List<String> inList= new ArrayList<>();
+		List<String> notSelfList= new ArrayList<>();
 		for (ConceptRef ref:refs) {
 			if (ref.getIri()!=null) {
 				inList.add(iri(ref.getIri()));
@@ -868,11 +877,15 @@ public class IMQuery {
 				if (refIri==null)
 					throw new DataFormatException("Query has concept value as variable not passed into query");
 				inList.add(iri(refIri));
+				boolean excludeSelf= ref.isExcludeSelf();
+				if (excludeSelf)
+					notSelfList.add(iri(refIri));
 			}
 			if (ref.isIncludeSubtypes())
 				subTypes= true;
 			if (ref.isIncludeSupertypes())
 				superTypes=true;
+
 		}
 		String in= Strings.join(inList,",");
 		if (query.isActiveOnly())
@@ -883,6 +896,10 @@ public class IMQuery {
 				if (conceptCount==1) {
 					whereQl.append(tabs).append(" filter (?").append(testObject).append(" = ")
 						.append(in).append(")\n");
+					if (!notSelfList.isEmpty()) {
+						String notSelf= Strings.join(notSelfList,",");
+						whereQl.append("filter (?").append(object).append("not in (").append(notSelf).append("))\n");
+					}
 				}
 				else
 					whereQl.append(tabs).append(" filter (?").append(testObject).append(" in (")

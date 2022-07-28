@@ -1,10 +1,8 @@
 package org.endeavourhealth.imapi.model.sets;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import java.util.Locale;
 import java.util.zip.DataFormatException;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

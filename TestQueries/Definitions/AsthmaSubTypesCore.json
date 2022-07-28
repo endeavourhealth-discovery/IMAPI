@@ -1,19 +1,18 @@
 {
-  "name": "AsthmaSubTypesCore",
-  "select": {
-    "entityId": {
-      "includeSubtypes": true,
-      "@id": "http://snomed.info/sct#195967001"
-    },
-    "property": [
-      {
-        "@id": "http://www.w3.org/2000/01/rdf-schema#label",
-        "alias": "term"
+  "query" : {
+    "name" : "AsthmaSubTypesCore",
+    "select" : {
+      "entityId" : {
+        "includeSubtypes" : true,
+        "@id" : "http://snomed.info/sct#195967001"
       },
-      {
-        "@id": "http://endhealth.info/im#code",
-        "alias": "code"
-      }
-    ]
+      "property" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
+        "alias" : "term"
+      }, {
+        "@id" : "http://endhealth.info/im#code",
+        "alias" : "code"
+      } ]
+    }
   }
 }

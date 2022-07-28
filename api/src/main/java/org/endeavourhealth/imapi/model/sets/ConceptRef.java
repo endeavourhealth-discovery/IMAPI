@@ -8,7 +8,17 @@ public class ConceptRef extends TTIriRef{
 
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
+	private boolean excludeSelf;
 	private String alias;
+
+	public boolean isExcludeSelf() {
+		return excludeSelf;
+	}
+
+	public ConceptRef setExcludeSelf(boolean excludeSelf) {
+		this.excludeSelf = excludeSelf;
+		return this;
+	}
 
 	public String getAlias() {
 		return alias;

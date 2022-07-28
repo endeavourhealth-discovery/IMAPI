@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Class that holds the IM schema as a cache of static maps, including shapes, predicate display ordeers,
@@ -41,7 +40,6 @@ public class EntityCache implements Runnable{
 	public static void refreshShapes(){
 		synchronized (EntityCache.shapeLock) {
 			TTEntityMap shapeMap = ShapeRepository.getShapes();
-			Reasoner reasoner = new Reasoner();
 			cacheShapes(shapeMap);
 		}
 	}

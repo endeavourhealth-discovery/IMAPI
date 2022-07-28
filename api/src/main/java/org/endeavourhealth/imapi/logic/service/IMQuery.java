@@ -66,7 +66,9 @@ public class IMQuery {
 		query.setSelect(select);
 		query.setUsePrefixes(false);
 
-		ObjectNode result= new OSQuery().openSearchQuery(queryRequest);
+		this.queryRequest.setQuery(this.query);
+
+		ObjectNode result= new OSQuery().openSearchQuery(this.queryRequest);
 		if (result!=null){
 			return convertToSummary(result);
 		}
@@ -107,22 +109,22 @@ public class IMQuery {
 					case "@id":
 						summary.setIri(fieldValue.asText());
 						break;
-					case (RDFS.NAMESPACE + "label"):
+					case ("name"):
 						summary.setName(getTextValue(fieldValue));
 						break;
-					case (RDFS.NAMESPACE + "comment"):
+					case ("comment"):
 						summary.setDescription(getTextValue(fieldValue));
 						break;
-					case (IM.NAMESPACE + "code"):
+					case ("code"):
 						summary.setCode(getTextValue(fieldValue));
 						break;
-					case (IM.NAMESPACE + "scheme"):
+					case ("scheme"):
 						summary.setScheme(getTTValues(fieldValue).stream().findFirst().get());
 						break;
-					case (IM.NAMESPACE + "status"):
+					case ("status"):
 						summary.setStatus(getTTValues(fieldValue).stream().findFirst().get());
 						break;
-					case (RDF.NAMESPACE + "type"):
+					case ("entityType"):
 						summary.setEntityType(getTTValues(fieldValue));
 						break;
 					default:
@@ -135,22 +137,22 @@ public class IMQuery {
 
 	private Set<TTIriRef> getTTValues(JsonNode fieldValue){
 		Set<TTIriRef> values= new HashSet<>();
-		for (Iterator<JsonNode> it = fieldValue.elements(); it.hasNext(); ) {
-			JsonNode iri= it.next();
-			TTIriRef iriRef= TTIriRef.iri(iri.get("@id").asText());
-			if (iri.get("name")!=null)
-				iriRef.setName(iri.get("name").asText());
-			values.add(iriRef);
+		if (fieldValue.isArray()) {
+			for(Iterator<JsonNode> it = fieldValue.elements(); it.hasNext();) {
+				JsonNode node = it.next();
+				if (node.isObject()) {
+					values.add(TTIriRef.iri(node.get("@id").asText(), node.get("name").asText()));
+				}
+			}
+		}
+		if (fieldValue.isObject()) {
+			values.add(TTIriRef.iri(fieldValue.get("@id").asText(), fieldValue.get("name").asText()));
 		}
 		return values;
 	}
 
 	private String getTextValue(JsonNode fieldValue){
-		for (Iterator<JsonNode> it = fieldValue.elements(); it.hasNext(); ) {
-			JsonNode text= it.next();
-			return text.asText();
-		}
-		return null;
+			return fieldValue.asText();
 	}
 
 

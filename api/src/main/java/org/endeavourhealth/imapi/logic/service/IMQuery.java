@@ -42,7 +42,7 @@ public class IMQuery {
 	final ObjectMapper mapper = new ObjectMapper();
 	private boolean fuzzy =false;
 	private QueryRequest queryRequest;
-
+	private EntityService entityService = new EntityService();
 
 
 	public Set<String> getPredicates() {
@@ -75,7 +75,8 @@ public class IMQuery {
 		else {
 			checkReferenceDate();
 			String spq = buildSparql(query);
-			return convertToSummary(goGraphSearch(spq));
+			ObjectNode graphResult = goGraphSearch(spq);
+			return convertToSummary(graphResult);
 		}
 
 	}
@@ -110,24 +111,31 @@ public class IMQuery {
 						summary.setIri(fieldValue.asText());
 						break;
 					case ("name"):
+					case (RDFS.NAMESPACE + "label"):
 						summary.setName(getTextValue(fieldValue));
 						break;
 					case ("comment"):
+					case (RDFS.NAMESPACE + "comment"):
 						summary.setDescription(getTextValue(fieldValue));
 						break;
 					case ("code"):
+					case (IM.NAMESPACE + "code"):
 						summary.setCode(getTextValue(fieldValue));
 						break;
 					case ("scheme"):
+					case (IM.NAMESPACE + "scheme"):
 						summary.setScheme(getTTValues(fieldValue).stream().findFirst().get());
 						break;
 					case ("status"):
+					case (IM.NAMESPACE + "status"):
 						summary.setStatus(getTTValues(fieldValue).stream().findFirst().get());
 						break;
 					case ("entityType"):
+					case (RDF.NAMESPACE + "type"):
 						summary.setEntityType(getTTValues(fieldValue));
 						break;
 					default:
+						break;
 				}
 			}
 		}
@@ -141,17 +149,33 @@ public class IMQuery {
 			for(Iterator<JsonNode> it = fieldValue.elements(); it.hasNext();) {
 				JsonNode node = it.next();
 				if (node.isObject()) {
-					values.add(TTIriRef.iri(node.get("@id").asText(), node.get("name").asText()));
+					processNode(node, values);
 				}
 			}
 		}
 		if (fieldValue.isObject()) {
-			values.add(TTIriRef.iri(fieldValue.get("@id").asText(), fieldValue.get("name").asText()));
+			processNode(fieldValue, values);
 		}
 		return values;
 	}
 
+	private void processNode(JsonNode node, Set<TTIriRef> values ) {
+		String name;
+		if (node.has("name")) {
+			name = node.get("name").asText();
+		} else {
+			name = entityService.getName(node.get("@id").asText());
+		}
+		values.add(TTIriRef.iri(node.get("@id").asText(), name));
+	}
+
 	private String getTextValue(JsonNode fieldValue){
+		if (fieldValue.isArray()) {
+			for(Iterator<JsonNode> it = fieldValue.elements(); it.hasNext();) {
+				JsonNode node = it.next();
+				return node.asText();
+			}
+		}
 			return fieldValue.asText();
 	}
 

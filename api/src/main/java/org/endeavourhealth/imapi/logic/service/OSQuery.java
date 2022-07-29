@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -436,7 +437,7 @@ public class OSQuery {
                         case (IM.NAMESPACE + "scheme"):
                             resultNode.set(field, fromIri(searchResult.getScheme(), om));
                             break;
-                        case (RDFS.NAMESPACE + "type"):
+                        case (RDF.NAMESPACE + "type"):
                             resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
                             break;
                         case (IM.NAMESPACE + "weighting"):
@@ -457,6 +458,7 @@ public class OSQuery {
             node.put("name",iri.getName());
         return node;
     }
+
     private ArrayNode arrayFromIri(Set<TTIriRef> iris,ObjectMapper om){
 
         ArrayNode arrayNode= om.createArrayNode();
@@ -501,7 +503,7 @@ public class OSQuery {
                         case (IM.NAMESPACE + "scheme"):
                             request.addSelect("scheme");
                             break;
-                        case (RDFS.NAMESPACE + "type"):
+                        case (RDF.NAMESPACE + "type"):
                             request.addSelect("entityType");
                             break;
                         case (IM.NAMESPACE + "weighting"):
@@ -531,7 +533,7 @@ public class OSQuery {
             case (IM.NAMESPACE+"code") :
             case (IM.NAMESPACE+"status") :
             case (IM.NAMESPACE+"scheme") :
-            case (RDFS.NAMESPACE+"type") :
+            case (RDF.NAMESPACE+"type") :
             case (IM.NAMESPACE+"weighting") :
                 return true;
             default :

@@ -44,6 +44,8 @@ public class IM {
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
     public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
     public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
+    public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "FunctionProperty");
+    public static final TTIriRef QUERY_PROPERTY = iri(NAMESPACE + "QueryProperty");
 
 
     //Collection predicates

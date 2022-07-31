@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -62,6 +63,9 @@ public class ExcelSetExporter {
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
+
+        if (entity.get(IM.DEFINITION)==null && entity.get(IM.HAS_MEMBER)==null)
+            throw new DataFormatException(setIri+" has neither a definition nor members");
 
         if (!entity.has(IM.DEFINITION))
             entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();

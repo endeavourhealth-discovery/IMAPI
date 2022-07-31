@@ -82,8 +82,8 @@ public abstract class TTDocumentFiler implements AutoCloseable {
         int i = 0;
         for (String entityIri:entitiesFiled) {
             i++;
-            if (i %50== 0)
-                LOG.info("Generatged {}  isas in transaction from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
+            if (i %100== 0)
+                LOG.info("Checked and built  isas up to entity {} in transaction from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
             conceptFiler.updateTct(entityIri);
         }
 

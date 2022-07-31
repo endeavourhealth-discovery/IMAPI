@@ -16,17 +16,17 @@ public class QueryRequest {
 	private Integer page;
 	private Integer pageSize;
 	private String textSearch;
-	private Map<String,String> argument;
+	private Map<String,Object> argument;
 	private Query query;
 	private TTIriRef queryIri;
 	private String referenceDate;
 
-	public Map<String, String> getArgument() {
+	public Map<String, Object> getArgument() {
 		return argument;
 	}
 
 	@JsonSetter
-	public QueryRequest setArgument(Map<String, String> argument) {
+	public QueryRequest setArgument(Map<String, Object> argument) {
 		this.argument = argument;
 		return this;
 	}

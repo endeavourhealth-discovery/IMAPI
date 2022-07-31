@@ -1086,5 +1086,9 @@ public class EntityService {
     public List<TTEntity> getActions(String taskIri) {
         return entityRepository2.getActions(taskIri);
     }
+
+    public String getName(String iri) {
+        return entityRepository.getEntityReferenceByIri(iri).getName();
+    }
 }
 

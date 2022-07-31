@@ -1,25 +1,20 @@
 package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.springframework.data.util.ReflectionUtils;
 
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TTToClassObject {
-	public <T> T getObject(TTEntity entity, Class<T> classType) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, JsonProcessingException {
+	public <T> T getObject(TTEntity entity, Class<T> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException {
 		T obj = classType.newInstance();
 		setField(obj,"iri",entity.getIri());
 		processNode(entity, obj, classType);
-		return (T) obj;
+		return obj;
 	}
-
-
-
 
 	private List<Field> getAllFields(Class clazz) {
 		if (clazz == null) {
@@ -107,7 +102,7 @@ public class TTToClassObject {
 
 	}
 
-	private void setValue(Object object,String fieldName, TTLiteral value, Type type) throws JsonProcessingException {
+	private void setValue(Object object,String fieldName, TTLiteral value, Type type) {
 
 		if (type==String.class){
 				setField(object,fieldName,value.asLiteral().getValue());
@@ -120,7 +115,7 @@ public class TTToClassObject {
 			setField(object,fieldName,value.asLiteral().intValue());
 	}
 
-	private void addValue(List<Object> list, TTLiteral value, Type type) throws JsonProcessingException {
+	private void addValue(List<Object> list, TTLiteral value, Type type) {
 
 		if (type==String.class){
 			list.add(value.asLiteral().getValue());

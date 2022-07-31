@@ -3,11 +3,9 @@ package org.endeavourhealth.imapi.model.forms;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.poi.ss.usermodel.TableStyleType;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;

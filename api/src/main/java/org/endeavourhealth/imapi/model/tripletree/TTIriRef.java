@@ -76,7 +76,7 @@ public class TTIriRef implements TTValue, Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof TTIriRef)) return false;
+        if (!(o instanceof TTIriRef)) return false;
         TTIriRef ttIriRef = (TTIriRef) o;
         return iri.equals(ttIriRef.iri);
     }

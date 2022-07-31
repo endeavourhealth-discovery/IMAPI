@@ -584,7 +584,7 @@ public class EntityRepository2 {
 
         } else if (definition.asNode().get(SHACL.AND) != null) {
             Boolean hasRoles = andClause(definition.asNode().get(SHACL.AND), true, spql, prefixMap);
-            if (hasRoles) {
+            if (Boolean.TRUE.equals(hasRoles)) {
                 andClause(definition.asNode().get(SHACL.AND), false, spql, prefixMap);
             }
         }
@@ -635,7 +635,7 @@ public class EntityRepository2 {
             spql.add("UNION {");
             Boolean hasRoles = andClause(union.get(SHACL.AND), true, spql, prefixMap);
             spql.add("}");
-            if (hasRoles) {
+            if (Boolean.TRUE.equals(hasRoles)) {
                 spql.add("UNION {");
                 andClause(union.get(SHACL.AND), false, spql, prefixMap);
                 spql.add("}");

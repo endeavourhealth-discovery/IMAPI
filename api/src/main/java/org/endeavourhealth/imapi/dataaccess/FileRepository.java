@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class FileRepository {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FileRepository.class);
 
 	private final Map<String,Map<String,Set<String>>> codeCoreMap= new HashMap<>();
 	private final Map<String,Map<String,Set<String>>> termCoreMap= new HashMap<>();

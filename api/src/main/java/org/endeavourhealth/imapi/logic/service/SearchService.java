@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.sets.Query;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -71,8 +70,7 @@ public class SearchService {
 	 * @return A set of Summaries of entity documents from the store
 	 *
 	 */
-	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws URISyntaxException,
-		IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
+	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws DataFormatException {
 		return new OSQuery().multiPhaseQuery(request);
 	}
 }

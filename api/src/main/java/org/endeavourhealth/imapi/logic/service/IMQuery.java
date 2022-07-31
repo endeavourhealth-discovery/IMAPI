@@ -307,10 +307,12 @@ public class IMQuery {
 		StringBuilder askQl = new StringBuilder();
 		askQl.append("ASK {");
 		Match match= query.getAsk();
-		String entity= queryRequest.getArgument().get("this");
+		Object entity= queryRequest.getArgument().get("this");
 		if (entity==null)
 			throw new DataFormatException("Query request does not contain the focus entity");
-		match.setEntityId(TTIriRef.iri(entity));
+		if (entity instanceof String)
+			entity= TTIriRef.iri((String) entity);
+		match.setEntityId((TTIriRef) entity);
 		where(askQl, "entity",1, match,null);
 		askQl.append("}");
 		return askQl.toString();
@@ -834,17 +836,22 @@ public class IMQuery {
 				return queryRequest.getReferenceDate();
 			}
 			else {
-				value= value.replace("$","");
-			if (queryRequest.getArgument().get(value)!=null) {
-					return queryRequest.getArgument().get(value);
-				}
-				else
-					throw new DataFormatException("unknown parameter variable " + value+". ");
+				value = value.replace("$", "");
+				if (queryRequest.getArgument().get(value) != null) {
+					Object result = queryRequest.getArgument().get(value);
+					if (result instanceof Map) {
+						if (((Map) result).get("@id") != null)
+							return (String) ((Map) result).get("@id");
+					} else
+					  	return (String) queryRequest.getArgument().get(value);
+				} else
+					  throw new DataFormatException("unknown parameter variable " + value + ". ");
 			}
 		}
 		catch (Exception e) {
 			throw new DataFormatException("unknown parameter variable " + value);
 		}
+		throw new DataFormatException("unknown paramater variable "+ value);
 	}
 
 

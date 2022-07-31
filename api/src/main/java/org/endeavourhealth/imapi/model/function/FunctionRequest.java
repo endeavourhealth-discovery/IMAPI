@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class FunctionRequest {
     private String functionIri;
-    private Map<String,String> arguments;
+    private Map<String,Object> arguments;
 
     public String getFunctionIri() {
         return functionIri;
@@ -19,11 +19,11 @@ public class FunctionRequest {
         return this;
     }
 
-    public Map<String, String> getArguments() {
+    public Map<String, Object> getArguments() {
         return arguments;
     }
 
-    public FunctionRequest setArguments(Map<String, String> arguments) {
+    public FunctionRequest setArguments(Map<String, Object> arguments) {
         this.arguments = arguments;
         return this;
     }

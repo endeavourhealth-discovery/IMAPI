@@ -42,7 +42,7 @@ public class IMQuery {
 	final ObjectMapper mapper = new ObjectMapper();
 	private boolean fuzzy =false;
 	private QueryRequest queryRequest;
-
+	private EntityService entityService = new EntityService();
 
 
 	public Set<String> getPredicates() {
@@ -66,14 +66,17 @@ public class IMQuery {
 		query.setSelect(select);
 		query.setUsePrefixes(false);
 
-		ObjectNode result= new OSQuery().openSearchQuery(queryRequest);
+		this.queryRequest.setQuery(this.query);
+
+		ObjectNode result= new OSQuery().openSearchQuery(this.queryRequest);
 		if (result!=null){
 			return convertToSummary(result);
 		}
 		else {
 			checkReferenceDate();
 			String spq = buildSparql(query);
-			return convertToSummary(goGraphSearch(spq));
+			ObjectNode graphResult = goGraphSearch(spq);
+			return convertToSummary(graphResult);
 		}
 
 	}
@@ -107,25 +110,32 @@ public class IMQuery {
 					case "@id":
 						summary.setIri(fieldValue.asText());
 						break;
+					case ("name"):
 					case (RDFS.NAMESPACE + "label"):
 						summary.setName(getTextValue(fieldValue));
 						break;
+					case ("comment"):
 					case (RDFS.NAMESPACE + "comment"):
 						summary.setDescription(getTextValue(fieldValue));
 						break;
+					case ("code"):
 					case (IM.NAMESPACE + "code"):
 						summary.setCode(getTextValue(fieldValue));
 						break;
+					case ("scheme"):
 					case (IM.NAMESPACE + "scheme"):
 						summary.setScheme(getTTValues(fieldValue).stream().findFirst().get());
 						break;
+					case ("status"):
 					case (IM.NAMESPACE + "status"):
 						summary.setStatus(getTTValues(fieldValue).stream().findFirst().get());
 						break;
+					case ("entityType"):
 					case (RDF.NAMESPACE + "type"):
 						summary.setEntityType(getTTValues(fieldValue));
 						break;
 					default:
+						break;
 				}
 			}
 		}
@@ -135,22 +145,38 @@ public class IMQuery {
 
 	private Set<TTIriRef> getTTValues(JsonNode fieldValue){
 		Set<TTIriRef> values= new HashSet<>();
-		for (Iterator<JsonNode> it = fieldValue.elements(); it.hasNext(); ) {
-			JsonNode iri= it.next();
-			TTIriRef iriRef= TTIriRef.iri(iri.get("@id").asText());
-			if (iri.get("name")!=null)
-				iriRef.setName(iri.get("name").asText());
-			values.add(iriRef);
+		if (fieldValue.isArray()) {
+			for(Iterator<JsonNode> it = fieldValue.elements(); it.hasNext();) {
+				JsonNode node = it.next();
+				if (node.isObject()) {
+					processNode(node, values);
+				}
+			}
+		}
+		if (fieldValue.isObject()) {
+			processNode(fieldValue, values);
 		}
 		return values;
 	}
 
-	private String getTextValue(JsonNode fieldValue){
-		for (Iterator<JsonNode> it = fieldValue.elements(); it.hasNext(); ) {
-			JsonNode text= it.next();
-			return text.asText();
+	private void processNode(JsonNode node, Set<TTIriRef> values ) {
+		String name;
+		if (node.has("name")) {
+			name = node.get("name").asText();
+		} else {
+			name = entityService.getName(node.get("@id").asText());
 		}
-		return null;
+		values.add(TTIriRef.iri(node.get("@id").asText(), name));
+	}
+
+	private String getTextValue(JsonNode fieldValue){
+		if (fieldValue.isArray()) {
+			for(Iterator<JsonNode> it = fieldValue.elements(); it.hasNext();) {
+				JsonNode node = it.next();
+				return node.asText();
+			}
+		}
+			return fieldValue.asText();
 	}
 
 
@@ -306,10 +332,12 @@ public class IMQuery {
 		StringBuilder askQl = new StringBuilder();
 		askQl.append("ASK {");
 		Match match= query.getAsk();
-		String entity= queryRequest.getArgument().get("this");
+		Object entity= queryRequest.getArgument().get("this");
 		if (entity==null)
 			throw new DataFormatException("Query request does not contain the focus entity");
-		match.setEntityId(TTIriRef.iri(entity));
+		if (entity instanceof String)
+			entity= TTIriRef.iri((String) entity);
+		match.setEntityId((TTIriRef) entity);
 		where(askQl, "entity",1, match,null);
 		askQl.append("}");
 		return askQl.toString();
@@ -833,17 +861,22 @@ public class IMQuery {
 				return queryRequest.getReferenceDate();
 			}
 			else {
-				value= value.replace("$","");
-			if (queryRequest.getArgument().get(value)!=null) {
-					return queryRequest.getArgument().get(value);
-				}
-				else
-					throw new DataFormatException("unknown parameter variable " + value+". ");
+				value = value.replace("$", "");
+				if (queryRequest.getArgument().get(value) != null) {
+					Object result = queryRequest.getArgument().get(value);
+					if (result instanceof Map) {
+						if (((Map) result).get("@id") != null)
+							return (String) ((Map) result).get("@id");
+					} else
+					  	return (String) queryRequest.getArgument().get(value);
+				} else
+					  throw new DataFormatException("unknown parameter variable " + value + ". ");
 			}
 		}
 		catch (Exception e) {
 			throw new DataFormatException("unknown parameter variable " + value);
 		}
+		throw new DataFormatException("unknown paramater variable "+ value);
 	}
 
 

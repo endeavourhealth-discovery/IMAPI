@@ -45,7 +45,7 @@ public class TTCompare {
 	public static boolean equals(TTArray from, TTArray to){
 		if (isNull(from,to))
 			return false;
-		if (from.size()!=to.size())
+		if (from != null && from.size()!=to.size())
 			return false;
 		for (TTValue fromVal:from.getElements()){
 			boolean found=false;

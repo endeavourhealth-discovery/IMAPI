@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
@@ -11,11 +10,8 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 
@@ -25,7 +21,7 @@ import java.util.zip.DataFormatException;
 
 public class SearchService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(org.endeavourhealth.imapi.logic.service.SearchService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
 	private final TTIriRef PROPNAME= TTIriRef.iri(IM.NAMESPACE+"propName");
 	private final TTIriRef OBNAME= TTIriRef.iri(IM.NAMESPACE+"obName");
 

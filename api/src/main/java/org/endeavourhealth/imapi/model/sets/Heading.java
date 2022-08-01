@@ -79,6 +79,7 @@ public class Heading extends TTIriRef {
 	public Heading(){
 	}
 
+	@Override
 	public Heading setName(String name){
 		super.setName(name);
 		return this;

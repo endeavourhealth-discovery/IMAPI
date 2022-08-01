@@ -24,11 +24,13 @@ public class ConceptRef extends TTIriRef{
 		return alias;
 	}
 
+	@Override
 	public ConceptRef setIri(String iri){
 		super.setIri(iri);
 		return this;
 	}
 
+	@Override
 	public ConceptRef setName(String name){
 		super.setName(name);
 		return this;

@@ -7,7 +7,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
@@ -33,11 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -78,7 +74,7 @@ public class EntityService {
      * @throws IllegalAccessException
      * @throws JsonProcessingException
      */
-    public String getAsPlainJson(String iri) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+    public String getAsPlainJson(String iri) throws NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
         TTBundle bundle= entityRepository2.getBundle(iri);
         Class<?> cls;
         String entityType= bundle.getEntity().getType().get(0).asIriRef().getIri();
@@ -284,7 +280,7 @@ public class EntityService {
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
 
-    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
+    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws DataFormatException {
         return searchService.getEntitiesByTerm(request);
     }
 

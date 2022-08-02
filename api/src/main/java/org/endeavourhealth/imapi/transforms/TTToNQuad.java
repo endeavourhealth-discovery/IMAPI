@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,16 +11,12 @@ public class TTToNQuad {
 	private static int blank;
 	String graph;
 
-
-
 	public List<String> transformEntity(TTEntity entity,String graph){
 		quads= new ArrayList<>();
 		this.graph=graph;
 		appendEntity(entity);
 		return quads;
 	}
-
-
 
 	private  void appendEntity(TTEntity entity){
 		String subject= "<"+entity.getIri()+"> ";
@@ -47,9 +42,6 @@ public class TTToNQuad {
 		}
 	}
 
-
-
-
 	private void setObject(String subject,String predicate, TTValue value){
 		if (value.isIriRef())
 			quads.add(subject+ predicate + "<"+ value.asIriRef().getIri()+"> <"+graph+">.");
@@ -70,7 +62,4 @@ public class TTToNQuad {
 
 		}
 	}
-
-
-
 }

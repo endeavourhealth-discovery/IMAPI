@@ -25,7 +25,6 @@ public class TTManager {
    private Map<String, TTEntity> nameMap;
    private TTDocument document;
    private TTContext context;
-   private Set<TTIriRef> templatedPredicates;
    private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP};
 
    public enum Grammar {JSON,TURTLE}
@@ -318,7 +317,6 @@ public class TTManager {
       if (node.getPredicateMap() != null) {
          HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
          for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
-             TTIriRef predicate = entry.getKey();
              TTArray value = entry.getValue();
 
              List<TTValue> toRemove = new ArrayList<>();
@@ -346,26 +344,6 @@ public class TTManager {
          }
       }
       return false;
-   }
-
-   private TTArray replaceArray(TTArray array, TTIriRef from, TTIriRef to) {
-      TTArray newArray = new TTArray();
-      for (TTValue value : array.iterator()) {
-         if (value.isIriRef()) {
-            if (value.asIriRef().equals(from))
-               newArray.add(to);
-            else
-               newArray.add(value);
-         } else {
-            newArray.add(value);
-            if (value.isNode()) {
-               replaceNode(value.asNode(), from, to);
-            } else {
-               newArray.add(value);
-            }
-         }
-      }
-      return newArray;
    }
 
    /**
@@ -614,9 +592,6 @@ public class TTManager {
    public static void populateFromNode (TTNode source,TTNode target,Set<TTEntity> ranges){
       Class<? extends TTNode> clazz= target.getClass();
       target.setPredicateMap(source.getPredicateMap());
-      for (Map.Entry<TTIriRef,TTArray> statement:source.getPredicateMap().entrySet()){
-
-      }
    }
    public static TTContext getDefaultContext(){
       TTContext ctx=new TTContext();

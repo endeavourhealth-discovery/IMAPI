@@ -110,20 +110,6 @@ public class TTToTurtle {
         level = olevel;
     }
 
-	private void outputPredicateObject(TTIriRef predicate,TTValue object,int nodeCount) {
-		if (nodeCount > 1) {
-			append(";");
-			nl();
-		}
-		String pred = getShort(predicate.getIri()) + " ";
-		append(pred);
-		int olevel=level;
-		setObject(object);
-		level = olevel;
-	}
-
-
-
     private void setObject(TTArray value){
         int firstIn=1;
         if (value.size()>1){
@@ -158,8 +144,6 @@ public class TTToTurtle {
 			}
 	}
 
-
-
 	private StringBuilder append(String aString){
 		turtle.append(aString);
 		return turtle;
@@ -180,7 +164,6 @@ public class TTToTurtle {
 		} else
 			return iri;
 	}
-
 
 	private String getPrefix(String ns) {
 		if (prefixes.get(ns)!=null)

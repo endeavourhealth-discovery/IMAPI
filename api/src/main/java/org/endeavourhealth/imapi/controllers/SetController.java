@@ -27,7 +27,6 @@ import java.util.zip.DataFormatException;
 @Tag(name="SetController")
 @RequestScope
 public class SetController {
-    private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
 
     private final EntityService entityService = new EntityService();
     private final ECLService setService = new ECLService();

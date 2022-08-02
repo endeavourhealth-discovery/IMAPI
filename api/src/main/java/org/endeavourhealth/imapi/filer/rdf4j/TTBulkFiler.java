@@ -233,6 +233,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
  public static void createRepository() throws TTFilerException {
 	 LOG.info("Fast import of {} quad data", new Date());
+	 String pathDelimiter = "\\";
 		try {
 				String config = configTTl;
 				String data = dataPath;
@@ -249,10 +250,12 @@ public class TTBulkFiler  extends TTDocumentFiler {
 					}
 					System.out.println(line);
 				}
-			File directory= new File(data+"\\");
+			File directory= new File(data + pathDelimiter);
 			for(File file: Objects.requireNonNull(directory.listFiles()))
 				if (!file.isDirectory())
-					file.delete();
+					if(!file.delete()){
+						LOG.error("File delete failed");
+					}
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new TTFilerException(e.getMessage());

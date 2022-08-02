@@ -349,7 +349,7 @@ public class EntityRepository2 {
         Map<String,Set<String>> maps= new HashMap<>();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            TTIriRef concept=null;
+            TTIriRef concept = new TTIriRef();
             try (TupleQueryResult gs = qry.evaluate()) {
                 while (gs.hasNext()) {
                     BindingSet bs = gs.next();
@@ -719,7 +719,7 @@ public class EntityRepository2 {
                 orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
             } else if (not.asNode().get(SHACL.AND) != null) {
                 Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
-                if (hasRoles) {
+                if (Boolean.TRUE.equals(hasRoles)) {
                     andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
                 }
             }

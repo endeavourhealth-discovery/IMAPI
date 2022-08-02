@@ -86,8 +86,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     @Override
-    public void updateTct(String entity) throws TTFilerException {
-            //LOG.info("isas for "+ entity);
+    public void updateTct(String entity)  {
             StringJoiner delSupers = new StringJoiner("\n");
             delSupers.add("DELETE {<" + entity + "> <" + IM.IS_A.getIri() + "> ?super.}")
               .add("where { <" + entity + "> <" + IM.IS_A.getIri() + "> ?super.}");
@@ -110,7 +109,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
               .add("INSERT {<" + entity + "> <" + IM.IS_A.getIri() + "> ?superType.}")
               .add("where { <" + entity + "> (<" + RDFS.SUBCLASSOF.getIri() + ">|<"+SNOMED.REPLACED_BY.getIri()+">)+ ?superType.}");
             addIsas= conn.prepareUpdate(isSuper.toString());
-          //  LOG.info(isSuper.toString());
+
             addIsas.execute();
             StringJoiner isSubs= new StringJoiner("\n");
             isSubs
@@ -120,7 +119,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
               .add("filter (?subentity not in (" + blockers + "))")
               .add("filter (?superentity not in (" + blockers + "))}");
             addIsas = conn.prepareUpdate(isSubs.toString());
-            //LOG.info(isSubs.toString());
+
             addIsas.execute();
 
     }
@@ -209,7 +208,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
-        //  try {
 
         if (value.isLiteral()) {
             builder.add(subject, predicate, value.asLiteral().getType() == null
@@ -227,13 +225,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         } else {
             throw new TTFilerException("Arrays of arrays not allowed ");
         }
-//        }catch (Exception e) {
-//            System.out.println("invalid value");
-//        }
-    }
-
-    private IRI toIri(TTIriRef iriRef) throws TTFilerException {
-        return toIri(iriRef.getIri());
     }
 
     private IRI toIri(String iri) throws TTFilerException {

@@ -111,6 +111,7 @@ public class PropertySelect extends ConceptRef {
 		return this;
 	}
 
+	@Override
 	public PropertySelect setName(String name){
 		super.setName(name);
 		return this;
@@ -125,8 +126,7 @@ public class PropertySelect extends ConceptRef {
 		return this;
 	}
 
-
-
+	@Override
 	@JsonSetter
 	public PropertySelect setAlias(String alias) {
 		super.setAlias(alias);

@@ -17,23 +17,13 @@ export default class QueryWorkflow {
 
   private showConsole = false;
 
+
   private graph: GraphdbService;
   constructor() {
     this.graph = new GraphdbService();
   }
 
   public static saveFile(file: string): void {
-
-
-    // parse json
-    // var jsonObj = JSON.parse(jsonData);
-    // console.log(jsonObj);
-
-    // stringify JSON Object
-    // var jsonContent = JSON.stringify(jsonObj);
-    // var jsonContent = jsonData;
-    // console.log(jsonContent);
-
     fs.writeFile("output.json", file, 'utf8', function (err) {
       if (err) {
         console.log("An error occured while writing JSON Object to File.");
@@ -75,7 +65,7 @@ export default class QueryWorkflow {
 
       var config = {
         method: 'post',
-        url: 'http://localhost:8080/api/query/public/queryIM',
+        url: process.env.API + '/api/query/public/queryIM',
         headers: {
           'Content-Type': 'application/json'
         },

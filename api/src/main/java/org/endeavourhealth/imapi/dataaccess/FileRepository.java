@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.endeavourhealth.imapi.controllers.EntityController;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
@@ -88,7 +87,7 @@ public class FileRepository {
 			 return result;
 		 }
 	 }
-	 return null;
+	 return Collections.emptySet();
 	}
 
 
@@ -120,7 +119,7 @@ public class FileRepository {
 			return concepts;
 		}
 		else
-			return null;
+			return Collections.emptySet();
 	}
 
 	public Map<String, Set<String>> getAllMatchedLegacy() throws IOException{
@@ -170,10 +169,10 @@ public class FileRepository {
 					return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 				}
 			}
-			return null;
+			return Collections.emptySet();
 		} catch (Exception e) {
 			LOG.error("unable to retrieve core from code : {}", e.getMessage());
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -183,7 +182,7 @@ public class FileRepository {
 		if (termCoreMap.get(scheme).get(originalTerm)!=null)
 			return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 		else
-			return null;
+			return Collections.emptySet();
 	}
 	public Set<String> getCodes(String scheme) throws IOException {
 		if (codes.get(scheme)==null)

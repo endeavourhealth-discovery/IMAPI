@@ -4,7 +4,6 @@ package org.endeavourhealth.imapi.logic.exporters;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.Namespace;
@@ -29,7 +28,6 @@ import java.util.zip.DataFormatException;
 @Component
 public class ExcelSetExporter {
 
-    private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
     private SetExporter setExporter = new SetExporter();
@@ -62,6 +60,9 @@ public class ExcelSetExporter {
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
+
+        if (entity.get(IM.DEFINITION)==null && entity.get(IM.HAS_MEMBER)==null)
+            throw new DataFormatException(setIri+" has neither a definition nor members");
 
         if (!entity.has(IM.DEFINITION))
             entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();

@@ -1,0 +1,95 @@
+{
+  "query": {
+    "name": "get entities with property",
+    "description": "get entities with property",
+    "mainEntity": {
+      "@id": "http://www.w3.org/ns/shacl#property"
+    },
+    "resultFormat": "OBJECT",
+    "select": {
+      "property": [
+        {
+          "@id": "http://www.w3.org/ns/shacl#property",
+          "select": {
+            "property": [
+              {
+                "@id": "http://www.w3.org/ns/shacl#path",
+                "select": {
+                  "property": [
+                    {
+                      "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                    }
+                  ]
+                }
+              },
+              {
+                "@id": "http://www.w3.org/ns/shacl#datatype",
+                "select": {
+                  "property": [
+                    {
+                      "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                    }
+                  ]
+                }
+              },
+              {
+                "@id": "http://www.w3.org/ns/shacl#class",
+                "select": {
+                  "property": [
+                    {
+                      "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                    }
+                  ]
+                }
+              },
+              {
+                "@id": "http://www.w3.org/ns/shacl#nodeKind",
+                "select": {
+                  "property": [
+                    {
+                      "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+                    }
+                  ]
+                }
+              },
+              {
+                "@id": "http://www.w3.org/ns/shacl#node"
+              },
+              {
+                "@id": "http://www.w3.org/ns/shacl#minCount"
+              },
+              {
+                "@id": "http://www.w3.org/ns/shacl#maxCount"
+              }
+            ]
+          }
+        }
+      ],
+      "match": [
+        {
+          "entityId": {
+            "@id": "http://endhealth.info/im#Person"
+          },
+          "property": [
+            {
+              "@id": "http://www.w3.org/ns/shacl#property",
+              "match": {
+                "property": [
+                  {
+                    "@id": "http://www.w3.org/ns/shacl#class",
+                    "entityType": [
+                      {
+                        "@id": "http://www.w3.org/ns/shacl#NodeShape"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "usePrefixes": true
+}

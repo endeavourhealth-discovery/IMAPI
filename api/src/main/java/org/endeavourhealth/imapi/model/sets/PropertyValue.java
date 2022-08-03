@@ -98,6 +98,7 @@ public class PropertyValue  extends ConceptRef{
 		return optional;
 	}
 
+	@Override
 	@JsonSetter
 	public PropertyValue setIri(String iri){
 		super.setIri(iri);
@@ -111,11 +112,13 @@ public class PropertyValue  extends ConceptRef{
 		return this;
 	}
 
+	@Override
 	public PropertyValue setIncludeSubtypes(boolean subs){
 		super.setIncludeSubtypes(subs);
 		return this;
 	}
 
+	@Override
 	public PropertyValue setAlias(String alias){
 		super.setAlias(alias);
 		return this;
@@ -164,8 +167,6 @@ public class PropertyValue  extends ConceptRef{
 		return this;
 	}
 
-
-
 	public PropertyValue addIsNotConcept(ConceptRef value){
 		if (this.isNotConcept ==null)
 			this.isNotConcept = new ArrayList<>();
@@ -182,14 +183,11 @@ public class PropertyValue  extends ConceptRef{
 		return this;
 	}
 
-
+	@Override
 	public PropertyValue setName(String name){
 		super.setName(name);
 		return this;
 	}
-
-
-
 
 	public Within getWithin() {
 		return within;

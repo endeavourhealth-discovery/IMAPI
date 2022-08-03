@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.filer;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -82,8 +81,8 @@ public abstract class TTDocumentFiler implements AutoCloseable {
         int i = 0;
         for (String entityIri:entitiesFiled) {
             i++;
-            if (i %50== 0)
-                LOG.info("Generatged {}  isas in transaction from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
+            if (i %100== 0)
+                LOG.info("Checked and built  isas up to entity {} in transaction from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
             conceptFiler.updateTct(entityIri);
         }
 

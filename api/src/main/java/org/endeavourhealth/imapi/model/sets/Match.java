@@ -220,8 +220,6 @@ public class Match extends Heading {
 		return this;
 	}
 
-
-
 	public String getEntityVar() {
 		return entityVar;
 	}
@@ -231,14 +229,11 @@ public class Match extends Heading {
 		return this;
 	}
 
-
-
-
+	@Override
 	public Match setName(String name){
 		super.setName(name);
 		return this;
 	}
-
 
 	public boolean isIndex() {
 		return isIndex;
@@ -248,8 +243,6 @@ public class Match extends Heading {
 		isIndex = index;
 		return this;
 	}
-
-
 
 	public ConceptRef getEntityId() {
 		return entityId;

@@ -22,6 +22,7 @@ import java.util.*;
  */
 public class TTTransactionFiler {
     private final String logPath;
+    private final String pathDelimiter = "\\";
 
 
     /**
@@ -52,7 +53,7 @@ public class TTTransactionFiler {
      */
     public void fileDeltas() throws Exception {
         Map<Integer, String> transactionLogs = new HashMap<>();
-        File directory = new File(logPath + "\\");
+        File directory = new File(logPath + pathDelimiter);
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
                 String name = file.getName();
@@ -129,7 +130,7 @@ public class TTTransactionFiler {
 
 
     private void writeLog(TTDocument document) throws JsonProcessingException {
-        File directory = new File(logPath + "\\");
+        File directory = new File(logPath + pathDelimiter);
         int logNumber = 0;
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {

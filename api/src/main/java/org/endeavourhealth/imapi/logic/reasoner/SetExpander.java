@@ -47,8 +47,9 @@ public class SetExpander {
 				"\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}";
 			Update upd = conn.prepareUpdate(spq);
 			upd.execute();
+			String graph= "<"+iri.substring(0,iri.lastIndexOf("#")+1)+">";
 			StringJoiner sj = new StringJoiner("\n");
-			sj.add("INSERT DATA {");
+			sj.add("INSERT DATA { graph "+ graph+"{");
 			int batch = 0;
 			for (CoreLegacyCode member : members) {
 				batch++;
@@ -57,7 +58,7 @@ public class SetExpander {
 				} else {
 					sendUp(sj, conn);
 					sj = new StringJoiner("\n");
-					sj.add("INSERT DATA {");
+					sj.add("INSERT DATA { graph "+graph+"{");
 					batch=0;
 				}
 			}
@@ -66,7 +67,7 @@ public class SetExpander {
 	}
 
 	private void sendUp(StringJoiner sj, RepositoryConnection conn) {
-		sj.add("}");
+		sj.add("}}");
 		Update upd= conn.prepareUpdate(sj.toString());
 		conn.begin();
 		upd.execute();

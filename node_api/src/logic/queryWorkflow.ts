@@ -7,16 +7,126 @@ import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
 const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
 import _ from "lodash";
 import { v4 } from "uuid";
+import axios from 'axios';
+
+
+const fs = require('fs');
 
 
 export default class QueryWorkflow {
 
   private showConsole = false;
 
+
   private graph: GraphdbService;
   constructor() {
     this.graph = new GraphdbService();
   }
+
+  public static saveFile(file: string): void {
+    fs.writeFile("output.json", file, 'utf8', function (err) {
+      if (err) {
+        console.log("An error occured while writing JSON Object to File.");
+      }
+      console.log("JSON file has been saved.");
+    });
+  }
+
+
+  public static async getAllQueries(): Promise<any> {
+    try {
+
+      var data = JSON.stringify({
+        "query": {
+          "name": "get entities with property",
+          "description": "get entities with property",
+          "mainEntity": {
+            "@id": "http://www.w3.org/ns/shacl#NodeShape"
+          },
+          "resultFormat": "OBJECT",
+          "select": {
+            "property": [
+              {
+                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+              }
+            ],
+            "match": [
+              {
+                "entityType": {
+                  "@id": "http://endhealth.info/im#Query"
+                },
+                "property": []
+              }
+            ]
+          },
+          "usePrefixes": true
+        }
+      });
+
+      var config = {
+        method: 'post',
+        url: process.env.API + '/api/query/public/queryIM',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: data
+      };
+
+      const res = axios(config as any)
+        .then(function (response) {
+          // console.log(response.data);
+          // return JSON.stringify(response.data);
+          return response.data;
+
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      return res;
+
+    } catch (error) {
+      return {} as any;
+    }
+  }
+
+
+  public async populateOpensearch(index: string): Promise<any> {
+
+    const allQueryIris = await QueryWorkflow.getAllQueries();
+    const iris = allQueryIris?.entities?.map(item => item["@id"]);
+
+    const getClauses = (iri) => { // sample async action
+      return this.extractClauses("get", iri);
+    };
+    // map over forEach since it returns
+
+    var actions = iris.map(getClauses); // run the function over all items
+
+    // we now have a promises array and we want to wait for it
+
+    let results: any = Promise.all(actions); // pass array of promises
+    // console.log(iris)
+
+    results.then(data => {
+
+      let clauses: any[] = [];
+      data.forEach(item => {
+        if (item.length > 0) {
+          clauses = [...clauses, ...item];
+        }
+      });
+
+      let output = "";
+      clauses.forEach((clause: any, clauseIndex: number) => {
+        const indexText = `{ "index" : { "_index": "${index}", "_id" : ${clauseIndex} } }`
+        output += indexText + "\n";
+        output += JSON.stringify(clause) + "\n";
+      });
+      QueryWorkflow.saveFile(output);
+
+    });
+  }
+
 
 
   public async getLocalDefinition(queryIri: string): Promise<any> {
@@ -177,7 +287,7 @@ export default class QueryWorkflow {
     // const definition: DataSet =
     const definition: any =
       (type == "get")
-        ? await this.getRichDefinition(payload)
+        ? await this.getDefinition(payload)
         : payload;
 
     this.showConsole && console.log(`definition`, definition);
@@ -197,18 +307,17 @@ export default class QueryWorkflow {
       console.log(`### summary of clause(${path}): `, text);
 
       return {
-        "@id": `urn:uuid:${v4()}`,
-        "rdfs:label": text,
-        "rdfs:comment": "",
-        "rdf:type": [
+        "iri": `urn:uuid:${v4()}`,
+        "name": text,
+        "entityType": [
           {
-            "@id": `http://endhealth.info/im#matchClause`,
+            "@id": `http://endhealth.info/im#MatchClause`,
             "name": "Match Clause"
           },
         ],
-        "im:matchClause": item.value
+        "matchClause": item.value
       }
-      
+
 
     })
     this.showConsole && console.log(`### Definition with displayText + HTML: \n`, _.cloneDeep(definition));

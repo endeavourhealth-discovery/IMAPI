@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.dataaccess;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ public class QueryRepository {
     private static final Logger LOG = LoggerFactory.getLogger(QueryRepository.class);
 
     public String getConceptDbidByIri(String iri) {
-        TTIriRef result = new TTIriRef();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
             .add("SELECT ?sname WHERE {")
             .add("  ?s ?p ?im1id")

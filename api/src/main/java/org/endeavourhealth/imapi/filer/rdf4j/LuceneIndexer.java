@@ -33,11 +33,12 @@ public class LuceneIndexer {
 				"          ]\n" +
 				"        },\n" +
 				"{\n" +
-				"    \"fieldName\": \"l code\",  \n" +
+				"    \"fieldName\": \"code\",  \n" +
 				"          \"propertyChain\": [\n" +
 				"             \"http://endhealth.info/im#code\"\n" +
-				"          ]\n" +
-				"\n" +
+				"          ],\n" +
+                "     \"datatype\": \"xsd:string\"\n" +
+                "\n" +
 				"     }\n" +
 				"      ],\n" +
 				"\"types\" : [\"http://endhealth.info/im#Concept\",\n" +

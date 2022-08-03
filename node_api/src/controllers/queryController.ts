@@ -20,6 +20,7 @@ export default class QueryController {
   }
 
   private initRoutes() {
+        this.router.get('/node_api/query/public/populateOpensearch', (req, res, next) => this.populateOpensearch(req, res, next));
         this.router.get('/node_api/query/public/run', (req, res, next) => this.runQuery(req, res, next));
         this.router.get('/node_api/query/public/definition', (req, res, next) => this.definition(req, res, next));
         this.router.get('/node_api/query/public/richDefinition', (req, res, next) => this.richDefinition(req, res, next));
@@ -51,6 +52,14 @@ export default class QueryController {
     }
   }
 
+  async populateOpensearch(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.workflow.populateOpensearch(req.query.index as string);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
+  }
   async definition(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await this.workflow.getDefinition(req.query.iri as string);

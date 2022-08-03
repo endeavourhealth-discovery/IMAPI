@@ -229,12 +229,9 @@ public class Reasoner {
          OWLOntology o = owlOntology.get();
          OWLReasoner owlReasoner = new FaCTPlusPlusReasonerFactory().createReasoner(o, config);
          owlReasoner.precomputeInferences();
-         boolean consistent;
          if (!owlReasoner.isConsistent()) {
-            consistent = false;
             return null;
          }
-         consistent = true;
          OWLDataFactory dataFactory = new OWLDataFactoryImpl();
          for (TTEntity c : document.getEntities()) {
             inferred.addEntity(c);
@@ -398,7 +395,7 @@ public class Reasoner {
            .sorted(Comparator.comparingInt((TTValue p) -> p.asNode().get(SHACL.ORDER).asLiteral().intValue()))
            .collect(Collectors.toList());
       }
-      return null;
+      return Collections.emptyList();
    }
 
 

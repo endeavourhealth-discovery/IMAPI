@@ -42,10 +42,12 @@ public class Function extends TTIriRef{
 		return this;
 	}
 
+	@Override
 	public String getName() {
 		return super.getName();
 	}
 
+	@Override
 	public Function setName(String name) {
 		super.setName(name);
 		return this;

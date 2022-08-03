@@ -522,23 +522,6 @@ public class EntityTripleRepository {
         }
     }
 
-    private void addTriplesExcluding(List<Tpl> triples, Resource subject, Integer parent, Set<String> excludePredicates) {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?p ?pname ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s ?p ?o ;")
-            .add("    OPTIONAL { ?s rdfs:label ?sname }")
-            .add("    OPTIONAL { ?p rdfs:label ?pname }")
-            .add("    OPTIONAL { ?o rdfs:label ?oname }");
-
-        if (excludePredicates != null && !excludePredicates.isEmpty()) {
-            sql.add("    FILTER ( ?p NOT IN " + inList("p", excludePredicates.size()) + " )");
-        }
-
-        sql.add("}");
-        setAndEvaluate(triples, subject, parent, excludePredicates, sql);
-    }
-
     public List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())

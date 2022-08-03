@@ -16,7 +16,6 @@ import java.util.zip.DataFormatException;
  * Converts ECL to Discovery syntax, supporting commonly used constructs
  */
 public class ECLToTT extends ECLBaseVisitor<TTValue> {
-   private TTEntity entity;
    private final ECLLexer lexer;
    private final ECLParser parser;
    private String ecl;

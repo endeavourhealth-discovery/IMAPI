@@ -1094,5 +1094,7 @@ public class EntityService {
     public List<TTIriRef> getClasses() {
         return entityRepository.getClasses();
     }
+
+    public List<TTIriRef> getStatuses() { return entityRepository.getStatuses(); }
 }
 

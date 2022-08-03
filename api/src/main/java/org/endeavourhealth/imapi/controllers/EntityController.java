@@ -573,4 +573,10 @@ public class EntityController {
         LOG.debug("getClasses");
         return entityService.getClasses();
     }
+
+	@GetMapping("/public/statuses")
+	public List<TTIriRef> getStatuses() {
+		LOG.debug("getStatuses");
+		return entityService.getStatuses();
+	}
 }

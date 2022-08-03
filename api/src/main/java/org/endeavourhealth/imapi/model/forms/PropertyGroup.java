@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,41 @@ public class PropertyGroup {
 	private Integer minCount;
 	private Integer maxCount;
 	private List<PropertyShape> property;
+	private TTIriRef componentType;
+	private List<PropertyGroup> subGroup;
+	private TTIriRef path;
+
+	public List<PropertyGroup> getSubGroup() {
+		return subGroup;
+	}
+
+	public void setSubGroup(List<PropertyGroup> subGroup) {
+		this.subGroup = subGroup;
+	}
+
+	public TTIriRef getPath() {
+		return path;
+	}
+
+	public void setPath(TTIriRef path) {
+		this.path = path;
+	}
+
+	public List<PropertyGroup> getGroup() {
+		return subGroup;
+	}
+
+	public void setGroup(List<PropertyGroup> group) {
+		this.subGroup = group;
+	}
+
+	public TTIriRef getComponentType() {
+		return componentType;
+	}
+
+	public void setComponentType(TTIriRef componentType) {
+		this.componentType = componentType;
+	}
 
 	public String getLabel() {
 		return label;

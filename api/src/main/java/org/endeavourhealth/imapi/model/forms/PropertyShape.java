@@ -34,6 +34,15 @@ public class PropertyShape {
 	private List<Argument> argument;
 	private String valueVariable;
 	private List<TTIriRef> select;
+	private PropertyGroup subGroup;
+
+	public PropertyGroup getSubGroup() {
+		return subGroup;
+	}
+
+	public void setSubGroup(PropertyGroup subGroup) {
+		this.subGroup = subGroup;
+	}
 
 	public List<TTIriRef> getSelect() {
 		return select;

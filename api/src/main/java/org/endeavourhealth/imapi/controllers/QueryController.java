@@ -71,7 +71,7 @@ public class QueryController {
       description = "Runs a generic query on IM but limited to a standard list of entity summaries as a response"
     )
     public List<SearchResultSummary> entityQueryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
-        LOG.debug("queryIM");
+        LOG.debug("entityQuery");
         return new SearchService().entityQuery(queryRequest);
     }
 }

@@ -35,6 +35,15 @@ public class PropertyShape {
 	private String valueVariable;
 	private List<TTIriRef> select;
 	private PropertyGroup subGroup;
+	private Boolean builderChild;
+
+	public Boolean getBuilderChild() {
+		return builderChild;
+	}
+
+	public void setBuilderChild(Boolean builderChild) {
+		this.builderChild = builderChild;
+	}
 
 	public PropertyGroup getSubGroup() {
 		return subGroup;

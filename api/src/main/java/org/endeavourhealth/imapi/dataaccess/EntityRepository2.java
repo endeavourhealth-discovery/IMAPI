@@ -52,9 +52,8 @@ public class EntityRepository2 {
             .add("       im:code ?code;")
             .add("       im:scheme ?scheme.")
             .add("    ?scheme rdfs:label ?schemeName .")
-            .add("    OPTIONAL {")
-            .add("        ?concept im:im1Id ?im1Id .")
-            .add("    }");
+            .add("    OPTIONAL { ?concept im:im1Id ?im1Id . }")
+            .add("    OPTIONAL { ?concept im:usageTotal ?use . }");
 
         if (includeLegacy) {
             spql.add("    OPTIONAL {")
@@ -63,9 +62,8 @@ public class EntityRepository2 {
                 .add("                im:code ?legacyCode;")
                 .add("                im:scheme ?legacyScheme.")
                 .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
-                .add("        OPTIONAL {")
-                .add("            ?legacy im:im1Id ?legacyIm1Id .")
-                .add("        }")
+                .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
+                .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
                 .add("    }");
         }
 
@@ -90,6 +88,7 @@ public class EntityRepository2 {
                 Value scheme = bs.getValue("scheme");
                 Value schemeName = bs.getValue("schemeName");
                 Value im1Id = bs.getValue("im1Id");
+                Value use = bs.getValue("use");
                 cl.setIri(concept);
                 if (name != null)
                     cl.setTerm(name.stringValue());
@@ -99,6 +98,8 @@ public class EntityRepository2 {
                 }
                 if (im1Id != null)
                     cl.setIm1Id(im1Id.stringValue());
+                cl.setUse(use == null ? 0 : ((Literal)use).intValue());
+
                 if (includeLegacy) {
                     Value legIri = bs.getValue("legacy");
                     Value lc = bs.getValue("legacyCode");
@@ -106,6 +107,7 @@ public class EntityRepository2 {
                     Value ls = bs.getValue("legacyScheme");
                     Value lsn = bs.getValue("legacySchemeName");
                     Value lid = bs.getValue("legacyIm1Id");
+                    Value luse = bs.getValue("legacyUse");
                     if (legIri != null)
                         cl.setLegacyIri(legIri.stringValue());
                     if (lc != null)
@@ -116,6 +118,8 @@ public class EntityRepository2 {
                         cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
                     if (lid != null)
                         cl.setLegacyIm1Id(lid.stringValue());
+
+                    cl.setLegacyUse(luse == null ? 0 : ((Literal)luse).intValue());
                 }
 
                 result.add(cl);

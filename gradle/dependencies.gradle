@@ -1,8 +1,10 @@
 ext {
     versions = [
             antlr               : '4.9.2',
+            apacheCollections4  : '4.4',
             apacheText          : '1.9',
             apachePoi           : '5.0.0',
+            cucumber            : '7.6.0',
             elasticSearch       : '7.16.3',
             factPlusPlus        : '1.6.5',
             h2                  : '1.4.200',
@@ -27,11 +29,13 @@ ext {
     ]
     libs = [
             imGrammar           : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",
-            apacheCollections4  : "org.apache.commons:commons-collections4:4.4",
 
             antlr               : "org.antlr:antlr4-runtime:$versions.antlr",
+            apacheCollections4  : "org.apache.commons:commons-collections4:$versions.apacheCollections4",
             apachePoi           : "org.apache.poi:poi-ooxml:$versions.apachePoi",
             apacheText          : "org.apache.commons:commons-text:$versions.apacheText",
+            cucumber            : "io.cucumber:cucumber-java:$versions.cucumber",
+            cucumberJunit       : "io.cucumber:cucumber-junit:$versions.cucumber",
             elasticsearch       : "org.elasticsearch:elasticsearch:$versions.elasticSearch",
             factPlusPlus        : "uk.ac.manchester.cs:factplusplus:$versions.factPlusPlus",
             h2database          : "com.h2database:h2:$versions.h2",
@@ -39,6 +43,7 @@ ext {
             jacksonDatabind     : "com.fasterxml.jackson.core:jackson-databind:$versions.jackson",
             junit               : "org.junit.jupiter:junit-jupiter-api:$versions.junit",
             junitRunner         : "org.junit.platform:junit-platform-runner:$versions.junitRunner",
+            junitVintage        : "org.junit.vintage:junit-vintage-engine:$versions.junit",
             logbackCore         : "ch.qos.logback:logback-core:$versions.logback",
             logbackClassic      : "ch.qos.logback:logback-classic:$versions.logback",
             lombok              : "org.projectlombok:lombok:$versions.lombok",

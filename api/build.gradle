@@ -67,7 +67,10 @@ dependencies {
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
 
+    testImplementation libs.cucumber
+    testImplementation libs.cucumberJunit
     testImplementation libs.junitRunner
+    testImplementation libs.junitVintage
     testImplementation libs.mockito
     testImplementation libs.springTest
     testImplementation libs.springTestSecurity
@@ -91,6 +94,27 @@ publishing {
 
 test {
     useJUnitPlatform()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumberCli() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'html:target/cucumber-report.html',
+                    '--glue', 'org.endeavourhealth.imapi',
+                    'src/test/resources']
+        }
+    }
 }
 
 description = 'Information Model API'

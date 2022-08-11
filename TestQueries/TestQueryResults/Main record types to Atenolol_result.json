@@ -1,0 +1,129 @@
+{
+  "source" : [ {
+    "@id" : "http://endhealth.info/im#Patient"
+  } ],
+  "shape" : [ {
+    "@id" : "http://endhealth.info/im#Patient",
+    "name" : "Patient (data model)",
+    "property" : [ {
+      "path" : {
+        "name" : "has entry",
+        "@id" : "http://endhealth.info/im#hasEntry"
+      },
+      "node" : [ {
+        "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction"
+      }, {
+        "@id" : "http://endhealth.info/im#Observation"
+      }, {
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      }, {
+        "@id" : "http://endhealth.info/im#Procedure"
+      }, {
+        "@id" : "http://endhealth.info/im#MedicationRequest"
+      } ]
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction",
+    "name" : "Allergy, intolerance and adverse reaction  (data model)",
+    "property" : [ {
+      "path" : {
+        "name" : "type of adverse reaction",
+        "@id" : "http://endhealth.info/im#typeOfAdverseReaction"
+      },
+      "expression" : {
+        "property" : [ {
+          "path" : {
+            "name" : "Causative agent (attribute)",
+            "@id" : "http://snomed.info/sct#246075003"
+          }
+        } ]
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#MedicationAuthorisation",
+    "name" : "Medication authorisation (data model)",
+    "property" : [ {
+      "path" : {
+        "name" : "type of medicaton",
+        "@id" : "http://endhealth.info/im#typeOfMedication"
+      },
+      "expression" : {
+        "property" : [ {
+          "path" : {
+            "name" : "Has active ingredient (attribute)",
+            "@id" : "http://snomed.info/sct#127489000"
+          }
+        }, {
+          "path" : {
+            "name" : "Has basis of strength substance (attribute)",
+            "@id" : "http://snomed.info/sct#732943007"
+          }
+        } ]
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#MedicationRequest",
+    "name" : "Prescription or Medication request(data model)",
+    "property" : [ {
+      "path" : {
+        "name" : "authorisation",
+        "@id" : "http://endhealth.info/im#authorisation"
+      },
+      "node" : [ {
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      } ]
+    }, {
+      "path" : {
+        "name" : "type of medicaton",
+        "@id" : "http://endhealth.info/im#typeOfMedication"
+      },
+      "expression" : {
+        "property" : [ {
+          "path" : {
+            "name" : "Has active ingredient (attribute)",
+            "@id" : "http://snomed.info/sct#127489000"
+          }
+        }, {
+          "path" : {
+            "name" : "Has basis of strength substance (attribute)",
+            "@id" : "http://snomed.info/sct#732943007"
+          }
+        } ]
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Observation",
+    "name" : "Observation (data model)",
+    "property" : [ {
+      "path" : {
+        "name" : "type of observation",
+        "@id" : "http://endhealth.info/im#typeOfObservation"
+      },
+      "expression" : {
+        "property" : [ {
+          "path" : {
+            "name" : "Causative agent (attribute)",
+            "@id" : "http://snomed.info/sct#246075003"
+          }
+        } ]
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#Procedure",
+    "name" : "Procedure  (data model)",
+    "property" : [ {
+      "path" : {
+        "name" : "type of procedure",
+        "@id" : "http://endhealth.info/im#typeOfProcedure"
+      },
+      "expression" : {
+        "property" : [ {
+          "path" : {
+            "name" : "Component (attribute)",
+            "@id" : "http://snomed.info/sct#246093002"
+          }
+        } ]
+      }
+    } ]
+  } ]
+}

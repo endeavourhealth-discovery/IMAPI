@@ -20,13 +20,7 @@
           } ]
         } ]
       } ],
-      "orderLimit" : {
-        "orderBy" : {
-          "@id" : "http://endhealth.info/im#usageTotal",
-          "alias" : "usage"
-        },
-        "direction" : "DESCENDING"
-      }
+      "orderLimit" : [ ]
     },
     "usePrefixes" : true
   }

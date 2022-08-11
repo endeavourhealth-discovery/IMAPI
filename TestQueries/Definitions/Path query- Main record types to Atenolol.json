@@ -1,0 +1,15 @@
+{
+  "query" : {
+    "name" : "Path query- Main record types to Atenolol",
+    "select" : {
+      "entityId" : {
+        "@id" : "http://endhealth.info/im#MainRecordType"
+      },
+      "pathToTarget" : {
+        "name" : "atenolol substance",
+        "depth" : 3,
+        "@id" : "http://snomed.info/sct#387506000"
+      }
+    }
+  }
+}

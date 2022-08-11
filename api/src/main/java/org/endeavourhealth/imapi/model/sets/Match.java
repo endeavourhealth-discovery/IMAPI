@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"displayText","name","iri","description","pathTo","notExist","entityType","entityId","entityInSet","includeSubEntities","graph"+ ",inverseOf","property","includeSubProperties"
+@JsonPropertyOrder({"displayText","name","iri","description","pathTo","notExist","entityType","entityId","entityInSet","entityInList","includeSubEntities","graph","inverseOf","path","property","includeSubProperties"
 	,"isConcept","inValueSet","notInValueSet", "inRange","value","function","within","valueVar","match","isIndex","and","or","orderLimit","optional"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Heading {
@@ -33,6 +33,7 @@ public class Match extends Heading {
 	private OrderLimit orderLimit;
 	private List<PropertyValue> testProperty;
 	private String displayText;
+
 
 
 

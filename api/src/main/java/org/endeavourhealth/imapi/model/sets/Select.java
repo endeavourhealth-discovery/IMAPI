@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -30,8 +31,27 @@ public class Select {
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
 	private List<PropertySelect> groupBy;
-	private OrderLimit orderLimit;
+	private List<OrderLimit> orderLimit;
+	private PathTarget pathToTarget;
 
+	public PathTarget getPathToTarget() {
+		return pathToTarget;
+	}
+
+	@JsonSetter
+	public Select setPathToTarget(PathTarget pathToTarget) {
+		this.pathToTarget = pathToTarget;
+		return this;
+	}
+
+
+	@JsonIgnore
+	public Select pathToTarget(Consumer<PathTarget> builder){
+		PathTarget target= new PathTarget();
+		this.pathToTarget= target;
+		builder.accept(target);
+		return this;
+	}
 
 	/**
 	 * Lambda approach to setting property selects
@@ -73,20 +93,25 @@ public class Select {
 	 */
 	public Select order(Consumer<OrderLimit> builder){
 		OrderLimit ol= new OrderLimit();
-		this.orderLimit= ol;
+		this.addOrderLimit(ol);
 		builder.accept(ol);
 		return this;
 	}
 
 
 
-
-	public OrderLimit getOrderLimit() {
+	public List<OrderLimit> getOrderLimit() {
 		return orderLimit;
 	}
 
-	public Select setOrderLimit(OrderLimit orderLimit) {
+	public Select setOrderLimit(List<OrderLimit> orderLimit) {
 		this.orderLimit = orderLimit;
+		return this;
+	}
+
+	public Select addOrderLimit(OrderLimit orderLimit) {
+		if (this.orderLimit==null)
+			this.orderLimit= new ArrayList<>();
 		return this;
 	}
 
@@ -96,6 +121,13 @@ public class Select {
 
 	public Select setGroupBy(List<PropertySelect> groupBy) {
 		this.groupBy = groupBy;
+		return this;
+	}
+
+	public Select group(Consumer<PropertySelect> builder){
+		PropertySelect ps= new PropertySelect();
+		this.addGroupBy(ps);
+		builder.accept(ps);
 		return this;
 	}
 

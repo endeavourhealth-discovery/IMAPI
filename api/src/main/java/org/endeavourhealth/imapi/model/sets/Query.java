@@ -25,8 +25,16 @@ public class Query extends Heading {
 	private boolean activeOnly;
 	private TTIriRef mainEntity;
 	private Match ask;
+	private boolean function;
 
+	public boolean isFunction() {
+		return function;
+	}
 
+	public Query setFunction(boolean function) {
+		this.function = function;
+		return this;
+	}
 
 	public Match getAsk() {
 		return ask;

@@ -10,6 +10,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -21,6 +23,8 @@ import java.util.*;
  * <p>All entities must have a graph and a crud transation</p>
  */
 public class TTTransactionFiler {
+    private static final Logger LOG = LoggerFactory.getLogger(TTTransactionFiler.class);
+
     private final String logPath;
     /**
      * Destination folder for transaction log files must be set.
@@ -56,6 +60,7 @@ public class TTTransactionFiler {
      */
     public void fileDeltas() throws Exception {
         Map<Integer, String> transactionLogs = new HashMap<>();
+        LOG.debug("Filing deltas from [{}]", logPath);
         File directory = new File(logPath);
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
@@ -133,6 +138,7 @@ public class TTTransactionFiler {
 
 
     private void writeLog(TTDocument document) throws JsonProcessingException {
+        LOG.debug("Writing transaction to [{}]", logPath);
         File directory = new File(logPath);
         int logNumber = 0;
         for (File file : Objects.requireNonNull(directory.listFiles()))

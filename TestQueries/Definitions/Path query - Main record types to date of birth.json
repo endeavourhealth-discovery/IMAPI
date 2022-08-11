@@ -1,0 +1,15 @@
+{
+  "query" : {
+    "name" : "Path query - Main record types to date of birth",
+    "select" : {
+      "entityId" : {
+        "@id" : "http://endhealth.info/im#MainRecordType"
+      },
+      "pathToTarget" : {
+        "name" : "date of birth",
+        "depth" : 2,
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      }
+    }
+  }
+}

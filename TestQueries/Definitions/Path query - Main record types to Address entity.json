@@ -1,0 +1,15 @@
+{
+  "query" : {
+    "name" : "Path query - Main record types to Address entity",
+    "select" : {
+      "entityId" : {
+        "@id" : "http://endhealth.info/im#MainRecordType"
+      },
+      "pathToTarget" : {
+        "name" : "address",
+        "depth" : 3,
+        "@id" : "http://endhealth.info/im#Address"
+      }
+    }
+  }
+}

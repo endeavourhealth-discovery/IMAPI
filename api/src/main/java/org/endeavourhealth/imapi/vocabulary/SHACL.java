@@ -42,6 +42,7 @@ public class SHACL {
    public static final TTIriRef FUNCTION= iri(NAMESPACE +"Function");
    public static final TTIriRef RETURN_TYPE= iri(NAMESPACE +"returnType");
    public static final TTIriRef GROUP= iri(NAMESPACE +"group");
+   public static final TTIriRef EXPRESSION= iri(NAMESPACE +"expression");
 
 
 

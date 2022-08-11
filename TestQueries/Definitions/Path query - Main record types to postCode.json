@@ -1,0 +1,15 @@
+{
+  "query" : {
+    "name" : "Path query - Main record types to postCode",
+    "select" : {
+      "entityId" : {
+        "@id" : "http://endhealth.info/im#MainRecordType"
+      },
+      "pathToTarget" : {
+        "name" : "post code",
+        "depth" : 3,
+        "@id" : "http://endhealth.info/im#postCode"
+      }
+    }
+  }
+}

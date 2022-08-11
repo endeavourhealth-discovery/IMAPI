@@ -221,6 +221,7 @@ public class QueryRepository {
 			if (queryRequest.getQueryIri() != null) {
 				TTEntity entity= getEntity(queryRequest.getQueryIri(),conn);
 				  this.query = new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
+					this.queryRequest.setQuery(query);
 			}
 			else {
 				this.query = queryRequest.getQuery();
@@ -235,7 +236,6 @@ public class QueryRepository {
 			else {
 
 				checkReferenceDate();
-
 				String spq = buildSparql(query);
 				return goGraphSearch(spq,conn);
 			}
@@ -665,7 +665,7 @@ public class QueryRepository {
 
 	private String whereEntityId(String subject, ConceptRef entityId, StringBuilder whereQl,Select select) throws DataFormatException {
 		if (entityId.getIri()==null)
-			entityId.setIri(resolveReference(entityId.getAlias()));
+			entityId.setIri(resolveReference(entityId.getAlias(),queryRequest));
 		if (select!=null)
 			if (select.getEntityId()!=null)
 				if (entityId.equals(select.getEntityId()))
@@ -888,7 +888,7 @@ public class QueryRepository {
 
 	private String dataConverter(Comparison comparison, String value) throws DataFormatException {
 		if (value.startsWith("$"))
-			value= resolveReference(value);
+			value= resolveReference(value,queryRequest);
 		if (comparison== Comparison.EQUAL)
 			return value;
 		if (comparison== Comparison.STARTS_WITH)
@@ -912,7 +912,14 @@ public class QueryRepository {
 
 	}
 
-	private String resolveReference(String value) throws DataFormatException {
+	/**
+	 * Resolves a query $ vaiable value using the query request argument map
+	 * @param value  the $alias in the query definition
+	 * @param queryRequest the Query request object submitted via the API
+	 * @return the value of the variable as a String
+	 * @throws DataFormatException if the variable is unresolvable
+	 */
+	public static String resolveReference(String value,QueryRequest queryRequest) throws DataFormatException {
 		try {
 			if (value.equalsIgnoreCase("$referenceDate")) {
 				return queryRequest.getReferenceDate();
@@ -924,7 +931,11 @@ public class QueryRepository {
 					if (result instanceof Map) {
 						if (((Map) result).get("@id") != null)
 							return (String) ((Map) result).get("@id");
-					} else
+					} else if (result instanceof Integer)
+							return ((Integer) queryRequest.getArgument().get(value)).toString();
+						else if (result instanceof Number)
+							return String.valueOf(queryRequest.getArgument().get(value));
+						else
 					  	return (String) queryRequest.getArgument().get(value);
 				} else
 					  throw new DataFormatException("unknown parameter variable " + value + ". ");
@@ -963,7 +974,7 @@ public class QueryRepository {
 				inList.add(iri(ref.getIri()));
 			}
 			else if (ref.getAlias()!=null){
-				String refIri= resolveReference(ref.getAlias());
+				String refIri= resolveReference(ref.getAlias(),queryRequest);
 				if (refIri==null)
 					throw new DataFormatException("Query has concept value as variable not passed into query");
 				inList.add(iri(refIri));

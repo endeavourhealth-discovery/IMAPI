@@ -26,8 +26,16 @@ public class PathRepository {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			PathTarget pathTarget= request.getQuery().getSelect().getPathToTarget();
 			String target= pathTarget.getIri();
+			if (target==null)
+				target= QueryRepository.resolveReference(pathTarget.getAlias(),request);
 			String source= request.getQuery().getSelect().getEntityId().getIri();
+			if (source==null)
+				source= QueryRepository.resolveReference(request.getQuery().getSelect().getEntityId().getAlias(),request);
 			Integer depth= pathTarget.getDepth();
+			if (depth==null) {
+				depth = Integer.parseInt(QueryRepository.resolveReference(pathTarget.getDepthAlias(), request));
+				pathTarget.setDepth(depth);
+			}
 			String sql = "select ?type ?superType ?where {<" + target + "> <" + RDF.TYPE.getIri() + "> ?type.\n" +
 				"optional {<"+target+"> <" + IM.IS_A.getIri() + "> ?superType.\n" +
 				"filter (?superType=<" + IM.NAMESPACE + "dataModelProperty>)}}";
@@ -350,5 +358,7 @@ public class PathRepository {
 		}
 		return result;
 	}
+
+
 }
 

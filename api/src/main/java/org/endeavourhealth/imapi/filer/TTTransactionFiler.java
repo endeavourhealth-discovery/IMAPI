@@ -22,8 +22,6 @@ import java.util.*;
  */
 public class TTTransactionFiler {
     private final String logPath;
-    private final String pathDelimiter = "\\";
-
     /**
      * Destination folder for transaction log files must be set.
      */
@@ -58,7 +56,7 @@ public class TTTransactionFiler {
      */
     public void fileDeltas() throws Exception {
         Map<Integer, String> transactionLogs = new HashMap<>();
-        File directory = new File(logPath + pathDelimiter);
+        File directory = new File(logPath);
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
                 String name = file.getName();
@@ -135,7 +133,7 @@ public class TTTransactionFiler {
 
 
     private void writeLog(TTDocument document) throws JsonProcessingException {
-        File directory = new File(logPath + pathDelimiter);
+        File directory = new File(logPath);
         int logNumber = 0;
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
@@ -147,7 +145,7 @@ public class TTTransactionFiler {
                 }
             }
         logNumber++;
-        File logFile = new File(logPath + "\\TTLog-" + logNumber + ".json");
+        File logFile = new File(logPath + "TTLog-" + logNumber + ".json");
         TTManager manager = new TTManager();
         manager.setDocument(document);
         manager.saveDocument(logFile);

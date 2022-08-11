@@ -42,7 +42,7 @@ public class ConceptRepository {
 				.setCrud(IM.UPDATE_PREDICATES)
 				.setIri(IM.NAMESPACE+"SnomedConceptGenerator")
 				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
-		TTTransactionFiler filer= new TTTransactionFiler(null);
+		TTTransactionFiler filer= new TTTransactionFiler();
 		filer.fileTransaction(document);
 	}
 }

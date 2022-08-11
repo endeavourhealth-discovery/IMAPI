@@ -25,7 +25,7 @@ public class FilerService {
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
     private final TTEntityFiler entityProvFiler = new TTEntityFilerRdf4j(ConnectionManager.getProvConnection(), new HashMap<>());
     private final ProvService provService = new ProvService();
-    private final TTTransactionFiler transactionFiler = new TTTransactionFiler("");
+    private final TTTransactionFiler transactionFiler = new TTTransactionFiler();
     private final EntityService entityService = new EntityService();
 
     public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {

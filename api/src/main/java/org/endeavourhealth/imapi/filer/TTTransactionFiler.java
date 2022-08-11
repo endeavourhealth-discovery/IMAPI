@@ -24,15 +24,20 @@ public class TTTransactionFiler {
     private final String logPath;
     private final String pathDelimiter = "\\";
 
-
     /**
      * Destination folder for transaction log files must be set.
-     *
-     * @param logPath folder containing the transaction log files
      */
+    public TTTransactionFiler() {
+        this(System.getenv("DELTA_PATH"));
+    }
+
+        /**
+         * Destination folder for transaction log files must be set.
+         *
+         * @param logPath folder containing the transaction log files
+         */
     public TTTransactionFiler(String logPath) {
         this.logPath = logPath;
-
     }
 
     /**

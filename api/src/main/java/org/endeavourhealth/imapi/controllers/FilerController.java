@@ -13,7 +13,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -21,9 +24,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Objects;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -135,5 +144,34 @@ public class FilerController {
         filerService.fileTransactionDocument(doc, agentName);
 
         return iri;
+    }
+
+    @GetMapping("deltas/download")
+    @PreAuthorize("hasAuthority('IMAdmin')")
+    public HttpEntity<Object> downloadDeltas() throws Exception {
+        LOG.debug("downloadDeltas");
+        HttpHeaders headers = new HttpHeaders();
+
+        // Collect files into Zip
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try(ZipOutputStream zos = new ZipOutputStream(baos)) {
+
+            File directory = new File(System.getenv("DELTA_PATH"));
+            for (File file : Objects.requireNonNull(directory.listFiles())) {
+                if (!file.isDirectory()) {
+                    String name = file.getName();
+                    if (name.startsWith("TTLog-")) {
+                        zos.putNextEntry(new ZipEntry(name));
+                        byte[] fileData = Files.readAllBytes(file.toPath());
+                        zos.write(fileData);
+                        zos.closeEntry();
+                    }
+                }
+            }
+            headers.setContentType(new MediaType("application", "force-download"));
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"deltas.zip\"");
+
+        }
+        return new HttpEntity<>(baos.toByteArray(), headers);
     }
 }

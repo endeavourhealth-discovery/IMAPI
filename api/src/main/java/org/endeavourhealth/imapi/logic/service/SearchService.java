@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
@@ -32,7 +33,7 @@ public class SearchService {
 	 * @throws DataFormatException if query format is invalid
 	 */
 	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
-		return new IMQuery().queryIM(queryRequest);
+		return new QueryRepository().queryIM(queryRequest);
 	}
 
 
@@ -43,7 +44,7 @@ public class SearchService {
 	 * @throws DataFormatException if query format is invalid
 	 */
 	public List<SearchResultSummary> entityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
-		return new IMQuery().entityQuery(queryRequest);
+		return new QueryRepository().entityQuery(queryRequest);
 	}
 
 	/**
@@ -55,7 +56,7 @@ public class SearchService {
 	 * @throws JsonProcessingException
 	 */
 	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
-		return new IMQuery().booleanQueryIM(iri,variables);
+		return new QueryRepository().booleanQueryIM(iri,variables);
 	}
 
 

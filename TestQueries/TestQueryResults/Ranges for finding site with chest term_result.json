@@ -1,0 +1,69 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "sn" : "http://snomed.info/sct#",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "label"
+  },
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#244237006",
+    "rdfs:label" : [ "Chest wall artery (body structure)", "Structure of chest wall artery (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#78904004",
+    "rdfs:label" : [ "Chest wall structure (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#181608004",
+    "rdfs:label" : [ "Entire chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#372216005",
+    "rdfs:label" : [ "Part of chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#731489009",
+    "rdfs:label" : [ "Entire lower chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#731493003",
+    "rdfs:label" : [ "Entire upper chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#727917006",
+    "rdfs:label" : [ "Entire chest wall artery (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#261168007",
+    "rdfs:label" : [ "Posterolateral chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#699941007",
+    "rdfs:label" : [ "Entire lateral chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#362685006",
+    "rdfs:label" : [ "Entire anterior chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#362684005",
+    "rdfs:label" : [ "Entire posterior chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#63698005",
+    "rdfs:label" : [ "Anterior chest wall structure (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#699642002",
+    "rdfs:label" : [ "Structure of lower chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#699646004",
+    "rdfs:label" : [ "Structure of upper chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#76052000",
+    "rdfs:label" : [ "Posterior chest wall structure (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#699637005",
+    "rdfs:label" : [ "Structure of lateral chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#731942000",
+    "rdfs:label" : [ "Entire skin of lower chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#731952001",
+    "rdfs:label" : [ "Entire skin of upper chest wall (body structure)" ]
+  }, {
+    "@id" : "http://snomed.info/sct#728512006",
+    "rdfs:label" : [ "Entire posterolateral chest wall (body structure)" ]
+  } ]
+}

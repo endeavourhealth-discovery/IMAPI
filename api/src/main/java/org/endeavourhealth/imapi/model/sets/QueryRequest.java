@@ -12,7 +12,8 @@ import java.util.function.Consumer;
 /**
  * Wrapper class for a query containing the run time parameters for passing into the query
  */
-public class QueryRequest {
+public class QueryRequest{
+	private String name;
 	private Integer page;
 	private Integer pageSize;
 	private String textSearch;
@@ -20,6 +21,15 @@ public class QueryRequest {
 	private Query query;
 	private TTIriRef queryIri;
 	private String referenceDate;
+
+	public String getName() {
+		return name;
+	}
+
+	public QueryRequest setName(String name) {
+		this.name = name;
+		return this;
+	}
 
 	public Map<String, Object> getArgument() {
 		return argument;
@@ -32,7 +42,7 @@ public class QueryRequest {
 	}
 
 	@JsonIgnore
-	public QueryRequest putArgument(String variable,String value){
+	public QueryRequest putArgument(String variable, Object value){
 		if (this.argument==null)
 			this.argument= new HashMap<>();
 		argument.put(variable,value);
@@ -40,7 +50,7 @@ public class QueryRequest {
 	}
 
 	@JsonIgnore
-	public QueryRequest addArgument(String variable,String value){
+	public QueryRequest addArgument(String variable,Object value){
 		putArgument(variable,value);
 		return this;
 	}

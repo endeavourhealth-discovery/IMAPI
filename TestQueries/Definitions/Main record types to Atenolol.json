@@ -1,0 +1,15 @@
+{
+  "name" : "Main record types to Atenolol",
+  "argument" : {
+    "depth" : 3,
+    "source" : {
+      "@id" : "http://endhealth.info/im#MainRecordType"
+    },
+    "target" : {
+      "@id" : "http://snomed.info/sct#387506000"
+    }
+  },
+  "queryIri" : {
+    "@id" : "http://endhealth.info/im#Function_EntityToEntityPaths"
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "sn" : "http://snomed.info/sct#",
+    "http://www.w3.org/ns/shacl#minCount" : "min count",
+    "http://www.w3.org/ns/shacl#property" : "property",
+    "http://www.w3.org/ns/shacl#datatype" : "datatype",
+    "http://www.w3.org/ns/shacl#maxCount" : "max count",
+    "http://www.w3.org/ns/shacl#node" : "node",
+    "http://www.w3.org/ns/shacl#class" : "class",
+    "http://www.w3.org/ns/shacl#path" : "path"
+  },
+  "entities" : [ {
+    "@id" : "http://endhealth.info/im#Encounter",
+    "sh:property" : [ {
+      "sh:path" : [ {
+        "@id" : "im:dataController"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Organisation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:effectiveDate"
+      } ],
+      "sh:datatype" : [ {
+        "@id" : "im:DateTime"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:endDate"
+      } ],
+      "sh:datatype" : [ {
+        "@id" : "im:DateTime"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:hasPractitioner"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:PractitionerInRole"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:additionalPractitioners"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:PractitionerInRole"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:completionStatus"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:duration"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ],
+      "sh:minCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:hasSection"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Section"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:linkedAppointment"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Appointment"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:linkedCareEpisode"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:EpisodeOfCare"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:location"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Location"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:providingOrganisation_ServicesOrDepartments"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Organisation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:isSubEncounterOf"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Encounter"
+      } ],
+      "sh:minCount" : [ "1" ],
+      "sh:maxCount" : [ "1" ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:typeOfEncounter"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_EncounterTypes"
+      } ],
+      "sh:minCount" : [ "1" ],
+      "sh:maxCount" : [ "1" ]
+    } ]
+  } ]
+}

@@ -26,7 +26,11 @@ sonarqube {
     }
 }
 
-build.finalizedBy 'sonarqube'
+task buildProduction {
+    dependsOn 'build'
+    dependsOn 'sonarqube'
+    tasks.findByName('sonarqube').mustRunAfter  'build'
+}
 
 allprojects {
     apply plugin: 'java-library'

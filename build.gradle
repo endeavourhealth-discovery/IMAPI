@@ -26,10 +26,9 @@ sonarqube {
     }
 }
 
-task buildProduction {
-    dependsOn 'build'
-    dependsOn 'sonarqube'
-    tasks.findByName('sonarqube').mustRunAfter  'build'
+println 'Build environment = [' + env + ']'
+if (env == 'prod') {
+    build.finalizedBy 'sonarqube'
 }
 
 allprojects {

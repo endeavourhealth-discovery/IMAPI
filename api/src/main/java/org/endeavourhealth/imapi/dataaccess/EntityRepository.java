@@ -323,10 +323,8 @@ public class EntityRepository {
     public Boolean iriExists(String iri) {
         Boolean result = false;
 
-        String spql = new StringJoiner(System.lineSeparator()).add("SELECT * WHERE { ?s ?p ?o.} limit 1").toString();
-
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, spql);
+            TupleQuery qry = prepareSparql(conn, "SELECT * WHERE { ?s ?p ?o.} limit 1");
             qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if(rs.hasNext()) {
@@ -335,5 +333,14 @@ public class EntityRepository {
             }
         }
         return result;
+    }
+
+    public boolean predicatePathExists(String subject, TTIriRef predicate, String object) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s (<" + predicate.getIri() + ">)* ?o.}");
+            qry.setBinding("s", iri(subject));
+            qry.setBinding("o", iri(object));
+            return qry.evaluate();
+        }
     }
 }

@@ -581,15 +581,23 @@ public class EntityRepository2 {
     }
 
     private void graphWherePattern(TTArray definition, StringJoiner spql,Map<String, String> prefixMap) {
-        if (definition.isIriRef()) {
-            simpleSuperClass(definition.asIriRef(), spql, prefixMap);
-        } else if (definition.asNode().get(SHACL.OR) != null) {
-            orClause(definition.asNode().get(SHACL.OR), spql, prefixMap);
+        for (TTValue clause:definition.getElements()) {
+            if (clause.isIriRef()) {
+                simpleSuperClass(clause.asIriRef(), spql, prefixMap);
+            } else {
+                if (clause.asNode().get(SHACL.OR) != null) {
+                    orClause(clause.asNode().get(SHACL.OR), spql, prefixMap);
 
-        } else if (definition.asNode().get(SHACL.AND) != null) {
-            Boolean hasRoles = andClause(definition.asNode().get(SHACL.AND), true, spql, prefixMap);
-            if (Boolean.TRUE.equals(hasRoles)) {
-                andClause(definition.asNode().get(SHACL.AND), false, spql, prefixMap);
+                }
+                if (clause.asNode().get(SHACL.AND) != null) {
+                    Boolean hasRoles = andClause(clause.asNode().get(SHACL.AND), true, spql, prefixMap);
+                    if (Boolean.TRUE.equals(hasRoles)) {
+                        andClause(clause.asNode().get(SHACL.AND), false, spql, prefixMap);
+                    }
+                }
+                if (clause.asNode().get(SHACL.NOT) != null) {
+                    notClause(clause.asNode().get(SHACL.NOT), spql, prefixMap);
+                }
             }
         }
     }
@@ -705,7 +713,7 @@ public class EntityRepository2 {
         }
         for (TTValue inter : and.getElements()) {
             if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
-                notClause(inter.asNode().get(SHACL.NOT).asValue(), spql, prefixMap);
+                notClause(inter.asNode().get(SHACL.NOT), spql, prefixMap);
         }
         return hasRoles;
     }
@@ -714,17 +722,31 @@ public class EntityRepository2 {
         return getShort(IM.IS_A.getIri(), prefixMap);
     }
 
-    private void notClause(TTValue not, StringJoiner spql, Map<String,String> prefixMap) {
+    private void notClause(TTArray notClause, StringJoiner spql, Map<String,String> prefixMap) {
         spql.add("MINUS {");
-        if (not.isIriRef())
-            simpleSuperClass(not.asIriRef(),spql, prefixMap);
-        else if (not.isNode()) {
-            if (not.asNode().get(SHACL.OR) != null) {
-                orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
-            } else if (not.asNode().get(SHACL.AND) != null) {
-                Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
-                if (Boolean.TRUE.equals(hasRoles)) {
-                    andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+        if (notClause.size()>1){
+            spql.add("{ ?concept " + isa(prefixMap) + " ?notClass.");
+            StringBuilder values = new StringBuilder();
+            for (TTValue superClass : notClause.getElements()) {
+                if (superClass.isIriRef())
+                    values.append(getShort(superClass.asIriRef().getIri(), prefixMap)).append(" ");
+            }
+            spql.add("VALUES ?notClass {" + values + "}}");
+
+        }
+        else {
+            for (TTValue not : notClause.getElements()) {
+                if (not.isIriRef())
+                    simpleSuperClass(not.asIriRef(), spql, prefixMap);
+                else if (not.isNode()) {
+                    if (not.asNode().get(SHACL.OR) != null) {
+                        orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
+                    } else if (not.asNode().get(SHACL.AND) != null) {
+                        Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
+                        if (Boolean.TRUE.equals(hasRoles)) {
+                            andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+                        }
+                    }
                 }
             }
         }

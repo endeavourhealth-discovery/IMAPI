@@ -1086,5 +1086,9 @@ public class EntityService {
     public String getName(String iri) {
         return entityRepository.getEntityReferenceByIri(iri).getName();
     }
+
+    public boolean isLinked(String subject, TTIriRef predicate, String object) {
+        return entityRepository.predicatePathExists(subject, predicate, object);
+    }
 }
 

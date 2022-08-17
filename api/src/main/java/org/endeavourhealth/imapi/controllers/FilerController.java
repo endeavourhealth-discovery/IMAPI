@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -13,10 +14,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -72,28 +70,38 @@ public class FilerController {
 
     @PostMapping("folder/move")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public boolean moveFolder(
+    public ResponseEntity moveFolder(
         @RequestParam(name = "entity") String entityIri,
         @RequestParam(name = "oldFolder") String oldFolderIri,
         @RequestParam(name = "newFolder") String newFolderIri,
         HttpServletRequest request) throws Exception {
         LOG.debug("moveFolder");
 
+
         if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
-            LOG.warn("Cannot move, one of the IRIs does not exist");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot move, one of the IRIs does not exist");
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "One of the IRIs does not exist");
+        }
+
+        if (entityIri.equals(newFolderIri)) {
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
+        }
+
+        if (oldFolderIri.equals(newFolderIri)) {
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
         }
 
         TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN.getIri(), IM.HAS_SCHEME.getIri())).getEntity();
         if (!entity.has(IM.IS_CONTAINED_IN)) {
-            LOG.warn("Cannot move, entity is not currently in a folder");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot move, entity is not currently in a folder");
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
         }
 
         TTArray folders = entity.get(IM.IS_CONTAINED_IN);
         if (!folders.contains(iri(oldFolderIri))) {
-            LOG.warn("Cannot move, entity is not currently in the specified folder");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot move, entity is not currently in the specified folder");
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
+        }
+
+        if (entityService.isLinked(newFolderIri, IM.IS_CONTAINED_IN, oldFolderIri)) {
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
         }
 
         folders.remove(iri(oldFolderIri));
@@ -108,7 +116,7 @@ public class FilerController {
 
         filerService.fileTransactionDocument(doc, agentName);
 
-        return true;
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("folder/create")

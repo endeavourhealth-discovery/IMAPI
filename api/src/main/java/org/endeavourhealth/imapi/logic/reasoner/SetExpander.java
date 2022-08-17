@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.zip.DataFormatException;
 
 
 public class SetExpander {
@@ -24,7 +25,7 @@ public class SetExpander {
 	private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 	private final EntityRepository2 repo2= new EntityRepository2();
 
-	public void expandAllSets(){
+	public void expandAllSets() {
 		LOG.info("Getting value sets....");
 		//First get the list of sets that dont have members already expanded
 		Set<String> sets= getSets();
@@ -41,6 +42,17 @@ public class SetExpander {
 
 	}
 
+	public void expandSet(String iri) throws DataFormatException {
+		LOG.info("Updating members of "+ iri);
+		TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
+		if (setDefinition.getEntity().get(IM.DEFINITION)==null)
+			throw new DataFormatException(iri+ " : Unknown iri or this set has no definition");
+		//get the expansion.
+		Set<CoreLegacyCode> members= repo2.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION),false);
+		updateMembers(iri,members);
+
+	}
+
 	private void updateMembers(String iri,Set<CoreLegacyCode> members) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
 			String spq = "DELETE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}"+
@@ -53,15 +65,14 @@ public class SetExpander {
 			int batch = 0;
 			for (CoreLegacyCode member : members) {
 				batch++;
-				if (batch < 1000) {
-					sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
-				} else {
+				if (batch == 1000) {
 					sendUp(sj, conn);
 					sj = new StringJoiner("\n");
-					sj.add("INSERT DATA { graph "+graph+"{");
-					batch=0;
+					sj.add("INSERT DATA { graph " + graph + "{");
+					batch = 0;
 				}
-			}
+				sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
+				}
 			sendUp(sj,conn);
 		}
 	}

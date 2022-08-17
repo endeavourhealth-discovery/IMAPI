@@ -15,6 +15,7 @@ public class FunctionService {
 			case  (IM.NAMESPACE+"Function_SnomedConceptGenerator") :
 				return conceptRepository.createConcept(IM.NAMESPACE);
 			case (IM.NAMESPACE+"Function_LocalNameRetriever") :
+				return getLocalName(arguments);
 			default :
 				throw new IllegalArgumentException("No such function");
 		}

@@ -19,7 +19,6 @@ public class FunctionService {
 			default :
 				throw new IllegalArgumentException("No such function");
 		}
-
 	}
 
 	private ObjectNode getLocalName(Map<String,Object> arguments){

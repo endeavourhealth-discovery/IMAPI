@@ -109,7 +109,7 @@ public class TTToClassObject {
 		}
 		else if (type==Long.class)
 			setField(object,fieldName,value.asLiteral().longValue());
-		else if (type==boolean.class)
+		else if (type==Boolean.class)
 			setField(object,fieldName,value.asLiteral().booleanValue());
 		else
 			setField(object,fieldName,value.asLiteral().intValue());

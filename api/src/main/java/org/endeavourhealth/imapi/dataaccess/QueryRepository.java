@@ -471,12 +471,10 @@ public class QueryRepository {
 			}
 		}
 		if (queryRequest.getPage()!=null) {
-			if (queryRequest.getPageSize() != null) {
-				selectQl.append("LIMIT ").append(queryRequest.getPageSize()).append("\n");
-				if (queryRequest.getPage() > 1)
-					selectQl.append("OFFSET ").append((queryRequest.getPage() - 1) * (queryRequest.getPageSize())).append("\n");
+				selectQl.append("LIMIT ").append(queryRequest.getPage().getPageSize()).append("\n");
+				if (queryRequest.getPage().getPageNumber() > 1)
+					selectQl.append("OFFSET ").append((queryRequest.getPage().getPageNumber() - 1) * (queryRequest.getPage().getPageSize())).append("\n");
 			}
-		}
 	}
 
 	private String getLabelAlias(Select select) {

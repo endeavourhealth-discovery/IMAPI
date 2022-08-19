@@ -14,8 +14,8 @@ import java.util.function.Consumer;
  */
 public class QueryRequest{
 	private String name;
-	private Integer page;
-	private Integer pageSize;
+	private Page page;
+
 	private String textSearch;
 	private Map<String,Object> argument;
 	private Query query;
@@ -73,21 +73,20 @@ public class QueryRequest{
 		return this;
 	}
 
-	public Integer getPage() {
+	public Page getPage() {
 		return page;
 	}
 
-	public QueryRequest setPage(Integer page) {
+	@JsonSetter
+	public QueryRequest setPage(Page page) {
 		this.page = page;
 		return this;
 	}
 
-	public Integer getPageSize() {
-		return pageSize;
-	}
-
-	public QueryRequest setPageSize(Integer pageSize) {
-		this.pageSize = pageSize;
+	public QueryRequest page(Consumer<Page> builder){
+		Page page= new Page();
+		this.page= page;
+		builder.accept(page);
 		return this;
 	}
 

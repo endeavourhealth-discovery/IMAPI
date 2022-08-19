@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class ABNFGenerator {
 	private StringBuilder table = new StringBuilder();
-	public <T> void generateTable(Class<T> classType) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, JsonProcessingException {
+	public <T> StringBuilder generateTable(Class<T> classType) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, JsonProcessingException {
 		table.append("{| class=\"wikitable\"\n" +
 			"|+\n" +
 			"!Rule\n" +
@@ -22,6 +22,7 @@ public class ABNFGenerator {
 		processClass(classType,classType.getSimpleName());
 		table.append("\n|}");
 		System.out.println(table.toString());
+		return table;
 	}
 	private <T> void processClass(Class<T> classType,String name) throws InstantiationException, IllegalAccessException {
 		table.append("|").append("<span id=\"rule_").append(name).append("\">").append(name).append("</span>");

@@ -71,18 +71,18 @@ public class TTBulkFiler  extends TTDocumentFiler {
 		String path = dataPath;
 		try {
 			try {
-				quads = new FileWriter(path + "\\BulkImport" + ".nq",true);
-				//quads = new FileWriter(path + "\\BulkImport-" + fileNumber + ".nq");
-				codeMap = new FileWriter(path + "\\CodeMap-" + scheme + ".txt",true);
-				termCoreMap = new FileWriter(path + "\\TermCoreMap-" + scheme + ".txt",true);
-				subtypes = new FileWriter(path + "\\SubTypes" + ".txt",true);
-				allEntities = new FileWriter(path + "\\Entities" + ".txt", true);
-				codeCoreMap = new FileWriter(path + "\\CodeCoreMap-" + scheme+ ".txt",true);
-				codeIds= new FileWriter(path+"\\CodeIds-"+scheme+".txt",true);
-				descendants = new FileWriter(path + "\\Descendants" + ".txt",true);
-				coreTerms = new FileWriter(path + "\\CoreTerms" + ".txt",true);
-				legacyCore = new FileWriter(path + "\\LegacyCore" + ".txt",true);
-				coreIris= new FileWriter(path+"\\coreIris.txt",true);
+				quads = new FileWriter(path + "/BulkImport" + ".nq",true);
+				//quads = new FileWriter(path + "/BulkImport-" + fileNumber + ".nq");
+				codeMap = new FileWriter(path + "/CodeMap-" + scheme + ".txt",true);
+				termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt",true);
+				subtypes = new FileWriter(path + "/SubTypes" + ".txt",true);
+				allEntities = new FileWriter(path + "/Entities" + ".txt", true);
+				codeCoreMap = new FileWriter(path + "/CodeCoreMap-" + scheme+ ".txt",true);
+				codeIds= new FileWriter(path+"/CodeIds-"+scheme+".txt",true);
+				descendants = new FileWriter(path + "/Descendants" + ".txt",true);
+				coreTerms = new FileWriter(path + "/CoreTerms" + ".txt",true);
+				legacyCore = new FileWriter(path + "/LegacyCore" + ".txt",true);
+				coreIris= new FileWriter(path+"/coreIris.txt",true);
 
 
 				int counter = 0;
@@ -233,13 +233,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
  public static void createRepository() throws TTFilerException {
 	 LOG.info("Fast import of {} quad data", new Date());
-	 String pathDelimiter = "\\";
+	 String pathDelimiter = "/";
 		try {
 				String config = configTTl;
 				String data = dataPath;
 				String preloadPath =preload;
 				Process process = Runtime.getRuntime()
-					.exec("cmd /c " + "preload --stopOnFirstError --configFile " + config + "\\Config.ttl " +"--queue.folder "+data + " "+ data + "\\BulkImport*.nq",
+					.exec("cmd /c " + "preload --stopOnFirstError --configFile " + config + "/Config.ttl " +"--queue.folder "+data + " "+ data + "/BulkImport*.nq",
 						null, new File(preloadPath));
 				BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;

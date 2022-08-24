@@ -596,9 +596,12 @@ public class TTManager implements AutoCloseable {
    public static TTContext getDefaultContext(){
       TTContext ctx=new TTContext();
       ctx.add(IM.NAMESPACE,"");
+      ctx.add(IM.NAMESPACE,"im");
       ctx.add(RDFS.NAMESPACE,"rdfs");
       ctx.add(RDF.NAMESPACE,"rdf");
       ctx.add(SNOMED.NAMESPACE,"sn");
+      ctx.add(SHACL.NAMESPACE,"sh");
+      ctx.add(XSD.NAMESPACE,"xsd");
       return ctx;
    }
 

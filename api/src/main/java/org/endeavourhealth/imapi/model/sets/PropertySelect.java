@@ -15,10 +15,40 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"iri","name","inverseOf","alias","argument","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertySelect extends ConceptRef {
+	private boolean sum;
+	private boolean average;
+	private boolean max;
 	private Select select;
 	boolean inverseOf=false;
 	List<Argument> argument;
 	Function function;
+
+	public boolean isSum() {
+		return sum;
+	}
+
+	public PropertySelect setSum(boolean sum) {
+		this.sum = sum;
+		return this;
+	}
+
+	public boolean isAverage() {
+		return average;
+	}
+
+	public PropertySelect setAverage(boolean average) {
+		this.average = average;
+		return this;
+	}
+
+	public boolean isMax() {
+		return max;
+	}
+
+	public PropertySelect setMax(boolean max) {
+		this.max = max;
+		return this;
+	}
 
 	public List<Argument> getArgument() {
 		return argument;

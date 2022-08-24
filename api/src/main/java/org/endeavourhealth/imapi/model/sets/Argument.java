@@ -15,7 +15,7 @@ public class Argument {
 	private String valueVariable;
 	private Select valueSelect;
 	private TTIriRef valueIri;
-	private String valueText;
+
 
 
 	public TTIriRef getValueIri() {
@@ -27,14 +27,6 @@ public class Argument {
 		return this;
 	}
 
-	public String getValueText() {
-		return valueText;
-	}
-
-	public Argument setValueText(String valueText) {
-		this.valueText = valueText;
-		return this;
-	}
 
 	public Select getValueSelect() {
 		return valueSelect;

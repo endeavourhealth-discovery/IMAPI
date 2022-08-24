@@ -12,7 +12,7 @@ import java.util.List;
  */
 @JsonPropertyOrder({"description","@id","name","alias","var"})
 public class Heading extends TTIriRef {
-	private String var;
+	private String alias;
 	private String description;
 	private TTIriRef status;
 	private TTIriRef scheme;
@@ -109,12 +109,12 @@ public class Heading extends TTIriRef {
 	}
 
 
-	public String getVar() {
-		return var;
+	public String getAlias() {
+		return alias;
 	}
 
-	public Heading setVar(String var) {
-		this.var = var;
+	public Heading setAlias(String alias) {
+		this.alias = alias;
 		return this;
 	}
 

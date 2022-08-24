@@ -19,7 +19,6 @@ public class Query extends Heading {
 	private TTIriRef graph;
 	private Select select;
 
-	private List<Select> subselect;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
 	private boolean activeOnly;
@@ -150,21 +149,6 @@ public class Query extends Heading {
 
 
 
-
-	public List<Select> getSubselect() {
-		return subselect;
-	}
-
-	public Query setSubselect(List<Select> columnGroups) {
-		this.subselect = columnGroups;
-		return this;
-	}
-	public Query addSubselect(Select group){
-		if (this.subselect ==null)
-			this.subselect = new ArrayList<>();
-		this.subselect.add(group);
-		return this;
-	}
 
 
 	public Select getSelect() {

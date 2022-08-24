@@ -15,15 +15,11 @@ import java.util.function.Consumer;
  */
 @JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","pathTo","property","match",})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Select {
+public class Select extends Heading{
 
 
-	private String name;
-	private boolean sum;
-	private boolean average;
-	private boolean max;
+
 	private boolean count;
-	private List<ConceptRef> pathTo;
 	private List<PropertySelect> property;
 	private List<Match> match;
 	private boolean distinct;
@@ -33,6 +29,35 @@ public class Select {
 	private List<PropertySelect> groupBy;
 	private List<OrderLimit> orderLimit;
 	private PathTarget pathToTarget;
+	private List<Select> subselect;
+
+
+	public Select setName(String name){
+		super.setName(name);
+		return this;
+	}
+	public List<Select> getSubselect() {
+		return subselect;
+	}
+
+	public Select setSubselect(List<Select> columnGroups) {
+		this.subselect = columnGroups;
+		return this;
+	}
+	public Select addSubselect(Select group){
+		if (this.subselect ==null)
+			this.subselect = new ArrayList<>();
+		this.subselect.add(group);
+		return this;
+	}
+
+	public Select subSelect(Consumer<Select> builder){
+		Select sub= new Select();
+		this.addSubselect(sub);
+		builder.accept(sub);
+		return this;
+	}
+
 
 	public PathTarget getPathToTarget() {
 		return pathToTarget;
@@ -65,23 +90,6 @@ public class Select {
 		return this;
 	}
 
-
-
-	public List<ConceptRef> getPathTo() {
-		return pathTo;
-	}
-
-	@JsonSetter
-	public Select setPathTo(List<ConceptRef> pathTo) {
-		this.pathTo = pathTo;
-		return this;
-	}
-	public Select addPathTo(ConceptRef pathTo) {
-		if (this.pathTo==null)
-			this.pathTo= new ArrayList<>();
-		this.pathTo.add(pathTo);
-		return this;
-	}
 
 
 
@@ -138,14 +146,6 @@ public class Select {
 		return this;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public Select setName(String name) {
-		this.name = name;
-		return this;
-	}
 
 	public ConceptRef getEntityId() {
 		return entityId;
@@ -253,32 +253,7 @@ public class Select {
 		return this;
 	}
 
-	public boolean isSum() {
-		return sum;
-	}
 
-	public Select setSum(boolean sum) {
-		this.sum = sum;
-		return this;
-	}
-
-	public boolean isAverage() {
-		return average;
-	}
-
-	public Select setAverage(boolean average) {
-		this.average = average;
-		return this;
-	}
-
-	public boolean isMax() {
-		return max;
-	}
-
-	public Select setMax(boolean max) {
-		this.max = max;
-		return this;
-	}
 
 
 }

@@ -228,6 +228,9 @@ public class IM {
     public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
     public static final TTIriRef UPRN = iri(NAMESPACE + "#uprn");
 
+    //Editor
+    public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");
+
     private IM() {
     }
 }

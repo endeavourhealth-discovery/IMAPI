@@ -20,7 +20,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Various utility functions to support triple tree entities and documents.
  * Create document creates a document with default common prefixes.
  */
-public class TTManager {
+public class TTManager implements AutoCloseable {
    private Map<String, TTEntity> entityMap;
    private Map<String, TTEntity> nameMap;
    private TTDocument document;
@@ -601,4 +601,10 @@ public class TTManager {
       ctx.add(SNOMED.NAMESPACE,"sn");
       return ctx;
    }
+
+    @Override
+    public void close() throws Exception {
+        if (entityMap != null) entityMap.clear();
+        if (nameMap != null) nameMap.clear();
+    }
 }

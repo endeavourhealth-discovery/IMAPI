@@ -36,7 +36,26 @@ public class PropertyShape {
 	private List<Argument> argument;
 	private String valueVariable;
 	private List<TTIriRef> select;
+	private PropertyGroup subGroup;
+	private Boolean builderChild;
 	private NodeShape expression;
+
+	public Boolean getBuilderChild() {
+		return builderChild;
+	}
+
+	public void setBuilderChild(Boolean builderChild) {
+		this.builderChild = builderChild;
+	}
+
+	public PropertyGroup getSubGroup() {
+		return subGroup;
+	}
+
+	public PropertyShape setSubGroup(PropertyGroup subGroup) {
+		this.subGroup = subGroup;
+		return this;
+	}
 
 	public NodeShape getExpression() {
 		return expression;

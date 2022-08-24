@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +25,7 @@ public class FunctionController {
 		summary = "function",
 		description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
 	)
-	public ObjectNode callFunction(
+	public JsonNode callFunction(
 		@RequestBody FunctionRequest function) throws Exception {
 		LOG.debug("callFunction");
 		return new FunctionService().callFunction(function.getFunctionIri(),function.getArguments());

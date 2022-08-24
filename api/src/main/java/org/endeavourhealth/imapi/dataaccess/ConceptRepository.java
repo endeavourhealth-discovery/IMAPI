@@ -17,7 +17,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 public class ConceptRepository {
 	public ObjectNode createConcept(String namespace) throws Exception {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			String sql="select ?increment where {<"+ IM.NAMESPACE+"SnomedConceptGenerator>"+" <"+
+			String sql="select ?increment where {<"+ IM.NAMESPACE+"Function_SnomedConceptGenerator>"+" <"+
 				IM.NAMESPACE+"hasIncrementalFrom> ?increment}";
 			TupleQuery qry = conn.prepareTupleQuery(sql);
 			TupleQueryResult rs= qry.evaluate();
@@ -40,7 +40,7 @@ public class ConceptRepository {
 			.setGraph(IM.CODE_SCHEME_DISCOVERY)
 			.addEntity(new TTEntity()
 				.setCrud(IM.UPDATE_PREDICATES)
-				.setIri(IM.NAMESPACE+"SnomedConceptGenerator")
+				.setIri(IM.NAMESPACE+"Function_SnomedConceptGenerator")
 				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
 		TTTransactionFiler filer= new TTTransactionFiler();
 		filer.fileTransaction(document);

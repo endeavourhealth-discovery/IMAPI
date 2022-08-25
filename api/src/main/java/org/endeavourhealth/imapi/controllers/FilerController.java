@@ -57,7 +57,7 @@ public class FilerController {
 
     @PostMapping("file/entity")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public void fileEntity(@RequestBody TTEntity entity, @RequestBody TTIriRef graph, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
+    public void fileEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
         LOG.debug("fileEntity");
         String agentName = reqObjService.getRequestAgentName(request);
         TTEntity usedEntity = null;
@@ -65,7 +65,7 @@ public class FilerController {
             usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
             entity.setVersion(usedEntity.getVersion() + 1);
         }
-        filerService.fileEntity(entity, graph, agentName, usedEntity);
+        filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
     }
 
     @PostMapping("folder/move")

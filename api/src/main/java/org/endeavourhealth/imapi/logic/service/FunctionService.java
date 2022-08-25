@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
@@ -34,27 +35,28 @@ public class FunctionService {
 	}
 
 	private JsonNode getLocalName(Map<String,Object> arguments){
-		if (arguments==null)
+		if (null == arguments)
 			throw new IllegalArgumentException("No arguments, send json property/value pairs in request body");
 		String iri= (String) arguments.get("entityIri");
 		String fieldName= (String) arguments.get("fieldName");
-		if (arguments.get("entityIri")==null)
+		if (null == arguments.get("entityIri"))
 			throw new IllegalArgumentException("No entity iri property in request body");
-		if (arguments.get("fieldName")==null)
+		if (null == arguments.get("fieldName"))
 			throw new IllegalArgumentException("No 'fieldName' to return the local name in. e.g. \"fieldName\" : \"code\"");
 		return new ObjectMapper().createObjectNode().put(fieldName,iri.substring(iri.lastIndexOf("#")+1));
 	}
 
 	private JsonNode getAdditionalAllowableTypes(Map<String, Object> arguments) {
-		if (arguments==null)
+		if (null == arguments)
 			throw new IllegalArgumentException("No arguments, send json property/value pairs in request body");
 		if (null == arguments.get("entityIri"))
 			throw new IllegalArgumentException("No entity iri property in request body");
 		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES.getIri(), null,1, 200, false);
 		ObjectMapper mapper = new ObjectMapper();
 		if (IM.CONCEPT.getIri().equals(arguments.get("entityIri"))) {
-			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri()).contains(t.getIri())).collect(Collectors.toList());
-			return mapper.valueToTree(filteredResults);
+			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri(), IM.CONCEPT.getIri()).contains(t.getIri())).collect(Collectors.toList());
+			List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+			return mapper.valueToTree(filteredResultsAsIri);
 		} else {
 			return mapper.createArrayNode();
 		}

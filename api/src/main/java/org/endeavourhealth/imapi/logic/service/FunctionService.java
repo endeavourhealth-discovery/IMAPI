@@ -54,11 +54,13 @@ public class FunctionService {
 		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES.getIri(), null,1, 200, false);
 		ObjectMapper mapper = new ObjectMapper();
 		if (IM.CONCEPT.getIri().equals(arguments.get("entityIri"))) {
-			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri(), IM.CONCEPT.getIri()).contains(t.getIri())).collect(Collectors.toList());
+			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(arguments.get("entityIri"), RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri()).contains(t.getIri())).collect(Collectors.toList());
 			List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
 			return mapper.valueToTree(filteredResultsAsIri);
 		} else {
-			return mapper.createArrayNode();
+			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(arguments.get("entityIri")).contains(t.getIri())).collect(Collectors.toList());
+			List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+			return mapper.valueToTree(filteredResultsAsIri);
 		}
 	}
 }

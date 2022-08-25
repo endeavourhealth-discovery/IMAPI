@@ -64,7 +64,7 @@ public class Argument {
 		return this;
 	}
 
-	public Object getValueData() {
+	public String getValueData() {
 		return valueData;
 	}
 

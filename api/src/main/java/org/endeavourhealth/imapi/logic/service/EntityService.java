@@ -67,6 +67,7 @@ public class EntityService {
      * Returns the entity with local predicate names as plain json including json literals
      * <p> Works only for known POJO classes in order to resolve the RDF cardinality problem</p>
      * @param iri iri of the entity
+     * @param depth maximum nesting depth
      * @return string of json
      * @throws InvocationTargetException
      * @throws NoSuchMethodException
@@ -74,8 +75,8 @@ public class EntityService {
      * @throws IllegalAccessException
      * @throws JsonProcessingException
      */
-    public String getAsPlainJson(String iri) throws NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
-        TTBundle bundle= entityRepository2.getBundle(iri);
+    public String getAsPlainJson(String iri, int depth) throws NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+        TTBundle bundle= entityRepository2.getBundle(iri, null, false, depth);
         Class<?> cls;
         String entityType= bundle.getEntity().getType().get(0).asIriRef().getIri();
         switch (entityType){

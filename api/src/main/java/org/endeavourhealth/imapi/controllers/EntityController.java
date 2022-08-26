@@ -108,10 +108,11 @@ public class EntityController {
 
 	@GetMapping(value = "/public/entityAsPlainJson", produces = "application/json")
 	public String getForm(
-		@RequestParam(name = "iri") String iri
+		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "depth", required = false) Integer depth
 	) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
 		LOG.debug("getEntityAsPlainJson");
-		return entityService.getAsPlainJson(iri);
+		return entityService.getAsPlainJson(iri, depth == null ? 5 : depth);
 	}
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")

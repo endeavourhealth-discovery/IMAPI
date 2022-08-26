@@ -157,14 +157,24 @@ public class EntityRepository2 {
      * @return
      */
     public TTBundle getBundle(
-        String iri, Set<String> predicates,
+        String iri,
+        Set<String> predicates,
         boolean excludePredicates
+    ) {
+        return getBundle(iri, predicates, excludePredicates, 5);
+    }
+
+    public TTBundle getBundle(
+        String iri,
+        Set<String> predicates,
+        boolean excludePredicates,
+        int depth
     ) {
         TTBundle bundle = new TTBundle()
           .setEntity(new TTEntity().setIri(iri))
           .setPredicates(new HashMap<>());
 
-        StringJoiner sql = getBundleSparql(predicates, excludePredicates);
+        StringJoiner sql = getBundleSparql(predicates, excludePredicates, depth);
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
@@ -419,9 +429,9 @@ public class EntityRepository2 {
 
     private StringJoiner getBundleSparql(
         Set<String> predicates,
-        boolean excludePredicates
+        boolean excludePredicates,
+        int depth
     ) {
-        int  depth= 5;
         StringJoiner sql = new StringJoiner(System.lineSeparator());
         sql.add(RDFS_PREFIX);
         sql.add("CONSTRUCT {")
@@ -457,7 +467,7 @@ public class EntityRepository2 {
                 .add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name")
                 .add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
         }
-        sql.add("}}}}}");
+        sql.add(String.join("", Collections.nCopies(depth, "}")));
         return sql;
     }
 

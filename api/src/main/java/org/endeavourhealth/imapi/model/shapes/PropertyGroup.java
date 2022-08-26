@@ -40,14 +40,6 @@ public class PropertyGroup {
 		this.path = path;
 	}
 
-	public List<PropertyGroup> getGroup() {
-		return subGroup;
-	}
-
-	public void setGroup(List<PropertyGroup> group) {
-		this.subGroup = group;
-	}
-
 	public TTIriRef getComponentType() {
 		return componentType;
 	}

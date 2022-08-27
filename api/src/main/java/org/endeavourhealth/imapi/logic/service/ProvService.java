@@ -17,7 +17,16 @@ public class ProvService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
-        String uir = getPerson(agentName, targetEntity.getScheme());
+        String root;
+
+        if (targetEntity.getGraph() != null)
+            root = targetEntity.getGraph().getIri();
+        else if (targetEntity.getScheme().getIri() != null)
+            root = targetEntity.getScheme().getIri();
+        else
+            root = IM.NAMESPACE;
+
+        String uir = getPerson(agentName, root);
         ProvAgent agent = new ProvAgent()
                 .setPersonInRole(TTIriRef.iri(uir))
                 .setParticipationType(IM.AUTHOR_ROLE);
@@ -48,13 +57,12 @@ public class ProvService {
                 .setCrud(IM.ADD_QUADS);
     }
 
-    private String getPerson(String name, TTIriRef scheme) {
+    private String getPerson(String name, String root) {
         StringBuilder uri = new StringBuilder();
         name.chars().forEach(c -> {
             if (Character.isLetterOrDigit(c))
                 uri.append(Character.toString(c));
         });
-        String root = scheme.getIri();
         root = root.substring(0, root.lastIndexOf("#"));
         return root.replace("org.", "uir.") + "/personrole#" +
                 uri;

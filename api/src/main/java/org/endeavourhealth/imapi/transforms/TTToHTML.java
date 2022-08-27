@@ -35,11 +35,9 @@ public class TTToHTML {
 	}
 
 	public static void setRoleGroup(TTNode roleGroup, StringBuilder html,int tab){
-		boolean firstProp= true;
 		for (Map.Entry<TTIriRef, TTArray> entry : roleGroup.getPredicateMap().entrySet()) {
-				html.append("<p class=\"role-group\" style=\"margin-left: "+tab+"px\">");
-			firstProp=false;
-			html.append(entry.getKey().getName()+ "->");
+				html.append("<p class=\"role-group\" style=\"margin-left: ").append(tab).append("px\">");
+			html.append(entry.getKey().getName()).append("->");
 			if (entry.getValue().isIriRef()){
 				html.append(entry.getValue().asIriRef().getName());
 				html.append("</p>");
@@ -49,7 +47,7 @@ public class TTToHTML {
 				  html.append(")");
 			}
 
-			}
 		}
 	}
+}
 

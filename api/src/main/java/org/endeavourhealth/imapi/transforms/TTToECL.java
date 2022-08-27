@@ -51,6 +51,8 @@ public class TTToECL {
 			} else if (exp.asNode().get(SHACL.AND) != null) {
 				addConjunction(exp.asNode(),ecl, includeName);
 			} else if (exp.asNode().get(SHACL.NOT)!=null) {
+				ecl.insert(0,"(");
+				ecl.append(")");
 				ecl.append(" MINUS ");
 				if (!exp.asNode().get(SHACL.NOT).isIriRef())
 					ecl.append("(");
@@ -82,6 +84,8 @@ public class TTToECL {
 			if (member.isIriRef()) {
 				addClass(member.asIriRef(), ecl, includeName);
 			} else if (member.asNode().get(SHACL.NOT) != null) {
+				ecl.insert(0,")");
+				ecl.append(")\n");
 				ecl.append(" MINUS ");
 				ecl.append("(");
 				subExpression(member.asNode().get(SHACL.NOT), ecl, includeName);

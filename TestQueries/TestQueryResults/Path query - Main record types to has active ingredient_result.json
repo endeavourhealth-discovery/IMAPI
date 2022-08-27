@@ -1,0 +1,43 @@
+{
+  "entity" : [ {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Patient (data model)",
+    "path" : [ {
+      "@id" : "http://endhealth.info/im#hasEntry",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "has entry",
+      "entity" : [ {
+        "@id" : "http://endhealth.info/im#Immunisation",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Immunisation  (data model)",
+        "path" : [ {
+          "@id" : "http://endhealth.info/im#typeOfImmunisation",
+          "http://www.w3.org/2000/01/rdf-schema#label" : "type of immunisation"
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Medication authorisation (data model)",
+        "path" : [ {
+          "@id" : "http://endhealth.info/im#typeOfMedication",
+          "http://www.w3.org/2000/01/rdf-schema#label" : "type of medicaton"
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#MedicationRequest",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Prescription or Medication request(data model)",
+        "path" : [ {
+          "@id" : "http://endhealth.info/im#authorisation",
+          "http://www.w3.org/2000/01/rdf-schema#label" : "authorisation",
+          "entity" : [ {
+            "@id" : "http://endhealth.info/im#MedicationAuthorisation",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Medication authorisation (data model)",
+            "path" : [ {
+              "@id" : "http://endhealth.info/im#typeOfMedication",
+              "http://www.w3.org/2000/01/rdf-schema#label" : "type of medicaton"
+            } ]
+          } ]
+        }, {
+          "@id" : "http://endhealth.info/im#typeOfMedication",
+          "http://www.w3.org/2000/01/rdf-schema#label" : "type of medicaton"
+        } ]
+      } ]
+    } ]
+  } ]
+}

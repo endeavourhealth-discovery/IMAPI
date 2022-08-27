@@ -14,14 +14,14 @@ public class EntityValidator {
     public void isValid(TTEntity entity, EntityService service, String mode) throws TTFilerException, JsonProcessingException {
         ArrayList<String> errorMessages = new ArrayList();
         ObjectMapper mapper = new ObjectMapper();
-        if (!isValidIri(entity)) errorMessages.add("Missing iri.");
+        if (Boolean.TRUE.equals(!isValidIri(entity))) errorMessages.add("Missing iri.");
         if ("Create".equals(mode) && service.iriExists(entity.getIri())) errorMessages.add("Iri already exists.");
         if ("Update".equals(mode) && !service.iriExists(entity.getIri())) errorMessages.add("Iri doesn't exists.");
-        if (!isValidName(entity)) errorMessages.add("Name is invalid.");
-        if (!isValidType(entity)) errorMessages.add("Types are invalid.");
-        if (!isValidStatus(entity)) errorMessages.add("Status is invalid");
-        if (!hasParents(entity)) errorMessages.add("Parents are invalid");
-        if (errorMessages.size() > 0) {
+        if (Boolean.TRUE.equals(!isValidName(entity))) errorMessages.add("Name is invalid.");
+        if (Boolean.TRUE.equals(!isValidType(entity))) errorMessages.add("Types are invalid.");
+        if (Boolean.TRUE.equals(!isValidStatus(entity))) errorMessages.add("Status is invalid");
+        if (Boolean.TRUE.equals(!hasParents(entity))) errorMessages.add("Parents are invalid");
+        if (!errorMessages.isEmpty()) {
             String errorsAsString = String.join(",", errorMessages);
             throw new TTFilerException(mode + " entity errors: [" + errorsAsString + "] for entity " + mapper.writeValueAsString(entity));
         }
@@ -29,27 +29,23 @@ public class EntityValidator {
 
     private Boolean isValidIri(TTEntity entity) {
         if (null == entity.getIri()) return false;
-        if ("".equals(entity.getIri())) return false;
-        return true;
+        return !"".equals(entity.getIri());
     }
 
     private Boolean isValidName(TTEntity entity) {
         if(null == entity.getName()) return false;
-        if ("".equals(entity.getName())) return false;
-        return true;
+        return !"".equals(entity.getName());
     }
 
     private Boolean isValidType(TTEntity entity) {
         if (null == entity.getType()) return false;
         if (entity.getType().isEmpty()) return false;
-        if (!entity.getType().getElements().stream().allMatch(TTValue::isIriRef)) return false;
-        return true;
+        return entity.getType().getElements().stream().allMatch(TTValue::isIriRef);
     }
 
     private Boolean isValidStatus(TTEntity entity) {
         if (null == entity.getStatus()) return false;
-        if (!entity.getStatus().isIriRef()) return false;
-        return true;
+        return entity.getStatus().isIriRef();
     }
 
     private Boolean hasParents(TTEntity entity) {

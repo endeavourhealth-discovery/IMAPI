@@ -4,7 +4,6 @@ package org.endeavourhealth.imapi.logic.exporters;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.Namespace;
@@ -29,7 +28,6 @@ import java.util.zip.DataFormatException;
 @Component
 public class ExcelSetExporter {
 
-    private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
     private SetExporter setExporter = new SetExporter();
@@ -62,6 +60,9 @@ public class ExcelSetExporter {
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
+
+        if (entity.get(IM.DEFINITION)==null && entity.get(IM.HAS_MEMBER)==null)
+            throw new DataFormatException(setIri+" has neither a definition nor members");
 
         if (!entity.has(IM.DEFINITION))
             entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();
@@ -182,18 +183,19 @@ public class ExcelSetExporter {
 
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
-        addHeaders(sheet, headerStyle, "code", "term", "scheme", "IMv1 ID");
+        addHeaders(sheet, headerStyle, "code", "term", "scheme", "IMv1 ID", "use");
         sheet.setColumnWidth(0, 5000);
         sheet.setColumnWidth(1, 25000);
         sheet.setColumnWidth(2, 2500);
         sheet.setColumnWidth(3, 5000);
+        sheet.setColumnWidth(4, 5000);
 
         Set<String> addedIris = new HashSet<>();
         for (CoreLegacyCode cl : sortedMembers) {
             if (cl.getIri() != null && !addedIris.contains(cl.getIri())) {
                 Row row = addRow(sheet);
                 String scheme = cl.getScheme() == null ? "" : cl.getScheme().getIri();
-                addCells(row, cl.getCode(), cl.getTerm(), scheme, cl.getIm1Id());
+                addCells(row, cl.getCode(), cl.getTerm(), scheme, cl.getIm1Id(), cl.getUse());
                 addedIris.add(cl.getIri());
             }
         }
@@ -201,7 +203,7 @@ public class ExcelSetExporter {
             if (cl.getLegacyIri() != null && !addedIris.contains(cl.getLegacyIri())) {
                 Row row = addRow(sheet);
                 String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
-                addCells(row, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme, cl.getLegacyIm1Id());
+                addCells(row, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme, cl.getLegacyIm1Id(), cl.getLegacyUse());
                 addedIris.add(cl.getLegacyIri());
             }
         }
@@ -243,15 +245,23 @@ public class ExcelSetExporter {
         return sheet.createRow(sheet.getLastRowNum() + 1);
     }
 
-    private void addCells(Row row, String... values) {
-        for (String value : values) {
-            Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
+    private void addCells(Row row, Object... values) {
+        for (Object value : values) {
             if (value != null) {
-                if (value.contains("\n")) {
-                    iriCell.getRow()
-                            .setHeightInPoints(iriCell.getSheet().getDefaultRowHeightInPoints() * value.split("\n").length);
+                if (value instanceof String) {
+                    Cell stringCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+                    if (((String)value).contains("\n")) {
+                        stringCell.getRow()
+                            .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * ((String)value).split("\n").length);
+                    }
+                    stringCell.setCellValue((String)value);
+                } else if (value instanceof Integer) {
+                    Cell intCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.NUMERIC);
+                    intCell.setCellValue((Integer)value);
+                } else {
+                    Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+                    iriCell.setCellValue("UNHANDLED TYPE");
                 }
-                iriCell.setCellValue(value);
             }
         }
     }

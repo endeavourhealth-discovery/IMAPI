@@ -16,7 +16,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 
 @Component
@@ -26,7 +25,7 @@ public class FilerService {
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
     private final TTEntityFiler entityProvFiler = new TTEntityFilerRdf4j(ConnectionManager.getProvConnection(), new HashMap<>());
     private final ProvService provService = new ProvService();
-    private final TTTransactionFiler transactionFiler = new TTTransactionFiler("");
+    private final TTTransactionFiler transactionFiler = new TTTransactionFiler();
     private final EntityService entityService = new EntityService();
 
     public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {

@@ -1,80 +1,58 @@
 {
-  "name": "EverythingAboutShapesUsingDateOfBirth",
-  "description": "all of the properties and relationships for entities that have a property of a date of birth",
-  "resultFormat": "OBJECT",
-  "select": {
-    "entityType": {
-      "@id": "http://www.w3.org/ns/shacl#NodeShape"
-    },
-    "property": [
-      {
-        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+  "query" : {
+    "name" : "EverythingAboutShapesUsingDateOfBirth",
+    "description" : "all of the properties and relationships for entities that have a property of a date of birth",
+    "resultFormat" : "OBJECT",
+    "select" : {
+      "entityType" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
       },
-      {
-        "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-      },
-      {
-        "@id": "http://www.w3.org/2000/01/rdf-schema#comment"
-      },
-      {
-        "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-      },
-      {
-        "@id": "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
-      },
-      {
-        "@id": "http://endhealth.info/im#isContainedIn"
-      },
-      {
-        "@id": "http://www.w3.org/ns/shacl#property",
-        "select": {
-          "property": [
-            {
-              "@id": "http://www.w3.org/ns/shacl#path"
-            },
-            {
-              "@id": "http://www.w3.org/ns/shacl#datatype"
-            },
-            {
-              "@id": "http://www.w3.org/ns/shacl#class"
-            },
-            {
-              "@id": "http://www.w3.org/ns/shacl#minCount"
-            },
-            {
-              "@id": "http://www.w3.org/ns/shacl#maxCount"
-            },
-            {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#domain"
-            },
-            {
-              "@id": "http://endhealth.info/im#dateOfBirth"
-            }
-          ]
+      "property" : [ {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      }, {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }, {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#comment"
+      }, {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+      }, {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
+      }, {
+        "@id" : "http://endhealth.info/im#isContainedIn"
+      }, {
+        "@id" : "http://www.w3.org/ns/shacl#property",
+        "select" : {
+          "property" : [ {
+            "@id" : "http://www.w3.org/ns/shacl#path"
+          }, {
+            "@id" : "http://www.w3.org/ns/shacl#datatype"
+          }, {
+            "@id" : "http://www.w3.org/ns/shacl#class"
+          }, {
+            "@id" : "http://www.w3.org/ns/shacl#minCount"
+          }, {
+            "@id" : "http://www.w3.org/ns/shacl#maxCount"
+          }, {
+            "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
+          }, {
+            "@id" : "http://endhealth.info/im#dateOfBirth"
+          } ]
         }
-      }
-    ],
-    "match": [
-      {
-        "property": [
-          {
-            "@id": "http://www.w3.org/ns/shacl#property",
-            "match": {
-              "property": [
-                {
-                  "@id": "http://www.w3.org/ns/shacl#path",
-                  "isConcept": [
-                    {
-                      "@id": "http://endhealth.info/im#dateOfBirth"
-                    }
-                  ]
-                }
-              ]
-            }
+      } ],
+      "match" : [ {
+        "property" : [ {
+          "@id" : "http://www.w3.org/ns/shacl#property",
+          "match" : {
+            "property" : [ {
+              "@id" : "http://www.w3.org/ns/shacl#path",
+              "isConcept" : [ {
+                "@id" : "http://endhealth.info/im#dateOfBirth"
+              } ]
+            } ]
           }
-        ]
-      }
-    ]
-  },
-  "usePrefixes": true
+        } ]
+      } ]
+    },
+    "usePrefixes" : true
+  }
 }

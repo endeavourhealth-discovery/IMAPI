@@ -7,7 +7,6 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -26,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
 
@@ -88,24 +86,42 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     @Override
-    public void updateTct(TTEntity entity) throws TTFilerException {
-        Update deleteIsas = conn.prepareUpdate("DELETE {?entity <" + IM.IS_A.getIri() + "> ?super.}\n" +
-                "where {?entity <" + IM.IS_A.getIri() + "> ?super}");
+    public void updateTct(String entity)  {
+            StringJoiner delSupers = new StringJoiner("\n");
+            delSupers.add("DELETE {<" + entity + "> <" + IM.IS_A.getIri() + "> ?super.}")
+              .add("where { <" + entity + "> <" + IM.IS_A.getIri() + "> ?super.}");
+            Update deleteIsas = conn.prepareUpdate(delSupers.toString());
+            deleteIsas.execute();
+            StringJoiner delSubs= new StringJoiner("\n");
+            delSubs
+              .add("DELETE {?subentity <" + IM.IS_A.getIri() + "> <" + entity + ">.}")
+              .add("where { ?subentity <" + IM.IS_A.getIri() + "> <" + entity + ">.}");
+            deleteIsas = conn.prepareUpdate(delSubs.toString());
+            deleteIsas.execute();
+            String[] topConcepts = {"<http://snomed.info/sct#138875005>", "<" + IM.NAMESPACE + "Concept>"};
+            String blockers = String.join(",", topConcepts);
+            StringJoiner isaSame = new StringJoiner("\n");
+            isaSame.add("INSERT DATA {<" + entity + "> <" + IM.IS_A.getIri() + "> <" + entity + ">.}");
+            Update addIsas = conn.prepareUpdate(isaSame.toString());
+            addIsas.execute();
+            StringJoiner isSuper= new StringJoiner("\n");
+            isSuper
+              .add("INSERT {<" + entity + "> <" + IM.IS_A.getIri() + "> ?superType.}")
+              .add("where { <" + entity + "> (<" + RDFS.SUBCLASSOF.getIri() + ">|<"+SNOMED.REPLACED_BY.getIri()+">)+ ?superType.}");
+            addIsas= conn.prepareUpdate(isSuper.toString());
 
-        List<TTIriRef> predicates = List.of(RDFS.SUBCLASSOF, RDFS.SUBPROPERTYOF, SNOMED.REPLACED_BY);
-        String inList = String.join(",", predicates.stream().map(p -> "<" + p.getIri() + ">").collect(Collectors.toSet()));
-        StringJoiner sql = new StringJoiner("\n");
-        sql.add("INSERT {?entity <" + IM.IS_A.getIri() + "> ?entity.")
-                .add("?entity <" + IM.IS_A.getIri() + "> ?superType.")
-                .add("?entity <" + IM.IS_A.getIri() + "> ?superIsa.}")
-                .add("where { ?entity ?p ?superType.")
-                .add("filter (?p in (" + inList + "))")
-                .add("?superType <" + IM.IS_A.getIri() + "> ?superIsa.}");
-        Update addIsas = conn.prepareUpdate(sql.toString());
-        deleteIsas.setBinding("entity", iri(entity.getIri()));
-        deleteIsas.execute();
-        addIsas.setBinding("entity", iri(entity.getIri()));
-        addIsas.execute();
+            addIsas.execute();
+            StringJoiner isSubs= new StringJoiner("\n");
+            isSubs
+              .add(" INSERT { ?subentity <http://endhealth.info/im#isA> ?superentity.}")
+              .add("where {?subentity rdfs:subClassOf+ <"+ entity+">.\n")
+              .add("<"+entity+"> <http://endhealth.info/im#isA> ?superentity.")
+              .add("filter (?subentity not in (" + blockers + "))")
+              .add("filter (?superentity not in (" + blockers + "))}");
+            addIsas = conn.prepareUpdate(isSubs.toString());
+
+            addIsas.execute();
+
     }
 
 
@@ -192,7 +208,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
-        //  try {
 
         if (value.isLiteral()) {
             builder.add(subject, predicate, value.asLiteral().getType() == null
@@ -210,13 +225,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         } else {
             throw new TTFilerException("Arrays of arrays not allowed ");
         }
-//        }catch (Exception e) {
-//            System.out.println("invalid value");
-//        }
-    }
-
-    private IRI toIri(TTIriRef iriRef) throws TTFilerException {
-        return toIri(iriRef.getIri());
     }
 
     private IRI toIri(String iri) throws TTFilerException {

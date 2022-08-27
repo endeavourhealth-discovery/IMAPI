@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -13,9 +15,9 @@ import org.endeavourhealth.imapi.transforms.SnomedConcept;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 public class ConceptRepository {
-	public TTIriRef createConcept(String namespace) throws Exception {
+	public ObjectNode createConcept(String namespace) throws Exception {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			String sql="select ?increment where {<"+ IM.NAMESPACE+"SnomedConceptGenerator>"+" <"+
+			String sql="select ?increment where {<"+ IM.NAMESPACE+"Function_SnomedConceptGenerator>"+" <"+
 				IM.NAMESPACE+"hasIncrementalFrom> ?increment}";
 			TupleQuery qry = conn.prepareTupleQuery(sql);
 			TupleQueryResult rs= qry.evaluate();
@@ -23,7 +25,10 @@ public class ConceptRepository {
 				Integer from= Integer.parseInt(rs.next().getValue("increment").stringValue());
 				updateIncrement(from);
 				String concept= SnomedConcept.createConcept(from,false);
-				return TTIriRef.iri(namespace+concept);
+				ObjectMapper om= new ObjectMapper();
+				ObjectNode iri= om.createObjectNode();
+				iri.put("@id",namespace+concept);
+				return om.createObjectNode().set("iri",iri);
 			}
 		}
 		return null;
@@ -35,9 +40,9 @@ public class ConceptRepository {
 			.setGraph(IM.CODE_SCHEME_DISCOVERY)
 			.addEntity(new TTEntity()
 				.setCrud(IM.UPDATE_PREDICATES)
-				.setIri(IM.NAMESPACE+"SnomedConceptGenerator")
+				.setIri(IM.NAMESPACE+"Function_SnomedConceptGenerator")
 				.set(TTIriRef.iri(IM.NAMESPACE+"hasIncrementalFrom"), TTLiteral.literal(from+1)));
-		TTTransactionFiler filer= new TTTransactionFiler(null);
+		TTTransactionFiler filer= new TTTransactionFiler();
 		filer.fileTransaction(document);
 	}
 }

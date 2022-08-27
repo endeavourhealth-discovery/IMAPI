@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,26 +14,19 @@ public class Argument {
 	private String valueData;
 	private String valueVariable;
 	private Select valueSelect;
-	private ConceptRef valueProperty;
-	private TTIriRef valueType;
+	private TTIriRef valueIri;
 
-	public TTIriRef getValueType() {
-		return valueType;
+
+
+	public TTIriRef getValueIri() {
+		return valueIri;
 	}
 
-	public Argument setValueType(TTIriRef valueType) {
-		this.valueType = valueType;
+	public Argument setValueIri(TTIriRef valueIri) {
+		this.valueIri = valueIri;
 		return this;
 	}
 
-	public ConceptRef getValueProperty() {
-		return valueProperty;
-	}
-
-	public Argument setValueProperty(ConceptRef valueProperty) {
-		this.valueProperty = valueProperty;
-		return this;
-	}
 
 	public Select getValueSelect() {
 		return valueSelect;
@@ -72,7 +64,7 @@ public class Argument {
 		return this;
 	}
 
-	public Object getValueData() {
+	public String getValueData() {
 		return valueData;
 	}
 

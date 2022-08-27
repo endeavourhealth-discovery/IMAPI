@@ -19,14 +19,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.ConceptService;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -85,13 +83,6 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
-	@GetMapping(value = "/snomedConceptGenerator", produces = "application/json")
-	public TTIriRef getSnomedConcept(
-		@RequestParam(name = "namespace") String namespace
-	) throws Exception {
-		LOG.debug("getSnomedConcept");
-		return new ConceptService().createConcept(namespace);
-	}
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")
@@ -117,10 +108,11 @@ public class EntityController {
 
 	@GetMapping(value = "/public/entityAsPlainJson", produces = "application/json")
 	public String getForm(
-		@RequestParam(name = "iri") String iri
+		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "depth", required = false) Integer depth
 	) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
 		LOG.debug("getEntityAsPlainJson");
-		return entityService.getAsPlainJson(iri);
+		return entityService.getAsPlainJson(iri, depth == null ? 5 : depth);
 	}
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
@@ -510,7 +502,7 @@ public class EntityController {
 
 	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri) throws Exception {
+	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri){
 		LOG.debug("getTaskActions");
 		return entityService.getActions(taskIri);
 	}
@@ -561,5 +553,13 @@ public class EntityController {
 	) {
 		LOG.debug("getBundleByPredicateExclusions");
 		return entityService.getBundleByPredicateExclusions(iri,predicates);
+	}
+
+	@GetMapping("/public/shapeFromType")
+	public TTIriRef getShapeFromType(
+		@RequestParam(name = "iri") String iri
+	) {
+		LOG.debug("getShapeFromType");
+		return entityService.getShapeFromType(iri);
 	}
 }

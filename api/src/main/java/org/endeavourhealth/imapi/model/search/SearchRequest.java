@@ -1,8 +1,9 @@
 package org.endeavourhealth.imapi.model.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.endeavourhealth.imapi.model.sets.Select;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,7 @@ public class SearchRequest {
         return this;
     }
 
+    @JsonIgnore
     public SearchRequest addSelect(String select){
         this.select.add(select);
         return this;
@@ -100,6 +102,12 @@ public class SearchRequest {
 
     public SearchRequest setTypeFilter(List<String> typeFilter) {
         this.typeFilter = typeFilter;
+        return this;
+    }
+    public SearchRequest addType(String type){
+        if (this.getTypeFilter()==null)
+            this.setTypeFilter(new ArrayList<>());
+        this.getTypeFilter().add(type);
         return this;
     }
 
@@ -179,4 +187,6 @@ public class SearchRequest {
         this.sortDirection = sortDirection;
         return this;
     }
+
+
 }

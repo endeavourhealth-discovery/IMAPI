@@ -7,6 +7,16 @@ public class TTImportConfig {
     private boolean skiptct = false;
     private boolean skipsearch = false;
     private boolean skipdelete= false;
+    private boolean skiplucene= false;
+
+    public boolean isSkiplucene() {
+        return skiplucene;
+    }
+
+    public TTImportConfig setSkiplucene(boolean skiplucene) {
+        this.skiplucene = skiplucene;
+        return this;
+    }
 
     public String getFolder() {
         return folder;

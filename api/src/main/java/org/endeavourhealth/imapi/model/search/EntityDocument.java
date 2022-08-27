@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.search;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;

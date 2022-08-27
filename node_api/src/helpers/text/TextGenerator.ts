@@ -21,76 +21,82 @@ export class TextGenerator {
 
     //goes through a hierarchical casdcade to match query object model against potential templates (sentence)  
     public static summarise(clause: any, currentPath?: string): any {
-        TextGenerator.showConsole && console.log("### summarise() clause: ", clause, " at path: ", currentPath)
+        try {
+            TextGenerator.showConsole && console.log("### summarise() clause: ", clause, " at path: ", currentPath)
 
 
-        clause = new Clause(clause)
-        // let { and, or, are, has, property, propertyId, value, valueFunction, valueFunctionId, comparison, valueData, entity, test, orderById, orderLimit, count, direction, orderBy, testSetIn, sortDirection, testSetIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
-        let {
-            pathTo,
-            and,
-            or,
-            and0PropertyId,
-            and0PropertyAlias,
-            and0PropertyName,
-            and0PropertyInSet0,
-            and0OrderById,
-            and0Direction,
-            and0Count,
-            and1NotExist,
-            and1PropertyId,
-            and1PropertyAlias,
-            and1PropertyName,
-            and1PropertyInSet0,
-            and1OrderById,
-            alias,
-            isConcept,
-            value,
-            notExist,
-            property,
-            id,
-            inSet0,
-            comparison
-        } = clause;
+            clause = new Clause(clause)
+            // let { and, or, are, has, property, propertyId, value, valueFunction, valueFunctionId, comparison, valueData, entity, test, orderById, orderLimit, count, direction, orderBy, testSetIn, sortDirection, testSetIn0, units, firstDate, secondDate } = clause;  //these are function functions that are mapped to the properties in the pathMap.json file and return a transformed string
+            let {
+                pathTo,
+                and,
+                or,
+                and0PropertyId,
+                and0PropertyAlias,
+                and0PropertyName,
+                and0PropertyInSet0,
+                and0OrderById,
+                and0Direction,
+                and0Count,
+                and1NotExist,
+                and1PropertyId,
+                and1PropertyAlias,
+                and1PropertyName,
+                and1PropertyInSet0,
+                and1OrderById,
+                alias,
+                isConcept,
+                value,
+                notExist,
+                property,
+                id,
+                inSet0,
+                comparison
+            } = clause;
 
-        TextGenerator.showConsole && console.log("Clause with getters: ", clause)
+            TextGenerator.showConsole && console.log("Clause with getters: ", clause)
 
-        let text: any[] = [];
-        // let html: string; //`<p>{{innerHTML}}</p>`
-
-
-        //templates (can be abstracted away / stored elsewhere as clause.findMatchingTemplates() and it finds you a list of matching templates for each clause.
-        // const entryFollowedByEntry = isTemplateMatch("im:QT_EntryFollowedByEntry", and && Array.isArray(and) && and?.length > 1 && isDateAliasCompared(and))
-        const entryFollowedByEntry = and && Array.isArray(and) && and?.length > 1 && isDateAliasCompared(and)
+            let text: any[] = [];
+            // let html: string; //`<p>{{innerHTML}}</p>`
 
 
-        //cascade
-        if (pathTo) { //linked datamodel entities
-            if (entryFollowedByEntry) {
-                TextGenerator.showConsole && console.log("### Template used: entryFollowedByEntry", entryFollowedByEntry)
-                text = TextGenerator.summariseClause(clause.definition, "entryFollowedByEntry");
-            } else {
-                TextGenerator.showConsole && console.log("### Template used: any clause", clause.definition)
+            //templates (can be abstracted away / stored elsewhere as clause.findMatchingTemplates() and it finds you a list of matching templates for each clause.
+            // const entryFollowedByEntry = isTemplateMatch("im:QT_EntryFollowedByEntry", and && Array.isArray(and) && and?.length > 1 && isDateAliasCompared(and))
+            const entryFollowedByEntry = and && Array.isArray(and) && and?.length > 1 && isDateAliasCompared(and)
 
-                text = TextGenerator.summariseClause(clause.definition);
+
+            //cascade
+            if (pathTo) { //linked datamodel entities
+                if (entryFollowedByEntry) {
+                    TextGenerator.showConsole && console.log("### Template used: entryFollowedByEntry", entryFollowedByEntry)
+                    text = TextGenerator.summariseClause(clause.definition, "entryFollowedByEntry");
+                } else {
+                    TextGenerator.showConsole && console.log("### Template used: any clause", clause.definition)
+
+                    text = TextGenerator.summariseClause(clause.definition);
+                }
             }
+            else if (alias) { //direct properties
+
+                TextGenerator.showConsole && console.log("### Template used: alias ")
+                text = TextGenerator.template(clause.definition);
+
+            }
+
+
+
+            //results
+            TextGenerator.showConsole && console.log("###Text sentence array is ", text)
+            let result = {
+                text: text.filter(t => t && t != "").join(" "),
+                // html: html,
+            }
+            return result;
+        } catch (error) {
+            return "";
         }
-        else if (alias) { //direct properties
-
-            TextGenerator.showConsole && console.log("### Template used: alias ")
-            text = TextGenerator.template(clause.definition);
-
-        }
 
 
-
-        //results
-        TextGenerator.showConsole && console.log("###Text sentence array is ", text)
-        let result = {
-            text: text.filter(t => t && t != "").join(" "),
-            // html: html,
-        }
-        return result;
     }
 
 
@@ -110,18 +116,12 @@ export class TextGenerator {
             text = [
                 ...TextGenerator.template(and[0], "orderLimit"),
                 ...TextGenerator.template(and[0].property[0], "inSet", ["of"]),
-                ...TextGenerator.template(and[1].property[0], "followedBy", and[1]?.notExist),
+                ...TextGenerator.template(and[1].property[0], "followedBy", [], and[1]?.notExist),
                 ...TextGenerator.template(and[1], "orderLimit"),
                 ...TextGenerator.template(and[1].property[0], "inSet", ["of"]),
             ]
 
         } else {
-            // summarise any clause in a specific order (oderLimit, then properties: concept, then value, then date, then other properties)
-            // text = TextGenerator.template(and[0], "orderLimit");
-
-            //todo: improve concept matching / create external function
-
-
             let mustBe = clause.definition?.testProperty ? "must be" : "";
 
             text = [
@@ -129,11 +129,6 @@ export class TextGenerator {
                 ...TextGenerator.summarisePropertiesInOrder(clause.definition.property, ["of"]),
                 mustBe,
                 ...TextGenerator.summarisePropertiesInOrder(clause.definition?.testProperty, ["must be"]),
-                // ...TextGenerator.template(clause.definition.property[0], conceptTemplate)
-                // ...TextGenerator.template(clause.definition.property[0], conceptTemplate)
-                // ...TextGenerator.template(and[1].property[0], "followedBy", and[1]?.notExist),
-                // ...TextGenerator.template(and[1], "orderLimit"),
-                // ...TextGenerator.template(and[1].property[0], "ofInSet"),
             ]
 
         }
@@ -228,10 +223,9 @@ export class TextGenerator {
         }
         else if (templateName == "followedBy") {
             TextGenerator.showConsole && console.log("### TemplateName followedBy")
+
             let is = parentNotExist || notInSet ? "is not" : "is";
             text = [is, "followed by"];
-
-
             //direct properties of main entity
         } else if (templateName == "orderLimit") {
             //any/latest/earliest/highest/lowest

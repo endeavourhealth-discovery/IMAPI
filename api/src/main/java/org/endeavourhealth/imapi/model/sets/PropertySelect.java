@@ -7,16 +7,72 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"iri","name","inverseOf","alias","binding","function","select"})
+@JsonPropertyOrder({"iri","name","inverseOf","alias","argument","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertySelect extends ConceptRef {
+	private boolean sum;
+	private boolean average;
+	private boolean max;
 	private Select select;
 	boolean inverseOf=false;
+	List<Argument> argument;
 	Function function;
+
+	public boolean isSum() {
+		return sum;
+	}
+
+	public PropertySelect setSum(boolean sum) {
+		this.sum = sum;
+		return this;
+	}
+
+	public boolean isAverage() {
+		return average;
+	}
+
+	public PropertySelect setAverage(boolean average) {
+		this.average = average;
+		return this;
+	}
+
+	public boolean isMax() {
+		return max;
+	}
+
+	public PropertySelect setMax(boolean max) {
+		this.max = max;
+		return this;
+	}
+
+	public List<Argument> getArgument() {
+		return argument;
+	}
+
+	@JsonSetter
+	public PropertySelect setArgument(List<Argument> argument) {
+		this.argument = argument;
+		return this;
+	}
+
+	public PropertySelect addArgument(Argument argument){
+		if (this.argument==null)
+			this.argument= new ArrayList<>();
+		this.argument.add(argument);
+		return this;
+	}
+
+	public PropertySelect argument(Consumer<Argument> builder){
+		Argument arg= new Argument();
+		this.addArgument(arg);
+		builder.accept(arg);
+		return this;
+	}
 
 
 
@@ -85,6 +141,7 @@ public class PropertySelect extends ConceptRef {
 		return this;
 	}
 
+	@Override
 	public PropertySelect setName(String name){
 		super.setName(name);
 		return this;
@@ -99,8 +156,7 @@ public class PropertySelect extends ConceptRef {
 		return this;
 	}
 
-
-
+	@Override
 	@JsonSetter
 	public PropertySelect setAlias(String alias) {
 		super.setAlias(alias);

@@ -3,27 +3,34 @@ package org.endeavourhealth.imapi.model.sets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ConceptRef extends TTIriRef{
 
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
-	private boolean includeValueSets;
+	private boolean excludeSelf;
 	private String alias;
+
+	public boolean isExcludeSelf() {
+		return excludeSelf;
+	}
+
+	public ConceptRef setExcludeSelf(boolean excludeSelf) {
+		this.excludeSelf = excludeSelf;
+		return this;
+	}
 
 	public String getAlias() {
 		return alias;
 	}
 
+	@Override
 	public ConceptRef setIri(String iri){
 		super.setIri(iri);
 		return this;
 	}
 
+	@Override
 	public ConceptRef setName(String name){
 		super.setName(name);
 		return this;
@@ -34,14 +41,7 @@ public class ConceptRef extends TTIriRef{
 		return this;
 	}
 
-	public boolean isIncludeValueSets() {
-		return includeValueSets;
-	}
 
-	public ConceptRef setIncludeValueSets(boolean includeValueSets) {
-		this.includeValueSets = includeValueSets;
-		return this;
-	}
 
 	public static ConceptRef iri(String iri) {
 		return new ConceptRef(iri);

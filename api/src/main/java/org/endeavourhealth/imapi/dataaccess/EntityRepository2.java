@@ -52,9 +52,8 @@ public class EntityRepository2 {
             .add("       im:code ?code;")
             .add("       im:scheme ?scheme.")
             .add("    ?scheme rdfs:label ?schemeName .")
-            .add("    OPTIONAL {")
-            .add("        ?concept im:im1Id ?im1Id .")
-            .add("    }");
+            .add("    OPTIONAL { ?concept im:im1Id ?im1Id . }")
+            .add("    OPTIONAL { ?concept im:usageTotal ?use . }");
 
         if (includeLegacy) {
             spql.add("    OPTIONAL {")
@@ -63,9 +62,8 @@ public class EntityRepository2 {
                 .add("                im:code ?legacyCode;")
                 .add("                im:scheme ?legacyScheme.")
                 .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
-                .add("        OPTIONAL {")
-                .add("            ?legacy im:im1Id ?legacyIm1Id .")
-                .add("        }")
+                .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
+                .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
                 .add("    }");
         }
 
@@ -90,6 +88,7 @@ public class EntityRepository2 {
                 Value scheme = bs.getValue("scheme");
                 Value schemeName = bs.getValue("schemeName");
                 Value im1Id = bs.getValue("im1Id");
+                Value use = bs.getValue("use");
                 cl.setIri(concept);
                 if (name != null)
                     cl.setTerm(name.stringValue());
@@ -99,6 +98,8 @@ public class EntityRepository2 {
                 }
                 if (im1Id != null)
                     cl.setIm1Id(im1Id.stringValue());
+                cl.setUse(use == null ? 0 : ((Literal)use).intValue());
+
                 if (includeLegacy) {
                     Value legIri = bs.getValue("legacy");
                     Value lc = bs.getValue("legacyCode");
@@ -106,6 +107,7 @@ public class EntityRepository2 {
                     Value ls = bs.getValue("legacyScheme");
                     Value lsn = bs.getValue("legacySchemeName");
                     Value lid = bs.getValue("legacyIm1Id");
+                    Value luse = bs.getValue("legacyUse");
                     if (legIri != null)
                         cl.setLegacyIri(legIri.stringValue());
                     if (lc != null)
@@ -116,6 +118,8 @@ public class EntityRepository2 {
                         cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
                     if (lid != null)
                         cl.setLegacyIm1Id(lid.stringValue());
+
+                    cl.setLegacyUse(luse == null ? 0 : ((Literal)luse).intValue());
                 }
 
                 result.add(cl);
@@ -153,14 +157,24 @@ public class EntityRepository2 {
      * @return
      */
     public TTBundle getBundle(
-        String iri, Set<String> predicates,
+        String iri,
+        Set<String> predicates,
         boolean excludePredicates
+    ) {
+        return getBundle(iri, predicates, excludePredicates, 5);
+    }
+
+    public TTBundle getBundle(
+        String iri,
+        Set<String> predicates,
+        boolean excludePredicates,
+        int depth
     ) {
         TTBundle bundle = new TTBundle()
           .setEntity(new TTEntity().setIri(iri))
           .setPredicates(new HashMap<>());
 
-        StringJoiner sql = getBundleSparql(predicates, excludePredicates);
+        StringJoiner sql = getBundleSparql(predicates, excludePredicates, depth);
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
@@ -349,7 +363,7 @@ public class EntityRepository2 {
         Map<String,Set<String>> maps= new HashMap<>();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql.toString());
-            TTIriRef concept=null;
+            TTIriRef concept = new TTIriRef();
             try (TupleQueryResult gs = qry.evaluate()) {
                 while (gs.hasNext()) {
                     BindingSet bs = gs.next();
@@ -415,9 +429,9 @@ public class EntityRepository2 {
 
     private StringJoiner getBundleSparql(
         Set<String> predicates,
-        boolean excludePredicates
+        boolean excludePredicates,
+        int depth
     ) {
-        int  depth= 5;
         StringJoiner sql = new StringJoiner(System.lineSeparator());
         sql.add(RDFS_PREFIX);
         sql.add("CONSTRUCT {")
@@ -453,7 +467,7 @@ public class EntityRepository2 {
                 .add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name")
                 .add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
         }
-        sql.add("}}}}}");
+        sql.add(String.join("", Collections.nCopies(depth, "}")));
         return sql;
     }
 
@@ -577,15 +591,23 @@ public class EntityRepository2 {
     }
 
     private void graphWherePattern(TTArray definition, StringJoiner spql,Map<String, String> prefixMap) {
-        if (definition.isIriRef()) {
-            simpleSuperClass(definition.asIriRef(), spql, prefixMap);
-        } else if (definition.asNode().get(SHACL.OR) != null) {
-            orClause(definition.asNode().get(SHACL.OR), spql, prefixMap);
+        for (TTValue clause:definition.getElements()) {
+            if (clause.isIriRef()) {
+                simpleSuperClass(clause.asIriRef(), spql, prefixMap);
+            } else {
+                if (clause.asNode().get(SHACL.OR) != null) {
+                    orClause(clause.asNode().get(SHACL.OR), spql, prefixMap);
 
-        } else if (definition.asNode().get(SHACL.AND) != null) {
-            Boolean hasRoles = andClause(definition.asNode().get(SHACL.AND), true, spql, prefixMap);
-            if (hasRoles) {
-                andClause(definition.asNode().get(SHACL.AND), false, spql, prefixMap);
+                }
+                if (clause.asNode().get(SHACL.AND) != null) {
+                    Boolean hasRoles = andClause(clause.asNode().get(SHACL.AND), true, spql, prefixMap);
+                    if (Boolean.TRUE.equals(hasRoles)) {
+                        andClause(clause.asNode().get(SHACL.AND), false, spql, prefixMap);
+                    }
+                }
+                if (clause.asNode().get(SHACL.NOT) != null) {
+                    notClause(clause.asNode().get(SHACL.NOT), spql, prefixMap);
+                }
             }
         }
     }
@@ -635,7 +657,7 @@ public class EntityRepository2 {
             spql.add("UNION {");
             Boolean hasRoles = andClause(union.get(SHACL.AND), true, spql, prefixMap);
             spql.add("}");
-            if (hasRoles) {
+            if (Boolean.TRUE.equals(hasRoles)) {
                 spql.add("UNION {");
                 andClause(union.get(SHACL.AND), false, spql, prefixMap);
                 spql.add("}");
@@ -701,7 +723,7 @@ public class EntityRepository2 {
         }
         for (TTValue inter : and.getElements()) {
             if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
-                notClause(inter.asNode().get(SHACL.NOT).asValue(), spql, prefixMap);
+                notClause(inter.asNode().get(SHACL.NOT), spql, prefixMap);
         }
         return hasRoles;
     }
@@ -710,17 +732,31 @@ public class EntityRepository2 {
         return getShort(IM.IS_A.getIri(), prefixMap);
     }
 
-    private void notClause(TTValue not, StringJoiner spql, Map<String,String> prefixMap) {
+    private void notClause(TTArray notClause, StringJoiner spql, Map<String,String> prefixMap) {
         spql.add("MINUS {");
-        if (not.isIriRef())
-            simpleSuperClass(not.asIriRef(),spql, prefixMap);
-        else if (not.isNode()) {
-            if (not.asNode().get(SHACL.OR) != null) {
-                orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
-            } else if (not.asNode().get(SHACL.AND) != null) {
-                Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
-                if (hasRoles) {
-                    andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+        if (notClause.size()>1){
+            spql.add("{ ?concept " + isa(prefixMap) + " ?notClass.");
+            StringBuilder values = new StringBuilder();
+            for (TTValue superClass : notClause.getElements()) {
+                if (superClass.isIriRef())
+                    values.append(getShort(superClass.asIriRef().getIri(), prefixMap)).append(" ");
+            }
+            spql.add("VALUES ?notClass {" + values + "}}");
+
+        }
+        else {
+            for (TTValue not : notClause.getElements()) {
+                if (not.isIriRef())
+                    simpleSuperClass(not.asIriRef(), spql, prefixMap);
+                else if (not.isNode()) {
+                    if (not.asNode().get(SHACL.OR) != null) {
+                        orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
+                    } else if (not.asNode().get(SHACL.AND) != null) {
+                        Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
+                        if (Boolean.TRUE.equals(hasRoles)) {
+                            andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+                        }
+                    }
                 }
             }
         }

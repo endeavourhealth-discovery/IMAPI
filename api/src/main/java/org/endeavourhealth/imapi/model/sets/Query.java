@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.sets;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -11,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.endeavourhealth.imapi.model.sets.Query.getJson;
-
 @JsonPropertyOrder ({"iri","name","description","mainEntity","var","resultFormat","subset","distinct","activeOnly","referenceDate","select","groupBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Heading {
@@ -20,14 +19,38 @@ public class Query extends Heading {
 	private TTIriRef graph;
 	private Select select;
 
-	private List<Select> subselect;
 	private ResultFormat resultFormat;
 	private boolean usePrefixes;
-	private String referenceDate;
 	private boolean activeOnly;
-	private int page;
-	private int pageSize;
 	private TTIriRef mainEntity;
+	private Match ask;
+	private boolean function;
+
+	public boolean isFunction() {
+		return function;
+	}
+
+	public Query setFunction(boolean function) {
+		this.function = function;
+		return this;
+	}
+
+	public Match getAsk() {
+		return ask;
+	}
+
+	@JsonSetter
+	public Query setAsk(Match ask) {
+		this.ask = ask;
+		return this;
+	}
+	@JsonIgnore
+	public Query ask(Consumer<Match> builder){
+		Match ask= new Match();
+		this.ask= ask;
+		builder.accept(ask);
+		return this;
+	}
 
 	@JsonIgnore
 	public Query select(Consumer<Select> builder){
@@ -45,23 +68,7 @@ public class Query extends Heading {
 		return this;
 	}
 
-	public int getPage() {
-		return page;
-	}
 
-	public Query setPage(int page) {
-		this.page = page;
-		return this;
-	}
-
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	public Query setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-		return this;
-	}
 
 	public boolean isActiveOnly() {
 		return activeOnly;
@@ -72,14 +79,6 @@ public class Query extends Heading {
 		return this;
 	}
 
-	public String getReferenceDate() {
-		return referenceDate;
-	}
-
-	public Query setReferenceDate(String referenceDate) {
-		this.referenceDate = referenceDate;
-		return this;
-	}
 
 
 	@Override
@@ -151,21 +150,6 @@ public class Query extends Heading {
 
 
 
-	public List<Select> getSubselect() {
-		return subselect;
-	}
-
-	public Query setSubselect(List<Select> columnGroups) {
-		this.subselect = columnGroups;
-		return this;
-	}
-	public Query addSubselect(Select group){
-		if (this.subselect ==null)
-			this.subselect = new ArrayList<>();
-		this.subselect.add(group);
-		return this;
-	}
-
 
 	public Select getSelect() {
 		return select;
@@ -177,7 +161,7 @@ public class Query extends Heading {
 	}
 
 	@JsonIgnore
-	public String getasJson() throws JsonProcessingException {
+	public String getJson() throws JsonProcessingException {
 		return Query.getJson(this);
 	}
 

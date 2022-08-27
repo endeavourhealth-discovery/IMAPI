@@ -31,7 +31,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 		repo.fetchRelationships(parentMap,replacementMap,blockingIris);
 
 
-		try(FileWriter isas = new FileWriter(outpath+"\\BulkImport.nq",true)) {
+		try(FileWriter isas = new FileWriter(outpath+"/BulkImport.nq",true)) {
 			buildClosure();
 			buildReverseClosure();
 			writeClosureData(isas);

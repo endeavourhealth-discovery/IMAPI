@@ -522,23 +522,6 @@ public class EntityTripleRepository {
         }
     }
 
-    private void addTriplesExcluding(List<Tpl> triples, Resource subject, Integer parent, Set<String> excludePredicates) {
-        StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?p ?pname ?o ?oname")
-            .add("WHERE {")
-            .add("    ?s ?p ?o ;")
-            .add("    OPTIONAL { ?s rdfs:label ?sname }")
-            .add("    OPTIONAL { ?p rdfs:label ?pname }")
-            .add("    OPTIONAL { ?o rdfs:label ?oname }");
-
-        if (excludePredicates != null && !excludePredicates.isEmpty()) {
-            sql.add("    FILTER ( ?p NOT IN " + inList("p", excludePredicates.size()) + " )");
-        }
-
-        sql.add("}");
-        setAndEvaluate(triples, subject, parent, excludePredicates, sql);
-    }
-
     public List<SimpleMap> findSimpleMapsByIri(String iri, List<String> schemeIris) {
         List<SimpleMap> simpleMaps = new ArrayList<>();
         StringJoiner sql = new StringJoiner(System.lineSeparator())
@@ -654,5 +637,27 @@ public class EntityTripleRepository {
         }
 
         return 0;
+    }
+
+    public TTIriRef getShapeFromType(String iri) {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+            .add("SELECT ?s2")
+            .add("WHERE {")
+            .add("?s <http://www.w3.org/ns/shacl#targetClass> ?iri .")
+            .add("?s2 im:targetShape ?s .")
+            .add("}")
+            .add("LIMIT 1");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = prepareSparql(conn, sql.toString());
+            qry.setBinding("iri", iri(iri));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                if (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    return new TTIriRef(bs.getValue("s2").stringValue());
+                }
+            }
+        }
+        return null;
     }
 }

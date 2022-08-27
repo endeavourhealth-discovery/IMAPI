@@ -3,12 +3,9 @@ package org.endeavourhealth.imapi.model.search;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -105,6 +102,8 @@ public class SearchResultSummary {
         return this;
     }
 
+
+
     public TTIriRef getScheme() {
         return scheme;
     }
@@ -120,6 +119,13 @@ public class SearchResultSummary {
 
     public SearchResultSummary setEntityType(Set<TTIriRef> entityType) {
         this.entityType = entityType;
+        return this;
+    }
+
+    public SearchResultSummary addEntityType(TTIriRef entityType) {
+        if (this.entityType==null)
+            this.entityType= new HashSet<>();
+        this.entityType.add(entityType);
         return this;
     }
 

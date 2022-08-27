@@ -7,7 +7,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.*;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
@@ -21,6 +20,7 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.sets.QueryEntity;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.valuset.*;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
@@ -32,11 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -65,13 +62,29 @@ public class EntityService {
     public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);
     }
-    public String getAsPlainJson(String iri) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
-        TTBundle bundle= entityRepository2.getBundle(iri);
+
+    /**
+     * Returns the entity with local predicate names as plain json including json literals
+     * <p> Works only for known POJO classes in order to resolve the RDF cardinality problem</p>
+     * @param iri iri of the entity
+     * @param depth maximum nesting depth
+     * @return string of json
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws JsonProcessingException
+     */
+    public String getAsPlainJson(String iri, int depth) throws NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+        TTBundle bundle= entityRepository2.getBundle(iri, null, false, depth);
         Class<?> cls;
         String entityType= bundle.getEntity().getType().get(0).asIriRef().getIri();
         switch (entityType){
             case (IM.NAMESPACE+"FormGenerator") :
                 cls=FormGenerator.class;
+                break;
+            case (IM.NAMESPACE+"Query") :
+                cls= QueryEntity.class;
                 break;
             default:
                 throw new NoSuchMethodException(" entity type "+ entityType+" is not supported as a POJO class");
@@ -268,7 +281,7 @@ public class EntityService {
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
 
-    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws URISyntaxException, IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
+    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws DataFormatException {
         return searchService.getEntitiesByTerm(request);
     }
 
@@ -961,7 +974,7 @@ public class EntityService {
 
     private void addParentHierarchiesRecursively(ParentDto parent) {
         List<ParentDto> parents = entityRepository.findParentHierarchies(parent.getIri());
-        if (parents.size() != 0) {
+        if (!parents.isEmpty()) {
             parent.setParents(parents);
             for (ParentDto parentsParent : parents) {
                 addParentHierarchiesRecursively(parentsParent);
@@ -981,7 +994,7 @@ public class EntityService {
             }
         });
 
-        if (paths.size() != 0) {
+        if (!paths.isEmpty()) {
             shortestPath = paths.get(paths.size() - 1);
             int index = indexOf(shortestPath, ancestor);
             shortestPath = shortestPath.subList(0, index == shortestPath.size() ? index : index + 1);
@@ -1003,8 +1016,7 @@ public class EntityService {
     }
 
     public boolean iriExists(String iri) {
-        Boolean result = entityRepository.iriExists(iri);
-        return result;
+        return entityRepository.iriExists(iri);
     }
 
     public TTEntity createEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
@@ -1063,8 +1075,21 @@ public class EntityService {
         return result;
     }
 
+    public TTIriRef getShapeFromType(String iri) {
+        if (null != iri) return entityTripleRepository.getShapeFromType(iri);
+        else return null;
+    }
+
     public List<TTEntity> getActions(String taskIri) {
         return entityRepository2.getActions(taskIri);
+    }
+
+    public String getName(String iri) {
+        return entityRepository.getEntityReferenceByIri(iri).getName();
+    }
+
+    public boolean isLinked(String subject, TTIriRef predicate, String object) {
+        return entityRepository.predicatePathExists(subject, predicate, object);
     }
 }
 

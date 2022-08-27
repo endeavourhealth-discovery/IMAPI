@@ -30,10 +30,8 @@ public class TTToOWLEL {
    private DefaultPrefixManager prefixManager;
    private OWLDataFactory dataFactory;
    private OWLOntologyManager manager;
-   private Integer anon=0;
    private OWLOntology ontology;
    private TTEntity currentEntity;
-   private OWLEntity placeHolder;
    private TTManager ttManager;
    private Set<String> declared;
 
@@ -56,7 +54,7 @@ public class TTToOWLEL {
     * @throws DataFormatException if the owl ontology content is invalid
     */
 
-   public OWLOntologyManager transform(TTDocument document,TTManager dmanager) throws DataFormatException, OWLOntologyCreationException {
+   public OWLOntologyManager transform(TTDocument document,TTManager dmanager) throws OWLOntologyCreationException {
 
       ttManager= dmanager;
       //if the dmanager is null create it
@@ -73,21 +71,6 @@ public class TTToOWLEL {
       return manager;
    }
 
-
-
-
-   private void processImports(OWLOntology owlOntology, OWLDataFactory dataFactory,
-                               OWLOntologyManager manager, Set<String> imports) {
-      if (imports != null) {
-         for (String importIri : imports) {
-            OWLImportsDeclaration importDeclaration = dataFactory.getOWLImportsDeclaration(IRI.create(importIri));
-            manager.applyChange(new AddImport(owlOntology, importDeclaration));
-         }
-
-      }
-   }
-
-
    private void processPrefixes(List<TTPrefix> prefixes) {
       for (TTPrefix prefix: prefixes) {
          prefixManager.setPrefix(prefix.getPrefix()+":", prefix.getIri());
@@ -97,8 +80,6 @@ public class TTToOWLEL {
       manager.setOntologyFormat(ontology, ontologyFormat);
    }
 
-
-
    private void processEntities(List<TTEntity> entities) {
       if (entities == null || entities.isEmpty())
          return;
@@ -107,7 +88,6 @@ public class TTToOWLEL {
       for (TTEntity entity : entities) {
          classno = classno + 1;
          currentEntity= entity;
-         //System.out.println(entity.getIri());
          IRI iri = getIri(entity.getIri());
          addDeclaration(entity);
          Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();

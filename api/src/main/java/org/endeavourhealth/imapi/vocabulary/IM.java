@@ -37,14 +37,14 @@ public class IM {
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
     public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
     public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
     public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
-    public static final TTIriRef SETMODEL = iri(NAMESPACE + "SetModel");
-    public static final TTIriRef DATASET = iri(NAMESPACE + "DataSet");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
     public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
     public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
+    public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "functionProperty");
 
 
     //Collection predicates
@@ -194,7 +194,7 @@ public class IM {
     //Miscalleneous
     public static final TTIriRef COUNTER = iri(NAMESPACE + "counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE + "hasContext");
-    public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
+    //public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE + "displayOrder");
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
@@ -211,9 +211,7 @@ public class IM {
     public static final TTIriRef VALUE_SELECT = iri(NAMESPACE + "valueSelect");
     public static final TTIriRef VALUE_VARIABLE = iri(NAMESPACE + "valueVariable");
     public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
-    public static final TTIriRef SELECT = iri(NAMESPACE + "select");
-    public static final TTIriRef MATCH = iri(NAMESPACE + "match");
-    public static final TTIriRef QUERY_DEFINITION = iri(NAMESPACE + "query");
+    public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE + "query");
     public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
     // ODS
@@ -229,6 +227,9 @@ public class IM {
     public static final TTIriRef POST_CODE = iri(NAMESPACE + "postCode");
     public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
     public static final TTIriRef UPRN = iri(NAMESPACE + "#uprn");
+
+    //Editor
+    public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");
 
     private IM() {
     }

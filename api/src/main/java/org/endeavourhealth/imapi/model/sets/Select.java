@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.filer.TTImportByType;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -14,15 +13,12 @@ import java.util.function.Consumer;
 /**
  * A property of a select statement with option for iri and alias and supports nested selects for object format
  */
-@JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","property","match",})
+@JsonPropertyOrder({"name","distinct","sum","average","max","entityType","entityId","entityIn","pathTo","property","match",})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Select {
+public class Select extends Heading{
 
 
-	private String name;
-	private boolean sum;
-	private boolean average;
-	private boolean max;
+
 	private boolean count;
 	private List<PropertySelect> property;
 	private List<Match> match;
@@ -31,8 +27,56 @@ public class Select {
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
 	private List<PropertySelect> groupBy;
-	private OrderLimit orderLimit;
+	private List<OrderLimit> orderLimit;
+	private PathTarget pathToTarget;
+	private List<Select> subselect;
 
+
+	public Select setName(String name){
+		super.setName(name);
+		return this;
+	}
+	public List<Select> getSubselect() {
+		return subselect;
+	}
+
+	public Select setSubselect(List<Select> columnGroups) {
+		this.subselect = columnGroups;
+		return this;
+	}
+	public Select addSubselect(Select group){
+		if (this.subselect ==null)
+			this.subselect = new ArrayList<>();
+		this.subselect.add(group);
+		return this;
+	}
+
+	public Select subSelect(Consumer<Select> builder){
+		Select sub= new Select();
+		this.addSubselect(sub);
+		builder.accept(sub);
+		return this;
+	}
+
+
+	public PathTarget getPathToTarget() {
+		return pathToTarget;
+	}
+
+	@JsonSetter
+	public Select setPathToTarget(PathTarget pathToTarget) {
+		this.pathToTarget = pathToTarget;
+		return this;
+	}
+
+
+	@JsonIgnore
+	public Select pathToTarget(Consumer<PathTarget> builder){
+		PathTarget target= new PathTarget();
+		this.pathToTarget= target;
+		builder.accept(target);
+		return this;
+	}
 
 	/**
 	 * Lambda approach to setting property selects
@@ -57,20 +101,25 @@ public class Select {
 	 */
 	public Select order(Consumer<OrderLimit> builder){
 		OrderLimit ol= new OrderLimit();
-		this.orderLimit= ol;
+		this.addOrderLimit(ol);
 		builder.accept(ol);
 		return this;
 	}
 
 
 
-
-	public OrderLimit getOrderLimit() {
+	public List<OrderLimit> getOrderLimit() {
 		return orderLimit;
 	}
 
-	public Select setOrderLimit(OrderLimit orderLimit) {
+	public Select setOrderLimit(List<OrderLimit> orderLimit) {
 		this.orderLimit = orderLimit;
+		return this;
+	}
+
+	public Select addOrderLimit(OrderLimit orderLimit) {
+		if (this.orderLimit==null)
+			this.orderLimit= new ArrayList<>();
 		return this;
 	}
 
@@ -83,6 +132,13 @@ public class Select {
 		return this;
 	}
 
+	public Select group(Consumer<PropertySelect> builder){
+		PropertySelect ps= new PropertySelect();
+		this.addGroupBy(ps);
+		builder.accept(ps);
+		return this;
+	}
+
 	public Select addGroupBy(PropertySelect group){
 		if (this.groupBy==null)
 			this.groupBy= new ArrayList<>();
@@ -90,14 +146,6 @@ public class Select {
 		return this;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public Select setName(String name) {
-		this.name = name;
-		return this;
-	}
 
 	public ConceptRef getEntityId() {
 		return entityId;
@@ -205,32 +253,7 @@ public class Select {
 		return this;
 	}
 
-	public boolean isSum() {
-		return sum;
-	}
 
-	public Select setSum(boolean sum) {
-		this.sum = sum;
-		return this;
-	}
-
-	public boolean isAverage() {
-		return average;
-	}
-
-	public Select setAverage(boolean average) {
-		this.average = average;
-		return this;
-	}
-
-	public boolean isMax() {
-		return max;
-	}
-
-	public Select setMax(boolean max) {
-		this.max = max;
-		return this;
-	}
 
 
 }

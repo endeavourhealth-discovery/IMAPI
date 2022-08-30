@@ -31,6 +31,7 @@ public class PropertyShape {
 	private String isTextValue;
 	private TTIriRef componentType;
 	private TTIriRef validation;
+	private String validationErrorMessage;
 	private TTIriRef search;
 	private TTIriRef function;
 	private List<Argument> argument;
@@ -38,6 +39,14 @@ public class PropertyShape {
 	private List<TTIriRef> select;
 	private Boolean builderChild;
 	private NodeShape expression;
+
+	public String getValidationErrorMessage() {
+		return validationErrorMessage;
+	}
+
+	public void setValidationErrorMessage(String validationErrorMessage) {
+		this.validationErrorMessage = validationErrorMessage;
+	}
 
 	public Boolean getBuilderChild() {
 		return builderChild;

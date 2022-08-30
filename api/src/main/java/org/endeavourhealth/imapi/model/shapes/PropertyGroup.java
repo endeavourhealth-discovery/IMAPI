@@ -23,6 +23,25 @@ public class PropertyGroup {
 	private TTIriRef componentType;
 	private List<PropertyGroup> subGroup;
 	private TTIriRef path;
+	private TTIriRef validation;
+	private String validationErrorMessage;
+
+	public String getValidationErrorMessage() {
+		return validationErrorMessage;
+	}
+
+	public void setValidationErrorMessage(String validationErrorMessage) {
+		this.validationErrorMessage = validationErrorMessage;
+	}
+
+	public TTIriRef getValidation() {
+		return validation;
+	}
+
+	public PropertyGroup setValidation(TTIriRef validation) {
+		this.validation = validation;
+		return this;
+	}
 
 	public List<PropertyGroup> getSubGroup() {
 		return subGroup;

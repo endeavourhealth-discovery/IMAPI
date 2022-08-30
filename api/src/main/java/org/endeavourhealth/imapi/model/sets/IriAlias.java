@@ -8,44 +8,44 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 
 @JsonPropertyOrder({"iri","name","binding","alias"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Alias extends TTIriRef {
+public class IriAlias extends TTIriRef {
 	private String alias;
 
 
-	public Alias(){}
-	public Alias(String iri){
+	public IriAlias(){}
+	public IriAlias(String iri){
 		if (iri.equals("id"))
 			iri= IM.NAMESPACE+"id";
 
 		super.setIri(iri);
 	}
 
-	public Alias(TTIriRef iri){
+	public IriAlias(TTIriRef iri){
 		super.setIri(iri.getIri());
 	}
 
-	public Alias(String iri, String name){
+	public IriAlias(String iri, String name){
 		super.setIri(iri);
 		super.setName(name);
 	}
-	public Alias setIri(String iri){
+	public IriAlias setIri(String iri){
 		if (iri.equals("id"))
 			iri= IM.NAMESPACE+"id";
 		super.setIri(iri);
 		return this;
 	}
-	public Alias setIri(String iri, String name){
+	public IriAlias setIri(String iri, String name){
 		super.setIri(iri);
 		super.setName(name);
 		return this;
 	}
 
-	public Alias setIri(TTIriRef iri){
+	public IriAlias setIri(TTIriRef iri){
 		super.setIri(iri.getIri());
 		return this;
 	}
 
-	public Alias setName(String name){
+	public IriAlias setName(String name){
 		super.setName(name);
 		return this;
 	}
@@ -56,7 +56,7 @@ public class Alias extends TTIriRef {
 		return alias;
 	}
 
-	public Alias setAlias(String alias) {
+	public IriAlias setAlias(String alias) {
 		this.alias = alias;
 		return this;
 	}

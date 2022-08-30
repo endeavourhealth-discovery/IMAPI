@@ -24,7 +24,7 @@ public class PropertyValue  extends ConceptRef{
 	Range inRange;
 	Match valueMatch;
 	Function function;
-	Within within;
+
 	boolean inverseOf=false;
 	boolean notExist=false;
 	private List<Argument> argument;
@@ -149,7 +149,20 @@ public class PropertyValue  extends ConceptRef{
 	}
 
 	@JsonIgnore
+	public PropertyValue setIsEntity(List<ConceptRef> valueConcept) {
+		this.isConcept = valueConcept;
+		return this;
+	}
+
+	@JsonIgnore
 	public PropertyValue isConcept(List<ConceptRef> valueConcept) {
+		this.isConcept = valueConcept;
+		return this;
+	}
+
+
+	@JsonIgnore
+	public PropertyValue isEntity(List<ConceptRef> valueConcept) {
 		this.isConcept = valueConcept;
 		return this;
 	}
@@ -161,7 +174,20 @@ public class PropertyValue  extends ConceptRef{
 		return this;
 	}
 
+	public PropertyValue addIsEntity(ConceptRef value){
+		if (this.isConcept==null)
+			this.isConcept= new ArrayList<>();
+		this.isConcept.add(value);
+		return this;
+	}
+
 	public PropertyValue addIsConcept(TTIriRef value){
+		ConceptRef cr= new ConceptRef(value.getIri(),value.getName());
+		addIsConcept(cr);
+		return this;
+	}
+
+	public PropertyValue addIsEntity(TTIriRef value){
 		ConceptRef cr= new ConceptRef(value.getIri(),value.getName());
 		addIsConcept(cr);
 		return this;
@@ -189,21 +215,7 @@ public class PropertyValue  extends ConceptRef{
 		return this;
 	}
 
-	public Within getWithin() {
-		return within;
-	}
 
-	@JsonSetter
-	public PropertyValue setWithin(Within within) {
-		this.within = within;
-		return this;
-	}
-	@JsonIgnore
-	public PropertyValue within(Consumer<Within> builder){
-		this.within= new Within();
-		builder.accept(this.within);
-		return this;
-	}
 
 	public boolean isNotExist() {
 		return notExist;

@@ -33,7 +33,7 @@ public class PathRepository {
 				source= QueryRepository.resolveReference(request.getQuery().getSelect().getEntityId().getAlias(),request);
 			Integer depth= pathTarget.getDepth();
 			if (depth==null) {
-				depth = Integer.parseInt(QueryRepository.resolveReference(pathTarget.getDepthAlias(), request));
+				depth= Integer.parseInt(request.getArgument().get("depth").toString());
 				pathTarget.setDepth(depth);
 			}
 			String sql = "select ?type ?superType ?where {<" + target + "> <" + RDF.TYPE.getIri() + "> ?type.\n" +

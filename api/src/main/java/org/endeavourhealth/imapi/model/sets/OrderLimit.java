@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"orderBy","direction","count","test"})
 public class OrderLimit {
-	Alias orderBy;
-	Integer count;
+	IriAlias orderBy;
+	Integer limit;
 	Order direction;
 	private List<Match> test;
 
@@ -20,8 +20,8 @@ public class OrderLimit {
 		return this;
 	}
 
-	public OrderLimit orderBy(Consumer<Alias> builder){
-		this.orderBy= new Alias();
+	public OrderLimit orderBy(Consumer<IriAlias> builder){
+		this.orderBy= new IriAlias();
 		builder.accept(this.orderBy);
 		return this;
 	}
@@ -42,23 +42,23 @@ public class OrderLimit {
 		return this;
 	}
 
-	public Alias getOrderBy() {
+	public IriAlias getOrderBy() {
 		return orderBy;
 	}
 
 
 
-	public OrderLimit setOrderBy(Alias orderBy) {
+	public OrderLimit setOrderBy(IriAlias orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}
 
-	public Integer getCount() {
-		return count;
+	public Integer getLimit() {
+		return limit;
 	}
 
-	public OrderLimit setCount(Integer count) {
-		this.count = count;
+	public OrderLimit setLimit(Integer limit) {
+		this.limit = limit;
 		return this;
 	}
 

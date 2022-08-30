@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -65,12 +66,23 @@ public class QueryController {
     }
 
 
+    @PostMapping( "/public/summaryEntityQuery")
+    @Operation(
+      summary = "Query IM returning a standard entity summary response",
+      description = "Runs a generic query on IM but limited to a standard list of entity summaries as a response"
+    )
+    public List<SearchResultSummary> summaryEntityQueryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+        LOG.debug("entityQuery");
+        return new SearchService().summmaryEntityQuery(queryRequest);
+    }
+
+
     @PostMapping( "/public/entityQuery")
     @Operation(
       summary = "Query IM returning a standard entity summary response",
       description = "Runs a generic query on IM but limited to a standard list of entity summaries as a response"
     )
-    public List<SearchResultSummary> entityQueryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+    public List<TTEntity> entityQueryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         LOG.debug("entityQuery");
         return new SearchService().entityQuery(queryRequest);
     }

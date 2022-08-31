@@ -323,6 +323,8 @@ public class QueryRepository {
 					JsonNode node = it.next();
 					TTEntity ttEntity = new TTEntity();
 					result.add(ttEntity);
+					if (node.has("@id"))
+						ttEntity.setIri(node.get("@id").asText());
 					nodeToTT(node, ttEntity);
 				}
 			}
@@ -330,34 +332,42 @@ public class QueryRepository {
 		return result;
 	}
 
-	private void nodeToTT(JsonNode node,TTEntity ttEntity){
+	private void nodeToTT(JsonNode node,TTNode ttParent){
 		Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
 		while (fields.hasNext()) {
 			Map.Entry<String, JsonNode> field = fields.next();
 			String fieldName = field.getKey();
-			JsonNode fieldValue = field.getValue();
-			if ((fieldName.equals("@id")))
-				ttEntity.setIri(fieldValue.asText());
-			else {
+			if (!fieldName.equals("@id")) {
+				JsonNode fieldValue = field.getValue();
 				TTIriRef predicate = TTIriRef.iri(fieldName);
 				if (fieldValue.isObject()) {
-					TTEntity ttNode = new TTEntity();
-					ttEntity.set(predicate, ttNode);
-					nodeToTT(fieldValue, ttNode);
+					if (fieldValue.has("@id")) {
+						TTIriRef iri = TTIriRef.iri(fieldValue.get("@id").asText());
+						ttParent.set(predicate, iri);
+					} else {
+						TTNode ttNode = new TTNode();
+						ttParent.set(predicate, ttNode);
+						nodeToTT(fieldValue, ttNode);
+					}
 				} else if (fieldValue.isArray()) {
-					ttEntity.set(predicate, new TTArray());
+					ttParent.set(predicate, new TTArray());
 					Iterator<JsonNode> aIt = fieldValue.elements();
 					while (aIt.hasNext()) {
 						JsonNode arrayField = aIt.next();
 						if (arrayField.isObject()) {
-							TTEntity ttNode = new TTEntity();
-							ttEntity.addObject(predicate, ttNode);
-							nodeToTT(arrayField, ttNode);
+							if (arrayField.has("@id")) {
+								TTIriRef iri = TTIriRef.iri(arrayField.get("@id").asText());
+								ttParent.addObject(predicate, iri);
+							} else {
+								TTNode ttNode = new TTNode();
+								ttParent.addObject(predicate, ttNode);
+								nodeToTT(arrayField, ttNode);
+							}
 						} else
-							ttEntity.addObject(predicate, getLiteral(arrayField));
+							ttParent.addObject(predicate, getLiteral(arrayField));
 					}
 				} else
-					ttEntity.set(predicate, getLiteral(fieldValue));
+					ttParent.set(predicate, getLiteral(fieldValue));
 			}
 		}
 	}

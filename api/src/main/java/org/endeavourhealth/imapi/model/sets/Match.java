@@ -24,7 +24,6 @@ public class Match extends Heading {
 	private ConceptRef entityId;
 	private List<ConceptRef> entityInSet;
 	private List<ConceptRef> entityNotInSet;
-	private String entityVar;
 	private List<PropertyValue> property;
 	private List<PropertyValue> orProperty;
 	private boolean notExist;
@@ -221,14 +220,6 @@ public class Match extends Heading {
 		return this;
 	}
 
-	public String getEntityVar() {
-		return entityVar;
-	}
-
-	public Match setEntityVar(String entityVar) {
-		this.entityVar = entityVar;
-		return this;
-	}
 
 	@Override
 	public Match setName(String name){

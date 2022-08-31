@@ -27,7 +27,7 @@ public class SHACL {
    public static final TTIriRef IRI= iri(NAMESPACE +"IRI");
    public static final TTIriRef OPTIONAL= iri(NAMESPACE +"optional");
    public static final TTIriRef NODESHAPE= iri(NAMESPACE +"NodeShape");
-   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"TargetClass");
+   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"targetClass");
    public static final TTIriRef NODE= iri(NAMESPACE +"node");
    public static final TTIriRef ORDER= iri(NAMESPACE +"order");
    public static final TTIriRef OR= iri(NAMESPACE +"or");

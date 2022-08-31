@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
@@ -43,9 +44,21 @@ public class SearchService {
 	 * @return a SearchResultSummary array containing the results in a format defined by the selecr staement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public List<SearchResultSummary> entityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+	public List<SearchResultSummary> summmaryEntityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		return new QueryRepository().entitySummaryQuery(queryRequest);
+	}
+
+
+	/**
+	 * Queries for a standard entity summary any IM entity using the query model
+	 * @param queryRequest Query inside a request with parameters
+	 * @return a SearchResultSummary array containing the results in a format defined by the selecr staement and including predicate map
+	 * @throws DataFormatException if query format is invalid
+	 */
+	public List<TTEntity> entityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
 		return new QueryRepository().entityQuery(queryRequest);
 	}
+
 
 	/**
 	 * Validation true or false query of the IM

@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class ConceptRef extends TTIriRef{
+public class ConceptRef extends IriAlias{
 
 	private boolean includeSubtypes;
 	private boolean includeSupertypes;
 	private boolean excludeSelf;
-	private String alias;
+
 
 	public boolean isExcludeSelf() {
 		return excludeSelf;
@@ -21,7 +21,7 @@ public class ConceptRef extends TTIriRef{
 	}
 
 	public String getAlias() {
-		return alias;
+		return super.getAlias();
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class ConceptRef extends TTIriRef{
 	}
 
 	public ConceptRef setAlias(String alias){
-		this.alias= alias;
+		super.setAlias(alias);
 		return this;
 	}
 

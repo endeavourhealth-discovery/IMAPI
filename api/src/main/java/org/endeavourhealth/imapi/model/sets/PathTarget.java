@@ -4,16 +4,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class PathTarget extends ConceptRef {
 	private Integer depth;
-	private String depthAlias;
 
-	public String getDepthAlias() {
-		return depthAlias;
-	}
 
-	public PathTarget setDepthAlias(String depthAlias) {
-		this.depthAlias = depthAlias;
-		return this;
-	}
 
 	public Integer getDepth() {
 		return depth;

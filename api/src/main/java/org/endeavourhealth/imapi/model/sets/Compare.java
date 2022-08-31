@@ -53,9 +53,6 @@ public class Compare {
 			case ">":
 				this.comparison = Comparison.GREATER_THAN;
 				break;
-			case "like" :
-				this.comparison= Comparison.LIKE;
-				break;
 			default:
 				if (comp.startsWith("e"))
 					this.comparison = Comparison.EQUAL;
@@ -67,8 +64,6 @@ public class Compare {
 					this.comparison = Comparison.GREATER_THAN_OR_EQUAL;
 				else if (comp.startsWith("great"))
 					this.comparison = Comparison.GREATER_THAN;
-				else if (comp.startsWith("starts"))
-					this.comparison = Comparison.STARTS_WITH;
 				else
 					throw new DataFormatException("Invalid comparison operator - " + comp);
 		}

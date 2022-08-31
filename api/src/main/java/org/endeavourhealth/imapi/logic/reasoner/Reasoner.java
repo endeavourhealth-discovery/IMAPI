@@ -342,8 +342,9 @@ public class Reasoner {
       done= new HashSet<>();
       manager.setDocument(document);
       for (TTEntity entity:document.getEntities()){
-         if (entity.isType(SHACL.NODESHAPE))
+         if (entity.isType(SHACL.NODESHAPE)) {
             inheritProperties(entity);
+         }
       }
       return document;
 
@@ -362,11 +363,21 @@ public class Reasoner {
                inheritProperties(superEntity);
                if (superEntity.get(SHACL.PROPERTY) != null) {
                   for (TTValue superP : superEntity.get(SHACL.PROPERTY).getElements()) {
-                     if (!hasProperty(properties,superP.asNode().get(SHACL.PATH).asIriRef())) {
+                     if (superP.asNode().get(SHACL.PATH)==null){
                         order++;
-                        superP.asNode().set(SHACL.ORDER, TTLiteral.literal(order));
-                        superP.asNode().set(RDFS.DOMAIN, superClass);
-                        mergedProperties.add(superP);
+                        TTNode inherited= copyNode(superP.asNode());
+                        inherited.set(SHACL.ORDER, TTLiteral.literal(order));
+                        inherited.set(IM.INHERITED_FROM, superClass);
+                        mergedProperties.add(inherited);
+                     }
+                     else {
+                        if (!hasProperty(properties, superP.asNode().get(SHACL.PATH).asIriRef())) {
+                           order++;
+                           TTNode inherited= copyNode(superP.asNode());
+                           inherited.set(SHACL.ORDER, TTLiteral.literal(order));
+                           inherited.set(IM.INHERITED_FROM, superClass);
+                           mergedProperties.add(inherited);
+                        }
                      }
                   }
                }
@@ -384,6 +395,16 @@ public class Reasoner {
          shape.set(SHACL.PROPERTY, newValue);
          done.add(shape.getIri());
       }
+   }
+
+   private static TTNode copyNode(TTNode node){
+      TTNode result= new TTNode();
+      if (node.getPredicateMap()!=null){
+         for (Map.Entry<TTIriRef,TTArray> entry:node.getPredicateMap().entrySet()){
+            result.set(entry.getKey(),entry.getValue());
+         }
+      }
+      return result;
    }
 
 

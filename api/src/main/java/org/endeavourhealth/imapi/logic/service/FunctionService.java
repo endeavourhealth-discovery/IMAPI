@@ -12,10 +12,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctionService {
@@ -69,7 +66,9 @@ public class FunctionService {
 
 	private JsonNode getLogicOptions() {
 		ObjectMapper mapper = new ObjectMapper();
-		List<TTIriRef> options = Arrays.asList(SHACL.AND, SHACL.OR, SHACL.NOT);
+		Set<String> iris = new HashSet(Arrays.asList(SHACL.AND.getIri(), SHACL.OR.getIri(),SHACL.NOT.getIri()));
+		Set<TTIriRef> iriRefs = entityService.getNames(iris);
+		List<TTIriRef> options = new ArrayList<>(iriRefs);
 		return mapper.valueToTree(options);
 	}
 }

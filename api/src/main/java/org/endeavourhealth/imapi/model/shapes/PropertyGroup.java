@@ -26,6 +26,16 @@ public class PropertyGroup {
 	private TTIriRef validation;
 	private String validationErrorMessage;
 	private TTIriRef function;
+	private TTIriRef valueIri;
+
+	public TTIriRef getValueIri() {
+		return valueIri;
+	}
+
+	public PropertyGroup setValueIri(TTIriRef valueIri) {
+		this.valueIri = valueIri;
+		return this;
+	}
 
 	public TTIriRef getFunction() {
 		return function;

@@ -27,6 +27,15 @@ public class PropertyGroup {
 	private String validationErrorMessage;
 	private TTIriRef function;
 	private TTIriRef valueIri;
+	private Boolean builderChild;
+
+	public Boolean isBuilderChild() {
+		return builderChild;
+	}
+
+	public void setBuilderChild(Boolean builderChild) {
+		this.builderChild = builderChild;
+	}
 
 	public TTIriRef getValueIri() {
 		return valueIri;

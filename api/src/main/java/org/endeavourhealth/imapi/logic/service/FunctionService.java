@@ -12,9 +12,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctionService {
@@ -29,6 +27,8 @@ public class FunctionService {
 				return getLocalName(arguments);
 			case (IM.NAMESPACE+"Function_GetAdditionalAllowableTypes") :
 				return getAdditionalAllowableTypes(arguments);
+			case (IM.NAMESPACE+"Function_GetLogicOptions") :
+				return getLogicOptions();
 			default :
 				throw new IllegalArgumentException("No such function");
 		}
@@ -62,5 +62,13 @@ public class FunctionService {
 			List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
 			return mapper.valueToTree(filteredResultsAsIri);
 		}
+	}
+
+	private JsonNode getLogicOptions() {
+		ObjectMapper mapper = new ObjectMapper();
+		Set<String> iris = new HashSet(Arrays.asList(SHACL.AND.getIri(), SHACL.OR.getIri(),SHACL.NOT.getIri()));
+		Set<TTIriRef> iriRefs = entityService.getNames(iris);
+		List<TTIriRef> options = new ArrayList<>(iriRefs);
+		return mapper.valueToTree(options);
 	}
 }

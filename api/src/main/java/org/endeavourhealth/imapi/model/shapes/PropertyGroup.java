@@ -25,6 +25,35 @@ public class PropertyGroup {
 	private TTIriRef path;
 	private TTIriRef validation;
 	private String validationErrorMessage;
+	private TTIriRef function;
+	private TTIriRef valueIri;
+	private Boolean builderChild;
+
+	public Boolean isBuilderChild() {
+		return builderChild;
+	}
+
+	public void setBuilderChild(Boolean builderChild) {
+		this.builderChild = builderChild;
+	}
+
+	public TTIriRef getValueIri() {
+		return valueIri;
+	}
+
+	public PropertyGroup setValueIri(TTIriRef valueIri) {
+		this.valueIri = valueIri;
+		return this;
+	}
+
+	public TTIriRef getFunction() {
+		return function;
+	}
+
+	public PropertyGroup setFunction(TTIriRef function) {
+		this.function = function;
+		return this;
+	}
 
 	public String getValidationErrorMessage() {
 		return validationErrorMessage;

@@ -5,6 +5,9 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
@@ -19,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -155,8 +160,18 @@ public class SetExporter {
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
-            String filename = date.format(timestamp.getTime()) + "_valuset.tsv";
-            s3.putObject(bucket, filename, results.toString());
+            String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
+
+            byte[] byteData = results.toString().getBytes();
+            InputStream stream = new ByteArrayInputStream(byteData);
+
+            ObjectMetadata meta = new ObjectMetadata();
+            meta.setContentLength(byteData.length);
+
+            PutObjectRequest por = new PutObjectRequest(bucket, filename, stream, meta)
+                .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
+
+            s3.putObject(por);
         } catch (AmazonServiceException e) {
             LOG.error(e.getErrorMessage());
         }

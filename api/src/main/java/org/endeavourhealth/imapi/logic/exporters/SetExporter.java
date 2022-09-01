@@ -125,8 +125,8 @@ public class SetExporter {
         LOG.trace("Publishing to S3...");
         String bucket = "im-inbound-dev";
         String region = "eu-west-2";
-        String accessKey = "";
-        String secretKey = "";
+        String accessKey = null;
+        String secretKey = null;
 
         try {
             JsonNode config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH.getIri());
@@ -135,19 +135,23 @@ public class SetExporter {
             } else {
                 bucket = config.get("bucket").asText();
                 region = config.get("region").asText();
-                accessKey = config.get("accessKey").asText();
-                secretKey = config.get("secretKey").asText();
+                if (config.has("accessKey"))
+                    accessKey = config.get("accessKey").asText();
+                if (config.has("secretKey"))
+                    secretKey = config.get("secretKey").asText();
             }
         } catch (JsonProcessingException e) {
             LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
         }
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        final AmazonS3 s3 = AmazonS3ClientBuilder
+        AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder
             .standard()
-            .withRegion(region)
-            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-            .build();
+            .withRegion(region);
+
+        if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty())
+            s3Builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+
+        final AmazonS3 s3 = s3Builder.build();
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");

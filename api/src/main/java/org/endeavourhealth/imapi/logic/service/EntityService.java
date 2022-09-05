@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
+import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.sets.QueryEntity;
@@ -1090,6 +1091,10 @@ public class EntityService {
 
     public boolean isLinked(String subject, TTIriRef predicate, String object) {
         return entityRepository.predicatePathExists(subject, predicate, object);
+    }
+
+    public EntityDocument getOSDocument(String iri) {
+        return entityRepository.getOSDocument(iri);
     }
 }
 

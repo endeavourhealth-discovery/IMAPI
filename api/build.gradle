@@ -41,11 +41,13 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.awsS3
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind
     implementation libs.logbackCore
     implementation libs.logbackClassic
     implementation libs.elasticsearch
+    implementation libs.jerseyClient
     implementation libs.owlApi
     implementation libs.reactorCore
     implementation libs.rdf4jQuery
@@ -63,7 +65,8 @@ dependencies {
     implementation libs.springdoc
     implementation libs.validation
     implementation libs.woodstox
-    implementation libs.awsS3
+    implementation libs.wsrs
+
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
 

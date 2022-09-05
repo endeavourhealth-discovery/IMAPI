@@ -166,13 +166,7 @@ public class OSQuery {
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
-		/*
-			return new FunctionScoreQueryBuilder(boolQuery,
-				ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
-		else
-			return boolQuery;
 
-		 */
     }
 
     private QueryBuilder buildIriTermQuery(SearchRequest request) {
@@ -193,15 +187,6 @@ public class OSQuery {
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
-		/*
-		if (request.getSortBy()!= SortBy.length) {
-			return new FunctionScoreQueryBuilder(boolQuery,
-				ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
-		}
-		else
-			return boolQuery;
-
-		 */
 
     }
 
@@ -221,10 +206,6 @@ public class OSQuery {
         qry.minimumShouldMatch(1);
         addFilters(qry, request);
         return qry;
-		/*
-			return new FunctionScoreQueryBuilder(qry,
-				ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
-		*/
 
     }
 
@@ -279,19 +260,15 @@ public class OSQuery {
         String url = System.getenv("OPENSEARCH_URL");
         if (url == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
-        if (request.getIndex() != null) {
-            if (url.contains("_search")) {
-                url = url.substring(0, url.substring(0, url.lastIndexOf("/")).lastIndexOf("/"));
-                url = url + "/" + request.getIndex();
-            }
-        }
 
+        String index = request.getIndex();
+        if (index == null)
+            index = System.getenv("OPENSEARCH_INDEX");
 
         if (System.getenv("OPENSEARCH_AUTH") == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(new URI(url + "/_search"))
-//				.timeout(Duration.of(10, ChronoUnit.SECONDS))
+                .uri(new URI(url + index + "/_search"))
                 .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(queryJson))

@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TTDocumentFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
+import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -27,6 +28,7 @@ public class FilerService {
     private final ProvService provService = new ProvService();
     private final TTTransactionFiler transactionFiler = new TTTransactionFiler();
     private final EntityService entityService = new EntityService();
+    private final OpenSearchService openSearchService = new OpenSearchService();
 
     public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {
         transactionFiler.fileTransaction(document);
@@ -38,9 +40,14 @@ public class FilerService {
         fileProvDoc(document, agentName);
     }
 
-    public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
-        entityFiler.fileEntity(entity, graph);
-        fileProv(entity, graph, agentName, usedEntity);
+    public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {
+        try {
+            entityFiler.fileEntity(entity, graph);
+            fileProv(entity, graph, agentName, usedEntity);
+            fileOpenSearch(entity.getIri());
+        } catch (Exception e) {
+            throw new TTFilerException("Error filing entity", e);
+        }
     }
 
     private void fileProvDoc(TTDocument document, String agentName) throws JsonProcessingException, TTFilerException {
@@ -66,5 +73,15 @@ public class FilerService {
 
         ProvActivity activity = provService.buildProvenanceActivity(entity, agent, usedEntityIri);
         entityProvFiler.fileEntity(activity, graph);
+    }
+
+    private void fileOpenSearch(String iri) throws TTFilerException {
+        try {
+            EntityDocument doc = entityService.getOSDocument(iri);
+            openSearchService.fileDocument(doc);
+        } catch (Exception e) {
+            throw new TTFilerException("Unable to file opensearch", e);
+        }
+
     }
 }

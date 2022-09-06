@@ -1,3 +1,7 @@
+GET http://localhost:3000/api/item?id=99
+Accept: application/json
+
+###
 GET http://localhost:8080/api/query/public/queryIM
 content-type: application/json
 

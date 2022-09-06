@@ -1,6 +1,8 @@
+// TODO: Need graphdb typings
+// @ts-ignore
 import Graphdb from 'graphdb';
 
-const { ServerClientConfig, ServerClient } = Graphdb.server;
+const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
 const { RepositoryClientConfig } = Graphdb.repository;
 const { GetQueryPayload, QueryType, UpdateQueryPayload } = Graphdb.query;
@@ -8,10 +10,10 @@ const { QueryContentType } = Graphdb.http;
 const { SparqlJsonResultParser } = Graphdb.parser;
 
 export class GraphdbService {
-  private serverConfig;
-  private server;
-  private repoConfig;
-  private repo;
+  private serverConfig: typeof ServerClientConfig;
+  private server: typeof ServerClient;
+  private repoConfig: typeof RepositoryClientConfig;
+  private repo: typeof RDFRepositoryClient;
 
   public async update(sparql: string): Promise<boolean> {
     try {
@@ -54,7 +56,7 @@ export class GraphdbService {
       const rs = await client.query(stmt);
 
       const result: any[] = [];
-      rs.on('data', (binding) => {
+      rs.on('data', (binding: any) => {
         result.push(binding);
       });
       await new Promise(done => rs.on('end', done));

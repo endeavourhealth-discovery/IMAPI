@@ -1,7 +1,7 @@
 import mysql, {Connection, RowDataPacket} from 'mysql2';
 
 export class MysqlService {
-  private conn: Connection;
+  private conn: Connection | undefined;
 
   public execute(sql: string): Promise<RowDataPacket[]> {
     return new Promise((resolve, reject) => {

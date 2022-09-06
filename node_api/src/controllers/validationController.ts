@@ -1,7 +1,7 @@
 import express, {NextFunction, Request, Response} from 'express';
 import Validator from "../logic/validator";
 
-export default class QueryController {
+export default class ValidationController {
   public path = '/'
   public router = express.Router();
   private validator: Validator;

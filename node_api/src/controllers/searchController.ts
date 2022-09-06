@@ -200,17 +200,17 @@ export default class SearchController {
   }
 
   private getFilter(key: string, values: string[]) {
-    const result = { "terms": {} };
+    const result: any = { "terms": {} };
     result.terms[key] = values;
     return result;
   }
 
   private async getEntities(qry: any) {
-    const osRes = await axios.post(process.env.OPENSEARCH_URL as string, qry, { headers: { Authorization: 'Basic ' + process.env.OPENSEARCH_AUTH, 'Content-Type': 'application/json' } });
+    const osRes: any = await axios.post(process.env.OPENSEARCH_URL as string, qry, { headers: { Authorization: 'Basic ' + process.env.OPENSEARCH_AUTH, 'Content-Type': 'application/json' } });
 
     return osRes.data.hits.hits
-      .map(h => h._source)
-      .map(s => ({
+      .map((h: any) => h._source)
+      .map((s: any) => ({
         iri: s.iri,
         name: s.name,
         code: s.code,

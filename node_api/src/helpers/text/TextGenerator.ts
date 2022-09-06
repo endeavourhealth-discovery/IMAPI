@@ -270,7 +270,7 @@ export class TextGenerator {
             TextGenerator.showConsole && console.log("### Template value")
 
             let is = notExist ? "is not" : "is";
-            let units = isSingular(valueData) ? wordMap[functionArg1]['singular'] : wordMap[functionArg1]['plural']
+            let units = isSingular(valueData) ? (<any>wordMap)[functionArg1]['singular'] : (<any>wordMap)[functionArg1]['plural']
             text = [propertyName, is, comparison, valueData, units]
 
         } else if (value && functionId == IM.TIME_DIFFERENCE) {
@@ -282,7 +282,7 @@ export class TextGenerator {
 
             let isSecondDateThis = secondDate.value == "$this"
             let beforeAfter = (secondDate.value == "the Reference Date" || Helpers.isNegative(valueData)) ? "after" : "before";
-            units.valueData = isSingular(valueData) ? wordMap[units.valueData]['singular'] : wordMap[units.valueData]['plural']
+            units.valueData = isSingular(valueData) ? (<any>wordMap)[units.valueData]['singular'] : (<any>wordMap)[units.valueData]['plural']
             let _comparison = comparison;
             let _valueData = valueData
             let _date;

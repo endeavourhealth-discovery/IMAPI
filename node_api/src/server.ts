@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 
 import EntityController from './controllers/entityController';
 import QueryController from './controllers/queryController';
+import ValidationController from './controllers/validationController';
 
 dotenv.config({ path: __dirname+'/.env' });
 const dns = require('dns');
@@ -17,7 +18,8 @@ const app = new App({
   controllers: [
     new SearchController(),
     new EntityController(),
-    new QueryController()
+    new QueryController(),
+    new ValidationController()
   ],
   middleWares: [
     bodyParser.json(),

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -11,10 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -39,34 +36,37 @@ public class OpenSearchService {
             SearchSourceBuilder bld = new SearchSourceBuilder()
                 .size(1)
                 .query(
-                    new BoolQueryBuilder()
-                        .should(
-                            new TermQueryBuilder("iri", iri)
-                        )
+                    new TermQueryBuilder("iri", iri)
+
+//                    new MatchQueryBuilder("iri", iri)
+
+//                    new BoolQueryBuilder()
+//                        .should(
+//                            new TermQueryBuilder("iri", iri)
+//                        )
                 );
 
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(new URI(osUrl + index + "/_search"))
+            WebTarget target = client.target(osUrl).path(index + "/_search");
+
+            Response response = target
+                .request()
                 .header("Authorization", "Basic " + osAuth)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(bld.toString()))
-                .build();
+                .post(Entity.entity(
+                    bld.toString(),
+                    MediaType.APPLICATION_JSON
+                ));
 
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-                .thenApply(res -> res)
-                .get();
-
-            if (response.statusCode() != 200) {
-                String responseData = response.body();
+            if (response.getStatus() != 200) {
+                String responseData = response.readEntity(String.class);
                 LOG.error(responseData);
                 throw new OpenSearchException("Error calling OpenSearch");
             }
 
-            if (response.body() == null || response.body().isEmpty())
+            if (!response.hasEntity())
                 return null;
 
-            JsonNode root = om.readTree(response.body());
+            JsonNode root = om.readTree(response.readEntity(String.class));
 
             JsonNode hits = root.at("/hits/total/value");
             if (hits == null || hits.asInt() == 0)
@@ -81,6 +81,7 @@ public class OpenSearchService {
     }
 
     public void fileDocument(EntityDocument entityDocument) throws OpenSearchException {
+        LOG.debug("Loading OS document");
         EntityDocument osDoc = getOSDocument(entityDocument.getIri());
         if (osDoc == null)
             addOSDocument(entityDocument);
@@ -96,6 +97,7 @@ public class OpenSearchService {
     }
 
     public void updateOSDocument(EntityDocument entityDocument) throws OpenSearchException {
+        LOG.debug("Sending OS document");
         WebTarget target = client.target(osUrl).path(index + "/_doc/" + entityDocument.getId());
 
         try {
@@ -115,9 +117,11 @@ public class OpenSearchService {
         } catch (Exception e) {
             throw new OpenSearchException("Error sending document to OpenSearch", e);
         }
+        LOG.debug("OS document sent");
     }
 
     private int getMaxDocument() throws OpenSearchException {
+        LOG.debug("Fetching next OS Document ID");
         WebTarget target = client.target(osUrl).path(index + "/_search");
 
         Response response = target

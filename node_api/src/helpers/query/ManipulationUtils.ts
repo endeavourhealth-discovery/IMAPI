@@ -46,12 +46,12 @@ export default class ManipulationUtils {
 
     // from a graphDB query result with columns (predicate, object, predicateLabel, objectLabel) it generates TTEntity.
     public static entitiesFromPredicates(queryResult: any): any {
-        let entity;
+        let entity: any;
         const visitedIris = new Set();
         const entities: any[] = [];
 
         // populates response with queryResults
-        queryResult.forEach((item, index) => {
+        queryResult.forEach((item: any, index: number) => {
             const iri = item.iri.value;
 
             //adds an entity to return value if all their predicates are populated.

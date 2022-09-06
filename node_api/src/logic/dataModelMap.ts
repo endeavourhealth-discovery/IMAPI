@@ -61,7 +61,7 @@ export const dataModelMap = {
   },
 
   // Clinical tables
-  "http://endhealth.info/im#Person" : {
+  "http://endhealth.info/im#Patient" : {
     name: "person",
     fields: {
       pk: "id",
@@ -73,7 +73,7 @@ export const dataModelMap = {
       "http://endhealth.info/im#dateOfBirth": "date_of_birth"
     },
     joins: {
-      "http://endhealth.info/im#isSubjectOf": {
+      "http://endhealth.info/im#hasEntry": {
         "http://endhealth.info/im#GPRegistration": "{child}.person_id = {parent}.id AND {child}.organization_id = {parent}.organization_id",
         "http://endhealth.info/im#Observation": "{child}.patient_id = {parent}.id",
         "http://endhealth.info/im#MedicationRequest": "{child}.patient_id = {parent}.id"

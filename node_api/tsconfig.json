@@ -1,9 +1,34 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
+    "target": "esnext",
+    "module": "CommonJS",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
     "resolveJsonModule": true,
-    "outDir": "./dist",
-    "composite": true
+    "baseUrl": ".",
+    "types": ["vite/client", "jest", "google-palette", "vue-sweetalert2"],
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "files": ["./package.json"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "tests/**/*.js",
+    "*.d.ts",
+    "node_modules/graphdb/lib/types.d.ts"
+  ],
+  "exclude": ["node_modules"]
 }

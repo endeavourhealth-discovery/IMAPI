@@ -7,7 +7,7 @@ export class RDF {
   public static PREFIXED = new class {
 
     constructor(public superThis: any) {
-      Object.keys(superThis).forEach(key => this[key] =  superThis[key].replace(superThis.NAMESPACE, superThis.PREFIX + ":"));
+      Object.keys(superThis).forEach(key => (<any>this)[key] =  superThis[key].replace(superThis.NAMESPACE, superThis.PREFIX + ":"));
       return this;
     }
 

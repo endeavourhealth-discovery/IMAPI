@@ -7,7 +7,7 @@ import {dataModelMap} from '../../logic/dataModelMap';
 
 export class Sql extends Join {
   public fields: string[] = [];
-  public table: Table;
+  public table: Table = {} as Table;
   public id: string;
 
   constructor(id: string) {
@@ -16,11 +16,11 @@ export class Sql extends Join {
   }
 
   public toSelect(): string {
-    return "SELECT * FROM " + dataModelMap[this.id].name;
+    return "SELECT * FROM " + (<any>dataModelMap)[this.id].name;
   }
 
   public toCreate(): string {
-    const table = dataModelMap[this.id];
+    const table = (<any>dataModelMap)[this.id];
     if (!table)
       throw "Id not in data model map [" + this.id + "]";
 
@@ -46,17 +46,17 @@ export class Sql extends Join {
   }
 
   public toDrop(): string {
-    return "DROP TABLE IF EXISTS " + dataModelMap[this.id].name;
+    return "DROP TABLE IF EXISTS " + (<any>dataModelMap)[this.id].name;
   }
 
   public getTable(entityTypeId: string, alias: string): Table {
     if (!entityTypeId)
       throw "No entity type provided";
 
-    if (!dataModelMap[entityTypeId])
+    if (!(<any>dataModelMap)[entityTypeId])
       throw "Entity [" + entityTypeId + "] does not exist in map";
 
-    const table = JSON.parse(JSON.stringify(dataModelMap[entityTypeId]));
+    const table = JSON.parse(JSON.stringify((<any>dataModelMap)[entityTypeId]));
     table.alias = alias;
     table.id = entityTypeId;
 

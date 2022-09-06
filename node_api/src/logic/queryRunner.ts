@@ -12,7 +12,7 @@ import {Query, Match, Select, Function, PropertyValue, Argument} from 'im-librar
 export default class QueryRunner {
   private mysql: MysqlService;
   private graph: GraphdbService;
-  private sql: Sql;
+  private sql: Sql = {} as Sql;
 
   constructor() {
     this.mysql = new MysqlService();

@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "CommonJS",
     "strict": true,
+    "outDir": "./dist",
     "jsx": "preserve",
     "importHelpers": false,
     "moduleResolution": "node",
@@ -14,7 +15,6 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "types": ["vite/client", "jest", "google-palette", "vue-sweetalert2"],
     "paths": {
       "@/*": ["src/*"]
     },

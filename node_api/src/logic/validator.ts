@@ -6,8 +6,9 @@ export default class Validator {
     constructor() {
     }
 
-    public async validate(iri: string, data: any) {
+    public validate(iri: string, data: any): boolean {
         if (iri === IM.VALIDATION_HAS_PARENT) return this.hasValidParents(data);
+        else throw new Error("Validation function: '" + iri + "' was not found in validator.");
     }
 
     private hasValidParents(data: any): boolean {

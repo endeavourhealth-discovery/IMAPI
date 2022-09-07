@@ -51,6 +51,7 @@ dependencies {
     implementation libs.owlApi
     implementation libs.reactorCore
     implementation libs.rdf4jQuery
+    implementation libs.rdf4jIterator
     implementation libs.rdf4jRepoApi
     implementation libs.rdf4jRepoHttp
     implementation libs.rdf4jRepoSail

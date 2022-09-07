@@ -45,7 +45,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 
 		try {
 			repo = new HTTPRepository("http://localhost:7200/", "im");
-			repo.initialize();
+			repo.init();
 			conn = repo.getConnection();
 			LOG.info("Connected");
 		} catch (RepositoryException e) {

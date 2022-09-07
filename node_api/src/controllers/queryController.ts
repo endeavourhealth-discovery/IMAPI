@@ -31,6 +31,7 @@ export default class QueryController {
         // this.router.post('/node_api/query/public/querySummary', (req, res, next) => this.postQuerySummary(req, res, next))
         // this.router.post('/node_api/query/public/clauseSummary', (req, res, next) => this.postClauseSummary(req, res, next))
         this.router.get('/node_api/query/public/getSQL', (req, res, next) => this.getSQL(req, res, next))
+        this.router.post('/node_api/query/public/quickQuery', (req, res, next) => this.quickQuery(req, res, next))
   }
 
   async getSQL(req: Request, res: Response, next: NextFunction) {
@@ -131,5 +132,14 @@ export default class QueryController {
   //     next(e);
   //   }
   // }
+
+  async quickQuery(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.runner.quickQuery(req.body)
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 

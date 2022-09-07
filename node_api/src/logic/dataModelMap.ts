@@ -70,7 +70,9 @@ export const dataModelMap = {
       "http://endhealth.info/im#gpRegistrationStatus": "gpRegStat()",         // TODO: Needs to be registrations_status function!?
       "http://endhealth.info/im#gpGMSRegistrationDate": "gms_reg_date",     // TODO: Needs to be registrations_status function!?
       "http://endhealth.info/im#organisation": "organization_id",
-      "http://endhealth.info/im#dateOfBirth": "date_of_birth"
+      "http://endhealth.info/im#dateOfBirth": "date_of_birth",
+      "http://endhealth.info/im#fullName": "full_name",
+      "http://endhealth.info/im#nhsNumber": "nhs_no"
     },
     joins: {
       "http://endhealth.info/im#hasEntry": {
@@ -97,6 +99,7 @@ export const dataModelMap = {
     pk: "id",
     fields: {
       "http://endhealth.info/im#effectiveDate": "clinical_effective_date",
+      "http://endhealth.info/im#hasPractitioner": "practitioner",
       "http://endhealth.info/im#concept": "non_core_concept_id",
     }
   },
@@ -107,6 +110,7 @@ export const dataModelMap = {
       "http://endhealth.info/im#effectiveDate": "clinical_effective_date",
       "http://endhealth.info/im#concept": "non_core_concept_id",
       "http://endhealth.info/im#code": "non_core_concept_id",
+      "http://endhealth.info/im#typeOfMedication": "non_core_concept_id",
     }
   }
 };

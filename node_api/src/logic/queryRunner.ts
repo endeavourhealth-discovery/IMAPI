@@ -8,6 +8,7 @@ import {ConditionList} from "../model/sql/ConditionList";
 import {Condition} from '../model/sql/Condition';
 import {IM, RDF, SHACL} from '../vocabulary';
 import {Query, Match, Select, Function, PropertyValue, Argument} from 'im-library/dist/types/models/modules/AutoGen';
+import {dataModelMap} from './dataModelMap';
 
 export default class QueryRunner {
   private mysql: MysqlService;
@@ -746,4 +747,71 @@ export default class QueryRunner {
   }
 */
 
+  public async quickQuery(queryDefinition: any) {
+    console.log('========= quickQuery =========');
+
+    const sql: {
+      select: string[],
+      from: string[],
+      where: string[]
+    } = {
+      select: [],
+      from: ['patient p'],
+      where: []
+    }
+
+    // Process patient
+    let patientTable: any = (<any>dataModelMap)['http://endhealth.info/im#Patient'];
+    let patientDef: any = queryDefinition['http://endhealth.info/im#Patient'];
+    this.addSelect(patientDef, sql, 'p', patientTable);
+    this.addWhere(patientDef, sql, 'p', patientTable);
+
+    // Process clinical tables
+    let t = 0;
+    for (const model of Object.keys(queryDefinition)) {
+      if ('http://endhealth.info/im#Patient' === model)
+        continue;
+
+      const table = (<any>dataModelMap)[model];
+      const alias = 't' + t++;
+      let def: any = queryDefinition[model];
+
+      this.addSelect(def, sql, alias, table);
+      this.addJoin(patientTable, model, alias, sql, table.name);
+      this.addWhere(def, sql, alias, table);
+    }
+    let statement = this.generateStatement(sql);
+
+    console.log(statement);
+  }
+
+  private addSelect(def: any, sql: { select: string[]; from: string[]; where: string[] }, alias: string, table: any) {
+    for (const field of def.output) {
+      sql.select.push(alias + '.' + table.fields[field]);
+    }
+  }
+
+  private addJoin(patientTable: any, model: string, alias: string, sql: { select: string[]; from: string[]; where: string[] }, tableName: string) {
+    let join = patientTable.joins['http://endhealth.info/im#hasEntry'][model];
+    join = join.replaceAll('{child}', alias).replaceAll('{parent}', 'p');
+    sql.from.push(tableName + ' ' + alias + ' ON ' + join);
+  }
+
+  private addWhere(def: any, sql: { select: string[]; from: string[]; where: string[] }, alias: string, patientTable: any) {
+    for (const filter of Object.keys(def.filters)) {
+      sql.where.push(alias + '.' + patientTable.fields[filter] + ' ' + def.filters[filter]);
+    }
+  }
+
+  private generateStatement(sql: { select: string[]; from: string[]; where: string[] }) {
+    let statement = 'SELECT ' + sql.select.join(', ') + '\n';
+
+    for (let i = 0; i < sql.from.length; i++) {
+      statement += (i == 0 ? 'FROM ' : 'JOIN ') + sql.from[i] + '\n';
+    }
+    for (let i = 0; i < sql.where.length; i++) {
+      statement += (i == 0 ? 'WHERE ' : 'AND ') + sql.where[i] + '\n';
+    }
+    return statement;
+  }
 }

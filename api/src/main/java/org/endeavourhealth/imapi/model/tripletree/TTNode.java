@@ -21,6 +21,32 @@ public class TTNode implements TTValue, Serializable {
             predicateValues.put(predicate, new TTArray().add(value));
         return this;
     }
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,String value){
+        if (value.startsWith("http:"))
+            this.set(predicate,TTIriRef.iri(value));
+        else
+            this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,Integer value){
+            this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,boolean value){
+        this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,Long value){
+        this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
 
     public TTNode set(TTIriRef predicate, TTArray value) {
         predicateValues.put(predicate, value);
@@ -85,6 +111,51 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
+    /**
+     * Adds a String or string iri to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, String value){
+        if (value.startsWith("http:"))
+            this.addObject(predicate,TTIriRef.iri(value));
+        else
+            this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    /**
+     * Adds an integer value to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, Integer value){
+        this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
+    /**
+     * Adds an integer value to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, boolean value){
+        this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    /**
+     * Adds an integer value to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, Long value){
+        this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
 
 
 }

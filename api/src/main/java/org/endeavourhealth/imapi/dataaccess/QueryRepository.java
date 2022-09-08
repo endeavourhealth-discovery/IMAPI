@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -19,7 +22,6 @@ import org.endeavourhealth.imapi.model.sets.*;
 import org.endeavourhealth.imapi.model.sets.Query;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.SetToSparql;
-import org.endeavourhealth.imapi.transforms.TTToObjectNode;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import javax.xml.bind.DatatypeConverter;
@@ -29,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -40,6 +41,7 @@ public class QueryRepository {
 	private String tabs="";
 	private int o=0;
 	private Query query;
+	private PathQuery pathQuery;
 	private final Set<String> aliases = new HashSet<>();
 
 	private final Map<String, ObjectNode> valueMap = new HashMap<>();
@@ -67,20 +69,17 @@ public class QueryRepository {
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()) {
 			unpackQuery(queryRequest,conn);
 			if (isConstruct)
-				return constructQuery(queryRequest,conn);
+				return constructQuery(conn);
 			else {
 				ObjectNode result = queryForTTEntity(queryRequest, conn);
-				return convertToEntity(result, conn);
+				return convertToEntity(result);
 			}
 		}
 	}
 
-	private List<TTEntity> constructQuery(QueryRequest queryRequest, RepositoryConnection conn) throws DataFormatException {
-
-		Select select= query.getSelect();
+	private List<TTEntity> constructQuery(RepositoryConnection conn) throws DataFormatException {
 			checkReferenceDate();
 			String spq = buildSparql(query);
-			ObjectNode graphResult;
 			return  goGraphConstructSearch(spq,conn);
 	}
 
@@ -99,22 +98,25 @@ public class QueryRepository {
 		}
 	}
 
-	private QueryRequest unpackQuery(QueryRequest queryRequest,RepositoryConnection conn) throws DataFormatException, JsonProcessingException {
+	private void unpackQuery(QueryRequest queryRequest, RepositoryConnection conn) throws DataFormatException, JsonProcessingException {
 		this.queryRequest = queryRequest;
 		if (queryRequest.getQueryIri() != null) {
 			if (queryRequest.getQueryIri() != null) {
 				TTEntity entity = getEntity(queryRequest.getQueryIri(), conn);
-				this.query = new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(), Query.class);
+				if (entity.isType(IM.PATH_QUERY))
+					this.pathQuery= new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(), PathQuery.class);
+				else
+					this.query = new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(), Query.class);
 			}
-		} else {
-			this.query = queryRequest.getQuery();
-			validate(query);
 		}
-		if (query == null)
-			throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object");
-		queryRequest.setQuery(query);
-		return queryRequest;
-
+		else {
+			if (queryRequest.getQuery() != null) {
+				this.query = queryRequest.getQuery();
+				validate(query);
+			} else if (queryRequest.getPathQuery() == null)
+				throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object or a pathQuery with a pathQueryObject");
+			queryRequest.setQuery(query);
+		}
 	}
 
 
@@ -260,7 +262,7 @@ public class QueryRepository {
 		}
 	}
 
-	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult,RepositoryConnection conn) {
+	private List<SearchResultSummary> convertToSummary(ObjectNode genericResult,RepositoryConnection conn) throws DataFormatException {
 		List<SearchResultSummary> result = new ArrayList<>();
 		if (genericResult!=null){
 		ArrayNode entities = (ArrayNode) genericResult.get("entities");
@@ -292,11 +294,11 @@ public class QueryRepository {
 							break;
 						case ("scheme"):
 						case (IM.NAMESPACE + "scheme"):
-							summary.setScheme(getTTValues(fieldValue, conn).stream().findFirst().get());
+							summary.setScheme(getFirst(fieldValue, conn));
 							break;
 						case ("status"):
 						case (IM.NAMESPACE + "status"):
-							summary.setStatus(getTTValues(fieldValue, conn).stream().findFirst().get());
+							summary.setStatus(getFirst(fieldValue, conn));
 							break;
 						case ("entityType"):
 						case (RDF.NAMESPACE + "type"):
@@ -314,7 +316,7 @@ public class QueryRepository {
 
 
 
-	private List<TTEntity> convertToEntity(ObjectNode genericResult,RepositoryConnection conn) {
+	private List<TTEntity> convertToEntity(ObjectNode genericResult) {
 		List<TTEntity> result = new ArrayList<>();
 		if (genericResult!=null) {
 			ArrayNode entities = (ArrayNode) genericResult.get("entities");
@@ -397,6 +399,16 @@ public class QueryRepository {
 		return values;
 	}
 
+	private TTIriRef getFirst(JsonNode fieldValue, RepositoryConnection conn) throws DataFormatException {
+		Set<TTIriRef> set= getTTValues(fieldValue,conn);
+		Optional<TTIriRef> first= set.stream().findFirst();
+		if (first.isPresent())
+			return first.get();
+		else
+			throw new DataFormatException("Invalid iri set in "+ fieldValue);
+	}
+
+
 	private void processNode(JsonNode node, Set<TTIriRef> values,RepositoryConnection conn ) {
 		String name;
 		if (node.has("name")) {
@@ -440,25 +452,16 @@ public class QueryRepository {
 	 * Generic query of IM with the select statements determining the response
 	 * @param queryRequest QueryRequest object
 	 * @return A Json Document with property values as defined in the select statement
-	 * @throws DataFormatException
-	 * @throws JsonProcessingException
+	 * @throws DataFormatException if query syntax is invalid
+	 * @throws JsonProcessingException if the json is invalid
 	 */
 	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
-		validateQueryRequest(queryRequest);
-		if (isConstruct)
-			throw new DataFormatException("Wild card select queries should use /entityQuery to produce triple tree response format");
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()) {
 			this.queryRequest = queryRequest;
-			if (queryRequest.getQueryIri() != null) {
-				TTEntity entity= getEntity(queryRequest.getQueryIri(),conn);
-				  this.query = new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(),Query.class);
-					this.queryRequest.setQuery(query);
-			}
-			else {
-				this.query = queryRequest.getQuery();
-			}
-			if (query == null)
-				throw new DataFormatException("QueryRequest must either have a queryIri or a query property with a query object");
+			unpackQuery(queryRequest,conn);
+			if (queryRequest.getPathQuery()!=null)
+				return new PathRepository().queryIM(queryRequest,queryRequest.getPathQuery(),conn);
+
 
 
 			ObjectNode result = new OSQuery().openSearchQuery(queryRequest);
@@ -559,13 +562,9 @@ public class QueryRepository {
 			}
 			TupleQuery qry= conn.prepareTupleQuery(spq);
 			try (TupleQueryResult rs= qry.evaluate()){
-				if (query.getSelect()!=null)
-					if (query.getSelect().getPathToTarget()!=null)
-						return PathRepository.bindResults(rs,queryRequest);
 					while (rs.hasNext()){
 						BindingSet bs= rs.next();
-						bindResults(bs,result);
-
+						bindObjects(bs,result);
 					}
 				}
 
@@ -638,9 +637,6 @@ public class QueryRepository {
 
 
 	private String buildSelectSparql(Query query) throws DataFormatException {
-		if  (query.getSelect().getPathToTarget()!=null){
-			return PathRepository.buildPathSQL(queryRequest);
-		}
 		if (query.getSelect().getProperty()==null) {
 				isConstruct = true;
 				return buildConstructSparql(query);
@@ -653,9 +649,7 @@ public class QueryRepository {
 			}
 			Select select = query.getSelect();
 			selectQl.append("SELECT ");
-			if (query.getResultFormat() == ResultFormat.OBJECT || select.isDistinct()) {
-				selectQl.append("distinct ");
-			}
+			selectQl.append("distinct ");
 			selectQl.append("?entity ");
 
 			StringBuilder whereQl = new StringBuilder();
@@ -968,7 +962,7 @@ public class QueryRepository {
 			whereQl.append(tabs).append("?").append(matchSubject).append(" im:isA ").append("?").append(superSubject).append(".\n");
 			boolean excludeSelf= entityType.isExcludeSelf();
 			if (excludeSelf)
-				whereQl.append("filter (?").append(subject).append("!=<"+entityType.getIri()+">)");
+				whereQl.append("filter (?").append(subject).append("!=<").append(entityType.getIri()).append(">)");
 		}
 		whereQl.append(tabs).append("?").append(superSubject).append(" rdf:type ").append(iri(entityType.getIri())).append(".\n");
 		return matchSubject;
@@ -1033,7 +1027,7 @@ public class QueryRepository {
 				first = false;
 				String expansion = new SetToSparql().getExpansionSparql(subject, in.getIri());
 				if (expansion.equals(""))
-					throw new DataFormatException("Set " + in.getIri() + " does not exist, or has no definition or has no members. Should you use valueConcept?");
+					throw new DataFormatException("Query " + in.getIri() + " does not exist, or has no definition or has no members. Should you use valueConcept?");
 				whereQl.append(expansion).append("}\n");
 			}
 		}
@@ -1192,8 +1186,8 @@ public class QueryRepository {
 				if (queryRequest.getArgument().get(value) != null) {
 					Object result = queryRequest.getArgument().get(value);
 					if (result instanceof Map) {
-						if (((Map) result).get("@id") != null)
-							return (String) ((Map) result).get("@id");
+						if (((Map<?, ?>) result).get("@id") != null)
+							return (String) ((Map<?, ?>) result).get("@id");
 					} else if (result instanceof Integer)
 							return ((Integer) queryRequest.getArgument().get(value)).toString();
 						else if (result instanceof Number)
@@ -1220,7 +1214,7 @@ public class QueryRepository {
 			first = false;
 			String expansion= new SetToSparql().getExpansionSparql(object,in.getIri());
 			if (expansion.equals(""))
-				throw new DataFormatException("Set "+ in.getIri()+" does not exist, or has no definition or has no members. Should you use valueConcept?");
+				throw new DataFormatException("Query "+ in.getIri()+" does not exist, or has no definition or has no members. Should you use valueConcept?");
 			whereQl.append(expansion).append("}\n");
 		}
 	}
@@ -1327,20 +1321,8 @@ public class QueryRepository {
 
 
 
-	private void bindResults(BindingSet bs,
-													 ObjectNode result) {
-
-		if (query.getResultFormat() == ResultFormat.OBJECT) {
-			bindObjects(bs, result);
-		} else {
-			ObjectNode node = mapper.createObjectNode();
-			addProperty(result, "entities", node);
-			Select select = query.getSelect();
-			bindSelect(bs,node,select);
 
 
-		}
-	}
 
 	private void bindSelect(BindingSet bs, ObjectNode node, Select select) {
 		for (PropertySelect property : select.getProperty()) {
@@ -1450,9 +1432,6 @@ public class QueryRepository {
 	}
 
 	private void validate(Query query) throws DataFormatException {
-		if (query.getResultFormat()==null){
-			query.setResultFormat(ResultFormat.OBJECT);
-		}
 		if (query.getAsk()!=null){
 			validateMatch(query.getAsk(),null);
 			return;
@@ -1461,40 +1440,29 @@ public class QueryRepository {
 			throw new DataFormatException("Query must have an ask or a select");
 		}
 		if (query.getSelect().getProperty()==null){
-			if (query.getSelect().getPathToTarget()==null) {
 				if (query.getSelect().getMatch()!=null)
 					throw new DataFormatException("Select query must have select properties if there is a match clause");
 				isConstruct = true;
 			}
-		}
 		if (query.getSelect().getMatch()==null) {
 			if (query.getSelect().getEntityId() == null) {
 				if (query.getSelect().getEntityIn() == null) {
-					if (query.getSelect().getPathToTarget() == null) {
 						throw new DataFormatException("Select query must have at least one match clause which must be inside  the main select clause");
-					}
-					else {
-						if (query.getSelect().getPathToTarget().getDepth()==null)
-							query.getSelect().getPathToTarget().setDepth(3);
-						if (query.getSelect().getEntityId()==null)
-							throw new DataFormatException("Path target query must have an entity ID as the source in select statement (entityId= {@id : http..... etc} )");
 					}
 				}
 			}
-		}
 
 		validateSelects(query,query.getSelect());
 
 
 	}
 
-	public String validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
+	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
 		if (queryRequest.getQueryIri()==null)
 			if (queryRequest.getQuery()==null)
 				throw new DataFormatException("Query request must have a queryIri or Query");
 		if (queryRequest.getQuery()!=null)
 			validate(queryRequest.getQuery());
-		return "Query well formed.";
 	}
 
 	private void validateSelects(Query query,Select select) throws DataFormatException {
@@ -1515,20 +1483,9 @@ public class QueryRepository {
 					if (property.getAlias() == null) {
 						throw new DataFormatException("Missing property  in select statement");
 					}
-				} else {
-					if (property.getAlias() == null) {
-						if (query.getResultFormat() != ResultFormat.OBJECT) {
-							if (property.getSelect() == null) {
-								throw new DataFormatException("For a flat select you must have an alias (binding variable) for the column : (" + property.getIri() + ")" +
-									" =or else use OBJECT result format");
-							}
-
-						}
-					}
 				}
 				if (property.getSelect() != null)
 					validateSelects(query, property.getSelect());
-
 			}
 		}
 	}

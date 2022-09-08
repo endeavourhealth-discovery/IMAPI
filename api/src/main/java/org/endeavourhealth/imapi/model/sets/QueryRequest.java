@@ -20,7 +20,17 @@ public class QueryRequest{
 	private Map<String,Object> argument;
 	private Query query;
 	private TTIriRef queryIri;
+	private PathQuery pathQuery;
 	private String referenceDate;
+
+	public PathQuery getPathQuery() {
+		return pathQuery;
+	}
+
+	public QueryRequest setPathQuery(PathQuery pathQuery) {
+		this.pathQuery = pathQuery;
+		return this;
+	}
 
 	public String getName() {
 		return name;

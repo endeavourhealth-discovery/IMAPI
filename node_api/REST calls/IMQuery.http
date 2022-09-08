@@ -94,3 +94,12 @@ GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A6d517466
 ###
 
 GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A951b62db-4e81-4fcd-8cf7-0e71c28d30e9
+
+###
+
+POST http://localhost:3000/node_api/validation/public/validate?iri=http://endhealth.info/im#Validation_hasParent
+Content-Type: application/json
+
+{
+   "http://endhealth.info/im#isContainedIn": [{ "@id": "http://endhealth.info/im#IMQuery", "name": "Test" }]
+}

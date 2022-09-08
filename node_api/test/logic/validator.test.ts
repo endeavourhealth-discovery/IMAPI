@@ -1,3 +1,4 @@
+import { expect, test} from 'vitest';
 import Validator from "../../src/logic/validator";
 
 test('Is valid IRI and data', () => {

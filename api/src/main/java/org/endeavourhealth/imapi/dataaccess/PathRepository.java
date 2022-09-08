@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,11 +9,8 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.sets.PathTarget;
+import org.endeavourhealth.imapi.model.sets.PathQuery;
 import org.endeavourhealth.imapi.model.sets.QueryRequest;
-import org.endeavourhealth.imapi.model.shapes.NodeShape;
-import org.endeavourhealth.imapi.model.shapes.PropertyShape;
-import org.endeavourhealth.imapi.model.shapes.ShapeDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -22,19 +18,30 @@ import java.util.*;
 import java.util.zip.DataFormatException;
 
 public class PathRepository {
-	public static String buildPathSQL (QueryRequest request) throws DataFormatException {
-		try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-			PathTarget pathTarget= request.getQuery().getSelect().getPathToTarget();
-			String target= pathTarget.getIri();
-			if (target==null)
-				target= QueryRepository.resolveReference(pathTarget.getAlias(),request);
-			String source= request.getQuery().getSelect().getEntityId().getIri();
-			if (source==null)
-				source= QueryRepository.resolveReference(request.getQuery().getSelect().getEntityId().getAlias(),request);
-			Integer depth= pathTarget.getDepth();
+
+	public ObjectNode queryIM(QueryRequest request,PathQuery pathQuery,RepositoryConnection conn) throws DataFormatException {
+		String spq= buildPathSQL(request,pathQuery,conn);
+		TupleQuery qry= conn.prepareTupleQuery(spq);
+		try (TupleQueryResult rs= qry.evaluate()) {
+			return bindResults(rs, request);
+		}
+	}
+
+	public static String buildPathSQL (QueryRequest request, PathQuery pathQuery,RepositoryConnection conn) throws DataFormatException {
+			String source;
+			String target;
+			if (pathQuery.getTarget()==null)
+				target= QueryRepository.resolveReference("target",request);
+			else
+				target= pathQuery.getTarget().getIri();
+			if (pathQuery.getSource()==null)
+				source= QueryRepository.resolveReference("source",request);
+			else
+				source= pathQuery.getSource().getIri();
+			Integer depth= pathQuery.getDepth();
 			if (depth==null) {
 				depth= Integer.parseInt(request.getArgument().get("depth").toString());
-				pathTarget.setDepth(depth);
+				pathQuery.setDepth(depth);
 			}
 			String sql = "select ?type ?superType ?where {<" + target + "> <" + RDF.TYPE.getIri() + "> ?type.\n" +
 				"optional {<"+target+"> <" + IM.IS_A.getIri() + "> ?superType.\n" +
@@ -59,7 +66,6 @@ public class PathRepository {
 			else
 				return entityToConceptPathSql(depth, source, target);
 
-		}
 	}
 
 
@@ -317,7 +323,7 @@ public class PathRepository {
 	public static ObjectNode bindResults(TupleQueryResult rs,QueryRequest request) {
 
 		ObjectMapper om = new ObjectMapper();
-		Integer depth = request.getQuery().getSelect().getPathToTarget().getDepth();
+		Integer depth = request.getPathQuery().getDepth();
 		Map<String, ObjectNode> sourceEntities = new HashMap<>();
 		ObjectNode result = om.createObjectNode();
 		if (!rs.hasNext())

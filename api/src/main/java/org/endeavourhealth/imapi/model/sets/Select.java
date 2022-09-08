@@ -22,13 +22,11 @@ public class Select extends Heading{
 	private boolean count;
 	private List<PropertySelect> property;
 	private List<Match> match;
-	private boolean distinct;
 	private ConceptRef entityType;
 	private ConceptRef entityId;
 	private TTIriRef entityIn;
 	private List<PropertySelect> groupBy;
 	private List<OrderLimit> orderLimit;
-	private PathTarget pathToTarget;
 	private List<Select> subselect;
 
 
@@ -59,24 +57,6 @@ public class Select extends Heading{
 	}
 
 
-	public PathTarget getPathToTarget() {
-		return pathToTarget;
-	}
-
-	@JsonSetter
-	public Select setPathToTarget(PathTarget pathToTarget) {
-		this.pathToTarget = pathToTarget;
-		return this;
-	}
-
-
-	@JsonIgnore
-	public Select pathToTarget(Consumer<PathTarget> builder){
-		PathTarget target= new PathTarget();
-		this.pathToTarget= target;
-		builder.accept(target);
-		return this;
-	}
 
 	/**
 	 * Lambda approach to setting property selects
@@ -208,14 +188,6 @@ public class Select extends Heading{
 		return this;
 	}
 
-	public boolean isDistinct() {
-		return distinct;
-	}
-
-	public Select setDistinct(boolean distinct) {
-		this.distinct = distinct;
-		return this;
-	}
 
 
 

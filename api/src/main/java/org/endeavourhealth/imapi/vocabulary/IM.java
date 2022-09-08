@@ -37,6 +37,7 @@ public class IM {
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
     public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
     public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
     public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");

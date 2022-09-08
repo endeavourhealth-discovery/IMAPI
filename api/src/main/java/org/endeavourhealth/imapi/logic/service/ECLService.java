@@ -37,7 +37,7 @@ public class ECLService {
     /**
      * @param definition
      * Evaluates a definition
-     * @return  Set of concepts conforming to the definition
+     * @return  Query of concepts conforming to the definition
      */
     public Set<EntitySummary> evaluateECLDefinition(TTValue definition, boolean includeLegacy) {
         LOG.debug("Evaluate");

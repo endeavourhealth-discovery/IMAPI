@@ -18,11 +18,8 @@ public class Query extends Heading {
 
 	private TTIriRef graph;
 	private Select select;
-
-	private ResultFormat resultFormat;
 	private boolean usePrefixes;
 	private boolean activeOnly;
-	private TTIriRef mainEntity;
 	private Match ask;
 	private boolean function;
 
@@ -56,15 +53,6 @@ public class Query extends Heading {
 	public Query select(Consumer<Select> builder){
 		this.select= new Select();
 		builder.accept(this.select);
-		return this;
-	}
-
-	public TTIriRef getMainEntity() {
-		return mainEntity;
-	}
-
-	public Query setMainEntity(TTIriRef mainEntity) {
-		this.mainEntity = mainEntity;
 		return this;
 	}
 
@@ -117,21 +105,6 @@ public class Query extends Heading {
 
 	public Query setUsePrefixes(boolean usePrefixes) {
 		this.usePrefixes = usePrefixes;
-		return this;
-	}
-
-	public ResultFormat getResultFormat() {
-		return resultFormat;
-	}
-
-	public Query setResultFormat(ResultFormat resultFormat) {
-		this.resultFormat = resultFormat;
-		return this;
-	}
-
-
-	public Query resultFormat(ResultFormat resultFormat) {
-		this.resultFormat = resultFormat;
 		return this;
 	}
 

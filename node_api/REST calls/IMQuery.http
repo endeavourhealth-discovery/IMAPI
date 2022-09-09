@@ -103,3 +103,50 @@ Content-Type: application/json
 {
    "http://endhealth.info/im#isContainedIn": [{ "@id": "http://endhealth.info/im#IMQuery", "name": "Test" }]
 }
+
+###
+
+POST http://127.0.0.1:8082/nodeapi/node_api/query/public/quickQuery
+Content-Type: application/json
+
+{
+  "http://endhealth.info/im#Patient": {
+    "output": [
+      "http://endhealth.info/im#fullName",
+      "http://endhealth.info/im#age",
+      "http://endhealth.info/im#nhsNumber"
+    ],
+    "filters": {
+      "http://endhealth.info/im#fullName": {
+        "stringPattern": "B*"
+      },
+      "http://endhealth.info/im#age": {
+        "numberRange": {
+          "from": {
+            "comparator": ">",
+            "value": "7"
+          },
+          "to": {
+            "comparator": "<=",
+            "value": "18"
+          }
+        }
+      }
+    }
+  },
+  "http://endhealth.info/im#Observation": {
+    "output": [
+      "http://endhealth.info/im#effectiveDate",
+      "http://endhealth.info/im#hasPractitioner",
+      "http://endhealth.info/im#typeOfObservation"
+    ],
+    "filters": {
+      "http://endhealth.info/im#effectiveDate": {
+        "dateRange": {
+          "from": "2008-01-01",
+          "to": "2008-12-31"
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@ import {Table} from './Table';
 import {Join} from './Join';
 import {ConditionList} from './ConditionList';
 import {SimpleCondition} from './SimpleCondition';
-import {dataModelMap} from '../../logic/dataModelMap';
+import dataModelMap from '../../logic/dataModelMap.json';
 
 
 export class Sql extends Join {

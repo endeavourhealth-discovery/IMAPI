@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import App from './app';
 import * as dotenv from "dotenv";
 
@@ -27,6 +28,7 @@ const app = new App({
   ],
 })
 
-app.listen();
+if (import.meta.env.PROD)
+  app.listen();
 
 export const viteNodeApp = app.app;

@@ -34,6 +34,12 @@ frontend {
     nodeVersion = '18.4.0'
     assembleScript = 'run build:production'
     checkScript = 'run test:coverage'
+    installScript = 'install --legacy-peer-deps'
 }
 
-check.finalizedBy 'sonarqube'
+println 'Build environment = [' + env + ']'
+
+if (env == 'prod') {
+    check.finalizedBy 'sonarqube'
+}
+

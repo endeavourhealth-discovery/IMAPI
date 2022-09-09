@@ -36,10 +36,3 @@ frontend {
     checkScript = 'run test:coverage'
     installScript = 'install --legacy-peer-deps'
 }
-
-println 'Build environment = [' + env + ']'
-
-if (env == 'prod') {
-    check.finalizedBy 'sonarqube'
-}
-

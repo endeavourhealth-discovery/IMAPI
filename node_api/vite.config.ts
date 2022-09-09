@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { VitePluginNode } from 'vite-plugin-node';
+import path from 'path';
 
 export default defineConfig({
   server: {
@@ -14,6 +15,7 @@ export default defineConfig({
       swcOptions: {}
     })
   ],
-  optimizeDeps: {
+  resolve: {
+    alias: {"@": path.resolve(__dirname, "./src"), "./runtimeConfig": "./runtimeConfig.browser"}
   },
 });

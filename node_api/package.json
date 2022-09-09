@@ -7,7 +7,7 @@
     "debug": "node --inspect-brk -r ts-node/register ./src/server.ts",
     "debug-nodemon": "nodemon --watch src -e ts --exec node --inspect-brk -r ts-node/register ./src/server.ts",
     "start": "set NODE_ENV=production && ts-node dist/server",
-    "build": "rimraf dist && vue-tsc && vite build",
+    "build:production": "rimraf dist && vue-tsc && vite build",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "swagger-autogen": "node ./src/swagger.js"

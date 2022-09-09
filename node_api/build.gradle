@@ -8,15 +8,10 @@ plugins {
     id 'org.siouan.frontend-jdk11'
 }
 
-def sonarLogin= System.getenv('SONAR_LOGIN')
-
 sonarqube {
     properties {
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.projectKey', 'endeavourhealth-discovery_IMNodeApi'
-        property 'sonar.projectName', 'IMNodeApi'
-        property 'sonar.organization', 'endeavourhealth-discovery'
-        property 'sonar.login', sonarLogin
+        property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::node_api'
         property 'sonar.sources', 'src'
         property 'sonar.exclusions', '**/index.ts,**/*.d.ts'
         property 'sonar.tests', 'tests'

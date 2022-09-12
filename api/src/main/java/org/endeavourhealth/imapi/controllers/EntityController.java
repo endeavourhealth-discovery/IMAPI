@@ -91,11 +91,17 @@ public class EntityController {
 		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
 	}
 
-	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
+	@GetMapping(value = "/public/matchedFrom", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getSimpleMaps");
-		return entityService.getSimpleMaps(iri);
+		LOG.debug("getMatchedFrom");
+		return entityService.getMatchedFrom(iri);
 	}
+
+    @GetMapping(value = "/public/matchedTo", produces = "application/json")
+    public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) {
+        LOG.debug("getMatchedTo");
+        return entityService.getMatchedTo(iri);
+    }
 
     @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(

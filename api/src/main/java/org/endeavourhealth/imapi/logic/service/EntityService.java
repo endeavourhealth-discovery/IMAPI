@@ -852,13 +852,22 @@ public class EntityService {
         return getConceptList(conceptIris);
     }
 
-    public List<SimpleMap> getSimpleMaps(String iri) {
+    public List<SimpleMap> getMatchedFrom(String iri) {
         if (iri == null || iri.equals("")) return new ArrayList<>();
         String scheme = iri.substring(0, iri.indexOf("#") + 1);
         List<Namespace> namespaces = getNamespaces();
         List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
         schemes.remove(scheme);
-        return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
+        return entityTripleRepository.getMatchedFrom(iri, schemes);
+    }
+
+    public List<SimpleMap> getMatchedTo(String iri) {
+        if (iri == null || iri.equals("")) return new ArrayList<>();
+        String scheme = iri.substring(0, iri.indexOf("#") + 1);
+        List<Namespace> namespaces = getNamespaces();
+        List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
+        schemes.remove(scheme);
+        return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
     public String getEcl(TTBundle inferred) throws DataFormatException {

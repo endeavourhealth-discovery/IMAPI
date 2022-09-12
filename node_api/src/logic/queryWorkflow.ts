@@ -8,9 +8,7 @@ const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = Manipu
 import _ from "lodash";
 import { v4 } from "uuid";
 import axios from 'axios';
-
-
-const fs = require('fs');
+import * as fs from 'fs';
 
 
 export default class QueryWorkflow {

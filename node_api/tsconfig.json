@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "CommonJS",
+    "module": "ESNext",
     "strict": true,
     "outDir": "./dist",
     "jsx": "preserve",
@@ -11,8 +11,10 @@
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {

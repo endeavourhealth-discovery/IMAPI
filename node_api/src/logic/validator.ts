@@ -1,6 +1,6 @@
-import {Helpers, Vocabulary} from "im-library";
+import {Helpers, Vocabulary} from "im-library/dist/api";
 const {DataTypeCheckers:{isObjectHasKeys, isArrayHasLength}, TypeGuards:{isTTIriRef}} = Helpers;
-const {IM,RDFS} = Vocabulary
+const {IM, RDFS} = Vocabulary
 
 export default class Validator {
     constructor() {

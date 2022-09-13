@@ -11,6 +11,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("api/class")
 @CrossOrigin(origins = "*")
@@ -20,7 +28,7 @@ public class ClassController {
     private static final Logger LOG = LoggerFactory.getLogger(ClassController.class);
 
     @GetMapping(value = "/public/classProperties")
-    public Object getIMClass(@RequestParam String className) {
+    public ResponseEntity<List<Field>> getIMClass(@RequestParam String className) {
         LOG.debug("getClass");
         Class<?> clazz;
         try {
@@ -28,6 +36,22 @@ public class ClassController {
         } catch (ClassNotFoundException classNotFoundException) {
             return ResponseEntity.notFound().build();
         }
-        return clazz.getDeclaredFields();
+        List<Field> fields = new ArrayList<Field>(List.of(clazz.getDeclaredFields()));
+        getDeclaredFieldsRecursively(clazz, fields);
+        Collections.sort(fields, new Comparator<Field>() {
+            @Override
+            public int compare(final Field object1, final Field object2) {
+                return object1.getName().compareTo(object2.getName());
+            }
+        });
+        return ResponseEntity.ok().body(fields);
+    }
+
+    public void getDeclaredFieldsRecursively(Class<?> clazz, List<Field> fields) {
+        Class<?> superclass = clazz.getSuperclass();
+        if(null != superclass) {
+            fields.addAll(List.of(superclass.getDeclaredFields()));
+            getDeclaredFieldsRecursively(superclass, fields);
+        }
     }
 }

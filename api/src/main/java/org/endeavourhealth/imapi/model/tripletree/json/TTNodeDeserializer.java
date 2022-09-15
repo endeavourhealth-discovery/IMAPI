@@ -41,6 +41,7 @@ public class TTNodeDeserializer {
               Map.Entry<String, JsonNode> field = fields.next();
               String key = field.getKey();
               JsonNode value = field.getValue();
+
               if (value.isTextual() && value.textValue().startsWith("http")) {
                   prefixes.add(new TTPrefix(value.textValue(), key));
                   context.add(value.asText(), key);
@@ -56,7 +57,9 @@ public class TTNodeDeserializer {
          String key = field.getKey();
          if (!"@context".equals(key)) {
             JsonNode value = field.getValue();
-            if (value.isArray()) {
+            if ("@id".equals(key))
+               result.setIri(expand(value.textValue()));
+            else if (value.isArray()) {
                result.set(iri(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
             } else {
                result.set(iri(expand(key)), getJsonNodeAsValue(value));

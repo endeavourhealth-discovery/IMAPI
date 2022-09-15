@@ -41,6 +41,9 @@ public class TTNodeSerializer {
     this.prov = prov;
     simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
     simpleProperties = (simpleProperties != null && simpleProperties);
+    if (!(node instanceof TTEntity))
+    if (node.getIri()!=null)
+      gen.writeStringField("@id", prefix(node.getIri()));
     serializePredicates(node, gen, prov);
   }
 

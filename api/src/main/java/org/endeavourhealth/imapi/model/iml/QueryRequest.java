@@ -1,8 +1,10 @@
-package org.endeavourhealth.imapi.model.sets;
+package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.model.iml.PathQuery;
+import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashMap;
@@ -19,7 +21,6 @@ public class QueryRequest{
 	private String textSearch;
 	private Map<String,Object> argument;
 	private Query query;
-	private TTIriRef queryIri;
 	private PathQuery pathQuery;
 	private String referenceDate;
 
@@ -65,14 +66,6 @@ public class QueryRequest{
 		return this;
 	}
 
-	public TTIriRef getQueryIri() {
-		return queryIri;
-	}
-
-	public QueryRequest setQueryIri(TTIriRef queryIri) {
-		this.queryIri = queryIri;
-		return this;
-	}
 
 	public String getReferenceDate() {
 		return referenceDate;

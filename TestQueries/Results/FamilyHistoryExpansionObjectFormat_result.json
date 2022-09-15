@@ -1,0 +1,5203 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "entities" : {
+      "@id" : "http://envhealth.info/im#entities",
+      "@container" : "@set"
+    }
+  },
+  "entities" : [ {
+    "@id" : "sn:266947009",
+    "rdfs:label" : "Parents separated (situation)",
+    "im:code" : "266947009"
+  }, {
+    "@id" : "sn:275105001",
+    "rdfs:label" : "Smoker in the family (situation)",
+    "im:code" : "275105001"
+  }, {
+    "@id" : "sn:413316000",
+    "rdfs:label" : "Parent on probation (situation)",
+    "im:code" : "413316000"
+  }, {
+    "@id" : "sn:430283008",
+    "rdfs:label" : "Family history of sudden death (situation)",
+    "im:code" : "430283008"
+  }, {
+    "@id" : "sn:430288004",
+    "rdfs:label" : "Family history of death due to natural cause (situation)",
+    "im:code" : "430288004"
+  }, {
+    "@id" : "sn:430289007",
+    "rdfs:label" : "Family history of death of unknown cause (situation)",
+    "im:code" : "430289007"
+  }, {
+    "@id" : "sn:704502000",
+    "rdfs:label" : "Partner pregnant (situation)",
+    "im:code" : "704502000"
+  }, {
+    "@id" : "sn:739677000",
+    "rdfs:label" : "Spouse deceased (situation)",
+    "im:code" : "739677000"
+  }, {
+    "@id" : "sn:739679002",
+    "rdfs:label" : "Sibling deceased (situation)",
+    "im:code" : "739679002"
+  }, {
+    "@id" : "sn:739684008",
+    "rdfs:label" : "Child of patient deceased (situation)",
+    "im:code" : "739684008"
+  }, {
+    "@id" : "sn:741021002",
+    "rdfs:label" : "Family history of relative killed (situation)",
+    "im:code" : "741021002"
+  }, {
+    "@id" : "sn:777951000000107",
+    "rdfs:label" : "Socially isolated parent (finding)",
+    "im:code" : "777951000000107"
+  }, {
+    "@id" : "sn:160333008",
+    "rdfs:label" : "Family history: Suicide (situation)",
+    "im:code" : "160333008"
+  }, {
+    "@id" : "sn:160430005",
+    "rdfs:label" : "Mother deceased (situation)",
+    "im:code" : "160430005"
+  }, {
+    "@id" : "sn:160436004",
+    "rdfs:label" : "Father deceased (situation)",
+    "im:code" : "160436004"
+  }, {
+    "@id" : "sn:160471004",
+    "rdfs:label" : "Family history of sudden infant death syndrome (situation)",
+    "im:code" : "160471004"
+  }, {
+    "@id" : "sn:160806000",
+    "rdfs:label" : "Father remarried (situation)",
+    "im:code" : "160806000"
+  }, {
+    "@id" : "sn:160807009",
+    "rdfs:label" : "Mother remarried (situation)",
+    "im:code" : "160807009"
+  }, {
+    "@id" : "sn:160859003",
+    "rdfs:label" : "Imprisonment of family member (situation)",
+    "im:code" : "160859003"
+  }, {
+    "@id" : "sn:160891002",
+    "rdfs:label" : "Vulnerable child in family (situation)",
+    "im:code" : "160891002"
+  }, {
+    "@id" : "sn:161067000",
+    "rdfs:label" : "Legal problem in family (situation)",
+    "im:code" : "161067000"
+  }, {
+    "@id" : "sn:161062006",
+    "rdfs:label" : "Child abuse in family (situation)",
+    "im:code" : "161062006"
+  }, {
+    "@id" : "sn:302172001",
+    "rdfs:label" : "Marital status of parents (situation)",
+    "im:code" : "302172001"
+  }, {
+    "@id" : "sn:763381006",
+    "rdfs:label" : "Wife unable to cope (situation)",
+    "im:code" : "763381006"
+  }, {
+    "@id" : "sn:443877004",
+    "rdfs:label" : "Family history of smoking (situation)",
+    "im:code" : "443877004"
+  }, {
+    "@id" : "sn:161075006",
+    "rdfs:label" : "Spouse works away from home (situation)",
+    "im:code" : "161075006"
+  }, {
+    "@id" : "sn:416471007",
+    "rdfs:label" : "Family history of clinical finding (situation)",
+    "im:code" : "416471007"
+  }, {
+    "@id" : "sn:430722000",
+    "rdfs:label" : "Family history of operative procedure (situation)",
+    "im:code" : "430722000"
+  }, {
+    "@id" : "sn:430802005",
+    "rdfs:label" : "Family history of procedure on ovary (situation)",
+    "im:code" : "430802005"
+  }, {
+    "@id" : "sn:169750002",
+    "rdfs:label" : "Mother currently breast-feeding (finding)",
+    "im:code" : "169750002"
+  }, {
+    "@id" : "sn:169941005",
+    "rdfs:label" : "Maternal drug abuse (finding)",
+    "im:code" : "169941005"
+  }, {
+    "@id" : "sn:169942003",
+    "rdfs:label" : "Maternal alcohol abuse (finding)",
+    "im:code" : "169942003"
+  }, {
+    "@id" : "sn:722417007",
+    "rdfs:label" : "Alcohol abuse by father (situation)",
+    "im:code" : "722417007"
+  }, {
+    "@id" : "sn:105441003",
+    "rdfs:label" : "Death of spouse (event)",
+    "im:code" : "105441003"
+  }, {
+    "@id" : "sn:105443000",
+    "rdfs:label" : "Death of parent (event)",
+    "im:code" : "105443000"
+  }, {
+    "@id" : "sn:105444006",
+    "rdfs:label" : "Death of child (event)",
+    "im:code" : "105444006"
+  }, {
+    "@id" : "sn:105445007",
+    "rdfs:label" : "Death of sibling (event)",
+    "im:code" : "105445007"
+  }, {
+    "@id" : "sn:105446008",
+    "rdfs:label" : "Suicide of relative (event)",
+    "im:code" : "105446008"
+  }, {
+    "@id" : "sn:133938003",
+    "rdfs:label" : "Alcoholic family member (finding)",
+    "im:code" : "133938003"
+  }, {
+    "@id" : "sn:266890009",
+    "rdfs:label" : "Family history of alcoholism (situation)",
+    "im:code" : "266890009"
+  }, {
+    "@id" : "sn:133939006",
+    "rdfs:label" : "Alcoholic spouse (finding)",
+    "im:code" : "133939006"
+  }, {
+    "@id" : "sn:878803002",
+    "rdfs:label" : "Alcoholic spouse (situation)",
+    "im:code" : "878803002"
+  }, {
+    "@id" : "sn:133940008",
+    "rdfs:label" : "Alcoholic parent (finding)",
+    "im:code" : "133940008"
+  }, {
+    "@id" : "sn:878804008",
+    "rdfs:label" : "Alcoholic parent (situation)",
+    "im:code" : "878804008"
+  }, {
+    "@id" : "sn:134439009",
+    "rdfs:label" : "Family history: premature coronary heart disease (situation)",
+    "im:code" : "134439009"
+  }, {
+    "@id" : "sn:266894000",
+    "rdfs:label" : "Family history: Cardiovascular disease (situation)",
+    "im:code" : "266894000"
+  }, {
+    "@id" : "sn:137672009",
+    "rdfs:label" : "FH: Longevity (situation)",
+    "im:code" : "137672009"
+  }, {
+    "@id" : "sn:160269002",
+    "rdfs:label" : "Family history: Longevity (situation)",
+    "im:code" : "160269002"
+  }, {
+    "@id" : "sn:137682005",
+    "rdfs:label" : "FH: Infectious disease (situation)",
+    "im:code" : "137682005"
+  }, {
+    "@id" : "sn:160279000",
+    "rdfs:label" : "Family history of infectious disease (situation)",
+    "im:code" : "160279000"
+  }, {
+    "@id" : "sn:137683000",
+    "rdfs:label" : "FH: Tuberculosis (situation)",
+    "im:code" : "137683000"
+  }, {
+    "@id" : "sn:160280002",
+    "rdfs:label" : "Family history: Tuberculosis (situation)",
+    "im:code" : "160280002"
+  }, {
+    "@id" : "sn:137684006",
+    "rdfs:label" : "FH: Syphilis (situation)",
+    "im:code" : "137684006"
+  }, {
+    "@id" : "sn:160281003",
+    "rdfs:label" : "Family history: Syphilis (situation)",
+    "im:code" : "160281003"
+  }, {
+    "@id" : "sn:137685007",
+    "rdfs:label" : "FH: Gonorrhoea (situation)",
+    "im:code" : "137685007"
+  }, {
+    "@id" : "sn:160282005",
+    "rdfs:label" : "Family history: Gonorrhea (situation)",
+    "im:code" : "160282005"
+  }, {
+    "@id" : "sn:137686008",
+    "rdfs:label" : "FH: Infectious disease NOS (situation)",
+    "im:code" : "137686008"
+  }, {
+    "@id" : "sn:137687004",
+    "rdfs:label" : "FH: Neoplasm - * (& [carcinoma - *] or [cancer]) (situation)",
+    "im:code" : "137687004"
+  }, {
+    "@id" : "sn:266883004",
+    "rdfs:label" : "Family history of neoplasm (situation)",
+    "im:code" : "266883004"
+  }, {
+    "@id" : "sn:275937001",
+    "rdfs:label" : "Family history of cancer (situation)",
+    "im:code" : "275937001"
+  }, {
+    "@id" : "sn:1149514007",
+    "rdfs:label" : "Family history of malignant epithelial neoplasm (situation)",
+    "im:code" : "1149514007"
+  }, {
+    "@id" : "sn:137688009",
+    "rdfs:label" : "FH: neoplasm of gastrointestinal tract (& [stomach]) (situation)",
+    "im:code" : "137688009"
+  }, {
+    "@id" : "sn:275108004",
+    "rdfs:label" : "Family history: Stomach cancer (situation)",
+    "im:code" : "275108004"
+  }, {
+    "@id" : "sn:137689001",
+    "rdfs:label" : "FH: neoplasm of trachea &/or bronchus &/or lung (situation)",
+    "im:code" : "137689001"
+  }, {
+    "@id" : "sn:275110002",
+    "rdfs:label" : "Family history: Bronchus cancer (situation)",
+    "im:code" : "275110002"
+  }, {
+    "@id" : "sn:297247000",
+    "rdfs:label" : "Family history of neoplasm of lung (situation)",
+    "im:code" : "297247000"
+  }, {
+    "@id" : "sn:1149518005",
+    "rdfs:label" : "Family history of neoplasm of trachea (situation)",
+    "im:code" : "1149518005"
+  }, {
+    "@id" : "sn:1149519002",
+    "rdfs:label" : "Family history of neoplasm of bronchus (situation)",
+    "im:code" : "1149519002"
+  }, {
+    "@id" : "sn:137690005",
+    "rdfs:label" : "FH: * - breast (situation)",
+    "im:code" : "137690005"
+  }, {
+    "@id" : "sn:429740004",
+    "rdfs:label" : "Family history of malignant neoplasm of breast (situation)",
+    "im:code" : "429740004"
+  }, {
+    "@id" : "sn:137691009",
+    "rdfs:label" : "FH: * - skin (situation)",
+    "im:code" : "137691009"
+  }, {
+    "@id" : "sn:160288009",
+    "rdfs:label" : "Family history: neoplasm of skin (situation)",
+    "im:code" : "160288009"
+  }, {
+    "@id" : "sn:137692002",
+    "rdfs:label" : "FH: neoplasm of female genital organ (& [ovarian carcinoma]) (situation)",
+    "im:code" : "137692002"
+  }, {
+    "@id" : "sn:266886007",
+    "rdfs:label" : "Family history of neoplasm of female genital organ (situation)",
+    "im:code" : "266886007"
+  }, {
+    "@id" : "sn:430705002",
+    "rdfs:label" : "Family history of malignant neoplasm of ovary (situation)",
+    "im:code" : "430705002"
+  }, {
+    "@id" : "sn:137693007",
+    "rdfs:label" : "FH: * - male genital organ (situation)",
+    "im:code" : "137693007"
+  }, {
+    "@id" : "sn:160290005",
+    "rdfs:label" : "Family history: neoplasm of male genital organ (situation)",
+    "im:code" : "160290005"
+  }, {
+    "@id" : "sn:137694001",
+    "rdfs:label" : "FH: * - urinary organ (situation)",
+    "im:code" : "137694001"
+  }, {
+    "@id" : "sn:788921007",
+    "rdfs:label" : "Family history of malignant neoplasm of urinary tract (situation)",
+    "im:code" : "788921007"
+  }, {
+    "@id" : "sn:1149524004",
+    "rdfs:label" : "Family history of neoplasm of urinary system (situation)",
+    "im:code" : "1149524004"
+  }, {
+    "@id" : "sn:137695000",
+    "rdfs:label" : "FH: * - leukaemia (situation)",
+    "im:code" : "137695000"
+  }, {
+    "@id" : "sn:160292002",
+    "rdfs:label" : "Family history of leukemia (situation)",
+    "im:code" : "160292002"
+  }, {
+    "@id" : "sn:137696004",
+    "rdfs:label" : "FH: * - other lymph/haematop. (situation)",
+    "im:code" : "137696004"
+  }, {
+    "@id" : "sn:137697008",
+    "rdfs:label" : "FH: * - ears, nose, throat (situation)",
+    "im:code" : "137697008"
+  }, {
+    "@id" : "sn:439220002",
+    "rdfs:label" : "Family history of neoplasm of upper aerodigestive tract (situation)",
+    "im:code" : "439220002"
+  }, {
+    "@id" : "sn:137698003",
+    "rdfs:label" : "FH: * - other intrathorac org (situation)",
+    "im:code" : "137698003"
+  }, {
+    "@id" : "sn:137699006",
+    "rdfs:label" : "FH: neoplasm of ovary (situation)",
+    "im:code" : "137699006"
+  }, {
+    "@id" : "sn:160297008",
+    "rdfs:label" : "Family history: neoplasm of ovary (situation)",
+    "im:code" : "160297008"
+  }, {
+    "@id" : "sn:137700007",
+    "rdfs:label" : "FH: neoplasm of cervix (situation)",
+    "im:code" : "137700007"
+  }, {
+    "@id" : "sn:160298003",
+    "rdfs:label" : "Family history: neoplasm of cervix (situation)",
+    "im:code" : "160298003"
+  }, {
+    "@id" : "sn:137701006",
+    "rdfs:label" : "FH: neoplasm of uterus (situation)",
+    "im:code" : "137701006"
+  }, {
+    "@id" : "sn:160299006",
+    "rdfs:label" : "Family history: neoplasm of uterus (situation)",
+    "im:code" : "160299006"
+  }, {
+    "@id" : "sn:137702004",
+    "rdfs:label" : "FH: * - NOS (situation)",
+    "im:code" : "137702004"
+  }, {
+    "@id" : "sn:137703009",
+    "rdfs:label" : "FH: Endocrine disorders (situation)",
+    "im:code" : "137703009"
+  }, {
+    "@id" : "sn:160301004",
+    "rdfs:label" : "Family history of endocrine disorders (situation)",
+    "im:code" : "160301004"
+  }, {
+    "@id" : "sn:137704003",
+    "rdfs:label" : "FH: Thyroid disorder (situation)",
+    "im:code" : "137704003"
+  }, {
+    "@id" : "sn:160302006",
+    "rdfs:label" : "Family history: Thyroid disorder (situation)",
+    "im:code" : "160302006"
+  }, {
+    "@id" : "sn:137705002",
+    "rdfs:label" : "FH: Diabetes mellitus (situation)",
+    "im:code" : "137705002"
+  }, {
+    "@id" : "sn:160303001",
+    "rdfs:label" : [ "Family history: Diabetes mellitus (situation)", "Family history of diabetes mellitus (situation)" ],
+    "im:code" : "160303001"
+  }, {
+    "@id" : "sn:137706001",
+    "rdfs:label" : "FH: Endocrine disorder NOS (situation)",
+    "im:code" : "137706001"
+  }, {
+    "@id" : "sn:570091000000103",
+    "rdfs:label" : "Family history: Endocrine disorder NOS (situation)",
+    "im:code" : "570091000000103"
+  }, {
+    "@id" : "sn:137707005",
+    "rdfs:label" : "FH: Metabolic disorder (situation)",
+    "im:code" : "137707005"
+  }, {
+    "@id" : "sn:160305008",
+    "rdfs:label" : "Family history of metabolic disorder (situation)",
+    "im:code" : "160305008"
+  }, {
+    "@id" : "sn:137708000",
+    "rdfs:label" : "FH: Nutritional deficiency (situation)",
+    "im:code" : "137708000"
+  }, {
+    "@id" : "sn:160306009",
+    "rdfs:label" : "Family history: Nutritional deficiency (situation)",
+    "im:code" : "160306009"
+  }, {
+    "@id" : "sn:137709008",
+    "rdfs:label" : "FH: Raised blood lipids (& [cholesterol] or [triglyceride]) (situation)",
+    "im:code" : "137709008"
+  }, {
+    "@id" : "sn:160314003",
+    "rdfs:label" : "Family history: Hypercholesterolemia (situation)",
+    "im:code" : "160314003"
+  }, {
+    "@id" : "sn:266887003",
+    "rdfs:label" : "Family history: Raised blood lipids (situation)",
+    "im:code" : "266887003"
+  }, {
+    "@id" : "sn:275939003",
+    "rdfs:label" : "Family history: Triglyceride high (situation)",
+    "im:code" : "275939003"
+  }, {
+    "@id" : "sn:137710003",
+    "rdfs:label" : "FH: Gout (situation)",
+    "im:code" : "137710003"
+  }, {
+    "@id" : "sn:160308005",
+    "rdfs:label" : "Family history: Gout (situation)",
+    "im:code" : "160308005"
+  }, {
+    "@id" : "sn:137711004",
+    "rdfs:label" : "FH: Cystic fibrosis (situation)",
+    "im:code" : "137711004"
+  }, {
+    "@id" : "sn:160309002",
+    "rdfs:label" : "Family history of cystic fibrosis (situation)",
+    "im:code" : "160309002"
+  }, {
+    "@id" : "sn:137712006",
+    "rdfs:label" : "FH: Porphyria (situation)",
+    "im:code" : "137712006"
+  }, {
+    "@id" : "sn:160310007",
+    "rdfs:label" : "Family history: Porphyria (situation)",
+    "im:code" : "160310007"
+  }, {
+    "@id" : "sn:137713001",
+    "rdfs:label" : "FH: Obesity (situation)",
+    "im:code" : "137713001"
+  }, {
+    "@id" : "sn:160311006",
+    "rdfs:label" : "Family history: Obesity (situation)",
+    "im:code" : "160311006"
+  }, {
+    "@id" : "sn:137714007",
+    "rdfs:label" : "FH: Cholinesterase deficiency (situation)",
+    "im:code" : "137714007"
+  }, {
+    "@id" : "sn:789240000",
+    "rdfs:label" : "Family history of acetylcholinesterase deficiency (situation)",
+    "im:code" : "789240000"
+  }, {
+    "@id" : "sn:98011000119108",
+    "rdfs:label" : [ "Family history of pseudocholinesterase deficiency (situation)", "Family history of butyrylcholinesterase deficiency (situation)" ],
+    "im:code" : "98011000119108"
+  }, {
+    "@id" : "sn:137715008",
+    "rdfs:label" : "FH: Osteoporosis (situation)",
+    "im:code" : "137715008"
+  }, {
+    "@id" : "sn:160313009",
+    "rdfs:label" : "Family history of osteoporosis (situation)",
+    "im:code" : "160313009"
+  }, {
+    "@id" : "sn:137716009",
+    "rdfs:label" : "FH: Hypercholesterolaemia (situation)",
+    "im:code" : "137716009"
+  }, {
+    "@id" : "sn:137717000",
+    "rdfs:label" : "FH: Metabolic disorder NOS (situation)",
+    "im:code" : "137717000"
+  }, {
+    "@id" : "sn:137718005",
+    "rdfs:label" : "FH: Blood disorder (situation)",
+    "im:code" : "137718005"
+  }, {
+    "@id" : "sn:160316001",
+    "rdfs:label" : "Family history: Blood disorder (situation)",
+    "im:code" : "160316001"
+  }, {
+    "@id" : "sn:137719002",
+    "rdfs:label" : "FH: Anaemia (situation)",
+    "im:code" : "137719002"
+  }, {
+    "@id" : "sn:266888008",
+    "rdfs:label" : "Family history: Anemia (situation)",
+    "im:code" : "266888008"
+  }, {
+    "@id" : "sn:137720008",
+    "rdfs:label" : "FH: Spherocytosis (& [hereditary]) (situation)",
+    "im:code" : "137720008"
+  }, {
+    "@id" : "sn:160318000",
+    "rdfs:label" : "Family history: Hereditary spherocytosis (situation)",
+    "im:code" : "160318000"
+  }, {
+    "@id" : "sn:308746008",
+    "rdfs:label" : "Family history: Spherocytosis (situation)",
+    "im:code" : "308746008"
+  }, {
+    "@id" : "sn:137721007",
+    "rdfs:label" : "FH: Thalassaemia (situation)",
+    "im:code" : "137721007"
+  }, {
+    "@id" : "sn:160319008",
+    "rdfs:label" : "Family history: Thalassemia (situation)",
+    "im:code" : "160319008"
+  }, {
+    "@id" : "sn:137722000",
+    "rdfs:label" : "FH: Sickle cell anaemia (situation)",
+    "im:code" : "137722000"
+  }, {
+    "@id" : "sn:160320002",
+    "rdfs:label" : "Family history of sickle cell anemia (situation)",
+    "im:code" : "160320002"
+  }, {
+    "@id" : "sn:137723005",
+    "rdfs:label" : "FH: sickle cell [trait] or [disease] (situation)",
+    "im:code" : "137723005"
+  }, {
+    "@id" : "sn:160321003",
+    "rdfs:label" : "Family history: Sickle cell trait (situation)",
+    "im:code" : "160321003"
+  }, {
+    "@id" : "sn:137724004",
+    "rdfs:label" : "FH: Haemophilia (situation)",
+    "im:code" : "137724004"
+  }, {
+    "@id" : "sn:266889000",
+    "rdfs:label" : "Family history: Hemophilia (situation)",
+    "im:code" : "266889000"
+  }, {
+    "@id" : "sn:137725003",
+    "rdfs:label" : "FH: Blood disorder NOS (situation)",
+    "im:code" : "137725003"
+  }, {
+    "@id" : "sn:137726002",
+    "rdfs:label" : "Family history of mental disorder (situation)",
+    "im:code" : "137726002"
+  }, {
+    "@id" : "sn:160324006",
+    "rdfs:label" : "Family history of mental disorder (situation)",
+    "im:code" : "160324006"
+  }, {
+    "@id" : "sn:137727006",
+    "rdfs:label" : "FH: Senile dementia (situation)",
+    "im:code" : "137727006"
+  }, {
+    "@id" : "sn:160325007",
+    "rdfs:label" : "Family history: Senile dementia (situation)",
+    "im:code" : "160325007"
+  }, {
+    "@id" : "sn:137728001",
+    "rdfs:label" : "Family history of alcoholism (situation)",
+    "im:code" : "137728001"
+  }, {
+    "@id" : "sn:137729009",
+    "rdfs:label" : "FH: Drug dependency (situation)",
+    "im:code" : "137729009"
+  }, {
+    "@id" : "sn:160327004",
+    "rdfs:label" : "Family history: Drug dependency (situation)",
+    "im:code" : "160327004"
+  }, {
+    "@id" : "sn:137730004",
+    "rdfs:label" : "FH: Schizophrenia (situation)",
+    "im:code" : "137730004"
+  }, {
+    "@id" : "sn:160328009",
+    "rdfs:label" : "Family history: Schizophrenia (situation)",
+    "im:code" : "160328009"
+  }, {
+    "@id" : "sn:137731000",
+    "rdfs:label" : "FH: Depression (situation)",
+    "im:code" : "137731000"
+  }, {
+    "@id" : "sn:160329001",
+    "rdfs:label" : "Family history: Depression (situation)",
+    "im:code" : "160329001"
+  }, {
+    "@id" : "sn:137732007",
+    "rdfs:label" : "FH: Mental retardation (situation)",
+    "im:code" : "137732007"
+  }, {
+    "@id" : "sn:763598005",
+    "rdfs:label" : "Family history of intellectual disability (situation)",
+    "im:code" : "763598005"
+  }, {
+    "@id" : "sn:137733002",
+    "rdfs:label" : "FH: Mental disorder NOS (situation)",
+    "im:code" : "137733002"
+  }, {
+    "@id" : "sn:537231000000106",
+    "rdfs:label" : "Family history: Mental disorder NOS (situation)",
+    "im:code" : "537231000000106"
+  }, {
+    "@id" : "sn:137734008",
+    "rdfs:label" : "FH: Nervous system disorder (& [brain] or [central]) (situation)",
+    "im:code" : "137734008"
+  }, {
+    "@id" : "sn:266891008",
+    "rdfs:label" : "Family history of central nervous system disorder (situation)",
+    "im:code" : "266891008"
+  }, {
+    "@id" : "sn:275940001",
+    "rdfs:label" : "Family history: Brain disorder (situation)",
+    "im:code" : "275940001"
+  }, {
+    "@id" : "sn:297239000",
+    "rdfs:label" : "Family history of neurological disorder (situation)",
+    "im:code" : "297239000"
+  }, {
+    "@id" : "sn:137735009",
+    "rdfs:label" : "FH: Huntington's chorea (situation)",
+    "im:code" : "137735009"
+  }, {
+    "@id" : "sn:160336000",
+    "rdfs:label" : "Family history: Huntington's chorea (situation)",
+    "im:code" : "160336000"
+  }, {
+    "@id" : "sn:137736005",
+    "rdfs:label" : "FH: Multiple sclerosis (situation)",
+    "im:code" : "137736005"
+  }, {
+    "@id" : "sn:160337009",
+    "rdfs:label" : "Family history: Multiple sclerosis (situation)",
+    "im:code" : "160337009"
+  }, {
+    "@id" : "sn:137737001",
+    "rdfs:label" : "FH: Hemiplegia (situation)",
+    "im:code" : "137737001"
+  }, {
+    "@id" : "sn:160338004",
+    "rdfs:label" : "Family history: Hemiplegia (situation)",
+    "im:code" : "160338004"
+  }, {
+    "@id" : "sn:137738006",
+    "rdfs:label" : "FH: Paraplegia (situation)",
+    "im:code" : "137738006"
+  }, {
+    "@id" : "sn:160339007",
+    "rdfs:label" : "Family history: Paraplegia (situation)",
+    "im:code" : "160339007"
+  }, {
+    "@id" : "sn:137739003",
+    "rdfs:label" : "FH: Infantile cerebral palsy (situation)",
+    "im:code" : "137739003"
+  }, {
+    "@id" : "sn:160340009",
+    "rdfs:label" : "Family history: Cerebral palsy (situation)",
+    "im:code" : "160340009"
+  }, {
+    "@id" : "sn:137740001",
+    "rdfs:label" : "FH: Epilepsy (situation)",
+    "im:code" : "137740001"
+  }, {
+    "@id" : "sn:160341008",
+    "rdfs:label" : "Family history: Epilepsy (situation)",
+    "im:code" : "160341008"
+  }, {
+    "@id" : "sn:137741002",
+    "rdfs:label" : "FH: Migraine (situation)",
+    "im:code" : "137741002"
+  }, {
+    "@id" : "sn:160342001",
+    "rdfs:label" : "Family history: Migraine (situation)",
+    "im:code" : "160342001"
+  }, {
+    "@id" : "sn:137742009",
+    "rdfs:label" : "FH: Muscular dystrophy (situation)",
+    "im:code" : "137742009"
+  }, {
+    "@id" : "sn:160343006",
+    "rdfs:label" : "Family history: Muscular dystrophy (situation)",
+    "im:code" : "160343006"
+  }, {
+    "@id" : "sn:137743004",
+    "rdfs:label" : "FH: [CNS disorder NOS] or [Parkinsonism] (situation)",
+    "im:code" : "137743004"
+  }, {
+    "@id" : "sn:275117004",
+    "rdfs:label" : "Family history: Parkinsonism (situation)",
+    "im:code" : "275117004"
+  }, {
+    "@id" : "sn:137744005",
+    "rdfs:label" : "FH: Eye disorder (situation)",
+    "im:code" : "137744005"
+  }, {
+    "@id" : "sn:160346003",
+    "rdfs:label" : "Family history: Eye disorder (situation)",
+    "im:code" : "160346003"
+  }, {
+    "@id" : "sn:137745006",
+    "rdfs:label" : "FH: Glaucoma (situation)",
+    "im:code" : "137745006"
+  }, {
+    "@id" : "sn:160347007",
+    "rdfs:label" : "Family history: Glaucoma (situation)",
+    "im:code" : "160347007"
+  }, {
+    "@id" : "sn:137746007",
+    "rdfs:label" : "FH: Cataract (situation)",
+    "im:code" : "137746007"
+  }, {
+    "@id" : "sn:160348002",
+    "rdfs:label" : "Family history: Cataract (situation)",
+    "im:code" : "160348002"
+  }, {
+    "@id" : "sn:137747003",
+    "rdfs:label" : "FH: Blindness &/or low vision (situation)",
+    "im:code" : "137747003"
+  }, {
+    "@id" : "sn:266893006",
+    "rdfs:label" : "Family history: Blindness/low vision (situation)",
+    "im:code" : "266893006"
+  }, {
+    "@id" : "sn:275118009",
+    "rdfs:label" : "Family history: Blindness (situation)",
+    "im:code" : "275118009"
+  }, {
+    "@id" : "sn:137748008",
+    "rdfs:label" : "FH: Eye disorder NOS (situation)",
+    "im:code" : "137748008"
+  }, {
+    "@id" : "sn:137749000",
+    "rdfs:label" : "FH: Ear disorder (situation)",
+    "im:code" : "137749000"
+  }, {
+    "@id" : "sn:160352002",
+    "rdfs:label" : "Family history: Ear disorder (situation)",
+    "im:code" : "160352002"
+  }, {
+    "@id" : "sn:137750000",
+    "rdfs:label" : "FH: Deafness (situation)",
+    "im:code" : "137750000"
+  }, {
+    "@id" : "sn:160353007",
+    "rdfs:label" : "Family history: Deafness (situation)",
+    "im:code" : "160353007"
+  }, {
+    "@id" : "sn:137751001",
+    "rdfs:label" : "FH: Ear disorder NOS (situation)",
+    "im:code" : "137751001"
+  }, {
+    "@id" : "sn:137752008",
+    "rdfs:label" : "FH: Cardiovascular disease (& [cardiac disorder]) (situation)",
+    "im:code" : "137752008"
+  }, {
+    "@id" : "sn:275120007",
+    "rdfs:label" : [ "Family history: Cardiac disorder (situation)", "Family history of cardiac disorder (situation)" ],
+    "im:code" : "275120007"
+  }, {
+    "@id" : "sn:137753003",
+    "rdfs:label" : "FH: Hypertension (situation)",
+    "im:code" : "137753003"
+  }, {
+    "@id" : "sn:160357008",
+    "rdfs:label" : "Family history: Hypertension (situation)",
+    "im:code" : "160357008"
+  }, {
+    "@id" : "sn:137754009",
+    "rdfs:label" : "FH: Ischaemic heart disease at less than 60 years (situation)",
+    "im:code" : "137754009"
+  }, {
+    "@id" : "sn:266895004",
+    "rdfs:label" : "Family history: Ischemic heart disease at less than 60 years (situation)",
+    "im:code" : "266895004"
+  }, {
+    "@id" : "sn:137755005",
+    "rdfs:label" : "FH: Ischaemic heart disease at greater than 60 years (situation)",
+    "im:code" : "137755005"
+  }, {
+    "@id" : "sn:266896003",
+    "rdfs:label" : "Family history: Ischemic heart disease at greater than 60 years (situation)",
+    "im:code" : "266896003"
+  }, {
+    "@id" : "sn:137756006",
+    "rdfs:label" : "FH: CVA/stroke (situation)",
+    "im:code" : "137756006"
+  }, {
+    "@id" : "sn:275104002",
+    "rdfs:label" : "Family history of stroke (situation)",
+    "im:code" : "275104002"
+  }, {
+    "@id" : "sn:137757002",
+    "rdfs:label" : "FH: ischaemic heart disease (& [myocardial infarction] or [coronary thrombosis]) (situation)",
+    "im:code" : "137757002"
+  }, {
+    "@id" : "sn:266897007",
+    "rdfs:label" : "Family history: Myocardial infarction (situation)",
+    "im:code" : "266897007"
+  }, {
+    "@id" : "sn:275124003",
+    "rdfs:label" : "Family history: Coronary thrombosis (situation)",
+    "im:code" : "275124003"
+  }, {
+    "@id" : "sn:297242006",
+    "rdfs:label" : "Family history of ischemic heart disease (situation)",
+    "im:code" : "297242006"
+  }, {
+    "@id" : "sn:137758007",
+    "rdfs:label" : "FH: Atherosclerosis (situation)",
+    "im:code" : "137758007"
+  }, {
+    "@id" : "sn:160362009",
+    "rdfs:label" : "Family history: Atherosclerosis (situation)",
+    "im:code" : "160362009"
+  }, {
+    "@id" : "sn:137759004",
+    "rdfs:label" : "Family history of transient ischaemic attack (situation)",
+    "im:code" : "137759004"
+  }, {
+    "@id" : "sn:160363004",
+    "rdfs:label" : "Family history of transient ischemic attack (situation)",
+    "im:code" : "160363004"
+  }, {
+    "@id" : "sn:137760009",
+    "rdfs:label" : "FH: Congenital heart disease (situation)",
+    "im:code" : "137760009"
+  }, {
+    "@id" : "sn:160364005",
+    "rdfs:label" : "Family history: Congenital heart disease (situation)",
+    "im:code" : "160364005"
+  }, {
+    "@id" : "sn:137761008",
+    "rdfs:label" : "FH: Thrombosis (situation)",
+    "im:code" : "137761008"
+  }, {
+    "@id" : "sn:310247005",
+    "rdfs:label" : "Family history: Thrombosis (situation)",
+    "im:code" : "310247005"
+  }, {
+    "@id" : "sn:137762001",
+    "rdfs:label" : "FH myocardial infarction male first degree age known (situation)",
+    "im:code" : "137762001"
+  }, {
+    "@id" : "sn:315619001",
+    "rdfs:label" : "Family history of myocardial infarction in male relative of first degree, age known (situation)",
+    "im:code" : "315619001"
+  }, {
+    "@id" : "sn:137764000",
+    "rdfs:label" : "FH myocardial infarction male first degree age unknown (situation)",
+    "im:code" : "137764000"
+  }, {
+    "@id" : "sn:315620007",
+    "rdfs:label" : "Family history of myocardial infarction in male relative of first degree, age unknown (situation)",
+    "im:code" : "315620007"
+  }, {
+    "@id" : "sn:137765004",
+    "rdfs:label" : "FH myocardial infarction female first degree age known (situation)",
+    "im:code" : "137765004"
+  }, {
+    "@id" : "sn:315621006",
+    "rdfs:label" : "Family history of myocardial infarction in female relative of first degree, age known (situation)",
+    "im:code" : "315621006"
+  }, {
+    "@id" : "sn:137766003",
+    "rdfs:label" : "FH myocardial infarction female first degree age unknown (situation)",
+    "im:code" : "137766003"
+  }, {
+    "@id" : "sn:315622004",
+    "rdfs:label" : "Family history of myocardial infarction in female relative of first degree, age unknown (situation)",
+    "im:code" : "315622004"
+  }, {
+    "@id" : "sn:137767007",
+    "rdfs:label" : "FH angina male first degree age known (situation)",
+    "im:code" : "137767007"
+  }, {
+    "@id" : "sn:315623009",
+    "rdfs:label" : "Family history of angina in male relative of first degree, age known (situation)",
+    "im:code" : "315623009"
+  }, {
+    "@id" : "sn:137768002",
+    "rdfs:label" : "FH angina male first degree age unknown (situation)",
+    "im:code" : "137768002"
+  }, {
+    "@id" : "sn:315625002",
+    "rdfs:label" : "Family history of angina in male relative of first degree, age unknown (situation)",
+    "im:code" : "315625002"
+  }, {
+    "@id" : "sn:137769005",
+    "rdfs:label" : "FH angina female first degree age known (situation)",
+    "im:code" : "137769005"
+  }, {
+    "@id" : "sn:315626001",
+    "rdfs:label" : "Family history of angina in female relative of first degree, age known (situation)",
+    "im:code" : "315626001"
+  }, {
+    "@id" : "sn:137770006",
+    "rdfs:label" : "FH angina female first degree age unknown (situation)",
+    "im:code" : "137770006"
+  }, {
+    "@id" : "sn:315627005",
+    "rdfs:label" : "Family history of angina in female relative of first degree, age unknown (situation)",
+    "im:code" : "315627005"
+  }, {
+    "@id" : "sn:137771005",
+    "rdfs:label" : "FH: CVS disease NOS (situation)",
+    "im:code" : "137771005"
+  }, {
+    "@id" : "sn:137772003",
+    "rdfs:label" : "FH: Respiratory disease (& [lung disease]) (situation)",
+    "im:code" : "137772003"
+  }, {
+    "@id" : "sn:266898002",
+    "rdfs:label" : "Family history: Respiratory disease (situation)",
+    "im:code" : "266898002"
+  }, {
+    "@id" : "sn:137773008",
+    "rdfs:label" : "FH: Bronchitis &/or COAD (situation)",
+    "im:code" : "137773008"
+  }, {
+    "@id" : "sn:266899005",
+    "rdfs:label" : "Family history of bronchitis or chronic obstructive airway disease (situation)",
+    "im:code" : "266899005"
+  }, {
+    "@id" : "sn:275125002",
+    "rdfs:label" : "Family history: Bronchitis (situation)",
+    "im:code" : "275125002"
+  }, {
+    "@id" : "sn:137774002",
+    "rdfs:label" : "FH: Asthma (situation)",
+    "im:code" : "137774002"
+  }, {
+    "@id" : "sn:160377001",
+    "rdfs:label" : "Family history: Asthma (situation)",
+    "im:code" : "160377001"
+  }, {
+    "@id" : "sn:137775001",
+    "rdfs:label" : "FH: Occupational lung dis. (situation)",
+    "im:code" : "137775001"
+  }, {
+    "@id" : "sn:160378006",
+    "rdfs:label" : "Family history: Occupational lung disease (situation)",
+    "im:code" : "160378006"
+  }, {
+    "@id" : "sn:137776000",
+    "rdfs:label" : "FH: Hay fever (situation)",
+    "im:code" : "137776000"
+  }, {
+    "@id" : "sn:160379003",
+    "rdfs:label" : "Family history: Hay fever (situation)",
+    "im:code" : "160379003"
+  }, {
+    "@id" : "sn:137777009",
+    "rdfs:label" : "FH: Respiratory disease NOS (situation)",
+    "im:code" : "137777009"
+  }, {
+    "@id" : "sn:137778004",
+    "rdfs:label" : "FH: Gastrointestinal disease (situation)",
+    "im:code" : "137778004"
+  }, {
+    "@id" : "sn:160381001",
+    "rdfs:label" : "Family history: Gastrointestinal disease (situation)",
+    "im:code" : "160381001"
+  }, {
+    "@id" : "sn:137779007",
+    "rdfs:label" : "FH: Peptic ulceration (& [duodenal] or [gastric]) (situation)",
+    "im:code" : "137779007"
+  }, {
+    "@id" : "sn:266900000",
+    "rdfs:label" : "Family history: Peptic ulceration (situation)",
+    "im:code" : "266900000"
+  }, {
+    "@id" : "sn:275127005",
+    "rdfs:label" : "Family history: Duodenal ulcer (situation)",
+    "im:code" : "275127005"
+  }, {
+    "@id" : "sn:275128000",
+    "rdfs:label" : "Family history: Gastric ulcer (situation)",
+    "im:code" : "275128000"
+  }, {
+    "@id" : "sn:137780005",
+    "rdfs:label" : "FH: Colitis (& [ulcerative]) (situation)",
+    "im:code" : "137780005"
+  }, {
+    "@id" : "sn:266901001",
+    "rdfs:label" : "Family history: Colitis (situation)",
+    "im:code" : "266901001"
+  }, {
+    "@id" : "sn:275129008",
+    "rdfs:label" : "Family history: Ulcerative colitis (situation)",
+    "im:code" : "275129008"
+  }, {
+    "@id" : "sn:137781009",
+    "rdfs:label" : "FH: Liver disease (& [hepatitis]) (situation)",
+    "im:code" : "137781009"
+  }, {
+    "@id" : "sn:266902008",
+    "rdfs:label" : "Family history: Liver disease (situation)",
+    "im:code" : "266902008"
+  }, {
+    "@id" : "sn:275130003",
+    "rdfs:label" : "Family history: Hepatitis (situation)",
+    "im:code" : "275130003"
+  }, {
+    "@id" : "sn:137782002",
+    "rdfs:label" : "FH: Biliary disease (& [gallbladder])",
+    "im:code" : "137782002"
+  }, {
+    "@id" : "sn:266903003",
+    "rdfs:label" : "Family history: Biliary disease (situation)",
+    "im:code" : "266903003"
+  }, {
+    "@id" : "sn:275131004",
+    "rdfs:label" : "Family history: Gallbladder disease (situation)",
+    "im:code" : "275131004"
+  }, {
+    "@id" : "sn:137783007",
+    "rdfs:label" : "FH: Gastrointestinal dis. NOS (situation)",
+    "im:code" : "137783007"
+  }, {
+    "@id" : "sn:137784001",
+    "rdfs:label" : "FH: Genitourinary disease (& problem [gynae] or [menses] or [period]) (situation)",
+    "im:code" : "137784001"
+  }, {
+    "@id" : "sn:160393005",
+    "rdfs:label" : "Family history: Menstrual disorder (situation)",
+    "im:code" : "160393005"
+  }, {
+    "@id" : "sn:266904009",
+    "rdfs:label" : "Family history: Genitourinary disease (situation)",
+    "im:code" : "266904009"
+  }, {
+    "@id" : "sn:275132006",
+    "rdfs:label" : "Family history: Gynecological problem (situation)",
+    "im:code" : "275132006"
+  }, {
+    "@id" : "sn:137785000",
+    "rdfs:label" : "FH: Polycystic kidney (situation)",
+    "im:code" : "137785000"
+  }, {
+    "@id" : "sn:160389004",
+    "rdfs:label" : "Family history: Polycystic kidney (situation)",
+    "im:code" : "160389004"
+  }, {
+    "@id" : "sn:137786004",
+    "rdfs:label" : "FH: Male infertility (situation)",
+    "im:code" : "137786004"
+  }, {
+    "@id" : "sn:160390008",
+    "rdfs:label" : "Family history: Male infertility (situation)",
+    "im:code" : "160390008"
+  }, {
+    "@id" : "sn:137787008",
+    "rdfs:label" : "FH: Female infertility (situation)",
+    "im:code" : "137787008"
+  }, {
+    "@id" : "sn:160391007",
+    "rdfs:label" : "Family history: Female infertility (situation)",
+    "im:code" : "160391007"
+  }, {
+    "@id" : "sn:137788003",
+    "rdfs:label" : "FH: Breast disease (situation)",
+    "im:code" : "137788003"
+  }, {
+    "@id" : "sn:160392000",
+    "rdfs:label" : "Family history: Breast disease (situation)",
+    "im:code" : "160392000"
+  }, {
+    "@id" : "sn:137789006",
+    "rdfs:label" : "FH: Menstrual disorder (situation)",
+    "im:code" : "137789006"
+  }, {
+    "@id" : "sn:137790002",
+    "rdfs:label" : "FH: Early menarche (situation)",
+    "im:code" : "137790002"
+  }, {
+    "@id" : "sn:160394004",
+    "rdfs:label" : "Family history: Early menarche (situation)",
+    "im:code" : "160394004"
+  }, {
+    "@id" : "sn:137791003",
+    "rdfs:label" : "FH: Late menarche (situation)",
+    "im:code" : "137791003"
+  }, {
+    "@id" : "sn:160396002",
+    "rdfs:label" : "Family history: Late menarche (situation)",
+    "im:code" : "160396002"
+  }, {
+    "@id" : "sn:137792005",
+    "rdfs:label" : "FH: Early menopause (situation)",
+    "im:code" : "137792005"
+  }, {
+    "@id" : "sn:160397006",
+    "rdfs:label" : "Family history: Early menopause (situation)",
+    "im:code" : "160397006"
+  }, {
+    "@id" : "sn:137793000",
+    "rdfs:label" : "FH: Late menopause (situation)",
+    "im:code" : "137793000"
+  }, {
+    "@id" : "sn:160398001",
+    "rdfs:label" : "Family history: Late menopause (situation)",
+    "im:code" : "160398001"
+  }, {
+    "@id" : "sn:137794006",
+    "rdfs:label" : "FH: genitourinary disorder [NOS] or [kidney] (situation)",
+    "im:code" : "137794006"
+  }, {
+    "@id" : "sn:289916006",
+    "rdfs:label" : "Family history of kidney disease (situation)",
+    "im:code" : "289916006"
+  }, {
+    "@id" : "sn:137795007",
+    "rdfs:label" : "FH: Obstetric problem (situation)",
+    "im:code" : "137795007"
+  }, {
+    "@id" : "sn:281666001",
+    "rdfs:label" : "Family history of disorder (situation)",
+    "im:code" : "281666001"
+  }, {
+    "@id" : "sn:137796008",
+    "rdfs:label" : "FH: Raised B.P. in pregnancy (situation)",
+    "im:code" : "137796008"
+  }, {
+    "@id" : "sn:160401003",
+    "rdfs:label" : "Family history: Raised blood pressure in pregnancy (situation)",
+    "im:code" : "160401003"
+  }, {
+    "@id" : "sn:137797004",
+    "rdfs:label" : "FH: [diabetes in pregnancy] or [puerperal depression] (situation)",
+    "im:code" : "137797004"
+  }, {
+    "@id" : "sn:160402005",
+    "rdfs:label" : "Family history: Diabetes in pregnancy (situation)",
+    "im:code" : "160402005"
+  }, {
+    "@id" : "sn:160403000",
+    "rdfs:label" : "Family history: Puerperal depression (situation)",
+    "im:code" : "160403000"
+  }, {
+    "@id" : "sn:137798009",
+    "rdfs:label" : "FH: Puerperal depression (situation)",
+    "im:code" : "137798009"
+  }, {
+    "@id" : "sn:137799001",
+    "rdfs:label" : "FH: Multiple pregnancy (& [twin]) (situation)",
+    "im:code" : "137799001"
+  }, {
+    "@id" : "sn:266906006",
+    "rdfs:label" : "Family history: Multiple pregnancy (situation)",
+    "im:code" : "266906006"
+  }, {
+    "@id" : "sn:275133001",
+    "rdfs:label" : "Family history: Twin pregnancy (situation)",
+    "im:code" : "275133001"
+  }, {
+    "@id" : "sn:137800002",
+    "rdfs:label" : "FH: Obstetric problem NOS (situation)",
+    "im:code" : "137800002"
+  }, {
+    "@id" : "sn:137801003",
+    "rdfs:label" : "FH: Skin disease (situation)",
+    "im:code" : "137801003"
+  }, {
+    "@id" : "sn:160406008",
+    "rdfs:label" : "Family history: Skin disease (situation)",
+    "im:code" : "160406008"
+  }, {
+    "@id" : "sn:137802005",
+    "rdfs:label" : "FH: Eczema (situation)",
+    "im:code" : "137802005"
+  }, {
+    "@id" : "sn:160407004",
+    "rdfs:label" : "Family history: Eczema (situation)",
+    "im:code" : "160407004"
+  }, {
+    "@id" : "sn:137803000",
+    "rdfs:label" : "FH: Psoriasis (situation)",
+    "im:code" : "137803000"
+  }, {
+    "@id" : "sn:160408009",
+    "rdfs:label" : "Family history: Psoriasis (situation)",
+    "im:code" : "160408009"
+  }, {
+    "@id" : "sn:137804006",
+    "rdfs:label" : "FH: [alopecia] or [baldness] (situation)",
+    "im:code" : "137804006"
+  }, {
+    "@id" : "sn:160409001",
+    "rdfs:label" : "Family history: Alopecia (situation)",
+    "im:code" : "160409001"
+  }, {
+    "@id" : "sn:137805007",
+    "rdfs:label" : "FH: Hirsutism (situation)",
+    "im:code" : "137805007"
+  }, {
+    "@id" : "sn:160410006",
+    "rdfs:label" : "Family history: Hirsutism (situation)",
+    "im:code" : "160410006"
+  }, {
+    "@id" : "sn:137807004",
+    "rdfs:label" : "FH: Musculoskeletal disease (& [arthritis] or [orthopaedic disorder]) (situation)",
+    "im:code" : "137807004"
+  }, {
+    "@id" : "sn:266907002",
+    "rdfs:label" : "Family history: Musculoskeletal disease (situation)",
+    "im:code" : "266907002"
+  }, {
+    "@id" : "sn:275134007",
+    "rdfs:label" : "Family history: Arthritis (situation)",
+    "im:code" : "275134007"
+  }, {
+    "@id" : "sn:137808009",
+    "rdfs:label" : "FH: Rheumatoid arthritis (situation)",
+    "im:code" : "137808009"
+  }, {
+    "@id" : "sn:160413008",
+    "rdfs:label" : "Family history: Rheumatoid arthritis (situation)",
+    "im:code" : "160413008"
+  }, {
+    "@id" : "sn:137809001",
+    "rdfs:label" : "FH: Osteoarthritis (situation)",
+    "im:code" : "137809001"
+  }, {
+    "@id" : "sn:160414002",
+    "rdfs:label" : "Family history: Osteoarthritis (situation)",
+    "im:code" : "160414002"
+  }, {
+    "@id" : "sn:137810006",
+    "rdfs:label" : "FH: Scleroderma (situation)",
+    "im:code" : "137810006"
+  }, {
+    "@id" : "sn:443720007",
+    "rdfs:label" : "Family history of systemic sclerosis (situation)",
+    "im:code" : "443720007"
+  }, {
+    "@id" : "sn:443868006",
+    "rdfs:label" : "Family history of morphea (situation)",
+    "im:code" : "443868006"
+  }, {
+    "@id" : "sn:137811005",
+    "rdfs:label" : "FH: Musculo-skeletal dis. NOS (situation)",
+    "im:code" : "137811005"
+  }, {
+    "@id" : "sn:137812003",
+    "rdfs:label" : "FH: Congenital anomaly (situation)",
+    "im:code" : "137812003"
+  }, {
+    "@id" : "sn:160417009",
+    "rdfs:label" : [ "Family history: Congenital anomaly (situation)", "Family history of congenital disease (situation)" ],
+    "im:code" : "160417009"
+  }, {
+    "@id" : "sn:137813008",
+    "rdfs:label" : "FH: Anencephaly (situation)",
+    "im:code" : "137813008"
+  }, {
+    "@id" : "sn:160418004",
+    "rdfs:label" : "Family history: Anencephaly (situation)",
+    "im:code" : "160418004"
+  }, {
+    "@id" : "sn:137814002",
+    "rdfs:label" : "FH: Spina bifida (situation)",
+    "im:code" : "137814002"
+  }, {
+    "@id" : "sn:160419007",
+    "rdfs:label" : "Family history: Spina bifida (situation)",
+    "im:code" : "160419007"
+  }, {
+    "@id" : "sn:137815001",
+    "rdfs:label" : "FH: Congenital CVS anomaly (& [heart disease]) (situation)",
+    "im:code" : "137815001"
+  }, {
+    "@id" : "sn:266908007",
+    "rdfs:label" : "Family history of congenital anomaly of cardiovascular system (situation)",
+    "im:code" : "266908007"
+  }, {
+    "@id" : "sn:137816000",
+    "rdfs:label" : "FH: Congenital RS anomaly (situation)",
+    "im:code" : "137816000"
+  }, {
+    "@id" : "sn:160421002",
+    "rdfs:label" : "Family history of congenital respiratory system anomaly (situation)",
+    "im:code" : "160421002"
+  }, {
+    "@id" : "sn:137817009",
+    "rdfs:label" : "FH: Congenital GIT anomaly (situation)",
+    "im:code" : "137817009"
+  }, {
+    "@id" : "sn:160422009",
+    "rdfs:label" : "Family history: Congenital gastrointestinal tract anomaly (situation)",
+    "im:code" : "160422009"
+  }, {
+    "@id" : "sn:137818004",
+    "rdfs:label" : "FH: Congenital GU anomaly (situation)",
+    "im:code" : "137818004"
+  }, {
+    "@id" : "sn:160423004",
+    "rdfs:label" : "Family history: Congenital genitourinary anomaly (situation)",
+    "im:code" : "160423004"
+  }, {
+    "@id" : "sn:137819007",
+    "rdfs:label" : "FH: Cong. orthopaedic anomaly (situation)",
+    "im:code" : "137819007"
+  }, {
+    "@id" : "sn:160424005",
+    "rdfs:label" : "Family history: Congenital orthopedic anomaly (situation)",
+    "im:code" : "160424005"
+  }, {
+    "@id" : "sn:137820001",
+    "rdfs:label" : "FH: Chromosomal anomaly (situation)",
+    "im:code" : "137820001"
+  }, {
+    "@id" : "sn:160425006",
+    "rdfs:label" : [ "Family history: Chromosomal anomaly (situation)", "Family history of chromosomal anomaly (situation)" ],
+    "im:code" : "160425006"
+  }, {
+    "@id" : "sn:137821002",
+    "rdfs:label" : "FH: Congenital anomaly NOS (situation)",
+    "im:code" : "137821002"
+  }, {
+    "@id" : "sn:137823004",
+    "rdfs:label" : "FH: Mother alive and well (situation)",
+    "im:code" : "137823004"
+  }, {
+    "@id" : "sn:160428008",
+    "rdfs:label" : "Family history: Mother alive and well (situation)",
+    "im:code" : "160428008"
+  }, {
+    "@id" : "sn:137824005",
+    "rdfs:label" : "FH: Mother alive with problem (situation)",
+    "im:code" : "137824005"
+  }, {
+    "@id" : "sn:160429000",
+    "rdfs:label" : "Family history: Mother alive with problem (situation)",
+    "im:code" : "160429000"
+  }, {
+    "@id" : "sn:137825006",
+    "rdfs:label" : "FH: Mother dead (situation)",
+    "im:code" : "137825006"
+  }, {
+    "@id" : "sn:137828008",
+    "rdfs:label" : "FH: Father alive and well (situation)",
+    "im:code" : "137828008"
+  }, {
+    "@id" : "sn:160434001",
+    "rdfs:label" : "Family history: Father alive and well (situation)",
+    "im:code" : "160434001"
+  }, {
+    "@id" : "sn:137829000",
+    "rdfs:label" : "FH: Father alive with problem (situation)",
+    "im:code" : "137829000"
+  }, {
+    "@id" : "sn:160435000",
+    "rdfs:label" : "Family history: Father alive with problem (situation)",
+    "im:code" : "160435000"
+  }, {
+    "@id" : "sn:137830005",
+    "rdfs:label" : "FH: Father dead (situation)",
+    "im:code" : "137830005"
+  }, {
+    "@id" : "sn:137833007",
+    "rdfs:label" : "FH: Sister alive and well (situation)",
+    "im:code" : "137833007"
+  }, {
+    "@id" : "sn:160440008",
+    "rdfs:label" : "Family history: Sister alive and well (situation)",
+    "im:code" : "160440008"
+  }, {
+    "@id" : "sn:137834001",
+    "rdfs:label" : "FH: Sister alive with problem (situation)",
+    "im:code" : "137834001"
+  }, {
+    "@id" : "sn:160441007",
+    "rdfs:label" : "Family history: Sister alive with problem (situation)",
+    "im:code" : "160441007"
+  }, {
+    "@id" : "sn:137835000",
+    "rdfs:label" : "FH: Sister dead (situation)",
+    "im:code" : "137835000"
+  }, {
+    "@id" : "sn:160442000",
+    "rdfs:label" : "Sister deceased (situation)",
+    "im:code" : "160442000"
+  }, {
+    "@id" : "sn:137838003",
+    "rdfs:label" : "FH: Brother alive and well (situation)",
+    "im:code" : "137838003"
+  }, {
+    "@id" : "sn:160445003",
+    "rdfs:label" : "Family history: Brother alive and well (situation)",
+    "im:code" : "160445003"
+  }, {
+    "@id" : "sn:137839006",
+    "rdfs:label" : "FH: Brother alive with problem (situation)",
+    "im:code" : "137839006"
+  }, {
+    "@id" : "sn:160446002",
+    "rdfs:label" : "Family history: Brother alive with problem (situation)",
+    "im:code" : "160446002"
+  }, {
+    "@id" : "sn:137840008",
+    "rdfs:label" : "FH: Brother dead (situation)",
+    "im:code" : "137840008"
+  }, {
+    "@id" : "sn:160447006",
+    "rdfs:label" : "Brother deceased (situation)",
+    "im:code" : "160447006"
+  }, {
+    "@id" : "sn:137843005",
+    "rdfs:label" : "FH: Son alive and well (situation)",
+    "im:code" : "137843005"
+  }, {
+    "@id" : "sn:160450009",
+    "rdfs:label" : "Family history: Son alive and well (situation)",
+    "im:code" : "160450009"
+  }, {
+    "@id" : "sn:137844004",
+    "rdfs:label" : "FH: Son alive with problem (situation)",
+    "im:code" : "137844004"
+  }, {
+    "@id" : "sn:160451008",
+    "rdfs:label" : "Family history: Son alive with problem (situation)",
+    "im:code" : "160451008"
+  }, {
+    "@id" : "sn:137845003",
+    "rdfs:label" : "FH: Son dead (situation)",
+    "im:code" : "137845003"
+  }, {
+    "@id" : "sn:160452001",
+    "rdfs:label" : "Son deceased (situation)",
+    "im:code" : "160452001"
+  }, {
+    "@id" : "sn:137848001",
+    "rdfs:label" : "FH: Daughter alive and well (situation)",
+    "im:code" : "137848001"
+  }, {
+    "@id" : "sn:160455004",
+    "rdfs:label" : "Family history: Daughter alive and well (situation)",
+    "im:code" : "160455004"
+  }, {
+    "@id" : "sn:137849009",
+    "rdfs:label" : "FH: Daughter alive with problem (situation)",
+    "im:code" : "137849009"
+  }, {
+    "@id" : "sn:160456003",
+    "rdfs:label" : "Family history: Daughter alive with problem (situation)",
+    "im:code" : "160456003"
+  }, {
+    "@id" : "sn:137850009",
+    "rdfs:label" : "FH: Daughter dead (situation)",
+    "im:code" : "137850009"
+  }, {
+    "@id" : "sn:160457007",
+    "rdfs:label" : "Daughter deceased (situation)",
+    "im:code" : "160457007"
+  }, {
+    "@id" : "sn:137862008",
+    "rdfs:label" : "FH: Allergy (situation)",
+    "im:code" : "137862008"
+  }, {
+    "@id" : "sn:160469004",
+    "rdfs:label" : "Family history: Allergy (situation)",
+    "im:code" : "160469004"
+  }, {
+    "@id" : "sn:137865005",
+    "rdfs:label" : "FH: Sudden infant death (situation)",
+    "im:code" : "137865005"
+  }, {
+    "@id" : "sn:137866006",
+    "rdfs:label" : "FH: Non-accidental injury to child (situation)",
+    "im:code" : "137866006"
+  }, {
+    "@id" : "sn:160472006",
+    "rdfs:label" : "Family history: Non-accidental injury to child (situation)",
+    "im:code" : "160472006"
+  }, {
+    "@id" : "sn:137867002",
+    "rdfs:label" : "FH: Death under 60 years (situation)",
+    "im:code" : "137867002"
+  }, {
+    "@id" : "sn:160473001",
+    "rdfs:label" : "Family history: Death under 60 years (situation)",
+    "im:code" : "160473001"
+  }, {
+    "@id" : "sn:137868007",
+    "rdfs:label" : "FH: Atopy (situation)",
+    "im:code" : "137868007"
+  }, {
+    "@id" : "sn:160474007",
+    "rdfs:label" : "Family history: Atopy (situation)",
+    "im:code" : "160474007"
+  }, {
+    "@id" : "sn:137869004",
+    "rdfs:label" : "FH: Consanguinity (situation)",
+    "im:code" : "137869004"
+  }, {
+    "@id" : "sn:160475008",
+    "rdfs:label" : "Family history: Consanguinity (situation)",
+    "im:code" : "160475008"
+  }, {
+    "@id" : "sn:138161000",
+    "rdfs:label" : "Parents separated (situation)",
+    "im:code" : "138161000"
+  }, {
+    "@id" : "sn:138162007",
+    "rdfs:label" : "Father remarried (situation)",
+    "im:code" : "138162007"
+  }, {
+    "@id" : "sn:138163002",
+    "rdfs:label" : "Mother remarried (situation)",
+    "im:code" : "138163002"
+  }, {
+    "@id" : "sn:138190006",
+    "rdfs:label" : "Imprisonment of family member (finding)",
+    "im:code" : "138190006"
+  }, {
+    "@id" : "sn:138193008",
+    "rdfs:label" : "(H/O: cot death in family) or (cot death in family) (situation)",
+    "im:code" : "138193008"
+  }, {
+    "@id" : "sn:138209006",
+    "rdfs:label" : "Vulnerable child in family (situation)",
+    "im:code" : "138209006"
+  }, {
+    "@id" : "sn:138263009",
+    "rdfs:label" : "(Family illness) or (handicapped relative) or (relative ill) (situation)",
+    "im:code" : "138263009"
+  }, {
+    "@id" : "sn:266966009",
+    "rdfs:label" : "Family illness (situation)",
+    "im:code" : "266966009"
+  }, {
+    "@id" : "sn:281020005",
+    "rdfs:label" : "Family history of handicap (situation)",
+    "im:code" : "281020005"
+  }, {
+    "@id" : "sn:138264003",
+    "rdfs:label" : "Handicapped: [relative - physically] or [spouse] or [child] (situation)",
+    "im:code" : "138264003"
+  }, {
+    "@id" : "sn:160948006",
+    "rdfs:label" : "Spouse is handicapped (situation)",
+    "im:code" : "160948006"
+  }, {
+    "@id" : "sn:266967000",
+    "rdfs:label" : "Family history of physical handicap (situation)",
+    "im:code" : "266967000"
+  }, {
+    "@id" : "sn:444333006",
+    "rdfs:label" : "History of handicap in child of subject (situation)",
+    "im:code" : "444333006"
+  }, {
+    "@id" : "sn:138265002",
+    "rdfs:label" : "Relative - [mental handicap] or [Mongol child] (finding)",
+    "im:code" : "138265002"
+  }, {
+    "@id" : "sn:281022002",
+    "rdfs:label" : [ "Down's child in family (situation)", "Family history of complete trisomy 21 syndrome (situation)" ],
+    "im:code" : "281022002"
+  }, {
+    "@id" : "sn:138266001",
+    "rdfs:label" : "(Relative with psychotic illness) or (alcoholic spouse) or (schizophrenic child) (finding)",
+    "im:code" : "138266001"
+  }, {
+    "@id" : "sn:266969002",
+    "rdfs:label" : "Family history of psychotic illness (situation)",
+    "im:code" : "266969002"
+  }, {
+    "@id" : "sn:444180005",
+    "rdfs:label" : "History of schizophrenia in child of subject (situation)",
+    "im:code" : "444180005"
+  }, {
+    "@id" : "sn:138267005",
+    "rdfs:label" : "Relative - chronic medical disorder (& [diabetic child]) (situation)",
+    "im:code" : "138267005"
+  }, {
+    "@id" : "sn:266970001",
+    "rdfs:label" : "Family history of chronic medical disorder (situation)",
+    "im:code" : "266970001"
+  }, {
+    "@id" : "sn:444094009",
+    "rdfs:label" : "History of diabetes mellitus in child of subject (situation)",
+    "im:code" : "444094009"
+  }, {
+    "@id" : "sn:138269008",
+    "rdfs:label" : "Relative - acute medical disorder (situation)",
+    "im:code" : "138269008"
+  }, {
+    "@id" : "sn:160953001",
+    "rdfs:label" : "Family history of acute medical disorder (situation)",
+    "im:code" : "160953001"
+  }, {
+    "@id" : "sn:138270009",
+    "rdfs:label" : "(Spouse unwell) or (has infirm partner) (finding)",
+    "im:code" : "138270009"
+  }, {
+    "@id" : "sn:266971002",
+    "rdfs:label" : "Spouse unwell (situation)",
+    "im:code" : "266971002"
+  }, {
+    "@id" : "sn:138271008",
+    "rdfs:label" : "(Relative: [with terminal illness] or [diabetic]) or (family illness NOS) (finding)",
+    "im:code" : "138271008"
+  }, {
+    "@id" : "sn:248541003",
+    "rdfs:label" : "Relative with terminal illness (situation)",
+    "im:code" : "248541003"
+  }, {
+    "@id" : "sn:138273006",
+    "rdfs:label" : "Death of spouse (event)",
+    "im:code" : "138273006"
+  }, {
+    "@id" : "sn:138274000",
+    "rdfs:label" : "Death of infant (event)",
+    "im:code" : "138274000"
+  }, {
+    "@id" : "sn:739682007",
+    "rdfs:label" : "Infant of patient deceased (situation)",
+    "im:code" : "739682007"
+  }, {
+    "@id" : "sn:138276003",
+    "rdfs:label" : "Death of son (event)",
+    "im:code" : "138276003"
+  }, {
+    "@id" : "sn:138277007",
+    "rdfs:label" : "Death of daughter (event)",
+    "im:code" : "138277007"
+  }, {
+    "@id" : "sn:138278002",
+    "rdfs:label" : "Death of father (event)",
+    "im:code" : "138278002"
+  }, {
+    "@id" : "sn:138279005",
+    "rdfs:label" : "Death of mother (event)",
+    "im:code" : "138279005"
+  }, {
+    "@id" : "sn:138280008",
+    "rdfs:label" : "Death of brother (event)",
+    "im:code" : "138280008"
+  }, {
+    "@id" : "sn:138281007",
+    "rdfs:label" : "Death of sister (event)",
+    "im:code" : "138281007"
+  }, {
+    "@id" : "sn:138282000",
+    "rdfs:label" : "Suicide of close relative (event)",
+    "im:code" : "138282000"
+  }, {
+    "@id" : "sn:138283005",
+    "rdfs:label" : "Death of sibling (event)",
+    "im:code" : "138283005"
+  }, {
+    "@id" : "sn:138284004",
+    "rdfs:label" : "Death of child (event)",
+    "im:code" : "138284004"
+  }, {
+    "@id" : "sn:138285003",
+    "rdfs:label" : "Relative killed (event)",
+    "im:code" : "138285003"
+  }, {
+    "@id" : "sn:138377009",
+    "rdfs:label" : "Child abuse in family (finding)",
+    "im:code" : "138377009"
+  }, {
+    "@id" : "sn:138381009",
+    "rdfs:label" : "Legal problem in family (finding)",
+    "im:code" : "138381009"
+  }, {
+    "@id" : "sn:138388003",
+    "rdfs:label" : "Spouse works away from home (finding)",
+    "im:code" : "138388003"
+  }, {
+    "@id" : "sn:138389006",
+    "rdfs:label" : "Family smoking history (situation)",
+    "im:code" : "138389006"
+  }, {
+    "@id" : "sn:139067008",
+    "rdfs:label" : "H/O: perinatal fetal loss (situation)",
+    "im:code" : "139067008"
+  }, {
+    "@id" : "sn:161811009",
+    "rdfs:label" : "History of perinatal fetal loss (situation)",
+    "im:code" : "161811009"
+  }, {
+    "@id" : "sn:146982003",
+    "rdfs:label" : "Mother currently breast-feeding (finding)",
+    "im:code" : "146982003"
+  }, {
+    "@id" : "sn:866041003",
+    "rdfs:label" : "Mother currently breastfeeding (situation)",
+    "im:code" : "866041003"
+  }, {
+    "@id" : "sn:147161001",
+    "rdfs:label" : "(Apgar at 10 minutes = 5) or (drug abuse - maternal) (finding)",
+    "im:code" : "147161001"
+  }, {
+    "@id" : "sn:442080007",
+    "rdfs:label" : "Drug misuse by mother (situation)",
+    "im:code" : "442080007"
+  }, {
+    "@id" : "sn:147162008",
+    "rdfs:label" : "(Apgar at 10 minutes = 6) or (alcohol abuse -maternal) (finding)",
+    "im:code" : "147162008"
+  }, {
+    "@id" : "sn:789612004",
+    "rdfs:label" : "Alcohol abuse by mother (situation)",
+    "im:code" : "789612004"
+  }, {
+    "@id" : "sn:147174007",
+    "rdfs:label" : "Maternal drug abuse (finding)",
+    "im:code" : "147174007"
+  }, {
+    "@id" : "sn:147175008",
+    "rdfs:label" : "Maternal alcohol abuse (finding)",
+    "im:code" : "147175008"
+  }, {
+    "@id" : "sn:157037001",
+    "rdfs:label" : "Maternal medical problem (disorder)",
+    "im:code" : "157037001"
+  }, {
+    "@id" : "sn:281667005",
+    "rdfs:label" : "Maternal history of disorder (situation)",
+    "im:code" : "281667005"
+  }, {
+    "@id" : "sn:157039003",
+    "rdfs:label" : "Maternal renal/urinary disorder (disorder)",
+    "im:code" : "157039003"
+  }, {
+    "@id" : "sn:288251002",
+    "rdfs:label" : "Maternal renal/urinary disorder (situation)",
+    "im:code" : "288251002"
+  }, {
+    "@id" : "sn:157040001",
+    "rdfs:label" : "Maternal infection (disorder)",
+    "im:code" : "157040001"
+  }, {
+    "@id" : "sn:288252009",
+    "rdfs:label" : "Maternal infection (situation)",
+    "im:code" : "288252009"
+  }, {
+    "@id" : "sn:157041002",
+    "rdfs:label" : "Maternal chronic respiratory/cardiovascular system NOS (disorder)",
+    "im:code" : "157041002"
+  }, {
+    "@id" : "sn:157042009",
+    "rdfs:label" : "Maternal nutritional disorder (disorder)",
+    "im:code" : "157042009"
+  }, {
+    "@id" : "sn:288254005",
+    "rdfs:label" : "Maternal nutritional disorder (situation)",
+    "im:code" : "288254005"
+  }, {
+    "@id" : "sn:157043004",
+    "rdfs:label" : "Maternal injury (disorder)",
+    "im:code" : "157043004"
+  }, {
+    "@id" : "sn:268858006",
+    "rdfs:label" : "Maternal injury (situation)",
+    "im:code" : "268858006"
+  }, {
+    "@id" : "sn:157044005",
+    "rdfs:label" : "Maternal surgical operation (disorder)",
+    "im:code" : "157044005"
+  }, {
+    "@id" : "sn:288255006",
+    "rdfs:label" : "Maternal surgical operation (situation)",
+    "im:code" : "288255006"
+  }, {
+    "@id" : "sn:157046007",
+    "rdfs:label" : "H/O - maternal psychiatric problem (disorder)",
+    "im:code" : "157046007"
+  }, {
+    "@id" : "sn:288256007",
+    "rdfs:label" : "History of maternal psychiatric problem (situation)",
+    "im:code" : "288256007"
+  }, {
+    "@id" : "sn:157047003",
+    "rdfs:label" : "Maternal medical problem NOS (disorder)",
+    "im:code" : "157047003"
+  }, {
+    "@id" : "sn:157061008",
+    "rdfs:label" : "Maternal placental insuffic. (disorder)",
+    "im:code" : "157061008"
+  }, {
+    "@id" : "sn:268861007",
+    "rdfs:label" : "Maternal placental insufficiency (situation)",
+    "im:code" : "268861007"
+  }, {
+    "@id" : "sn:157062001",
+    "rdfs:label" : "Maternal prolapsed cord (disorder)",
+    "im:code" : "157062001"
+  }, {
+    "@id" : "sn:268862000",
+    "rdfs:label" : "Maternal prolapsed cord (situation)",
+    "im:code" : "268862000"
+  }, {
+    "@id" : "sn:160283000",
+    "rdfs:label" : "Family history: Infectious disease NOS (situation)",
+    "im:code" : "160283000"
+  }, {
+    "@id" : "sn:160284006",
+    "rdfs:label" : "FH: Neoplasm - * (& [carcinoma - *] or [cancer]) (situation)",
+    "im:code" : "160284006"
+  }, {
+    "@id" : "sn:160285007",
+    "rdfs:label" : "FH: * - gastrointestinal tract (& [stomach] or [bowel] or [intestinal]) (situation)",
+    "im:code" : "160285007"
+  }, {
+    "@id" : "sn:275109007",
+    "rdfs:label" : "Family history: Bowel cancer (situation)",
+    "im:code" : "275109007"
+  }, {
+    "@id" : "sn:160286008",
+    "rdfs:label" : "FH: neoplasm of trachea &/or bronchus &/or lung (situation)",
+    "im:code" : "160286008"
+  }, {
+    "@id" : "sn:160287004",
+    "rdfs:label" : "FH: neoplasm of breast (& cancer) (situation)",
+    "im:code" : "160287004"
+  }, {
+    "@id" : "sn:313102001",
+    "rdfs:label" : "Family history of neoplasm of breast (situation)",
+    "im:code" : "313102001"
+  }, {
+    "@id" : "sn:160289001",
+    "rdfs:label" : "FH: neoplasm of female genital organ (& [ovarian carcinoma]) (situation)",
+    "im:code" : "160289001"
+  }, {
+    "@id" : "sn:160291009",
+    "rdfs:label" : "Family history: neoplasm - urinary organ (situation)",
+    "im:code" : "160291009"
+  }, {
+    "@id" : "sn:71241000119100",
+    "rdfs:label" : "Family history of malignant hematopoietic neoplasm (situation)",
+    "im:code" : "71241000119100"
+  }, {
+    "@id" : "sn:160293007",
+    "rdfs:label" : "Family history: neoplasm - other lymphoid/hematopoietic (situation)",
+    "im:code" : "160293007"
+  }, {
+    "@id" : "sn:160295000",
+    "rdfs:label" : "Family history: neoplasm of ears, nose, throat (situation)",
+    "im:code" : "160295000"
+  }, {
+    "@id" : "sn:160296004",
+    "rdfs:label" : "Family history: neoplasm - other intrathoracic organ (situation)",
+    "im:code" : "160296004"
+  }, {
+    "@id" : "sn:297246009",
+    "rdfs:label" : "Family history of female genital tract disorder (situation)",
+    "im:code" : "297246009"
+  }, {
+    "@id" : "sn:160300003",
+    "rdfs:label" : "Family history: neoplasm - NOS (situation)",
+    "im:code" : "160300003"
+  }, {
+    "@id" : "sn:160304007",
+    "rdfs:label" : "Family history: Endocrine disorder NOS (situation)",
+    "im:code" : "160304007"
+  }, {
+    "@id" : "sn:160307000",
+    "rdfs:label" : "FH: Raised blood lipids (& [cholesterol] or [triglyceride]) (situation)",
+    "im:code" : "160307000"
+  }, {
+    "@id" : "sn:429962007",
+    "rdfs:label" : "Family history of hereditary disease (situation)",
+    "im:code" : "429962007"
+  }, {
+    "@id" : "sn:160312004",
+    "rdfs:label" : "Family history: Cholinesterase deficiency (situation)",
+    "im:code" : "160312004"
+  }, {
+    "@id" : "sn:725117008",
+    "rdfs:label" : "Family history of hyperlipidemia (situation)",
+    "im:code" : "725117008"
+  }, {
+    "@id" : "sn:160315002",
+    "rdfs:label" : "Family history: Metabolic disorder NOS (situation)",
+    "im:code" : "160315002"
+  }, {
+    "@id" : "sn:160317005",
+    "rdfs:label" : "FH: Anaemia (& [Addisonian]) (situation)",
+    "im:code" : "160317005"
+  }, {
+    "@id" : "sn:297243001",
+    "rdfs:label" : "Family history of pernicious anemia (situation)",
+    "im:code" : "297243001"
+  }, {
+    "@id" : "sn:64501000119109",
+    "rdfs:label" : "Family history of hemoglobinopathy (situation)",
+    "im:code" : "64501000119109"
+  }, {
+    "@id" : "sn:160322005",
+    "rdfs:label" : "FH: Haemophilia (& [spouse]) (situation)",
+    "im:code" : "160322005"
+  }, {
+    "@id" : "sn:275113000",
+    "rdfs:label" : "Spouse hemophiliac (situation)",
+    "im:code" : "275113000"
+  }, {
+    "@id" : "sn:160323000",
+    "rdfs:label" : "Family history: Blood disorder NOS (situation)",
+    "im:code" : "160323000"
+  }, {
+    "@id" : "sn:429961000",
+    "rdfs:label" : "Family history of dementia (situation)",
+    "im:code" : "429961000"
+  }, {
+    "@id" : "sn:160326008",
+    "rdfs:label" : "(FH: alcoholism) or (alcoholic in family) (situation)",
+    "im:code" : "160326008"
+  }, {
+    "@id" : "sn:160330006",
+    "rdfs:label" : "FH: Mental [retardation] or [handicap] (situation)",
+    "im:code" : "160330006"
+  }, {
+    "@id" : "sn:160331005",
+    "rdfs:label" : "Family history: Manic-depressive state (situation)",
+    "im:code" : "160331005"
+  }, {
+    "@id" : "sn:160332003",
+    "rdfs:label" : "Family history: Anxiety state (situation)",
+    "im:code" : "160332003"
+  }, {
+    "@id" : "sn:740604001",
+    "rdfs:label" : "Family member deceased (situation)",
+    "im:code" : "740604001"
+  }, {
+    "@id" : "sn:160334002",
+    "rdfs:label" : "Family history: Mental disorder NOS (situation)",
+    "im:code" : "160334002"
+  }, {
+    "@id" : "sn:160335001",
+    "rdfs:label" : "FH: Nervous system disorder (& [brain] or [central]) (situation)",
+    "im:code" : "160335001"
+  }, {
+    "@id" : "sn:430809001",
+    "rdfs:label" : "Family history of movement disorder (situation)",
+    "im:code" : "430809001"
+  }, {
+    "@id" : "sn:431882002",
+    "rdfs:label" : "Family history of disorder of peripheral nervous system (situation)",
+    "im:code" : "431882002"
+  }, {
+    "@id" : "sn:737367001",
+    "rdfs:label" : "Family history of disorder of immune function (situation)",
+    "im:code" : "737367001"
+  }, {
+    "@id" : "sn:430711004",
+    "rdfs:label" : "Family history of seizure disorder (situation)",
+    "im:code" : "430711004"
+  }, {
+    "@id" : "sn:429963002",
+    "rdfs:label" : "Family history of headache disorder (situation)",
+    "im:code" : "429963002"
+  }, {
+    "@id" : "sn:412749001",
+    "rdfs:label" : "Family history of development disorder (situation)",
+    "im:code" : "412749001"
+  }, {
+    "@id" : "sn:160344000",
+    "rdfs:label" : "Family history: Motor neurone disease (situation)",
+    "im:code" : "160344000"
+  }, {
+    "@id" : "sn:160345004",
+    "rdfs:label" : "FH: [CNS disorder NOS] or [Parkinsonism] (situation)",
+    "im:code" : "160345004"
+  }, {
+    "@id" : "sn:329351000119105",
+    "rdfs:label" : "Family history of non-glaucomatous eye disorder (situation)",
+    "im:code" : "329351000119105"
+  }, {
+    "@id" : "sn:160349005",
+    "rdfs:label" : "FH: Blindness &/or low vision (situation)",
+    "im:code" : "160349005"
+  }, {
+    "@id" : "sn:275119001",
+    "rdfs:label" : "Family history: Low vision (situation)",
+    "im:code" : "275119001"
+  }, {
+    "@id" : "sn:160350005",
+    "rdfs:label" : "Family history: Squint (situation)",
+    "im:code" : "160350005"
+  }, {
+    "@id" : "sn:160351009",
+    "rdfs:label" : "Family history: Eye disorder NOS (situation)",
+    "im:code" : "160351009"
+  }, {
+    "@id" : "sn:439750006",
+    "rdfs:label" : "Family history of hearing loss (situation)",
+    "im:code" : "439750006"
+  }, {
+    "@id" : "sn:160354001",
+    "rdfs:label" : "Family history: Otosclerosis (situation)",
+    "im:code" : "160354001"
+  }, {
+    "@id" : "sn:160355000",
+    "rdfs:label" : "Family history: Ear disorder NOS (situation)",
+    "im:code" : "160355000"
+  }, {
+    "@id" : "sn:160356004",
+    "rdfs:label" : "FH: cardiovascular disease (& [cardiac disorder] or [angina]) (situation)",
+    "im:code" : "160356004"
+  }, {
+    "@id" : "sn:275121006",
+    "rdfs:label" : "Family history: Angina (situation)",
+    "im:code" : "275121006"
+  }, {
+    "@id" : "sn:160358003",
+    "rdfs:label" : "FH: Ischaemic heart disease <60 (& [myocardial infarction] or [angina]) (situation)",
+    "im:code" : "160358003"
+  }, {
+    "@id" : "sn:275122004",
+    "rdfs:label" : "Family history: Myocardial infarction at less than 60 (situation)",
+    "im:code" : "275122004"
+  }, {
+    "@id" : "sn:275932007",
+    "rdfs:label" : "Family history: Angina at less than 60 years (situation)",
+    "im:code" : "275932007"
+  }, {
+    "@id" : "sn:160359006",
+    "rdfs:label" : "FH: Ischaemic heart disease >60 (& [myocardial infarction] or [angina]) (situation)",
+    "im:code" : "160359006"
+  }, {
+    "@id" : "sn:275123009",
+    "rdfs:label" : "Family history: Myocardial infarction at greater than 60 (situation)",
+    "im:code" : "275123009"
+  }, {
+    "@id" : "sn:275911004",
+    "rdfs:label" : "Family history: Angina at greater than 60 years (situation)",
+    "im:code" : "275911004"
+  }, {
+    "@id" : "sn:160360001",
+    "rdfs:label" : "FH: CVA &/or stroke (situation)",
+    "im:code" : "160360001"
+  }, {
+    "@id" : "sn:160361002",
+    "rdfs:label" : "FH: ischaemic heart disease (& [myocardial infarction] or [coronary thrombosis]) (situation)",
+    "im:code" : "160361002"
+  }, {
+    "@id" : "sn:160365006",
+    "rdfs:label" : "FH: Thrombosis (situation)",
+    "im:code" : "160365006"
+  }, {
+    "@id" : "sn:160366007",
+    "rdfs:label" : "FH myocardial infarction male first degree age known (situation)",
+    "im:code" : "160366007"
+  }, {
+    "@id" : "sn:160367003",
+    "rdfs:label" : "FH myocardial infarction male first degree age unknown (situation)",
+    "im:code" : "160367003"
+  }, {
+    "@id" : "sn:160368008",
+    "rdfs:label" : "FH myocardial infarction female first degree age known (situation)",
+    "im:code" : "160368008"
+  }, {
+    "@id" : "sn:160369000",
+    "rdfs:label" : "FH myocardial infarction female first degree age unknown (situation)",
+    "im:code" : "160369000"
+  }, {
+    "@id" : "sn:160370004",
+    "rdfs:label" : "FH angina male first degree age known (situation)",
+    "im:code" : "160370004"
+  }, {
+    "@id" : "sn:160371000",
+    "rdfs:label" : "FH angina male first degree age unknown (situation)",
+    "im:code" : "160371000"
+  }, {
+    "@id" : "sn:160372007",
+    "rdfs:label" : "FH angina female first degree age known (situation)",
+    "im:code" : "160372007"
+  }, {
+    "@id" : "sn:160373002",
+    "rdfs:label" : "FH angina female first degree age unknown (situation)",
+    "im:code" : "160373002"
+  }, {
+    "@id" : "sn:160374008",
+    "rdfs:label" : "Family history: CVS disease NOS (situation)",
+    "im:code" : "160374008"
+  }, {
+    "@id" : "sn:160375009",
+    "rdfs:label" : "FH: Respiratory disease (& [lung disease]) (situation)",
+    "im:code" : "160375009"
+  }, {
+    "@id" : "sn:160376005",
+    "rdfs:label" : "FH: Bronchitis &/or COAD (situation)",
+    "im:code" : "160376005"
+  }, {
+    "@id" : "sn:297241004",
+    "rdfs:label" : "Family history of chronic obstructive lung disease (situation)",
+    "im:code" : "297241004"
+  }, {
+    "@id" : "sn:430564002",
+    "rdfs:label" : "Family history of disorder of lung (situation)",
+    "im:code" : "430564002"
+  }, {
+    "@id" : "sn:151181000119106",
+    "rdfs:label" : "Family history of chronic respiratory disease (situation)",
+    "im:code" : "151181000119106"
+  }, {
+    "@id" : "sn:160380000",
+    "rdfs:label" : "Family history: Respiratory disease NOS (situation)",
+    "im:code" : "160380000"
+  }, {
+    "@id" : "sn:160382008",
+    "rdfs:label" : "FH: Peptic ulceration (& [duodenal] or [gastric]) (situation)",
+    "im:code" : "160382008"
+  }, {
+    "@id" : "sn:160383003",
+    "rdfs:label" : "FH: Colitis (& [ulcerative]) (situation)",
+    "im:code" : "160383003"
+  }, {
+    "@id" : "sn:160384009",
+    "rdfs:label" : "FH: Liver disease (& [hepatitis]) (situation)",
+    "im:code" : "160384009"
+  }, {
+    "@id" : "sn:160385005",
+    "rdfs:label" : "FH: Biliary disease (& [gallbladder])",
+    "im:code" : "160385005"
+  }, {
+    "@id" : "sn:160386006",
+    "rdfs:label" : "Family history: Crohn's disease (situation)",
+    "im:code" : "160386006"
+  }, {
+    "@id" : "sn:160387002",
+    "rdfs:label" : "Family history: Gastrointestinal disorder NOS (situation)",
+    "im:code" : "160387002"
+  }, {
+    "@id" : "sn:160388007",
+    "rdfs:label" : "FH: Genitourinary disease (& problem [gynae] or [menses] or [period]) (situation)",
+    "im:code" : "160388007"
+  }, {
+    "@id" : "sn:160399009",
+    "rdfs:label" : "FH: genitourinary disorder [NOS] or [kidney] (situation)",
+    "im:code" : "160399009"
+  }, {
+    "@id" : "sn:160400002",
+    "rdfs:label" : "Family history: Obstetric problem (situation)",
+    "im:code" : "160400002"
+  }, {
+    "@id" : "sn:160404006",
+    "rdfs:label" : "FH: Multiple pregnancy (& [twin]) (situation)",
+    "im:code" : "160404006"
+  }, {
+    "@id" : "sn:160405007",
+    "rdfs:label" : "Family history: Obstetric problem NOS (situation)",
+    "im:code" : "160405007"
+  }, {
+    "@id" : "sn:160412003",
+    "rdfs:label" : "FH: Musculoskeletal disease (& [arthritis] or [orthopaedic disorder]) (situation)",
+    "im:code" : "160412003"
+  }, {
+    "@id" : "sn:300933005",
+    "rdfs:label" : "Family history: Autoimmune disease (situation)",
+    "im:code" : "300933005"
+  }, {
+    "@id" : "sn:160415001",
+    "rdfs:label" : "Family history: Scleroderma (situation)",
+    "im:code" : "160415001"
+  }, {
+    "@id" : "sn:160416000",
+    "rdfs:label" : "Family history: Musculo-skeletal disorder NOS (situation)",
+    "im:code" : "160416000"
+  }, {
+    "@id" : "sn:160420001",
+    "rdfs:label" : "FH: Congenital CVS anomaly (& [heart disease]) (situation)",
+    "im:code" : "160420001"
+  }, {
+    "@id" : "sn:160426007",
+    "rdfs:label" : "Family history: Congenital anomaly NOS (situation)",
+    "im:code" : "160426007"
+  }, {
+    "@id" : "sn:160431009",
+    "rdfs:label" : "Family history: Mother unwell (situation)",
+    "im:code" : "160431009"
+  }, {
+    "@id" : "sn:160437008",
+    "rdfs:label" : "Family history: Father deaf (situation)",
+    "im:code" : "160437008"
+  }, {
+    "@id" : "sn:160470003",
+    "rdfs:label" : "FH: [NOS] or [serious disease] (situation)",
+    "im:code" : "160470003"
+  }, {
+    "@id" : "sn:275136009",
+    "rdfs:label" : "Family history: Serious disease (situation)",
+    "im:code" : "275136009"
+  }, {
+    "@id" : "sn:420259009",
+    "rdfs:label" : "Family history: Age at death (situation)",
+    "im:code" : "420259009"
+  }, {
+    "@id" : "sn:160805001",
+    "rdfs:label" : "Broken home (& [parents separated] or [left home: [father] or [mother]) (finding)",
+    "im:code" : "160805001"
+  }, {
+    "@id" : "sn:275140000",
+    "rdfs:label" : "Father left home (situation)",
+    "im:code" : "275140000"
+  }, {
+    "@id" : "sn:275141001",
+    "rdfs:label" : "Mother left home (situation)",
+    "im:code" : "275141001"
+  }, {
+    "@id" : "sn:160834007",
+    "rdfs:label" : "(Domestic: [stress] or [problems] or [unsettled]) or (tower block syndrome) or (wife unable to cope) (finding)",
+    "im:code" : "160834007"
+  }, {
+    "@id" : "sn:160860008",
+    "rdfs:label" : "Husband in prison (situation)",
+    "im:code" : "160860008"
+  }, {
+    "@id" : "sn:160869009",
+    "rdfs:label" : "History of - cot death in family (context-dependent category)",
+    "im:code" : "160869009"
+  }, {
+    "@id" : "sn:160884000",
+    "rdfs:label" : "Wife pregnant (situation)",
+    "im:code" : "160884000"
+  }, {
+    "@id" : "sn:160885004",
+    "rdfs:label" : "Wife well (situation)",
+    "im:code" : "160885004"
+  }, {
+    "@id" : "sn:160886003",
+    "rdfs:label" : "Wife alive (situation)",
+    "im:code" : "160886003"
+  }, {
+    "@id" : "sn:160945009",
+    "rdfs:label" : "Family illness (& [relative] or [child]) or handicapped relative (finding)",
+    "im:code" : "160945009"
+  }, {
+    "@id" : "sn:275142008",
+    "rdfs:label" : "Sick child (situation)",
+    "im:code" : "275142008"
+  }, {
+    "@id" : "sn:160946005",
+    "rdfs:label" : "Handicapped: [relative - physically] or [spouse] or [child] (finding)",
+    "im:code" : "160946005"
+  }, {
+    "@id" : "sn:160947001",
+    "rdfs:label" : "Parent is handicapped (situation)",
+    "im:code" : "160947001"
+  }, {
+    "@id" : "sn:160949003",
+    "rdfs:label" : "Sibling is handicapped (situation)",
+    "im:code" : "160949003"
+  }, {
+    "@id" : "sn:160950003",
+    "rdfs:label" : "(Relative - mental handicap) or ([Downs] or [Mongol] child in family) (finding)",
+    "im:code" : "160950003"
+  }, {
+    "@id" : "sn:160951004",
+    "rdfs:label" : "(Relative with psychotic illness) or (alcoholic: [spouse] or [husband]) or (schizophrenic child) (finding)",
+    "im:code" : "160951004"
+  }, {
+    "@id" : "sn:160952006",
+    "rdfs:label" : "Relative - chronic medical disorder (& [diabetic child]) (finding)",
+    "im:code" : "160952006"
+  }, {
+    "@id" : "sn:160954007",
+    "rdfs:label" : "(Spouse unwell) or (has infirm partner) (finding)",
+    "im:code" : "160954007"
+  }, {
+    "@id" : "sn:160955008",
+    "rdfs:label" : "(Relative: [with terminal illness] or [diabetic]) or (family illness NOS) (finding)",
+    "im:code" : "160955008"
+  }, {
+    "@id" : "sn:160956009",
+    "rdfs:label" : "Death of infant (event)",
+    "im:code" : "160956009"
+  }, {
+    "@id" : "sn:160958005",
+    "rdfs:label" : "Death of son (event)",
+    "im:code" : "160958005"
+  }, {
+    "@id" : "sn:160960007",
+    "rdfs:label" : "Death of daughter (event)",
+    "im:code" : "160960007"
+  }, {
+    "@id" : "sn:160961006",
+    "rdfs:label" : "Death of father (event)",
+    "im:code" : "160961006"
+  }, {
+    "@id" : "sn:160962004",
+    "rdfs:label" : "Death of mother (event)",
+    "im:code" : "160962004"
+  }, {
+    "@id" : "sn:160963009",
+    "rdfs:label" : "Death of brother (event)",
+    "im:code" : "160963009"
+  }, {
+    "@id" : "sn:160964003",
+    "rdfs:label" : "Death of sister (event)",
+    "im:code" : "160964003"
+  }, {
+    "@id" : "sn:160965002",
+    "rdfs:label" : "Suicide of close relative (event)",
+    "im:code" : "160965002"
+  }, {
+    "@id" : "sn:160966001",
+    "rdfs:label" : "Relative killed (event)",
+    "im:code" : "160966001"
+  }, {
+    "@id" : "sn:161068005",
+    "rdfs:label" : "Crime against spouse (situation)",
+    "im:code" : "161068005"
+  }, {
+    "@id" : "sn:444221003",
+    "rdfs:label" : "Spouse of subject is victim of crime (situation)",
+    "im:code" : "444221003"
+  }, {
+    "@id" : "sn:161076007",
+    "rdfs:label" : "Family smoking history (& smoker in the family) (situation)",
+    "im:code" : "161076007"
+  }, {
+    "@id" : "sn:161077003",
+    "rdfs:label" : "Father smokes (situation)",
+    "im:code" : "161077003"
+  }, {
+    "@id" : "sn:161078008",
+    "rdfs:label" : "Mother smokes (situation)",
+    "im:code" : "161078008"
+  }, {
+    "@id" : "sn:161079000",
+    "rdfs:label" : "Both parents smoke (situation)",
+    "im:code" : "161079000"
+  }, {
+    "@id" : "sn:170472007",
+    "rdfs:label" : "(Threadworm contact) or (worms in the family) (procedure)",
+    "im:code" : "170472007"
+  }, {
+    "@id" : "sn:309631001",
+    "rdfs:label" : "Family history of helminth infection (situation)",
+    "im:code" : "309631001"
+  }, {
+    "@id" : "sn:206499008",
+    "rdfs:label" : "Infant of mother with gestational diabetes (disorder)",
+    "im:code" : "206499008"
+  }, {
+    "@id" : "sn:704144000",
+    "rdfs:label" : "Maternal history of diabetes mellitus (situation)",
+    "im:code" : "704144000"
+  }, {
+    "@id" : "sn:248542005",
+    "rdfs:label" : "Diabetic relative (situation)",
+    "im:code" : "248542005"
+  }, {
+    "@id" : "sn:266884005",
+    "rdfs:label" : "Family history of neoplasm of gastrointestinal tract (situation)",
+    "im:code" : "266884005"
+  }, {
+    "@id" : "sn:266885006",
+    "rdfs:label" : "Family history: neoplasm - trachea/bronchus/lung (situation)",
+    "im:code" : "266885006"
+  }, {
+    "@id" : "sn:266892001",
+    "rdfs:label" : "Family history: CNS disorder NOS (situation)",
+    "im:code" : "266892001"
+  }, {
+    "@id" : "sn:430723005",
+    "rdfs:label" : "Family history of visual disturbance (situation)",
+    "im:code" : "430723005"
+  }, {
+    "@id" : "sn:266905005",
+    "rdfs:label" : "Family history: Genitourinary disorder NOS (situation)",
+    "im:code" : "266905005"
+  }, {
+    "@id" : "sn:266968005",
+    "rdfs:label" : "Family history of mental handicap (situation)",
+    "im:code" : "266968005"
+  }, {
+    "@id" : "sn:266972009",
+    "rdfs:label" : "Family illness NOS (situation)",
+    "im:code" : "266972009"
+  }, {
+    "@id" : "sn:267114006",
+    "rdfs:label" : "FH: neoplasm of gastrointestinal tract (& [stomach]) (situation)",
+    "im:code" : "267114006"
+  }, {
+    "@id" : "sn:267115007",
+    "rdfs:label" : "FH: Spherocytosis (& [hereditary]) (situation)",
+    "im:code" : "267115007"
+  }, {
+    "@id" : "sn:267116008",
+    "rdfs:label" : "FH: sickle cell [trait] or [disease] (situation)",
+    "im:code" : "267116008"
+  }, {
+    "@id" : "sn:267117004",
+    "rdfs:label" : "FH: Cardiovascular disease (& [cardiac disorder]) (situation)",
+    "im:code" : "267117004"
+  }, {
+    "@id" : "sn:267118009",
+    "rdfs:label" : "FH: [diabetes in pregnancy] or [puerperal depression] (situation)",
+    "im:code" : "267118009"
+  }, {
+    "@id" : "sn:267119001",
+    "rdfs:label" : "FH: [alopecia] or [baldness] (situation)",
+    "im:code" : "267119001"
+  }, {
+    "@id" : "sn:267133001",
+    "rdfs:label" : "(H/O: cot death in family) or (cot death in family) (situation)",
+    "im:code" : "267133001"
+  }, {
+    "@id" : "sn:267134007",
+    "rdfs:label" : "(Family illness) or (handicapped relative) or (relative ill) (situation)",
+    "im:code" : "267134007"
+  }, {
+    "@id" : "sn:267135008",
+    "rdfs:label" : "Relative - [mental handicap] or [Mongol child] (situation)",
+    "im:code" : "267135008"
+  }, {
+    "@id" : "sn:267136009",
+    "rdfs:label" : "(Relative with psychotic illness) or (alcoholic spouse) or (schizophrenic child) (situation)",
+    "im:code" : "267136009"
+  }, {
+    "@id" : "sn:268582009",
+    "rdfs:label" : "(Apgar at 10 minutes = 5) or (drug abuse - maternal) (finding)",
+    "im:code" : "268582009"
+  }, {
+    "@id" : "sn:268583004",
+    "rdfs:label" : "(Apgar at 10 minutes = 6) or (alcohol abuse -maternal) (finding)",
+    "im:code" : "268583004"
+  }, {
+    "@id" : "sn:269811006",
+    "rdfs:label" : "[V]Family history of ischemic heart disease (situation)",
+    "im:code" : "269811006"
+  }, {
+    "@id" : "sn:271388000",
+    "rdfs:label" : "Family history of mental retardation (situation)",
+    "im:code" : "271388000"
+  }, {
+    "@id" : "sn:271389008",
+    "rdfs:label" : "Family history: CVA/stroke (situation)",
+    "im:code" : "271389008"
+  }, {
+    "@id" : "sn:271393002",
+    "rdfs:label" : "Family smoking history (situation)",
+    "im:code" : "271393002"
+  }, {
+    "@id" : "sn:271485003",
+    "rdfs:label" : "Family history: * - breast (context-dependent category)",
+    "im:code" : "271485003"
+  }, {
+    "@id" : "sn:275101005",
+    "rdfs:label" : "Family history: Mental handicap (situation)",
+    "im:code" : "275101005"
+  }, {
+    "@id" : "sn:275102003",
+    "rdfs:label" : "Family history of learning disability (situation)",
+    "im:code" : "275102003"
+  }, {
+    "@id" : "sn:275103008",
+    "rdfs:label" : "Family history: CVA (context-dependent category)",
+    "im:code" : "275103008"
+  }, {
+    "@id" : "sn:430813008",
+    "rdfs:label" : "Family history of malignant neoplasm of digestive organ (situation)",
+    "im:code" : "430813008"
+  }, {
+    "@id" : "sn:429006005",
+    "rdfs:label" : "Family history of malignant neoplasm of gastrointestinal tract (situation)",
+    "im:code" : "429006005"
+  }, {
+    "@id" : "sn:275111003",
+    "rdfs:label" : "Family history: Ovarian carcinoma (situation)",
+    "im:code" : "275111003"
+  }, {
+    "@id" : "sn:275112005",
+    "rdfs:label" : "Family history: Addisonian anemia (context-dependent category)",
+    "im:code" : "275112005"
+  }, {
+    "@id" : "sn:275114006",
+    "rdfs:label" : "Alcoholic offspring (situation)",
+    "im:code" : "275114006"
+  }, {
+    "@id" : "sn:275115007",
+    "rdfs:label" : "Alcoholic in the family (situation)",
+    "im:code" : "275115007"
+  }, {
+    "@id" : "sn:275116008",
+    "rdfs:label" : "Family history: nervous system disorder (context-dependent category)",
+    "im:code" : "275116008"
+  }, {
+    "@id" : "sn:275126001",
+    "rdfs:label" : "Family history: COAD (context-dependent category)",
+    "im:code" : "275126001"
+  }, {
+    "@id" : "sn:275135008",
+    "rdfs:label" : "Family history: heart disease, congenital (context-dependent category)",
+    "im:code" : "275135008"
+  }, {
+    "@id" : "sn:275143003",
+    "rdfs:label" : "Mongol child (context-dependent category)",
+    "im:code" : "275143003"
+  }, {
+    "@id" : "sn:275862002",
+    "rdfs:label" : "Family history of breast cancer (situation)",
+    "im:code" : "275862002"
+  }, {
+    "@id" : "sn:275901006",
+    "rdfs:label" : "Family history: MI - Myocardial infarct at greater than 60 (situation)",
+    "im:code" : "275901006"
+  }, {
+    "@id" : "sn:275930004",
+    "rdfs:label" : "Family history of ulcerative colitis (context-dependent category)",
+    "im:code" : "275930004"
+  }, {
+    "@id" : "sn:275938006",
+    "rdfs:label" : "Family history: Carcinoma - Neoplasm (situation)",
+    "im:code" : "275938006"
+  }, {
+    "@id" : "sn:275941002",
+    "rdfs:label" : "Family history: MI - Myocardial infarct at less than 60 (situation)",
+    "im:code" : "275941002"
+  }, {
+    "@id" : "sn:276109001",
+    "rdfs:label" : "Oil rig wives syndrome (finding)",
+    "im:code" : "276109001"
+  }, {
+    "@id" : "sn:288001000119103",
+    "rdfs:label" : "Family member absent due to military deployment (situation)",
+    "im:code" : "288001000119103"
+  }, {
+    "@id" : "sn:281021009",
+    "rdfs:label" : "Handicapped child (situation)",
+    "im:code" : "281021009"
+  }, {
+    "@id" : "sn:281023007",
+    "rdfs:label" : "Diabetic child (situation)",
+    "im:code" : "281023007"
+  }, {
+    "@id" : "sn:281024001",
+    "rdfs:label" : "Schizophrenic child (situation)",
+    "im:code" : "281024001"
+  }, {
+    "@id" : "sn:281025000",
+    "rdfs:label" : "Alcoholic spouse (finding)",
+    "im:code" : "281025000"
+  }, {
+    "@id" : "sn:281026004",
+    "rdfs:label" : "Husband alcoholic (finding)",
+    "im:code" : "281026004"
+  }, {
+    "@id" : "sn:878802007",
+    "rdfs:label" : "Alcoholic husband (situation)",
+    "im:code" : "878802007"
+  }, {
+    "@id" : "sn:281577004",
+    "rdfs:label" : "Parent unemployed (situation)",
+    "im:code" : "281577004"
+  }, {
+    "@id" : "sn:281662004",
+    "rdfs:label" : "Unemployed father (situation)",
+    "im:code" : "281662004"
+  }, {
+    "@id" : "sn:281663009",
+    "rdfs:label" : "Unemployed mother (situation)",
+    "im:code" : "281663009"
+  }, {
+    "@id" : "sn:288249001",
+    "rdfs:label" : "Maternal medical problem (situation)",
+    "im:code" : "288249001"
+  }, {
+    "@id" : "sn:297244007",
+    "rdfs:label" : "Family history of urological disorder (situation)",
+    "im:code" : "297244007"
+  }, {
+    "@id" : "sn:288253004",
+    "rdfs:label" : "Maternal chronic respiratory/cardiovascular system NOS (situation)",
+    "im:code" : "288253004"
+  }, {
+    "@id" : "sn:737366005",
+    "rdfs:label" : "Family history of nutritional disorder (situation)",
+    "im:code" : "737366005"
+  }, {
+    "@id" : "sn:288257003",
+    "rdfs:label" : "Maternal medical problem NOS (situation)",
+    "im:code" : "288257003"
+  }, {
+    "@id" : "sn:297129003",
+    "rdfs:label" : "Family history finding (context-dependent category)",
+    "im:code" : "297129003"
+  }, {
+    "@id" : "sn:297224001",
+    "rdfs:label" : "Maternal pyrexia (situation)",
+    "im:code" : "297224001"
+  }, {
+    "@id" : "sn:297240003",
+    "rdfs:label" : "Family history of Parkinson's disease (situation)",
+    "im:code" : "297240003"
+  }, {
+    "@id" : "sn:297245008",
+    "rdfs:label" : "Family history of male genital tract disorder (situation)",
+    "im:code" : "297245008"
+  }, {
+    "@id" : "sn:300934004",
+    "rdfs:label" : "Family history: Hypothyroidism (situation)",
+    "im:code" : "300934004"
+  }, {
+    "@id" : "sn:301028004",
+    "rdfs:label" : "Death of husband (event)",
+    "im:code" : "301028004"
+  }, {
+    "@id" : "sn:722193000",
+    "rdfs:label" : "Husband deceased (situation)",
+    "im:code" : "722193000"
+  }, {
+    "@id" : "sn:302203004",
+    "rdfs:label" : "Wife unable to cope (finding)",
+    "im:code" : "302203004"
+  }, {
+    "@id" : "sn:308748009",
+    "rdfs:label" : "Family history: Cholesterol high (situation)",
+    "im:code" : "308748009"
+  }, {
+    "@id" : "sn:311873001",
+    "rdfs:label" : "[V]Family history of celiac disease (situation)",
+    "im:code" : "311873001"
+  }, {
+    "@id" : "sn:430329007",
+    "rdfs:label" : "Family history of celiac disease (situation)",
+    "im:code" : "430329007"
+  }, {
+    "@id" : "sn:312362001",
+    "rdfs:label" : "[V]Maternal family history of drug addiction (situation)",
+    "im:code" : "312362001"
+  }, {
+    "@id" : "sn:430334006",
+    "rdfs:label" : "Family history of problem behavior (situation)",
+    "im:code" : "430334006"
+  }, {
+    "@id" : "sn:312824007",
+    "rdfs:label" : "Family history of cancer of colon (situation)",
+    "im:code" : "312824007"
+  }, {
+    "@id" : "sn:1421000119104",
+    "rdfs:label" : "Family history of colorectal cancer (situation)",
+    "im:code" : "1421000119104"
+  }, {
+    "@id" : "sn:315806003",
+    "rdfs:label" : "[V]Family history of malignant neoplasm (situation)",
+    "im:code" : "315806003"
+  }, {
+    "@id" : "sn:315807007",
+    "rdfs:label" : "[V]Family history of malignant neoplasm of gastrointestinal tract (situation)",
+    "im:code" : "315807007"
+  }, {
+    "@id" : "sn:315808002",
+    "rdfs:label" : "[V]Family history of malignant neoplasm of trachea, bronchus or lung (situation)",
+    "im:code" : "315808002"
+  }, {
+    "@id" : "sn:428269004",
+    "rdfs:label" : "Family history of malignant neoplasm of trachea (situation)",
+    "im:code" : "428269004"
+  }, {
+    "@id" : "sn:429011007",
+    "rdfs:label" : "Family history of malignant neoplasm of lung (situation)",
+    "im:code" : "429011007"
+  }, {
+    "@id" : "sn:315809005",
+    "rdfs:label" : "[V]Family history of malignant neoplasm of other respiratory or intrathoracic organ (situation)",
+    "im:code" : "315809005"
+  }, {
+    "@id" : "sn:315810000",
+    "rdfs:label" : "[V]Family history of malignant neoplasm of breast (situation)",
+    "im:code" : "315810000"
+  }, {
+    "@id" : "sn:315811001",
+    "rdfs:label" : "[V]Family history of malignant neoplasm of genital organ (situation)",
+    "im:code" : "315811001"
+  }, {
+    "@id" : "sn:430954001",
+    "rdfs:label" : "Family history of malignant neoplasm of genital structure (situation)",
+    "im:code" : "430954001"
+  }, {
+    "@id" : "sn:315812008",
+    "rdfs:label" : "[V]Family history of malignant neoplasm of urinary organ (situation)",
+    "im:code" : "315812008"
+  }, {
+    "@id" : "sn:430542006",
+    "rdfs:label" : "Family history of malignant neoplasm of urinary bladder (situation)",
+    "im:code" : "430542006"
+  }, {
+    "@id" : "sn:430703009",
+    "rdfs:label" : "Family history of malignant neoplasm of kidney (situation)",
+    "im:code" : "430703009"
+  }, {
+    "@id" : "sn:71221000119106",
+    "rdfs:label" : "Family history of malignant neoplasm of ureter (situation)",
+    "im:code" : "71221000119106"
+  }, {
+    "@id" : "sn:71231000119109",
+    "rdfs:label" : "Family history of malignant neoplasm of urethra (situation)",
+    "im:code" : "71231000119109"
+  }, {
+    "@id" : "sn:315813003",
+    "rdfs:label" : "[V]Family history of leukemia (situation)",
+    "im:code" : "315813003"
+  }, {
+    "@id" : "sn:315814009",
+    "rdfs:label" : "[V]Family history of other lymphatic or hematopoietic neoplasm (situation)",
+    "im:code" : "315814009"
+  }, {
+    "@id" : "sn:315815005",
+    "rdfs:label" : "[V]Family history of other malignant neoplasm (situation)",
+    "im:code" : "315815005"
+  }, {
+    "@id" : "sn:315816006",
+    "rdfs:label" : "[V]Family history of unspecified malignant neoplasm (situation)",
+    "im:code" : "315816006"
+  }, {
+    "@id" : "sn:315819004",
+    "rdfs:label" : "[V]Family history of stroke (cerebrovascular) (situation)",
+    "im:code" : "315819004"
+  }, {
+    "@id" : "sn:315821009",
+    "rdfs:label" : "[V] Family history of: [ischaemic heart disease] or [myocardial infarction] (situation)",
+    "im:code" : "315821009"
+  }, {
+    "@id" : "sn:315823007",
+    "rdfs:label" : "[V]Family history of asthma (situation)",
+    "im:code" : "315823007"
+  }, {
+    "@id" : "sn:315825000",
+    "rdfs:label" : "[V]Family history of arthritis (situation)",
+    "im:code" : "315825000"
+  }, {
+    "@id" : "sn:315831002",
+    "rdfs:label" : "[V]Family history of diabetes mellitus (situation)",
+    "im:code" : "315831002"
+  }, {
+    "@id" : "sn:315833004",
+    "rdfs:label" : "[V]Family history of anemia (situation)",
+    "im:code" : "315833004"
+  }, {
+    "@id" : "sn:315835006",
+    "rdfs:label" : "[V]Family history of mental retardation (situation)",
+    "im:code" : "315835006"
+  }, {
+    "@id" : "sn:315836007",
+    "rdfs:label" : "[V]Family history of digestive disorder (situation)",
+    "im:code" : "315836007"
+  }, {
+    "@id" : "sn:315837003",
+    "rdfs:label" : "[V]Family history of kidney disease (situation)",
+    "im:code" : "315837003"
+  }, {
+    "@id" : "sn:315839000",
+    "rdfs:label" : "[V]Family history of infectious disease (situation)",
+    "im:code" : "315839000"
+  }, {
+    "@id" : "sn:315840003",
+    "rdfs:label" : "[V]Family history of coeliac disease (situation)",
+    "im:code" : "315840003"
+  }, {
+    "@id" : "sn:315842006",
+    "rdfs:label" : "[V]Family history of unspecified specific condition (situation)",
+    "im:code" : "315842006"
+  }, {
+    "@id" : "sn:315844007",
+    "rdfs:label" : "[V]Family history of blindness or visual loss (situation)",
+    "im:code" : "315844007"
+  }, {
+    "@id" : "sn:315846009",
+    "rdfs:label" : "[V]Family history of deafness or hearing loss (situation)",
+    "im:code" : "315846009"
+  }, {
+    "@id" : "sn:315848005",
+    "rdfs:label" : "[V]Family history of skin conditions (situation)",
+    "im:code" : "315848005"
+  }, {
+    "@id" : "sn:315849002",
+    "rdfs:label" : "[V]Family history of congenital anomalies (situation)",
+    "im:code" : "315849002"
+  }, {
+    "@id" : "sn:315851003",
+    "rdfs:label" : "[V]Family history of consanguinity (situation)",
+    "im:code" : "315851003"
+  }, {
+    "@id" : "sn:315852005",
+    "rdfs:label" : "[V]Family history of diabetes mellitus (situation)",
+    "im:code" : "315852005"
+  }, {
+    "@id" : "sn:315854006",
+    "rdfs:label" : "[V]Family history of diseases of the respiratory system (situation)",
+    "im:code" : "315854006"
+  }, {
+    "@id" : "sn:315855007",
+    "rdfs:label" : "[V]Family history of human immunodefiency virus [HIV] disease (situation)",
+    "im:code" : "315855007"
+  }, {
+    "@id" : "sn:438998000",
+    "rdfs:label" : "Family history of human immunodeficiency virus infection (situation)",
+    "im:code" : "438998000"
+  }, {
+    "@id" : "sn:315864002",
+    "rdfs:label" : "FH: Hay fever (situation)",
+    "im:code" : "315864002"
+  }, {
+    "@id" : "sn:315866000",
+    "rdfs:label" : "[V]Family history of unspecified conditions (situation)",
+    "im:code" : "315866000"
+  }, {
+    "@id" : "sn:315867009",
+    "rdfs:label" : "[V]Family history of mental and behavioral disorders (situation)",
+    "im:code" : "315867009"
+  }, {
+    "@id" : "sn:315868004",
+    "rdfs:label" : "[V]Family history of alcohol abuse (situation)",
+    "im:code" : "315868004"
+  }, {
+    "@id" : "sn:315869007",
+    "rdfs:label" : "[V]Family history of tobacco abuse (situation)",
+    "im:code" : "315869007"
+  }, {
+    "@id" : "sn:315870008",
+    "rdfs:label" : "[V]Family history of other mental and behavioral disorders (situation)",
+    "im:code" : "315870008"
+  }, {
+    "@id" : "sn:315871007",
+    "rdfs:label" : "[V]Maternal family history of drug addiction (situation)",
+    "im:code" : "315871007"
+  }, {
+    "@id" : "sn:134591000119102",
+    "rdfs:label" : "Family history of substance abuse (situation)",
+    "im:code" : "134591000119102"
+  }, {
+    "@id" : "sn:316829004",
+    "rdfs:label" : "[X]Family history of other malignant neoplasms of lymphoid, hematopoietic and related tissues (situation)",
+    "im:code" : "316829004"
+  }, {
+    "@id" : "sn:316830009",
+    "rdfs:label" : "[X]Family history of malignant neoplasm of other organs or systems (situation)",
+    "im:code" : "316830009"
+  }, {
+    "@id" : "sn:316842004",
+    "rdfs:label" : "[X]Family history of consanguinity (situation)",
+    "im:code" : "316842004"
+  }, {
+    "@id" : "sn:366756007",
+    "rdfs:label" : "FH: premature coronary heart disease (situation)",
+    "im:code" : "366756007"
+  }, {
+    "@id" : "sn:366832003",
+    "rdfs:label" : "FH: premature coronary heart disease (situation)",
+    "im:code" : "366832003"
+  }, {
+    "@id" : "sn:367342002",
+    "rdfs:label" : "FH: Asthma (situation)",
+    "im:code" : "367342002"
+  }, {
+    "@id" : "sn:389278006",
+    "rdfs:label" : "FH: Bowel cancer (situation)",
+    "im:code" : "389278006"
+  }, {
+    "@id" : "sn:389279003",
+    "rdfs:label" : "FH: Motor neurone disease (situation)",
+    "im:code" : "389279003"
+  }, {
+    "@id" : "sn:389280000",
+    "rdfs:label" : "FH: Dyslexia (situation)",
+    "im:code" : "389280000"
+  }, {
+    "@id" : "sn:390794009",
+    "rdfs:label" : "Family history: Dyslexia (situation)",
+    "im:code" : "390794009"
+  }, {
+    "@id" : "sn:389281001",
+    "rdfs:label" : "FH: Cardiomyopathy (situation)",
+    "im:code" : "389281001"
+  }, {
+    "@id" : "sn:390915000",
+    "rdfs:label" : "Family history: Cardiomyopathy (situation)",
+    "im:code" : "390915000"
+  }, {
+    "@id" : "sn:389282008",
+    "rdfs:label" : "FH: Maternal hip fracture (situation)",
+    "im:code" : "389282008"
+  }, {
+    "@id" : "sn:391096007",
+    "rdfs:label" : "Family history: Maternal hip fracture (situation)",
+    "im:code" : "391096007"
+  }, {
+    "@id" : "sn:389283003",
+    "rdfs:label" : "FH: Hip fracture in first degree relative (situation)",
+    "im:code" : "389283003"
+  }, {
+    "@id" : "sn:391097003",
+    "rdfs:label" : "Family history: Hip fracture in first degree relative (situation)",
+    "im:code" : "391097003"
+  }, {
+    "@id" : "sn:389284009",
+    "rdfs:label" : "FH: Fragility fracture (situation)",
+    "im:code" : "389284009"
+  }, {
+    "@id" : "sn:391098008",
+    "rdfs:label" : "Family history: Fragility fracture (situation)",
+    "im:code" : "391098008"
+  }, {
+    "@id" : "sn:389285005",
+    "rdfs:label" : "FH: Autoimmune disease (situation)",
+    "im:code" : "389285005"
+  }, {
+    "@id" : "sn:389295003",
+    "rdfs:label" : "Death of wife (event)",
+    "im:code" : "389295003"
+  }, {
+    "@id" : "sn:722227004",
+    "rdfs:label" : "Wife deceased (situation)",
+    "im:code" : "722227004"
+  }, {
+    "@id" : "sn:389296002",
+    "rdfs:label" : "Husband died (event)",
+    "im:code" : "389296002"
+  }, {
+    "@id" : "sn:390017006",
+    "rdfs:label" : "FH: Bowel cancer (situation)",
+    "im:code" : "390017006"
+  }, {
+    "@id" : "sn:390018001",
+    "rdfs:label" : "FH: Dyslexia (situation)",
+    "im:code" : "390018001"
+  }, {
+    "@id" : "sn:390019009",
+    "rdfs:label" : "FH: Cardiomyopathy (situation)",
+    "im:code" : "390019009"
+  }, {
+    "@id" : "sn:390020003",
+    "rdfs:label" : "FH: Maternal hip fracture (situation)",
+    "im:code" : "390020003"
+  }, {
+    "@id" : "sn:390021004",
+    "rdfs:label" : "FH: Hip fracture in first degree relative (situation)",
+    "im:code" : "390021004"
+  }, {
+    "@id" : "sn:390022006",
+    "rdfs:label" : "FH: Fragility fracture (situation)",
+    "im:code" : "390022006"
+  }, {
+    "@id" : "sn:390023001",
+    "rdfs:label" : "FH: Autoimmune disease (situation)",
+    "im:code" : "390023001"
+  }, {
+    "@id" : "sn:390031006",
+    "rdfs:label" : "Death of wife (event)",
+    "im:code" : "390031006"
+  }, {
+    "@id" : "sn:390032004",
+    "rdfs:label" : "Husband died (event)",
+    "im:code" : "390032004"
+  }, {
+    "@id" : "sn:390934000",
+    "rdfs:label" : "Death of wife (event)",
+    "im:code" : "390934000"
+  }, {
+    "@id" : "sn:430693007",
+    "rdfs:label" : "Family history of fracture of proximal end of femur (situation)",
+    "im:code" : "430693007"
+  }, {
+    "@id" : "sn:392681007",
+    "rdfs:label" : "FH: Neoplasm of CNS (situation)",
+    "im:code" : "392681007"
+  }, {
+    "@id" : "sn:395089003",
+    "rdfs:label" : "Family history: Neoplasm of central nervous system (situation)",
+    "im:code" : "395089003"
+  }, {
+    "@id" : "sn:392682000",
+    "rdfs:label" : "Family history of pernicious anaemia (situation)",
+    "im:code" : "392682000"
+  }, {
+    "@id" : "sn:392683005",
+    "rdfs:label" : "FH: Alzheimer's disease (situation)",
+    "im:code" : "392683005"
+  }, {
+    "@id" : "sn:394877006",
+    "rdfs:label" : "Family history: Alzheimer's disease (situation)",
+    "im:code" : "394877006"
+  }, {
+    "@id" : "sn:392684004",
+    "rdfs:label" : "FH: Aortic aneurysm (situation)",
+    "im:code" : "392684004"
+  }, {
+    "@id" : "sn:395125009",
+    "rdfs:label" : "Family history: Aortic aneurysm (situation)",
+    "im:code" : "395125009"
+  }, {
+    "@id" : "sn:392685003",
+    "rdfs:label" : "FH: Ankylosing spondylitis (situation)",
+    "im:code" : "392685003"
+  }, {
+    "@id" : "sn:394990003",
+    "rdfs:label" : "Family history: Ankylosing spondylitis (situation)",
+    "im:code" : "394990003"
+  }, {
+    "@id" : "sn:392696006",
+    "rdfs:label" : "Death of husband (event)",
+    "im:code" : "392696006"
+  }, {
+    "@id" : "sn:392697002",
+    "rdfs:label" : "Father smokes (situation)",
+    "im:code" : "392697002"
+  }, {
+    "@id" : "sn:392698007",
+    "rdfs:label" : "Mother smokes (situation)",
+    "im:code" : "392698007"
+  }, {
+    "@id" : "sn:392699004",
+    "rdfs:label" : "Both parents smoke (situation)",
+    "im:code" : "392699004"
+  }, {
+    "@id" : "sn:393639008",
+    "rdfs:label" : "FH: Neoplasm of CNS (situation)",
+    "im:code" : "393639008"
+  }, {
+    "@id" : "sn:393640005",
+    "rdfs:label" : "Family history of pernicious anaemia (situation)",
+    "im:code" : "393640005"
+  }, {
+    "@id" : "sn:393641009",
+    "rdfs:label" : "FH: Alzheimer's disease (situation)",
+    "im:code" : "393641009"
+  }, {
+    "@id" : "sn:393642002",
+    "rdfs:label" : "FH: Aortic aneurysm (situation)",
+    "im:code" : "393642002"
+  }, {
+    "@id" : "sn:393643007",
+    "rdfs:label" : "FH: Ankylosing spondylitis (situation)",
+    "im:code" : "393643007"
+  }, {
+    "@id" : "sn:393654002",
+    "rdfs:label" : "Death of husband (event)",
+    "im:code" : "393654002"
+  }, {
+    "@id" : "sn:430102007",
+    "rdfs:label" : "Family history of aneurysm of artery (situation)",
+    "im:code" : "430102007"
+  }, {
+    "@id" : "sn:401052005",
+    "rdfs:label" : "Family history: Malignant hyperpyrexia (situation)",
+    "im:code" : "401052005"
+  }, {
+    "@id" : "sn:401065001",
+    "rdfs:label" : "Family history: Angina in first degree female relative less than 65 years (situation)",
+    "im:code" : "401065001"
+  }, {
+    "@id" : "sn:401066000",
+    "rdfs:label" : "Family history of myocardial infarct in first degree female relative less than 65 years of age (situation)",
+    "im:code" : "401066000"
+  }, {
+    "@id" : "sn:401067009",
+    "rdfs:label" : "Family history: Myocardial infarct in first degree male relative less than 55 years (situation)",
+    "im:code" : "401067009"
+  }, {
+    "@id" : "sn:401119001",
+    "rdfs:label" : "Family history of hemochromatosis (situation)",
+    "im:code" : "401119001"
+  }, {
+    "@id" : "sn:401122004",
+    "rdfs:label" : "Family history: Angina in first degree male relative less than 55 years (situation)",
+    "im:code" : "401122004"
+  }, {
+    "@id" : "sn:412750001",
+    "rdfs:label" : "Family history of autism (situation)",
+    "im:code" : "412750001"
+  }, {
+    "@id" : "sn:412751002",
+    "rdfs:label" : "Family history of learning difficulties (context-dependent category)",
+    "im:code" : "412751002"
+  }, {
+    "@id" : "sn:412783008",
+    "rdfs:label" : [ "Family history: Polycystic ovaries (situation)", "Family history of polycystic ovary (situation)" ],
+    "im:code" : "412783008"
+  }, {
+    "@id" : "sn:412784002",
+    "rdfs:label" : "Family history: Enuresis (situation)",
+    "im:code" : "412784002"
+  }, {
+    "@id" : "sn:413302005",
+    "rdfs:label" : "Family history: angina grandparent (situation)",
+    "im:code" : "413302005"
+  }, {
+    "@id" : "sn:413308009",
+    "rdfs:label" : "Maternal history of congenital dislocated hip (situation)",
+    "im:code" : "413308009"
+  }, {
+    "@id" : "sn:414205003",
+    "rdfs:label" : "Family history of prostate cancer (situation)",
+    "im:code" : "414205003"
+  }, {
+    "@id" : "sn:415036007",
+    "rdfs:label" : "Parent has physical disability (situation)",
+    "im:code" : "415036007"
+  }, {
+    "@id" : "sn:415289003",
+    "rdfs:label" : "Relative dying (situation)",
+    "im:code" : "415289003"
+  }, {
+    "@id" : "sn:416072008",
+    "rdfs:label" : "Family history: maternal hip fracture before age 75 (situation)",
+    "im:code" : "416072008"
+  }, {
+    "@id" : "sn:416519002",
+    "rdfs:label" : "Family history of renal stone (situation)",
+    "im:code" : "416519002"
+  }, {
+    "@id" : "sn:416702002",
+    "rdfs:label" : "Family history observation (situation)",
+    "im:code" : "416702002"
+  }, {
+    "@id" : "sn:416855002",
+    "rdfs:label" : [ "Family history: Diabetes mellitus in first degree relative (situation)", "Family history of diabetes mellitus in first degree relative (situation)" ],
+    "im:code" : "416855002"
+  }, {
+    "@id" : "sn:417001009",
+    "rdfs:label" : "Family history of tuberous sclerosis (situation)",
+    "im:code" : "417001009"
+  }, {
+    "@id" : "sn:417072001",
+    "rdfs:label" : "Family history of hypercholesterolemia in first degree relative (situation)",
+    "im:code" : "417072001"
+  }, {
+    "@id" : "sn:417648007",
+    "rdfs:label" : "Family history of pulmonary infundibular stenosis (situation)",
+    "im:code" : "417648007"
+  }, {
+    "@id" : "sn:427858005",
+    "rdfs:label" : "Family history of malignant melanoma (situation)",
+    "im:code" : "427858005"
+  }, {
+    "@id" : "sn:428037003",
+    "rdfs:label" : "Family history of malignant neoplasm of ileum (situation)",
+    "im:code" : "428037003"
+  }, {
+    "@id" : "sn:428047000",
+    "rdfs:label" : "Family history of malignant neoplasm of cervix uteri (situation)",
+    "im:code" : "428047000"
+  }, {
+    "@id" : "sn:429637009",
+    "rdfs:label" : "Family history of malignant neoplasm of uterus (situation)",
+    "im:code" : "429637009"
+  }, {
+    "@id" : "sn:428276009",
+    "rdfs:label" : "Family history of malignant neoplasm of vagina (situation)",
+    "im:code" : "428276009"
+  }, {
+    "@id" : "sn:428748002",
+    "rdfs:label" : "Family history of malignant neoplasm of male breast (situation)",
+    "im:code" : "428748002"
+  }, {
+    "@id" : "sn:428932007",
+    "rdfs:label" : "Family history of speech and language disorder (situation)",
+    "im:code" : "428932007"
+  }, {
+    "@id" : "sn:428935009",
+    "rdfs:label" : "Family history of malignant neoplasm of eye proper (situation)",
+    "im:code" : "428935009"
+  }, {
+    "@id" : "sn:428994006",
+    "rdfs:label" : "Family history of malignant neoplasm of biliary tract (situation)",
+    "im:code" : "428994006"
+  }, {
+    "@id" : "sn:429000004",
+    "rdfs:label" : "Family history of malignant neoplasm of pancreas (situation)",
+    "im:code" : "429000004"
+  }, {
+    "@id" : "sn:430685007",
+    "rdfs:label" : "Family history of disorder of pancreas (situation)",
+    "im:code" : "430685007"
+  }, {
+    "@id" : "sn:429236009",
+    "rdfs:label" : "Family history of malignant neoplasm of liver (situation)",
+    "im:code" : "429236009"
+  }, {
+    "@id" : "sn:429251000",
+    "rdfs:label" : "Family history of malignant neoplasm of brain (situation)",
+    "im:code" : "429251000"
+  }, {
+    "@id" : "sn:430090006",
+    "rdfs:label" : "Family history of neoplasm of brain (situation)",
+    "im:code" : "430090006"
+  }, {
+    "@id" : "sn:429252007",
+    "rdfs:label" : "Family history of malignant neoplasm of bone (situation)",
+    "im:code" : "429252007"
+  }, {
+    "@id" : "sn:429399002",
+    "rdfs:label" : "Family history of psychotic disorder (situation)",
+    "im:code" : "429399002"
+  }, {
+    "@id" : "sn:429405004",
+    "rdfs:label" : "Family history of malignant neoplasm of skin (situation)",
+    "im:code" : "429405004"
+  }, {
+    "@id" : "sn:429950008",
+    "rdfs:label" : "Family history of attention deficit hyperactivity disorder (situation)",
+    "im:code" : "429950008"
+  }, {
+    "@id" : "sn:429951007",
+    "rdfs:label" : "Family history of eating disorder (situation)",
+    "im:code" : "429951007"
+  }, {
+    "@id" : "sn:429952000",
+    "rdfs:label" : "Family history of stenosis of aortic valve (situation)",
+    "im:code" : "429952000"
+  }, {
+    "@id" : "sn:429953005",
+    "rdfs:label" : "Family history of pulmonary emphysema (situation)",
+    "im:code" : "429953005"
+  }, {
+    "@id" : "sn:429954004",
+    "rdfs:label" : "Family history of cleft lip (situation)",
+    "im:code" : "429954004"
+  }, {
+    "@id" : "sn:429958001",
+    "rdfs:label" : "Family history of conduction disorder of the heart (situation)",
+    "im:code" : "429958001"
+  }, {
+    "@id" : "sn:698248002",
+    "rdfs:label" : "Family history of cardiac arrhythmia (situation)",
+    "im:code" : "698248002"
+  }, {
+    "@id" : "sn:429959009",
+    "rdfs:label" : "Family history of heart failure (situation)",
+    "im:code" : "429959009"
+  }, {
+    "@id" : "sn:429964008",
+    "rdfs:label" : "Family history of irritable colon (situation)",
+    "im:code" : "429964008"
+  }, {
+    "@id" : "sn:429965009",
+    "rdfs:label" : "Family history of malignant lymphoma (situation)",
+    "im:code" : "429965009"
+  }, {
+    "@id" : "sn:429969003",
+    "rdfs:label" : "Family history of polyp of colon (situation)",
+    "im:code" : "429969003"
+  }, {
+    "@id" : "sn:429970002",
+    "rdfs:label" : "Family history of Charcot-Marie-Tooth disease (situation)",
+    "im:code" : "429970002"
+  }, {
+    "@id" : "sn:429971003",
+    "rdfs:label" : "Family history of impaired glucose tolerance (situation)",
+    "im:code" : "429971003"
+  }, {
+    "@id" : "sn:429976008",
+    "rdfs:label" : "Family history of backache (situation)",
+    "im:code" : "429976008"
+  }, {
+    "@id" : "sn:429977004",
+    "rdfs:label" : "Family history of congenital cataract (situation)",
+    "im:code" : "429977004"
+  }, {
+    "@id" : "sn:429978009",
+    "rdfs:label" : "Family history of endocarditis (situation)",
+    "im:code" : "429978009"
+  }, {
+    "@id" : "sn:430041006",
+    "rdfs:label" : [ "Family history of Ménière disease (situation)", "Family history of MÃ©niÃ¨re disease (situation)" ],
+    "im:code" : "430041006"
+  }, {
+    "@id" : "sn:430086009",
+    "rdfs:label" : "Family history of cleft palate (situation)",
+    "im:code" : "430086009"
+  }, {
+    "@id" : "sn:430088005",
+    "rdfs:label" : "Family history of intestinal obstruction (situation)",
+    "im:code" : "430088005"
+  }, {
+    "@id" : "sn:430089002",
+    "rdfs:label" : "Family history of hyperthyroidism (situation)",
+    "im:code" : "430089002"
+  }, {
+    "@id" : "sn:430091005",
+    "rdfs:label" : "Family history of coronary arteriosclerosis (situation)",
+    "im:code" : "430091005"
+  }, {
+    "@id" : "sn:430292006",
+    "rdfs:label" : "Family history of malignant neoplasm of breast in first degree relative (situation)",
+    "im:code" : "430292006"
+  }, {
+    "@id" : "sn:430298005",
+    "rdfs:label" : "Family history of malignant neoplasm of pharynx (situation)",
+    "im:code" : "430298005"
+  }, {
+    "@id" : "sn:430330002",
+    "rdfs:label" : "Family history of chronic myeloid leukemia (situation)",
+    "im:code" : "430330002"
+  }, {
+    "@id" : "sn:430331003",
+    "rdfs:label" : "Family history of cancer of the esophagus (situation)",
+    "im:code" : "430331003"
+  }, {
+    "@id" : "sn:430336008",
+    "rdfs:label" : "Family history of color blindness (situation)",
+    "im:code" : "430336008"
+  }, {
+    "@id" : "sn:430337004",
+    "rdfs:label" : "Family history of sleep apnea (situation)",
+    "im:code" : "430337004"
+  }, {
+    "@id" : "sn:430527008",
+    "rdfs:label" : "Family history of malignant neoplasm of testis (situation)",
+    "im:code" : "430527008"
+  }, {
+    "@id" : "sn:430534005",
+    "rdfs:label" : "Family history of malignant neoplasm of thyroid (situation)",
+    "im:code" : "430534005"
+  }, {
+    "@id" : "sn:430543001",
+    "rdfs:label" : [ "Family history of psoriasis with arthropathy (situation)", "Family history of psoriasis with psoriatic arthritis (situation)" ],
+    "im:code" : "430543001"
+  }, {
+    "@id" : "sn:430544007",
+    "rdfs:label" : "Family history of scoliosis deformity of spine (situation)",
+    "im:code" : "430544007"
+  }, {
+    "@id" : "sn:430552005",
+    "rdfs:label" : "Family history of benign prostatic hyperplasia (situation)",
+    "im:code" : "430552005"
+  }, {
+    "@id" : "sn:430560006",
+    "rdfs:label" : "Family history of chronic renal impairment (situation)",
+    "im:code" : "430560006"
+  }, {
+    "@id" : "sn:430565001",
+    "rdfs:label" : "Family history of restless legs syndrome (situation)",
+    "im:code" : "430565001"
+  }, {
+    "@id" : "sn:430568004",
+    "rdfs:label" : "Family history of dissection of aorta (situation)",
+    "im:code" : "430568004"
+  }, {
+    "@id" : "sn:430674005",
+    "rdfs:label" : "Family history of cerebral artery occlusion (situation)",
+    "im:code" : "430674005"
+  }, {
+    "@id" : "sn:430677003",
+    "rdfs:label" : "Family history of malignant neoplasm of thoracic cavity structure (situation)",
+    "im:code" : "430677003"
+  }, {
+    "@id" : "sn:430678008",
+    "rdfs:label" : "Family history of diabetes mellitus type 1 (situation)",
+    "im:code" : "430678008"
+  }, {
+    "@id" : "sn:430679000",
+    "rdfs:label" : "Family history of diabetes mellitus type 2 (situation)",
+    "im:code" : "430679000"
+  }, {
+    "@id" : "sn:430681003",
+    "rdfs:label" : "Family history of Raynaud phenomenon (situation)",
+    "im:code" : "430681003"
+  }, {
+    "@id" : "sn:430682005",
+    "rdfs:label" : "Family history of renal failure syndrome (situation)",
+    "im:code" : "430682005"
+  }, {
+    "@id" : "sn:430695000",
+    "rdfs:label" : "Family history of genetic disorder carrier (situation)",
+    "im:code" : "430695000"
+  }, {
+    "@id" : "sn:430696004",
+    "rdfs:label" : [ "Family history of juvenile rheumatoid arthritis (situation)", "Family history of juvenile idiopathic arthritis (situation)" ],
+    "im:code" : "430696004"
+  }, {
+    "@id" : "sn:430709008",
+    "rdfs:label" : "Family history of spinal stenosis (situation)",
+    "im:code" : "430709008"
+  }, {
+    "@id" : "sn:430710003",
+    "rdfs:label" : "Family history of thromboembolic disorder (situation)",
+    "im:code" : "430710003"
+  }, {
+    "@id" : "sn:430716009",
+    "rdfs:label" : "Family history of osteopenia (situation)",
+    "im:code" : "430716009"
+  }, {
+    "@id" : "sn:430719002",
+    "rdfs:label" : "Family history of tinnitus (situation)",
+    "im:code" : "430719002"
+  }, {
+    "@id" : "sn:430726002",
+    "rdfs:label" : "Family history of tremor (situation)",
+    "im:code" : "430726002"
+  }, {
+    "@id" : "sn:430727006",
+    "rdfs:label" : "Family history of amyotrophic lateral sclerosis (situation)",
+    "im:code" : "430727006"
+  }, {
+    "@id" : "sn:430728001",
+    "rdfs:label" : "Family history of amnesia (situation)",
+    "im:code" : "430728001"
+  }, {
+    "@id" : "sn:430729009",
+    "rdfs:label" : "Family history of chronic ulcerative proctitis (situation)",
+    "im:code" : "430729009"
+  }, {
+    "@id" : "sn:430730004",
+    "rdfs:label" : "Family history of mitral valve regurgitation (situation)",
+    "im:code" : "430730004"
+  }, {
+    "@id" : "sn:430753003",
+    "rdfs:label" : "Family history of aneurysm of thoracic aorta (situation)",
+    "im:code" : "430753003"
+  }, {
+    "@id" : "sn:430754009",
+    "rdfs:label" : "Family history of mastoiditis (situation)",
+    "im:code" : "430754009"
+  }, {
+    "@id" : "sn:430777009",
+    "rdfs:label" : "Family history of rheumatic fever (situation)",
+    "im:code" : "430777009"
+  }, {
+    "@id" : "sn:430778004",
+    "rdfs:label" : "Family history of sarcoidosis (situation)",
+    "im:code" : "430778004"
+  }, {
+    "@id" : "sn:430801003",
+    "rdfs:label" : "Family history of pulmonary embolism (situation)",
+    "im:code" : "430801003"
+  }, {
+    "@id" : "sn:430805007",
+    "rdfs:label" : "Family history of uveitis (situation)",
+    "im:code" : "430805007"
+  }, {
+    "@id" : "sn:430807004",
+    "rdfs:label" : "Family history of periodic limb movement disorder (situation)",
+    "im:code" : "430807004"
+  }, {
+    "@id" : "sn:430808009",
+    "rdfs:label" : "Family history of nephrotic syndrome (situation)",
+    "im:code" : "430808009"
+  }, {
+    "@id" : "sn:430814002",
+    "rdfs:label" : "Family history of neuropathy (situation)",
+    "im:code" : "430814002"
+  }, {
+    "@id" : "sn:430815001",
+    "rdfs:label" : "Family history of syncope (situation)",
+    "im:code" : "430815001"
+  }, {
+    "@id" : "sn:431170009",
+    "rdfs:label" : "Family history of perinatal disorder (situation)",
+    "im:code" : "431170009"
+  }, {
+    "@id" : "sn:431330007",
+    "rdfs:label" : "Family history of breast cancer 1 gene mutation (situation)",
+    "im:code" : "431330007"
+  }, {
+    "@id" : "sn:31881000119108",
+    "rdfs:label" : "Family history of breast cancer gene BRCA mutation (situation)",
+    "im:code" : "31881000119108"
+  }, {
+    "@id" : "sn:431331006",
+    "rdfs:label" : "Family history of breast cancer 2 gene mutation (situation)",
+    "im:code" : "431331006"
+  }, {
+    "@id" : "sn:431479003",
+    "rdfs:label" : "Family history of synovial cyst of popliteal space (situation)",
+    "im:code" : "431479003"
+  }, {
+    "@id" : "sn:431812006",
+    "rdfs:label" : "Family history of degenerative disorder of macula (situation)",
+    "im:code" : "431812006"
+  }, {
+    "@id" : "sn:431912005",
+    "rdfs:label" : "Family history of alpha-1-antitrypsin deficiency (situation)",
+    "im:code" : "431912005"
+  }, {
+    "@id" : "sn:433163001",
+    "rdfs:label" : "Family history of diverticulitis of colon (situation)",
+    "im:code" : "433163001"
+  }, {
+    "@id" : "sn:433164007",
+    "rdfs:label" : "Family history of lupus erythematosus (situation)",
+    "im:code" : "433164007"
+  }, {
+    "@id" : "sn:65001000119101",
+    "rdfs:label" : "Family history of connective tissue disorder (situation)",
+    "im:code" : "65001000119101"
+  }, {
+    "@id" : "sn:433276002",
+    "rdfs:label" : "Family history of atrial fibrillation (situation)",
+    "im:code" : "433276002"
+  }, {
+    "@id" : "sn:433277006",
+    "rdfs:label" : "Family history of bulimia nervosa (situation)",
+    "im:code" : "433277006"
+  }, {
+    "@id" : "sn:433278001",
+    "rdfs:label" : "Family history of presenile dementia (situation)",
+    "im:code" : "433278001"
+  }, {
+    "@id" : "sn:433279009",
+    "rdfs:label" : "Family history of cleft palate with cleft lip (situation)",
+    "im:code" : "433279009"
+  }, {
+    "@id" : "sn:433305001",
+    "rdfs:label" : "Family history of congestive heart failure (situation)",
+    "im:code" : "433305001"
+  }, {
+    "@id" : "sn:433306000",
+    "rdfs:label" : "Family history of anorexia nervosa (situation)",
+    "im:code" : "433306000"
+  }, {
+    "@id" : "sn:433380009",
+    "rdfs:label" : "Family history of attention deficit hyperactivity disorder, predominantly inattentive type (situation)",
+    "im:code" : "433380009"
+  }, {
+    "@id" : "sn:433381008",
+    "rdfs:label" : "Family history of renal cell carcinoma (situation)",
+    "im:code" : "433381008"
+  }, {
+    "@id" : "sn:433442009",
+    "rdfs:label" : "Family history of bariatric operative procedure (situation)",
+    "im:code" : "433442009"
+  }, {
+    "@id" : "sn:433448008",
+    "rdfs:label" : "Family history of carotid endarterectomy (situation)",
+    "im:code" : "433448008"
+  }, {
+    "@id" : "sn:433449000",
+    "rdfs:label" : "Family history of ventricular premature beats (situation)",
+    "im:code" : "433449000"
+  }, {
+    "@id" : "sn:433450000",
+    "rdfs:label" : "Family history of non-Hodgkin's lymphoma (situation)",
+    "im:code" : "433450000"
+  }, {
+    "@id" : "sn:433491003",
+    "rdfs:label" : "Family history of bilateral hip replacements (situation)",
+    "im:code" : "433491003"
+  }, {
+    "@id" : "sn:433492005",
+    "rdfs:label" : "Family history of replacement of total knee joint (situation)",
+    "im:code" : "433492005"
+  }, {
+    "@id" : "sn:433495007",
+    "rdfs:label" : "Family history of Hodgkin's disease (situation)",
+    "im:code" : "433495007"
+  }, {
+    "@id" : "sn:433496008",
+    "rdfs:label" : "Family history of trigeminal neuralgia (situation)",
+    "im:code" : "433496008"
+  }, {
+    "@id" : "sn:433506004",
+    "rdfs:label" : "Family history of total abdominal hysterectomy with bilateral salpingo-oophorectomy (situation)",
+    "im:code" : "433506004"
+  }, {
+    "@id" : "sn:433977002",
+    "rdfs:label" : "Family history of mastectomy (situation)",
+    "im:code" : "433977002"
+  }, {
+    "@id" : "sn:434298003",
+    "rdfs:label" : "Family history of cholecystectomy (situation)",
+    "im:code" : "434298003"
+  }, {
+    "@id" : "sn:434462008",
+    "rdfs:label" : "Family history of multiple myeloma (situation)",
+    "im:code" : "434462008"
+  }, {
+    "@id" : "sn:438825005",
+    "rdfs:label" : "Family history of cardiovascular disease in first degree female relative less than 65 years of age (situation)",
+    "im:code" : "438825005"
+  }, {
+    "@id" : "sn:439138006",
+    "rdfs:label" : "Both parents misuse drugs (situation)",
+    "im:code" : "439138006"
+  }, {
+    "@id" : "sn:439213009",
+    "rdfs:label" : "Drug misuse by father (situation)",
+    "im:code" : "439213009"
+  }, {
+    "@id" : "sn:439154009",
+    "rdfs:label" : "Family history of myocarditis (situation)",
+    "im:code" : "439154009"
+  }, {
+    "@id" : "sn:439724007",
+    "rdfs:label" : "Family history of cardiovascular disease in first degree male relative less than 55 years of age (situation)",
+    "im:code" : "439724007"
+  }, {
+    "@id" : "sn:440697006",
+    "rdfs:label" : "Family history of cerebral infarction (situation)",
+    "im:code" : "440697006"
+  }, {
+    "@id" : "sn:441120009",
+    "rdfs:label" : "Family history of acquired immune deficiency syndrome (situation)",
+    "im:code" : "441120009"
+  }, {
+    "@id" : "sn:443454007",
+    "rdfs:label" : "Family history of familial hypercholesterolemia (situation)",
+    "im:code" : "443454007"
+  }, {
+    "@id" : "sn:444161008",
+    "rdfs:label" : "Maternal history of insulin dependence (situation)",
+    "im:code" : "444161008"
+  }, {
+    "@id" : "sn:473070008",
+    "rdfs:label" : "Family history of mitochondrial disease (situation)",
+    "im:code" : "473070008"
+  }, {
+    "@id" : "sn:473071007",
+    "rdfs:label" : "Family history of edema of lower extremity (situation)",
+    "im:code" : "473071007"
+  }, {
+    "@id" : "sn:473316003",
+    "rdfs:label" : "Relative aware of prognosis (situation)",
+    "im:code" : "473316003"
+  }, {
+    "@id" : "sn:698650004",
+    "rdfs:label" : "Family history of diabetes mellitus with complication (situation)",
+    "im:code" : "698650004"
+  }, {
+    "@id" : "sn:699057005",
+    "rdfs:label" : "Family history of Addison disease (situation)",
+    "im:code" : "699057005"
+  }, {
+    "@id" : "sn:699108005",
+    "rdfs:label" : "Family history of tendinous xanthoma in first degree relative (situation)",
+    "im:code" : "699108005"
+  }, {
+    "@id" : "sn:699109002",
+    "rdfs:label" : "Family history of tendinous xanthoma in second degree relative (situation)",
+    "im:code" : "699109002"
+  }, {
+    "@id" : "sn:700190003",
+    "rdfs:label" : "Family history of pre-eclampsia (situation)",
+    "im:code" : "700190003"
+  }, {
+    "@id" : "sn:700191004",
+    "rdfs:label" : "Family history of congenital hip dysplasia (situation)",
+    "im:code" : "700191004"
+  }, {
+    "@id" : "sn:700192006",
+    "rdfs:label" : "Family history of long QT syndrome (situation)",
+    "im:code" : "700192006"
+  }, {
+    "@id" : "sn:700193001",
+    "rdfs:label" : "Family history of squamous cell carcinoma of skin (situation)",
+    "im:code" : "700193001"
+  }, {
+    "@id" : "sn:703520001",
+    "rdfs:label" : "Patient's child aware of diagnosis (situation)",
+    "im:code" : "703520001"
+  }, {
+    "@id" : "sn:704009004",
+    "rdfs:label" : "Family history of disorder of vein (situation)",
+    "im:code" : "704009004"
+  }, {
+    "@id" : "sn:704071002",
+    "rdfs:label" : "Maternal exposure to radiation (situation)",
+    "im:code" : "704071002"
+  }, {
+    "@id" : "sn:704141008",
+    "rdfs:label" : "Maternal history of connective tissue disease (situation)",
+    "im:code" : "704141008"
+  }, {
+    "@id" : "sn:704143006",
+    "rdfs:label" : "Maternal history of systemic lupus erythematosus (situation)",
+    "im:code" : "704143006"
+  }, {
+    "@id" : "sn:15627891000119105",
+    "rdfs:label" : "Family history of systemic lupus erythematosus (situation)",
+    "im:code" : "15627891000119105"
+  }, {
+    "@id" : "sn:704145004",
+    "rdfs:label" : "Maternal history of insulin dependent diabetes mellitus (situation)",
+    "im:code" : "704145004"
+  }, {
+    "@id" : "sn:704146003",
+    "rdfs:label" : "Maternal history of non-insulin dependent diabetes mellitus (situation)",
+    "im:code" : "704146003"
+  }, {
+    "@id" : "sn:709090007",
+    "rdfs:label" : "Family history of familial multiple polyposis syndrome (situation)",
+    "im:code" : "709090007"
+  }, {
+    "@id" : "sn:716053000",
+    "rdfs:label" : "Parent has health disorder (situation)",
+    "im:code" : "716053000"
+  }, {
+    "@id" : "sn:719168002",
+    "rdfs:label" : "Husband well (situation)",
+    "im:code" : "719168002"
+  }, {
+    "@id" : "sn:719173008",
+    "rdfs:label" : "Husband unwell (situation)",
+    "im:code" : "719173008"
+  }, {
+    "@id" : "sn:719174002",
+    "rdfs:label" : "Wife unwell (situation)",
+    "im:code" : "719174002"
+  }, {
+    "@id" : "sn:719648007",
+    "rdfs:label" : "Husband alive (situation)",
+    "im:code" : "719648007"
+  }, {
+    "@id" : "sn:719761003",
+    "rdfs:label" : "Maternal history of diabetes mellitus type 1 (situation)",
+    "im:code" : "719761003"
+  }, {
+    "@id" : "sn:719763000",
+    "rdfs:label" : "Maternal history of diabetes mellitus type 2 (situation)",
+    "im:code" : "719763000"
+  }, {
+    "@id" : "sn:720400005",
+    "rdfs:label" : "Family distress (situation)",
+    "im:code" : "720400005"
+  }, {
+    "@id" : "sn:720407008",
+    "rdfs:label" : "Mother victim of domestic violence (situation)",
+    "im:code" : "720407008"
+  }, {
+    "@id" : "sn:720436008",
+    "rdfs:label" : "Father with learning disability (situation)",
+    "im:code" : "720436008"
+  }, {
+    "@id" : "sn:721151003",
+    "rdfs:label" : "Maternal history of gestational diabetes (situation)",
+    "im:code" : "721151003"
+  }, {
+    "@id" : "sn:725118003",
+    "rdfs:label" : "Family history of aneurysm of abdominal aorta (situation)",
+    "im:code" : "725118003"
+  }, {
+    "@id" : "sn:726626004",
+    "rdfs:label" : "History of neonatal death (situation)",
+    "im:code" : "726626004"
+  }, {
+    "@id" : "sn:726627008",
+    "rdfs:label" : "History of previous baby bottle fed (situation)",
+    "im:code" : "726627008"
+  }, {
+    "@id" : "sn:726630001",
+    "rdfs:label" : "History of postneonatal death (situation)",
+    "im:code" : "726630001"
+  }, {
+    "@id" : "sn:733893003",
+    "rdfs:label" : "Past history of baby breast fed (situation)",
+    "im:code" : "733893003"
+  }, {
+    "@id" : "sn:737014005",
+    "rdfs:label" : "History of previous baby breast fed (situation)",
+    "im:code" : "737014005"
+  }, {
+    "@id" : "sn:733898007",
+    "rdfs:label" : "Past history of baby bottle and breast fed (situation)",
+    "im:code" : "733898007"
+  }, {
+    "@id" : "sn:737015006",
+    "rdfs:label" : "History of previous baby bottle and breast fed (situation)",
+    "im:code" : "737015006"
+  }, {
+    "@id" : "sn:739678005",
+    "rdfs:label" : "Parents deceased (situation)",
+    "im:code" : "739678005"
+  }, {
+    "@id" : "sn:767310001",
+    "rdfs:label" : "Family history of malignant neoplasm of breast at under age 50 in second degree female relative (situation)",
+    "im:code" : "767310001"
+  }, {
+    "@id" : "sn:143451000119105",
+    "rdfs:label" : "Family history of malignant neoplasm of breast at under age 50 in second degree relative (situation)",
+    "im:code" : "143451000119105"
+  }, {
+    "@id" : "sn:781073000",
+    "rdfs:label" : "Family history of polycystic ovary syndrome (situation)",
+    "im:code" : "781073000"
+  }, {
+    "@id" : "sn:785846009",
+    "rdfs:label" : "Maternal history of pyrexia in labor (situation)",
+    "im:code" : "785846009"
+  }, {
+    "@id" : "sn:1148759006",
+    "rdfs:label" : "Family history of congenital microcephaly (situation)",
+    "im:code" : "1148759006"
+  }, {
+    "@id" : "sn:94761000119100",
+    "rdfs:label" : "Family history of microcephaly (situation)",
+    "im:code" : "94761000119100"
+  }, {
+    "@id" : "sn:2291000119105",
+    "rdfs:label" : "Family history of malignant neoplasm of ovary in second degree relative (situation)",
+    "im:code" : "2291000119105"
+  }, {
+    "@id" : "sn:2301000119106",
+    "rdfs:label" : "Family history of malignant neoplasm of ovary in first degree relative (situation)",
+    "im:code" : "2301000119106"
+  }, {
+    "@id" : "sn:13961000119104",
+    "rdfs:label" : "Family history of clubfoot (situation)",
+    "im:code" : "13961000119104"
+  }, {
+    "@id" : "sn:44241000119103",
+    "rdfs:label" : "Adult child of alcoholic (situation)",
+    "im:code" : "44241000119103"
+  }, {
+    "@id" : "sn:63761000119101",
+    "rdfs:label" : "Family history of autism in sibling (situation)",
+    "im:code" : "63761000119101"
+  }, {
+    "@id" : "sn:63881000119101",
+    "rdfs:label" : "Family history of spinocerebellar ataxia (situation)",
+    "im:code" : "63881000119101"
+  }, {
+    "@id" : "sn:63901000119104",
+    "rdfs:label" : "Family history of Tay-Sachs disease (situation)",
+    "im:code" : "63901000119104"
+  }, {
+    "@id" : "sn:63921000119108",
+    "rdfs:label" : "Family history of Rett syndrome (situation)",
+    "im:code" : "63921000119108"
+  }, {
+    "@id" : "sn:63931000119106",
+    "rdfs:label" : "Family history of Steinert myotonic dystrophy (situation)",
+    "im:code" : "63931000119106"
+  }, {
+    "@id" : "sn:63941000119102",
+    "rdfs:label" : "Family history of congenital hydrocephalus (situation)",
+    "im:code" : "63941000119102"
+  }, {
+    "@id" : "sn:64021000119106",
+    "rdfs:label" : "Family history of neurological developmental delay (situation)",
+    "im:code" : "64021000119106"
+  }, {
+    "@id" : "sn:64041000119100",
+    "rdfs:label" : "Family history of complex congenital heart disease (situation)",
+    "im:code" : "64041000119100"
+  }, {
+    "@id" : "sn:64081000119105",
+    "rdfs:label" : "Family history of galactosemia (situation)",
+    "im:code" : "64081000119105"
+  }, {
+    "@id" : "sn:64111000119100",
+    "rdfs:label" : "Family history of combined hyperlipidemia (situation)",
+    "im:code" : "64111000119100"
+  }, {
+    "@id" : "sn:64121000119107",
+    "rdfs:label" : "Family history of achondroplasia (situation)",
+    "im:code" : "64121000119107"
+  }, {
+    "@id" : "sn:69731000119107",
+    "rdfs:label" : "Family history of short stature (situation)",
+    "im:code" : "69731000119107"
+  }, {
+    "@id" : "sn:64731000119106",
+    "rdfs:label" : "Family history of multiple congenital anomalies (situation)",
+    "im:code" : "64731000119106"
+  }, {
+    "@id" : "sn:64131000119105",
+    "rdfs:label" : "Family history of methylmalonic aciduria (situation)",
+    "im:code" : "64131000119105"
+  }, {
+    "@id" : "sn:64161000119102",
+    "rdfs:label" : "Family history of phenylketonuria (situation)",
+    "im:code" : "64161000119102"
+  }, {
+    "@id" : "sn:64181000119106",
+    "rdfs:label" : "Family history of Marfan syndrome (situation)",
+    "im:code" : "64181000119106"
+  }, {
+    "@id" : "sn:64251000119106",
+    "rdfs:label" : "Family history of glycogen storage disease (situation)",
+    "im:code" : "64251000119106"
+  }, {
+    "@id" : "sn:64371000119105",
+    "rdfs:label" : "Family history of beta thalassemia (situation)",
+    "im:code" : "64371000119105"
+  }, {
+    "@id" : "sn:64391000119106",
+    "rdfs:label" : "Family history of hemoglobinopathy E (situation)",
+    "im:code" : "64391000119106"
+  }, {
+    "@id" : "sn:64431000119101",
+    "rdfs:label" : "Family history of alpha thalassemia (situation)",
+    "im:code" : "64431000119101"
+  }, {
+    "@id" : "sn:64521000119100",
+    "rdfs:label" : "Family history of Von Willebrand disease (situation)",
+    "im:code" : "64521000119100"
+  }, {
+    "@id" : "sn:64571000119104",
+    "rdfs:label" : "Family history of abdominal wall defect (situation)",
+    "im:code" : "64571000119104"
+  }, {
+    "@id" : "sn:64651000119109",
+    "rdfs:label" : "Family history of ambiguous genitalia (situation)",
+    "im:code" : "64651000119109"
+  }, {
+    "@id" : "sn:64831000119104",
+    "rdfs:label" : "Family history of trisomy 13 (situation)",
+    "im:code" : "64831000119104"
+  }, {
+    "@id" : "sn:64841000119108",
+    "rdfs:label" : "Family history of trisomy 18 (situation)",
+    "im:code" : "64841000119108"
+  }, {
+    "@id" : "sn:64851000119105",
+    "rdfs:label" : "Family history of Prader-Willi syndrome (situation)",
+    "im:code" : "64851000119105"
+  }, {
+    "@id" : "sn:64861000119107",
+    "rdfs:label" : "Family history of Turner syndrome (situation)",
+    "im:code" : "64861000119107"
+  }, {
+    "@id" : "sn:64911000119103",
+    "rdfs:label" : "Family history of cystic hygroma (situation)",
+    "im:code" : "64911000119103"
+  }, {
+    "@id" : "sn:64921000119105",
+    "rdfs:label" : "Family history of sex chromosome aneuploidy (situation)",
+    "im:code" : "64921000119105"
+  }, {
+    "@id" : "sn:64971000119106",
+    "rdfs:label" : "Family history of Von Hippel-Lindau syndrome (situation)",
+    "im:code" : "64971000119106"
+  }, {
+    "@id" : "sn:65011000119103",
+    "rdfs:label" : "Family history of autosomal aneuploidy (situation)",
+    "im:code" : "65011000119103"
+  }, {
+    "@id" : "sn:65021000119105",
+    "rdfs:label" : "Family history of neurofibromatosis (situation)",
+    "im:code" : "65021000119105"
+  }, {
+    "@id" : "sn:65031000119108",
+    "rdfs:label" : "Family history of Cowden syndrome (situation)",
+    "im:code" : "65031000119108"
+  }, {
+    "@id" : "sn:65071000119106",
+    "rdfs:label" : "Family history of fragile X syndrome (situation)",
+    "im:code" : "65071000119106"
+  }, {
+    "@id" : "sn:71201000119102",
+    "rdfs:label" : "Family history of hypospadias (situation)",
+    "im:code" : "71201000119102"
+  }, {
+    "@id" : "sn:71251000119103",
+    "rdfs:label" : "Family history of nonleukemic lymphatic malignancy (situation)",
+    "im:code" : "71251000119103"
+  }, {
+    "@id" : "sn:71261000119101",
+    "rdfs:label" : "Family history of hydronephrosis (situation)",
+    "im:code" : "71261000119101"
+  }, {
+    "@id" : "sn:71271000119107",
+    "rdfs:label" : "Family history of retinitis pigmentosa (situation)",
+    "im:code" : "71271000119107"
+  }, {
+    "@id" : "sn:74131000119101",
+    "rdfs:label" : "Family history of hyperbetalipoproteinemia (situation)",
+    "im:code" : "74131000119101"
+  }, {
+    "@id" : "sn:74171000119103",
+    "rdfs:label" : "Family history of hypoalphalipoproteinemia (situation)",
+    "im:code" : "74171000119103"
+  }, {
+    "@id" : "sn:81651000119109",
+    "rdfs:label" : "Family history of heritable malignancy (situation)",
+    "im:code" : "81651000119109"
+  }, {
+    "@id" : "sn:85951000119104",
+    "rdfs:label" : "Family history of single congenital anomaly (situation)",
+    "im:code" : "85951000119104"
+  }, {
+    "@id" : "sn:94691000119101",
+    "rdfs:label" : "Family history of familial dysautonomia (situation)",
+    "im:code" : "94691000119101"
+  }, {
+    "@id" : "sn:94721000119105",
+    "rdfs:label" : "Family history of craniosynostosis (situation)",
+    "im:code" : "94721000119105"
+  }, {
+    "@id" : "sn:94741000119104",
+    "rdfs:label" : "Family history of macrocephaly (situation)",
+    "im:code" : "94741000119104"
+  }, {
+    "@id" : "sn:98041000119107",
+    "rdfs:label" : "Family history of osteogenesis imperfecta (situation)",
+    "im:code" : "98041000119107"
+  }, {
+    "@id" : "sn:98251000119101",
+    "rdfs:label" : "Family history of spongy degeneration of central nervous system (situation)",
+    "im:code" : "98251000119101"
+  }, {
+    "@id" : "sn:108801000119109",
+    "rdfs:label" : "Family history of blood coagulation disorder (situation)",
+    "im:code" : "108801000119109"
+  }, {
+    "@id" : "sn:108891000119103",
+    "rdfs:label" : "Family history of antithrombin III deficiency (situation)",
+    "im:code" : "108891000119103"
+  }, {
+    "@id" : "sn:108981000119107",
+    "rdfs:label" : "Family history of protein S deficiency (situation)",
+    "im:code" : "108981000119107"
+  }, {
+    "@id" : "sn:109001000119105",
+    "rdfs:label" : "Family history of protein C deficiency (situation)",
+    "im:code" : "109001000119105"
+  }, {
+    "@id" : "sn:109011000119108",
+    "rdfs:label" : "Family history of protein C resistance (situation)",
+    "im:code" : "109011000119108"
+  }, {
+    "@id" : "sn:109241000119103",
+    "rdfs:label" : "Family history of eruptive xanthoma (situation)",
+    "im:code" : "109241000119103"
+  }, {
+    "@id" : "sn:109271000119105",
+    "rdfs:label" : [ "Family history of familial hypercholesterolemia co-occurrent and due to combined heterozygous low density lipoprotein receptor and low density lipoprotein receptor adaptor protein 1 mutations (situation)", "Family history of double heterozygous familial hypercholesterolemia (situation)" ],
+    "im:code" : "109271000119105"
+  }, {
+    "@id" : "sn:109331000119100",
+    "rdfs:label" : "Family history of hyperlipoproteinemia a (situation)",
+    "im:code" : "109331000119100"
+  }, {
+    "@id" : "sn:117351000119101",
+    "rdfs:label" : "Family history of multiple endocrine neoplasia (situation)",
+    "im:code" : "117351000119101"
+  }, {
+    "@id" : "sn:117361000119104",
+    "rdfs:label" : "Family history of sudden cardiac death (situation)",
+    "im:code" : "117361000119104"
+  }, {
+    "@id" : "sn:118651000119105",
+    "rdfs:label" : "Family history of Hashimoto thyroiditis (situation)",
+    "im:code" : "118651000119105"
+  }, {
+    "@id" : "sn:130771000119102",
+    "rdfs:label" : "Family history of hypercoagulable state (situation)",
+    "im:code" : "130771000119102"
+  }, {
+    "@id" : "sn:138081000119104",
+    "rdfs:label" : "Family history of hematuria (situation)",
+    "im:code" : "138081000119104"
+  }, {
+    "@id" : "sn:138701000119105",
+    "rdfs:label" : "Family history of gene mutation (situation)",
+    "im:code" : "138701000119105"
+  }, {
+    "@id" : "sn:138711000119108",
+    "rdfs:label" : "Family history of sebaceous carcinoma (situation)",
+    "im:code" : "138711000119108"
+  }, {
+    "@id" : "sn:138721000119101",
+    "rdfs:label" : "Family history of sebaceous adenoma (situation)",
+    "im:code" : "138721000119101"
+  }, {
+    "@id" : "sn:138751000119109",
+    "rdfs:label" : [ "Family history of Muir-Torré syndrome (situation)", "Family history of Muir-TorrÃ© syndrome (situation)" ],
+    "im:code" : "138751000119109"
+  }, {
+    "@id" : "sn:143461000119107",
+    "rdfs:label" : "Family history of malignant neoplasm of breast in first degree relative less than 50 years of age (situation)",
+    "im:code" : "143461000119107"
+  }, {
+    "@id" : "sn:143691000119102",
+    "rdfs:label" : "Family history of breast cancer gene mutation in first degree relative (situation)",
+    "im:code" : "143691000119102"
+  }, {
+    "@id" : "sn:144171000119108",
+    "rdfs:label" : "Family history of autosomal translocation (situation)",
+    "im:code" : "144171000119108"
+  }, {
+    "@id" : "sn:154031000119107",
+    "rdfs:label" : "Family history of malignant neoplasm of endometrium (situation)",
+    "im:code" : "154031000119107"
+  }, {
+    "@id" : "sn:154051000119101",
+    "rdfs:label" : "Family history of malignant neoplasm of colon over age 50 (situation)",
+    "im:code" : "154051000119101"
+  }, {
+    "@id" : "sn:154141000119104",
+    "rdfs:label" : "Family history of malignant neoplasm of breast diagnosed before 45 years of age (situation)",
+    "im:code" : "154141000119104"
+  }, {
+    "@id" : "sn:1098871000119109",
+    "rdfs:label" : "Family history of hereditary nonpolyposis colon cancer (situation)",
+    "im:code" : "1098871000119109"
+  }, {
+    "@id" : "sn:1099601000119106",
+    "rdfs:label" : "Family history of genetic mutation for hereditary nonpolyposis colon cancer (situation)",
+    "im:code" : "1099601000119106"
+  }, {
+    "@id" : "sn:10624401000119102",
+    "rdfs:label" : "Family history of stroke due to aneurysm (situation)",
+    "im:code" : "10624401000119102"
+  }, {
+    "@id" : "sn:10624451000119103",
+    "rdfs:label" : "Family history of aneurysm of blood vessel of brain (situation)",
+    "im:code" : "10624451000119103"
+  }, {
+    "@id" : "sn:11718821000119109",
+    "rdfs:label" : "Family history of retinal detachment (situation)",
+    "im:code" : "11718821000119109"
+  }, {
+    "@id" : "sn:14580001000004104",
+    "rdfs:label" : "Family history of allergic granulomatosis angiitis (situation)",
+    "im:code" : "14580001000004104"
+  }, {
+    "@id" : "sn:46421000000106",
+    "rdfs:label" : "FH: Haemochromatosis",
+    "im:code" : "46421000000106"
+  }, {
+    "@id" : "sn:46431000000108",
+    "rdfs:label" : "FH: Angina in 1st degree female relative <65 years",
+    "im:code" : "46431000000108"
+  }, {
+    "@id" : "sn:46441000000104",
+    "rdfs:label" : "FH: Angina in 1st degree male relative <55 years",
+    "im:code" : "46441000000104"
+  }, {
+    "@id" : "sn:46451000000101",
+    "rdfs:label" : "FH: Myocardial infarct in 1st degree female relative <65 yrs",
+    "im:code" : "46451000000101"
+  }, {
+    "@id" : "sn:46461000000103",
+    "rdfs:label" : "FH: Myocardial infarct in 1st degree male relative <55 years",
+    "im:code" : "46461000000103"
+  }, {
+    "@id" : "sn:46471000000105",
+    "rdfs:label" : "FH: Malignant hyperpyrexia",
+    "im:code" : "46471000000105"
+  }, {
+    "@id" : "sn:47551000000100",
+    "rdfs:label" : "FH: Malignant hyperpyrexia",
+    "im:code" : "47551000000100"
+  }, {
+    "@id" : "sn:78701000000109",
+    "rdfs:label" : "FH: Haemochromatosis",
+    "im:code" : "78701000000109"
+  }, {
+    "@id" : "sn:78711000000106",
+    "rdfs:label" : "FH: Angina in 1st degree female relative <65 years",
+    "im:code" : "78711000000106"
+  }, {
+    "@id" : "sn:78721000000100",
+    "rdfs:label" : "FH: Angina in 1st degree male relative <55 years",
+    "im:code" : "78721000000100"
+  }, {
+    "@id" : "sn:78731000000103",
+    "rdfs:label" : "FH: Myocardial infarct in 1st degree female relative <65 yrs",
+    "im:code" : "78731000000103"
+  }, {
+    "@id" : "sn:78741000000107",
+    "rdfs:label" : "FH: Myocardial infarct in 1st degree male relative <55 years",
+    "im:code" : "78741000000107"
+  }, {
+    "@id" : "sn:94501000000102",
+    "rdfs:label" : "FH: Manic-depressive state",
+    "im:code" : "94501000000102"
+  }, {
+    "@id" : "sn:94511000000100",
+    "rdfs:label" : "FH: Suicide",
+    "im:code" : "94511000000100"
+  }, {
+    "@id" : "sn:110161000000105",
+    "rdfs:label" : "FH: Anxiety state",
+    "im:code" : "110161000000105"
+  }, {
+    "@id" : "sn:111271000000103",
+    "rdfs:label" : "FH: Polycystic ovaries",
+    "im:code" : "111271000000103"
+  }, {
+    "@id" : "sn:111281000000101",
+    "rdfs:label" : "FH: Enuresis",
+    "im:code" : "111281000000101"
+  }, {
+    "@id" : "sn:111291000000104",
+    "rdfs:label" : "Family history of development disorder",
+    "im:code" : "111291000000104"
+  }, {
+    "@id" : "sn:111301000000100",
+    "rdfs:label" : "Family history of autism",
+    "im:code" : "111301000000100"
+  }, {
+    "@id" : "sn:111311000000103",
+    "rdfs:label" : "Family history of learning difficulties",
+    "im:code" : "111311000000103"
+  }, {
+    "@id" : "sn:117741000000106",
+    "rdfs:label" : "FH: Polycystic ovaries",
+    "im:code" : "117741000000106"
+  }, {
+    "@id" : "sn:117751000000109",
+    "rdfs:label" : "FH: Enuresis",
+    "im:code" : "117751000000109"
+  }, {
+    "@id" : "sn:117761000000107",
+    "rdfs:label" : "Family history of development disorder",
+    "im:code" : "117761000000107"
+  }, {
+    "@id" : "sn:117771000000100",
+    "rdfs:label" : "Family history of autism",
+    "im:code" : "117771000000100"
+  }, {
+    "@id" : "sn:117781000000103",
+    "rdfs:label" : "Family history of learning difficulties",
+    "im:code" : "117781000000103"
+  }, {
+    "@id" : "sn:164201000000109",
+    "rdfs:label" : "Family history of prostate cancer",
+    "im:code" : "164201000000109"
+  }, {
+    "@id" : "sn:164341000000100",
+    "rdfs:label" : "Relative dying",
+    "im:code" : "164341000000100"
+  }, {
+    "@id" : "sn:164351000000102",
+    "rdfs:label" : "Parent has physical disability",
+    "im:code" : "164351000000102"
+  }, {
+    "@id" : "sn:171511000000101",
+    "rdfs:label" : "Family history of prostate cancer",
+    "im:code" : "171511000000101"
+  }, {
+    "@id" : "sn:171631000000105",
+    "rdfs:label" : "Relative dying",
+    "im:code" : "171631000000105"
+  }, {
+    "@id" : "sn:171641000000101",
+    "rdfs:label" : "Parent has physical disability",
+    "im:code" : "171641000000101"
+  }, {
+    "@id" : "sn:185661000000108",
+    "rdfs:label" : "FH: Diabetes mellitus in first degree relative",
+    "im:code" : "185661000000108"
+  }, {
+    "@id" : "sn:185671000000101",
+    "rdfs:label" : "FH: Hypercholesterolaemia in first degree relative",
+    "im:code" : "185671000000101"
+  }, {
+    "@id" : "sn:185681000000104",
+    "rdfs:label" : "Family history of renal stone",
+    "im:code" : "185681000000104"
+  }, {
+    "@id" : "sn:185691000000102",
+    "rdfs:label" : "FH: maternal hip fracture before age 75",
+    "im:code" : "185691000000102"
+  }, {
+    "@id" : "sn:189101000000101",
+    "rdfs:label" : "FH: Diabetes mellitus in first degree relative",
+    "im:code" : "189101000000101"
+  }, {
+    "@id" : "sn:189111000000104",
+    "rdfs:label" : "FH: Hypercholesterolaemia in first degree relative",
+    "im:code" : "189111000000104"
+  }, {
+    "@id" : "sn:189121000000105",
+    "rdfs:label" : "Family history of renal stone",
+    "im:code" : "189121000000105"
+  }, {
+    "@id" : "sn:189131000000107",
+    "rdfs:label" : "FH: maternal hip fracture before age 75",
+    "im:code" : "189131000000107"
+  }, {
+    "@id" : "sn:198301000000109",
+    "rdfs:label" : "Family history of deep vein thrombosis (situation)",
+    "im:code" : "198301000000109"
+  }, {
+    "@id" : "sn:198381000000104",
+    "rdfs:label" : "Family history of hypertrophic obstructive cardiomyopathy (situation)",
+    "im:code" : "198381000000104"
+  }, {
+    "@id" : "sn:198921000000101",
+    "rdfs:label" : "Fertility problems in partner (situation)",
+    "im:code" : "198921000000101"
+  }, {
+    "@id" : "sn:199071000000106",
+    "rdfs:label" : "Family history of lactose intolerance (situation)",
+    "im:code" : "199071000000106"
+  }, {
+    "@id" : "sn:199731000000107",
+    "rdfs:label" : "Family history of anomalous coronary artery (situation)",
+    "im:code" : "199731000000107"
+  }, {
+    "@id" : "sn:203261000000108",
+    "rdfs:label" : "Family history of coronary heart disease (situation)",
+    "im:code" : "203261000000108"
+  }, {
+    "@id" : "sn:207361000000107",
+    "rdfs:label" : "Fertility problems in partner",
+    "im:code" : "207361000000107"
+  }, {
+    "@id" : "sn:207371000000100",
+    "rdfs:label" : "Fertility problems in partner",
+    "im:code" : "207371000000100"
+  }, {
+    "@id" : "sn:213241000000105",
+    "rdfs:label" : "Family history of deep vein thrombosis",
+    "im:code" : "213241000000105"
+  }, {
+    "@id" : "sn:213251000000108",
+    "rdfs:label" : "Family history of deep vein thrombosis",
+    "im:code" : "213251000000108"
+  }, {
+    "@id" : "sn:213381000000106",
+    "rdfs:label" : "FH: Hypertrophic obstructive cardiomyopathy",
+    "im:code" : "213381000000106"
+  }, {
+    "@id" : "sn:213391000000108",
+    "rdfs:label" : "FH: Hypertrophic obstructive cardiomyopathy",
+    "im:code" : "213391000000108"
+  }, {
+    "@id" : "sn:214251000000106",
+    "rdfs:label" : "FH: Lactose intolerance",
+    "im:code" : "214251000000106"
+  }, {
+    "@id" : "sn:214261000000109",
+    "rdfs:label" : "FH: Lactose intolerance",
+    "im:code" : "214261000000109"
+  }, {
+    "@id" : "sn:215681000000103",
+    "rdfs:label" : "FH: Anomalous coronary artery",
+    "im:code" : "215681000000103"
+  }, {
+    "@id" : "sn:215821000000103",
+    "rdfs:label" : "FH: Anomalous coronary artery",
+    "im:code" : "215821000000103"
+  }, {
+    "@id" : "sn:287351000000105",
+    "rdfs:label" : "Family history of substance misuse (situation)",
+    "im:code" : "287351000000105"
+  }, {
+    "@id" : "sn:287361000000108",
+    "rdfs:label" : "Family history of substance misuse ",
+    "im:code" : "287361000000108"
+  }, {
+    "@id" : "sn:287371000000101",
+    "rdfs:label" : "Family history of substance misuse ",
+    "im:code" : "287371000000101"
+  }, {
+    "@id" : "sn:287801000000102",
+    "rdfs:label" : "Sibling is handicapped",
+    "im:code" : "287801000000102"
+  }, {
+    "@id" : "sn:288311000000107",
+    "rdfs:label" : "Sibling is handicapped",
+    "im:code" : "288311000000107"
+  }, {
+    "@id" : "sn:293161000000103",
+    "rdfs:label" : "Family history of alcohol misuse (situation)",
+    "im:code" : "293161000000103"
+  }, {
+    "@id" : "sn:293171000000105",
+    "rdfs:label" : "Family history of alcohol misuse ",
+    "im:code" : "293171000000105"
+  }, {
+    "@id" : "sn:293181000000107",
+    "rdfs:label" : "Family history of alcohol misuse ",
+    "im:code" : "293181000000107"
+  }, {
+    "@id" : "sn:293711000000104",
+    "rdfs:label" : "Family history of psychotic illness (situation)",
+    "im:code" : "293711000000104"
+  }, {
+    "@id" : "sn:293721000000105",
+    "rdfs:label" : "Family history of psychotic illness ",
+    "im:code" : "293721000000105"
+  }, {
+    "@id" : "sn:293731000000107",
+    "rdfs:label" : "Family history of psychotic illness ",
+    "im:code" : "293731000000107"
+  }, {
+    "@id" : "sn:295741000000102",
+    "rdfs:label" : "Family history of speech and language disorder (situation)",
+    "im:code" : "295741000000102"
+  }, {
+    "@id" : "sn:308491000000100",
+    "rdfs:label" : "Family history of learning disability",
+    "im:code" : "308491000000100"
+  }, {
+    "@id" : "sn:308911000000104",
+    "rdfs:label" : "Family history of learning disability",
+    "im:code" : "308911000000104"
+  }, {
+    "@id" : "sn:311741000000106",
+    "rdfs:label" : "Partner pregnant (situation)",
+    "im:code" : "311741000000106"
+  }, {
+    "@id" : "sn:311751000000109",
+    "rdfs:label" : "Partner pregnant ",
+    "im:code" : "311751000000109"
+  }, {
+    "@id" : "sn:311761000000107",
+    "rdfs:label" : "Partner pregnant ",
+    "im:code" : "311761000000107"
+  }, {
+    "@id" : "sn:335241000000106",
+    "rdfs:label" : "Family history of sarcoidosis (situation)",
+    "im:code" : "335241000000106"
+  }, {
+    "@id" : "sn:335251000000109",
+    "rdfs:label" : "Family history of sarcoidosis ",
+    "im:code" : "335251000000109"
+  }, {
+    "@id" : "sn:335261000000107",
+    "rdfs:label" : "Family history of sarcoidosis ",
+    "im:code" : "335261000000107"
+  }, {
+    "@id" : "sn:335271000000100",
+    "rdfs:label" : "Family history of subarachnoid haemorrhage (situation)",
+    "im:code" : "335271000000100"
+  }, {
+    "@id" : "sn:336971000000103",
+    "rdfs:label" : "Family history of subarachnoid haemorrhage",
+    "im:code" : "336971000000103"
+  }, {
+    "@id" : "sn:337411000000101",
+    "rdfs:label" : "Family history of subarachnoid haemorrhage",
+    "im:code" : "337411000000101"
+  }, {
+    "@id" : "sn:341081000000106",
+    "rdfs:label" : "Family history of myocarditis (situation)",
+    "im:code" : "341081000000106"
+  }, {
+    "@id" : "sn:341091000000108",
+    "rdfs:label" : "Family history of myocarditis ",
+    "im:code" : "341091000000108"
+  }, {
+    "@id" : "sn:341101000000100",
+    "rdfs:label" : "Family history of myocarditis ",
+    "im:code" : "341101000000100"
+  }, {
+    "@id" : "sn:342481000000105",
+    "rdfs:label" : "Family history of human immunodeficiency virus (situation)",
+    "im:code" : "342481000000105"
+  }, {
+    "@id" : "sn:342501000000101",
+    "rdfs:label" : "Family history of acquired immune deficiency syndrome (situation)",
+    "im:code" : "342501000000101"
+  }, {
+    "@id" : "sn:351981000000109",
+    "rdfs:label" : "Family history of malignant melanoma (situation)",
+    "im:code" : "351981000000109"
+  }, {
+    "@id" : "sn:351991000000106",
+    "rdfs:label" : "Family history of malignant melanoma ",
+    "im:code" : "351991000000106"
+  }, {
+    "@id" : "sn:352001000000109",
+    "rdfs:label" : "Family history of malignant melanoma ",
+    "im:code" : "352001000000109"
+  }, {
+    "@id" : "sn:352191000000103",
+    "rdfs:label" : "Family history of cardiovascular disease in first degree male relative less than 55 years (situation)",
+    "im:code" : "352191000000103"
+  }, {
+    "@id" : "sn:352201000000101",
+    "rdfs:label" : "FH: Cardiovascular disease first degree male relative less than 55 years ",
+    "im:code" : "352201000000101"
+  }, {
+    "@id" : "sn:352211000000104",
+    "rdfs:label" : "FH: Cardiovascular disease first degree male relative less than 55 years ",
+    "im:code" : "352211000000104"
+  }, {
+    "@id" : "sn:352251000000100",
+    "rdfs:label" : "Family history of cardiovascular disease in first degree female relative less than 65 years (situation)",
+    "im:code" : "352251000000100"
+  }, {
+    "@id" : "sn:352261000000102",
+    "rdfs:label" : "Family history of cardiovascular disease in first degree female relative less than 65 years ",
+    "im:code" : "352261000000102"
+  }, {
+    "@id" : "sn:352271000000109",
+    "rdfs:label" : "Family history of cardiovascular disease in first degree female relative less than 65 years ",
+    "im:code" : "352271000000109"
+  }, {
+    "@id" : "sn:354881000000104",
+    "rdfs:label" : "Paternal drug misuse (situation)",
+    "im:code" : "354881000000104"
+  }, {
+    "@id" : "sn:354911000000104",
+    "rdfs:label" : "Both parents misuse drugs (situation)",
+    "im:code" : "354911000000104"
+  }, {
+    "@id" : "sn:369391000000100",
+    "rdfs:label" : "Both parents misuse drugs ",
+    "im:code" : "369391000000100"
+  }, {
+    "@id" : "sn:369401000000102",
+    "rdfs:label" : "Paternal drug misuse ",
+    "im:code" : "369401000000102"
+  }, {
+    "@id" : "sn:370551000000100",
+    "rdfs:label" : "Both parents misuse drugs ",
+    "im:code" : "370551000000100"
+  }, {
+    "@id" : "sn:370561000000102",
+    "rdfs:label" : "Paternal drug misuse ",
+    "im:code" : "370561000000102"
+  }, {
+    "@id" : "sn:398201000000106",
+    "rdfs:label" : [ "[V]Family history of tobacco abuse (situation)", "[V]Family history of tobacco abuse (context-dependent category)" ],
+    "im:code" : "398201000000106"
+  }, {
+    "@id" : "sn:399521000000109",
+    "rdfs:label" : [ "[V]Family history of infectious disease (situation)", "[V]Family history of infectious disease (context-dependent category)" ],
+    "im:code" : "399521000000109"
+  }, {
+    "@id" : "sn:399911000000107",
+    "rdfs:label" : [ "[V]Family history of stroke (cerebrovascular) (situation)", "[V]Family history of stroke (cerebrovascular) (context-dependent category)" ],
+    "im:code" : "399911000000107"
+  }, {
+    "@id" : "sn:400541000000104",
+    "rdfs:label" : [ "[V]Family history of anemia (context-dependent category)", "[V]Family history of anaemia (situation)" ],
+    "im:code" : "400541000000104"
+  }, {
+    "@id" : "sn:410211000000101",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm (situation)", "[V]Family history of malignant neoplasm (context-dependent category)" ],
+    "im:code" : "410211000000101"
+  }, {
+    "@id" : "sn:411161000000104",
+    "rdfs:label" : "[V]Family history of skin conditions (context-dependent category)",
+    "im:code" : "411161000000104"
+  }, {
+    "@id" : "sn:411301000000101",
+    "rdfs:label" : [ "[V]Family history of unspecified malignant neoplasm (situation)", "[V]Family history of unspecified malignant neoplasm (context-dependent category)" ],
+    "im:code" : "411301000000101"
+  }, {
+    "@id" : "sn:411381000000106",
+    "rdfs:label" : [ "[V]Family history of other mental and behavioral disorders (context-dependent category)", "[V]Family history of other mental and behavioural disorders (situation)" ],
+    "im:code" : "411381000000106"
+  }, {
+    "@id" : "sn:411731000000108",
+    "rdfs:label" : [ "[X]Family history of malignant neoplasm of other respiratory and intrathoracic organs (situation)", "[X]Family history of malignant neoplasm of other respiratory and intrathoracic organs (context-dependent category)" ],
+    "im:code" : "411731000000108"
+  }, {
+    "@id" : "sn:412171000000103",
+    "rdfs:label" : [ "[V]Family history of arthritis (situation)", "[V]Family history of arthritis (context-dependent category)" ],
+    "im:code" : "412171000000103"
+  }, {
+    "@id" : "sn:412351000000109",
+    "rdfs:label" : [ "[V]Family history of asthma (situation)", "[V]Family history of asthma (context-dependent category)" ],
+    "im:code" : "412351000000109"
+  }, {
+    "@id" : "sn:412521000000108",
+    "rdfs:label" : [ "[V]Family history of mental retardation (situation)", "[V]Family history of mental retardation (context-dependent category)" ],
+    "im:code" : "412521000000108"
+  }, {
+    "@id" : "sn:413001000000103",
+    "rdfs:label" : [ "[V]Family history of coeliac disease (situation)", "[V]Family history of coeliac disease" ],
+    "im:code" : "413001000000103"
+  }, {
+    "@id" : "sn:414571000000104",
+    "rdfs:label" : [ "[V]Family history of ischemic heart disease (context-dependent category)", "[V]Family history of ischaemic heart disease (situation)" ],
+    "im:code" : "414571000000104"
+  }, {
+    "@id" : "sn:414781000000109",
+    "rdfs:label" : [ "[X]Family history of other malignant neoplasms of lymphoid, hematopoietic and related tissues (context-dependent category)", "[X]Family history of other malignant neoplasms of lymphoid, haematopoietic and related tissues (situation)" ],
+    "im:code" : "414781000000109"
+  }, {
+    "@id" : "sn:415901000000103",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm of genital organ (situation)", "[V]Family history of malignant neoplasm of genital organ (context-dependent category)" ],
+    "im:code" : "415901000000103"
+  }, {
+    "@id" : "sn:416521000000107",
+    "rdfs:label" : [ "[V]Family history of unspecified specific condition (situation)", "[V]Family history of unspecified specific condition (context-dependent category)" ],
+    "im:code" : "416521000000107"
+  }, {
+    "@id" : "sn:417691000000109",
+    "rdfs:label" : [ "[V]Family history of diabetes mellitus (situation)", "[V]Family history of diabetes mellitus" ],
+    "im:code" : "417691000000109"
+  }, {
+    "@id" : "sn:417801000000103",
+    "rdfs:label" : [ "[V]Maternal family history of drug addiction (situation)", "[V]Maternal family history of drug addiction" ],
+    "im:code" : "417801000000103"
+  }, {
+    "@id" : "sn:418751000000106",
+    "rdfs:label" : [ "[V] Family history of: [ischaemic heart disease] or [myocardial infarction] (situation)", "[V] Family history of: [ischaemic heart disease] or [myocardial infarction]" ],
+    "im:code" : "418751000000106"
+  }, {
+    "@id" : "sn:426521000000103",
+    "rdfs:label" : [ "[V]Family history of coeliac disease (situation)", "[V]Family history of celiac disease (context-dependent category)" ],
+    "im:code" : "426521000000103"
+  }, {
+    "@id" : "sn:426671000000103",
+    "rdfs:label" : [ "[V]Family history of leukemia (context-dependent category)", "[V]Family history of leukaemia (situation)" ],
+    "im:code" : "426671000000103"
+  }, {
+    "@id" : "sn:426681000000101",
+    "rdfs:label" : [ "[V]Family history of other lymphatic or hematopoietic neoplasm (context-dependent category)", "[V]Family history of other lymphatic or haematopoietic neoplasm (situation)" ],
+    "im:code" : "426681000000101"
+  }, {
+    "@id" : "sn:427331000000106",
+    "rdfs:label" : [ "[V]Family history of diabetes mellitus (situation)", "[V]Family history of diabetes mellitus (context-dependent category)" ],
+    "im:code" : "427331000000106"
+  }, {
+    "@id" : "sn:427501000000109",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm of trachea, bronchus or lung (situation)", "[V]Family history of malignant neoplasm of trachea, bronchus or lung (context-dependent category)" ],
+    "im:code" : "427501000000109"
+  }, {
+    "@id" : "sn:427701000000101",
+    "rdfs:label" : [ "[V]Family history of congenital anomalies (situation)", "[V]Family history of congenital anomalies (context-dependent category)" ],
+    "im:code" : "427701000000101"
+  }, {
+    "@id" : "sn:428021000000106",
+    "rdfs:label" : [ "[V]Family history of alcohol abuse (situation)", "[V]Family history of alcohol abuse (context-dependent category)" ],
+    "im:code" : "428021000000106"
+  }, {
+    "@id" : "sn:428951000000102",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm of urinary organ (situation)", "[V]Family history of malignant neoplasm of urinary organ (context-dependent category)" ],
+    "im:code" : "428951000000102"
+  }, {
+    "@id" : "sn:429701000000107",
+    "rdfs:label" : [ "[V]Maternal family history of drug addiction (situation)", "[V]Maternal family history of drug addiction (context-dependent category)" ],
+    "im:code" : "429701000000107"
+  }, {
+    "@id" : "sn:439751000000105",
+    "rdfs:label" : [ "[V]Family history of blindness or visual loss (situation)", "[V]Family history of blindness or visual loss (context-dependent category)" ],
+    "im:code" : "439751000000105"
+  }, {
+    "@id" : "sn:440641000000105",
+    "rdfs:label" : [ "[V]Family history of deafness or hearing loss (situation)", "[V]Family history of deafness or hearing loss (context-dependent category)" ],
+    "im:code" : "440641000000105"
+  }, {
+    "@id" : "sn:440661000000106",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm of other respiratory or intrathoracic organ (situation)", "[V]Family history of malignant neoplasm of other respiratory or intrathoracic organ (context-dependent category)" ],
+    "im:code" : "440661000000106"
+  }, {
+    "@id" : "sn:440671000000104",
+    "rdfs:label" : [ "[V]Family history of diseases of the respiratory system (situation)", "[V]Family history of diseases of the respiratory system (context-dependent category)" ],
+    "im:code" : "440671000000104"
+  }, {
+    "@id" : "sn:440701000000100",
+    "rdfs:label" : [ "[V]Family history of kidney disease (situation)", "[V]Family history of kidney disease (context-dependent category)" ],
+    "im:code" : "440701000000100"
+  }, {
+    "@id" : "sn:440771000000108",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm of breast (situation)", "[V]Family history of malignant neoplasm of breast (context-dependent category)" ],
+    "im:code" : "440771000000108"
+  }, {
+    "@id" : "sn:444521000000105",
+    "rdfs:label" : [ "[X]Family history of malignant neoplasm of other organs or systems (situation)", "[X]Family history of malignant neoplasm of other organs or systems (context-dependent category)" ],
+    "im:code" : "444521000000105"
+  }, {
+    "@id" : "sn:451671000000105",
+    "rdfs:label" : [ "[V]Family history of consanguinity (situation)", "[V]Family history of consanguinity (context-dependent category)" ],
+    "im:code" : "451671000000105"
+  }, {
+    "@id" : "sn:452511000000109",
+    "rdfs:label" : [ "[V]Family history of mental and behavioral disorders (context-dependent category)", "[V]Family history of mental and behavioural disorders (situation)" ],
+    "im:code" : "452511000000109"
+  }, {
+    "@id" : "sn:453151000000105",
+    "rdfs:label" : [ "[V]Family history of digestive disorder (situation)", "[V]Family history of digestive disorder (context-dependent category)" ],
+    "im:code" : "453151000000105"
+  }, {
+    "@id" : "sn:463811000000105",
+    "rdfs:label" : [ "[V]Family history of malignant neoplasm of gastrointestinal tract (situation)", "[V]Family history of malignant neoplasm of gastrointestinal tract (context-dependent category)" ],
+    "im:code" : "463811000000105"
+  }, {
+    "@id" : "sn:463821000000104",
+    "rdfs:label" : [ "[V]Family history of allergic disorders (situation)", "[V]Family history of allergic disorders (context-dependent category)" ],
+    "im:code" : "463821000000104"
+  }, {
+    "@id" : "sn:467771000000102",
+    "rdfs:label" : [ "[X]Family history of consanguinity (situation)", "[X]Family history of consanguinity (context-dependent category)" ],
+    "im:code" : "467771000000102"
+  }, {
+    "@id" : "sn:468461000000103",
+    "rdfs:label" : [ "[V]Family history of other malignant neoplasm (situation)", "[V]Family history of other malignant neoplasm (context-dependent category)" ],
+    "im:code" : "468461000000103"
+  }, {
+    "@id" : "sn:480411000000100",
+    "rdfs:label" : [ "[V]Family history of human immunodefiency virus [HIV] disease (context-dependent category)", "[V]Family history of human immunodeficiency virus disease (situation)" ],
+    "im:code" : "480411000000100"
+  }, {
+    "@id" : "sn:480491000000109",
+    "rdfs:label" : [ "[V]Family history of unspecified conditions (situation)", "[V]Family history of unspecified conditions (context-dependent category)" ],
+    "im:code" : "480491000000109"
+  }, {
+    "@id" : "sn:492391000000100",
+    "rdfs:label" : "Family history of lymphoedema (situation)",
+    "im:code" : "492391000000100"
+  }, {
+    "@id" : "sn:495171000000108",
+    "rdfs:label" : "Family history of childhood convulsion (situation)",
+    "im:code" : "495171000000108"
+  }, {
+    "@id" : "sn:503601000000103",
+    "rdfs:label" : "Family history of Addison disease (situation)",
+    "im:code" : "503601000000103"
+  }, {
+    "@id" : "sn:503611000000101",
+    "rdfs:label" : "Family history of Addison disease ",
+    "im:code" : "503611000000101"
+  }, {
+    "@id" : "sn:503621000000107",
+    "rdfs:label" : "Family history of Addison disease ",
+    "im:code" : "503621000000107"
+  }, {
+    "@id" : "sn:503631000000109",
+    "rdfs:label" : "Family history of psoriasis with arthropathy (situation)",
+    "im:code" : "503631000000109"
+  }, {
+    "@id" : "sn:503641000000100",
+    "rdfs:label" : "Family history of psoriasis with arthropathy ",
+    "im:code" : "503641000000100"
+  }, {
+    "@id" : "sn:503651000000102",
+    "rdfs:label" : "Family history of psoriasis with arthropathy ",
+    "im:code" : "503651000000102"
+  }, {
+    "@id" : "sn:515561000000101",
+    "rdfs:label" : "Family history of tendinous xanthoma in first degree relative (situation)",
+    "im:code" : "515561000000101"
+  }, {
+    "@id" : "sn:515571000000108",
+    "rdfs:label" : "Family history of tendinous xanthoma in second degree relative (situation)",
+    "im:code" : "515571000000108"
+  }, {
+    "@id" : "sn:515711000000105",
+    "rdfs:label" : "Family history of myocardial infarction in second degree relative less than 50 years (situation)",
+    "im:code" : "515711000000105"
+  }, {
+    "@id" : "sn:515741000000106",
+    "rdfs:label" : "Family history of myocardial infarction in first degree relative less than 60 years (situation)",
+    "im:code" : "515741000000106"
+  }, {
+    "@id" : "sn:515781000000103",
+    "rdfs:label" : "Family history of total cholesterol greater than 6.7 millimoles per litre in child or sibling under 16 years of age (situation)",
+    "im:code" : "515781000000103"
+  }, {
+    "@id" : "sn:515791000000101",
+    "rdfs:label" : "Family history of total cholesterol greater than 7.5 millimoles per litre in first or second degree relative (situation)",
+    "im:code" : "515791000000101"
+  }, {
+    "@id" : "sn:520301000000107",
+    "rdfs:label" : "Family history of venous disease (situation)",
+    "im:code" : "520301000000107"
+  }, {
+    "@id" : "sn:526571000000109",
+    "rdfs:label" : "Family history of alpha-1-antitrypsin deficiency (situation)",
+    "im:code" : "526571000000109"
+  }, {
+    "@id" : "sn:526581000000106",
+    "rdfs:label" : "Family history of alpha-1-antitrypsin deficiency ",
+    "im:code" : "526581000000106"
+  }, {
+    "@id" : "sn:527471000000106",
+    "rdfs:label" : "Family history of pulmonary emphysema (situation)",
+    "im:code" : "527471000000106"
+  }, {
+    "@id" : "sn:532331000000103",
+    "rdfs:label" : "Family history: Gastrointestinal disorder NOS (situation)",
+    "im:code" : "532331000000103"
+  }, {
+    "@id" : "sn:537221000000109",
+    "rdfs:label" : "Family history: Blood disorder NOS (situation)",
+    "im:code" : "537221000000109"
+  }, {
+    "@id" : "sn:565691000000107",
+    "rdfs:label" : "Family history: Congenital anomaly NOS (situation)",
+    "im:code" : "565691000000107"
+  }, {
+    "@id" : "sn:569931000000100",
+    "rdfs:label" : "Family history: neoplasm - other intrathoracic organ (situation)",
+    "im:code" : "569931000000100"
+  }, {
+    "@id" : "sn:585791000000103",
+    "rdfs:label" : "Family history: Metabolic disorder NOS (situation)",
+    "im:code" : "585791000000103"
+  }, {
+    "@id" : "sn:586401000000108",
+    "rdfs:label" : "Family history: Musculo-skeletal disorder NOS (situation)",
+    "im:code" : "586401000000108"
+  }, {
+    "@id" : "sn:590411000000107",
+    "rdfs:label" : "Family history: Infectious disease NOS (situation)",
+    "im:code" : "590411000000107"
+  }, {
+    "@id" : "sn:593441000000101",
+    "rdfs:label" : "Family history: Eye disorder NOS (situation)",
+    "im:code" : "593441000000101"
+  }, {
+    "@id" : "sn:593451000000103",
+    "rdfs:label" : "Family history: Ear disorder NOS (situation)",
+    "im:code" : "593451000000103"
+  }, {
+    "@id" : "sn:595201000000104",
+    "rdfs:label" : "Family history: Obstetric problem NOS (situation)",
+    "im:code" : "595201000000104"
+  }, {
+    "@id" : "sn:595241000000101",
+    "rdfs:label" : "Family history: neoplasm - other lymphoid/hematopoietic (situation)",
+    "im:code" : "595241000000101"
+  }, {
+    "@id" : "sn:595741000000107",
+    "rdfs:label" : "Family history: CVS disease NOS (situation)",
+    "im:code" : "595741000000107"
+  }, {
+    "@id" : "sn:596361000000103",
+    "rdfs:label" : "Family history: Respiratory disease NOS (situation)",
+    "im:code" : "596361000000103"
+  }, {
+    "@id" : "sn:598741000000101",
+    "rdfs:label" : "Family history: neoplasm - NOS (situation)",
+    "im:code" : "598741000000101"
+  }, {
+    "@id" : "sn:624851000000102",
+    "rdfs:label" : "Family illness NOS (situation)",
+    "im:code" : "624851000000102"
+  }, {
+    "@id" : "sn:638471000000101",
+    "rdfs:label" : "Maternal chronic respiratory/cardiovascular system NOS (situation)",
+    "im:code" : "638471000000101"
+  }, {
+    "@id" : "sn:670381000000108",
+    "rdfs:label" : "Maternal medical problem NOS (situation)",
+    "im:code" : "670381000000108"
+  }, {
+    "@id" : "sn:674181000000102",
+    "rdfs:label" : "Family history: CNS disorder NOS (situation)",
+    "im:code" : "674181000000102"
+  }, {
+    "@id" : "sn:674191000000100",
+    "rdfs:label" : "Family history: Genitourinary disorder NOS (situation)",
+    "im:code" : "674191000000100"
+  }, {
+    "@id" : "sn:709431000000106",
+    "rdfs:label" : "Family history of pulmonary emphysema",
+    "im:code" : "709431000000106"
+  }, {
+    "@id" : "sn:709971000000103",
+    "rdfs:label" : "Family history of diabetes mellitus type 1 (situation)",
+    "im:code" : "709971000000103"
+  }, {
+    "@id" : "sn:709981000000101",
+    "rdfs:label" : "Family history of diabetes mellitus type 1 ",
+    "im:code" : "709981000000101"
+  }, {
+    "@id" : "sn:709991000000104",
+    "rdfs:label" : "Family history of diabetes mellitus type 2 (situation)",
+    "im:code" : "709991000000104"
+  }, {
+    "@id" : "sn:710001000000103",
+    "rdfs:label" : "Family history of diabetes mellitus type 2 ",
+    "im:code" : "710001000000103"
+  }, {
+    "@id" : "sn:751961000000104",
+    "rdfs:label" : "Relative aware of prognosis (situation)",
+    "im:code" : "751961000000104"
+  }, {
+    "@id" : "sn:751971000000106",
+    "rdfs:label" : "Relative aware of prognosis ",
+    "im:code" : "751971000000106"
+  }, {
+    "@id" : "sn:758841000000104",
+    "rdfs:label" : "Family history of fragile X syndrome in first degree relative (situation)",
+    "im:code" : "758841000000104"
+  }, {
+    "@id" : "sn:763211000000100",
+    "rdfs:label" : "Family history of thromboembolic disorder (situation)",
+    "im:code" : "763211000000100"
+  }, {
+    "@id" : "sn:763241000000104",
+    "rdfs:label" : "Family history of thrombophilia (situation)",
+    "im:code" : "763241000000104"
+  }, {
+    "@id" : "sn:763251000000101",
+    "rdfs:label" : "Family history of thrombophilia ",
+    "im:code" : "763251000000101"
+  }, {
+    "@id" : "sn:768541000000109",
+    "rdfs:label" : "Family history of mitochondrial disease (situation)",
+    "im:code" : "768541000000109"
+  }, {
+    "@id" : "sn:775061000000103",
+    "rdfs:label" : "Family history of hearing impairment (situation)",
+    "im:code" : "775061000000103"
+  }, {
+    "@id" : "sn:775371000000107",
+    "rdfs:label" : "Family history of lower limb oedema (situation)",
+    "im:code" : "775371000000107"
+  }, {
+    "@id" : "sn:775691000000100",
+    "rdfs:label" : "Family history of hearing loss (situation)",
+    "im:code" : "775691000000100"
+  }, {
+    "@id" : "sn:1290351000000105",
+    "rdfs:label" : "Parent socially isolated (situation)",
+    "im:code" : "1290351000000105"
+  }, {
+    "@id" : "sn:778441000000103",
+    "rdfs:label" : "Family history of thromboembolic disorder",
+    "im:code" : "778441000000103"
+  }, {
+    "@id" : "sn:809201000000102",
+    "rdfs:label" : "Mother hepatitis B positive (situation)",
+    "im:code" : "809201000000102"
+  }, {
+    "@id" : "sn:821691000000104",
+    "rdfs:label" : "Family history of medium chain acyl coenzyme A dehydrogenase deficiency (situation)",
+    "im:code" : "821691000000104"
+  }, {
+    "@id" : "sn:831011000000102",
+    "rdfs:label" : "Mother hepatitis B positive",
+    "im:code" : "831011000000102"
+  }, {
+    "@id" : "sn:831071000000107",
+    "rdfs:label" : "Family history of fragile X syndrome in first degree relative",
+    "im:code" : "831071000000107"
+  }, {
+    "@id" : "sn:834831000000104",
+    "rdfs:label" : "FH: MCADD (medium chain acyl coenzyme A dehydrogenase deficiency)",
+    "im:code" : "834831000000104"
+  }, {
+    "@id" : "sn:858011000000106",
+    "rdfs:label" : "FH: Charcot-Marie-Tooth disease (situation)",
+    "im:code" : "858011000000106"
+  }, {
+    "@id" : "sn:858191000000103",
+    "rdfs:label" : "Family history of peripheral vascular disease (situation)",
+    "im:code" : "858191000000103"
+  }, {
+    "@id" : "sn:858201000000101",
+    "rdfs:label" : "Family history of peripheral vascular disease ",
+    "im:code" : "858201000000101"
+  }, {
+    "@id" : "sn:860071000000108",
+    "rdfs:label" : "Family history of neoplasm of brain (situation)",
+    "im:code" : "860071000000108"
+  }, {
+    "@id" : "sn:860081000000105",
+    "rdfs:label" : "Family history of neoplasm of brain ",
+    "im:code" : "860081000000105"
+  }, {
+    "@id" : "sn:874521000000101",
+    "rdfs:label" : "FH: Charcot-Marie-Tooth disease",
+    "im:code" : "874521000000101"
+  }, {
+    "@id" : "sn:876701000000109",
+    "rdfs:label" : "Family history of neoplasm of lung",
+    "im:code" : "876701000000109"
+  }, {
+    "@id" : "sn:877231000000108",
+    "rdfs:label" : "Family history of malignant neoplasm of lung (situation)",
+    "im:code" : "877231000000108"
+  }, {
+    "@id" : "sn:877241000000104",
+    "rdfs:label" : "FH: malignant neoplasm of lung ",
+    "im:code" : "877241000000104"
+  }, {
+    "@id" : "sn:877621000000109",
+    "rdfs:label" : "Family history of malignant neoplasm of urinary bladder (situation)",
+    "im:code" : "877621000000109"
+  }, {
+    "@id" : "sn:877651000000104",
+    "rdfs:label" : "Family history of squamous cell carcinoma of skin (situation)",
+    "im:code" : "877651000000104"
+  }, {
+    "@id" : "sn:877661000000101",
+    "rdfs:label" : "FH: squamous cell carcinoma ",
+    "im:code" : "877661000000101"
+  }, {
+    "@id" : "sn:877671000000108",
+    "rdfs:label" : "Family history of non-Hodgkin lymphoma (situation)",
+    "im:code" : "877671000000108"
+  }, {
+    "@id" : "sn:877681000000105",
+    "rdfs:label" : "FH: non-Hodgkin's lymphoma ",
+    "im:code" : "877681000000105"
+  }, {
+    "@id" : "sn:878031000000100",
+    "rdfs:label" : "Family history of congenital hip dysplasia (situation)",
+    "im:code" : "878031000000100"
+  }, {
+    "@id" : "sn:878041000000109",
+    "rdfs:label" : "FH: congenital hip dysplasia ",
+    "im:code" : "878041000000109"
+  }, {
+    "@id" : "sn:878061000000105",
+    "rdfs:label" : "Family history of pre-eclampsia (situation)",
+    "im:code" : "878061000000105"
+  }, {
+    "@id" : "sn:878071000000103",
+    "rdfs:label" : "FH: pre-eclampsia ",
+    "im:code" : "878071000000103"
+  }, {
+    "@id" : "sn:881301000000108",
+    "rdfs:label" : "Family history of long QT syndrome (situation)",
+    "im:code" : "881301000000108"
+  }, {
+    "@id" : "sn:881311000000105",
+    "rdfs:label" : "FH: long QT syndrome ",
+    "im:code" : "881311000000105"
+  }, {
+    "@id" : "sn:886291000000101",
+    "rdfs:label" : "Family history of coeliac disease (situation)",
+    "im:code" : "886291000000101"
+  }, {
+    "@id" : "sn:890061000000103",
+    "rdfs:label" : "Family aware of prognosis (situation)",
+    "im:code" : "890061000000103"
+  }, {
+    "@id" : "sn:890291000000103",
+    "rdfs:label" : "FH: Malignant neoplasm of urinary bladder",
+    "im:code" : "890291000000103"
+  }, {
+    "@id" : "sn:891321000000103",
+    "rdfs:label" : "FH: Coeliac disease",
+    "im:code" : "891321000000103"
+  }, {
+    "@id" : "sn:902961000000107",
+    "rdfs:label" : "Family history of female genital mutilation (situation)",
+    "im:code" : "902961000000107"
+  }, {
+    "@id" : "sn:902971000000100",
+    "rdfs:label" : "Family history of female genital mutilation",
+    "im:code" : "902971000000100"
+  }, {
+    "@id" : "sn:925361000000107",
+    "rdfs:label" : "Family history of retinitis pigmentosa (situation)",
+    "im:code" : "925361000000107"
+  }, {
+    "@id" : "sn:925371000000100",
+    "rdfs:label" : "FH of retinitis pigmentosa ",
+    "im:code" : "925371000000100"
+  }, {
+    "@id" : "sn:939971000000100",
+    "rdfs:label" : "Wife unwell (situation)",
+    "im:code" : "939971000000100"
+  }, {
+    "@id" : "sn:939981000000103",
+    "rdfs:label" : "Wife unwell ",
+    "im:code" : "939981000000103"
+  }, {
+    "@id" : "sn:940261000000106",
+    "rdfs:label" : "Wife deceased (situation)",
+    "im:code" : "940261000000106"
+  }, {
+    "@id" : "sn:940271000000104",
+    "rdfs:label" : "Wife not alive ",
+    "im:code" : "940271000000104"
+  }, {
+    "@id" : "sn:940341000000103",
+    "rdfs:label" : "Husband well (situation)",
+    "im:code" : "940341000000103"
+  }, {
+    "@id" : "sn:940351000000100",
+    "rdfs:label" : "Husband well ",
+    "im:code" : "940351000000100"
+  }, {
+    "@id" : "sn:940361000000102",
+    "rdfs:label" : "Husband alive (situation)",
+    "im:code" : "940361000000102"
+  }, {
+    "@id" : "sn:940371000000109",
+    "rdfs:label" : "Husband alive ",
+    "im:code" : "940371000000109"
+  }, {
+    "@id" : "sn:940381000000106",
+    "rdfs:label" : "Husband unwell (situation)",
+    "im:code" : "940381000000106"
+  }, {
+    "@id" : "sn:940391000000108",
+    "rdfs:label" : "Husband unwell ",
+    "im:code" : "940391000000108"
+  }, {
+    "@id" : "sn:940401000000106",
+    "rdfs:label" : "Husband deceased (situation)",
+    "im:code" : "940401000000106"
+  }, {
+    "@id" : "sn:940411000000108",
+    "rdfs:label" : "Husband not alive ",
+    "im:code" : "940411000000108"
+  }, {
+    "@id" : "sn:959511000000100",
+    "rdfs:label" : "Family history of end stage renal disease (situation)",
+    "im:code" : "959511000000100"
+  }, {
+    "@id" : "sn:959521000000106",
+    "rdfs:label" : "Family history of end stage kidney disease ",
+    "im:code" : "959521000000106"
+  }, {
+    "@id" : "sn:986391000000100",
+    "rdfs:label" : "Parental health issue (situation)",
+    "im:code" : "986391000000100"
+  }, {
+    "@id" : "sn:1034441000000105",
+    "rdfs:label" : "Paternal alcohol abuse (finding)",
+    "im:code" : "1034441000000105"
+  }, {
+    "@id" : "sn:1034451000000108",
+    "rdfs:label" : "Paternal alcohol abuse ",
+    "im:code" : "1034451000000108"
+  }, {
+    "@id" : "sn:1035341000000100",
+    "rdfs:label" : "Paternal learning disability (situation)",
+    "im:code" : "1035341000000100"
+  }, {
+    "@id" : "sn:1035351000000102",
+    "rdfs:label" : "Paternal learning disability ",
+    "im:code" : "1035351000000102"
+  }, {
+    "@id" : "sn:1035381000000108",
+    "rdfs:label" : "Maternal learning disability (situation)",
+    "im:code" : "1035381000000108"
+  }, {
+    "@id" : "sn:1035391000000105",
+    "rdfs:label" : "Maternal learning disability ",
+    "im:code" : "1035391000000105"
+  }, {
+    "@id" : "sn:1037761000000107",
+    "rdfs:label" : "Mother victim of domestic violence (situation)",
+    "im:code" : "1037761000000107"
+  }, {
+    "@id" : "sn:1037771000000100",
+    "rdfs:label" : "Mother victim of domestic violence ",
+    "im:code" : "1037771000000100"
+  }, {
+    "@id" : "sn:1038261000000100",
+    "rdfs:label" : "Maternal postnatal depression (situation)",
+    "im:code" : "1038261000000100"
+  }, {
+    "@id" : "sn:1047251000000101",
+    "rdfs:label" : "Family distress (situation)",
+    "im:code" : "1047251000000101"
+  }, {
+    "@id" : "sn:1050221000000107",
+    "rdfs:label" : "Family history of human immunodeficiency virus infection (situation)",
+    "im:code" : "1050221000000107"
+  }, {
+    "@id" : "sn:1050341000000107",
+    "rdfs:label" : "Maternal postnatal depression",
+    "im:code" : "1050341000000107"
+  }, {
+    "@id" : "sn:1054251000000105",
+    "rdfs:label" : "History of postneonatal death (situation)",
+    "im:code" : "1054251000000105"
+  }, {
+    "@id" : "sn:1054261000000108",
+    "rdfs:label" : "History of neonatal death (situation)",
+    "im:code" : "1054261000000108"
+  }, {
+    "@id" : "sn:1054361000000104",
+    "rdfs:label" : "History of previous baby bottle fed (situation)",
+    "im:code" : "1054361000000104"
+  }, {
+    "@id" : "sn:1054371000000106",
+    "rdfs:label" : "History of previous baby breast fed (situation)",
+    "im:code" : "1054371000000106"
+  }, {
+    "@id" : "sn:1054381000000108",
+    "rdfs:label" : "History of previous baby bottle and breast fed (situation)",
+    "im:code" : "1054381000000108"
+  }, {
+    "@id" : "sn:1054391000000105",
+    "rdfs:label" : "Maternal history of type 1 diabetes mellitus (situation)",
+    "im:code" : "1054391000000105"
+  }, {
+    "@id" : "sn:1054401000000108",
+    "rdfs:label" : "Maternal history of type 2 diabetes mellitus (situation)",
+    "im:code" : "1054401000000108"
+  }, {
+    "@id" : "sn:1054411000000105",
+    "rdfs:label" : "Maternal history of gestational diabetes (situation)",
+    "im:code" : "1054411000000105"
+  }, {
+    "@id" : "sn:1102101000000107",
+    "rdfs:label" : "Maternal history of opioid misuse (situation)",
+    "im:code" : "1102101000000107"
+  }, {
+    "@id" : "sn:1102141000000105",
+    "rdfs:label" : "Family history of thyrotoxicosis (situation)",
+    "im:code" : "1102141000000105"
+  } ]
+}

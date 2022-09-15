@@ -1,0 +1,62 @@
+{
+  "query" : {
+    "prefix" : {
+      "prefixes" : [ {
+        "iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "prefix" : "rdf"
+      }, {
+        "iri" : "http://endhealth.info/im#",
+        "prefix" : "im"
+      }, {
+        "iri" : "http://www.w3.org/ns/shacl#",
+        "prefix" : "sh"
+      }, {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#",
+        "prefix" : "rdfs"
+      }, {
+        "iri" : "http://snomed.info/sct#",
+        "prefix" : "sn"
+      }, {
+        "iri" : "http://www.w3.org/2001/XMLSchema#",
+        "prefix" : "xsd"
+      } ],
+      "nameSpaces" : [ {
+        "iri" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "prefix" : "rdf"
+      }, {
+        "iri" : "http://endhealth.info/im#",
+        "prefix" : "im"
+      }, {
+        "iri" : "http://www.w3.org/ns/shacl#",
+        "prefix" : "sh"
+      }, {
+        "iri" : "http://www.w3.org/2000/01/rdf-schema#",
+        "prefix" : "rdfs"
+      }, {
+        "iri" : "http://snomed.info/sct#",
+        "prefix" : "sn"
+      }, {
+        "iri" : "http://www.w3.org/2001/XMLSchema#",
+        "prefix" : "xsd"
+      } ]
+    },
+    "name" : "PropertiesOfShapesUsingDateOfBirth",
+    "description" : "all of the data model properties for entities that have a property df a data of birth",
+    "with" : {
+      "type" : [ {
+        "inverse" : false,
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape",
+        "includeSupertypes" : false,
+        "includeSubtypes" : false,
+        "includeMembers" : false
+      } ]
+    },
+    "where" : {
+      "where" : { }
+    },
+    "select" : [ {
+      "select" : [ { }, { }, { }, { }, { }, { } ]
+    } ],
+    "usePrefixes" : true
+  }
+}

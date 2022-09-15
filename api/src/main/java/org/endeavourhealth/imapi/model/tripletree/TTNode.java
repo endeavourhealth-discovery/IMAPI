@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
@@ -13,6 +14,18 @@ import java.util.*;
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
     private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
+    private String iri;
+
+    @JsonProperty("@id")
+    public String getIri() {
+        return iri;
+    }
+
+    @JsonProperty("@id")
+    public TTNode setIri(String iri) {
+        this.iri = iri;
+        return this;
+    }
 
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)

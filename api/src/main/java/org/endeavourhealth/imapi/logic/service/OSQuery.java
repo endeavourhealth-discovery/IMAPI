@@ -10,10 +10,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.sets.*;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -354,25 +355,20 @@ public class OSQuery {
        Query query= queryRequest.getQuery();
 
        if (query.getSelect()!=null){
-           for (PropertySelect prop:query.getSelect().getProperty()) {
-               if (prop.getIri() != null) {
-                   if (!propIsSupported(prop.getIri()))
+           for (Select select:query.getSelect()) {
+               if (select.getProperty().getIri() != null) {
+                   if (!propIsSupported(select.getProperty().getIri()))
                        return null;
                }
-               if (prop.getSelect() != null)
+               if (select.getSelect() != null)
                    return null;
            }
-           List<Match> matches= query.getSelect().getMatch();
-           if (matches!=null){
-               for (Match match:matches){
-                   if (match.getProperty()!=null){
-                       for (PropertyValue pv:match.getProperty()){
-                           if (!propIsSupported(pv.getIri()))
-                               return null;
-                       }
-                   }
-               }
+           Where where= query.getWhere();
+           if (where!=null) {
+               if (!validateWhere(where))
+                   return null;
            }
+
        }
        SearchRequest searchRequest= convertIMToOS(queryRequest);
        List<SearchResultSummary> results= multiPhaseQuery(searchRequest);
@@ -380,6 +376,26 @@ public class OSQuery {
            return null;
        else
         return   convertOSResult(results,query);
+
+    }
+
+    private boolean validateWhere(Where where){
+        if (where.getProperty()!=null){
+            if (!propIsSupported(where.getProperty().getIri()))
+                return false;
+        }
+        if (where.getAnd()!=null){
+            for (Where and:where.getAnd())
+                if (!validateWhere(and))
+                    return false;
+        }
+        if (where.getOr()!=null){
+            for (Where or:where.getOr())
+                if (!validateWhere(or))
+                    return false;
+        }
+        return true;
+
 
     }
 
@@ -392,11 +408,10 @@ public class OSQuery {
             ObjectNode resultNode = om.createObjectNode();
             resultNodes.add(resultNode);
             resultNode.put("@id", searchResult.getIri());
-            for (PropertySelect prop : query.getSelect().getProperty()) {
+            for (Select select : query.getSelect()) {
+                TTAlias prop= select.getProperty();
                 if (prop.getIri() != null) {
                     String field = prop.getIri();
-                    if (prop.getAlias() != null)
-                        field = prop.getAlias();
                     switch (prop.getIri()) {
                         case (RDFS.NAMESPACE + "label"):
                             resultNode.put(field, searchResult.getName());
@@ -460,12 +475,15 @@ public class OSQuery {
         }
         request.setTermFilter(imRequest.getTextSearch());
         Query query = imRequest.getQuery();
+        if (query.getWith()!=null)
+            return null;
         request.addSelect("iri");
         request.addSelect("name");
         if (query.isActiveOnly())
             request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
         if (query.getSelect() != null) {
-            for (PropertySelect prop : query.getSelect().getProperty()) {
+            for (Select select : query.getSelect()) {
+                TTAlias prop = select.getProperty();
                 if (prop.getIri() != null) {
                     switch (prop.getIri()) {
                         case (RDFS.NAMESPACE + "comment"):
@@ -489,15 +507,13 @@ public class OSQuery {
                     }
                 }
             }
-            List<Match> matches = query.getSelect().getMatch();
-            for (Match match:matches){
-                if (match.getEntityType()!=null) {
-                    request.addType(match.getEntityType().getIri());
-                }
-                if (match.getEntityId()!=null)
-                    request.setIsA(List.of(match.getEntityId().getIri()));
-            }
         }
+        With with = query.getWith();
+            if (with.getType()!=null){
+                for (TTAlias type: with.getType())
+                    request.addType(type.getIri());
+            }
+
         return request;
     }
 

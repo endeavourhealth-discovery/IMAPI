@@ -3,6 +3,16 @@ package org.endeavourhealth.imapi.model.iml;
 public class Value {
 	private String comparison;
 	private String value;
+	private String valueVariable;
+
+	public String getValueVariable() {
+		return valueVariable;
+	}
+
+	public Value setValueVariable(String valueVariable) {
+		this.valueVariable = valueVariable;
+		return this;
+	}
 
 	public String getComparison() {
 		return comparison;

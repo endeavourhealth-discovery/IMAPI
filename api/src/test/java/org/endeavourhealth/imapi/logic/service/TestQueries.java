@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 public class TestQueries {
 
+
 	public static QueryRequest query1() {
 		Query query = new Query()
 			.setName("FamilyHistoryExpansionObjectFormat")
@@ -17,7 +18,7 @@ public class TestQueries {
 		query
 			.where(w->w
 				.setProperty(new TTAlias(IM.HAS_MEMBER).setInverse(true))
-				.setIs(new TTAlias(IM.NAMESPACE+"VSET_FamilyHistory")))
+				.setIs(new TTAlias().setIri(IM.NAMESPACE+"VSET_FamilyHistory")))
 			.select(s->s
 				.setProperty(RDFS.LABEL.getIri()))
 			.select(s->s
@@ -64,7 +65,7 @@ public class TestQueries {
 		query
 			.setUsePrefixes(true)
 			.with(f ->f
-				.setInstance(new TTAlias(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true)))
+				.setInstance(new TTAlias().setIri(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true)))
 			.select(RDFS.LABEL.getIri())
 			.select(IM.CODE.getIri());
 		return new QueryRequest().setQuery(query);
@@ -87,7 +88,7 @@ public class TestQueries {
 					.setProperty(IM.IS_A)
 					.where(w1-> w1
 						.setProperty(new TTAlias(RDFS.DOMAIN))
-						.setIs(new TTAlias(SNOMED.NAMESPACE+"674814021000119106").setIncludeSupertypes(true))
+						.setIs(new TTAlias().setIri(SNOMED.NAMESPACE+"674814021000119106").setIncludeSupertypes(true))
 					));
 				qr.setQuery(query);
 				return qr;
@@ -115,6 +116,8 @@ public class TestQueries {
 							setProperty(IM.SOURCE_REGEX)));
 		return new QueryRequest().setQuery(query);
 	}
+
+
 
 
 }

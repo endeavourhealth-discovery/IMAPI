@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"alias","from","notExist","not","inverse","property","path","in","range","and","or","function","argument","comparison","value"})
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+//@JsonPropertyOrder({"alias","from","notExist","not","inverse","property","in","range","and","or","function","argument","comparison","value"})
+//@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
 	private String name;
@@ -89,12 +89,27 @@ public class Where {
 		return this;
 	}
 
+	@JsonSetter
 	public Where setProperty(TTAlias property) {
 		this.property = property;
 		return this;
 	}
 
-	@JsonIgnore
+
+	public Where setProperty(String property) {
+		if (property.contains(" "))
+			this.property= new TTAlias().setPath(property);
+		else
+			this.property = new TTAlias().setIri(property);
+		return this;
+	}
+
+
+	public Where setProperty(TTIriRef property) {
+		this.property = new TTAlias().setIri(property.getIri());
+		return this;
+	}
+
 	public Where property(Consumer<TTAlias> builder){
 		this.property= new TTAlias();
 		builder.accept(this.property);
@@ -135,12 +150,13 @@ public class Where {
 		return where;
 	}
 
+	@JsonSetter
 	public Where setWhere(Where where) {
 		this.where = where;
 		return this;
 	}
 
-	@JsonIgnore
+
 	public Where where(Consumer<Where> builder){
 		this.where= new Where();
 		builder.accept(this.where);
@@ -156,29 +172,21 @@ public class Where {
 		return this;
 	}
 
-	public Where setPath(String path) {
-		this.property = new TTAlias().setPath(path);
-		return this;
-	}
-
-	@JsonIgnore
-	public Where setProperty(String property){
-		this.property = new TTAlias(property);
-		return this;
-	}
-
-	@JsonIgnore
-	public Where setProperty(TTIriRef property){
-		this.property = new TTAlias(property);
-		return this;
-	}
 
 	public Where getNotExist() {
 		return notExist;
 	}
 
+	@JsonSetter
 	public Where setNotExist(Where notExist) {
 		this.notExist = notExist;
+		return this;
+	}
+
+
+	public Where notExist(Consumer<Where> builder){
+		this.notExist= new Where();
+		builder.accept(this.notExist);
 		return this;
 	}
 
@@ -247,15 +255,14 @@ public class Where {
 		return is;
 	}
 
+	@JsonSetter
 	public Where setIs(TTAlias is) {
 		this.is = is;
 		return this;
 	}
 
-	@JsonIgnore
-
 	public Where setIs(String is) {
-		this.is = new TTAlias(is);
+		this.is = new TTAlias().setIri(is);
 		return this;
 	}
 
@@ -273,6 +280,7 @@ public class Where {
 		return argument;
 	}
 
+	@JsonSetter
 	public Where setArgument(List<Argument> argument) {
 		this.argument = argument;
 		return this;
@@ -284,7 +292,7 @@ public class Where {
 		return this;
 	}
 
-	@JsonIgnore
+
 	public Where argument(Consumer<Argument> builder){
 		Argument argument= new Argument();
 		addArgument(argument);

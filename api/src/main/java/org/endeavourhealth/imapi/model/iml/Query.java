@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 
 import java.util.ArrayList;
@@ -17,8 +18,16 @@ public class Query extends QueryClause {
 	private List<Query> subQuery;
 	private boolean activeOnly;
 	private boolean usePrefixes;
+	private TTAlias test;
 
+	public TTAlias getTest() {
+		return test;
+	}
 
+	public Query setTest(TTAlias test) {
+		this.test = test;
+		return this;
+	}
 
 	public boolean isUsePrefixes() {
 		return usePrefixes;
@@ -63,10 +72,13 @@ public class Query extends QueryClause {
 		return this;
 	}
 
+
 	public Query setName(String name) {
 		super.setName(name);
 		return this;
 	}
+
+
 
 	public Query setDescription(String description){
 		super.setDescription(description);

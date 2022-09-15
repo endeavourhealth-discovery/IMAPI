@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"path","name","inverseOf","alias","argument","function","select"})
+@JsonPropertyOrder({"property","sum","average","name","inverseOf","alias","argument","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select extends QueryClause {
 	private TTAlias property;
@@ -22,19 +22,22 @@ public class Select extends QueryClause {
 	List<Argument> argument;
 	Function function;
 
+	@JsonSetter
+	public Select setProperty(TTAlias property) {
+		this.property = property;
+		return this;
+	}
+
 	public TTAlias getProperty() {
 		return property;
 	}
 
 
-
-	@JsonIgnore
 	public Select setProperty(String propertyIri) {
 		this.property = new TTAlias().setIri(propertyIri);
 		return this;
 	}
 
-	@JsonIgnore
 	public Select setProperty(TTIriRef property) {
 		this.property = new TTAlias(property);
 		return this;

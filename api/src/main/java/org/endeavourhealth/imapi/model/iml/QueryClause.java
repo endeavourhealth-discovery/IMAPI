@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.model.iml;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class QueryClause extends TTAlias {
+public class QueryClause extends TTAlias{
 	private String description;
 	private With with;
 	private List<Select> select;
@@ -18,6 +19,8 @@ public abstract class QueryClause extends TTAlias {
 	private String direction;
 	private Integer limit;
 	private List<TTAlias> groupBy;
+
+
 
 	public String getDescription() {
 		return description;
@@ -42,18 +45,17 @@ public abstract class QueryClause extends TTAlias {
 		return with;
 	}
 
+	@JsonSetter
 	public QueryClause setWith(With with) {
 		this.with=with;
 		return this;
 	}
-	@JsonIgnore
-	public QueryClause with (Consumer<With> builder){
+
+	public QueryClause with(Consumer<With> builder){
 		this.with= new With();
 		builder.accept(this.with);
 		return this;
 	}
-
-
 
 
 
@@ -64,10 +66,13 @@ public abstract class QueryClause extends TTAlias {
 		return this;
 	}
 
+
+
 	public List<Select> getSelect() {
 		return select;
 	}
 
+	@JsonSetter
 	public QueryClause setSelect(List<Select> select) {
 		this.select = select;
 		return this;
@@ -87,7 +92,7 @@ public abstract class QueryClause extends TTAlias {
 		return this;
 	}
 
-	@JsonIgnore
+
 	public QueryClause select(Consumer<Select> builder){
 		if (this.select==null)
 			this.select= new ArrayList<>();
@@ -97,7 +102,7 @@ public abstract class QueryClause extends TTAlias {
 		return this;
 	}
 
-	@JsonIgnore
+
 	public QueryClause select(String property){
 		if (this.select==null)
 			this.select= new ArrayList<>();
@@ -107,7 +112,7 @@ public abstract class QueryClause extends TTAlias {
 		return this;
 	}
 
-	@JsonIgnore
+
 	public QueryClause select(TTIriRef property){
 		if (this.select==null)
 			this.select= new ArrayList<>();
@@ -121,6 +126,7 @@ public abstract class QueryClause extends TTAlias {
 		return where;
 	}
 
+	@JsonSetter
 	public QueryClause setWhere(Where where) {
 		this.where = where;
 		return this;
@@ -134,7 +140,7 @@ public abstract class QueryClause extends TTAlias {
 		this.orderBy = orderBy;
 		return this;
 	}
-	
+
 	public QueryClause addOrderBy(TTAlias orderBy){
 		if (this.orderBy==null)
 			this.orderBy= new ArrayList<>();

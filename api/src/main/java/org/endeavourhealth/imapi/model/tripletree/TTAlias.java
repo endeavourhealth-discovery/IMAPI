@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder ({"inverse","iri","name","alias","path"})
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTAlias extends TTIriRef {
 	private String alias;
 	private boolean inverse;
@@ -79,12 +79,7 @@ public class TTAlias extends TTIriRef {
 
 	public TTAlias(){}
 
-	public TTAlias(String iriVar){
-		if (iriVar.matches("(<<|<)?\\S*:\\S*"))
-			super.setIri(iriVar);
-		else
-			this.alias = iriVar;
-	}
+
 
 
 

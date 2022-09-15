@@ -2,12 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
@@ -86,7 +86,9 @@ public class EntityService {
                 throw new NoSuchMethodException(" entity type "+ entityType+" is not supported as a POJO class");
 
         }
-        return new ObjectMapper().writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(),cls));
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return om.writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(), cls));
+        }
     }
 
     public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {

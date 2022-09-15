@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTTransactionFiler;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -25,10 +25,11 @@ public class ConceptRepository {
 				Integer from= Integer.parseInt(rs.next().getValue("increment").stringValue());
 				updateIncrement(from);
 				String concept= SnomedConcept.createConcept(from,false);
-				ObjectMapper om= new ObjectMapper();
-				ObjectNode iri= om.createObjectNode();
-				iri.put("@id",namespace+concept);
-				return om.createObjectNode().set("iri",iri);
+                try (CachedObjectMapper om = new CachedObjectMapper()) {
+                    ObjectNode iri = om.createObjectNode();
+                    iri.put("@id", namespace + concept);
+                    return om.createObjectNode().set("iri", iri);
+                }
 			}
 		}
 		return null;

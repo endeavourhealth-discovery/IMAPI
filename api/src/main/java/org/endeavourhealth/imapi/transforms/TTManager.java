@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
@@ -120,16 +120,17 @@ public class TTManager implements AutoCloseable {
     * @throws IOException covering file format exceptions and content exceptions of various kinds
     */
    public TTDocument loadDocument(File inputFile) throws IOException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      document = objectMapper.readValue(inputFile,TTDocument.class);
-      return document;
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           document = om.readValue(inputFile, TTDocument.class);
+           return document;
+       }
    }
 
    public TTDocument loadDocument(String json) throws IOException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      document = objectMapper.readValue(json, TTDocument.class);
-      return document;
-
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           document = om.readValue(json, TTDocument.class);
+           return document;
+       }
    }
 
 
@@ -200,16 +201,17 @@ public class TTManager implements AutoCloseable {
    public void saveDocument(File outputFile) throws JsonProcessingException {
       if (document == null)
          throw new NullPointerException("Manager has no ontology document assigned");
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-         writer.write(json);
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+           String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+           try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+               writer.write(json);
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+       }
    }
 
    /**
@@ -222,11 +224,12 @@ public class TTManager implements AutoCloseable {
    public static void saveDocument(TTDocument document, String outputFile,Grammar grammar) throws JsonProcessingException {
       String outputString;
       if (grammar== Grammar.JSON) {
-         ObjectMapper objectMapper = new ObjectMapper();
-         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-         outputString = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+          try (CachedObjectMapper om = new CachedObjectMapper()) {
+              om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+              om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+              om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+              outputString = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+          }
       }
       else {
          TTToTurtle converter= new TTToTurtle();
@@ -269,11 +272,12 @@ public class TTManager implements AutoCloseable {
     * @return the json serialization of the document
     */
    public String getJson(TTDocument document) throws JsonProcessingException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      return objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+           return om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+       }
    }
    /**
     * Returns a string of JSON from a TTEntity instance
@@ -283,12 +287,13 @@ public class TTManager implements AutoCloseable {
     * @throws JsonProcessingException
     */
    public String getJson(TTEntity entity) throws JsonProcessingException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      return objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
-        .writeValueAsString(entity);
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+           return om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
+               .writeValueAsString(entity);
+       }
    }
 
    public TTDocument replaceIri(TTDocument document, TTIriRef from, TTIriRef to) {
@@ -513,15 +518,16 @@ public class TTManager implements AutoCloseable {
       for (TTIriRef predicate : jsonPredicates) {
          if (node.get(predicate) != null) {
             TTArray jsons = new TTArray();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-            for (TTValue value : node.get(predicate).getElements()) {
-               String json = objectMapper.writeValueAsString(value.asNode());
-               jsons.add(TTLiteral.literal(json));
-            }
-            node.set(predicate, jsons);
+             try (CachedObjectMapper om = new CachedObjectMapper()) {
+                 om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                 om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                 om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+                 for (TTValue value : node.get(predicate).getElements()) {
+                     String json = om.writeValueAsString(value.asNode());
+                     jsons.add(TTLiteral.literal(json));
+                 }
+                 node.set(predicate, jsons);
+             }
          }
       }
       return node;
@@ -535,20 +541,21 @@ public class TTManager implements AutoCloseable {
        */
       public static boolean unwrapRDFfromJson(TTNode node) throws IOException {
          boolean unwrapped= false;
-         for (TTIriRef predicate:jsonPredicates) {
-            if (node.get(predicate) != null) {
-               if (node.get(predicate).isLiteral()) {
-                  TTArray rdfNodes = new TTArray();
-                  ObjectMapper objectMapper = new ObjectMapper();
-                  for (TTValue value : node.get(predicate).getElements()) {
-                     rdfNodes.add(objectMapper.readValue(value.asLiteral().getValue(), TTNode.class));
+          try (CachedObjectMapper om = new CachedObjectMapper()) {
+              for (TTIriRef predicate : jsonPredicates) {
+                  if (node.get(predicate) != null) {
+                      if (node.get(predicate).isLiteral()) {
+                          TTArray rdfNodes = new TTArray();
+                          for (TTValue value : node.get(predicate).getElements()) {
+                              rdfNodes.add(om.readValue(value.asLiteral().getValue(), TTNode.class));
+                          }
+                          node.set(predicate, rdfNodes);
+                          unwrapped = true;
+                      }
                   }
-                  node.set(predicate, rdfNodes);
-                  unwrapped = true;
-               }
-            }
-         }
-         return unwrapped;
+              }
+              return unwrapped;
+          }
       }
 
 

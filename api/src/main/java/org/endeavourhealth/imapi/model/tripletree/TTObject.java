@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 
 public class TTObject implements TTValue {
 
@@ -22,7 +22,9 @@ public class TTObject implements TTValue {
     }
 
     public TTObject(String json, String valueType) throws ClassNotFoundException, JsonProcessingException {
-            this.object = new ObjectMapper().readValue(json, Class.forName(valueType));
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            this.object = om.readValue(json, Class.forName(valueType));
+        }
     }
 
     public Object getObject() {

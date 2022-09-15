@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;

@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import joptsimple.internal.Strings;
@@ -13,6 +12,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.OSQuery;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
@@ -38,7 +38,6 @@ public class QueryRepository {
     private Query query;
     private TTDocument result;
     private final Set<String> predicates = new HashSet<>();
-    final ObjectMapper mapper = new ObjectMapper();
     private QueryRequest queryRequest;
 
     /**
@@ -83,7 +82,9 @@ public class QueryRepository {
                     throw new DataFormatException("No query iri or body in request");
                 } else {
                     TTEntity entity = getEntity(query.getIri(), conn);
-                    return new ObjectMapper().readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(), Query.class);
+                    try (CachedObjectMapper om = new CachedObjectMapper()) {
+                        return om.readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(), Query.class);
+                    }
                 }
             }
         }
@@ -190,30 +191,35 @@ public class QueryRepository {
     }
 
     private void addProperty(ObjectNode node, String property, String value) {
-        if (node.get(property) == null) {
-            node.set(property, mapper.createArrayNode());
-            ((ArrayNode) node.get(property)).add(value);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            if (node.get(property) == null) {
+                node.set(property, om.createArrayNode());
+                ((ArrayNode) node.get(property)).add(value);
+            }
+            ArrayNode already = (ArrayNode) node.get(property);
+            for (JsonNode n : already) {
+                if (n.asText().equals(value))
+                    return;
+            }
+            already.add(value);
         }
-        ArrayNode already = (ArrayNode) node.get(property);
-        for (JsonNode n : already) {
-            if (n.asText().equals(value))
-                return;
-        }
-        already.add(value);
-
 
     }
 
     private void addProperty(ObjectNode node, String property, ObjectNode value) {
-        if (node.get(property) == null)
-            node.set(property, mapper.createArrayNode());
-        ((ArrayNode) node.get(property)).add(value);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            if (node.get(property) == null)
+                node.set(property, om.createArrayNode());
+            ((ArrayNode) node.get(property)).add(value);
+        }
     }
 
     private void addProperty(ObjectNode node, String property, JsonNode value) {
-        if (node.get(property) == null)
-            node.set(property, mapper.createArrayNode());
-        ((ArrayNode) node.get(property)).add(value);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            if (node.get(property) == null)
+                node.set(property, om.createArrayNode());
+            ((ArrayNode) node.get(property)).add(value);
+        }
     }
 
     public Set<String> getPredicates() {

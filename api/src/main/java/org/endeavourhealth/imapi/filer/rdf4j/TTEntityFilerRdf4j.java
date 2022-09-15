@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
@@ -18,6 +17,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -227,8 +227,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                 addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
             }
         } else if (value.isObject()) {
-            try {
-                ObjectMapper om = new ObjectMapper();
+            try (CachedObjectMapper om = new CachedObjectMapper()) {
                 Object object = value.asObject().getObject();
                 String json = om.writeValueAsString(object);
                 BNode bNode = bnode();

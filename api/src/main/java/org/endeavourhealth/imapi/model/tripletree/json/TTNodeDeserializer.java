@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -85,29 +87,37 @@ public class TTNodeDeserializer {
    }
 
    public TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
-      if (node.isValueNode())
-         return TTLiteral.literal(node);
-      else if (node.isObject()) {
-         if (node.has(IM.IRI)) {
-            if (node.has("name"))
-               return iri(expand(node.get(IM.IRI).asText()), node.get("name").asText());
-            else
-               return iri(expand(node.get(IM.IRI).asText()));
-         } else {
-            if (node.has(IM.VALUE)){
-               return getJsonNodeAsLiteral(node);
-            } else {
-               TTNode result = new TTNode();
-               populateTTNodeFromJson(result, node);
-               return result;
-            }
-         }
-      } else if (node.isArray()) {
-         throw new IOException("Failed to deserialize node array");
-      } else {
-          LOG.warn("TTNode deserializer - Unhandled node type, reverting to String");
-         return TTLiteral.literal(node.asText());
-      }
+       if (node.isValueNode())
+           return TTLiteral.literal(node);
+       else if (node.isObject()) {
+           if (node.has(IM.IRI)) {
+               if (node.has("name"))
+                   return iri(expand(node.get(IM.IRI).asText()), node.get("name").asText());
+               else
+                   return iri(expand(node.get(IM.IRI).asText()));
+           } else {
+               if (node.has(IM.VALUE)) {
+                   return getJsonNodeAsLiteral(node);
+               } else if (node.size() == 2 && node.has(RDF.TYPE.getIri()) && node.has(SHACL.VALUE.getIri())) {
+                   String type = node.get(RDF.TYPE.getIri()).textValue();
+                   String json = node.get(SHACL.VALUE.getIri()).toString();
+                   try {
+                       return new TTObject(json, type);
+                   } catch (ClassNotFoundException e) {
+                       throw new IOException("Unable to deserialize TTObject", e);
+                   }
+               } else {
+                   TTNode result = new TTNode();
+                   populateTTNodeFromJson(result, node);
+                   return result;
+               }
+           }
+       } else if (node.isArray()) {
+           throw new IOException("Failed to deserialize node array");
+       } else {
+           LOG.warn("TTNode deserializer - Unhandled node type, reverting to String");
+           return TTLiteral.literal(node.asText());
+       }
    }
 
    public TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {

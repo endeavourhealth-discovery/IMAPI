@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-
 
 @JsonPropertyOrder({"prefix","iri","name","description","with","with","where","select","subQuery"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -94,11 +92,12 @@ public class Query extends QueryClause {
 	}
 
 	public static String getJson(Object object) throws JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+            return om.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        }
 	}
 
 }

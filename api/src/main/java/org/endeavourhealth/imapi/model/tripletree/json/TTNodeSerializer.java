@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -118,6 +115,11 @@ public class TTNodeSerializer {
          gen.writeStartObject();
          serializeNode((TTNode)value, gen,prov);
          gen.writeEndObject();
+      } else if (value.isObject()) {
+          gen.writeStartObject();
+          gen.writeStringField(RDF.TYPE.getIri(), value.asObject().getObject().getClass().getName());
+          gen.writeObjectField(SHACL.VALUE.getIri(), value.asObject().getObject());
+          gen.writeEndObject();
       }
       else {
         prov.defaultSerializeValue(value, gen);

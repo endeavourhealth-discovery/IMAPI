@@ -14,8 +14,13 @@ public interface TTValue extends Serializable {
     @JsonIgnore
     default boolean isNode() { return false; }
 
+    @JsonIgnore
+    default boolean isObject() { return false; }
+
     default TTLiteral asLiteral() {return null; }
     default TTIriRef asIriRef() {return null; }
     default TTNode asNode() {return null; }
+
+    default TTObject asObject() { return null; }
     default Integer getOrder(){ return null;}
 }

@@ -18,7 +18,7 @@ import java.util.zip.DataFormatException;
 class SearchServiceTest {
 
 
-	@Test
+	// @Test
 	void queryIM() throws DataFormatException, IOException {
 
 		for (QueryRequest qr: List.of(TestQueries.query2(),TestQueries.query1(),
@@ -28,9 +28,9 @@ class SearchServiceTest {
 
 		//QueryRequest qr;
 		//qr== TestQueries.query1();
-		//qr= TestQueries.query2();
-		//qr= TestQueries.query4();
-		//qr= TestQueries.query5();
+//		qr= TestQueries.query2();
+//		qr= TestQueries.query4();
+//		qr= TestQueries.query5();
 		//qr= TestQueries.query6();
 		//output(qr);
 

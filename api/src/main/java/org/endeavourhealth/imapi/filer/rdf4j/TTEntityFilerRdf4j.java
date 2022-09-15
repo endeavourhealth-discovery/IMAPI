@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
@@ -7,6 +9,8 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -221,6 +225,18 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             builder.add(subject, predicate, bNode);
             for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
                 addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
+            }
+        } else if (value.isObject()) {
+            try {
+                ObjectMapper om = new ObjectMapper();
+                Object object = value.asObject().getObject();
+                String json = om.writeValueAsString(object);
+                BNode bNode = bnode();
+                builder.add(subject, predicate, bNode);
+                builder.add(bNode, SHACL.VALUE, literal(json));
+                builder.add(bNode, RDF.TYPE, literal(object.getClass().getName()));
+            } catch (JsonProcessingException e) {
+                throw new TTFilerException("Unable to deserialize object", e);
             }
         } else {
             throw new TTFilerException("Arrays of arrays not allowed ");

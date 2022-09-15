@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -181,16 +180,14 @@ public class EntityRepository2 {
             qry.setBinding("entity", Values.iri(iri));
             try (GraphQueryResult gs = qry.evaluate()) {
                 Map<String, TTValue> valueMap = new HashMap<>();
+                Map<String, TTArray> parentContainer = new HashMap<>();
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
-                    processStatement(bundle, valueMap, iri, st);
+                    processStatement(bundle, valueMap, iri, st, parentContainer);
                 }
-                TTManager.unwrapRDFfromJson(bundle.getEntity());
                 Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                 getIriNames(conn,iris);
                 setNames(bundle.getEntity(), iris);
                 iris.forEach(bundle::addPredicate);
-            } catch (IOException ignored) {
-                //Do nothing
             }
             return bundle;
         }
@@ -471,7 +468,7 @@ public class EntityRepository2 {
         return sql;
     }
 
-    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st) {
+    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st, Map<String, TTArray> parentContainer) throws RuntimeException {
         TTEntity entity = bundle.getEntity();
         Resource s= st.getSubject();
         IRI p= st.getPredicate();
@@ -516,6 +513,7 @@ public class EntityRepository2 {
             if (o.isBNode()){
                 tripleMap.putIfAbsent(value,new TTNode());
                 node.addObject(tripleMap.get(predicate).asIriRef(),tripleMap.get(value));
+                parentContainer.put(value, node.get(tripleMap.get(predicate).asIriRef()));
             }
             else if (o.isIRI()){
                 tripleMap.putIfAbsent(value, iri(value));
@@ -524,6 +522,19 @@ public class EntityRepository2 {
             else {
                 tripleMap.putIfAbsent(value,TTLiteral.literal(value, ((Literal)o).getDatatype().stringValue()));
                 node.set(tripleMap.get(predicate).asIriRef(),tripleMap.get(value).asLiteral());
+            }
+
+            Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
+            if (predicateMap.size() == 2 && predicateMap.containsKey(SHACL.VALUE) && predicateMap.containsKey(RDF.TYPE)) {
+                TTArray pc = parentContainer.get(subject);
+                pc.clear();
+                String type = predicateMap.get(RDF.TYPE).asLiteral().getValue();
+                String json = predicateMap.get(SHACL.VALUE).asLiteral().getValue();
+                try {
+                    pc.add(new TTObject(json, type));
+                } catch (Exception e) {
+                    throw new RuntimeException("Unable to deserialize object", e);
+                }
             }
         }
     }

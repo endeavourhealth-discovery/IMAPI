@@ -1,12 +1,14 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class With {
 	private List<TTAlias> type;
 	private TTAlias instance;
@@ -59,7 +61,7 @@ public class With {
 	public With addType(String type){
 		if (this.type==null)
 			this.type= new ArrayList<>();
-		this.type.add(new TTAlias(type));
+		this.type.add(new TTAlias().setIri(type));
 		return this;
 	}
 
@@ -75,7 +77,7 @@ public class With {
 
 	@JsonIgnore
 	public With setInstance(String instance) {
-		this.instance = new TTAlias(instance);
+		this.instance = new TTAlias(TTIriRef.iri(instance));
 		return this;
 	}
 }

@@ -226,17 +226,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
                 addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
             }
-        } else if (value.isObject()) {
-            try (CachedObjectMapper om = new CachedObjectMapper()) {
-                Object object = value.asObject().getObject();
-                String json = om.writeValueAsString(object);
-                BNode bNode = bnode();
-                builder.add(subject, predicate, bNode);
-                builder.add(bNode, SHACL.VALUE, literal(json));
-                builder.add(bNode, RDF.TYPE, literal(object.getClass().getName()));
-            } catch (JsonProcessingException e) {
-                throw new TTFilerException("Unable to deserialize object", e);
-            }
         } else {
             throw new TTFilerException("Arrays of arrays not allowed ");
         }

@@ -95,11 +95,4 @@ public class TTArray implements Serializable {
         return super.equals(object);
     }
 
-    public TTObject asObject() {
-        return (TTObject) elements.stream().findFirst().orElse(null);
-    }
-
-    public boolean isObject() {
-        return elements.size() == 1 && elements.stream().findFirst().map(TTValue::isObject).orElse(false);
-    }
 }

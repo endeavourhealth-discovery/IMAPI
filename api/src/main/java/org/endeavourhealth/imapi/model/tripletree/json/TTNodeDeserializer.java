@@ -98,14 +98,6 @@ public class TTNodeDeserializer {
            } else {
                if (node.has(IM.VALUE)) {
                    return getJsonNodeAsLiteral(node);
-               } else if (node.size() == 2 && node.has(RDF.TYPE.getIri()) && node.has(SHACL.VALUE.getIri())) {
-                   String type = node.get(RDF.TYPE.getIri()).textValue();
-                   String json = node.get(SHACL.VALUE.getIri()).toString();
-                   try {
-                       return new TTObject(json, type);
-                   } catch (ClassNotFoundException e) {
-                       throw new IOException("Unable to deserialize TTObject", e);
-                   }
                } else {
                    TTNode result = new TTNode();
                    populateTTNodeFromJson(result, node);

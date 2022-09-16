@@ -115,13 +115,7 @@ public class TTNodeSerializer {
          gen.writeStartObject();
          serializeNode((TTNode)value, gen,prov);
          gen.writeEndObject();
-      } else if (value.isObject()) {
-          gen.writeStartObject();
-          gen.writeStringField(RDF.TYPE.getIri(), value.asObject().getObject().getClass().getName());
-          gen.writeObjectField(SHACL.VALUE.getIri(), value.asObject().getObject());
-          gen.writeEndObject();
-      }
-      else {
+      } else {
         prov.defaultSerializeValue(value, gen);
       }
    }

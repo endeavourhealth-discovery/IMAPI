@@ -367,13 +367,9 @@ public class QueryRepository {
     private TTEntity getEntity(String iri, RepositoryConnection conn) throws DataFormatException {
         String predList = "<" + IM.QUERY_DEFINITION.getIri() + ">,<" + RDF.TYPE.getIri() + ">,<" + IM.FUNCTION_DEFINITION.getIri() + ">";
         String sql = new StringJoiner(System.lineSeparator())
-            .add("Select ?entity ?p ?o ?t ?j")
+            .add("Select ?entity ?p ?o")
             .add("where {")
             .add("  ?entity ?p ?o.")
-            .add("  OPTIONAL { ")
-            .add("      ?o ?type ?t;")
-            .add("         ?json ?j.")
-            .add("  }")
             .add("  filter (?p in(" + predList + "))")
             .add("}")
             .toString();
@@ -393,17 +389,7 @@ public class QueryRepository {
                 if (predicate.equals(RDF.TYPE.getIri()))
                     entity.set(RDF.TYPE, TTIriRef.iri(object));
                 else if (predicate.equals(IM.QUERY_DEFINITION.getIri())) {
-                    try {
-                        entity.set(
-                            IM.QUERY_DEFINITION,
-                            TTObject.object(
-                                bs.getValue("j").stringValue(),
-                                bs.getValue("t").stringValue()
-                            )
-                        );
-                    } catch (Exception e) {
-                        throw new DataFormatException("Error retrieving query object");
-                    }
+                    entity.set(IM.QUERY_DEFINITION, TTLiteral.literal(bs.getValue("o").stringValue()));
                 } else
                     entity.set(IM.FUNCTION_DEFINITION, TTLiteral.literal(object));
             }

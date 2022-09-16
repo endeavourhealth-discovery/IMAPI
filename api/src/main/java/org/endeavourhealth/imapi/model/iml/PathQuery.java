@@ -1,37 +1,38 @@
-package org.endeavourhealth.imapi.model.sets;
+package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class PathQuery extends ConceptRef {
-	private ConceptRef source;
-	private ConceptRef target;
+public class PathQuery extends TTIriRef {
+	private TTIriRef source;
+	private TTIriRef target;
 	private Integer depth;
 
-	public ConceptRef getSource() {
+	public TTIriRef getSource() {
 		return source;
 	}
 
-	public PathQuery setSource(ConceptRef source) {
+	public PathQuery setSource(TTIriRef source) {
 		this.source = source;
 		return this;
 	}
 	@JsonIgnore
 	public PathQuery setSource(String source) {
-		this.source = ConceptRef.iri(source);
+		this.source = TTIriRef.iri(source);
 		return this;
 	}
 
-	public ConceptRef getTarget() {
+	public TTIriRef getTarget() {
 		return target;
 	}
 
-	public PathQuery setTarget(ConceptRef target) {
+	public PathQuery setTarget(TTIriRef target) {
 		this.target = target;
 		return this;
 	}
 	@JsonIgnore
 	public PathQuery setTarget(String target) {
-		this.target = ConceptRef.iri(target);
+		this.target = TTIriRef.iri(target);
 		return this;
 	}
 
@@ -54,8 +55,4 @@ public class PathQuery extends ConceptRef {
 		return this;
 	}
 
-	public PathQuery setAlias(String alias){
-		super.setAlias(alias);
-		return this;
-	}
 }

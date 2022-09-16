@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.sets;
+package org.endeavourhealth.imapi.model.iml;
 
 public class Page {
 	private Integer pageNumber;

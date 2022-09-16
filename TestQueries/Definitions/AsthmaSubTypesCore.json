@@ -1,0 +1,16 @@
+{
+  "query" : {
+    "name" : "AsthmaSubTypesCore",
+    "with" : { },
+    "select" : [ {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    }, {
+      "property" : {
+        "@id" : "http://endhealth.info/im#code"
+      }
+    } ],
+    "usePrefixes" : true
+  }
+}

@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.slf4j.Logger;
@@ -26,13 +24,12 @@ public class OpenSearchService {
     private final String osUrl = System.getenv("OPENSEARCH_URL");
     private final String osAuth = System.getenv("OPENSEARCH_AUTH");
     private final String index = System.getenv("OPENSEARCH_INDEX");
-    private final ObjectMapper om = new ObjectMapper();
 
     public EntityDocument getOSDocument(String iri) throws OpenSearchException {
         if (osUrl == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
 
-        try {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
             SearchSourceBuilder bld = new SearchSourceBuilder()
                 .size(1)
                 .query(
@@ -100,7 +97,7 @@ public class OpenSearchService {
         LOG.debug("Sending OS document");
         WebTarget target = client.target(osUrl).path(index + "/_doc/" + entityDocument.getId());
 
-        try {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
             Response response = target
                 .request()
                 .header("Authorization", "Basic " + osAuth)
@@ -148,7 +145,7 @@ public class OpenSearchService {
                 throw new OpenSearchException("Error calling OpenSearch");
             }
         } else {
-            try {
+            try (CachedObjectMapper om = new CachedObjectMapper()) {
                 String responseData = response.readEntity(String.class);
                 JsonNode root = om.readTree(responseData);
                 int maxId = root.get("aggregations").get("max_id").get("value").asInt();

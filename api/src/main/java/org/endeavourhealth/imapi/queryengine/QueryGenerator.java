@@ -31,7 +31,9 @@ public class QueryGenerator {
         LOG.info(query);
 
         LOG.info("Deserializing");
-        Match json = new ObjectMapper().readValue(query, Match.class);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            Match json = om.readValue(query, Match.class);
+        }
         LOG.info(json.toString());
 
         return json;

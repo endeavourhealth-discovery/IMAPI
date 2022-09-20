@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.imapi.model.sets.Comparison;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,14 +64,7 @@ public class QueryGenHelper {
         return getField(table, propertyIri, true);
     }
 
-    public static String getComparison(Comparison comparison) {
-        switch(comparison) {
-            case LESS_THAN_OR_EQUAL: return "<=";
-            case GREATER_THAN: return ">";
-            case GREATER_THAN_OR_EQUAL: return ">=";
-            default: throw new IllegalArgumentException("Unknown comparison [" + comparison + "]");
-        }
-    }
+
 
     public static String getValue(TTIriRef i) {
         // Selection concept DBID (compass) or Iri (Resolution)

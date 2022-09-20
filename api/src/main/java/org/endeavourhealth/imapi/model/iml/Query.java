@@ -3,19 +3,58 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-
-@JsonPropertyOrder({"iri","name","description","from","match","select","subQuery"})
+@JsonPropertyOrder({"prefix","iri","name","description","with","with","where","select","subQuery"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Query extends Heading {
-	private From from;
-	private Match match;
-	private List<Select> select;
+public class Query extends QueryClause {
+	private TTContext prefix;
 	private List<Query> subQuery;
+	private boolean activeOnly;
+	private boolean usePrefixes;
+	private TTAlias test;
+
+	public TTAlias getTest() {
+		return test;
+	}
+
+	public Query setTest(TTAlias test) {
+		this.test = test;
+		return this;
+	}
+
+	public boolean isUsePrefixes() {
+		return usePrefixes;
+	}
+
+	public Query setUsePrefixes(boolean usePrefixes) {
+		this.usePrefixes = usePrefixes;
+		return this;
+	}
+
+	public boolean isActiveOnly() {
+		return activeOnly;
+	}
+
+	public Query setActiveOnly(boolean activeOnly) {
+		this.activeOnly = activeOnly;
+		return this;
+	}
+
+	public TTContext getPrefix() {
+		return prefix;
+	}
+
+	public Query setPrefix(TTContext prefix) {
+		this.prefix = prefix;
+		return this;
+	}
 
 	public List<Query> getSubQuery() {
 		return subQuery;
@@ -33,63 +72,32 @@ public class Query extends Heading {
 		return this;
 	}
 
-	public From getFrom() {
-		return from;
-	}
 
-	public Query setFrom(From from) {
-		this.from = from;
-		return this;
-	}
-	@JsonIgnore
-	public Query from (Consumer<From> builder){
-		this.from= new From();
-		builder.accept(this.from);
-		return this;
-	}
-
-	public Match getMatch() {
-		return match;
-	}
-
-	public Query setMatch(Match match) {
-		this.match = match;
+	public Query setName(String name) {
+		super.setName(name);
 		return this;
 	}
 
 
 
-	public Query match(Consumer<Match> builder){
-		Match match= new Match();
-		this.match=match;
-		builder.accept(match);
+	public Query setDescription(String description){
+		super.setDescription(description);
 		return this;
 	}
 
-	public List<Select> getSelect() {
-		return select;
-	}
-
-	public Query setSelect(List<Select> select) {
-		this.select = select;
-		return this;
-	}
-
-	public Query addSelect(Select select){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		this.select.add(select);
-		return this;
-	}
 
 	@JsonIgnore
-	public Query select(Consumer<Select> builder){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		Select select= new Select();
-		this.select.add(select);
-		builder.accept(select);
-		return this;
+	public String getJson() throws JsonProcessingException {
+		return Query.getJson(this);
+	}
+
+	public static String getJson(Object object) throws JsonProcessingException {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+            om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+            return om.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        }
 	}
 
 }

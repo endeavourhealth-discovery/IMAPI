@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -184,13 +183,10 @@ public class EntityRepository2 {
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
                     processStatement(bundle, valueMap, iri, st);
                 }
-                TTManager.unwrapRDFfromJson(bundle.getEntity());
                 Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                 getIriNames(conn,iris);
                 setNames(bundle.getEntity(), iris);
                 iris.forEach(bundle::addPredicate);
-            } catch (IOException ignored) {
-                //Do nothing
             }
             return bundle;
         }
@@ -471,7 +467,7 @@ public class EntityRepository2 {
         return sql;
     }
 
-    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st) {
+    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st) throws RuntimeException {
         TTEntity entity = bundle.getEntity();
         Resource s= st.getSubject();
         IRI p= st.getPredicate();

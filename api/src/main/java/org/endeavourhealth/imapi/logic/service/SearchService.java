@@ -1,19 +1,16 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.QueryRequest;
+import org.endeavourhealth.imapi.model.iml.Select;
+import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.sets.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 
 import java.util.List;
-import java.util.Map;
 import java.util.zip.DataFormatException;
 
 
@@ -23,9 +20,6 @@ import java.util.zip.DataFormatException;
 
 public class SearchService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
-	private final TTIriRef PROPNAME= TTIriRef.iri(IM.NAMESPACE+"propName");
-	private final TTIriRef OBNAME= TTIriRef.iri(IM.NAMESPACE+"obName");
 
 	/**
 	 * Queries any IM entity using the query model
@@ -33,44 +27,62 @@ public class SearchService {
 	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public ObjectNode queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+	public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		validateQueryRequest(queryRequest);
 		return new QueryRepository().queryIM(queryRequest);
 	}
-
-
-	/**
-	 * Queries for a standard entity summary any IM entity using the query model
-	 * @param queryRequest Query inside a request with parameters
-	 * @return a SearchResultSummary array containing the results in a format defined by the selecr staement and including predicate map
-	 * @throws DataFormatException if query format is invalid
-	 */
-	public List<SearchResultSummary> summmaryEntityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
-		return new QueryRepository().entitySummaryQuery(queryRequest);
+	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
+			if (queryRequest.getQuery()==null)
+				throw new DataFormatException("Query request must have a queryIri or Query");
+			if (queryRequest.getQuery().getIri()==null)
+				validateQuery(queryRequest.getQuery());
+			else if (queryRequest.getQuery().getSelect()!=null)
+				validateQuery(queryRequest.getQuery());
 	}
 
 
-	/**
-	 * Queries for a standard entity summary any IM entity using the query model
-	 * @param queryRequest Query inside a request with parameters
-	 * @return a SearchResultSummary array containing the results in a format defined by the selecr staement and including predicate map
-	 * @throws DataFormatException if query format is invalid
-	 */
-	public List<TTEntity> entityQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
-		return new QueryRepository().entityQuery(queryRequest);
+	private void validateQuery(Query query) throws DataFormatException {
+		if (query.getWith()==null)
+			if (query.getWhere() == null)
+					if (query.getSelect()==null)
+					  throw new DataFormatException("Query must have a with from , select or  where clause");
+
+		if (query.getWhere()!=null)
+			validateWhere(query.getWhere());
+		else 	if (query.getSelect() == null) {
+			throw new DataFormatException("Query must have a where or a select");
+		}
+		if (query.getSelect()!=null){
+			for (Select select:query.getSelect()){
+				validateSelect(select);
+			}
+
+		}
+	}
+	private void validateWhere(Where match) throws DataFormatException {
+		if (match.getOr()!=null){
+			for (Where or:match.getOr())
+				validateWhere(or);
+		}
+		else if (match.getAnd()!=null){
+			for (Where and:match.getAnd())
+				validateWhere(and);
+		}
+		if (match.getProperty()==null)
+			if (match.getWhere()==null)
+				throw new DataFormatException("Match clause must have a path or where");
 	}
 
+	private void validateSelect(Select select) throws DataFormatException {
+		if (select.getProperty() == null)
+			throw new DataFormatException("Select without property or alias");
+		if (select.getSelect()!=null)
+				for (Select subSelect:select.getSelect())
+				  validateSelect(subSelect);
+		}
 
-	/**
-	 * Validation true or false query of the IM
-	 * @param iri iri of the query
-	 * @param variables a map of parameter value pairs  '$this' for the value being validated
-	 * @return a boolean true or false
-	 * @throws DataFormatException
-	 * @throws JsonProcessingException
-	 */
-	public boolean booleanQueryIM(String iri,Map<String,String> variables) throws DataFormatException, JsonProcessingException {
-		return new QueryRepository().booleanQueryIM(iri,variables);
-	}
+
+
 
 
 

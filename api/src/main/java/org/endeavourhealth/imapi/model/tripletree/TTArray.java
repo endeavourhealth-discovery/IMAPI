@@ -69,6 +69,10 @@ public class TTArray implements Serializable {
         elements.remove(remove);
     }
 
+    public void clear() {
+        elements.clear();
+    }
+
     public Stream<TTValue> stream() {
         return elements.stream();
     }
@@ -90,4 +94,5 @@ public class TTArray implements Serializable {
         }
         return super.equals(object);
     }
+
 }

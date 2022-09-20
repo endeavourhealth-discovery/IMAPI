@@ -12,19 +12,35 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"property","sum","average","name","inverseOf","alias","argument","function","select"})
+@JsonPropertyOrder({"path","property","sum","average","name","inverseOf","alias","argument","function","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select extends QueryClause {
 	private TTAlias property;
+	private String path;
 	private boolean sum;
 	private boolean average;
 	private boolean max;
 	List<Argument> argument;
 	Function function;
 
+	public String getPath() {
+		return path;
+	}
+
+	public Select setPath(String path) {
+		this.path = path;
+		return this;
+	}
+
 	@JsonSetter
 	public Select setProperty(TTAlias property) {
 		this.property = property;
+		return this;
+	}
+
+	public Select property(Consumer<TTAlias> builder){
+		this.property= new TTAlias();
+		builder.accept(this.property);
 		return this;
 	}
 

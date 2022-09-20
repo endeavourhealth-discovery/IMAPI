@@ -10,19 +10,16 @@ public class Argument {
 	private String parameter;
 	private String valueData;
 	private String valueVariable;
-	private TTIriRef valueIri;
+	private Compare valueFrom;
 
-
-
-	public TTIriRef getValueIri() {
-		return valueIri;
+	public Compare getValueFrom() {
+		return valueFrom;
 	}
 
-	public Argument setValueIri(TTIriRef valueIri) {
-		this.valueIri = valueIri;
+	public Argument setValueFrom(Compare valueFrom) {
+		this.valueFrom = valueFrom;
 		return this;
 	}
-
 
 	public String getValueVariable() {
 		return valueVariable;

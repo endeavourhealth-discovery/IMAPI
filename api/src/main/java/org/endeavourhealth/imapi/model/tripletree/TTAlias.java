@@ -10,19 +10,10 @@ public class TTAlias extends TTIriRef {
 	private String alias;
 	private boolean inverse;
 	private String variable;
-	private String path;
 	private boolean includeSupertypes;
 	private boolean includeSubtypes;
 	private boolean includeMembers;
 
-	public String getPath() {
-		return path;
-	}
-
-	public TTAlias setPath(String path) {
-		this.path = path;
-		return this;
-	}
 
 	public boolean isIncludeSupertypes() {
 		return includeSupertypes;

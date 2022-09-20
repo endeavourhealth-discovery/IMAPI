@@ -26,16 +26,6 @@ class SearchServiceTest {
 			output(qr);
 		}
 
-		//QueryRequest qr;
-		//qr== TestQueries.query1();
-//		qr= TestQueries.query2();
-//		qr= TestQueries.query4();
-//		qr= TestQueries.query5();
-		//qr= TestQueries.query6();
-		//output(qr);
-
-
-
 	}
 
 

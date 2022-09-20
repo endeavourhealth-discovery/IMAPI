@@ -1,16 +1,29 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
+import java.util.function.Consumer;
+
+@JsonPropertyOrder({"comparison","value","relativeTo"})
 public class Value {
 	private String comparison;
 	private String value;
-	private String valueVariable;
+	private Compare relativeTo;
 
-	public String getValueVariable() {
-		return valueVariable;
+	public Compare getRelativeTo() {
+		return relativeTo;
 	}
 
-	public Value setValueVariable(String valueVariable) {
-		this.valueVariable = valueVariable;
+	@JsonSetter
+	public Value setRelativeTo(Compare relativeTo) {
+		this.relativeTo = relativeTo;
+		return this;
+	}
+
+	public Value relativeTo(Consumer<Compare> builder){
+		this.relativeTo= new Compare();
+		builder.accept(this.relativeTo);
 		return this;
 	}
 

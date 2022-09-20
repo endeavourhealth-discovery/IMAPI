@@ -1,34 +1,38 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+
+@JsonPropertyOrder({"alias","property"})
 public class Compare {
-	private String source;
-	private String comparison;
-	private String target;
+	private String alias;
+	private TTAlias property;
+	private String variable;
 
-	public String getSource() {
-		return source;
+	public String getVariable() {
+		return variable;
 	}
 
-	public Compare setSource(String source) {
-		this.source = source;
+	public Compare setVariable(String variable) {
+		this.variable = variable;
 		return this;
 	}
 
-	public String getComparison() {
-		return comparison;
+	public String getAlias() {
+		return alias;
 	}
 
-	public Compare setComparison(String comparison) {
-		this.comparison = comparison;
+	public Compare setAlias(String alias) {
+		this.alias = alias;
 		return this;
 	}
 
-	public String getTarget() {
-		return target;
+	public TTAlias getProperty() {
+		return property;
 	}
 
-	public Compare setTarget(String target) {
-		this.target = target;
+	public Compare setProperty(TTAlias property) {
+		this.property = property;
 		return this;
 	}
 }

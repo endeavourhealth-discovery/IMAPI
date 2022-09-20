@@ -275,11 +275,14 @@ public class SparqlConverter {
 
 	private void whereValue(StringBuilder whereQl, String object, Where where, boolean isNot) throws DataFormatException {
 		String not= isNot ?"!" : "";
-		whereQl.append("Filter (?").append(object).append(not).append(where.getComparison()).append(" ");
-		if (where.getValueVariable()!=null)
-			whereQl.append(convertValue(resolveReference(where.getValueVariable(),queryRequest)));
+		Value value= where.getValue();
+		whereQl.append("Filter (?").append(object).append(not).append(value.getComparison()).append(" ");
+		if (value.getRelativeTo()!=null) {
+			if (value.getRelativeTo().getVariable() != null)
+				whereQl.append(convertValue(resolveReference(value.getRelativeTo().getVariable(), queryRequest)));
+		}
 		else
-			whereQl.append(convertValue(where.getValue()));
+			whereQl.append(convertValue(value.getValue()));
 		whereQl.append(")\n");
 
 	}

@@ -238,8 +238,9 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				String config = configTTl;
 				String data = dataPath;
 				String preloadPath =preload;
+				String command=  "importrdf preload -c "+config+"\\config.ttl -q "+data+" "+data+"\\BulkImport*.nq";
 				Process process = Runtime.getRuntime()
-					.exec("cmd /c " + "preload --stopOnFirstError --configFile " + config + "/Config.ttl " +"--queue.folder "+data + " "+ data + "/BulkImport*.nq",
+					.exec("cmd /c " + command,
 						null, new File(preloadPath));
 				BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
@@ -251,11 +252,12 @@ public class TTBulkFiler  extends TTDocumentFiler {
 					System.out.println(line);
 				}
 			File directory= new File(data + pathDelimiter);
-			for(File file: Objects.requireNonNull(directory.listFiles()))
+			for(File file: Objects.requireNonNull(directory.listFiles())) {
 				if (!file.isDirectory())
-					if(!file.delete()){
-						LOG.error("File delete failed");
-					}
+				if(!file.delete()){
+				LOG.error("File delete failed");
+				}
+			}
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new TTFilerException(e.getMessage());

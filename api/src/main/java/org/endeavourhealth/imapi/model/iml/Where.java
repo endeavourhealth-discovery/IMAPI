@@ -2,6 +2,9 @@ package org.endeavourhealth.imapi.model.iml;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -11,14 +14,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-//@JsonPropertyOrder({"alias","from","notExist","not","inverse","property","in","range","and","or","function","argument","comparison","value"})
-//@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonPropertyOrder({"alias","from","notExist","not","inverse","path","property","in","range","and","or","compare","function","argument","value"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
 	private String name;
 	private String from;
 	private String graph;
 	private boolean not;
+	private String path;
 	private TTAlias property;
 	private List<TTIriRef> in;
 	private TTAlias is;
@@ -28,14 +32,20 @@ public class Where {
 	private List<Where> and;
 	private Where notExist;
 	private Function function;
-	private Compare compare;
 	private Where where;
-	private String comparison;
-	private String value;
-	private String valueVariable;
+	private Value value;
 	private List<TTAlias> orderBy;
 	private String direction;
 	private Integer limit;
+
+	public String getPath() {
+		return path;
+	}
+
+	public Where setPath(String path) {
+		this.path = path;
+		return this;
+	}
 
 	public List<TTAlias> getOrderBy() {
 		return orderBy;
@@ -97,9 +107,6 @@ public class Where {
 
 
 	public Where setProperty(String property) {
-		if (property.contains(" "))
-			this.property= new TTAlias().setPath(property);
-		else
 			this.property = new TTAlias().setIri(property);
 		return this;
 	}
@@ -116,22 +123,24 @@ public class Where {
 		return this;
 	}
 
-	public String getComparison() {
-		return comparison;
-	}
 
-	public String getValue() {
+	public Value getValue() {
 		return value;
 	}
 
-	public Where setValue(String value) {
+	@JsonSetter
+	public Where setValue(Value value) {
 		this.value = value;
 		return this;
 	}
 
-	public String getValueVariable() {
-		return valueVariable;
+	@JsonIgnore
+	public Where value(Consumer<Value> builder){
+		this.value= new Value();
+		builder.accept(value);
+		return this;
 	}
+
 
 
 
@@ -192,24 +201,7 @@ public class Where {
 
 
 
-	public Compare getCompare() {
-		return compare;
-	}
 
-	public Where setValueVariable(String valueVariable) {
-		this.valueVariable= valueVariable;
-		return this;
-	}
-
-	public Where setComparison(String comparison) {
-		this.comparison= comparison;
-		return this;
-	}
-
-	public Where setCompare(Compare compare) {
-		this.compare = compare;
-		return this;
-	}
 
 	public Function getFunction() {
 		return function;

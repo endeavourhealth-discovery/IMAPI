@@ -84,8 +84,6 @@ public class SearchService {
 
 
 
-
-
 	/**
 	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied
 	 * @param request holding the search term (multi or single word) + type/status/scheme filters

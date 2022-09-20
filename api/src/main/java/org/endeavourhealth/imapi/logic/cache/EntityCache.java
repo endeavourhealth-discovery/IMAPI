@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.logic.cache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
-import org.endeavourhealth.imapi.logic.reasoner.Reasoner;
+import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -60,8 +60,8 @@ public class EntityCache implements Runnable{
 				if (propertyMap.getEntities() == null)
 					return null;
 				cacheProperties(propertyMap);
-				Reasoner reasoner= new Reasoner();
-				reasoner.inheritDomRans(propertyMap.getEntity(iri),propertyMap);
+				Inferrer inferrer= new Inferrer();
+				inferrer.inheritDomRans(propertyMap.getEntity(iri),propertyMap);
 			}
 			property= properties.get(iri);
 		}

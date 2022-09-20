@@ -40,7 +40,7 @@ export default class EntityController {
     const updates = req.body.predicates;
 
 
-    const updateDB = (update) => {
+    const updateDB = (update: any) => {
 
       try {
 
@@ -55,10 +55,11 @@ export default class EntityController {
         if (isObjectKeysEmptyOrNull) throw "One or more properties are empty or null";
 
 
-        const query = SparqlSnippets[action](quad);
+        // TODO: What does this actually do, illegal TS?
+        const query: any = (<any>SparqlSnippets)[action](quad);
 
-        const isQuerySuccess = new Promise((resolve, reject) => {
-          if (this.service.update(query)) {
+        const isQuerySuccess = new Promise(async (resolve, reject) => {
+          if (await this.service.update(query)) {
             resolve(true);
           } else {
             reject(false)
@@ -77,7 +78,7 @@ export default class EntityController {
 
     const queryResults = Promise.all(actions);
 
-    const rs = {
+    const rs: any = {
       success: true,
       message: "All updates were accepted",
     }
@@ -113,16 +114,16 @@ export default class EntityController {
       const query = SparqlSnippets.inferredBundle(iri as string);
       const queryResult = await this.service.execute(query);
 
-      const entity = new TTEntity(iri as string);
-      const predicates = {};
+      const entity: any = new TTEntity(iri as string);
+      const predicates: any = {};
 
       // populates response with queryResults
       queryResult.forEach(item => {
-        const predicate = item.predicate.value || item?.predicate;
+        const predicate: string = item.predicate.value || item?.predicate;
         const object = item?.object?.value || item?.object;
         const predicateLabel = item?.predicateLabel;
         const objectLabel = item?.objectLabel;
-        const prefixedPredicate = OntologyUtils.toPrefix(predicate)
+        const prefixedPredicate: string = OntologyUtils.toPrefix(predicate)
 
 
         if (Array.isArray(entity[prefixedPredicate])) {

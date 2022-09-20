@@ -1,20 +1,15 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -29,44 +24,46 @@ public class OpenSearchService {
     private final String osUrl = System.getenv("OPENSEARCH_URL");
     private final String osAuth = System.getenv("OPENSEARCH_AUTH");
     private final String index = System.getenv("OPENSEARCH_INDEX");
-    private final ObjectMapper om = new ObjectMapper();
 
     public EntityDocument getOSDocument(String iri) throws OpenSearchException {
         if (osUrl == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
 
-        try {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
             SearchSourceBuilder bld = new SearchSourceBuilder()
                 .size(1)
                 .query(
-                    new BoolQueryBuilder()
-                        .should(
-                            new TermQueryBuilder("iri", iri)
-                        )
+                    new TermQueryBuilder("iri", iri)
+
+//                    new MatchQueryBuilder("iri", iri)
+
+//                    new BoolQueryBuilder()
+//                        .should(
+//                            new TermQueryBuilder("iri", iri)
+//                        )
                 );
 
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(new URI(osUrl + index + "/_search"))
+            WebTarget target = client.target(osUrl).path(index + "/_search");
+
+            Response response = target
+                .request()
                 .header("Authorization", "Basic " + osAuth)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(bld.toString()))
-                .build();
+                .post(Entity.entity(
+                    bld.toString(),
+                    MediaType.APPLICATION_JSON
+                ));
 
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-                .thenApply(res -> res)
-                .get();
-
-            if (response.statusCode() != 200) {
-                String responseData = response.body();
+            if (response.getStatus() != 200) {
+                String responseData = response.readEntity(String.class);
                 LOG.error(responseData);
                 throw new OpenSearchException("Error calling OpenSearch");
             }
 
-            if (response.body() == null || response.body().isEmpty())
+            if (!response.hasEntity())
                 return null;
 
-            JsonNode root = om.readTree(response.body());
+            JsonNode root = om.readTree(response.readEntity(String.class));
 
             JsonNode hits = root.at("/hits/total/value");
             if (hits == null || hits.asInt() == 0)
@@ -81,6 +78,7 @@ public class OpenSearchService {
     }
 
     public void fileDocument(EntityDocument entityDocument) throws OpenSearchException {
+        LOG.debug("Loading OS document");
         EntityDocument osDoc = getOSDocument(entityDocument.getIri());
         if (osDoc == null)
             addOSDocument(entityDocument);
@@ -96,9 +94,10 @@ public class OpenSearchService {
     }
 
     public void updateOSDocument(EntityDocument entityDocument) throws OpenSearchException {
+        LOG.debug("Sending OS document");
         WebTarget target = client.target(osUrl).path(index + "/_doc/" + entityDocument.getId());
 
-        try {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
             Response response = target
                 .request()
                 .header("Authorization", "Basic " + osAuth)
@@ -115,9 +114,11 @@ public class OpenSearchService {
         } catch (Exception e) {
             throw new OpenSearchException("Error sending document to OpenSearch", e);
         }
+        LOG.debug("OS document sent");
     }
 
     private int getMaxDocument() throws OpenSearchException {
+        LOG.debug("Fetching next OS Document ID");
         WebTarget target = client.target(osUrl).path(index + "/_search");
 
         Response response = target
@@ -144,7 +145,7 @@ public class OpenSearchService {
                 throw new OpenSearchException("Error calling OpenSearch");
             }
         } else {
-            try {
+            try (CachedObjectMapper om = new CachedObjectMapper()) {
                 String responseData = response.readEntity(String.class);
                 JsonNode root = om.readTree(responseData);
                 int maxId = root.get("aggregations").get("max_id").get("value").asInt();

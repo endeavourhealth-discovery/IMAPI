@@ -1,6 +1,5 @@
 
 import * as wordMap from './Config/WordMap.json';
-import _ from "lodash";
 import * as labels from "./Config/AdditionalOntology.json"
 import { Clause } from "./Clause"
 import { IM, RDF, RDFS } from "../../vocabulary"
@@ -104,12 +103,12 @@ export class Helpers {
     }
 
     //checks the list of arguments for truthness 
-    public static isTrue(...args): boolean {
+    public static isTrue(...args: any[]): boolean {
         return args.every((arg, index) => arg == true);
     }
 
-    public static hasTransformation(phraseType, input) {
-        return wordMap[phraseType][input] == null ? false : true;
+    public static hasTransformation(phraseType: any, input: any) {
+        return (<any>wordMap)[phraseType][input] == null ? false : true;
     }
 
     public static isNegative(testNumber: number): boolean {
@@ -130,11 +129,11 @@ export class Helpers {
     public static pronoun(ref: any): string {
         const testString = ref?.name || ref;
         if (!testString || testString == "") return "they/it";
-        return wordMap?.animatePronoun[Helpers.isObjectAnimate(testString).toString()];
+        return (<any>wordMap)?.animatePronoun[Helpers.isObjectAnimate(testString).toString()];
     }
 
     public static getLabel(iri: string): any {
-        const label = labels.entities.filter(label => label['@id'] == iri)
+        const label = labels.entities.filter((label: any) => label['@id'] == iri)
         return label.length > 0 ? label[0]["rdfs:label"] : null;
 
     }

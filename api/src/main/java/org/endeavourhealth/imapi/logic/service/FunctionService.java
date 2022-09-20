@@ -1,11 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -43,7 +40,9 @@ public class FunctionService {
 			throw new IllegalArgumentException("No entity iri property in request body");
 		if (null == arguments.get("fieldName"))
 			throw new IllegalArgumentException("No 'fieldName' to return the local name in. e.g. \"fieldName\" : \"code\"");
-		return new ObjectMapper().createObjectNode().put(fieldName,iri.substring(iri.lastIndexOf("#")+1));
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return om.createObjectNode().put(fieldName, iri.substring(iri.lastIndexOf("#") + 1));
+        }
 	}
 
 	private JsonNode getAdditionalAllowableTypes(Map<String, Object> arguments) {
@@ -52,23 +51,25 @@ public class FunctionService {
 		if (null == arguments.get("entityIri"))
 			throw new IllegalArgumentException("No entity iri property in request body");
 		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ENTITY_TYPES.getIri(), null,1, 200, false);
-		ObjectMapper mapper = new ObjectMapper();
-		if (IM.CONCEPT.getIri().equals(arguments.get("entityIri"))) {
-			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(arguments.get("entityIri"), RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri()).contains(t.getIri())).collect(Collectors.toList());
-			List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
-			return mapper.valueToTree(filteredResultsAsIri);
-		} else {
-			List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(arguments.get("entityIri")).contains(t.getIri())).collect(Collectors.toList());
-			List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
-			return mapper.valueToTree(filteredResultsAsIri);
-		}
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            if (IM.CONCEPT.getIri().equals(arguments.get("entityIri"))) {
+                List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(arguments.get("entityIri"), RDF.PROPERTY.getIri(), SHACL.NODESHAPE.getIri()).contains(t.getIri())).collect(Collectors.toList());
+                List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+                return om.valueToTree(filteredResultsAsIri);
+            } else {
+                List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(arguments.get("entityIri")).contains(t.getIri())).collect(Collectors.toList());
+                List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+                return om.valueToTree(filteredResultsAsIri);
+            }
+        }
 	}
 
 	private JsonNode getLogicOptions() {
-		ObjectMapper mapper = new ObjectMapper();
-		Set<String> iris = new HashSet(Arrays.asList(SHACL.AND.getIri(), SHACL.OR.getIri(),SHACL.NOT.getIri()));
-		Set<TTIriRef> iriRefs = entityService.getNames(iris);
-		List<TTIriRef> options = new ArrayList<>(iriRefs);
-		return mapper.valueToTree(options);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            Set<String> iris = new HashSet(Arrays.asList(SHACL.AND.getIri(), SHACL.OR.getIri(), SHACL.NOT.getIri()));
+            Set<TTIriRef> iriRefs = entityService.getNames(iris);
+            List<TTIriRef> options = new ArrayList<>(iriRefs);
+            return om.valueToTree(options);
+        }
 	}
 }

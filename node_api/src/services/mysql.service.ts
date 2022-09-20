@@ -1,11 +1,11 @@
 import mysql, {Connection, RowDataPacket} from 'mysql2';
 
 export class MysqlService {
-  private conn: Connection;
+  private conn: Connection | undefined;
 
-  public execute(sql: string): Promise<RowDataPacket[]> {
+  public execute(sql: string, params: any[]): Promise<RowDataPacket[]> {
     return new Promise((resolve, reject) => {
-      this.getConnection().query(sql, (err, result) => {
+      this.getConnection().query(sql, params,(err, result) => {
         if (err) {
           reject(err);
           return;

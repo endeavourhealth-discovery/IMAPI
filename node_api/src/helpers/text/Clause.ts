@@ -1,7 +1,7 @@
 import { Helpers } from "./Helpers"
 // const { a, isSingular, html, isDateAliasCompared, href, isTemplateMatch } = Helpers;
 
-import { _ } from "lodash";
+import _ from "lodash";
 import * as wordMap from "./Config/WordMap.json"
 import * as pathMap from "./Config/PathMap.json"
 import { IM, RDF, RDFS } from "../../vocabulary"
@@ -11,7 +11,7 @@ import { IM, RDF, RDFS } from "../../vocabulary"
 
 export class TTIriRef {
     public "@id": string;
-    public name: string;
+    public name: string = '';
 
 
     constructor(obj?: any) {
@@ -28,7 +28,7 @@ export class Clause {
 
 
     public definition: any;
-    public path: string;
+    public path: string = '';
 
 
     constructor(definition: any) {
@@ -37,7 +37,7 @@ export class Clause {
         //maps all key-value pairs in pathMap.json to functions (key) which return a transfored string (value mapped against wordMap.json)
         Object.keys(pathMap).forEach((key) => {
             Object.defineProperty(this, key, {
-                get() { return this.get(pathMap[key]) },
+                get() { return this.get((<any>pathMap)[key]) },
             })
         })
 
@@ -75,18 +75,18 @@ export class Clause {
     }
 
     get are(): string {
-        return wordMap["are"][this.exists.toString()];
+        return (<any>wordMap)["are"][this.exists.toString()];
     }
 
     get has(): string {
-        return wordMap["has"][this.exists.toString()];
+        return (<any>wordMap)["has"][this.exists.toString()];
     }
 
 
     templates(): any {
 
         let result = {};
-        if (this["and"] && Array.isArray(this["and"]) && this["and"].length > 1 && Helpers.isDateAliasCompared(this["and"])) {
+        if ((<any>this)["and"] && Array.isArray((<any>this)["and"]) && (<any>this)["and"].length > 1 && Helpers.isDateAliasCompared((<any>this)["and"])) {
 
         }
     }

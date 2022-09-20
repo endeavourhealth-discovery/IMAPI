@@ -2,33 +2,31 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
-import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.dataaccess.*;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
+import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
+import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
-import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
-import org.endeavourhealth.imapi.model.dto.DownloadDto;
-import org.endeavourhealth.imapi.model.dto.GraphDto;
+import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
-import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
-import org.endeavourhealth.imapi.model.sets.QueryEntity;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.*;
+import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.model.valuset.MemberType;
+import org.endeavourhealth.imapi.model.valuset.SetAsObject;
+import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
-import org.endeavourhealth.imapi.validators.EntityValidator;
-import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
+import org.endeavourhealth.imapi.validators.EntityValidator;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -84,14 +82,13 @@ public class EntityService {
             case (IM.NAMESPACE+"FormGenerator") :
                 cls=FormGenerator.class;
                 break;
-            case (IM.NAMESPACE+"Query") :
-                cls= QueryEntity.class;
-                break;
             default:
                 throw new NoSuchMethodException(" entity type "+ entityType+" is not supported as a POJO class");
 
         }
-        return new ObjectMapper().writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(),cls));
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return om.writeValueAsString(new TTToClassObject().getObject(bundle.getEntity(), cls));
+        }
     }
 
     public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
@@ -598,8 +595,8 @@ public class EntityService {
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
         for (TTValue propertyGroup : entity.get(SHACL.PROPERTY).iterator()) {
             if (propertyGroup.isNode()) {
-                TTIriRef inheritedFrom = propertyGroup.asNode().has(RDFS.DOMAIN)
-                        ? propertyGroup.asNode().get(RDFS.DOMAIN).asIriRef()
+                TTIriRef inheritedFrom = propertyGroup.asNode().has(IM.INHERITED_FROM)
+                        ? propertyGroup.asNode().get(IM.INHERITED_FROM).asIriRef()
                         : null;
                 if (propertyGroup.asNode().has(SHACL.PATH)) {
                     getDataModelShaclProperties(properties, propertyGroup, inheritedFrom);
@@ -852,13 +849,22 @@ public class EntityService {
         return getConceptList(conceptIris);
     }
 
-    public List<SimpleMap> getSimpleMaps(String iri) {
+    public List<SimpleMap> getMatchedFrom(String iri) {
         if (iri == null || iri.equals("")) return new ArrayList<>();
         String scheme = iri.substring(0, iri.indexOf("#") + 1);
         List<Namespace> namespaces = getNamespaces();
         List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
         schemes.remove(scheme);
-        return entityTripleRepository.findSimpleMapsByIri(iri, schemes);
+        return entityTripleRepository.getMatchedFrom(iri, schemes);
+    }
+
+    public List<SimpleMap> getMatchedTo(String iri) {
+        if (iri == null || iri.equals("")) return new ArrayList<>();
+        String scheme = iri.substring(0, iri.indexOf("#") + 1);
+        List<Namespace> namespaces = getNamespaces();
+        List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
+        schemes.remove(scheme);
+        return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
     public String getEcl(TTBundle inferred) throws DataFormatException {

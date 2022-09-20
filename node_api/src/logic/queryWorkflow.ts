@@ -8,9 +8,7 @@ const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = Manipu
 import _ from "lodash";
 import { v4 } from "uuid";
 import axios from 'axios';
-
-
-const fs = require('fs');
+import * as fs from 'fs';
 
 
 export default class QueryWorkflow {
@@ -24,7 +22,7 @@ export default class QueryWorkflow {
   }
 
   public static saveFile(file: string): void {
-    fs.writeFile("output.json", file, 'utf8', function (err) {
+    fs.writeFile("output.json", file, 'utf8', function (err: any) {
       if (err) {
         console.log("An error occured while writing JSON Object to File.");
       }
@@ -93,9 +91,9 @@ export default class QueryWorkflow {
   public async populateOpensearch(index: string): Promise<any> {
 
     const allQueryIris = await QueryWorkflow.getAllQueries();
-    const iris = allQueryIris?.entities?.map(item => item["@id"]);
+    const iris = allQueryIris?.entities?.map((item: any) => item["@id"]);
 
-    const getClauses = (iri) => { // sample async action
+    const getClauses = (iri: string) => { // sample async action
       return this.extractClauses("get", iri);
     };
     // map over forEach since it returns
@@ -107,7 +105,7 @@ export default class QueryWorkflow {
     let results: any = Promise.all(actions); // pass array of promises
     // console.log(iris)
 
-    results.then(data => {
+    results.then((data: any[]) => {
 
       let clauses: any[] = [];
       data.forEach(item => {
@@ -131,7 +129,7 @@ export default class QueryWorkflow {
 
   public async getLocalDefinition(queryIri: string): Promise<any> {
     const queries = require("../examples/queries.json") || null;
-    const query = queries ? queries.find(item => item["@id"] == queryIri) : ""
+    const query = queries ? queries.find((item: any) => item["@id"] == queryIri) : ""
     console.log(queryIri, query)
     return query;
   }
@@ -233,10 +231,10 @@ export default class QueryWorkflow {
     let IriRefs = jp.nodes(definition?.select?.match, jsonQuery);
     if (IriRefs.length == 0) return {};
 
-    IriRefs = IriRefs.filter(ref => isTTIriRef(ref.value)); // excludes objects which match the jsonQuery but  are operators/clauses instead of IriRefs 
+    IriRefs = IriRefs.filter((ref: any) => isTTIriRef(ref.value)); // excludes objects which match the jsonQuery but  are operators/clauses instead of IriRefs
 
     // get all entities from database for TTIriRefs
-    const iris = IriRefs.map(item => item.value["@id"]);
+    const iris = IriRefs.map((item: any) => item.value["@id"]);
     const meta = await this.getMeta(iris) as any[];
 
     // populate TTIriRefs with name where missing.
@@ -267,7 +265,7 @@ export default class QueryWorkflow {
     console.log("clauses", clauses)
 
     // add summary to match clauses
-    clauses.forEach(item => {
+    clauses.forEach((item: any) => {
       const textPath = item.path + ".displayText";
       const htmlPath = item.path + ".displayHTML";
       const { text, html } = TextGenerator.summarise(item.value) || "";
@@ -298,7 +296,7 @@ export default class QueryWorkflow {
     console.log("clauses", clauses)
 
     // add summary to match clauses
-    clauses = clauses.map(item => {
+    clauses = clauses.map((item: any) => {
       const path = item.path;
       const { text, html } = TextGenerator.summarise(item.value) || "";
       // const htmlSummary = TextGenerator.htmlSummary(item.value) || "";

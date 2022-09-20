@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
@@ -41,6 +43,7 @@ public class TTNodeDeserializer {
               Map.Entry<String, JsonNode> field = fields.next();
               String key = field.getKey();
               JsonNode value = field.getValue();
+
               if (value.isTextual() && value.textValue().startsWith("http")) {
                   prefixes.add(new TTPrefix(value.textValue(), key));
                   context.add(value.asText(), key);
@@ -56,7 +59,9 @@ public class TTNodeDeserializer {
          String key = field.getKey();
          if (!"@context".equals(key)) {
             JsonNode value = field.getValue();
-            if (value.isArray()) {
+            if ("@id".equals(key))
+               result.setIri(expand(value.textValue()));
+            else if (value.isArray()) {
                result.set(iri(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
             } else {
                result.set(iri(expand(key)), getJsonNodeAsValue(value));
@@ -82,29 +87,29 @@ public class TTNodeDeserializer {
    }
 
    public TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
-      if (node.isValueNode())
-         return TTLiteral.literal(node);
-      else if (node.isObject()) {
-         if (node.has(IM.IRI)) {
-            if (node.has("name"))
-               return iri(expand(node.get(IM.IRI).asText()), node.get("name").asText());
-            else
-               return iri(expand(node.get(IM.IRI).asText()));
-         } else {
-            if (node.has(IM.VALUE)){
-               return getJsonNodeAsLiteral(node);
-            } else {
-               TTNode result = new TTNode();
-               populateTTNodeFromJson(result, node);
-               return result;
-            }
-         }
-      } else if (node.isArray()) {
-         throw new IOException("Failed to deserialize node array");
-      } else {
-          LOG.warn("TTNode deserializer - Unhandled node type, reverting to String");
-         return TTLiteral.literal(node.asText());
-      }
+       if (node.isValueNode())
+           return TTLiteral.literal(node);
+       else if (node.isObject()) {
+           if (node.has(IM.IRI)) {
+               if (node.has("name"))
+                   return iri(expand(node.get(IM.IRI).asText()), node.get("name").asText());
+               else
+                   return iri(expand(node.get(IM.IRI).asText()));
+           } else {
+               if (node.has(IM.VALUE)) {
+                   return getJsonNodeAsLiteral(node);
+               } else {
+                   TTNode result = new TTNode();
+                   populateTTNodeFromJson(result, node);
+                   return result;
+               }
+           }
+       } else if (node.isArray()) {
+           throw new IOException("Failed to deserialize node array");
+       } else {
+           LOG.warn("TTNode deserializer - Unhandled node type, reverting to String");
+           return TTLiteral.literal(node.asText());
+       }
    }
 
    public TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {

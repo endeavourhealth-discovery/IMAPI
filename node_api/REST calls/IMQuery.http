@@ -1,3 +1,7 @@
+GET http://localhost:3000/api/item?id=99
+Accept: application/json
+
+###
 GET http://localhost:8080/api/query/public/queryIM
 content-type: application/json
 
@@ -90,3 +94,59 @@ GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A6d517466
 ###
 
 GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A951b62db-4e81-4fcd-8cf7-0e71c28d30e9
+
+###
+
+POST http://localhost:3000/node_api/validation/public/validate?iri=http://endhealth.info/im#Validation_hasParent
+Content-Type: application/json
+
+{
+   "http://endhealth.info/im#isContainedIn": [{ "@id": "http://endhealth.info/im#IMQuery", "name": "Test" }]
+}
+
+###
+
+POST http://127.0.0.1:8082/nodeapi/node_api/query/public/quickQuery
+Content-Type: application/json
+
+{
+  "http://endhealth.info/im#Patient": {
+    "output": [
+      "http://endhealth.info/im#fullName",
+      "http://endhealth.info/im#age",
+      "http://endhealth.info/im#nhsNumber"
+    ],
+    "filters": {
+      "http://endhealth.info/im#fullName": {
+        "stringPattern": "B*"
+      },
+      "http://endhealth.info/im#age": {
+        "numberRange": {
+          "with": {
+            "comparator": ">",
+            "value": "7"
+          },
+          "to": {
+            "comparator": "<=",
+            "value": "18"
+          }
+        }
+      }
+    }
+  },
+  "http://endhealth.info/im#Observation": {
+    "output": [
+      "http://endhealth.info/im#effectiveDate",
+      "http://endhealth.info/im#hasPractitioner",
+      "http://endhealth.info/im#typeOfObservation"
+    ],
+    "filters": {
+      "http://endhealth.info/im#effectiveDate": {
+        "dateRange": {
+          "with": "2008-01-01",
+          "to": "2008-12-31"
+        }
+      }
+    }
+  }
+}

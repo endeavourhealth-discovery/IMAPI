@@ -830,19 +830,19 @@ class EntityModelServiceTest {
 
     @Test
     void getSimpleMaps_NullIri() {
-        List<SimpleMap> actual = entityService.getSimpleMaps(null);
+        List<SimpleMap> actual = entityService.getMatchedFrom(null);
         assertNotNull(actual);
     }
 
     @Test
     void getSimpleMaps_EmptyIri() {
-        Collection<SimpleMap> actual = entityService.getSimpleMaps("");
+        Collection<SimpleMap> actual = entityService.getMatchedFrom("");
         assertNotNull(actual);
     }
 
     @Test
     void getSimpleMaps_NotNullIri() {
-        Collection<SimpleMap> actual = entityService.getSimpleMaps("http://endhealth.info/im#25451000252115");
+        Collection<SimpleMap> actual = entityService.getMatchedFrom("http://endhealth.info/im#25451000252115");
         assertNotNull(actual);
     }
 

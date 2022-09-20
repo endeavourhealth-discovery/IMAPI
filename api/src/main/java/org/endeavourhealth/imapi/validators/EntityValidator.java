@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.validators;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -13,17 +13,18 @@ import java.util.ArrayList;
 public class EntityValidator {
     public void isValid(TTEntity entity, EntityService service, String mode) throws TTFilerException, JsonProcessingException {
         ArrayList<String> errorMessages = new ArrayList();
-        ObjectMapper mapper = new ObjectMapper();
-        if (Boolean.TRUE.equals(!isValidIri(entity))) errorMessages.add("Missing iri.");
-        if ("Create".equals(mode) && service.iriExists(entity.getIri())) errorMessages.add("Iri already exists.");
-        if ("Update".equals(mode) && !service.iriExists(entity.getIri())) errorMessages.add("Iri doesn't exists.");
-        if (Boolean.TRUE.equals(!isValidName(entity))) errorMessages.add("Name is invalid.");
-        if (Boolean.TRUE.equals(!isValidType(entity))) errorMessages.add("Types are invalid.");
-        if (Boolean.TRUE.equals(!isValidStatus(entity))) errorMessages.add("Status is invalid");
-        if (Boolean.TRUE.equals(!hasParents(entity))) errorMessages.add("Parents are invalid");
-        if (!errorMessages.isEmpty()) {
-            String errorsAsString = String.join(",", errorMessages);
-            throw new TTFilerException(mode + " entity errors: [" + errorsAsString + "] for entity " + mapper.writeValueAsString(entity));
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            if (Boolean.TRUE.equals(!isValidIri(entity))) errorMessages.add("Missing iri.");
+            if ("Create".equals(mode) && service.iriExists(entity.getIri())) errorMessages.add("Iri already exists.");
+            if ("Update".equals(mode) && !service.iriExists(entity.getIri())) errorMessages.add("Iri doesn't exists.");
+            if (Boolean.TRUE.equals(!isValidName(entity))) errorMessages.add("Name is invalid.");
+            if (Boolean.TRUE.equals(!isValidType(entity))) errorMessages.add("Types are invalid.");
+            if (Boolean.TRUE.equals(!isValidStatus(entity))) errorMessages.add("Status is invalid");
+            if (Boolean.TRUE.equals(!hasParents(entity))) errorMessages.add("Parents are invalid");
+            if (!errorMessages.isEmpty()) {
+                String errorsAsString = String.join(",", errorMessages);
+                throw new TTFilerException(mode + " entity errors: [" + errorsAsString + "] for entity " + om.writeValueAsString(entity));
+            }
         }
     }
 

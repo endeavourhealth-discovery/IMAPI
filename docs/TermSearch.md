@@ -63,6 +63,6 @@ termCode  | object containing a term and code
  ...term  | term of the term code
 
 ###Logic
-SearchService is called from the controller and SearchService creates an open search query object.
+SearchService is called with the controller and SearchService creates an open search query object.
 OSQuery is an object that processes the open search request, creates the elastic query syntax, submits the search (using environment variables for authentication),
 and processes the response.

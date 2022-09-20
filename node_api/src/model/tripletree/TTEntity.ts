@@ -1,7 +1,6 @@
-import { v4 } from "uuid";
 import TTNode from "./TTNode"
 
-import { IM, OWL, RDF, RDFS, SHACL } from "../../vocabulary"
+import { IM, RDF, RDFS } from "../../vocabulary"
 
 
 export default class TTEntity extends TTNode {
@@ -75,8 +74,8 @@ export default class TTEntity extends TTNode {
 
     constructor(iri?: string, name?: string) {
         super()
-        iri ? this[IM.IRI] = iri : null;
-        name ? this[RDFS.LABEL] = name : null;
+        iri ? (<any>this)[IM.IRI] = iri : null;
+        name ? (<any>this)[RDFS.LABEL] = name : null;
     }
 
 
@@ -90,7 +89,7 @@ export default class TTEntity extends TTNode {
 
     public toJSON(): any {
         let obj = this;
-        this.predicates.forEach((value, predicate) => obj[predicate] = value);
+        this.predicates.forEach((value, predicate) => (<any>obj)[predicate] = value);
         const { predicates: _, ...props } = obj;  //"predicates"  IS ignored upon serialisation to JSON
         return props;
     }

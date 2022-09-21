@@ -34,53 +34,8 @@ public class SearchService {
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
 			if (queryRequest.getQuery()==null)
 				throw new DataFormatException("Query request must have a queryIri or Query");
-			if (queryRequest.getQuery().getIri()==null)
-				validateQuery(queryRequest.getQuery());
-			else if (queryRequest.getQuery().getSelect()!=null)
-				validateQuery(queryRequest.getQuery());
+
 	}
-
-
-	private void validateQuery(Query query) throws DataFormatException {
-		if (query.getWith()==null)
-			if (query.getWhere() == null)
-					if (query.getSelect()==null)
-					  throw new DataFormatException("Query must have a with from , select or  where clause");
-
-		if (query.getWhere()!=null)
-			validateWhere(query.getWhere());
-		else 	if (query.getSelect() == null) {
-			throw new DataFormatException("Query must have a where or a select");
-		}
-		if (query.getSelect()!=null){
-			for (Select select:query.getSelect()){
-				validateSelect(select);
-			}
-
-		}
-	}
-	private void validateWhere(Where match) throws DataFormatException {
-		if (match.getOr()!=null){
-			for (Where or:match.getOr())
-				validateWhere(or);
-		}
-		else if (match.getAnd()!=null){
-			for (Where and:match.getAnd())
-				validateWhere(and);
-		}
-		if (match.getProperty()==null)
-			if (match.getWhere()==null)
-				throw new DataFormatException("Match clause must have a path or where");
-	}
-
-	private void validateSelect(Select select) throws DataFormatException {
-		if (select.getProperty() == null)
-			throw new DataFormatException("Select without property or alias");
-		if (select.getSelect()!=null)
-				for (Select subSelect:select.getSelect())
-				  validateSelect(subSelect);
-		}
-
 
 
 

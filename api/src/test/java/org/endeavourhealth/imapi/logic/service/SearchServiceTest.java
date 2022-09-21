@@ -23,13 +23,13 @@ class SearchServiceTest {
 
 
 
-	//@Test
+	@Test
 	void queryIM() throws DataFormatException, IOException {
 		testDefinitions= System.getenv("testDefinitions");
 		testResults= System.getenv("testResults");
 		testSparql = System.getenv("testSparql");
 
-		for (QueryRequest qr: List.of(TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.getIsas(),TestQueries.query2(),TestQueries.query1(),
+		for (QueryRequest qr: List.of(TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.getIsas(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr);
 		}

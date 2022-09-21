@@ -8,10 +8,10 @@ PREFIX sh: <http://www.w3.org/ns/shacl#>
 SELECT distinct ?entity  ?p4 ?p5
 WHERE {?entity <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type1.
 Filter (?type1 in (<http://endhealth.info/im#Concept>))
-?entity im:status im:Active.
 ?entity ^<http://www.w3.org/2000/01/rdf-schema#range> ?range2.
 ?range2 im:isA ?supertype3.
 Filter (?supertype3=<http://snomed.info/sct#42752001>)
+?entity im:status im:Active.
  OPTIONAL { ?entity <http://endhealth.info/im#code> ?p4.}
  OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p5.}
 }

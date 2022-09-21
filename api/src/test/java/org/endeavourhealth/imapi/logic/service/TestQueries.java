@@ -179,6 +179,28 @@ public class TestQueries {
 		return new QueryRequest().setQuery(query);
 	}
 
+	public static QueryRequest oralNsaids(){
+		Query query= new Query()
+			.setName("oral none steroidals")
+			.setUsePrefixes(true)
+			.select(RDFS.LABEL)
+			.where(w->w
+				.and(a->a
+					.setProperty(IM.IS_A)
+					.setIs(TTAlias.iri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true)))
+				.and(a->a
+					.setPath(IM.ROLE_GROUP.getIri())
+					.and(a1->a1
+						.setProperty(TTAlias.iri(SNOMED.NAMESPACE+"127489000").setIncludeSubtypes(true))
+						.setIs(TTAlias.iri(SNOMED.NAMESPACE+"372665008").setIncludeSubtypes(true)))
+					.and(a2->a2
+						.setProperty(TTAlias.iri(SNOMED.NAMESPACE+"411116001").setIncludeSubtypes(true))
+						.setIs(TTAlias.iri(SNOMED.NAMESPACE+"385268001").setIncludeSubtypes(true)))));
+
+		return new QueryRequest().setQuery(query);
+
+	}
+
 
 
 

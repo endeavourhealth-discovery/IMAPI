@@ -31,6 +31,7 @@ public class SparqlConverter {
 	 * @return String of SPARQL
 	 **/
 	public String getSelectSparql() throws DataFormatException {
+		validateQuery();
 
 		StringBuilder selectQl = new StringBuilder();
 		selectQl.append(getDefaultPrefixes());
@@ -78,6 +79,36 @@ public class SparqlConverter {
 
 	}
 
+	private void validateQuery() throws DataFormatException {
+		if (query.getWhere()!=null)
+			validateWhere(query.getWhere());
+		if (query.getSelect()!=null)
+			for (Select select: query.getSelect())
+				validateSelect(select);
+	}
+
+	private void validateSelect(Select select) throws DataFormatException {
+		if (select.getWhere()!=null)
+			validateWhere(select.getWhere());
+	}
+
+	private void validateWhere(Where where) throws DataFormatException {
+		if (where.getProperty() != null) {
+			if (where.getAnd() != null || where.getOr() != null)
+				throw new DataFormatException("Where clause contains a property and an and /or subclause, use 'path' instead");
+			if (where.getNotExist()!=null)
+				throw new DataFormatException("Where clause contains a not exist and a property. use path instead of property instead and place the property in the not exist clause");
+		}
+		if (where.getAnd()!=null)
+			for (Where and:where.getAnd())
+				validateWhere(and);
+		if (where.getOr()!=null)
+			for (Where or:where.getOr())
+				validateWhere(or);
+		if (where.getNotExist()!=null) {
+			validateWhere(where.getNotExist());
+		}
+	}
 
 
 	public static String getDefaultPrefixes(){
@@ -170,16 +201,30 @@ public class SparqlConverter {
 				indent();
 				whereQl.append("graph ").append(iriFromString(where.getGraph())).append(" { \n");
 			}
+			if (where.getPath()!=null){
+				for (String prop:where.getPath().split(" ")){
+					o++;
+					String object= localName(prop)+o;
+					whereQl.append("?").append(subject).append(" ").append(iriFromString(prop))
+						.append(" ?").append(object).append(".\n");
+					subject= object;
+				}
+			}
 			if (where.getNotExist() != null) {
 				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 				where(whereQl, subject, where.getNotExist());
 				whereQl.append("}\n");
-			} else {
+			}
+			else if (where.getProperty()!=null){
+					whereProperty(whereQl, subject, where);
+			}
+			else {
 				if (where.getAnd() != null) {
 					for (Where and : where.getAnd()) {
 						where(whereQl, subject, and);
 					}
-				} else if (where.getOr() != null) {
+				}
+				if (where.getOr() != null) {
 					for (int i = 0; i < where.getOr().size(); i++) {
 						if (i == 0)
 							whereQl.append("{ \n");
@@ -187,17 +232,17 @@ public class SparqlConverter {
 							whereQl.append("UNION {\n");
 						where(whereQl, subject, where.getOr().get(i));
 					}
-				} else {
-					if (subject.equals("entity"))
-						if (query.isActiveOnly())
-							whereQl.append("?").append(subject).append(" im:status im:Active.\n");
-					whereProperty(whereQl, subject, where);
 				}
+			}
+			if (subject.equals("entity")) {
+						if (query.isActiveOnly()) {
+							whereQl.append("?").append(subject).append(" im:status im:Active.\n");
+						}
+					}
 				if (where.getGraph() != null) {
 					whereQl.append("}\n");
 				}
 			}
-		}
 	}
 
 
@@ -220,15 +265,59 @@ public class SparqlConverter {
 		if (where.getWhere() != null) {
 			where(whereQl, object, where.getWhere());
 		}
-		if (where.getIs() != null) {
-			whereIs(whereQl, object,where.getIs(), where.isNot());
+		if (where.getAnd() != null) {
+			for (Where and : where.getAnd()) {
+				where(whereQl, object, and);
+			}
 		}
-		else if (where.getIn()!=null) {
-			whereIn(whereQl,object,where.getIn(),where.isNot());
+		if (where.getOr() != null) {
+			for (int i = 0; i < where.getOr().size(); i++) {
+				if (i == 0)
+					whereQl.append("{ \n");
+				else
+					whereQl.append("UNION {\n");
+				where(whereQl, object, where.getOr().get(i));
+			}
 		}
-		else if (where.getValue() != null) {
-			whereValue(whereQl, object, where, where.isNot());
+		if (where.getProperty().equals(IM.IS_A)){
+			whereIsa(whereQl,object,where);
 		}
+		else {
+			if (where.getIs() != null) {
+				whereIs(whereQl, object, where.getIs(), where.isNot());
+			} else if (where.getIn() != null) {
+				whereIn(whereQl, object, where.getIn(), where.isNot());
+			} else if (where.getValue() != null) {
+				whereValue(whereQl, object, where, where.isNot());
+			}
+		}
+	}
+
+	private void whereIsa(StringBuilder whereQl, String object, Where where) throws DataFormatException {
+		boolean isNot= where.isNot();
+		String not = isNot ? "!" : "";
+		if (where.getIs()!=null) {
+			whereQl.append("Filter (?").append(object).append(not).append("=").append(iriFromAlias(where.getIs()))
+				.append(")\n");
+		}
+		else if (where.getIn()!=null){
+			List<TTIriRef> in= where.getIn();
+			whereQl.append("Filter (?").append(object).append(not).append(" in (");
+			if (in.size()==1) {
+				String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getIri());
+				if (!expansion.equals("")) {
+					whereQl.append(expansion);
+				} else {
+					List<String> inList =
+						in.stream().map(iri -> iriFromString(iri.getIri())).collect(Collectors.toList());
+					String inString = String.join(",", inList);
+					whereQl.append(inString);
+				}
+			}
+			whereQl.append("))\n");
+		}
+
+
 	}
 
 	private void whereIs(StringBuilder whereQl, String object, TTAlias is,boolean isNot) throws DataFormatException {
@@ -253,6 +342,7 @@ public class SparqlConverter {
 			whereQl.append("Filter (?").append(object).append(not).append("=").append(iriFromAlias(is))
 				.append(")\n");
 	}
+
 
 
 	private void whereIn(StringBuilder whereQl, String object, List<TTIriRef> in, boolean isNot) {
@@ -376,7 +466,7 @@ public class SparqlConverter {
 			}
 		}
 
-	private void orderGroupLimit(StringBuilder selectQl,QueryClause clause) throws DataFormatException {
+	private void orderGroupLimit(StringBuilder selectQl,Query clause) throws DataFormatException {
 		if (queryRequest.getTextSearch()!=null){
 			String labelAlias= getLabelAlias(clause);
 			if (labelAlias!=null)
@@ -412,7 +502,7 @@ public class SparqlConverter {
 		}
 	}
 
-	private String getLabelAlias(QueryClause clause) {
+	private String getLabelAlias(Query clause) {
 			for (Select select:clause.getSelect()){
 				if (select.getProperty()!=null)
 					if (select.getProperty().getIri().equals(RDFS.LABEL.getIri())){
@@ -423,7 +513,7 @@ public class SparqlConverter {
 	}
 
 
-	private String getSelectAlias(QueryClause clause, String property) throws DataFormatException {
+	private String getSelectAlias(Query clause, String property) throws DataFormatException {
 			for (Select select:clause.getSelect()) {
 				if (select.getProperty().getIri().equals(property))
 					return select.getProperty().getAlias();

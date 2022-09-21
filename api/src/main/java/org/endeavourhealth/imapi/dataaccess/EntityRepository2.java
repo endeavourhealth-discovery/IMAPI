@@ -335,9 +335,10 @@ public class EntityRepository2 {
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
-        for (String scheme:schemes)
-            sql.add("from <"+scheme+">")
-                .add("where { {")
+        for (String scheme:schemes) {
+            sql.add("from <" + scheme + ">");
+        }
+        sql.add("where { {")
                 .add("?concept rdfs:label ?term.")
                 .add("filter(isIri(?concept))}")
                 .add("union { ?concept im:hasTermCode ?tc.")

@@ -1,0 +1,19 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http://endhealth.info/im#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http://snomed.info/sct#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+SELECT distinct ?entity  ?p7
+WHERE {?entity <http://endhealth.info/im#isA> ?isA1.
+Filter (?isA1=<http://snomed.info/sct#763158003>)
+?entity <http://endhealth.info/im#roleGroup> ?roleGroup2.
+?roleGroup2 <http://snomed.info/sct#127489000> ?1274890003.
+?1274890003 im:isA ?supertype4.
+Filter (?supertype4=<http://snomed.info/sct#372665008>)
+?roleGroup2 <http://snomed.info/sct#411116001> ?4111160015.
+?4111160015 im:isA ?supertype6.
+Filter (?supertype6=<http://snomed.info/sct#385268001>)
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p7.}
+}

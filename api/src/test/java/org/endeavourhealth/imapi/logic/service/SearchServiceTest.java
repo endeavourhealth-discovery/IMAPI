@@ -23,7 +23,7 @@ class SearchServiceTest {
 
 
 
-	@Test
+	//@Test
 	void queryIM() throws DataFormatException, IOException {
 		testDefinitions= System.getenv("testDefinitions");
 		testResults= System.getenv("testResults");

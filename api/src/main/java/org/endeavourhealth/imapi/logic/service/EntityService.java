@@ -102,6 +102,14 @@ public class EntityService {
                 bundle.getEntity().set(RDFS.LABEL, (TTValue) null);
             }
         }
+        List<TTValue> termCodes = bundle.getEntity().get(IM.HAS_TERM_CODE).getElements();
+        TTArray activeTermCodes = new TTArray();
+        for(TTValue value: termCodes){
+            if("Active".equals(value.asNode().get(IM.HAS_STATUS).asIriRef().getName())){
+                activeTermCodes.add(value);
+            }
+        }
+        bundle.getEntity().set(IM.HAS_TERM_CODE, activeTermCodes);
         return bundle;
     }
 

@@ -162,6 +162,13 @@
       "sh:node" : [ {
         "@id" : "im:Organisation"
       } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:placeOfResidenceAtEvent"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:PlaceOfResidenceAtEvent"
+      } ]
     } ]
   }, {
     "@id" : "im:PractitionerInRole",

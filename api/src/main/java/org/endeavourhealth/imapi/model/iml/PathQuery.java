@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class PathQuery extends TTIriRef {
@@ -12,11 +12,12 @@ public class PathQuery extends TTIriRef {
 		return source;
 	}
 
+	@JsonSetter
 	public PathQuery setSource(TTIriRef source) {
 		this.source = source;
 		return this;
 	}
-	@JsonIgnore
+
 	public PathQuery setSource(String source) {
 		this.source = TTIriRef.iri(source);
 		return this;
@@ -26,11 +27,12 @@ public class PathQuery extends TTIriRef {
 		return target;
 	}
 
+ @JsonSetter
 	public PathQuery setTarget(TTIriRef target) {
 		this.target = target;
 		return this;
 	}
-	@JsonIgnore
+
 	public PathQuery setTarget(String target) {
 		this.target = TTIriRef.iri(target);
 		return this;

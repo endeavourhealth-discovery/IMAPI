@@ -497,7 +497,8 @@ public class OSQuery {
         request.setTermFilter(imRequest.getTextSearch());
         Query query = imRequest.getQuery();
         if (query.getWith()!=null)
-            return null;
+            if (query.getWith().getQuery()!=null)
+                    return null;
         request.addSelect("iri");
         request.addSelect("name");
         if (query.isActiveOnly())

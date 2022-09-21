@@ -1,0 +1,24 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http://endhealth.info/im#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http://snomed.info/sct#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
+PREFIX con: <http://www.ontotext.com/connectors/lucene#>
+SELECT distinct ?entity  ?p5 ?p6
+WHERE {[] a con-inst:im_fts;
+       con:query "label:(causative*)" ;
+       con:entities ?entity.
+?entity <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type1.
+Filter (?type1 in (<http://endhealth.info/im#Concept>))
+?entity im:status im:Active.
+?entity <http://endhealth.info/im#isA> ?isA2.
+?isA2 <http://www.w3.org/2000/01/rdf-schema#domain> ?domain3.
+?domain3 ^im:isA ?subtype4.
+Filter (?subtype4=<http://snomed.info/sct#674814021000119106>)
+ OPTIONAL { ?entity <http://endhealth.info/im#code> ?p5.}
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p6.}
+}
+ORDER BY DESC(strstarts(lcase(?p6),"causative")) ASC(strlen(?p6))

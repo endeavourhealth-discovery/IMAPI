@@ -419,7 +419,7 @@ public class SparqlConverter {
 						return select.getProperty().getAlias();
 					}
 				}
-		return null;
+			return "label";
 	}
 
 

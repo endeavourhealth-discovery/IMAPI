@@ -18,16 +18,9 @@ public class Query extends QueryClause {
 	private List<Query> subQuery;
 	private boolean activeOnly;
 	private boolean usePrefixes;
-	private TTAlias test;
 
-	public TTAlias getTest() {
-		return test;
-	}
 
-	public Query setTest(TTAlias test) {
-		this.test = test;
-		return this;
-	}
+
 
 	public boolean isUsePrefixes() {
 		return usePrefixes;

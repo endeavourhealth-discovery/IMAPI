@@ -201,6 +201,8 @@ public class IM {
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
     public static final TTIriRef ORDER = iri(NAMESPACE + "order");
+    public static final TTIriRef EXAMPLE = iri(NAMESPACE + "example");
+
 
     //im1
     public static final TTIriRef IM1ID = iri(NAMESPACE + "im1Id");

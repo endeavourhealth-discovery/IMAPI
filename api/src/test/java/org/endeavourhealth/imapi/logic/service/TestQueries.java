@@ -1,8 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
@@ -69,6 +72,65 @@ public class TestQueries {
 			.select(RDFS.LABEL.getIri())
 			.select(IM.CODE.getIri());
 		return new QueryRequest().setQuery(query);
+	}
+
+	public static QueryRequest getAllowableRanges() throws JsonProcessingException {
+		QueryRequest qr = new QueryRequest()
+			.setQuery((Query) new Query()
+				.setName("Allowable Ranges for a property")
+				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
+				.setActiveOnly(true)
+				.with(f -> f
+					.addType(IM.CONCEPT))
+				.select(IM.CODE.getIri())
+				.select(RDFS.LABEL.getIri())
+				.where(w -> w
+					.setProperty(new TTAlias(RDFS.RANGE).setInverse(true))
+					.setIs(new TTAlias().setVariable("$this").setIncludeSupertypes(true).setIncludeSubtypes(true))
+				));
+		qr.addArgument("this","http://snomed.info/sct#42752001");
+		return qr;
+	}
+
+	public static QueryRequest getAllowableProperties() throws JsonProcessingException {
+		QueryRequest qr= new QueryRequest().query(q->q
+				.setName("Allowable Properties for a concept")
+				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
+				.setActiveOnly(true)
+				.with(f ->f
+					.addType(TTAlias.iri(IM.CONCEPT.getIri()).setIncludeSubtypes(true)))
+				.select(IM.CODE.getIri())
+				.select(RDFS.LABEL.getIri())
+				.where(w->w
+					.setProperty(new TTAlias(RDFS.DOMAIN))
+					.setIs(new TTAlias().setVariable("$this").setIncludeSupertypes(true))
+				));
+		qr.addArgument("this",SNOMED.NAMESPACE+"840539006");
+		return qr;
+	}
+
+	public static QueryRequest getConcepts() throws JsonProcessingException {
+		QueryRequest qr= new QueryRequest()
+			.query(q ->q
+				.setActiveOnly(true)
+				.setName("Search for concepts")
+				.with(w->w
+					.addType(TTAlias.iri(IM.CONCEPT.getIri())))
+				.select(s->s
+					.setProperty(RDFS.LABEL)))
+			.setTextSearch("chest pain");
+		return qr;
+	}
+
+	public static  QueryRequest getIsas() throws JsonProcessingException {
+		QueryRequest qr= new QueryRequest()
+			.query(q-> q
+				.setName("All subtypes of an entity, active only")
+				.setActiveOnly(true)
+				.with(w->w.setInstance(new TTAlias().setVariable("$this").setIncludeSubtypes(true)))
+				.select(s->s.setProperty(RDFS.LABEL)));
+		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
+		return qr;
 	}
 
 	public static QueryRequest query5(){

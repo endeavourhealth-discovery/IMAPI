@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -14,11 +12,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"alias","from","notExist","not","inverse","path","property","in","range","and","or","compare","function","argument","value"})
+@JsonPropertyOrder({"alias","from","graph","path","notExist","not","inverse","property","in","range","and","or","compare","function","argument","value"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
-	private String name;
+	private String description;
 	private String from;
 	private String graph;
 	private boolean not;
@@ -90,12 +88,12 @@ public class Where {
 		return this;
 	}
 
-	public String getName() {
-		return name;
+	public String getDescription() {
+		return description;
 	}
 
-	public Where setName(String name) {
-		this.name = name;
+	public Where setDescription(String description) {
+		this.description = description;
 		return this;
 	}
 
@@ -134,7 +132,6 @@ public class Where {
 		return this;
 	}
 
-	@JsonIgnore
 	public Where value(Consumer<Value> builder){
 		this.value= new Value();
 		builder.accept(value);

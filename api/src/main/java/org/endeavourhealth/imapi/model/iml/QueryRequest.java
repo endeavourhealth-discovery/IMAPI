@@ -114,7 +114,6 @@ public class QueryRequest{
 		return this;
 	}
 
-	@JsonIgnore
 	public QueryRequest query(Consumer<Query> builder) {
 		this.query= new Query();
 		builder.accept(this.query);

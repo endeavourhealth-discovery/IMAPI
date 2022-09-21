@@ -17,11 +17,19 @@ import java.util.zip.DataFormatException;
 
 class SearchServiceTest {
 
+	private String testDefinitions;
+	private String testResults;
+	private String testSparql;
 
-	// @Test
+
+
+	//@Test
 	void queryIM() throws DataFormatException, IOException {
+		testDefinitions= System.getenv("testDefinitions");
+		testResults= System.getenv("testResults");
+		testSparql = System.getenv("testSparql");
 
-		for (QueryRequest qr: List.of(TestQueries.query2(),TestQueries.query1(),
+		for (QueryRequest qr: List.of(TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.getIsas(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr);
 		}
@@ -29,12 +37,12 @@ class SearchServiceTest {
 	}
 
 
-	private static void output(QueryRequest dataSet) throws IOException, DataFormatException {
+	private void output(QueryRequest dataSet) throws IOException, DataFormatException {
 		
 		String name= dataSet.getQuery().getName();
 		SearchService searchService = new SearchService();
 		System.out.println("Testing "+ name);
-		try (FileWriter wr = new FileWriter("C:\\Users\\david\\CloudStation\\EhealthTrust\\DiscoveryDataService\\IMAPI\\TestQueries\\Definitions\\" + name + ".json")) {
+		try (FileWriter wr = new FileWriter(testDefinitions+ "\\" + name + ".json")) {
 			wr.write(dataSet.getJson());
 		}
 		ObjectMapper om= new ObjectMapper();
@@ -44,15 +52,14 @@ class SearchServiceTest {
 		SparqlConverter converter= new SparqlConverter(dataSet);
 
 		String spq= converter.getSelectSparql();
-		try (FileWriter wr = new FileWriter("c:\\\\TestQuerySpq-iml\\" + name + "_result.json")) {
+		try (FileWriter wr = new FileWriter(testSparql+"\\" + name + "_result.json")) {
 			wr.write(spq);
 		}
 
 		TTDocument result = searchService.queryIM(dataSet);
-		try (FileWriter wr = new FileWriter("C:\\Users\\david\\CloudStation\\EhealthTrust\\DiscoveryDataService\\IMAPI\\TestQueries\\Results\\" + name + "_result.json")) {
+		try (FileWriter wr = new FileWriter(testResults+"\\" + name + "_result.json")) {
 			wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 		}
-
 
 
 	}

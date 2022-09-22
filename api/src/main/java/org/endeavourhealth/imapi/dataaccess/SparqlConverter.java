@@ -215,31 +215,39 @@ public class SparqlConverter {
 				where(whereQl, subject, where.getNotExist());
 				whereQl.append("}\n");
 			}
-			else if (where.getProperty()!=null){
-					whereProperty(whereQl, subject, where);
-			}
 			else {
-				if (where.getAnd() != null) {
-					for (Where and : where.getAnd()) {
-						where(whereQl, subject, and);
-					}
+				//Looks for just the in check i.e. looking for subclasses.
+				if (where.getIn() != null || where.getIs() != null) {
+					if (where.getProperty() == null)
+						if (where.getAnd() == null && where.getOr() == null & where.getWhere() == null)
+							where.setProperty(IM.IS_A);
 				}
-				if (where.getOr() != null) {
-					for (int i = 0; i < where.getOr().size(); i++) {
-						if (i == 0)
-							whereQl.append("{ \n");
-						else
-							whereQl.append("UNION {\n");
-						where(whereQl, subject, where.getOr().get(i));
-					}
+				if (where.getProperty() != null) {
+					whereProperty(whereQl, subject, where);
 				}
-			}
-			if (subject.equals("entity")) {
-						if (query.isActiveOnly()) {
-							whereQl.append("?").append(subject).append(" im:status im:Active.\n");
+				else {
+					if (where.getAnd() != null) {
+						for (Where and : where.getAnd()) {
+							where(whereQl, subject, and);
 						}
 					}
-				if (where.getGraph() != null) {
+					if (where.getOr() != null) {
+						for (int i = 0; i < where.getOr().size(); i++) {
+							if (i == 0)
+								whereQl.append("{ \n");
+							else
+								whereQl.append("UNION {\n");
+							where(whereQl, subject, where.getOr().get(i));
+						}
+					}
+				}
+				if (subject.equals("entity")) {
+					if (query.isActiveOnly()) {
+						whereQl.append("?").append(subject).append(" im:status im:Active.\n");
+					}
+				}
+			}
+			if (where.getGraph() != null) {
 					whereQl.append("}\n");
 				}
 			}
@@ -256,7 +264,7 @@ public class SparqlConverter {
 		String path = where.getProperty().getIri();
 		String inverse= where.getProperty().isInverse() ? "^" : "";
 		o++;
-		String object= localName(path)+o;
+		String object= "o"+o;
 
 
 		whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(path))
@@ -279,6 +287,7 @@ public class SparqlConverter {
 				where(whereQl, object, where.getOr().get(i));
 			}
 		}
+
 		if (where.getProperty().equals(IM.IS_A)){
 			whereIsa(whereQl,object,where);
 		}

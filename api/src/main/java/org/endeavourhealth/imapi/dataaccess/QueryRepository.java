@@ -83,7 +83,7 @@ public class QueryRepository {
                 } else {
                     TTEntity entity = getEntity(query.getIri(), conn);
                     try (CachedObjectMapper om = new CachedObjectMapper()) {
-                        return om.readValue(entity.get(IM.QUERY_DEFINITION).asLiteral().getValue(), Query.class);
+                        return om.readValue(entity.get(IM.DEFINITION).asLiteral().getValue(), Query.class);
                     }
                 }
             }
@@ -365,7 +365,7 @@ public class QueryRepository {
     }
 
     private TTEntity getEntity(String iri, RepositoryConnection conn) throws DataFormatException {
-        String predList = "<" + IM.QUERY_DEFINITION.getIri() + ">,<" + RDF.TYPE.getIri() + ">,<" + IM.FUNCTION_DEFINITION.getIri() + ">";
+        String predList = "<" + IM.DEFINITION.getIri() + ">,<" + RDF.TYPE.getIri() + ">,<" + IM.FUNCTION_DEFINITION.getIri() + ">";
         String sql = new StringJoiner(System.lineSeparator())
             .add("Select ?entity ?p ?o")
             .add("where {")
@@ -388,8 +388,8 @@ public class QueryRepository {
                 String object = bs.getValue("o").stringValue();
                 if (predicate.equals(RDF.TYPE.getIri()))
                     entity.set(RDF.TYPE, TTIriRef.iri(object));
-                else if (predicate.equals(IM.QUERY_DEFINITION.getIri())) {
-                    entity.set(IM.QUERY_DEFINITION, TTLiteral.literal(bs.getValue("o").stringValue()));
+                else if (predicate.equals(IM.DEFINITION.getIri())) {
+                    entity.set(IM.DEFINITION, TTLiteral.literal(bs.getValue("o").stringValue()));
                 } else
                     entity.set(IM.FUNCTION_DEFINITION, TTLiteral.literal(object));
             }

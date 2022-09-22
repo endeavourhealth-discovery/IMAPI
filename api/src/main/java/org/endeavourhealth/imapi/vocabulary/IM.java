@@ -214,7 +214,6 @@ public class IM {
     public static final TTIriRef VALUE_SELECT = iri(NAMESPACE + "valueSelect");
     public static final TTIriRef VALUE_VARIABLE = iri(NAMESPACE + "valueVariable");
     public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
-    public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE + "query");
     public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
     // ODS

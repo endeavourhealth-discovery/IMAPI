@@ -26,8 +26,8 @@ public class Where {
 	private TTAlias is;
 	private Range range;
 	private List<Argument> argument;
-	private List<Where> or;
 	private List<Where> and;
+	private List<Where> or;
 	private Where notExist;
 	private Function function;
 	private Where where;

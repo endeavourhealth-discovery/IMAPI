@@ -186,7 +186,6 @@ public class TestQueries {
 			.select(RDFS.LABEL)
 			.where(w->w
 				.and(a->a
-					.setProperty(IM.IS_A)
 					.setIs(TTAlias.iri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true)))
 				.and(a->a
 					.setPath(IM.ROLE_GROUP.getIri())

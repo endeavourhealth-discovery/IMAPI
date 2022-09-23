@@ -1,12 +1,6 @@
 {
   "query" : {
     "name" : "AsthmaSubTypesCore",
-    "with" : {
-      "instance" : {
-        "@id" : "http://snomed.info/sct#195967001",
-        "includeSubtypes" : true
-      }
-    },
     "select" : [ {
       "property" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
@@ -14,6 +8,12 @@
     }, {
       "property" : {
         "@id" : "http://endhealth.info/im#code"
+      }
+    } ],
+    "from" : [ {
+      "instance" : {
+        "@id" : "http://snomed.info/sct#195967001",
+        "includeSubtypes" : true
       }
     } ],
     "usePrefixes" : true

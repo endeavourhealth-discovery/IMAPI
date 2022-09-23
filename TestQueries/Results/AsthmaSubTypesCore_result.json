@@ -129,7 +129,7 @@
     "im:code" : "418395004"
   }, {
     "@id" : "sn:56968009",
-    "rdfs:label" : [ "Wood asthma (disorder)", "Asthma caused by wood dust (disorder)" ],
+    "rdfs:label" : "Asthma caused by wood dust (disorder)",
     "im:code" : "56968009"
   }, {
     "@id" : "sn:424199006",
@@ -153,7 +153,7 @@
     "im:code" : "59786004"
   }, {
     "@id" : "sn:63088003",
-    "rdfs:label" : [ "Extrinsic asthma without status asthmaticus (disorder)", "Allergic asthma without status asthmaticus (disorder)" ],
+    "rdfs:label" : "Allergic asthma without status asthmaticus (disorder)",
     "im:code" : "63088003"
   }, {
     "@id" : "sn:67415000",

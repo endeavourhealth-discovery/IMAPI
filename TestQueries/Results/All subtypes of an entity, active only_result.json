@@ -241,28 +241,28 @@
     "http://www.w3.org/2000/01/rdf-schema#label" : "Emotional abuse of elderly person"
   }, {
     "@id" : "http://snomed.info/sct#392341000000100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes, by other specified persons (event)", "[X]Other maltreatment syndromes, by other specified persons (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by other specified persons (finding)"
   }, {
     "@id" : "http://snomed.info/sct#392651000000107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes, by spouse or partner (event)", "[X]Other maltreatment syndromes, by spouse or partner (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by spouse or partner (finding)"
   }, {
     "@id" : "http://snomed.info/sct#392771000000107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes - cause (event)", "[X]Other maltreatment syndromes - cause (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes - cause (finding)"
   }, {
     "@id" : "http://snomed.info/sct#404391000000107",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes, by unspecified person (event)", "[X]Other maltreatment syndromes, by unspecified person (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by unspecified person (finding)"
   }, {
     "@id" : "http://snomed.info/sct#430531000000101",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[V]Child abuse (situation)", "[V]Child abuse (context-dependent category)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[V]Child abuse (context-dependent category)"
   }, {
     "@id" : "http://snomed.info/sct#434811000000100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes, by acquaintance or friend (event)", "[X]Other maltreatment syndromes, by acquaintance or friend (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by acquaintance or friend (finding)"
   }, {
     "@id" : "http://snomed.info/sct#459061000000105",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes, by official authorities (event)", "[X]Other maltreatment syndromes, by official authorities (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by official authorities (finding)"
   }, {
     "@id" : "http://snomed.info/sct#474391000000104",
-    "http://www.w3.org/2000/01/rdf-schema#label" : [ "[X]Other maltreatment syndromes, by parent (event)", "[X]Other maltreatment syndromes, by parent (finding)" ]
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other maltreatment syndromes, by parent (finding)"
   }, {
     "@id" : "http://snomed.info/sct#545051000000101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Neglect affecting child NEC (event)"

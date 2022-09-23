@@ -20,7 +20,7 @@ class TTToStringTest {
         defaults.put("http://endhealth.info/im#roleGroup", "Match");
         defaults.put("http://www.w3.org/2002/07/owl#equivalentClass", "Is equivalent to");
         defaults.put("http://www.w3.org/2002/07/owl#intersectionOf", "Combination of");
-        defaults.put("http://www.w3.org/2002/07/owl#someValuesFrom", "With a value");
+        defaults.put("http://www.w3.org/2002/07/owl#someValuesFrom", "From a value");
         defaults.put("http://www.w3.org/2002/07/owl#onProperty", "On property");
         return defaults;
     }
@@ -127,31 +127,31 @@ class TTToStringTest {
                 "  <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23298382003\">Scoliosis deformity of spine</a>\n" +
                 "  <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2382354003\">Multiple system malformation syndrome</a>\n" +
                 "  <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2385995004\">Autosomal recessive hereditary disorder</a>\n" +
-                "  ( With a value : \n" +
+                "  ( From a value : \n" +
                 "    Combination of : \n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005\">Lateral abnormal curvature</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005\">Lateral abnormal curvature</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23116676008\">Associated morphology</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001\">Musculoskeletal structure of spine</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001\">Musculoskeletal structure of spine</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363698007\">Finding site</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002\">Pathological developmental process</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002\">Pathological developmental process</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23370135005\">Pathological process</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
                 "    On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fendhealth.info%2Fim%23roleGroup\">role group</a>\n" +
                 "    type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
-                "  ( With a value : \n" +
+                "  ( From a value : \n" +
                 "    Combination of : \n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003\">Morphologically abnormal structure</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003\">Morphologically abnormal structure</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23116676008\">Associated morphology</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007\">Congenital</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007\">Congenital</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23246454002\">Occurrence</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009\">Skeletal muscle structure</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009\">Skeletal muscle structure</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363698007\">Finding site</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
-                "      ( With a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002\">Pathological developmental process</a>\n" +
+                "      ( From a value : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002\">Pathological developmental process</a>\n" +
                 "        On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23370135005\">Pathological process</a>\n" +
                 "        type : <a href=\"" + "/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction\">Restriction</a> )\n" +
                 "    On property : <a href=\"" + "/viewer/#/concept/http:%2F%2Fendhealth.info%2Fim%23roleGroup\">role group</a>\n" +

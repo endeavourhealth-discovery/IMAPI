@@ -4,15 +4,15 @@
   },
   "query" : {
     "name" : "All subtypes of an entity, active only",
-    "with" : {
-      "instance" : {
-        "variable" : "$this",
-        "includeSubtypes" : true
-      }
-    },
     "select" : [ {
       "property" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    } ],
+    "from" : [ {
+      "instance" : {
+        "variable" : "$this",
+        "includeSubtypes" : true
       }
     } ],
     "activeOnly" : true

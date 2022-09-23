@@ -7,18 +7,16 @@ PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
 PREFIX con: <http://www.ontotext.com/connectors/lucene#>
-SELECT distinct ?entity  ?p5 ?p6
+SELECT distinct ?entity  ?p4 ?p5
 WHERE {[] a con-inst:im_fts;
        con:query "label:(causative*)" ;
        con:entities ?entity.
-?entity <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type1.
-Filter (?type1 in (<http://endhealth.info/im#Concept>))
-?entity <http://endhealth.info/im#isA> ?isA2.
-?isA2 <http://www.w3.org/2000/01/rdf-schema#domain> ?domain3.
-?domain3 ^im:isA ?subtype4.
-Filter (?subtype4=<http://snomed.info/sct#674814021000119106>)
+?entity <http://endhealth.info/im#isA> ?o1.
+?o1 <http://www.w3.org/2000/01/rdf-schema#domain> ?o2.
+?o2 ^im:isA ?subtype3.
+Filter (?subtype3=<http://snomed.info/sct#674814021000119106>)
 ?entity im:status im:Active.
- OPTIONAL { ?entity <http://endhealth.info/im#code> ?p5.}
- OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p6.}
+ OPTIONAL { ?entity <http://endhealth.info/im#code> ?p4.}
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p5.}
 }
-ORDER BY DESC(strstarts(lcase(?p6),"causative")) ASC(strlen(?p6))
+ORDER BY DESC(strstarts(lcase(?p5),"causative")) ASC(strlen(?p5))

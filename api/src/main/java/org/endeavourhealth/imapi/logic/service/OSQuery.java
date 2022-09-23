@@ -496,9 +496,6 @@ public class OSQuery {
         }
         request.setTermFilter(imRequest.getTextSearch());
         Query query = imRequest.getQuery();
-        if (query.getWith()!=null)
-            if (query.getWith().getQuery()!=null)
-                    return null;
         request.addSelect("iri");
         request.addSelect("name");
         if (query.isActiveOnly())
@@ -530,12 +527,16 @@ public class OSQuery {
                 }
             }
         }
-        With with = query.getWith();
-            if (with.getType()!=null){
-                for (TTAlias type: with.getType())
-                    request.addType(type.getIri());
+        List<From> fromList = query.getFrom();
+        if (fromList!=null){
+            for (From from:fromList){
+                if (from.getInstance()!=null)
+                    return null;
+                else if (from.getAlias()!=null)
+                    return null;
+                else  request.addType(from.getType().getIri());
             }
-
+        }
         return request;
     }
 

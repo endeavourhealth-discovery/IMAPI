@@ -43,7 +43,7 @@ public class TestQueries {
 			.setDescription("all of the data model properties for entities that have a property df a data of birth")
 			.setUsePrefixes(true);
 		query
-			.with(f->f.addType(new TTAlias(SHACL.NODESHAPE)))
+			.from(f->f.setType(new TTAlias(SHACL.NODESHAPE)))
 			.select(s->s
 				.setProperty(SHACL.PROPERTY.getIri())
 					.select(s1->s1.setProperty(SHACL.PATH))
@@ -67,7 +67,7 @@ public class TestQueries {
 			.setName("AsthmaSubTypesCore");
 		query
 			.setUsePrefixes(true)
-			.with(f ->f
+			.from(f ->f
 				.setInstance(new TTAlias().setIri(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true)))
 			.select(RDFS.LABEL.getIri())
 			.select(IM.CODE.getIri());
@@ -80,8 +80,8 @@ public class TestQueries {
 				.setName("Allowable Ranges for a property")
 				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
 				.setActiveOnly(true)
-				.with(f -> f
-					.addType(IM.CONCEPT))
+				.from(f -> f
+					.setType(IM.CONCEPT))
 				.select(IM.CODE.getIri())
 				.select(RDFS.LABEL.getIri())
 				.where(w -> w
@@ -97,8 +97,8 @@ public class TestQueries {
 				.setName("Allowable Properties for a concept")
 				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
 				.setActiveOnly(true)
-				.with(f ->f
-					.addType(TTAlias.iri(IM.CONCEPT.getIri()).setIncludeSubtypes(true)))
+				.from(f ->f
+					.setType(TTAlias.iri(IM.CONCEPT.getIri()).setIncludeSubtypes(true)))
 				.select(IM.CODE.getIri())
 				.select(RDFS.LABEL.getIri())
 				.where(w->w
@@ -114,8 +114,8 @@ public class TestQueries {
 			.query(q ->q
 				.setActiveOnly(true)
 				.setName("Search for concepts")
-				.with(w->w
-					.addType(TTAlias.iri(IM.CONCEPT.getIri())))
+				.from(w->w
+					.setType(TTAlias.iri(IM.CONCEPT.getIri())))
 				.select(s->s
 					.setProperty(RDFS.LABEL)))
 			.setTextSearch("chest pain");
@@ -127,7 +127,7 @@ public class TestQueries {
 			.query(q-> q
 				.setName("All subtypes of an entity, active only")
 				.setActiveOnly(true)
-				.with(w->w.setInstance(new TTAlias().setVariable("$this").setIncludeSubtypes(true)))
+				.from(w->w.setInstance(new TTAlias().setVariable("$this").setIncludeSubtypes(true)))
 				.select(s->s.setProperty(RDFS.LABEL)));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
@@ -142,8 +142,8 @@ public class TestQueries {
 				.setActiveOnly(true)
 				.setUsePrefixes(true);
 			query
-				.with(f ->f
-					.addType(IM.CONCEPT))
+				.from(f ->f
+					.setType(IM.CONCEPT))
 				.select(IM.CODE.getIri())
 				.select(RDFS.LABEL.getIri())
 				.where(w->w
@@ -183,10 +183,12 @@ public class TestQueries {
 		Query query= new Query()
 			.setName("oral none steroidals")
 			.setUsePrefixes(true)
+
 			.select(RDFS.LABEL)
 			.where(w->w
 				.and(a->a
-					.setIs(TTAlias.iri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true)))
+					.from(f->f
+						.setInstance(TTAlias.iri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true))))
 				.and(a->a
 					.setPath(IM.ROLE_GROUP.getIri())
 					.and(a1->a1

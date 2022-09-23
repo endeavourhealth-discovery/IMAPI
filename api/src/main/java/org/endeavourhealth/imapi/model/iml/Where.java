@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -17,12 +16,12 @@ import java.util.function.Consumer;
 public class Where {
 	private String alias;
 	private String description;
-	private String from;
+	private List<From> from;
 	private String graph;
 	private boolean not;
 	private String path;
 	private TTAlias property;
-	private List<TTIriRef> in;
+	private List<TTAlias> in;
 	private TTAlias is;
 	private Range range;
 	private List<Argument> argument;
@@ -79,12 +78,27 @@ public class Where {
 		return this;
 	}
 
-	public String getFrom() {
+	public List<From> getFrom() {
 		return from;
 	}
 
-	public Where setFrom(String from) {
+	@JsonSetter
+	public Where setFrom(List<From> from) {
 		this.from = from;
+		return this;
+	}
+
+	public Where addFrom(From from){
+		if (this.from==null)
+			this.from= new ArrayList<>();
+		this.from.add(from);
+		return this;
+	}
+
+	public Where from(Consumer<From> builder) {
+		From from= new From();
+		this.addFrom(from);
+		builder.accept(from);
 		return this;
 	}
 
@@ -225,16 +239,16 @@ public class Where {
 
 
 
-	public List<TTIriRef> getIn() {
+	public List<TTAlias> getIn() {
 		return in;
 	}
 
-	public Where setIn(List<TTIriRef> in) {
+	public Where setIn(List<TTAlias> in) {
 		this.in = in;
 		return this;
 	}
 
-	public Where addIn(TTIriRef in){
+	public Where addIn(TTAlias in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
 		this.in.add(in);

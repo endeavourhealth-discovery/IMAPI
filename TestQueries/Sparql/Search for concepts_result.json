@@ -7,12 +7,10 @@ PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>
 PREFIX con: <http://www.ontotext.com/connectors/lucene#>
-SELECT distinct ?entity  ?p2
+SELECT distinct ?entity  ?p1
 WHERE {[] a con-inst:im_fts;
        con:query "label:(chest* && pain*)" ;
        con:entities ?entity.
-?entity <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type1.
-Filter (?type1 in (<http://endhealth.info/im#Concept>))
- OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p2.}
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p1.}
 }
-ORDER BY DESC(strstarts(lcase(?p2),"chest")) ASC(strlen(?p2))
+ORDER BY DESC(strstarts(lcase(?p1),"chest")) ASC(strlen(?p1))

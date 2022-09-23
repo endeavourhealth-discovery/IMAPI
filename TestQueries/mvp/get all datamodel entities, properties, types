@@ -1,7 +1,7 @@
 {
   "query": {
-    "name": "get entities with property",
-    "description": "get entities with property",
+    "name": "get entities from property",
+    "description": "get entities from property",
     "mainEntity": {
       "@id": "http://www.w3.org/ns/shacl#NodeShape"
     },

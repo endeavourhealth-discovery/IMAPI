@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.ecl.ECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.ecl.ECLLexer;
@@ -21,7 +22,9 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 	private final ECLParser parser;
 	private String ecl;
 	private Query query;
+	private Where mainOr;
 	public static final String ROLE_GROUP = IM.ROLE_GROUP.getIri();
+
 
 
 	public ECLToIML() {
@@ -32,18 +35,50 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		this.query= new Query();
 	}
 
-	public TTValue getClassExpression(String ecl) throws DataFormatException {
+	public Query getClassExpression(String ecl) throws DataFormatException {
 		this.ecl = ecl;
 		lexer.setInputStream(CharStreams.fromString(ecl));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		parser.setTokenStream(tokens);
 		ECLParser.ExpressionconstraintContext eclCtx = parser.expressionconstraint();
-		return convertECContext(eclCtx);
+		query= new Query();
+		Where where= convertECContext(eclCtx);
+		Where flatWhere= flattenWhere(where);
+		query.setWhere(flatWhere);
+
+		return query;
+	}
+
+	private Where flattenWhere(Where where) {
+		Where flatWhere= new Where();
+		if (where.getOr()!=null){
+			for (Where or:where.getOr()) {
+				if (or.getIs() != null)
+					if (or.getAnd() == null) {
+						if (or.getOr() == null) {
+							if (or.getNotExist() == null) {
+								if (or.getProperty().equals(IM.IS_A)) {
+									flatWhere.setProperty(IM.IS_A);
+									flatWhere.addIn(or.getIs());
+								}
+							} else {
+								flatWhere.addOr(or);
+							}
+						} else {
+							flatWhere.addOr(or);
+						}
+					}
+				else
+					flatWhere.addOr(or);
+			}
+		}
+		else
+			flatWhere= where;
+		return flatWhere;
 	}
 
 
-
-	private TTValue convertECContext(ECLParser.ExpressionconstraintContext ctx) throws DataFormatException {
+	private Where convertECContext(ECLParser.ExpressionconstraintContext ctx) throws DataFormatException {
 		if (ctx.subexpressionconstraint() != null) {
 			return convertSubECContext(ctx.subexpressionconstraint());
 		} else if (ctx.compoundexpressionconstraint() != null) {
@@ -70,112 +105,117 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		return refined.subexpressionconstraint() != null && refined.subexpressionconstraint().eclfocusconcept() != null && refined.subexpressionconstraint().eclfocusconcept().wildcard() != null;
 	}
 
-	private TTValue convertRefined(ECLParser.RefinedexpressionconstraintContext refined) throws DataFormatException {
-		TTNode exp=new TTNode();
+	private Where convertRefined(ECLParser.RefinedexpressionconstraintContext refined) throws DataFormatException {
+		Where mainWhere= new Where();
 		if (!isWildCard(refined)){
-			exp.set(SHACL.AND,new TTArray());
 			if (refined.subexpressionconstraint().expressionconstraint() != null) {
-				exp.get(SHACL.AND).add(convertECContext(refined.subexpressionconstraint().expressionconstraint()).asNode());
+				mainWhere.addAnd(convertECContext(refined.subexpressionconstraint().expressionconstraint()));
 			} else {
-				exp.get(SHACL.AND).add(convertSubECContext(refined.subexpressionconstraint()));
+				mainWhere.addAnd(convertSubECContext(refined.subexpressionconstraint()));
 			}
+		}
+		else {
+			mainWhere.and(a-> a
+			 .setProperty(IM.IS_A)
+			.setIs(new TTAlias(IM.CONCEPT).setIncludeSubtypes(true)));
 		}
 
 		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
 		ECLParser.SubrefinementContext subref = refinement.subrefinement();
 		if (subref.eclattributeset() != null) {
-			if (exp.get(SHACL.AND)!=null) {
-				TTNode pv= new TTNode();
-				exp.get(SHACL.AND).add(pv);
-				convertAttributeSet(pv,subref.eclattributeset());
-			}
-			else {
-				convertAttributeSet(exp, subref.eclattributeset()).asNode();
-			}
-		} else if (subref.eclattributegroup() != null) {
-			exp.set(IM.ROLE_GROUP,new TTArray());
-			TTNode group= new TTNode();
-			exp.get(IM.ROLE_GROUP).add(group);
-			convertAttributeGroup(group, subref.eclattributegroup());
-		} else
+			Where pv= new Where();
+			mainWhere.addAnd(pv);
+			pv.setPath(IM.ROLE_GROUP.getIri());
+			convertAttributeSet(pv,subref.eclattributeset());
+		}
+		else if (subref.eclattributegroup() != null) {
+			Where pv= new Where();
+			mainWhere.addAnd(pv);
+			pv.setPath(IM.ROLE_GROUP.getIri());
+			convertAttributeGroup(pv, subref.eclattributegroup());
+		}
+		else
 			throw new UnknownFormatConversionException("ECL attribute format not supported " + ecl);
 		if (refinement.conjunctionrefinementset() != null) {
+			Where pv= new Where();
+			mainWhere.addAnd(pv);
+			pv.setPath(IM.ROLE_GROUP.getIri());
 			for (ECLParser.SubrefinementContext subref2 : refinement.conjunctionrefinementset().subrefinement()) {
-				TTNode group= new TTNode();
-				exp.get(IM.ROLE_GROUP).add(group);
-				convertAttributeGroup(group, subref2.eclattributegroup());
+				Where refinedGroup= new Where();
+				pv.addAnd(refinedGroup);
+				convertAttributeGroup(refinedGroup, subref2.eclattributegroup());
 			}
 
 		}
-		return exp;
+		return mainWhere;
 	}
 
-	private TTNode convertAttributeSet(TTNode pv,ECLParser.EclattributesetContext eclAtSet) throws DataFormatException {
+	private Where convertAttributeSet(Where where,ECLParser.EclattributesetContext eclAtSet) throws DataFormatException {
 		if (eclAtSet.subattributeset() != null) {
 			if (eclAtSet.subattributeset().eclattribute() != null) {
-				convertAttribute(pv,eclAtSet.subattributeset().eclattribute());
+				Where attWhere= new Where();
+				if(eclAtSet.conjunctionattributeset()!=null) {
+					where.addAnd(attWhere);
+				}
+				else
+					where.setWhere(attWhere);
+				convertAttribute(attWhere, eclAtSet.subattributeset().eclattribute());
+				}
 			}
 			if (eclAtSet.conjunctionattributeset() != null) {
-				convertAndAttributeSet(pv, eclAtSet.conjunctionattributeset());
+				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset());
 			}
-			return pv;
-		}
-		throw new UnknownFormatConversionException("ECL Attribute format not supoorted " + ecl);
+			return where;
 	}
 
-	private TTNode convertAndAttributeSet(TTNode pv, ECLParser
+	private Where convertAndAttributeSet(Where where, ECLParser
 		.ConjunctionattributesetContext eclAtAnd) throws DataFormatException {
 		for (ECLParser.SubattributesetContext subAt : eclAtAnd.subattributeset()) {
-			convertAttribute(pv,subAt.eclattribute());
+			Where and= new Where();
+			where.addAnd(and);
+			convertAttribute(and,subAt.eclattribute());
 		}
-		return pv;
+		return where;
 	}
 
 
-	private TTValue convertConjunction(ECLParser.ConjunctionexpressionconstraintContext eclAnd) throws DataFormatException {
-		TTNode exp = new TTNode();
-		TTArray inters= new TTArray();
-		exp.set(SHACL.AND,inters);
+	private Where convertConjunction(ECLParser.ConjunctionexpressionconstraintContext eclAnd) throws DataFormatException {
+		Where where= new Where();
 		for (ECLParser.SubexpressionconstraintContext eclInter : eclAnd.subexpressionconstraint()) {
-			inters.add(convertSubECContext(eclInter));
+			where.addAnd(convertSubECContext(eclInter));
 		}
-		return exp;
+		return where;
 	}
 
-	private TTValue convertExclusion(ECLParser.ExclusionexpressionconstraintContext eclExc) throws DataFormatException {
-		TTNode exp = new TTNode();
-		TTArray ands = new TTArray();
-		exp.set(SHACL.AND,ands);
-		ands.add(convertSubECContext(eclExc.subexpressionconstraint().get(0)));
-		TTNode not= new TTNode();
-		ands.add(not);
-		not.set(SHACL.NOT,convertSubECContext(eclExc.
+	private Where convertExclusion(ECLParser.ExclusionexpressionconstraintContext eclExc) throws DataFormatException {
+		Where where= new Where();
+		where.addAnd(convertSubECContext(eclExc.subexpressionconstraint().get(0)));
+		where.setNotExist(convertSubECContext(eclExc.
 			subexpressionconstraint().get(1)));
-		return exp;
+		return where;
 	}
 
-	private TTValue convertDisjunction(ECLParser.DisjunctionexpressionconstraintContext eclOr) throws DataFormatException {
-		TTNode exp = new TTNode();
-		TTArray unions= new TTArray();
-		exp.set(SHACL.OR,unions);
+	private Where convertDisjunction(ECLParser.DisjunctionexpressionconstraintContext eclOr) throws DataFormatException {
+		Where where= new Where();
 		for (ECLParser.SubexpressionconstraintContext eclUnion : eclOr.subexpressionconstraint()) {
-			unions.add(convertSubECContext(eclUnion));
+			where.addOr(convertSubECContext(eclUnion));
 		}
-		return exp;
+		return where;
 	}
 
-	private TTNode convertAttribute(TTNode pv,ECLParser.EclattributeContext attecl) throws DataFormatException {
-		TTIriRef property=getConRef(attecl.eclattributename()
-			.subexpressionconstraint()
-			.eclfocusconcept()
-			.eclconceptreference()
-			.conceptid());
+	private Where convertAttribute(Where where ,ECLParser.EclattributeContext attecl) throws DataFormatException {
+
+		ECLParser.ConceptidContext conceptId= attecl.eclattributename().subexpressionconstraint().eclfocusconcept().eclconceptreference().conceptid();
+		ECLParser.ConstraintoperatorContext entail= attecl.eclattributename().subexpressionconstraint().constraintoperator();
+		TTAlias property=getConRef(conceptId,entail);
 		if (attecl.expressioncomparisonoperator() != null) {
 			if (attecl.expressioncomparisonoperator().EQUALS() != null) {
 				if (attecl.subexpressionconstraint().eclfocusconcept() != null) {
-					pv.set(property,getConRef(attecl
-						.subexpressionconstraint().eclfocusconcept().eclconceptreference().conceptid()));
-					return pv;
+					where.setProperty(property);
+					where.setIs(getConRef(attecl
+						.subexpressionconstraint().eclfocusconcept().eclconceptreference().conceptid(),
+						attecl.subexpressionconstraint().constraintoperator()));
+					return where;
 				} else {
 					throw new UnknownFormatConversionException("multi nested ECL not yest supported " + ecl);
 				}
@@ -188,18 +228,28 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 	}
 
 
-	private TTIriRef getConRef(ECLParser.ConceptidContext conceptId) throws DataFormatException {
+	private TTAlias getConRef(ECLParser.ConceptidContext conceptId,ECLParser.ConstraintoperatorContext entail ) throws DataFormatException {
+		TTAlias conRef= new TTAlias();
 		String code=conceptId.getText();
 		if (code.matches("[0-9]+")) {
 			if (code.contains("1000252"))
-				return TTIriRef.iri(IM.NAMESPACE + code);
+				conRef.setIri(IM.NAMESPACE + code);
 			else
-				return TTIriRef.iri(SNOMED.NAMESPACE + code);
+				conRef.setIri(SNOMED.NAMESPACE + code);
 		} else
 			throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
+		if (entail.descendantorselfof()!=null)
+			conRef.setIncludeSubtypes(true);
+		else if (entail.descendantof()!=null){
+			conRef.setExcludeSelf(true);
+			conRef.setIncludeSubtypes(true);
+		}
+		return conRef;
+
 	}
 
-	private TTValue convertAttributeGroup(TTNode group,
+
+	private Where convertAttributeGroup(Where group,
 																				ECLParser.EclattributegroupContext eclGroup) throws DataFormatException {
 		if (eclGroup.eclattributeset()!=null) {
 			convertAttributeSet(group, eclGroup.eclattributeset());
@@ -209,30 +259,42 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			throw new DataFormatException("Unable to cope with this type of attribute group : "+ ecl);
 	}
 
-	private TTValue convertSubECContext(ECLParser.SubexpressionconstraintContext eclSub) throws DataFormatException {
+	private Where convertSubECContext(ECLParser.SubexpressionconstraintContext eclSub) throws DataFormatException {
 
 		if (eclSub.expressionconstraint() != null) {
 			return convertECContext(eclSub.expressionconstraint());
 		} else {
 			if (eclSub.eclfocusconcept() != null) {
-				ECLParser.ConstraintoperatorContext entail = eclSub.constraintoperator();
-				if (entail == null) {
-					TTNode exp = new TTNode();
-					if (eclSub.eclfocusconcept().eclconceptreference() != null && eclSub.eclfocusconcept().eclconceptreference().conceptid() != null) {
-						exp.set(IM.CODE, getConRef(eclSub.eclfocusconcept()
-							.eclconceptreference().conceptid()));
-					} else {
-						throw new DataFormatException("ECL string contains illegal characters, resulting in null concept reference error");
-					}
-					return exp;
-				}
-				else {
-					return getConRef(eclSub.eclfocusconcept().eclconceptreference().conceptid());
-				}
+				Where where = new Where();
+				pairPropertyValue(where,eclSub);
+					return where;
 			} else {
-				throw new UnknownFormatConversionException("Unrecognised ECL subexpressionconstraint " + ecl);
+				throw new UnknownFormatConversionException("Unrecognised ECL subexpression constraint " + ecl);
 
 			}
 		}
+	}
+
+	private void pairPropertyValue(Where where, ECLParser.SubexpressionconstraintContext eclSub) {
+		String concept= eclSub.eclfocusconcept().eclconceptreference().conceptid().getText();
+		String conceptIri;
+		if (concept.matches("[0-9]+")) {
+			conceptIri = concept.contains("1000252") ? IM.NAMESPACE + concept : SNOMED.NAMESPACE + concept;
+		}
+		else
+			conceptIri= concept;
+		if (eclSub.constraintoperator().descendantorselfof()!=null) {
+			where.setProperty(IM.IS_A)
+				.setIs(TTAlias.iri(conceptIri));
+		}
+		else if (eclSub.constraintoperator().descendantof()!=null){
+			where.setProperty(IM.IS_A)
+				.setIs(TTAlias.iri(conceptIri).setExcludeSelf(true));
+		}
+		else {
+			where.setProperty(IM.id)
+				.setIs(TTAlias.iri(conceptIri));
+		}
+
 	}
 }

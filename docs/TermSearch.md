@@ -7,7 +7,7 @@ QOF clode cluster acronyms are examples of keys.
 
 Paging is suppported in an approximate manner.
 
-Results are sorted according firstly by whether the matched term starts with the entered term and then by length as the shorter terms tend to be higher level concepts.
+Results are sorted according firstly by whether the matched term starts from the entered term and then by length as the shorter terms tend to be higher level concepts.
 
 The API accepts a Request document, which is a JSON document containing a number of filters.
 
@@ -43,7 +43,7 @@ page  |  page number
 size  | size per page 
 
 ### Response body
-An array of json documents conforming to a SearchReultSummary class, with the following optional fields
+An array of json documents conforming to a SearchReultSummary class, from the following optional fields
 
 field | meaning |
 --- | --- |
@@ -63,6 +63,6 @@ termCode  | object containing a term and code
  ...term  | term of the term code
 
 ### Logic
-SearchService is called with the controller and SearchService creates an open search query object.
+SearchService is called from the controller and SearchService creates an open search query object.
 OSQuery is an object that processes the open search request, creates the elastic query syntax, submits the search (using environment variables for authentication),
 and processes the response.

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonPropertyOrder ({"inverse","iri","name","alias","path"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -13,7 +14,27 @@ public class TTAlias extends TTIriRef {
 	private boolean includeSupertypes;
 	private boolean includeSubtypes;
 	private boolean includeMembers;
+	private boolean excludeSelf;
+	private boolean asType;
 
+	public boolean isAsType() {
+		return asType;
+	}
+
+	@JsonSetter
+	public TTAlias setAsType(boolean asType) {
+		this.asType = asType;
+		return this;
+	}
+
+	public boolean isExcludeSelf() {
+		return excludeSelf;
+	}
+
+	public TTAlias setExcludeSelf(boolean excludeSelf) {
+		this.excludeSelf = excludeSelf;
+		return this;
+	}
 
 	public boolean isIncludeSupertypes() {
 		return includeSupertypes;

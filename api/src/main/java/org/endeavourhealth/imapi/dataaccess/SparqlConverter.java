@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -55,9 +56,8 @@ public class SparqlConverter {
 		}
 
 
-		if (query.getWith()!=null)
-			with(whereQl,query.getWith());
-
+		if (query.getFrom()!=null)
+			from(whereQl,query.getFrom());
 
 		if (query.getWhere()!=null) {
 			where(whereQl,  "entity", query.getWhere());
@@ -93,6 +93,9 @@ public class SparqlConverter {
 	}
 
 	private void validateWhere(Where where) throws DataFormatException {
+		if(where.getProperty()==null&&where.getPath()==null
+			&&where.getAnd()==null&&where.getOr()==null&&where.getNotExist()==null&&where.getFrom()==null)
+			throw new DataFormatException("Where clause must have a path, property or boolean and/or, or not exist");
 		if (where.getProperty() != null) {
 			if (where.getAnd() != null || where.getOr() != null)
 				throw new DataFormatException("Where clause contains a property and an and /or subclause, use 'path' instead");
@@ -146,42 +149,80 @@ public class SparqlConverter {
 
 
 
-	private void with(StringBuilder whereQl, With with) throws DataFormatException {
-		if (with.getInstance()!=null){
-			TTAlias instance= with.getInstance();
-			if (instance.isIncludeSubtypes()){
-				o++;
-				whereQl.append("?").append("entity").append(" im:isA ?").append("supertype").append(o).append(".\n");
-				whereQl.append("Filter (?supertype").append(o).append("=").append(iriFromAlias(instance)).append(")\n");
-			}
-			else if (instance.isIncludeMembers()){
-				o++;
-				whereQl.append("?").append("entity").append(" ^im:hasMember ?").append("set").append(o).append(".\n");
-				whereQl.append("Filter (?set").append(o).append("=").append(iriFromAlias(instance)).append(")\n");
-			}
-			else
-				whereQl.append("?").append("entity ").append("=").append(iriFromAlias(instance)).append(".\n");
-		}
-		else if (with.getType()!=null){
-			List<String> in= with.getType().stream().map(t-> {
-				try {
-					return iriFromAlias(t);
-				} catch (DataFormatException e) {
-					throw new RuntimeException(e);
+	private void from(StringBuilder whereQl, List<From> fromList) throws DataFormatException {
+		Map<String,List<String>> fromTypes= new HashMap<>();
+		for (From from:fromList) {
+			if (from.getType()!=null) {
+				TTAlias type= from.getType();
+				if (type.isIncludeSubtypes()) {
+					fromTypes.computeIfAbsent("subtypes", s -> new ArrayList<>());
+					fromTypes.get("subtypes").add(iriFromAlias(type));
 				}
-			}).collect(Collectors.toList());
-			String inList= String.join(",",in);
-			o++;
-			String object="type"+o;
-			whereQl.append("?").append("entity ").append(iriFromString(RDF.TYPE.getIri())).append(" ?").append(object).append(".\n");
-			whereQl.append("Filter (?").append(object).append(" in (").append(inList).append("))\n");
+				else {
+					fromTypes.computeIfAbsent("types", s -> new ArrayList<>());
+					fromTypes.get("types").add(iriFromAlias(type));
+				}
+			}
+			else if (from.getInstance()!=null){
+				TTAlias instance= from.getInstance();
+				if (instance.isIncludeSubtypes()) {
+					fromTypes.computeIfAbsent("subinstances", s -> new ArrayList<>());
+					fromTypes.get("subinstances").add(iriFromAlias(instance));
+				} else {
+					fromTypes.computeIfAbsent("instances", s -> new ArrayList<>());
+					fromTypes.get("instances").add(iriFromAlias(instance));
+				}
+			}
+			else if (from.getAlias()!=null) {
+				fromTypes.computeIfAbsent("aliases", s -> new ArrayList<>());
+				fromTypes.get("aliases").add("?"+from.getAlias());
+			}
+			else if (from.getSet()!=null) {
+				fromTypes.computeIfAbsent("sets", s -> new ArrayList<>());
+				fromTypes.get("sets").add("?"+from.getAlias());
+
+			}
 		}
-		else if (with.getQuery()!=null){
-			QueryRequest withRequest= new QueryRequest();
-			withRequest.setArgument(queryRequest.getArgument());
-			withRequest.setQuery(with.getQuery());
-			whereQl.append("{\n").append(new SparqlConverter(withRequest).getSelectSparql())
-				.append("}\n");
+		boolean union= fromTypes.keySet().size()>1;
+		boolean first= true;
+		for (String key:fromTypes.keySet()) {
+			if (union) {
+				if (first) {
+					whereQl.append("{ ");
+					first = false;
+				} else
+					whereQl.append("UNION { ");
+			}
+			if (key.equals("instances")) {
+				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(".\n");
+				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+			}
+			else if (key.equals("subinstances")) {
+				o++;
+				whereQl.append("?").append("entity").append(" im:isA ?").append("superinstance").append(o).append(".\n");
+				whereQl.append("Filter (?superinstance").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+			}
+			else if (key.equals("subtypes")) {
+				o++;
+				whereQl.append("?").append("entity").append(" rdf:type ?").append("supertype").append(o).append(".\n");
+
+				whereQl.append("?").append("supertype").append(o).append(" im:isA ?").append("supersupertype").append(o).append(".\n");
+				whereQl.append("Filter (?supersupertype").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+			}
+			else if (key.equals("aliases")) {
+				o++;
+				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
+				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+
+			}
+			else if (key.equals("sets")){
+				o++;
+				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
+				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+			}
+
+			if (union)
+				whereQl.append("} \n");
 		}
 
 	}
@@ -201,6 +242,8 @@ public class SparqlConverter {
 				indent();
 				whereQl.append("graph ").append(iriFromString(where.getGraph())).append(" { \n");
 			}
+			if (where.getFrom()!=null)
+				from(whereQl,where.getFrom());
 			if (where.getPath()!=null){
 				for (String prop:where.getPath().split(" ")){
 					o++;
@@ -216,12 +259,6 @@ public class SparqlConverter {
 				whereQl.append("}\n");
 			}
 			else {
-				//Looks for just the in check i.e. looking for subclasses.
-				if (where.getIn() != null || where.getIs() != null) {
-					if (where.getProperty() == null)
-						if (where.getAnd() == null && where.getOr() == null & where.getWhere() == null)
-							where.setProperty(IM.IS_A);
-				}
 				if (where.getProperty() != null) {
 					whereProperty(whereQl, subject, where);
 				}
@@ -265,10 +302,17 @@ public class SparqlConverter {
 		String inverse= where.getProperty().isInverse() ? "^" : "";
 		o++;
 		String object= "o"+o;
+		if (!where.getProperty().isIncludeSubtypes()) {
+			whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(path))
+				.append(" ?").append(object).append(".\n");
+		}
+		else {
+			o++;
+			whereQl.append("?").append(subject).append(" ").append(inverse).append("?p").append(o)
+				.append(" ?").append(object).append(".\n");
+			whereQl.append("?p").append(o).append(" im:isA ").append(iriFromString(path)).append(".\n");
 
-
-		whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(path))
-			.append(" ?").append(object).append(".\n");
+		}
 
 		if (where.getWhere() != null) {
 			where(whereQl, object, where.getWhere());
@@ -310,7 +354,7 @@ public class SparqlConverter {
 				.append(")\n");
 		}
 		else if (where.getIn()!=null){
-			List<TTIriRef> in= where.getIn();
+			List<TTAlias> in= where.getIn();
 			whereQl.append("Filter (?").append(object).append(not).append(" in (");
 			if (in.size()==1) {
 				String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getIri());
@@ -354,7 +398,7 @@ public class SparqlConverter {
 
 
 
-	private void whereIn(StringBuilder whereQl, String object, List<TTIriRef> in, boolean isNot) {
+	private void whereIn(StringBuilder whereQl, String object, List<TTAlias> in, boolean isNot) {
 
 		String not= isNot ?" not " : "";
 		whereQl.append("Filter (?").append(object).append(not).append(" in (");

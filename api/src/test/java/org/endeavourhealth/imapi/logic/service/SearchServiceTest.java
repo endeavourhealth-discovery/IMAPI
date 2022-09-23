@@ -60,6 +60,7 @@ class SearchServiceTest {
 		try (FileWriter wr = new FileWriter(testResults+"\\" + name + "_result.json")) {
 			wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 		}
+		System.out.println("Found "+ result.getEntities().size()+ " entities");
 
 
 	}

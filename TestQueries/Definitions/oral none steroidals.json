@@ -4,10 +4,8 @@
     "where" : {
       "and" : [ {
         "from" : [ {
-          "instance" : {
-            "@id" : "http://snomed.info/sct#763158003",
-            "includeSubtypes" : true
-          }
+          "@id" : "http://snomed.info/sct#763158003",
+          "includeSubtypes" : true
         } ]
       }, {
         "path" : "http://endhealth.info/im#roleGroup",

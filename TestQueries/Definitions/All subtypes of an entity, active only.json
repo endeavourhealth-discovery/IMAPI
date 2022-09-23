@@ -10,10 +10,8 @@
       }
     } ],
     "from" : [ {
-      "instance" : {
-        "variable" : "$this",
-        "includeSubtypes" : true
-      }
+      "variable" : "$this",
+      "includeSubtypes" : true
     } ],
     "activeOnly" : true
   }

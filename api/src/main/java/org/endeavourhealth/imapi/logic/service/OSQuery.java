@@ -530,11 +530,11 @@ public class OSQuery {
         List<From> fromList = query.getFrom();
         if (fromList!=null){
             for (From from:fromList){
-                if (from.getInstance()!=null)
+                if (!from.isType())
                     return null;
                 else if (from.getAlias()!=null)
                     return null;
-                else  request.addType(from.getType().getIri());
+                else  request.addType(from.getIri());
             }
         }
         return request;

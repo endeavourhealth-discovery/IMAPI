@@ -8,9 +8,8 @@
       }
     } ],
     "from" : [ {
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      }
+      "@id" : "http://endhealth.info/im#Concept",
+      "type" : true
     } ],
     "activeOnly" : true
   }

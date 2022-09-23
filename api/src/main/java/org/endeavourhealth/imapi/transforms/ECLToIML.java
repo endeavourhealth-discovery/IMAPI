@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.endeavourhealth.imapi.model.iml.From;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -11,6 +12,8 @@ import org.endeavourhealth.imapi.parser.ecl.ECLParser;
 import org.endeavourhealth.imapi.transforms.ECLErrorListener;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
@@ -57,9 +60,8 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 					if (or.getAnd() == null) {
 						if (or.getOr() == null) {
 							if (or.getNotExist() == null) {
-								if (or.getProperty().equals(IM.IS_A)) {
-									flatWhere.setProperty(IM.IS_A);
-									flatWhere.addIn(or.getIs());
+								if (or.getFrom().get(0).isIncludeSubtypes()) {
+									flatWhere.addFrom(or.getFrom().get(0));
 								}
 							} else {
 								flatWhere.addOr(or);
@@ -285,15 +287,15 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			conceptIri= concept;
 		if (eclSub.constraintoperator().descendantorselfof()!=null) {
 			where.from(f->f
-				.setInstance(TTAlias.iri(conceptIri).setIncludeSubtypes(true)));
+				.setIri(conceptIri).setIncludeSubtypes(true));
 		}
 		else if (eclSub.constraintoperator().descendantof()!=null){
 			where.from(f->f
-				.setInstance(TTAlias.iri(conceptIri).setIncludeSubtypes(true).setExcludeSelf(true)));
+				.setIri(conceptIri).setIncludeSubtypes(true).setExcludeSelf(true));
 		}
 		else {
 			where.from(f->f
-				.setInstance(TTAlias.iri(conceptIri)));
+				.setIri(conceptIri));
 		}
 
 	}

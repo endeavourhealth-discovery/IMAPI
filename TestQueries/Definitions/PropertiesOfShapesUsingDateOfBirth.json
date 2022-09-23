@@ -46,9 +46,8 @@
       } ]
     } ],
     "from" : [ {
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      }
+      "@id" : "http://www.w3.org/ns/shacl#NodeShape",
+      "type" : true
     } ],
     "usePrefixes" : true
   }

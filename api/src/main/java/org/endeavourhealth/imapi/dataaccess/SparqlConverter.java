@@ -152,36 +152,55 @@ public class SparqlConverter {
 	private void from(StringBuilder whereQl, List<From> fromList) throws DataFormatException {
 		Map<String,List<String>> fromTypes= new HashMap<>();
 		for (From from:fromList) {
-			if (from.getType()!=null) {
-				TTAlias type= from.getType();
-				if (type.isIncludeSubtypes()) {
+			if (from.isType()) {
+				if (from.isIncludeSubtypes()) {
 					fromTypes.computeIfAbsent("subtypes", s -> new ArrayList<>());
-					fromTypes.get("subtypes").add(iriFromAlias(type));
+					fromTypes.get("subtypes").add(iriFromAlias(from));
 				}
 				else {
 					fromTypes.computeIfAbsent("types", s -> new ArrayList<>());
-					fromTypes.get("types").add(iriFromAlias(type));
-				}
-			}
-			else if (from.getInstance()!=null){
-				TTAlias instance= from.getInstance();
-				if (instance.isIncludeSubtypes()) {
-					fromTypes.computeIfAbsent("subinstances", s -> new ArrayList<>());
-					fromTypes.get("subinstances").add(iriFromAlias(instance));
-				} else {
-					fromTypes.computeIfAbsent("instances", s -> new ArrayList<>());
-					fromTypes.get("instances").add(iriFromAlias(instance));
+					fromTypes.get("types").add(iriFromAlias(from));
 				}
 			}
 			else if (from.getAlias()!=null) {
-				fromTypes.computeIfAbsent("aliases", s -> new ArrayList<>());
-				fromTypes.get("aliases").add("?"+from.getAlias());
+				if (from.getIri()==null) {
+					fromTypes.computeIfAbsent("aliases", s -> new ArrayList<>());
+					fromTypes.get("aliases").add("?" + from.getAlias());
+				}
 			}
-			else if (from.getSet()!=null) {
+			else if (from.isSet()) {
 				fromTypes.computeIfAbsent("sets", s -> new ArrayList<>());
 				fromTypes.get("sets").add("?"+from.getAlias());
 
 			}
+			else if (from.getVariable()!=null){
+				fromTypes.computeIfAbsent("variables",s-> new ArrayList<>());
+				String resolved= resolveReference(from.getVariable(),queryRequest);
+				if (resolved.startsWith("http")) {
+					if (from.isIncludeSubtypes()) {
+						fromTypes.computeIfAbsent("subinstances", s -> new ArrayList<>());
+						fromTypes.get("subinstances").add(iriFromString(resolved));
+					} else {
+						fromTypes.computeIfAbsent("instances", s -> new ArrayList<>());
+						fromTypes.get("instances").add(iriFromString(resolved));
+					}
+				}
+				else {
+					throw new DataFormatException("From clause cannot contain literal variable. User property value");
+				}
+
+			}
+			else {
+				if (from.isIncludeSubtypes()) {
+					fromTypes.computeIfAbsent("subinstances", s -> new ArrayList<>());
+					fromTypes.get("subinstances").add(iriFromAlias(from));
+				} else {
+					fromTypes.computeIfAbsent("instances", s -> new ArrayList<>());
+					fromTypes.get("instances").add(iriFromAlias(from));
+				}
+			}
+
+
 		}
 		boolean union= fromTypes.keySet().size()>1;
 		boolean first= true;
@@ -216,6 +235,11 @@ public class SparqlConverter {
 
 			}
 			else if (key.equals("sets")){
+				o++;
+				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
+				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+			}
+			else if (key.equals("variables")){
 				o++;
 				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
 				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");

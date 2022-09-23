@@ -5,8 +5,12 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX sn: <http://snomed.info/sct#>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
-SELECT distinct ?entity  ?p2
-WHERE {?entity im:isA ?superinstance1.
+SELECT distinct ?entity  ?p3
+WHERE {{ ?entity im:isA ?superinstance1.
 Filter (?superinstance1 in(<http://snomed.info/sct#417928002>))
- OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p2.}
+} 
+UNION { ?entity rdf:type ?type2.
+Filter (?entity in())
+} 
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p3.}
 }

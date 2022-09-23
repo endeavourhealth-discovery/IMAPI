@@ -43,7 +43,7 @@ public class TestQueries {
 			.setDescription("all of the data model properties for entities that have a property df a data of birth")
 			.setUsePrefixes(true);
 		query
-			.from(f->f.setType(new TTAlias(SHACL.NODESHAPE)))
+			.from(f->f.setType(SHACL.NODESHAPE))
 			.select(s->s
 				.setProperty(SHACL.PROPERTY.getIri())
 					.select(s1->s1.setProperty(SHACL.PATH))
@@ -68,7 +68,7 @@ public class TestQueries {
 		query
 			.setUsePrefixes(true)
 			.from(f ->f
-				.setInstance(new TTAlias().setIri(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true)))
+				.setIri(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true))
 			.select(RDFS.LABEL.getIri())
 			.select(IM.CODE.getIri());
 		return new QueryRequest().setQuery(query);
@@ -127,11 +127,12 @@ public class TestQueries {
 			.query(q-> q
 				.setName("All subtypes of an entity, active only")
 				.setActiveOnly(true)
-				.from(w->w.setInstance(new TTAlias().setVariable("$this").setIncludeSubtypes(true)))
+				.from(w->w.setVariable("$this").setIncludeSubtypes(true))
 				.select(s->s.setProperty(RDFS.LABEL)));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
 	}
+
 
 	public static QueryRequest query5(){
 		QueryRequest qr= new QueryRequest()
@@ -188,7 +189,7 @@ public class TestQueries {
 			.where(w->w
 				.and(a->a
 					.from(f->f
-						.setInstance(TTAlias.iri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true))))
+						.setIri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true)))
 				.and(a->a
 					.setPath(IM.ROLE_GROUP.getIri())
 					.and(a1->a1

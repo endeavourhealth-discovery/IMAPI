@@ -9,65 +9,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class From {
-	private TTAlias type;
-	private TTAlias instance;
-	private String alias;
-	private TTAlias set;
+public class From extends TTAlias{
+	private boolean isType;
+	private boolean isSet;
 
-	public TTAlias getSet() {
-		return set;
+	public From(TTAlias ttAlias){
+		super(ttAlias);
 	}
 
-	public From setSet(TTAlias set) {
-		this.set = set;
-		return this;
-	}
+	public From(){}
 
-	public String getAlias() {
-		return alias;
-	}
-
-	public From setAlias(String alias) {
-		this.alias = alias;
-		return this;
-	}
-
-
-
-	public TTAlias getType() {
-		return type;
+	public boolean isType() {
+		return isType;
 	}
 
 	@JsonSetter
-	public From setType(TTAlias type) {
-		this.type = type;
+	public From setType(boolean type) {
+		isType = type;
 		return this;
 	}
 
-	public From setType(TTIriRef type) {
-		this.type = new TTAlias(type);
+	public From setType(TTAlias alias){
+		super.setIri(alias.getIri());
+		if (alias.getAlias()!=null)
+			super.setAlias(alias.getAlias());
+		this.isType= true;
 		return this;
 	}
 
-	public From setType(String type){
-		this.type= TTAlias.iri(type);
+	public From setType(TTIriRef ttIriRef){
+		super.setIri(ttIriRef.getIri());
+		this.isType= true;
 		return this;
 	}
 
-	public TTAlias getInstance() {
-		return instance;
+	public boolean isSet() {
+		return isSet;
 	}
 
-	@JsonSetter
-	public From setInstance(TTAlias instance) {
-		this.instance = instance;
-		return this;
-	}
-
-
-	public From setInstance(String instance) {
-		this.instance = new TTAlias(TTIriRef.iri(instance));
+	public From setSet(boolean set) {
+		isSet = set;
 		return this;
 	}
 }

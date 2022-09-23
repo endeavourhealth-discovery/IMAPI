@@ -284,16 +284,16 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		else
 			conceptIri= concept;
 		if (eclSub.constraintoperator().descendantorselfof()!=null) {
-			where.setProperty(IM.IS_A)
-				.setIs(TTAlias.iri(conceptIri));
+			where.from(f->f
+				.setInstance(TTAlias.iri(conceptIri).setIncludeSubtypes(true)));
 		}
 		else if (eclSub.constraintoperator().descendantof()!=null){
-			where.setProperty(IM.IS_A)
-				.setIs(TTAlias.iri(conceptIri).setExcludeSelf(true));
+			where.from(f->f
+				.setInstance(TTAlias.iri(conceptIri).setIncludeSubtypes(true).setExcludeSelf(true)));
 		}
 		else {
-			where.setProperty(IM.id)
-				.setIs(TTAlias.iri(conceptIri));
+			where.from(f->f
+				.setInstance(TTAlias.iri(conceptIri)));
 		}
 
 	}

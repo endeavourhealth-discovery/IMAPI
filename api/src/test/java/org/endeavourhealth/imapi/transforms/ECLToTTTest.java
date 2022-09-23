@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ECLToTTTest {
 
-	@Test
+	//@Test
 	void convertConceptSet() throws DataFormatException, JsonProcessingException {
 		//String ecl= "(* : <<10362601000001103 = <<39330711000001103)";
 		//String ecl= "<< 1324671000000103 OR (<< 1324681000000101 MINUS (<< 1324691000000104 OR << 223123123203))";

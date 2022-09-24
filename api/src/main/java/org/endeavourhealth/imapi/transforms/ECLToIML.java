@@ -38,7 +38,26 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		this.query= new Query();
 	}
 
+	/**
+	 * Converts an ECL string into IM Query definition class. Assumes active only concepts are requested.
+	 * <p>To include inactive concepts use method with boolean activeOnly= false</p>
+	 * @param ecl String compliant with ECL
+	 * @return Class conforming to IM Query model JSON-LD when serialized.
+	 * @throws DataFormatException for invalid ECL.
+	 */
 	public Query getClassExpression(String ecl) throws DataFormatException {
+		return getClassExpression(ecl,true);
+	}
+
+	/**
+	 * Converts an ECL string into IM Query definition class.
+	 * <p>To include inactive concepts use method with boolean activeOnly= false</p>
+	 * @param ecl String compliant with ECL
+	 * @param activeOnly  boolean true if limited to active concepts
+	 * @return Class conforming to IM Query model JSON-LD when serialized.
+	 * @throws DataFormatException for invalid ECL.
+	 */
+	public Query getClassExpression(String ecl,boolean activeOnly) throws DataFormatException {
 		this.ecl = ecl;
 		lexer.setInputStream(CharStreams.fromString(ecl));
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -48,15 +67,18 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		Where where= convertECContext(eclCtx);
 		Where flatWhere= flattenWhere(where);
 		query.setWhere(flatWhere);
+		if (activeOnly)
+			query.setActiveOnly(true);
 
 		return query;
 	}
 
 	private Where flattenWhere(Where where) {
+		boolean simpleOr=true;
 		Where flatWhere= new Where();
 		if (where.getOr()!=null){
 			for (Where or:where.getOr()) {
-				if (or.getIs() != null)
+				if (or.getFrom() != null) {
 					if (or.getAnd() == null) {
 						if (or.getOr() == null) {
 							if (or.getNotExist() == null) {
@@ -64,19 +86,25 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 									flatWhere.addFrom(or.getFrom().get(0));
 								}
 							} else {
-								flatWhere.addOr(or);
+								simpleOr= false;
 							}
 						} else {
-							flatWhere.addOr(or);
+							simpleOr= false;
 						}
-					}
+					} else
+						simpleOr=false;
+				}
 				else
-					flatWhere.addOr(or);
+					simpleOr= false;
+
 			}
 		}
 		else
-			flatWhere= where;
-		return flatWhere;
+			simpleOr= false;
+		if (simpleOr)
+			return flatWhere;
+		else
+			return where;
 	}
 
 
@@ -117,9 +145,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			}
 		}
 		else {
-			mainWhere.and(a-> a
-			 .setProperty(IM.IS_A)
-			.setIs(new TTAlias(IM.CONCEPT).setIncludeSubtypes(true)));
+
 		}
 
 		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
@@ -191,7 +217,12 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 	private Where convertExclusion(ECLParser.ExclusionexpressionconstraintContext eclExc) throws DataFormatException {
 		Where where= new Where();
-		where.addAnd(convertSubECContext(eclExc.subexpressionconstraint().get(0)));
+		if (eclExc.subexpressionconstraint().size()==1){
+			where.addAnd(convertSubECContext(eclExc.subexpressionconstraint().get(0)));
+		}
+		else
+			where.addAnd(convertSubECContext(eclExc.subexpressionconstraint().get(0)));
+
 		where.setNotExist(convertSubECContext(eclExc.
 			subexpressionconstraint().get(1)));
 		return where;
@@ -240,11 +271,13 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 				conRef.setIri(SNOMED.NAMESPACE + code);
 		} else
 			throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
-		if (entail.descendantorselfof()!=null)
-			conRef.setIncludeSubtypes(true);
-		else if (entail.descendantof()!=null){
-			conRef.setExcludeSelf(true);
-			conRef.setIncludeSubtypes(true);
+		if (entail!=null) {
+			if (entail.descendantorselfof() != null)
+				conRef.setIncludeSubtypes(true);
+			else if (entail.descendantof() != null) {
+				conRef.setExcludeSelf(true);
+				conRef.setIncludeSubtypes(true);
+			}
 		}
 		return conRef;
 
@@ -276,8 +309,21 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			}
 		}
 	}
-
 	private void pairPropertyValue(Where where, ECLParser.SubexpressionconstraintContext eclSub) {
+		boolean includeSubs=false;
+		boolean excludeSelf= false;
+		if (eclSub.constraintoperator().descendantorselfof()!=null)
+			includeSubs=true;
+		else if (eclSub.constraintoperator().descendantof()!=null){
+			includeSubs= true;
+			excludeSelf= true;
+		}
+		pairPropertyValue(where,eclSub,includeSubs,excludeSelf);
+
+
+	}
+
+	private void pairPropertyValue(Where where, ECLParser.SubexpressionconstraintContext eclSub,boolean includeSubs,boolean excludeSelf) {
 		String concept= eclSub.eclfocusconcept().eclconceptreference().conceptid().getText();
 		String conceptIri;
 		if (concept.matches("[0-9]+")) {
@@ -285,13 +331,13 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		}
 		else
 			conceptIri= concept;
-		if (eclSub.constraintoperator().descendantorselfof()!=null) {
-			where.from(f->f
-				.setIri(conceptIri).setIncludeSubtypes(true));
-		}
-		else if (eclSub.constraintoperator().descendantof()!=null){
+		if (excludeSelf) {
 			where.from(f->f
 				.setIri(conceptIri).setIncludeSubtypes(true).setExcludeSelf(true));
+		}
+		else if (includeSubs){
+			where.from(f->f
+				.setIri(conceptIri).setIncludeSubtypes(true));
 		}
 		else {
 			where.from(f->f

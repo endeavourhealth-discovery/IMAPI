@@ -47,8 +47,23 @@ public class From extends TTAlias{
 		return isSet;
 	}
 
+	@JsonSetter
 	public From setSet(boolean set) {
 		isSet = set;
+		return this;
+	}
+
+	public From setSet(TTAlias alias){
+		super.setIri(alias.getIri());
+		if (alias.getAlias()!=null)
+			super.setAlias(alias.getAlias());
+		this.isSet= true;
+		return this;
+	}
+
+	public From setSet(TTIriRef ttIriRef){
+		super.setIri(ttIriRef.getIri());
+		this.isSet= true;
 		return this;
 	}
 }

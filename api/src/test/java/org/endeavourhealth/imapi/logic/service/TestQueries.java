@@ -6,10 +6,13 @@ import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+
+import java.util.zip.DataFormatException;
 
 public class TestQueries {
 
@@ -131,6 +134,28 @@ public class TestQueries {
 				.select(s->s.setProperty(RDFS.LABEL)));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
+	}
+
+	public static QueryRequest getLegPain() throws DataFormatException {
+		QueryRequest qr= new QueryRequest();
+		String ecl= "* :  { 363698007 |Finding site (attribute)| = 61685007 |Lower limb structure (body structure)| }";
+		ECLToIML eclToIML= new ECLToIML();
+		Query query= eclToIML.getClassExpression(ecl);
+		qr.setQuery(query);
+		return qr;
+
+	}
+
+	public static QueryRequest complexECL() throws DataFormatException {
+		QueryRequest qr= new QueryRequest();
+		String ecl= "<< 10601006 OR (<< 29857009 MINUS (<<102588006 OR (<<29857009:263502005 |Clinical course (attribute)| = 424124008 |Sudden onset AND/OR short duration (qualifier value)|)))";
+		ECLToIML eclToIML= new ECLToIML();
+		Query query= eclToIML.getClassExpression(ecl);
+		query.setName("Pain in lower limb OR Chest pain minus (Chest wall pain or chest pain with sudden onset");
+		query.setActiveOnly(true);
+		qr.setQuery(query);
+		return qr;
+
 	}
 
 

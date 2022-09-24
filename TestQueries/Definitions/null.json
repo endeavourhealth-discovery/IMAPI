@@ -1,0 +1,33 @@
+{
+  "query" : {
+    "where" : {
+      "or" : [ {
+        "from" : [ {
+          "@id" : "http://snomed.info/sct#10601006",
+          "includeSubtypes" : true
+        } ]
+      }, {
+        "notExist" : {
+          "or" : [ {
+            "from" : [ {
+              "@id" : "http://snomed.info/sct#102588006",
+              "includeSubtypes" : true
+            } ]
+          }, {
+            "from" : [ {
+              "@id" : "http://snomed.info/sct#194828000",
+              "includeSubtypes" : true
+            } ]
+          } ]
+        },
+        "and" : [ {
+          "from" : [ {
+            "@id" : "http://snomed.info/sct#29857009",
+            "includeSubtypes" : true
+          } ]
+        } ]
+      } ]
+    },
+    "activeOnly" : true
+  }
+}

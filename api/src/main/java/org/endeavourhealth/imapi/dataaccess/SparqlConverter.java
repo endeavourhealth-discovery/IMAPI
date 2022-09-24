@@ -202,7 +202,7 @@ public class SparqlConverter {
 
 
 		}
-		boolean union= fromTypes.keySet().size()>1;
+		boolean union= fromTypes.entrySet().size()>1;
 		boolean first= true;
 		for (String key:fromTypes.keySet()) {
 			if (union) {
@@ -277,13 +277,10 @@ public class SparqlConverter {
 					subject= object;
 				}
 			}
-			if (where.getNotExist() != null) {
-				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
-				where(whereQl, subject, where.getNotExist());
-				whereQl.append("}\n");
-			}
-			else {
-				if (where.getProperty() != null) {
+			if (where.getProperty()==null&&where.getPath()!=null&&where.getWhere()!=null){
+					where(whereQl,subject,where.getWhere());
+				}
+				else if (where.getProperty() != null) {
 					whereProperty(whereQl, subject, where);
 				}
 				else {
@@ -299,7 +296,9 @@ public class SparqlConverter {
 							else
 								whereQl.append("UNION {\n");
 							where(whereQl, subject, where.getOr().get(i));
+							whereQl.append("}\n");
 						}
+
 					}
 				}
 				if (subject.equals("entity")) {
@@ -307,6 +306,10 @@ public class SparqlConverter {
 						whereQl.append("?").append(subject).append(" im:status im:Active.\n");
 					}
 				}
+			if (where.getNotExist() != null) {
+				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
+				where(whereQl, subject, where.getNotExist());
+				whereQl.append("}\n");
 			}
 			if (where.getGraph() != null) {
 					whereQl.append("}\n");

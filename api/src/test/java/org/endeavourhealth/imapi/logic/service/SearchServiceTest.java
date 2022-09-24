@@ -29,7 +29,7 @@ class SearchServiceTest {
 		testResults= System.getenv("testResults");
 		testSparql = System.getenv("testSparql");
 
-		for (QueryRequest qr: List.of(TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
+		for (QueryRequest qr: List.of(TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr);
 		}

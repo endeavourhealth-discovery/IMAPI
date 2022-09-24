@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -19,12 +20,14 @@ public class From extends TTAlias{
 
 	public From(){}
 
+	@JsonProperty("isType")
 	public boolean isType() {
 		return isType;
 	}
 
 	@JsonSetter
-	public From setType(boolean type) {
+	@JsonProperty("isType")
+	public From setIsType(boolean type) {
 		isType = type;
 		return this;
 	}
@@ -43,12 +46,13 @@ public class From extends TTAlias{
 		return this;
 	}
 
+	@JsonProperty("isSet")
 	public boolean isSet() {
 		return isSet;
 	}
 
 	@JsonSetter
-	public From setSet(boolean set) {
+	public From setIsSet(boolean set) {
 		isSet = set;
 		return this;
 	}

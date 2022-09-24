@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix","iri","name","description","with","with","where","select","subQuery"})
+@JsonPropertyOrder({"prefix","iri","name","description","from","where","select","subQuery"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends TTAlias {
 	private String description;

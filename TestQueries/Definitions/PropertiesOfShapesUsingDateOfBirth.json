@@ -2,6 +2,10 @@
   "query" : {
     "name" : "PropertiesOfShapesUsingDateOfBirth",
     "description" : "all of the data model properties for entities that have a property df a data of birth",
+    "from" : [ {
+      "@id" : "http://www.w3.org/ns/shacl#NodeShape",
+      "isType" : true
+    } ],
     "where" : {
       "property" : {
         "@id" : "http://www.w3.org/ns/shacl#property"
@@ -44,10 +48,6 @@
           "@id" : "http://www.w3.org/ns/shacl#datatype"
         }
       } ]
-    } ],
-    "from" : [ {
-      "@id" : "http://www.w3.org/ns/shacl#NodeShape",
-      "type" : true
     } ],
     "usePrefixes" : true
   }

@@ -5,6 +5,10 @@
   "query" : {
     "name" : "Allowable Properties for a concept",
     "description" : "'using property domains get the allowable properties from the supertypes of this concept",
+    "from" : [ {
+      "@id" : "http://endhealth.info/im#Concept",
+      "isType" : true
+    } ],
     "where" : {
       "property" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
@@ -22,10 +26,6 @@
       "property" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
       }
-    } ],
-    "from" : [ {
-      "@id" : "http://endhealth.info/im#Concept",
-      "type" : true
     } ],
     "activeOnly" : true
   }

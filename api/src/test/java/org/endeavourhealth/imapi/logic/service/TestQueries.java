@@ -140,7 +140,7 @@ public class TestQueries {
 		QueryRequest qr= new QueryRequest();
 		String ecl= "* :  { 363698007 |Finding site (attribute)| = 61685007 |Lower limb structure (body structure)| }";
 		ECLToIML eclToIML= new ECLToIML();
-		Query query= eclToIML.getClassExpression(ecl);
+		Query query= eclToIML.getQueryFromECL(ecl);
 		qr.setQuery(query);
 		return qr;
 
@@ -150,7 +150,7 @@ public class TestQueries {
 		QueryRequest qr= new QueryRequest();
 		String ecl= "<< 10601006 OR (<< 29857009 MINUS (<<102588006 OR (<<29857009:263502005 |Clinical course (attribute)| = 424124008 |Sudden onset AND/OR short duration (qualifier value)|)))";
 		ECLToIML eclToIML= new ECLToIML();
-		Query query= eclToIML.getClassExpression(ecl);
+		Query query= eclToIML.getQueryFromECL(ecl);
 		query.setName("Pain in lower limb OR Chest pain minus (Chest wall pain or chest pain with sudden onset");
 		query.setActiveOnly(true);
 		qr.setQuery(query);

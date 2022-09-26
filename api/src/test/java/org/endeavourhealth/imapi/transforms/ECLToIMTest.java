@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ECLToIMTest {
 
-	@Test
+	//@Test
 	void convertConceptSet() throws DataFormatException, JsonProcessingException {
 		for (String ecl: List.of(
 			"<<763158003:<<127489000 = <<372665008,<<411116001 = <<385268001",

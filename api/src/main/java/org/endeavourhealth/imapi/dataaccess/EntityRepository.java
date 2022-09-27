@@ -507,15 +507,15 @@ public class EntityRepository {
         return null;
     }
 
-    private void hydrateIsAs(EntityDocument entityDocument){
+    private void hydrateIsAs(EntityDocument entityDocument) {
         String spql = new StringJoiner(System.lineSeparator())
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("PREFIX im: <http://endhealth.info/im#>")
-            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-            .add("select ?superType")
-            .add("where {")
-            .add(" ?iri im:isA ?superType.")
-            .add("}").toString();
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("select ?superType")
+                .add("where {")
+                .add(" ?iri im:isA ?superType.")
+                .add("}").toString();
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
@@ -527,6 +527,7 @@ public class EntityRepository {
                 }
             }
         }
+    }
     public List<TTIriRef> getProperties() {
         List<TTIriRef> result = new ArrayList<>();
 

@@ -8,8 +8,11 @@ import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
+import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -323,10 +326,8 @@ public class EntityRepository {
     public Boolean iriExists(String iri) {
         Boolean result = false;
 
-        String spql = new StringJoiner(System.lineSeparator()).add("SELECT * WHERE { ?s ?p ?o.} limit 1").toString();
-
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = prepareSparql(conn, spql);
+            TupleQuery qry = prepareSparql(conn, "SELECT * WHERE { ?s ?p ?o.} limit 1");
             qry.setBinding("s", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
                 if(rs.hasNext()) {
@@ -337,6 +338,195 @@ public class EntityRepository {
         return result;
     }
 
+    public boolean predicatePathExists(String subject, TTIriRef predicate, String object) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            BooleanQuery qry = conn.prepareBooleanQuery("ASK { ?s (<" + predicate.getIri() + ">)* ?o.}");
+            qry.setBinding("s", iri(subject));
+            qry.setBinding("o", iri(object));
+            return qry.evaluate();
+        }
+    }
+
+    public EntityDocument getOSDocument(String iri) {
+        EntityDocument result = new EntityDocument().setIri(iri);
+        hydrateCoreProperties(result);
+        hydrateTerms(result);
+        hydrateIsAs(result);
+        return result;
+    }
+
+    private void hydrateCoreProperties(EntityDocument entityDocument){
+        String spql = new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
+            .add("?extraType ?extraTypeName")
+            .add("where {")
+            .add("  graph ?scheme { ?iri rdf:type ?type }")
+            .add("    Optional { ?iri rdfs:label ?name.}")
+            .add("    Optional {?iri im:isA ?extraType.")
+            .add("      ?extraType rdfs:label ?extraTypeName.")
+            .add("      filter (?extraType in (im:dataModelProperty, im:DataModelEntity))}")
+            .add("    Optional {?type rdfs:label ?typeName}")
+            .add("    Optional {?iri im:status ?status.")
+            .add("    Optional {?status rdfs:label ?statusName} }")
+            .add("    Optional {?scheme rdfs:label ?schemeName }")
+            .add("    Optional {?iri im:code ?code.}")
+            .add("    Optional {?iri im:weighting ?weighting.}")
+            .add("}").toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            tupleQuery.setBinding("iri", iri(entityDocument.getIri()));
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                if (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    entityDocument.setName(rs.getValue("name").stringValue());
+                    entityDocument.addTermCode(entityDocument.getName(), null, null);
+
+                    if (rs.hasBinding("code"))
+                        entityDocument.setCode(rs.getValue("code").stringValue());
+
+                    if (rs.hasBinding("schemeName"))
+                        entityDocument.setScheme(new TTIriRef(rs.getValue("schemeName").stringValue()));
+
+                    if (rs.hasBinding("status")) {
+                        TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
+                        if (rs.hasBinding("statusName"))
+                            status.setName(rs.getValue("statusName").stringValue());
+                        entityDocument.setStatus(status);
+                    }
+
+                    TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
+                    if (rs.hasBinding("typeName"))
+                        type.setName(rs.getValue("typeName").stringValue());
+                    entityDocument.addType(type);
+
+                    if (rs.hasBinding("extraType")) {
+                        TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
+                        entityDocument.addType(extraType);
+                        if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
+                            int weighting = 2000000;
+                            entityDocument.setWeighting(weighting);
+                        }
+                    }
+                    if (rs.hasBinding("weighting")) {
+                        entityDocument.setWeighting(((Literal)rs.getValue("weighting")).intValue());
+                    }
+                }
+            }
+        }
+    }
+    private void hydrateTerms(EntityDocument entityDocument) {
+        String spql = new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?termCode ?synonym ?termCodeStatus")
+            .add("where {")
+            .add("  ?iri im:hasTermCode ?tc.")
+            .add("  Optional {?tc im:code ?termCode}")
+            .add("  Optional  {?tc rdfs:label ?synonym}")
+            .add("  Optional  {?tc im:status ?termCodeStatus}")
+            .add("}").toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    String termCode = null;
+                    String synonym = null;
+                    TTIriRef status = null;
+                    if (rs.hasBinding("synonym"))
+                        synonym = rs.getValue("synonym").stringValue().toLowerCase();
+                    if (rs.hasBinding("termCode"))
+                        termCode = rs.getValue("termCode").stringValue();
+                    if (rs.hasBinding("termCodeStatus"))
+                        status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
+
+                    if (synonym != null) {
+                        SearchTermCode tc = getTermCode(entityDocument, synonym);
+                        if (tc == null) {
+                            entityDocument.addTermCode(synonym, termCode, status);
+                            addKey(entityDocument,synonym);
+                        }
+                        else if (termCode != null) {
+                            tc.setCode(termCode);
+                        }
+                    }
+                    else if (termCode != null) {
+                        SearchTermCode tc = getTermCodeFromCode(entityDocument, termCode);
+                        if (tc == null)
+                            entityDocument.addTermCode(null, termCode, status);
+                    }
+                }
+            }
+        }
+    }
+
+    private SearchTermCode getTermCode(EntityDocument blob,String term){
+        for (SearchTermCode tc:blob.getTermCode()){
+            if (tc.getTerm()!=null)
+                if (tc.getTerm().equals(term))
+                    return tc;
+        }
+        return null;
+    }
+
+    private void  addKey(EntityDocument blob, String key) {
+        key= key.split(" ")[0];
+        if (key.length()>1) {
+            if (key.length() > 20)
+                key = key.substring(0, 20);
+            key = key.toLowerCase();
+            List<String> deletes = new ArrayList<>();
+            boolean skip = false;
+            if (blob.getKey() != null) {
+                for (String already : blob.getKey()) {
+                    if (key.startsWith(already))
+                        deletes.add(already);
+                    if (already.startsWith(key))
+                        skip = true;
+                }
+                if (!deletes.isEmpty())
+                    deletes.forEach(d -> blob.getKey().remove(d));
+            }
+            if (!skip)
+                blob.addKey(key);
+        }
+    }
+
+    private SearchTermCode getTermCodeFromCode(EntityDocument blob,String code){
+        for (SearchTermCode tc:blob.getTermCode()){
+            if (tc.getCode()!=null && tc.getCode().equals(code))
+                    return tc;
+        }
+        return null;
+    }
+
+    private void hydrateIsAs(EntityDocument entityDocument){
+        String spql = new StringJoiner(System.lineSeparator())
+            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+            .add("PREFIX im: <http://endhealth.info/im#>")
+            .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+            .add("select ?superType")
+            .add("where {")
+            .add(" ?iri im:isA ?superType.")
+            .add("}").toString();
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery tupleQuery = conn.prepareTupleQuery(spql);
+            tupleQuery.setBinding("iri", literal(entityDocument.getIri()));
+            try (TupleQueryResult qr = tupleQuery.evaluate()) {
+                while (qr.hasNext()) {
+                    BindingSet rs = qr.next();
+                    entityDocument.getIsA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
+                }
+            }
+        }
     public List<TTIriRef> getProperties() {
         List<TTIriRef> result = new ArrayList<>();
 

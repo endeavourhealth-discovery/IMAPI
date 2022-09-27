@@ -5,6 +5,9 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
@@ -19,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -125,8 +130,8 @@ public class SetExporter {
         LOG.trace("Publishing to S3...");
         String bucket = "im-inbound-dev";
         String region = "eu-west-2";
-        String accessKey = "";
-        String secretKey = "";
+        String accessKey = null;
+        String secretKey = null;
 
         try {
             JsonNode config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH.getIri());
@@ -135,24 +140,38 @@ public class SetExporter {
             } else {
                 bucket = config.get("bucket").asText();
                 region = config.get("region").asText();
-                accessKey = config.get("accessKey").asText();
-                secretKey = config.get("secretKey").asText();
+                if (config.has("accessKey"))
+                    accessKey = config.get("accessKey").asText();
+                if (config.has("secretKey"))
+                    secretKey = config.get("secretKey").asText();
             }
         } catch (JsonProcessingException e) {
             LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
         }
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        final AmazonS3 s3 = AmazonS3ClientBuilder
+        AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder
             .standard()
-            .withRegion(region)
-            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-            .build();
+            .withRegion(region);
+
+        if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty())
+            s3Builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+
+        final AmazonS3 s3 = s3Builder.build();
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
-            String filename = date.format(timestamp.getTime()) + "_valuset.tsv";
-            s3.putObject(bucket, filename, results.toString());
+            String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
+
+            byte[] byteData = results.toString().getBytes();
+            InputStream stream = new ByteArrayInputStream(byteData);
+
+            ObjectMetadata meta = new ObjectMetadata();
+            meta.setContentLength(byteData.length);
+
+            PutObjectRequest por = new PutObjectRequest(bucket, filename, stream, meta)
+                .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
+
+            s3.putObject(por);
         } catch (AmazonServiceException e) {
             LOG.error(e.getErrorMessage());
         }

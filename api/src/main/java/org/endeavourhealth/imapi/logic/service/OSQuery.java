@@ -2,18 +2,20 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.sets.*;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -56,6 +58,11 @@ public class OSQuery {
 
     public List<SearchResultSummary> termQuery(SearchRequest request) throws DataFormatException {
         QueryBuilder qry = buildTermQuery(request);
+        return wrapandRun(qry, request);
+    }
+
+    public List<SearchResultSummary> boolQuery(SearchRequest request) throws DataFormatException {
+        QueryBuilder qry = buildBoolQuery(request);
         return wrapandRun(qry, request);
     }
 
@@ -102,6 +109,10 @@ public class OSQuery {
             results = iriTermQuery(request);
             if (!results.isEmpty())
                 return results;
+        }
+
+        if (null == term) {
+            return boolQuery(request);
         }
 
         results = termQuery(request);
@@ -156,6 +167,15 @@ public class OSQuery {
         }
     }
 
+    private QueryBuilder buildBoolQuery(SearchRequest request) {
+        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+        if(null == request.getIsA() || request.getIsA().isEmpty()) {
+            return boolQuery;
+        }
+        List<String> isas = new ArrayList<>(request.getIsA());
+        boolQuery.must(new TermsQueryBuilder("isA.@id", isas));
+        return boolQuery;
+    }
 
     private QueryBuilder buildTermQuery(SearchRequest request) {
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
@@ -166,13 +186,7 @@ public class OSQuery {
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
-		/*
-			return new FunctionScoreQueryBuilder(boolQuery,
-				ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
-		else
-			return boolQuery;
 
-		 */
     }
 
     private QueryBuilder buildIriTermQuery(SearchRequest request) {
@@ -193,15 +207,6 @@ public class OSQuery {
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
-		/*
-		if (request.getSortBy()!= SortBy.length) {
-			return new FunctionScoreQueryBuilder(boolQuery,
-				ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
-		}
-		else
-			return boolQuery;
-
-		 */
 
     }
 
@@ -221,10 +226,6 @@ public class OSQuery {
         qry.minimumShouldMatch(1);
         addFilters(qry, request);
         return qry;
-		/*
-			return new FunctionScoreQueryBuilder(qry,
-				ScoreFunctionBuilders.fieldValueFactorFunction("weighting").factor(0.5F).missing(1F));
-		*/
 
     }
 
@@ -279,19 +280,15 @@ public class OSQuery {
         String url = System.getenv("OPENSEARCH_URL");
         if (url == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_URL is not set");
-        if (request.getIndex() != null) {
-            if (url.contains("_search")) {
-                url = url.substring(0, url.substring(0, url.lastIndexOf("/")).lastIndexOf("/"));
-                url = url + "/" + request.getIndex();
-            }
-        }
 
+        String index = request.getIndex();
+        if (index == null)
+            index = System.getenv("OPENSEARCH_INDEX");
 
         if (System.getenv("OPENSEARCH_AUTH") == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(new URI(url + "/_search"))
-//				.timeout(Duration.of(10, ChronoUnit.SECONDS))
+                .uri(new URI(url + index + "/_search"))
                 .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(queryJson))
@@ -308,25 +305,26 @@ public class OSQuery {
             throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
         }
 
-        ObjectMapper resultMapper = new ObjectMapper();
-        JsonNode root = resultMapper.readTree(response.body());
-        List<SearchResultSummary> searchResults = new ArrayList<>();
-        return standardResponse(request, root, resultMapper, searchResults);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            JsonNode root = om.readTree(response.body());
+            List<SearchResultSummary> searchResults = new ArrayList<>();
+            return standardResponse(request, root, om, searchResults);
+        }
     }
 
-    private List<SearchResultSummary> standardResponse(SearchRequest request, JsonNode root, ObjectMapper resultMapper, List<SearchResultSummary> searchResults) throws JsonProcessingException {
+    private List<SearchResultSummary> standardResponse(SearchRequest request, JsonNode root, CachedObjectMapper resultMapper, List<SearchResultSummary> searchResults) throws JsonProcessingException {
         int resultNumber = 0;
         for (JsonNode hit : root.get("hits").get("hits")) {
             resultNumber++;
             SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
             searchResults.add(source);
             source.setMatch(source.getName());
-            if (resultNumber < 6) {
+            if (resultNumber < 6 && null != request.getTermFilter()) {
                 fetchMatchTerm(source, request.getTermFilter());
             }
             source.setTermCode(null);
         }
-        if (!searchResults.isEmpty())
+        if (!searchResults.isEmpty() && null != request.getTermFilter())
             sort(searchResults, request.getTermFilter());
         return searchResults;
     }
@@ -366,36 +364,32 @@ public class OSQuery {
     /**
      * An open search query using IMQ- Returns null if query cannot be done via open search.
      * <p>Application logic should try IM direct if null is returned</p>
+     *
      * @param queryRequest Query request object containing any textSearch term, paging and a query.
      * @return ObjectNode as determined by select statement
      * @throws DataFormatException if content of query definition is invalid
      */
 
     public ObjectNode openSearchQuery(QueryRequest queryRequest) throws DataFormatException {
-       if (queryRequest.getTextSearch()==null)
-           return null;
-       Query query= queryRequest.getQuery();
+        if (queryRequest.getTextSearch() == null)
+            return null;
+        Query query = queryRequest.getQuery();
 
        if (query.getSelect()!=null){
-           for (PropertySelect prop:query.getSelect().getProperty()) {
-               if (prop.getIri() != null) {
-                   if (!propIsSupported(prop.getIri()))
+           for (Select select:query.getSelect()) {
+               if (select.getProperty().getIri() != null) {
+                   if (!propIsSupported(select.getProperty().getIri()))
                        return null;
                }
-               if (prop.getSelect() != null)
+               if (select.getSelect() != null)
                    return null;
            }
-           List<Match> matches= query.getSelect().getMatch();
-           if (matches!=null){
-               for (Match match:matches){
-                   if (match.getProperty()!=null){
-                       for (PropertyValue pv:match.getProperty()){
-                           if (!propIsSupported(pv.getIri()))
-                               return null;
-                       }
-                   }
-               }
+           Where where= query.getWhere();
+           if (where!=null) {
+               if (!validateWhere(where))
+                   return null;
            }
+
        }
        SearchRequest searchRequest= convertIMToOS(queryRequest);
        List<SearchResultSummary> results= multiPhaseQuery(searchRequest);
@@ -406,52 +400,72 @@ public class OSQuery {
 
     }
 
-    private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
-        ObjectMapper om = new ObjectMapper();
-        ObjectNode result = om.createObjectNode();
-        ArrayNode resultNodes = om.createArrayNode();
-        result.set("entities", resultNodes);
-        for (SearchResultSummary searchResult : searchResults) {
-            ObjectNode resultNode = om.createObjectNode();
-            resultNodes.add(resultNode);
-            resultNode.put("@id", searchResult.getIri());
-            for (PropertySelect prop : query.getSelect().getProperty()) {
-                if (prop.getIri() != null) {
-                    String field = prop.getIri();
-                    if (prop.getAlias() != null)
-                        field = prop.getAlias();
-                    switch (prop.getIri()) {
-                        case (RDFS.NAMESPACE + "label"):
-                            resultNode.put(field, searchResult.getName());
-                            break;
-                        case (RDFS.NAMESPACE + "comment"):
-                            if (searchResult.getDescription() != null)
-                                resultNode.put(field, searchResult.getDescription());
-                            break;
-                        case (IM.NAMESPACE + "code"):
-                            resultNode.put(field, searchResult.getCode());
-                            break;
-                        case (IM.NAMESPACE + "status"):
-                            resultNode.set(field, fromIri(searchResult.getStatus(), om));
-                            break;
-                        case (IM.NAMESPACE + "scheme"):
-                            resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                            break;
-                        case (RDF.NAMESPACE + "type"):
-                            resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
-                            break;
-                        case (IM.NAMESPACE + "weighting"):
-                            resultNode.put(field, searchResult.getWeighting());
-                        default:
+    private boolean validateWhere(Where where){
+        if (where.getProperty()!=null){
+            if (!propIsSupported(where.getProperty().getIri()))
+                return false;
+        }
+        if (where.getAnd()!=null){
+            for (Where and:where.getAnd())
+                if (!validateWhere(and))
+                    return false;
+        }
+        if (where.getOr()!=null){
+            for (Where or:where.getOr())
+                if (!validateWhere(or))
+                    return false;
+        }
+        return true;
 
+
+    }
+
+    private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            ObjectNode result = om.createObjectNode();
+            ArrayNode resultNodes = om.createArrayNode();
+            result.set("entities", resultNodes);
+            for (SearchResultSummary searchResult : searchResults) {
+                ObjectNode resultNode = om.createObjectNode();
+                resultNodes.add(resultNode);
+                resultNode.put("@id", searchResult.getIri());
+                for (Select select : query.getSelect()) {
+                    TTAlias prop = select.getProperty();
+                    if (prop.getIri() != null) {
+                        String field = prop.getIri();
+                        switch (prop.getIri()) {
+                            case (RDFS.NAMESPACE + "label"):
+                                resultNode.put(field, searchResult.getName());
+                                break;
+                            case (RDFS.NAMESPACE + "comment"):
+                                if (searchResult.getDescription() != null)
+                                    resultNode.put(field, searchResult.getDescription());
+                                break;
+                            case (IM.NAMESPACE + "code"):
+                                resultNode.put(field, searchResult.getCode());
+                                break;
+                            case (IM.NAMESPACE + "status"):
+                                resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                                break;
+                            case (IM.NAMESPACE + "scheme"):
+                                resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                                break;
+                            case (RDF.NAMESPACE + "type"):
+                                resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
+                                break;
+                            case (IM.NAMESPACE + "weighting"):
+                                resultNode.put(field, searchResult.getWeighting());
+                            default:
+
+                        }
                     }
                 }
             }
+            return result;
         }
-        return result;
     }
 
-    private ObjectNode fromIri(TTIriRef iri,ObjectMapper om){
+    private ObjectNode fromIri(TTIriRef iri, CachedObjectMapper om){
         ObjectNode node= om.createObjectNode();
         node.put("@id",iri.getIri());
         if (iri.getName()!=null)
@@ -459,10 +473,10 @@ public class OSQuery {
         return node;
     }
 
-    private ArrayNode arrayFromIri(Set<TTIriRef> iris,ObjectMapper om){
+    private ArrayNode arrayFromIri(Set<TTIriRef> iris, CachedObjectMapper om){
 
-        ArrayNode arrayNode= om.createArrayNode();
-        for (TTIriRef iri:iris) {
+        ArrayNode arrayNode = om.createArrayNode();
+        for (TTIriRef iri : iris) {
             ObjectNode node = om.createObjectNode();
             node.put("@id", iri.getIri());
             if (iri.getName() != null)
@@ -473,14 +487,13 @@ public class OSQuery {
     }
 
 
-
     private SearchRequest convertIMToOS(QueryRequest imRequest) {
 
         SearchRequest request = new SearchRequest();
-        if (imRequest.getPage()!=null)
-         request.setPage(imRequest.getPage());
-        if (imRequest.getPageSize()!=null)
-            request.setSize(imRequest.getPageSize());
+        if (imRequest.getPage() != null) {
+            request.setPage(imRequest.getPage().getPageNumber());
+            request.setSize(imRequest.getPage().getPageSize());
+        }
         request.setTermFilter(imRequest.getTextSearch());
         Query query = imRequest.getQuery();
         request.addSelect("iri");
@@ -488,7 +501,8 @@ public class OSQuery {
         if (query.isActiveOnly())
             request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
         if (query.getSelect() != null) {
-            for (PropertySelect prop : query.getSelect().getProperty()) {
+            for (Select select : query.getSelect()) {
+                TTAlias prop = select.getProperty();
                 if (prop.getIri() != null) {
                     switch (prop.getIri()) {
                         case (RDFS.NAMESPACE + "comment"):
@@ -512,31 +526,33 @@ public class OSQuery {
                     }
                 }
             }
-            List<Match> matches = query.getSelect().getMatch();
-            for (Match match:matches){
-                if (match.getEntityType()!=null) {
-                    request.addType(match.getEntityType().getIri());
-                }
-                if (match.getEntityId()!=null)
-                    request.setIsA(List.of(match.getEntityId().getIri()));
+        }
+        List<From> fromList = query.getFrom();
+        if (fromList!=null){
+            for (From from:fromList){
+                if (!from.isType())
+                    return null;
+                else if (from.getAlias()!=null)
+                    return null;
+                else  request.addType(from.getIri());
             }
         }
         return request;
     }
 
     private static boolean propIsSupported(String iri) {
-        if (iri==null)
+        if (iri == null)
             return false;
         switch (iri) {
-            case (RDFS.NAMESPACE+"label") :
-            case (RDFS.NAMESPACE+"comment") :
-            case (IM.NAMESPACE+"code") :
-            case (IM.NAMESPACE+"status") :
-            case (IM.NAMESPACE+"scheme") :
-            case (RDF.NAMESPACE+"type") :
-            case (IM.NAMESPACE+"weighting") :
+            case (RDFS.NAMESPACE + "label"):
+            case (RDFS.NAMESPACE + "comment"):
+            case (IM.NAMESPACE + "code"):
+            case (IM.NAMESPACE + "status"):
+            case (IM.NAMESPACE + "scheme"):
+            case (RDF.NAMESPACE + "type"):
+            case (IM.NAMESPACE + "weighting"):
                 return true;
-            default :
+            default:
                 return false;
         }
 

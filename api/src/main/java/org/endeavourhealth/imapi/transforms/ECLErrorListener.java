@@ -18,9 +18,12 @@ public void syntaxError(Recognizer<?,?> recognizer,
    } else {
       Parser parser = (Parser) recognizer;
       IntervalSet expectedTokens = parser.getExpectedTokens();
+      String badSymbol="";
+      if (offendingSymbol instanceof CommonToken)
+         badSymbol= ((CommonToken) offendingSymbol).getText().split(",")[0];
       String message = "Expecting " + expectedTokens.toString(parser.getVocabulary());
-      throw new UnknownFormatConversionException("ECL Syntax error : " + message + " line " + line
-          + " offset " + charPositionInLine);
+      throw new UnknownFormatConversionException("ECL Syntax error :  line "
+          + " offset " + charPositionInLine + " i.e '"+badSymbol+"'  " + message);
    }
 }
 }

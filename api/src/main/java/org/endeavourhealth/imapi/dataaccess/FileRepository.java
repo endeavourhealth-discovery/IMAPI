@@ -326,11 +326,11 @@ public class FileRepository {
 
 	private String getSchemeFile(String fileType,String scheme){
 		scheme= scheme.substring(scheme.lastIndexOf("/")+1);
-		return dataPath+"\\"+fileType+"-"+scheme+".txt";
+		return dataPath+"/"+fileType+"-"+scheme+".txt";
 	}
 
 	private String getFile(String fileType){
-		return dataPath+"\\"+fileType+".txt";
+		return dataPath+"/"+fileType+".txt";
 	}
 
 	public String getDataPath() {

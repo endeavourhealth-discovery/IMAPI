@@ -16,7 +16,7 @@ public class SHACL {
    public static final TTIriRef PROPERTY_GROUP= iri(NAMESPACE +"propertyGroup");
    public static final TTIriRef MINCOUNT= iri(NAMESPACE +"minCount");
    public static final TTIriRef MAXCOUNT= iri(NAMESPACE +"maxCount");
-   public static final TTIriRef HASVALUE= iri(NAMESPACE +"hasValue");
+   public static final TTIriRef VALUE= iri(NAMESPACE +"value");
    public static final TTIriRef PATTERN= iri(NAMESPACE +"pattern");
    public static final TTIriRef INVERSEPATH= iri(NAMESPACE +"inversePath");
    public static final TTIriRef CLASS= iri(NAMESPACE +"class");
@@ -27,7 +27,7 @@ public class SHACL {
    public static final TTIriRef IRI= iri(NAMESPACE +"IRI");
    public static final TTIriRef OPTIONAL= iri(NAMESPACE +"optional");
    public static final TTIriRef NODESHAPE= iri(NAMESPACE +"NodeShape");
-   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"TargetClass");
+   public static final TTIriRef TARGETCLASS= iri(NAMESPACE +"targetClass");
    public static final TTIriRef NODE= iri(NAMESPACE +"node");
    public static final TTIriRef ORDER= iri(NAMESPACE +"order");
    public static final TTIriRef OR= iri(NAMESPACE +"or");
@@ -42,6 +42,8 @@ public class SHACL {
    public static final TTIriRef FUNCTION= iri(NAMESPACE +"Function");
    public static final TTIriRef RETURN_TYPE= iri(NAMESPACE +"returnType");
    public static final TTIriRef GROUP= iri(NAMESPACE +"group");
+   public static final TTIriRef NAME= iri(NAMESPACE +"name");
+   public static final TTIriRef EXPRESSION= iri(NAMESPACE +"expression");
 
 
 

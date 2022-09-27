@@ -1,0 +1,20 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http://endhealth.info/im#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http://snomed.info/sct#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+SELECT distinct ?entity  ?p3 ?p4 ?p5 ?p6 ?p7 ?p8 ?p9
+WHERE {?entity <http://www.w3.org/ns/shacl#property> ?o1.
+?o1 <http://www.w3.org/ns/shacl#path> ?o2.
+Filter (?o2=<http://endhealth.info/im#dateOfBirth>)
+ OPTIONAL { ?entity <http://www.w3.org/ns/shacl#property> ?p3.
+ OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#path> ?p4.}
+ OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#node> ?p5.}
+ OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#minCount> ?p6.}
+ OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#maxCount> ?p7.}
+ OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#class> ?p8.}
+ OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#datatype> ?p9.}
+}
+}

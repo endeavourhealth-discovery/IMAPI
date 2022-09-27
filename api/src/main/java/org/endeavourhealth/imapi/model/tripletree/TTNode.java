@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
@@ -13,6 +14,18 @@ import java.util.*;
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
     private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
+    private String iri;
+
+    @JsonProperty("@id")
+    public String getIri() {
+        return iri;
+    }
+
+    @JsonProperty("@id")
+    public TTNode setIri(String iri) {
+        this.iri = iri;
+        return this;
+    }
 
     public TTNode set(TTIriRef predicate, TTValue value) {
         if (value==null)
@@ -21,6 +34,32 @@ public class TTNode implements TTValue, Serializable {
             predicateValues.put(predicate, new TTArray().add(value));
         return this;
     }
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,String value){
+        if (value.startsWith("http:"))
+            this.set(predicate,TTIriRef.iri(value));
+        else
+            this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,Integer value){
+            this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,boolean value){
+        this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    @JsonIgnore
+    public TTNode set(TTIriRef predicate,Long value){
+        this.set(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
 
     public TTNode set(TTIriRef predicate, TTArray value) {
         predicateValues.put(predicate, value);
@@ -85,6 +124,51 @@ public class TTNode implements TTValue, Serializable {
         return this;
     }
 
+    /**
+     * Adds a String or string iri to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, String value){
+        if (value.startsWith("http:"))
+            this.addObject(predicate,TTIriRef.iri(value));
+        else
+            this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    /**
+     * Adds an integer value to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, Integer value){
+        this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
+    /**
+     * Adds an integer value to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, boolean value){
+        this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
+
+    /**
+     * Adds an integer value to a predicate if necessary converting to an array if not already an array
+     * @param predicate the predicate to add the object to. This may or may not already exist
+     * @return the modified node with a predicate object as an array
+     */
+
+    public TTNode addObject(TTIriRef predicate, Long value){
+        this.addObject(predicate,TTLiteral.literal(value));
+        return this;
+    }
 
 
 }

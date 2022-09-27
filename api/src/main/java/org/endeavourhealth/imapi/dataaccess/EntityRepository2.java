@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -157,14 +156,24 @@ public class EntityRepository2 {
      * @return
      */
     public TTBundle getBundle(
-        String iri, Set<String> predicates,
+        String iri,
+        Set<String> predicates,
         boolean excludePredicates
+    ) {
+        return getBundle(iri, predicates, excludePredicates, 5);
+    }
+
+    public TTBundle getBundle(
+        String iri,
+        Set<String> predicates,
+        boolean excludePredicates,
+        int depth
     ) {
         TTBundle bundle = new TTBundle()
           .setEntity(new TTEntity().setIri(iri))
           .setPredicates(new HashMap<>());
 
-        StringJoiner sql = getBundleSparql(predicates, excludePredicates);
+        StringJoiner sql = getBundleSparql(predicates, excludePredicates, depth);
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             GraphQuery qry=conn.prepareGraphQuery(sql.toString());
@@ -174,13 +183,10 @@ public class EntityRepository2 {
                 for (org.eclipse.rdf4j.model.Statement st : gs) {
                     processStatement(bundle, valueMap, iri, st);
                 }
-                TTManager.unwrapRDFfromJson(bundle.getEntity());
                 Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
                 getIriNames(conn,iris);
                 setNames(bundle.getEntity(), iris);
                 iris.forEach(bundle::addPredicate);
-            } catch (IOException ignored) {
-                //Do nothing
             }
             return bundle;
         }
@@ -329,9 +335,10 @@ public class EntityRepository2 {
             .add(IM_PREFIX)
             .add(RDFS_PREFIX)
             .add("select ?concept ?label");
-        for (String scheme:schemes)
-            sql.add("from <"+scheme+">")
-                .add("where { {")
+        for (String scheme:schemes) {
+            sql.add("from <" + scheme + ">");
+        }
+        sql.add("where { {")
                 .add("?concept rdfs:label ?term.")
                 .add("filter(isIri(?concept))}")
                 .add("union { ?concept im:hasTermCode ?tc.")
@@ -419,9 +426,9 @@ public class EntityRepository2 {
 
     private StringJoiner getBundleSparql(
         Set<String> predicates,
-        boolean excludePredicates
+        boolean excludePredicates,
+        int depth
     ) {
-        int  depth= 5;
         StringJoiner sql = new StringJoiner(System.lineSeparator());
         sql.add(RDFS_PREFIX);
         sql.add("CONSTRUCT {")
@@ -457,11 +464,11 @@ public class EntityRepository2 {
                 .add("  OPTIONAL {?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name")
                 .add("    FILTER (!isBlank(?" + (i + 1) + "Level))}");
         }
-        sql.add("}}}}}");
+        sql.add(String.join("", Collections.nCopies(depth, "}")));
         return sql;
     }
 
-    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st) {
+    private void processStatement(TTBundle bundle, Map<String,TTValue> tripleMap, String entityIri, Statement st) throws RuntimeException {
         TTEntity entity = bundle.getEntity();
         Resource s= st.getSubject();
         IRI p= st.getPredicate();
@@ -581,15 +588,23 @@ public class EntityRepository2 {
     }
 
     private void graphWherePattern(TTArray definition, StringJoiner spql,Map<String, String> prefixMap) {
-        if (definition.isIriRef()) {
-            simpleSuperClass(definition.asIriRef(), spql, prefixMap);
-        } else if (definition.asNode().get(SHACL.OR) != null) {
-            orClause(definition.asNode().get(SHACL.OR), spql, prefixMap);
+        for (TTValue clause:definition.getElements()) {
+            if (clause.isIriRef()) {
+                simpleSuperClass(clause.asIriRef(), spql, prefixMap);
+            } else {
+                if (clause.asNode().get(SHACL.OR) != null) {
+                    orClause(clause.asNode().get(SHACL.OR), spql, prefixMap);
 
-        } else if (definition.asNode().get(SHACL.AND) != null) {
-            Boolean hasRoles = andClause(definition.asNode().get(SHACL.AND), true, spql, prefixMap);
-            if (Boolean.TRUE.equals(hasRoles)) {
-                andClause(definition.asNode().get(SHACL.AND), false, spql, prefixMap);
+                }
+                if (clause.asNode().get(SHACL.AND) != null) {
+                    Boolean hasRoles = andClause(clause.asNode().get(SHACL.AND), true, spql, prefixMap);
+                    if (Boolean.TRUE.equals(hasRoles)) {
+                        andClause(clause.asNode().get(SHACL.AND), false, spql, prefixMap);
+                    }
+                }
+                if (clause.asNode().get(SHACL.NOT) != null) {
+                    notClause(clause.asNode().get(SHACL.NOT), spql, prefixMap);
+                }
             }
         }
     }
@@ -705,7 +720,7 @@ public class EntityRepository2 {
         }
         for (TTValue inter : and.getElements()) {
             if (inter.isNode() && inter.asNode().get(SHACL.NOT) != null)
-                notClause(inter.asNode().get(SHACL.NOT).asValue(), spql, prefixMap);
+                notClause(inter.asNode().get(SHACL.NOT), spql, prefixMap);
         }
         return hasRoles;
     }
@@ -714,17 +729,31 @@ public class EntityRepository2 {
         return getShort(IM.IS_A.getIri(), prefixMap);
     }
 
-    private void notClause(TTValue not, StringJoiner spql, Map<String,String> prefixMap) {
+    private void notClause(TTArray notClause, StringJoiner spql, Map<String,String> prefixMap) {
         spql.add("MINUS {");
-        if (not.isIriRef())
-            simpleSuperClass(not.asIriRef(),spql, prefixMap);
-        else if (not.isNode()) {
-            if (not.asNode().get(SHACL.OR) != null) {
-                orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
-            } else if (not.asNode().get(SHACL.AND) != null) {
-                Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
-                if (Boolean.TRUE.equals(hasRoles)) {
-                    andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+        if (notClause.size()>1){
+            spql.add("{ ?concept " + isa(prefixMap) + " ?notClass.");
+            StringBuilder values = new StringBuilder();
+            for (TTValue superClass : notClause.getElements()) {
+                if (superClass.isIriRef())
+                    values.append(getShort(superClass.asIriRef().getIri(), prefixMap)).append(" ");
+            }
+            spql.add("VALUES ?notClass {" + values + "}}");
+
+        }
+        else {
+            for (TTValue not : notClause.getElements()) {
+                if (not.isIriRef())
+                    simpleSuperClass(not.asIriRef(), spql, prefixMap);
+                else if (not.isNode()) {
+                    if (not.asNode().get(SHACL.OR) != null) {
+                        orClause(not.asNode().get(SHACL.OR), spql, prefixMap);
+                    } else if (not.asNode().get(SHACL.AND) != null) {
+                        Boolean hasRoles = andClause(not.asNode().get(SHACL.AND), true, spql, prefixMap);
+                        if (Boolean.TRUE.equals(hasRoles)) {
+                            andClause(not.asNode().get(SHACL.AND), false, spql, prefixMap);
+                        }
+                    }
                 }
             }
         }

@@ -37,6 +37,7 @@ public class IM {
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
     public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
     public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
     public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
@@ -44,8 +45,7 @@ public class IM {
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");
     public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
     public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
-    public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "FunctionProperty");
-    public static final TTIriRef QUERY_PROPERTY = iri(NAMESPACE + "QueryProperty");
+    public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "functionProperty");
 
 
     //Collection predicates
@@ -201,6 +201,8 @@ public class IM {
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
     public static final TTIriRef ORDER = iri(NAMESPACE + "order");
+    public static final TTIriRef EXAMPLE = iri(NAMESPACE + "example");
+
 
     //im1
     public static final TTIriRef IM1ID = iri(NAMESPACE + "im1Id");
@@ -212,7 +214,6 @@ public class IM {
     public static final TTIriRef VALUE_SELECT = iri(NAMESPACE + "valueSelect");
     public static final TTIriRef VALUE_VARIABLE = iri(NAMESPACE + "valueVariable");
     public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
-    public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE + "query");
     public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
     // ODS
@@ -228,6 +229,9 @@ public class IM {
     public static final TTIriRef POST_CODE = iri(NAMESPACE + "postCode");
     public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
     public static final TTIriRef UPRN = iri(NAMESPACE + "#uprn");
+
+    //Editor
+    public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");
 
     private IM() {
     }

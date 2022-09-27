@@ -1,15 +1,17 @@
+/// <reference types="vite/client" />
 import App from './app';
 import * as dotenv from "dotenv";
 
 import SearchController from './controllers/searchController';
 
-const bodyParser = require('body-parser');
-
 import EntityController from './controllers/entityController';
 import QueryController from './controllers/queryController';
+import ValidationController from './controllers/validationController';
+import bodyParser from 'body-parser';
+import * as dns from 'dns';
 
-dotenv.config({ path: __dirname+'/.env' });
-const dns = require('dns');
+dotenv.config({ path: './src/.env' });
+
 dns.setDefaultResultOrder('ipv4first');
 
 const app = new App({
@@ -17,7 +19,8 @@ const app = new App({
   controllers: [
     new SearchController(),
     new EntityController(),
-    new QueryController()
+    new QueryController(),
+    new ValidationController()
   ],
   middleWares: [
     bodyParser.json(),
@@ -25,4 +28,7 @@ const app = new App({
   ],
 })
 
-app.listen();
+if (import.meta.env.PROD)
+  app.listen();
+
+export const viteNodeApp = app.app;

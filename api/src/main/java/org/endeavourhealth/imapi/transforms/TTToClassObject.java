@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.lang.reflect.*;
@@ -98,8 +98,9 @@ public class TTToClassObject {
 	}
 
 	private Object jsonNodeFromLiteral(String json,Class<?> classType) throws JsonProcessingException {
-		return new ObjectMapper().readValue(json,classType);
-
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return om.readValue(json, classType);
+        }
 	}
 
 	private void setValue(Object object,String fieldName, TTLiteral value, Type type) {
@@ -109,7 +110,7 @@ public class TTToClassObject {
 		}
 		else if (type==Long.class)
 			setField(object,fieldName,value.asLiteral().longValue());
-		else if (type==boolean.class)
+		else if (type==Boolean.class)
 			setField(object,fieldName,value.asLiteral().booleanValue());
 		else
 			setField(object,fieldName,value.asLiteral().intValue());

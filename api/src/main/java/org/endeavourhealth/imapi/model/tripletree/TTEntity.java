@@ -14,7 +14,6 @@ import java.util.List;
 @JsonSerialize(using = TTEntitySerializer.class)
 @JsonDeserialize(using = TTEntityDeserializer.class)
 public class TTEntity extends TTNode implements Serializable {
-    private String iri;
     private TTContext context = new TTContext();
     private TTIriRef crud;
     private TTIriRef graph;
@@ -22,15 +21,12 @@ public class TTEntity extends TTNode implements Serializable {
     public TTEntity() {}
 
     public TTEntity(String iri) {
-        this.iri = iri;
-    }
 
-    public String getIri() {
-        return iri;
+        super.setIri(iri);
     }
 
     public TTEntity setIri(String iri) {
-        this.iri = iri;
+        super.setIri(iri);
         return this;
     }
 

@@ -1,31 +1,38 @@
 {
   "query" : {
     "name" : "FamilyHistoryExpansionObjectFormat",
-    "description" : "expands the family history value set including legacy codes",
-    "resultFormat" : "OBJECT",
-    "select" : {
-      "entityIn" : {
-        "@id" : "http://endhealth.info/im#VSET_FamilyHistory"
+    "where" : {
+      "property" : {
+        "inverse" : true,
+        "@id" : "http://endhealth.info/im#hasMember"
       },
-      "property" : [ {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
-        "alias" : "term"
-      }, {
+      "is" : {
+        "@id" : "http://endhealth.info/im#VSET_FamilyHistory"
+      }
+    },
+    "select" : [ {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    }, {
+      "property" : {
         "@id" : "http://endhealth.info/im#code"
+      }
+    }, {
+      "property" : {
+        "inverse" : true,
+        "@id" : "http://endhealth.info/im#matchedTo"
+      },
+      "select" : [ {
+        "property" : {
+          "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+        }
       }, {
-        "@id" : "http://endhealth.info/im#matchedTo",
-        "inverseOf" : true,
-        "select" : {
-          "property" : [ {
-            "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
-            "alias" : "legacyTerm"
-          }, {
-            "@id" : "http://endhealth.info/im#code",
-            "alias" : "legacyCode"
-          } ]
+        "property" : {
+          "@id" : "http://endhealth.info/im#code"
         }
       } ]
-    },
+    } ],
     "usePrefixes" : true
   }
 }

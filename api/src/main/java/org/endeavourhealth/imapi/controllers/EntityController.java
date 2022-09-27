@@ -12,13 +12,13 @@ import java.util.zip.DataFormatException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -91,11 +91,17 @@ public class EntityController {
 		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
 	}
 
-	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
+	@GetMapping(value = "/public/matchedFrom", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getSimpleMaps");
-		return entityService.getSimpleMaps(iri);
+		LOG.debug("getMatchedFrom");
+		return entityService.getMatchedFrom(iri);
 	}
+
+    @GetMapping(value = "/public/matchedTo", produces = "application/json")
+    public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) {
+        LOG.debug("getMatchedTo");
+        return entityService.getMatchedTo(iri);
+    }
 
     @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(
@@ -108,10 +114,11 @@ public class EntityController {
 
 	@GetMapping(value = "/public/entityAsPlainJson", produces = "application/json")
 	public String getForm(
-		@RequestParam(name = "iri") String iri
+		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "depth", required = false) Integer depth
 	) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
 		LOG.debug("getEntityAsPlainJson");
-		return entityService.getAsPlainJson(iri);
+		return entityService.getAsPlainJson(iri, depth == null ? 5 : depth);
 	}
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
@@ -239,14 +246,15 @@ public class EntityController {
 			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".txt\"");
 			return new HttpEntity<>(turtle, headers);
 		} else {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
-			return new HttpEntity<>(json, headers);
+            try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+                String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
+                return new HttpEntity<>(json, headers);
+            }
 		}
 	}
 

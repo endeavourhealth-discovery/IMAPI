@@ -28,7 +28,7 @@ tasks {
 sonarqube {
     properties {
         property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::api'
-        property 'sonar.exclusions', '**/parser/**, **/transforms/**/eqd/**'
+        property 'sonar.exclusions', '**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/model/**, **/parser/**, **/vocabulary/**'
     }
 }
 
@@ -41,14 +41,18 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.awsS3
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind
     implementation libs.logbackCore
     implementation libs.logbackClassic
     implementation libs.elasticsearch
+    implementation libs.jerseyClient
     implementation libs.owlApi
     implementation libs.reactorCore
+    implementation libs.rdf4jCommon
     implementation libs.rdf4jQuery
+    implementation libs.rdf4jIterator
     implementation libs.rdf4jRepoApi
     implementation libs.rdf4jRepoHttp
     implementation libs.rdf4jRepoSail
@@ -63,11 +67,15 @@ dependencies {
     implementation libs.springdoc
     implementation libs.validation
     implementation libs.woodstox
-    implementation libs.awsS3
+    implementation libs.wsrs
+
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
 
+    testImplementation libs.cucumber
+    testImplementation libs.cucumberJunit
     testImplementation libs.junitRunner
+    testImplementation libs.junitVintage
     testImplementation libs.mockito
     testImplementation libs.springTest
     testImplementation libs.springTestSecurity
@@ -91,6 +99,27 @@ publishing {
 
 test {
     useJUnitPlatform()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumberCli() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'html:build/reports/cucumber/cucumber-report.html',
+                    '--glue', 'org.endeavourhealth.imapi',
+                    'src/test/resources']
+        }
+    }
 }
 
 description = 'Information Model API'

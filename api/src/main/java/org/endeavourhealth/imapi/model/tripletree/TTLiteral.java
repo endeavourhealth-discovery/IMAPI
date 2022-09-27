@@ -2,9 +2,11 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -40,6 +42,8 @@ public class TTLiteral implements TTValue, Serializable {
     public static TTLiteral literal(Pattern value) {
         return new TTLiteral(value);
     }
+
+    public static TTLiteral literal(Object value) throws JsonProcessingException { return new TTLiteral(value); }
 
     public static TTLiteral literal(JsonNode node) {
         if (!node.isValueNode())
@@ -91,6 +95,13 @@ public class TTLiteral implements TTValue, Serializable {
         this.type = XSD.PATTERN;
     }
 
+    public TTLiteral(Object value) throws JsonProcessingException {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            this.value = om.writeValueAsString(value);
+            this.type = XSD.STRING;
+        }
+    }
+
     public String getValue() {
         return value;
     }
@@ -110,6 +121,12 @@ public class TTLiteral implements TTValue, Serializable {
 
     public Pattern patternValue() {
         return Pattern.compile(this.value);
+    }
+
+    public <T> T objectValue(Class<T> valueType) throws JsonProcessingException {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return om.readValue(this.value, valueType);
+        }
     }
 
     public TTLiteral setValue(String value) {

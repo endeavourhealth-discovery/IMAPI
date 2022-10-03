@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.iml.From;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
@@ -37,19 +36,18 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 	}
 
 	/**
-	 * Converts an ECL string into IM Query definition class. Assumes active only concepts are requested.
-	 * <p>To include inactive concepts use method with boolean activeOnly= false</p>
+	 * Converts an ECL string into IM Query definition class. Assumes active and inactive concepts are requested.
+	 * <p>To include only active concepts use method with boolean activeOnly= true</p>
 	 * @param ecl String compliant with ECL
 	 * @return Class conforming to IM Query model JSON-LD when serialized.
 	 * @throws DataFormatException for invalid ECL.
 	 */
 	public Query getQueryFromECL(String ecl) throws DataFormatException {
-		return getClassExpression(ecl,true);
+		return getClassExpression(ecl,false);
 	}
 
 	/**
 	 * Converts an ECL string into IM Query definition class.
-	 * <p>To include inactive concepts use method with boolean activeOnly= false</p>
 	 * @param ecl String compliant with ECL
 	 * @param activeOnly  boolean true if limited to active concepts
 	 * @return Class conforming to IM Query model JSON-LD when serialized.
@@ -86,9 +84,14 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 				if (or.getFrom() != null) {
 					if (or.getAnd() == null) {
 						if (or.getOr() == null) {
-							if (or.getNotExist() == null) {
-								for (From from:or.getFrom()){
-									flatWhere.addFrom(from);
+							if (or.getPath()==null){
+								if (or.getNotExist() == null) {
+									for (TTAlias from : or.getFrom()) {
+										flatWhere.addFrom(from);
+									}
+								}
+								else {
+									simpleOr= false;
 								}
 							} else {
 								simpleOr= false;
@@ -106,8 +109,11 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		}
 		else
 			simpleOr= false;
-		if (simpleOr)
+		if (simpleOr) {
+			if (where.getNotExist()!=null)
+				flatWhere.setNotExist(where.getNotExist());
 			return flatWhere;
+		}
 		else
 			return where;
 	}
@@ -335,7 +341,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		else
 			conceptIri= concept;
 		if (excludeSelf) {
-			From from= new From();
+			TTAlias from= new TTAlias();
 			from
 				.setIri(conceptIri).setIncludeSubtypes(true).setExcludeSelf(true);
 			if (name!=null)
@@ -343,7 +349,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			where.addFrom(from);
 		}
 		else if (includeSubs){
-			From from= new From();
+			TTAlias from= new TTAlias();
 			from
 				.setIri(conceptIri).setIncludeSubtypes(true);
 			if (name!=null)
@@ -352,7 +358,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 		}
 		else {
-			From from= new From();
+			TTAlias from= new TTAlias();
 			from
 				.setIri(conceptIri).setIncludeSubtypes(false);
 			if (name!=null)

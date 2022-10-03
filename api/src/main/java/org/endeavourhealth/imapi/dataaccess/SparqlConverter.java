@@ -80,6 +80,8 @@ public class SparqlConverter {
 	}
 
 	private void validateQuery() throws DataFormatException {
+		if (query.getFrom()==null&&query.getWhere()==null)
+			throw new DataFormatException("Query must have a from or where clause");
 		if (query.getWhere()!=null)
 			validateWhere(query.getWhere());
 		if (query.getSelect()!=null)
@@ -149,9 +151,9 @@ public class SparqlConverter {
 
 
 
-	private void from(StringBuilder whereQl, List<From> fromList) throws DataFormatException {
+	private void from(StringBuilder whereQl, List<TTAlias> fromList) throws DataFormatException {
 		Map<String,List<String>> fromTypes= new HashMap<>();
-		for (From from:fromList) {
+		for (TTAlias from:fromList) {
 			if (from.isType()) {
 				if (from.isIncludeSubtypes()) {
 					fromTypes.computeIfAbsent("subtypes", s -> new ArrayList<>());
@@ -224,14 +226,13 @@ public class SparqlConverter {
 			else if (key.equals("subtypes")) {
 				o++;
 				whereQl.append("?").append("entity").append(" rdf:type ?").append("supertype").append(o).append(".\n");
-
 				whereQl.append("?").append("supertype").append(o).append(" im:isA ?").append("supersupertype").append(o).append(".\n");
 				whereQl.append("Filter (?supersupertype").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
 			}
 			else if (key.equals("aliases")) {
 				o++;
 				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
-				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+				whereQl.append("Filter (?type").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
 
 			}
 			else if (key.equals("sets")){
@@ -242,7 +243,12 @@ public class SparqlConverter {
 			else if (key.equals("variables")){
 				o++;
 				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
-				whereQl.append("Filter (?entity").append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+				whereQl.append("Filter (?type").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+			}
+			else if (key.equals("types")){
+				o++;
+				whereQl.append("?").append("entity").append(" rdf:type ?").append("type").append(o).append(".\n");
+				whereQl.append("Filter (?type").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
 			}
 
 			if (union)
@@ -524,9 +530,12 @@ public class SparqlConverter {
 			String object;
 			if (select.getProperty() != null) {
 				TTAlias property= select.getProperty();
+				object= property.getAlias();
+				if (object==null) {
 					o++;
 					object = "p" + o;
 					property.setAlias(object);
+				}
 				String inverse= select.getProperty().isInverse() ?"^" : "";
 				selectQl.append(" ?").append(object);
 				whereQl.append(" OPTIONAL { ?").append(subject).append(" ").append(inverse).append(iriFromString(property.getIri()))

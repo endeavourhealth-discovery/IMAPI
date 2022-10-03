@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public class Where {
 	private String alias;
 	private String description;
-	private List<From> from;
+	private List<TTAlias> from;
 	private String graph;
 	private boolean not;
 	private String path;
@@ -78,25 +78,25 @@ public class Where {
 		return this;
 	}
 
-	public List<From> getFrom() {
+	public List<TTAlias> getFrom() {
 		return from;
 	}
 
 	@JsonSetter
-	public Where setFrom(List<From> from) {
+	public Where setFrom(List<TTAlias> from) {
 		this.from = from;
 		return this;
 	}
 
-	public Where addFrom(From from){
+	public Where addFrom(TTAlias from){
 		if (this.from==null)
 			this.from= new ArrayList<>();
 		this.from.add(from);
 		return this;
 	}
 
-	public Where from(Consumer<From> builder) {
-		From from= new From();
+	public Where from(Consumer<TTAlias> builder) {
+		TTAlias from= new TTAlias();
 		this.addFrom(from);
 		builder.accept(from);
 		return this;

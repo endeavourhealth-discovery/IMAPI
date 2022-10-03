@@ -23,22 +23,11 @@ class ECLToIMTest {
 			"<< 10601006 OR (<< 29857009 AND  (<<29857009:263502005 = 424124008)) OR <<102588006",
 			"<< 10601006 OR (<< 29857009 AND ( (<<29857009:263502005 = 424124008) OR <<102588006))"
 	)) {
-			ECLToTT cnv = new ECLToTT();
 			ECLToIML iml = new ECLToIML();
 			Query query = iml.getQueryFromECL(ecl);
 			String ecl2 = IMLToECL.getECLFromQuery(query, true);
 			assertEquals(ecl.replaceAll(" ", ""), ecl2.replaceAll(" ", "").replaceAll("\n", ""));
 		}
-		//System.out.println(ecl2);
-		//System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(query));
-		/*
-		TTEntity entity = new TTEntity();
-		entity.setContext(new TTManager().createDefaultContext());
-		entity.set(IM.DEFINITION,cnv.getClassExpression(ecl));
-		String ecl2=TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), false);
-		System.out.println(ecl2);
-		assertEquals(ecl,ecl2);
 
-		 */
 	}
 }

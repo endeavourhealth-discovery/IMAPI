@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends TTAlias {
 	private String description;
-	private List<From> from;
+	private List<TTAlias> from;
 	private List<Select> select;
 	private Where where;
 	private List<TTAlias> orderBy;
@@ -49,24 +49,24 @@ public class Query extends TTAlias {
 	}
 
 
-	public List<From> getFrom() {
+	public List<TTAlias> getFrom() {
 		return from;
 	}
 
 	@JsonSetter
-	public Query setFrom(List<From> from) {
+	public Query setFrom(List<TTAlias> from) {
 		this.from=from;
 		return this;
 	}
 
-	public Query from(Consumer<From> builder){
-		From from =new From();
+	public Query from(Consumer<TTAlias> builder){
+		TTAlias from =new TTAlias();
 		this.addFrom(from);
 		builder.accept(from);
 		return this;
 	}
 
-	public Query addFrom(From from){
+	public Query addFrom(TTAlias from){
 		if (this.from==null)
 			this.from= new ArrayList<>();
 		this.from.add(from);

@@ -17,7 +17,6 @@ import org.endeavourhealth.imapi.logic.service.OSQuery;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.iml.Select;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -92,14 +91,13 @@ public class QueryRepository {
     }
 
     private TTDocument graphSelectSearch(String spq, RepositoryConnection conn) {
-        TupleQuery qry = conn.prepareTupleQuery(spq);
-        try (TupleQueryResult rs = qry.evaluate()) {
-            Map<Value, TTEntity> entityMap = new HashMap<>();
+
+        TupleQueryResult rs= sparqlQuery(spq,conn);
+        Map<Value, TTEntity> entityMap = new HashMap<>();
             while (rs.hasNext()) {
                 BindingSet bs = rs.next();
                 bindObjects(bs, result, entityMap);
             }
-        }
 
         if (!predicates.isEmpty()) {
             Set<String> sparqlPredicates = new HashSet<>();
@@ -109,8 +107,7 @@ public class QueryRepository {
                 "select ?predicate ?label \nwhere {" +
                 "?predicate <" + RDFS.LABEL.getIri() + "> ?label.\n" +
                 "filter (?predicate in (" + predlist + "))}";
-            qry = conn.prepareTupleQuery(predLookup);
-            try (TupleQueryResult rs = qry.evaluate()) {
+            rs= sparqlQuery(predLookup,conn);
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
                     Value predicate = bs.getValue("predicate");
@@ -118,11 +115,18 @@ public class QueryRepository {
                     if (label != null)
                         result.getPredicates().put(predicate.stringValue(), label.stringValue());
                 }
-            }
+
         }
         return result;
 
     }
+
+    private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn) {
+        TupleQuery qry = conn.prepareTupleQuery(spq);
+        return qry.evaluate();
+    }
+
+
 
     private void bindObjects(BindingSet bs, TTDocument result, Map<Value, TTEntity> entityMap) {
         Value entityValue = bs.getValue("entity");
@@ -143,23 +147,23 @@ public class QueryRepository {
 
     private void bindObject(BindingSet bs, Map<String, TTNode> valueMap, TTNode node, Select select, String path) {
         String alias = select.getProperty().getAlias();
-        TTAlias property = select.getProperty();
+        TTIriRef predicate= TTIriRef.iri(select.getProperty().getIri());
         Value value = bs.getValue(alias);
         if (value == null)
             return;
         if (value.isIRI()) {
             if (select.getSelect() == null) {
-                node.addObject(property, TTIriRef.iri(resultIri(value.stringValue())));
+                node.addObject(predicate, TTIriRef.iri(resultIri(value.stringValue())));
             } else {
                 TTNode subNode = valueMap.get(path + (value.stringValue()));
                 if (subNode == null) {
                     subNode = new TTNode();
                     subNode.setIri(resultIri(value.stringValue()));
                     valueMap.put(path + value.stringValue(), subNode);
-                    node.addObject(property, subNode);
+                    node.addObject(predicate, subNode);
                 }
                 for (Select subSelect : select.getSelect()) {
-                    bindObject(bs, valueMap, subNode, subSelect, path + "/" + property.getIri());
+                    bindObject(bs, valueMap, subNode, subSelect, path + "/" + predicate.getIri());
                 }
             }
         } else if (value.isBNode()) {
@@ -167,19 +171,19 @@ public class QueryRepository {
             if (subNode == null) {
                 subNode = new TTNode();
                 valueMap.put(path + value.stringValue(), subNode);
-                node.addObject(property, subNode);
+                node.addObject(predicate, subNode);
             }
             if (select.getSelect() != null) {
                 for (Select subSelect : select.getSelect()) {
-                    bindObject(bs, valueMap, subNode, subSelect, path + "/" + property.getIri());
+                    bindObject(bs, valueMap, subNode, subSelect, path + "/" + predicate.getIri());
                 }
             }
         } else {
             if (value.isLiteral()) {
-                node.addObject(property, TTLiteral.literal(value.stringValue()));
+                node.addObject(predicate, TTLiteral.literal(value.stringValue()));
             }
         }
-        predicates.add(property.getIri());
+        predicates.add(predicate.getIri());
     }
 
     private String resultIri(String iri) {

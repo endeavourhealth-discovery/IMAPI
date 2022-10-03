@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
+import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -22,8 +23,8 @@ import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
 import org.endeavourhealth.imapi.model.valuset.MemberType;
 import org.endeavourhealth.imapi.model.valuset.SetAsObject;
 import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
-import org.endeavourhealth.imapi.transforms.TTToECL;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.validators.EntityValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -489,6 +490,7 @@ public class EntityService {
             if (limit != null && (memberCount + memberHashMap.size()) > limit) return memberHashMap;
 
             memberHashMap.put(member.getEntity().getIri() + "/" + member.getCode(), member);
+            /*
             if (expand) {
                 setRepository
                     .expandMember(member.getEntity().getIri(), limit)
@@ -498,6 +500,8 @@ public class EntityService {
                         memberHashMap.put(m.getEntity().getIri() + "/" + m.getCode(), m);
                     });
             }
+
+             */
         }
         return memberHashMap;
     }
@@ -877,18 +881,21 @@ public class EntityService {
         return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
-    public String getEcl(TTBundle inferred) throws DataFormatException {
+    public String getEcl(TTBundle inferred) throws DataFormatException, JsonProcessingException {
         if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
-        if (inferred.getEntity() == null || inferred.getEntity().asNode().getPredicateMap().isEmpty())
+        if (inferred.getEntity().get(IM.DEFINITION)!=null)
+            return IMLToECL.getECLFromQuery(inferred.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
+        else if (inferred.getEntity().get(IM.HAS_MEMBER)!=null)
+            return IMLToECL.getMembersAsECL(inferred.getEntity().get(IM.HAS_MEMBER));
+        else
             throw new DataFormatException("Missing entity bundle definition for ECL conversion");
-        return TTToECL.getExpressionConstraint(inferred.getEntity(), true);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException {
+    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy, flat);
+        return new ExcelSetExporter().getSetAsExcel(iri, core, legacy,flat);
     }
 
     /**

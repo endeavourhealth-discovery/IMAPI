@@ -416,7 +416,7 @@ public class EntityController {
 	}
 
 	@PostMapping("/public/ecl")
-	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
+	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException, JsonProcessingException {
 		LOG.debug("getEcl");
 		return entityService.getEcl(inferred);
 	}

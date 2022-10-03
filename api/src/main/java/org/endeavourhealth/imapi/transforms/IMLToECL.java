@@ -1,14 +1,11 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.iml.From;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.List;
-import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class IMLToECL {
@@ -38,7 +35,7 @@ public class IMLToECL {
 			ecl.append("(");
 		if (where.getFrom()!=null) {
 			boolean first = true;
-			for (From from : where.getFrom()) {
+			for (TTAlias from : where.getFrom()) {
 				if (!first)
 					ecl.append(" OR ");
 				else

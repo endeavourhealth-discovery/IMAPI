@@ -15,17 +15,38 @@ public class TTAlias extends TTIriRef {
 	private boolean includeSubtypes;
 	private boolean includeMembers;
 	private boolean excludeSelf;
-	private boolean asType;
+	private boolean isType;
+	private boolean isSet;
 
-	public boolean isAsType() {
-		return asType;
+	@JsonProperty("isSet")
+	public boolean isSet() {
+		return isSet;
 	}
 
 	@JsonSetter
-	public TTAlias setAsType(boolean asType) {
-		this.asType = asType;
+	public TTAlias setIsSet(boolean set) {
+		isSet = set;
 		return this;
 	}
+
+
+
+
+	public boolean isType() {
+		return isType;
+	}
+
+	@JsonSetter
+	public TTAlias setType(boolean type) {
+		this.isType = type;
+		return this;
+	}
+
+	public TTAlias setIsType(boolean asType) {
+		this.isType = asType;
+		return this;
+	}
+
 
 	public boolean isExcludeSelf() {
 		return excludeSelf;
@@ -35,6 +56,8 @@ public class TTAlias extends TTIriRef {
 		this.excludeSelf = excludeSelf;
 		return this;
 	}
+
+
 
 	public boolean isIncludeSupertypes() {
 		return includeSupertypes;
@@ -90,8 +113,6 @@ public class TTAlias extends TTIriRef {
 	}
 
 	public TTAlias(){}
-
-
 
 
 

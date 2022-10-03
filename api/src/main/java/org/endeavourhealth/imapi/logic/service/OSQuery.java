@@ -527,9 +527,9 @@ public class OSQuery {
                 }
             }
         }
-        List<From> fromList = query.getFrom();
+        List<TTAlias> fromList = query.getFrom();
         if (fromList!=null){
-            for (From from:fromList){
+            for (TTAlias from:fromList){
                 if (!from.isType())
                     return null;
                 else if (from.getAlias()!=null)

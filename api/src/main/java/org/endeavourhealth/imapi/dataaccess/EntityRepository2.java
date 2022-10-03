@@ -5,7 +5,6 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.model.CoreLegacyCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -26,106 +25,9 @@ public class EntityRepository2 {
     private String SH_PREFIX = "PREFIX sh: <" + SHACL.NAMESPACE + ">";
     private String SN_PREFIX = "PREFIX sn: <" + SNOMED.NAMESPACE + ">";
 
-    /**
-     * Gets the (definition based) expansion set for a concept set
-     *
-     * @param definition    definition of the set
-     * @param includeLegacy flag whether to include legacy codes
-     * @return A set of Core codes and their legacy codes
-     */
-    public Set<CoreLegacyCode> getSetExpansion(TTArray definition, boolean includeLegacy) {
-        String sql = getExpansionAsSelect(definition, includeLegacy);
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(sql);
-            return getCoreLegacyCodesForSparql(qry, includeLegacy);
-        }
-    }
 
-    public Set<CoreLegacyCode> getSetMembers(String setIri, boolean includeLegacy) {
-        StringJoiner spql = new StringJoiner(System.lineSeparator())
-            .add("PREFIX im: <" + IM.NAMESPACE + ">")
-            .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-            .add("select * where { ")
-            .add("    ?setIri im:hasMember ?concept .")
-            .add("    ?concept rdfs:label ?name;")
-            .add("       im:code ?code;")
-            .add("       im:scheme ?scheme.")
-            .add("    ?scheme rdfs:label ?schemeName .")
-            .add("    OPTIONAL { ?concept im:im1Id ?im1Id . }")
-            .add("    OPTIONAL { ?concept im:usageTotal ?use . }");
 
-        if (includeLegacy) {
-            spql.add("    OPTIONAL {")
-                .add("        ?legacy im:matchedTo ?concept;")
-                .add("                rdfs:label ?legacyName;")
-                .add("                im:code ?legacyCode;")
-                .add("                im:scheme ?legacyScheme.")
-                .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
-                .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
-                .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
-                .add("    }");
-        }
 
-        spql.add("}  ");
-
-        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            TupleQuery qry = conn.prepareTupleQuery(spql.toString());
-            qry.setBinding("setIri", Values.iri(setIri));
-            return getCoreLegacyCodesForSparql(qry, includeLegacy);
-        }
-    }
-
-    private Set<CoreLegacyCode> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy) {
-        Set<CoreLegacyCode> result = new HashSet<>();
-        try (TupleQueryResult rs = qry.evaluate()) {
-            while (rs.hasNext()) {
-                BindingSet bs = rs.next();
-                CoreLegacyCode cl = new CoreLegacyCode();
-                String concept = bs.getValue("concept").stringValue();
-                Value name = bs.getValue("name");
-                Value code = bs.getValue("code");
-                Value scheme = bs.getValue("scheme");
-                Value schemeName = bs.getValue("schemeName");
-                Value im1Id = bs.getValue("im1Id");
-                Value use = bs.getValue("use");
-                cl.setIri(concept);
-                if (name != null)
-                    cl.setTerm(name.stringValue());
-                if (code != null) {
-                    cl.setCode(code.stringValue());
-                    cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
-                }
-                if (im1Id != null)
-                    cl.setIm1Id(im1Id.stringValue());
-                cl.setUse(use == null ? 0 : ((Literal)use).intValue());
-
-                if (includeLegacy) {
-                    Value legIri = bs.getValue("legacy");
-                    Value lc = bs.getValue("legacyCode");
-                    Value lt = bs.getValue("legacyName");
-                    Value ls = bs.getValue("legacyScheme");
-                    Value lsn = bs.getValue("legacySchemeName");
-                    Value lid = bs.getValue("legacyIm1Id");
-                    Value luse = bs.getValue("legacyUse");
-                    if (legIri != null)
-                        cl.setLegacyIri(legIri.stringValue());
-                    if (lc != null)
-                        cl.setLegacyCode(lc.stringValue());
-                    if (lt != null)
-                        cl.setLegacyTerm(lt.stringValue());
-                    if (ls != null)
-                        cl.setLegacyScheme(iri(ls.stringValue(), lsn.stringValue()));
-                    if (lid != null)
-                        cl.setLegacyIm1Id(lid.stringValue());
-
-                    cl.setLegacyUse(luse == null ? 0 : ((Literal)luse).intValue());
-                }
-
-                result.add(cl);
-            }
-        }
-        return result;
-    }
 
     /**
      * An alternative method of getting an entity definition assuming all predicates inclided

@@ -19,6 +19,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.zip.DataFormatException;
@@ -27,7 +29,9 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.pre
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SetRepository {
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private static final Logger LOG = LoggerFactory.getLogger(SetRepository.class);
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
 
     /**
      * Returns an expanded set members from an iml set definition. If already expanded then returns members
@@ -89,6 +93,37 @@ public class SetRepository {
             return getCoreLegacyCodesForSparql(qry, includeLegacy);
 
         }
+    }
+
+
+    public Set<String> getSubsets(String setIri) {
+        Set<String> result = new HashSet<>();
+
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+          .add(IM_PREFIX)
+          .add("SELECT ?subset WHERE {")
+          .add("?subset ?issubset ?set .")
+          .add("}");
+
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            qry.setBinding("set", Values.iri(setIri));
+            qry.setBinding("issubset", Values.iri(IM.IS_SUBSET_OF.getIri()));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    String subsetIri = bs.getValue("subset").stringValue();
+                    try {
+                        Values.iri(subsetIri);
+                        result.add(subsetIri);
+                    } catch (IllegalArgumentException ignored) {
+                        LOG.warn("Invalid subset iri [{}] for set [{}]", subsetIri, setIri);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
 

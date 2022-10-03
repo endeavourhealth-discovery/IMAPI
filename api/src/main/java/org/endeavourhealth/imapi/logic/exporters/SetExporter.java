@@ -16,6 +16,8 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -37,9 +39,9 @@ import java.util.zip.DataFormatException;
 public class SetExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-    private final EntityRepository2 entityRepository2 = new EntityRepository2();
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private final SetRepository setRepository= new SetRepository();
+    private EntityRepository2 entityRepository2 = new EntityRepository2();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetRepository setRepository= new SetRepository();
 
     public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException {
         StringJoiner results = generateForIm1(setIri);
@@ -63,7 +65,7 @@ public class SetExporter {
         LOG.trace("Getting set list...");
         Set<String> setIris = new HashSet<>();
 
-        Set<String> subsets = entityRepository2.getSubsets(setIri);
+        Set<String> subsets = setRepository.getSubsets(setIri);
 
         if (subsets.isEmpty())
             setIris.add(setIri);
@@ -90,8 +92,11 @@ public class SetExporter {
                 result.addAll(members);
             } else {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
-                result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
-                  includeLegacy));
+                if (entity.get(IM.DEFINITION)!=null)
+                    result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
+                        includeLegacy));
+                else
+                  result.addAll(setRepository.getSetExpansion(new Query().setWhere(new Where().addFrom(TTAlias.iri(entity.getIri()).setIncludeSubtypes(true))),includeLegacy));
             }
         }
 

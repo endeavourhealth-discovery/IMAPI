@@ -8,7 +8,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
@@ -27,12 +30,12 @@ import java.util.zip.DataFormatException;
 @Component
 public class ExcelSetExporter {
 
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
-    private final SetExporter setExporter = new SetExporter();
+    private SetExporter setExporter = new SetExporter();
 
-    private final XSSFWorkbook workbook;
-    private final CellStyle headerStyle;
+    private XSSFWorkbook workbook;
+    private CellStyle headerStyle;
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();
@@ -57,10 +60,8 @@ public class ExcelSetExporter {
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
-
         if (entity.get(IM.DEFINITION)==null && entity.get(IM.HAS_MEMBER)==null)
             throw new DataFormatException(setIri+" has neither a definition nor members");
-
         if (!entity.has(IM.DEFINITION))
             entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();
 

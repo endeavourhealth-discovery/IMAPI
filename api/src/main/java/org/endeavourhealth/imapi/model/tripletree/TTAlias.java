@@ -42,6 +42,14 @@ public class TTAlias extends TTIriRef {
 		return this;
 	}
 
+	public TTAlias setType(TTIriRef type){
+		setIri(type.getIri());
+		if (type.getName()!=null)
+			setName(type.getName());
+		isType= true;
+		return this;
+	}
+
 	public TTAlias setIsType(boolean asType) {
 		this.isType = asType;
 		return this;

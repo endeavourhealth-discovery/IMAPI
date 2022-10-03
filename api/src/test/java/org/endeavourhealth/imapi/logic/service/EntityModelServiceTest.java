@@ -847,7 +847,7 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getEcl_NotNullInferred() throws DataFormatException {
+    void getEcl_NotNullInferred() throws DataFormatException, JsonProcessingException {
         String actual = entityService.getEcl(new TTBundle()
                 .setEntity(new TTEntity()
                         .setIri("http://endhealth.info/im#25451000252115")
@@ -856,13 +856,13 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getSetExport_NullIri() throws DataFormatException {
+    void getSetExport_NullIri() throws DataFormatException, JsonProcessingException {
         XSSFWorkbook actual = entityService.getSetExport(null, true, true, false);
         assertNull(actual);
     }
 
     @Test
-    void getSetExport_EmptyIri() throws DataFormatException {
+    void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException {
         XSSFWorkbook actual = entityService.getSetExport("", true, true, false);
         assertNull(actual);
     }

@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.forms.FormGenerator;
 import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -887,8 +888,9 @@ public class EntityService {
             return IMLToECL.getECLFromQuery(inferred.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
         else if (inferred.getEntity().get(IM.HAS_MEMBER)!=null)
             return IMLToECL.getMembersAsECL(inferred.getEntity().get(IM.HAS_MEMBER));
-        else
-            throw new DataFormatException("Missing entity bundle definition for ECL conversion");
+        else {
+            return IMLToECL.getECLFromQuery(new Query().setWhere(new Where().addFrom(TTAlias.iri(inferred.getEntity().getIri()).setIncludeSubtypes(true))),false);
+        }
     }
 
     public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException {

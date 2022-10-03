@@ -27,7 +27,7 @@ export default class GithubController {
             const processedResult = this.processRelease(result.data);
             res.send(processedResult);
         } catch(e) {
-            console.log(e)
+            console.error(e)
             res.end()
         }
     }
@@ -41,7 +41,7 @@ export default class GithubController {
             results.data.forEach((result: any) => processedResults.push(this.processRelease(result)))
             res.send(processedResults)
         } catch(e) {
-            console.log(e)
+            console.error(e)
             res.send([])
         }
 

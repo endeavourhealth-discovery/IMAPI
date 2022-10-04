@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.logic.service.OSQuery;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.iml.Select;
+import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -435,5 +436,45 @@ public class QueryRepository {
     private String nextObject() {
         o++;
         return "o" + o;
+    }
+
+    /**
+     * Method to populate the iris in a query with their  names
+     * @param query the query object in iml Query form
+     */
+    public void labelQuery(Query query) {
+        List<TTIriRef> ttIris = new ArrayList<>();
+        Set<String> iris = new HashSet<>();
+        setQueryLabels(query,ttIris,iris);
+    }
+    private void setQueryLabels(Query query,List<TTIriRef> ttIris, Set<String> iris ){
+        if (query.getFrom()!=null)
+            for (TTAlias from:query.getFrom())
+                addToIriList(from,ttIris,iris);
+        if (query.getWhere()!=null)
+            labelWhere(query.getWhere(),ttIris,iris);
+        if (query.getSelect()!=null)
+            for (Select select:query.getSelect())
+                labelSelect(select,ttIris,iris);
+        if (query.getSubQuery()!=null)
+            for (Query subQuery: query.getSubQuery())
+                setQueryLabels(subQuery,ttIris,iris);
+    }
+
+    private void labelSelect(Select select, List<TTIriRef> ttIris, Set<String> iris) {
+    }
+
+    private void labelWhere(Where where, List<TTIriRef> ttIris, Set<String> iris) {
+        if (where.getFrom()!=null){
+            for (TTAlias from:where.getFrom())
+                addToIriList(from,ttIris,iris);
+        }
+        if (where.getNotExist()!=null)
+            labelWhere(where.getNotExist(),ttIris,iris);
+    }
+
+    private void addToIriList(TTIriRef ttIriRef,List<TTIriRef> ttIris, Set<String> iris){
+        ttIris.add(ttIriRef);
+        iris.add(ttIriRef.getIri());
     }
 }

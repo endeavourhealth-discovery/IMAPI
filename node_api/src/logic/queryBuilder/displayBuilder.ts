@@ -115,7 +115,7 @@ function addPrimitiveType(queryAPI: any, key: string, queryUI: QueryDisplay) {
 }
 
 async function addArray(queryAPI: any, key: string, queryUI: QueryDisplay) {
-  for (const [element, index] of queryAPI[key]) {
+  await queryAPI[key].forEach(async (element: any, index: number) => {
     if (isSimpleOr(key, element)) {
       await addSimpleOr(queryAPI, index, key, queryUI);
     } else {
@@ -123,7 +123,7 @@ async function addArray(queryAPI: any, key: string, queryUI: QueryDisplay) {
       queryUI.children?.push(queryDisplay);
       await buildRecursively(element, queryDisplay);
     }
-  }
+  });
 }
 
 async function addObject(queryAPI: any, key: string, queryUI: QueryDisplay) {

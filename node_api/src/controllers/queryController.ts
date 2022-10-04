@@ -1,4 +1,5 @@
-import { buildQueryDisplayFromQuery } from "@/logic/QueryDisplayBuilder";
+import { buildQueryDisplayFromQuery } from "@/logic/queryBuilder/displayBuilder";
+import { buildQueryObjectFromQuery } from "@/logic/queryBuilder/objectBuilder";
 import express, { NextFunction, Request, Response } from "express";
 import QueryRunner from "../logic/queryRunner";
 import QueryWorkflow from "../logic/queryWorkflow";
@@ -31,6 +32,7 @@ export default class QueryController {
     this.router.get("/node_api/query/public/getSQL", (req, res, next) => this.getSQL(req, res, next));
     this.router.post("/node_api/query/public/quickQuery", (req, res, next) => this.quickQuery(req, res, next));
     this.router.post("/node_api/query/public/queryDisplay", (req, res, next) => this.getQueryDisplay(req, res, next));
+    this.router.post("/node_api/query/public/queryObject", (req, res, next) => this.getQueryObject(req, res, next));
   }
 
   async getSQL(req: Request, res: Response, next: NextFunction) {
@@ -140,6 +142,15 @@ export default class QueryController {
   async getQueryDisplay(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await buildQueryDisplayFromQuery(req.body);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getQueryObject(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = buildQueryObjectFromQuery(req.body);
       res.send(data).end();
     } catch (e) {
       next(e);

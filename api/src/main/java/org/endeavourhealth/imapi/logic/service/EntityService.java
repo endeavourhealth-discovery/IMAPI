@@ -108,9 +108,13 @@ public class EntityService {
             List<TTValue> termCodes = bundle.getEntity().get(IM.HAS_TERM_CODE).getElements();
             TTArray activeTermCodes = new TTArray();
             for(TTValue value: termCodes){
-                if("Active".equals(value.asNode().get(IM.HAS_STATUS).asIriRef().getName())){
-                    activeTermCodes.add(value);
+                if (value.asNode().get(IM.HAS_STATUS)!=null) {
+                    if("Active".equals(value.asNode().get(IM.HAS_STATUS).asIriRef().getName())) {
+                        activeTermCodes.add(value);
+                    }
                 }
+                else
+                    activeTermCodes.add(value);
             }
             bundle.getEntity().set(IM.HAS_TERM_CODE, activeTermCodes);
         }

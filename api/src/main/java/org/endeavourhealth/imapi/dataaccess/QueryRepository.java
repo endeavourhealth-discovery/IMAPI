@@ -26,6 +26,7 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
@@ -444,37 +445,75 @@ public class QueryRepository {
      */
     public void labelQuery(Query query) {
         List<TTIriRef> ttIris = new ArrayList<>();
-        Set<String> iris = new HashSet<>();
-        setQueryLabels(query,ttIris,iris);
+        Map<String,String> iriLabels = new HashMap<>();
+        gatherQueryLabels(query,ttIris,iriLabels);
+        List<String> iriList= iriLabels.keySet().stream().map(iri-> "<"+ iri+">").collect(Collectors.toList());
+        String iris= String.join(",",iriList);
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            String sql="Select ?entity ?label where { ?entity <"+ RDFS.LABEL.getIri()+"> ?label.\n"+
+             "filter (?entity in ("+ iris+"))\n}";
+            TupleQuery qry= conn.prepareTupleQuery(sql);
+            TupleQueryResult rs= qry.evaluate();
+            while (rs.hasNext()){
+                BindingSet bs= rs.next();
+                String label= bs.getValue("label").stringValue();
+                String iri= bs.getValue("entity").stringValue();
+                iriLabels.put(iri,label);
+            }
+        }
+        for (TTIriRef ttIri:ttIris){
+            ttIri.setName(iriLabels.get(ttIri.getIri()));
+        }
     }
-    private void setQueryLabels(Query query,List<TTIriRef> ttIris, Set<String> iris ){
+    private void gatherQueryLabels(Query query,List<TTIriRef> ttIris, Map<String,String> iris ){
         if (query.getFrom()!=null)
             for (TTAlias from:query.getFrom())
                 addToIriList(from,ttIris,iris);
         if (query.getWhere()!=null)
-            labelWhere(query.getWhere(),ttIris,iris);
+            gatherWhereLabels(query.getWhere(),ttIris,iris);
         if (query.getSelect()!=null)
             for (Select select:query.getSelect())
-                labelSelect(select,ttIris,iris);
+                gatherSelectLabels(select,ttIris,iris);
         if (query.getSubQuery()!=null)
             for (Query subQuery: query.getSubQuery())
-                setQueryLabels(subQuery,ttIris,iris);
+                gatherQueryLabels(subQuery,ttIris,iris);
     }
 
-    private void labelSelect(Select select, List<TTIriRef> ttIris, Set<String> iris) {
+    private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String,String> iris) {
+        if (select.getProperty()!=null)
+            addToIriList(select.getProperty(),ttIris,iris);
+        if (select.getSelect()!=null)
+            for (Select sub:select.getSelect())
+                gatherSelectLabels(sub,ttIris,iris);
     }
 
-    private void labelWhere(Where where, List<TTIriRef> ttIris, Set<String> iris) {
+    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String,String> iris) {
         if (where.getFrom()!=null){
             for (TTAlias from:where.getFrom())
                 addToIriList(from,ttIris,iris);
         }
         if (where.getNotExist()!=null)
-            labelWhere(where.getNotExist(),ttIris,iris);
+            gatherWhereLabels(where.getNotExist(),ttIris,iris);
+        if (where.getProperty()!=null)
+            addToIriList(where.getProperty(),ttIris,iris);
+        if (where.getIs()!=null)
+            addToIriList(where.getIs(),ttIris,iris);
+        if (where.getIn()!=null)
+            for (TTAlias in:where.getIn())
+                addToIriList(in,ttIris,iris);
+        if (where.getAnd()!=null)
+            for (Where and:where.getAnd())
+                gatherWhereLabels(and,ttIris,iris);
+        if (where.getOr()!=null)
+            for (Where or:where.getOr())
+                gatherWhereLabels(or,ttIris,iris);
+
     }
 
-    private void addToIriList(TTIriRef ttIriRef,List<TTIriRef> ttIris, Set<String> iris){
-        ttIris.add(ttIriRef);
-        iris.add(ttIriRef.getIri());
+    private void addToIriList(TTIriRef ttIriRef,List<TTIriRef> ttIris, Map<String,String> iris){
+        if (ttIriRef.getIri()!=null) {
+            ttIris.add(ttIriRef);
+            iris.put(ttIriRef.getIri(),null);
+        }
     }
 }

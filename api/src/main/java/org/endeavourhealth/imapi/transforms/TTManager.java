@@ -11,6 +11,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -206,7 +207,7 @@ public class TTManager implements AutoCloseable {
            om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
            om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
            String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-           try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+           try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile,StandardCharsets.UTF_8))) {
                writer.write(json);
            } catch (Exception e) {
                e.printStackTrace();
@@ -235,7 +236,7 @@ public class TTManager implements AutoCloseable {
          TTToTurtle converter= new TTToTurtle();
          outputString= converter.transformDocument(document);
       }
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, StandardCharsets.UTF_8))) {
          writer.write(outputString);
       } catch (Exception e) {
          e.printStackTrace();

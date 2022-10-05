@@ -17,14 +17,12 @@ import java.util.zip.DataFormatException;
 
 @Component
 public class SetService {
-    private static final Logger LOG = LoggerFactory.getLogger(SetService.class);
+
 
     private final SetRepository setRepository;
-    private final EntityRepository entityRepository;
 
     public SetService() {
         setRepository = new SetRepository();
-        entityRepository= new EntityRepository();
     }
 
     public Set<Concept> evaluateECL(String ecl, boolean includeLegacy) throws DataFormatException, JsonProcessingException {
@@ -42,5 +40,10 @@ public class SetService {
         result.setCount(evaluated.size());
         result.setPage(1);
         return result;
+    }
+
+    public Query setQueryLabels(Query query){
+        new QueryRepository().labelQuery(query);
+        return query;
     }
 }

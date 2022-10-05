@@ -9,6 +9,11 @@ const { EntityService } = Services;
 const { QueryDisplayType } = Enums;
 const entityService = new EntityService(axios);
 
+export async function getQueryDefinitionDisplayByIri(iri: string) {
+  const query = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data[IM.DEFINITION];
+  return await buildQueryDisplayFromQuery(JSON.parse(query));
+}
+
 export async function buildQueryDisplayFromQuery(queryAPI: any) {
   const queryUI = {} as QueryDisplay;
   queryUI.children = [] as QueryDisplay[];

@@ -19,7 +19,7 @@ export async function buildQueryDisplayFromQuery(queryAPI: any) {
 export function buildQueryDisplay(label: string, type?: any, value?: any, selectable?: boolean): QueryDisplay {
   return {
     key: Math.floor(Math.random() * 9999999999999999),
-    label: label,
+    label: getLabelFromKey(label),
     type: type,
     value: value,
     children: [] as QueryDisplay[],
@@ -32,10 +32,10 @@ async function buildRecursively(queryAPI: any, queryUI: QueryDisplay) {
     for (const key of Object.keys(queryAPI)) {
       if (isIncluded(key, queryAPI[key])) {
         if (isSimpleWhere(key, queryAPI[key])) {
-          addSimpleWhere(queryAPI, key, queryUI);
-        }
-
-        if ("from" === key) {
+          await addSimpleWhere(queryAPI, key, queryUI);
+        } else if (isSimpleWhereList(key, queryAPI[key])) {
+          await addSimpleWhereList(queryAPI, key, queryUI);
+        } else if ("from" === key) {
           await addFrom(queryAPI, key, queryUI);
         } else if (isPrimitiveType(queryAPI[key])) {
           addPrimitiveType(queryAPI, key, queryUI);
@@ -68,13 +68,25 @@ function isIri(object: any) {
   return false;
 }
 
+function isSimpleWhereList(key: string, object: any) {
+  const whereListClauses = ["and", "or"];
+  if (whereListClauses.includes(key) && isArrayHasLength(object)) {
+    const newArray = (object as []).filter(propertyIs => isPropertyIs(propertyIs));
+    return object.length === newArray.length;
+  }
+}
+
 function isSimpleWhere(key: string, object: any) {
   const whereClauses = ["where", "notExist"];
   if (whereClauses.includes(key)) {
-    const keys = Object.keys(object);
-    return keys.length === 2 && keys.includes("is") && keys.includes("property");
+    return isPropertyIs(object);
   }
   return false;
+}
+
+function isPropertyIs(object: any) {
+  const keys = Object.keys(object);
+  return keys.length === 2 && keys.includes("is") && keys.includes("property");
 }
 
 function isSimpleOr(key: string, object: any) {
@@ -89,20 +101,20 @@ function isSimpleOr(key: string, object: any) {
 async function addSimpleOr(queryAPI: any, index: number, key: string, queryUI: QueryDisplay) {
   const fromList: any[] = [];
   const element = { ...queryAPI[key][index] };
-  delete queryAPI[key];
   if (isObjectHasKeys(element, ["from"])) {
     for (const from of element.from) {
-      from.label = (await entityService.getPartialEntity(from["@id"], [RDFS.LABEL])).data[RDFS.LABEL];
+      from.label = await getLabelForObject(from);
       fromList.push(from);
     }
   }
   const queryDisplay = buildQueryDisplay(key, QueryDisplayType.SimpleOr, fromList);
   queryUI.children?.push(queryDisplay);
+  delete queryAPI[key][index];
 }
 
 async function addFrom(queryAPI: any, key: string, queryUI: QueryDisplay) {
   for (const from of queryAPI[key]) {
-    const label = (await entityService.getPartialEntity(from["@id"], [RDFS.LABEL])).data[RDFS.LABEL];
+    const label = await getLabelForObject(from);
     const queryDisplay = buildQueryDisplay(label, QueryDisplayType.From, from);
     queryUI.children?.push(queryDisplay);
   }
@@ -115,7 +127,8 @@ function addPrimitiveType(queryAPI: any, key: string, queryUI: QueryDisplay) {
 }
 
 async function addArray(queryAPI: any, key: string, queryUI: QueryDisplay) {
-  await queryAPI[key].forEach(async (element: any, index: number) => {
+  for (let index = 0; index < queryAPI[key].length; index++) {
+    const element = queryAPI[key][index];
     if (isSimpleOr(key, element)) {
       await addSimpleOr(queryAPI, index, key, queryUI);
     } else {
@@ -123,7 +136,7 @@ async function addArray(queryAPI: any, key: string, queryUI: QueryDisplay) {
       queryUI.children?.push(queryDisplay);
       await buildRecursively(element, queryDisplay);
     }
-  });
+  }
 }
 
 async function addObject(queryAPI: any, key: string, queryUI: QueryDisplay) {
@@ -132,9 +145,21 @@ async function addObject(queryAPI: any, key: string, queryUI: QueryDisplay) {
   queryUI.children?.push(queryDisplay);
 }
 
-function addSimpleWhere(queryAPI: any, key: string, queryUI: QueryDisplay) {
+async function addSimpleWhere(queryAPI: any, key: string, queryUI: QueryDisplay) {
   const where = buildQueryDisplay(key, QueryDisplayType.Default);
+  queryAPI[key].name = await getLabelForObject(queryAPI[key]);
   where.children?.push(buildQueryDisplay(key, QueryDisplayType.PropertyIs, { ...queryAPI[key] }));
+  queryUI.children?.push(where);
+  delete queryAPI[key];
+}
+
+async function addSimpleWhereList(queryAPI: any, key: string, queryUI: QueryDisplay) {
+  const where = buildQueryDisplay(key, QueryDisplayType.Default);
+  for (const propertyIs of queryAPI[key]) {
+    propertyIs.property.name = await getLabelForObject(propertyIs.property);
+    propertyIs.is.name = await getLabelForObject(propertyIs.is);
+    where.children?.push(buildQueryDisplay(key, QueryDisplayType.PropertyIs, { ...propertyIs }));
+  }
   queryUI.children?.push(where);
   delete queryAPI[key];
 }
@@ -144,4 +169,28 @@ function getQueryDisplayType(queryAPIObject: any) {
   else if (isIri(queryAPIObject)) return QueryDisplayType.Iri;
   else if (typeof queryAPIObject === "string") return QueryDisplayType.String;
   return QueryDisplayType.Default;
+}
+
+async function getLabelForObject(object: any): Promise<string> {
+  if (object.name) {
+    return object.name;
+  }
+  return (await entityService.getPartialEntity(object["@id"], [RDFS.LABEL])).data[RDFS.LABEL];
+}
+
+function getLabelFromKey(key: string): string {
+  let label = "";
+  switch (key) {
+    case "where":
+      label = "any of";
+      break;
+    case "notExist":
+      label = "excluding";
+      break;
+
+    default:
+      label = key;
+      break;
+  }
+  return label;
 }

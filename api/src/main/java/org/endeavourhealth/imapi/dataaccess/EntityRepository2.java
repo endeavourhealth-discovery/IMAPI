@@ -341,7 +341,7 @@ public class EntityRepository2 {
                 .add("  ?" + (i + 1) + "predicate rdfs:label ?" + (i + 1) + "pName.")
                 .add("  ?" + (i + 1) + "Level rdfs:label ?" + (i + 1) + "Name.");
         }
-        sql.add("} WHERE {");
+        sql.add("} WHERE { {");
 
         sql.add("  ?entity ?1predicate ?1Level.")
             .add("  ?1predicate rdfs:label ?1pName.");
@@ -356,7 +356,17 @@ public class EntityRepository2 {
                 sql.add("   FILTER (?1predicate NOT IN (" + inPredicates + "))");
             else
                 sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
+            sql.add("}");
+            sql.add("UNION {");
+            sql.add("  ?1predicate owl:inverseOf ?1revPredicate.");
+            sql.add("  ?1Level ?revPredicate ?entity");
+            if (excludePredicates)
+                sql.add("   FILTER (?1predicate NOT IN (" + inPredicates + "))");
+            else
+                sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
         }
+        sql.add("}");
+
         sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.")
             .add("    FILTER (!isBlank(?1Level))}");
         for (int i = 1; i < depth; i++) {

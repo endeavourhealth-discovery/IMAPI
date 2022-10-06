@@ -105,6 +105,7 @@ public class IM {
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
     public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
     public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
+    public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubset");
 
 
     //Context

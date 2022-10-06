@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
@@ -9,6 +10,8 @@ import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.List;
 import java.util.zip.DataFormatException;
@@ -31,13 +34,11 @@ public class SearchService {
 		validateQueryRequest(queryRequest);
 		return new QueryRepository().queryIM(queryRequest);
 	}
+
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
 			if (queryRequest.getQuery()==null)
-				throw new DataFormatException("Query request must have a queryIri or Query");
-
+				throw new DataFormatException("Query request must have a Query or an Query object with an iri");
 	}
-
-
 
 	/**
 	 * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied

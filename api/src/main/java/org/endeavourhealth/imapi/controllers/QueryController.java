@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ import java.util.zip.DataFormatException;
 public class QueryController {
     private static final Logger LOG = LoggerFactory.getLogger(QueryController.class);
 
+    private final SearchService searchService = new SearchService();
+
     @GetMapping(value = "/public/generateSQL", produces = "text/plain")
     @Operation(
         summary = "Generate SQL",
@@ -36,7 +39,6 @@ public class QueryController {
     }
 
 
-
     @PostMapping( "/public/queryIM")
     @Operation(
       summary = "Query IM",
@@ -44,7 +46,7 @@ public class QueryController {
     )
     public TTDocument queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         LOG.debug("queryIM");
-        return new SearchService().queryIM(queryRequest);
+        return searchService.queryIM(queryRequest);
     }
 
 }

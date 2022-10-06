@@ -51,14 +51,13 @@ public class QueryRepository {
      */
     public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            if (queryRequest.getPathQuery() != null)
-                return new PathRepository().queryIM(queryRequest, conn);
-            this.queryRequest = queryRequest;
-            result = new TTDocument();
             unpackQueryRequest(queryRequest, conn);
-            if (queryRequest.getTextSearch() != null) {
+            if (null != queryRequest.getPathQuery())
+                return new PathRepository().queryIM(queryRequest, conn);
+            result = new TTDocument();
+            if (null != queryRequest.getTextSearch()) {
                 ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
-                if (osResult != null)
+                if (null != osResult)
                     return convertToEntity(osResult);
             }
             checkReferenceDate();
@@ -72,14 +71,14 @@ public class QueryRepository {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), conn);
         queryRequest.setQuery(query);
-        if (query.getPrefix() != null)
+        if (null != query.getPrefix())
             result.setContext(query.getPrefix());
     }
 
     private Query unpackQuery(Query query, RepositoryConnection conn) throws JsonProcessingException, DataFormatException {
-        if (query.getSelect() == null) {
-            if (query.getWhere() == null) {
-                if (query.getIri() == null) {
+        if (null == query.getSelect()) {
+            if (null == query.getWhere()) {
+                if (null == query.getIri()) {
                     throw new DataFormatException("No query iri or body in request");
                 } else {
                     TTEntity entity = getEntity(query.getIri(), conn);

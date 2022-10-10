@@ -30,7 +30,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 		this.lexer = new TurtliteLexer(null);
 		this.parser = new TurtliteParser(null);
 		this.parser.removeErrorListeners();
-		this.parser.addErrorListener(new ECLErrorListener());
+		this.parser.addErrorListener(new ParserErrorListener());
 	}
 
 	/**

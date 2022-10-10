@@ -7,6 +7,7 @@ turtleDoc
 statement
    : directive
    | triples '.'
+   | comment
    ;
 
 directive
@@ -90,7 +91,12 @@ NumericLiteral
 rdfLiteral
    : String (LANGTAG | '^^' iri)?
    ;
-
+comment
+    : LINE_COMMENT
+     ;
+LINE_COMMENT
+     : '#' ~[\r\n]* -> skip
+     ;
 
 BooleanLiteral
    : 'true' | 'false'

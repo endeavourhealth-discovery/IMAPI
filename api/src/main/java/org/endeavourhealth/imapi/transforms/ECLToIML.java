@@ -31,7 +31,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		this.lexer = new ECLLexer(null);
 		this.parser = new ECLParser(null);
 		this.parser.removeErrorListeners();
-		this.parser.addErrorListener(new ECLErrorListener());
+		this.parser.addErrorListener(new ParserErrorListener());
 		this.query= new Query();
 	}
 

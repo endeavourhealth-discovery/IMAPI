@@ -1,20 +1,19 @@
-import { Query } from 'im-library/dist/types/models/modules/AutoGen';
-import { GraphdbService, iri } from '../services/graphdb.service';
+import { Query } from "im-library/dist/types/models/modules/AutoGen";
+import { GraphdbService, iri } from "../services/graphdb.service";
 
-import jp from 'jsonpath';
+import jp from "jsonpath";
 import { TextGenerator } from "../helpers/text";
-import { ManipulationUtils, SparqlSnippets } from '../helpers/query'
-const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } = ManipulationUtils;
+import { ManipulationUtils, SparqlSnippets } from "../helpers/query";
+const { onlyUnique, excludedPaths, entitiesFromPredicates, isTTIriRef } =
+  ManipulationUtils;
 import _ from "lodash";
 import { v4 } from "uuid";
-import axios from 'axios';
-import * as fs from 'fs';
-
+import axios from "axios";
+import * as fs from "fs";
+import { addItem } from "im-library/dist/types/helpers/modules/EditorBuilderJsonMethods";
 
 export default class QueryWorkflow {
-
   private showConsole = false;
-
 
   private graph: GraphdbService;
   constructor() {
@@ -22,7 +21,7 @@ export default class QueryWorkflow {
   }
 
   public static saveFile(file: string): void {
-    fs.writeFile("output.json", file, 'utf8', function (err: any) {
+    fs.writeFile("output.json", file, "utf8", function (err: any) {
       if (err) {
         console.log("An error occured while writing JSON Object to File.");
       }
@@ -30,44 +29,42 @@ export default class QueryWorkflow {
     });
   }
 
-
   public static async getAllQueries(): Promise<any> {
     try {
-
       var data = JSON.stringify({
-        "query": {
-          "name": "get entities with property",
-          "description": "get entities with property",
-          "mainEntity": {
-            "@id": "http://www.w3.org/ns/shacl#NodeShape"
+        query: {
+          name: "get entities with property",
+          description: "get entities with property",
+          mainEntity: {
+            "@id": "http://www.w3.org/ns/shacl#NodeShape",
           },
-          "resultFormat": "OBJECT",
-          "select": {
-            "property": [
+          resultFormat: "OBJECT",
+          select: {
+            property: [
               {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-              }
+                "@id": "http://www.w3.org/2000/01/rdf-schema#label",
+              },
             ],
-            "match": [
+            match: [
               {
-                "entityType": {
-                  "@id": "http://endhealth.info/im#Query"
+                entityType: {
+                  "@id": "http://endhealth.info/im#Query",
                 },
-                "property": []
-              }
-            ]
+                property: [],
+              },
+            ],
           },
-          "usePrefixes": true
-        }
+          usePrefixes: true,
+        },
       });
 
       var config = {
-        method: 'post',
-        url: process.env.API + '/api/query/public/queryIM',
+        method: "post",
+        url: process.env.API + "/api/query/public/queryIM",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        data: data
+        data: data,
       };
 
       const res = axios(config as any)
@@ -75,25 +72,22 @@ export default class QueryWorkflow {
           // console.log(response.data);
           // return JSON.stringify(response.data);
           return response.data;
-
         })
         .catch(function (error) {
           console.log(error);
         });
       return res;
-
     } catch (error) {
       return {} as any;
     }
   }
 
-
   public async populateOpensearch(index: string): Promise<any> {
-
     const allQueryIris = await QueryWorkflow.getAllQueries();
     const iris = allQueryIris?.entities?.map((item: any) => item["@id"]);
 
-    const getClauses = (iri: string) => { // sample async action
+    const getClauses = (iri: string) => {
+      // sample async action
       return this.extractClauses("get", iri);
     };
     // map over forEach since it returns
@@ -106,9 +100,8 @@ export default class QueryWorkflow {
     // console.log(iris)
 
     results.then((data: any[]) => {
-
       let clauses: any[] = [];
-      data.forEach(item => {
+      data.forEach((item) => {
         if (item.length > 0) {
           clauses = [...clauses, ...item];
         }
@@ -116,22 +109,12 @@ export default class QueryWorkflow {
 
       let output = "";
       clauses.forEach((clause: any, clauseIndex: number) => {
-        const indexText = `{ "index" : { "_index": "${index}", "_id" : ${clauseIndex} } }`
+        const indexText = `{ "index" : { "_index": "${index}", "_id" : ${clauseIndex} } }`;
         output += indexText + "\n";
         output += JSON.stringify(clause) + "\n";
       });
       QueryWorkflow.saveFile(output);
-
     });
-  }
-
-
-
-  public async getLocalDefinition(queryIri: string): Promise<any> {
-    const queries = require("../examples/queries.json") || null;
-    const query = queries ? queries.find((item: any) => item["@id"] == queryIri) : ""
-    console.log(queryIri, query)
-    return query;
   }
 
   public async getDefinition(entityIri: string): Promise<Query> {
@@ -141,30 +124,24 @@ export default class QueryWorkflow {
       "SELECT * WHERE { ?s ?p ?def } LIMIT 1",
       {
         s: iri(entityIri),
-        p: iri("http://endhealth.info/im#query")
-      });
+        p: iri("http://endhealth.info/im#query"),
+      }
+    );
 
-    if (rs.length != 1)
-      return {} as Query;
+    if (rs.length != 1) return {} as Query;
 
     return JSON.parse(rs[0].def.value);
   }
 
   public async allEntities(iris: string[]) {
-
     if (Array.isArray(iris) && iris.length > 0) {
-
-      iris = iris
-        .filter(onlyUnique)
-        .filter(iri => !iri.includes('^')); //e.g. http://snomed.info/sct#735259005^ESCT1198974 breaks the query
-      ;
-
+      iris = iris.filter(onlyUnique).filter((iri) => !iri.includes("^")); //e.g. http://snomed.info/sct#735259005^ESCT1198974 breaks the query
       // const query = SparqlSnippets.allEntities(iris as string[]);
 
-      let i = iris.map(iri => `<${iri}>`).join(','),
+      let i = iris.map((iri) => `<${iri}>`).join(","),
         stmt = `
         SELECT ?iri ?predicate ?predicateLabel ?object ?objectLabel
-        WHERE   { 	
+        WHERE   {
                 ?iri ?predicate ?object.
             optional{?predicate rdfs:label ?predicateLabel.}
             optional{?object rdfs:label ?objectLabel.}
@@ -177,33 +154,25 @@ export default class QueryWorkflow {
       const rs = entitiesFromPredicates(queryResult);
 
       return rs;
-
     } else {
-      this.showConsole && console.log("No iri query parameter provided in GET requests");
+      this.showConsole &&
+        console.log("No iri query parameter provided in GET requests");
       return {};
     }
   }
 
-
-
   //populates .name if missing in TTIriRef
   public async getRichDefinition(queryIri: string): Promise<any> {
-
     let definition: any = await this.getDefinition(queryIri);
     definition = await this.populateDefinition(definition);
     return definition;
-
   }
 
   public async getMeta(iris: string[]) {
-
     if (Array.isArray(iris) && iris.length > 0) {
+      iris = iris.filter(onlyUnique).filter((iri) => !iri.includes("^")); //e.g. http://snomed.info/sct#735259005^ESCT1198974 breaks the query
 
-      iris = iris
-        .filter(onlyUnique)
-        .filter(iri => !iri.includes('^')); //e.g. http://snomed.info/sct#735259005^ESCT1198974 breaks the query
-
-      let i = iris.map(iri => `<${iri}>`).join(','),
+      let i = iris.map((iri) => `<${iri}>`).join(","),
         stmt = `
         SELECT *
         WHERE {
@@ -214,15 +183,14 @@ export default class QueryWorkflow {
       const queryResult = await this.graph.execute(stmt);
 
       return queryResult;
-
     } else {
-      this.showConsole && console.log("No iri query parameter provided in GET requests");
+      this.showConsole &&
+        console.log("No iri query parameter provided in GET requests");
       return {};
     }
   }
 
-
-  //populates all TTIriRefs with names 
+  //populates all TTIriRefs with names
   private async populateDefinition(definition: any): Promise<any> {
     // console.log("definition", definition);
 
@@ -235,34 +203,36 @@ export default class QueryWorkflow {
 
     // get all entities from database for TTIriRefs
     const iris = IriRefs.map((item: any) => item.value["@id"]);
-    const meta = await this.getMeta(iris) as any[];
+    const meta = (await this.getMeta(iris)) as any[];
 
     // populate TTIriRefs with name where missing.
     IriRefs.forEach((item: any) => {
       if (!item?.value?.name) {
         const path = jp.stringify(item.path).substring(2) + ".name";
-        const entity = meta.find(entity => entity?.id?.id == item.value["@id"])
+        const entity = meta.find(
+          (entity) => entity?.id?.id == item.value["@id"]
+        );
         const name = entity?.name?.value || entity?.name;
         entity ? _.set(definition?.select?.match, path, name) : null;
       }
-    })
+    });
     return definition;
   }
 
-  public async summariseQuery(type: string = "get", payload: any): Promise<any> {
-
+  public async summariseQuery(
+    type: string = "get",
+    payload: any
+  ): Promise<any> {
     // const definition: DataSet =
     const definition: any =
-      (type == "get")
-        ? await this.getRichDefinition(payload)
-        : payload;
+      type == "get" ? await this.getRichDefinition(payload) : payload;
 
     this.showConsole && console.log(`definition`, definition);
 
     //matchClause = an object with "property" key
-    const jsonQuery = `$..[?(@.property || @.pathTo)]`;    // const jsonQuery = `$..[? (@.@id)]`
+    const jsonQuery = `$..[?(@.property || @.pathTo)]`; // const jsonQuery = `$..[? (@.@id)]`
     let clauses = QueryWorkflow.findClauses(definition?.select?.match);
-    console.log("clauses", clauses)
+    console.log("clauses", clauses);
 
     // add summary to match clauses
     clauses.forEach((item: any) => {
@@ -273,27 +243,29 @@ export default class QueryWorkflow {
       text ? _.set(definition?.select?.match, textPath, text) : null;
       // htmlSummary ? _.set(definition?.select?.match, htmlPath, htmlSummary) : null;
       console.log(`### summary of clause(${textPath}): `, text);
-    })
-    this.showConsole && console.log(`### Definition with displayText + HTML: \n`, _.cloneDeep(definition));
+    });
+    this.showConsole &&
+      console.log(
+        `### Definition with displayText + HTML: \n`,
+        _.cloneDeep(definition)
+      );
     return definition;
-
   }
 
-
-  public async extractClauses(type: string = "get", payload: any): Promise<any> {
-
+  public async extractClauses(
+    type: string = "get",
+    payload: any
+  ): Promise<any> {
     // const definition: DataSet =
     const definition: any =
-      (type == "get")
-        ? await this.getDefinition(payload)
-        : payload;
+      type == "get" ? await this.getDefinition(payload) : payload;
 
     this.showConsole && console.log(`definition`, definition);
 
     //matchClause = an object with "property" key
-    const jsonQuery = `$..[?(@.property || @.pathTo)]`;    // const jsonQuery = `$..[? (@.@id)]`
+    const jsonQuery = `$..[?(@.property || @.pathTo)]`; // const jsonQuery = `$..[? (@.@id)]`
     let clauses = QueryWorkflow.findClauses(definition?.select?.match);
-    console.log("clauses", clauses)
+    console.log("clauses", clauses);
 
     // add summary to match clauses
     clauses = clauses.map((item: any) => {
@@ -305,29 +277,29 @@ export default class QueryWorkflow {
       console.log(`### summary of clause(${path}): `, text);
 
       return {
-        "iri": `urn:uuid:${v4()}`,
-        "name": text,
-        "entityType": [
+        iri: `urn:uuid:${v4()}`,
+        name: text,
+        entityType: [
           {
             "@id": `http://endhealth.info/im#MatchClause`,
-            "name": "Match Clause"
+            name: "Match Clause",
           },
         ],
-        "matchClause": item.value
-      }
-
-
-    })
-    this.showConsole && console.log(`### Definition with displayText + HTML: \n`, _.cloneDeep(definition));
+        matchClause: item.value,
+      };
+    });
+    this.showConsole &&
+      console.log(
+        `### Definition with displayText + HTML: \n`,
+        _.cloneDeep(definition)
+      );
     return clauses;
-
   }
-
 
   // public async summariseClause(type: string = "get", payload: any): Promise<any> {
   //   const definition: any =
   //     (type == "post")
-  //       ? payload //this.populateDefinition(payload) 
+  //       ? payload //this.populateDefinition(payload)
   //       : payload;
   //   this.showConsole && console.log(`definition`, definition);
 
@@ -343,24 +315,21 @@ export default class QueryWorkflow {
     const queuedPaths = [""];
     const getChildren = (path: string) => {
       return path == "" ? matchClause : _.get(matchClause, path);
-    }
-
-
+    };
 
     const clauseIsAdded = (path: string, clause: any): boolean => {
       //datamodel entities are translated at the level of the matchClause
-      if (Object.keys(clause).some(key => key == "pathTo")) {
-        result.push({ path: path, value: clause })
+      if (Object.keys(clause).some((key) => key == "pathTo")) {
+        result.push({ path: path, value: clause });
         return true;
-      } else if (Object.keys(clause).some(key => key == "property")) {
+      } else if (Object.keys(clause).some((key) => key == "property")) {
         clause?.property.forEach((property: any, index: number) => {
-          result.push({ path: `${path}.property[${index}]`, value: property })
-        })
+          result.push({ path: `${path}.property[${index}]`, value: property });
+        });
         return true;
       }
       return false;
     };
-
 
     while (queuedPaths.length > 0) {
       const currentPath = queuedPaths.shift();
@@ -368,22 +337,16 @@ export default class QueryWorkflow {
       const isArray = Array.isArray(children);
 
       if (isArray && children.length > 0) {
-
         children.forEach((child: any, index: number) => {
           //if a child contains a clause needing translation it is added  adds to final results.
-          // otherwise it's children are added to the queue for inspection 
+          // otherwise it's children are added to the queue for inspection
           if (clauseIsAdded(`${currentPath}[${index}]`, child) == false) {
-            if (child?.or) queuedPaths.push(`${currentPath}[${index}].or`)
-            if (child?.and) queuedPaths.push(`${currentPath}[${index}].and`)
+            if (child?.or) queuedPaths.push(`${currentPath}[${index}].or`);
+            if (child?.and) queuedPaths.push(`${currentPath}[${index}].and`);
           }
-        })
+        });
       }
-
     }
     return result;
   }
-
-
-
-
 }

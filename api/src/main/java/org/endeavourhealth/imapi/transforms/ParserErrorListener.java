@@ -3,11 +3,10 @@ package org.endeavourhealth.imapi.transforms;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
 
-import java.util.List;
 import java.util.UnknownFormatConversionException;
 
 
-public class ECLErrorListener extends BaseErrorListener{
+public class ParserErrorListener extends BaseErrorListener{
 
    @Override
 public void syntaxError(Recognizer<?,?> recognizer,
@@ -22,8 +21,8 @@ public void syntaxError(Recognizer<?,?> recognizer,
       if (offendingSymbol instanceof CommonToken)
          badSymbol= ((CommonToken) offendingSymbol).getText().split(",")[0];
       String message = "Expecting " + expectedTokens.toString(parser.getVocabulary());
-      throw new UnknownFormatConversionException("ECL Syntax error :  line "
-          + " offset " + charPositionInLine + " i.e '"+badSymbol+"'  " + message);
+      throw new UnknownFormatConversionException(" Parser error :  line "
+          + line + " offset " + charPositionInLine + " i.e '"+badSymbol+"'  " + message);
    }
 }
 }

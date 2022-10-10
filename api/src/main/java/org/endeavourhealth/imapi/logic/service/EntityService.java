@@ -109,7 +109,7 @@ public class EntityService {
             TTArray activeTermCodes = new TTArray();
             for(TTValue value: termCodes){
                 if (value.asNode().get(IM.HAS_STATUS)!=null) {
-                    if("Active".equals(value.asNode().get(IM.HAS_STATUS).asIriRef().getName())) {
+                    if(value.asNode().get(IM.HAS_STATUS) != null && "Active".equals(value.asNode().get(IM.HAS_STATUS).asIriRef().getName())) {
                         activeTermCodes.add(value);
                     }
                 }

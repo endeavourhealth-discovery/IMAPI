@@ -123,7 +123,7 @@ public class TTToOWLEL {
             OWLEquivalentClassesAxiom equAx;
             equAx = dataFactory.getOWLEquivalentClassesAxiom(
                 dataFactory.getOWLClass(iri),
-                getOWLClassExpression(exp));
+                getOWLEquivalentClassExpression(exp));
             manager.addAxiom(ontology, equAx);
          }
       }
@@ -267,6 +267,40 @@ public class TTToOWLEL {
       return dataFactory.getOWLClass("not sure of type of expression", prefixManager);
 
 }
+
+
+
+   public OWLClassExpression getOWLEquivalentClassExpression(TTValue cex) {
+      if (cex.isIriRef()) {
+         IRI iri= getIri(cex.asIriRef());
+         checkUndeclared(iri,dataFactory.getOWLEntity(EntityType.CLASS,iri));
+         return dataFactory.getOWLClass(getIri(cex.asIriRef()));
+      } else if (cex.isNode()) {
+         if (cex.asNode().get(OWL.INTERSECTIONOF) != null) {
+            return dataFactory.getOWLObjectIntersectionOf(
+              cex.asNode().get(OWL.INTERSECTIONOF)
+                .stream()
+                .map(this::getOWLEquivalentClassExpression)
+                .collect(Collectors.toSet()));
+            //
+         } else if (cex.asNode().get(OWL.UNIONOF) != null) {
+            return dataFactory.getOWLObjectUnionOf(
+              cex.asNode().get(OWL.UNIONOF)
+                .stream()
+                .map(this::getOWLClassExpression)
+                .collect(Collectors.toSet()));
+         } else if (cex.asNode().get(OWL.ONPROPERTY) != null) {
+               return getOPERestrictionAsOWlClassExpression(cex);
+         } else if (cex.asNode().get(OWL.ONEOF) != null) {
+            return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONEOF));
+         } else if (cex.asNode().get(OWL.COMPLEMENTOF) != null) {
+            return (getComplementOfAsAOWLClassExpression(cex));
+         }
+      }
+      return dataFactory.getOWLClass("not sure of type of expression", prefixManager);
+
+   }
+
 
    private TTIriRef guessPropertyType(TTNode exp) {
       TTEntity entity= ttManager.getEntity(exp.get(OWL.ONPROPERTY).asIriRef().getIri());

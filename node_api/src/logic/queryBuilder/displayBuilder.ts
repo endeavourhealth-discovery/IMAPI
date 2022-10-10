@@ -1,5 +1,5 @@
 import { QueryDisplay } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Services, Vocabulary, Helpers } from "im-library";
+import { Enums, Services, Vocabulary, Helpers } from "im-library/dist/api";
 import axios from "axios";
 
 const { DataTypeCheckers } = Helpers;

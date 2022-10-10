@@ -159,7 +159,12 @@ export default class QueryController {
   }
 
   async getQueryDefinitionDisplay(req: Request, res: Response, next: NextFunction) {
-    const data = await getQueryDefinitionDisplayByIri(req.query.iri as string);
-    res.send(data).end();
+    try {
+      const data = await getQueryDefinitionDisplayByIri(req.query.iri as string);
+      res.send(data).end();
+    } catch (error) {
+      console.error(error);
+      res.status(400).end();
+    }
   }
 }

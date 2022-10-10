@@ -9,9 +9,10 @@ const { EntityService } = Services;
 const { QueryDisplayType } = Enums;
 const entityService = new EntityService(axios);
 
-export async function getQueryDefinitionDisplayByIri(iri: string) {
-  const query = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data[IM.DEFINITION];
-  return await buildQueryDisplayFromQuery(JSON.parse(query));
+export async function getQueryDefinitionDisplayByIri(iri: string): Promise<QueryDisplay> {
+  const entity = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data;
+  if (!entity[IM.DEFINITION]) return {} as QueryDisplay;
+  return await buildQueryDisplayFromQuery(JSON.parse(entity[IM.DEFINITION]));
 }
 
 export async function buildQueryDisplayFromQuery(queryAPI: any) {

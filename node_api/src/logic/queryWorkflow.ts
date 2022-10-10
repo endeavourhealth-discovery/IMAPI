@@ -117,19 +117,6 @@ export default class QueryWorkflow {
     });
   }
 
-  public async getLocalDefinition(queryIri: string): Promise<any> {
-    let queries: any = null;
-    let query = "";
-    await import("../examples/queries.json")
-      .then((res: any[]) => (queries = res))
-      .catch((err) => (queries = null));
-    if (queries && _.isArray(queries)) {
-      query = queries.find((item: any) => (item["@id"] = queryIri));
-    }
-    console.log(queryIri, query);
-    return query;
-  }
-
   public async getDefinition(entityIri: string): Promise<Query> {
     this.showConsole && console.log("Loading iri: " + entityIri);
 

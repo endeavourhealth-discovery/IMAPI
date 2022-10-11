@@ -1,10 +1,7 @@
-import { QueryDisplay, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Services, Vocabulary, Helpers } from "im-library";
+import { Services, Vocabulary } from "im-library/dist/api";
 import axios from "axios";
 import { buildQueryDisplayFromQuery } from "./queryBuilder/displayBuilder";
 
-const { DataTypeCheckers } = Helpers;
-const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
 const { RDFS, IM } = Vocabulary;
 const { EntityService } = Services;
 const entityService = new EntityService(axios);

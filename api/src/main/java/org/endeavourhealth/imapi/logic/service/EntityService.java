@@ -1125,5 +1125,14 @@ public class EntityService {
     public EntityDocument getOSDocument(String iri) {
         return entityRepository.getOSDocument(iri);
     }
+    public List<TTIriRef> getProperties() {
+        return entityRepository.getProperties();
+    }
+
+    public List<TTIriRef> getClasses() {
+        return entityRepository.getClasses();
+    }
+
+    public List<TTIriRef> getStatuses() { return entityRepository.getStatuses(); }
 }
 

@@ -124,6 +124,7 @@ async function addFrom(queryAPI: any, key: string, queryUI: QueryDisplay) {
     const queryDisplay = buildQueryDisplay(label, QueryDisplayType.From, from);
     queryUI.children?.push(queryDisplay);
   }
+  if (queryUI.children?.length && queryUI.children?.length <= 1) queryUI.label = "must be a";
 }
 
 function addPrimitiveType(queryAPI: any, key: string, queryUI: QueryDisplay) {
@@ -160,7 +161,7 @@ async function addSimpleWhere(queryAPI: any, key: string, queryUI: QueryDisplay)
 }
 
 async function addSimpleWhereList(queryAPI: any, key: string, queryUI: QueryDisplay) {
-  const where = buildQueryDisplay(key, QueryDisplayType.Default);
+  const where = buildQueryDisplay("with", QueryDisplayType.Default);
   for (const propertyIs of queryAPI[key]) {
     propertyIs.property.name = await getLabelForObject(propertyIs.property);
     propertyIs.is.name = await getLabelForObject(propertyIs.is);

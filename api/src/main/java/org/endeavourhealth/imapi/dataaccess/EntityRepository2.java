@@ -358,16 +358,15 @@ public class EntityRepository2 {
                 sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
             sql.add("}");
 
-//            TODO fix search for inverse properties - hasSubset
-//            sql.add("UNION {");
-//            sql.add("  ?1predicate owl:inverseOf ?1revPredicate.");
-//            sql.add("  ?1Level ?revPredicate ?entity");
-//            if (excludePredicates)
-//                sql.add("   FILTER (?1predicate NOT IN (" + inPredicates + "))");
-//            else
-//                sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
+            sql.add("UNION {");
+            sql.add("  ?1predicate owl:inverseOf ?1revPredicate .");
+            sql.add("  ?1Level ?1revPredicate ?entity");
+            if (excludePredicates)
+                sql.add("   FILTER (?1predicate NOT IN (" + inPredicates + "))");
+            else
+                sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
         }
-//        sql.add("}");
+        sql.add("}");
 
         sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.")
             .add("    FILTER (!isBlank(?1Level))}");

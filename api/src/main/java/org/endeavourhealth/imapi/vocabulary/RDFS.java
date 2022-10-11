@@ -16,6 +16,7 @@ public class RDFS {
     public static final TTIriRef RESOURCE= iri(NAMESPACE +"Resource");
     public static final TTIriRef CLASS= iri(NAMESPACE +"Class");
     public static final TTIriRef DATATYPE= iri(NAMESPACE +"Datatype");
+    public static final TTIriRef IS_DEFINED_BY= iri(NAMESPACE +"isDefinedBy");
 
     private RDFS() {}
 }

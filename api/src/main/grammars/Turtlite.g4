@@ -34,12 +34,12 @@ sparqlPrefix
    ;
 
 triples
-   : subject predicateObjectList
-   | blankNodePropertyList predicateObjectList?
+   : subject predicateObjectList (';' predicateObjectList)*
+   | blankNodePropertyList
    ;
 
 predicateObjectList
-   : (verb objectList) (';' (verb objectList)?)*
+   : verb objectList
    ;
 
 objectList
@@ -76,7 +76,7 @@ literal
    ;
 
 blankNodePropertyList
-   : '[' predicateObjectList ']'
+   : '[' predicateObjectList  (';' predicateObjectList)* ']'
    ;
 
 collection

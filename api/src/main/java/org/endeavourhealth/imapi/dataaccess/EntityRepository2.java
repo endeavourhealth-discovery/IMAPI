@@ -357,16 +357,14 @@ public class EntityRepository2 {
             else
                 sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
             sql.add("}");
-
-            sql.add("UNION {");
-            sql.add("  ?1predicate owl:inverseOf ?1revPredicate .");
-            sql.add("  ?1Level ?1revPredicate ?entity");
-            if (excludePredicates)
-                sql.add("   FILTER (?1predicate NOT IN (" + inPredicates + "))");
-            else
+            if (!excludePredicates) {
+                sql.add("UNION {");
+                sql.add("  ?1predicate owl:inverseOf ?1revPredicate .");
+                sql.add("  ?1Level ?1revPredicate ?entity");
                 sql.add("   FILTER (?1predicate IN (" + inPredicates + "))");
+            }
+            sql.add("}");
         }
-        sql.add("}");
 
         sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.")
             .add("    FILTER (!isBlank(?1Level))}");

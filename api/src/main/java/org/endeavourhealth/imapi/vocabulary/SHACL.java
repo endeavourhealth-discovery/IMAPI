@@ -44,6 +44,7 @@ public class SHACL {
    public static final TTIriRef GROUP= iri(NAMESPACE +"group");
    public static final TTIriRef NAME= iri(NAMESPACE +"name");
    public static final TTIriRef EXPRESSION= iri(NAMESPACE +"expression");
+   public static final TTIriRef HAS_VALUE= iri(NAMESPACE +"hasValue");
 
 
 

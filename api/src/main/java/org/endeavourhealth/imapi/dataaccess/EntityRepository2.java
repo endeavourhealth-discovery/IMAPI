@@ -370,7 +370,7 @@ public class EntityRepository2 {
                 sql.add("}");
             }
 
-        }
+        } else sql.add("}");
 
         sql.add("  OPTIONAL {?1Level rdfs:label ?1Name.")
                 .add("    FILTER (!isBlank(?1Level))}");

@@ -18,4 +18,7 @@ export default defineConfig({
   resolve: {
     alias: {"@": path.resolve(__dirname, "./src"), "./runtimeConfig": "./runtimeConfig.browser"}
   },
+    ssr: {
+      noExternal: ["im-library"]
+    }
 });

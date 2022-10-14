@@ -11,7 +11,7 @@ export default class GithubController {
 
     constructor() {
         this.initRoutes();
-        this.octokit = new Octokit();
+        this.octokit = new Octokit({auth: process.env.GIT_TOKEN});
     }
 
     private initRoutes() {

@@ -8,7 +8,6 @@ export default class EntityService {
   }
 
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
-    console.log(Env.API)
     try {
       return await this.axios.get(Env.API + "api/entity/public/partial", {
         params: {

@@ -1,11 +1,11 @@
 import { QueryDisplay } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Services, Vocabulary, Helpers } from "im-library/dist/api";
+import { Enums, Vocabulary, Helpers } from "im-library/dist/api";
 import axios from "axios";
+import EntityService from '@/services/entity.service';
 
 const { DataTypeCheckers } = Helpers;
 const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
 const { RDFS, IM } = Vocabulary;
-const { EntityService } = Services;
 const { QueryDisplayType } = Enums;
 const entityService = new EntityService(axios);
 

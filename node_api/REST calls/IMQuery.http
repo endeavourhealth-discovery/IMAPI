@@ -150,3 +150,7 @@ Content-Type: application/json
     }
   }
 }
+
+###
+
+GET http://127.0.0.1:3000/node_api/query/public/queryDefinitionDisplay?iri=http:%2F%2Fendhealth.info%2Fim%23CSET_OralNSAIDs

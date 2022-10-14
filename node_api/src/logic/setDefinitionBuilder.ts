@@ -1,9 +1,9 @@
-import { Services, Vocabulary } from "im-library/dist/api";
+import { Vocabulary } from "im-library/dist/api";
 import axios from "axios";
 import { buildQueryDisplayFromQuery } from "./queryBuilder/displayBuilder";
+import EntityService from '@/services/entity.service';
 
 const { RDFS, IM } = Vocabulary;
-const { EntityService } = Services;
 const entityService = new EntityService(axios);
 
 export async function buildSetDefinition(iri: string) {

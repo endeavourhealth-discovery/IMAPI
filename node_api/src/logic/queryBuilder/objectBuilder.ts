@@ -1,4 +1,19 @@
 import { QueryObject } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Vocabulary, Helpers } from "im-library/dist/api";
+import axios from "axios";
+import EntityService from "@/services/entity.service";
+
+const { DataTypeCheckers } = Helpers;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { RDFS, IM } = Vocabulary;
+const { QueryDisplayType } = Enums;
+const entityService = new EntityService(axios);
+
+export async function getQueryObjectByIri(iri: string) {
+  const entity = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data;
+  if (!entity[IM.DEFINITION]) return {} as QueryObject;
+  return buildQueryObjectFromQuery(JSON.parse(entity[IM.DEFINITION]));
+}
 
 export function buildQueryObjectFromQuery(queryAPI: any) {
   const queryUI = {} as QueryObject;

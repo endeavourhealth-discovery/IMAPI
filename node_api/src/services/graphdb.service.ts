@@ -1,6 +1,7 @@
 // TODO: Need graphdb typings
 // @ts-ignore
 import Graphdb from 'graphdb';
+import Env from '@/services/env.service';
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -79,8 +80,8 @@ export class GraphdbService {
   }
 
   private async connect() {
-    const timeout = process.env.GRAPH_TIMEOUT || 30000;
-    this.serverConfig = new ServerClientConfig(process.env.GRAPH_HOST)
+    const timeout = Env.GRAPH_TIMEOUT || 30000;
+    this.serverConfig = new ServerClientConfig(Env.GRAPH_HOST)
       .setTimeout(timeout)
       .setHeaders({
         'Accept': RDFMimeType.SPARQL_RESULTS_JSON
@@ -89,12 +90,12 @@ export class GraphdbService {
 
     this.server = new ServerClient(this.serverConfig);
 
-    this.repoConfig = new RepositoryClientConfig(process.env.GRAPH_HOST)
-      .setEndpoints([process.env.GRAPH_HOST + '/repositories/' + process.env.GRAPH_REPO])
+    this.repoConfig = new RepositoryClientConfig(Env.GRAPH_HOST)
+      .setEndpoints([Env.GRAPH_HOST + '/repositories/' + Env.GRAPH_REPO])
       .setReadTimeout(timeout)
       .setWriteTimeout(timeout);
 
-    this.repo = await this.server.getRepository(process.env.GRAPH_REPO, this.repoConfig);
+    this.repo = await this.server.getRepository(Env.GRAPH_REPO, this.repoConfig);
   }
 
 }

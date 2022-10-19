@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import * as https from "https";
 import * as fs from "fs";
+import Env from '@/services/env.service';
 // import swaggerAutogen from 'swagger-autogen';
 // import swaggerUi from 'swagger-ui-express';
 // import swaggerFile from './swagger_output.json';
@@ -21,7 +22,7 @@ class App {
 
     this.app.use(
       cors({
-        origin: "*" || (process.env.ALLOWED_HOSTS as string),
+        origin: Env.ALLOWED_HOSTS,
         optionsSuccessStatus: 200,
       })
     );
@@ -36,7 +37,7 @@ class App {
   }
 
   public listen() {
-    const prod: boolean = process.env.NODE_ENV === "production";
+    const prod: boolean = Env.NODE_ENV === "production";
 
     this.app.listen(prod ? 8000 : this.port, () => {
       console.log(`App started on port ${this.port}`);

@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
+import Env from '@/services/env.service';
 
 export default class SearchController {
   public path = '/'
@@ -206,7 +207,7 @@ export default class SearchController {
   }
 
   private async getEntities(qry: any) {
-    const osRes: any = await axios.post(process.env.OPENSEARCH_URL as string, qry, { headers: { Authorization: 'Basic ' + process.env.OPENSEARCH_AUTH, 'Content-Type': 'application/json' } });
+    const osRes: any = await axios.post(Env.OPENSEARCH_URL as string, qry, { headers: { Authorization: 'Basic ' + Env.OPENSEARCH_AUTH, 'Content-Type': 'application/json' } });
 
     return osRes.data.hits.hits
       .map((h: any) => h._source)

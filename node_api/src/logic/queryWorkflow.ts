@@ -1,4 +1,4 @@
-import { Query } from "im-library/dist/types/models/modules/AutoGen";
+import {Query} from 'im-library/dist/types/models/modules/AutoGen';
 import { GraphdbService, iri } from "../services/graphdb.service";
 
 import jp from "jsonpath";
@@ -10,7 +10,7 @@ import _ from "lodash";
 import { v4 } from "uuid";
 import axios from "axios";
 import * as fs from "fs";
-import { addItem } from "im-library/dist/types/helpers/modules/EditorBuilderJsonMethods";
+import Env from '@/services/env.service';
 
 export default class QueryWorkflow {
   private showConsole = false;
@@ -60,7 +60,7 @@ export default class QueryWorkflow {
 
       var config = {
         method: "post",
-        url: process.env.API + "/api/query/public/queryIM",
+        url: Env.API + "/api/query/public/queryIM",
         headers: {
           "Content-Type": "application/json",
         },
@@ -349,4 +349,5 @@ export default class QueryWorkflow {
     }
     return result;
   }
+
 }

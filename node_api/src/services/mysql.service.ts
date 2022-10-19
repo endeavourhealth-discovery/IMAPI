@@ -1,4 +1,5 @@
 import mysql, {Connection, RowDataPacket} from 'mysql2';
+import Env from '@/services/env.service';
 
 export class MysqlService {
   private conn: Connection | undefined;
@@ -20,10 +21,10 @@ export class MysqlService {
   private getConnection(): Connection {
     if (!this.conn) {
       this.conn = mysql.createConnection({
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASS,
-        database: process.env.MYSQL_DB
+        host: Env.MYSQL_HOST,
+        user: Env.MYSQL_USER,
+        password: Env.MYSQL_PASS,
+        database: Env.MYSQL_DB
       });
     }
 

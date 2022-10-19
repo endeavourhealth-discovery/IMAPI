@@ -2,6 +2,7 @@ import express, {Request, Response} from "express";
 import AuthMiddleware from "@/middlewares/auth.middleware";
 import {Octokit} from "@octokit/core"
 import GithubRelease from "@/model/github/GithubRelease";
+import Env from '@/services/env.service';
 
 export default class GithubController {
     public path = "/";
@@ -11,7 +12,7 @@ export default class GithubController {
 
     constructor() {
         this.initRoutes();
-        this.octokit = new Octokit({auth: process.env.GIT_TOKEN});
+        this.octokit = new Octokit({auth: Env.GIT_TOKEN});
     }
 
     private initRoutes() {

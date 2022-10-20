@@ -1,5 +1,7 @@
 import { buildQueryDisplayFromQuery, getQueryDefinitionDisplayByIri } from "@/logic/queryBuilder/displayBuilder";
 import { buildQueryObjectFromQuery, getQueryObjectByIri } from "@/logic/queryBuilder/objectBuilder";
+import QueryService from "@/services/query.service";
+import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 import QueryRunner from "../logic/queryRunner";
 import QueryWorkflow from "../logic/queryWorkflow";
@@ -11,11 +13,13 @@ export default class QueryController {
   public router = express.Router();
   private runner: QueryRunner;
   private workflow: QueryWorkflow;
+  private queryService: QueryService;
 
   constructor() {
     this.initRoutes();
     this.runner = new QueryRunner();
     this.workflow = new QueryWorkflow();
+    this.queryService = new QueryService(axios);
   }
 
   private initRoutes() {
@@ -35,6 +39,8 @@ export default class QueryController {
     this.router.post("/node_api/query/public/queryObject", (req, res, next) => this.getQueryObject(req, res, next));
     this.router.get("/node_api/query/public/queryDefinitionDisplay", (req, res, next) => this.getQueryDefinitionDisplay(req, res, next));
     this.router.get("/node_api/query/public/queryObjectDisplay", (req, res, next) => this.getQueryObjectByIri(req, res, next));
+    this.router.get("/node_api/query/public/allowablePropertySuggestions", (req, res, next) => this.getAllowablePropertySuggestions(req, res, next));
+    this.router.get("/node_api/query/public/allowableRangeSuggestions", (req, res, next) => this.getAllowableRangeSuggestions(req, res, next));
   }
 
   async getSQL(req: Request, res: Response, next: NextFunction) {
@@ -175,6 +181,24 @@ export default class QueryController {
     } catch (error) {
       console.error(error);
       res.status(400).end();
+    }
+  }
+
+  async getAllowablePropertySuggestions(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.queryService.getAllowablePropertySuggestions(req.query.iri as string, req.query.searchTerm as string);
+      res.send(data).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllowableRangeSuggestions(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.queryService.getAllowableRangeSuggestions(req.query.iri as string, req.query.searchTerm as string);
+      res.send(data).end();
+    } catch (error) {
+      next(error);
     }
   }
 }

@@ -23,8 +23,8 @@ public class Select  {
 	Function function;
 	private List<Select> select;
 	private Where where;
-	private List<TTAlias> orderBy;
-	private String direction;
+	private List<OrderBy> orderBy;
+
 	private Integer limit;
 	private List<TTAlias> groupBy;
 
@@ -114,23 +114,31 @@ public class Select  {
 		return this;
 	}
 
-	public List<TTAlias> getOrderBy() {
+	public List<OrderBy> getOrderBy() {
 		return orderBy;
 	}
 
-	public Select setOrderBy(List<TTAlias> orderBy) {
+	@JsonSetter
+	public Select setOrderBy(List<OrderBy> orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}
 
-	public String getDirection() {
-		return direction;
-	}
-
-	public Select setDirection(String direction) {
-		this.direction = direction;
+	public Select addOrderBy(OrderBy orderBy){
+		if (this.orderBy==null)
+			this.orderBy= new ArrayList<>();
+		this.orderBy.add(orderBy);
 		return this;
 	}
+
+	public Select orderBy(Consumer<OrderBy> builder){
+		OrderBy orderBy= new OrderBy();
+		addOrderBy(orderBy);
+		builder.accept(orderBy);
+		return this;
+	}
+
+
 
 	public Integer getLimit() {
 		return limit;

@@ -37,7 +37,7 @@ import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.pre
 public class QueryRepository {
     private int o = 0;
     private Query query;
-    private TTDocument result;
+    private TTDocument result= new TTDocument();
     private final Set<String> predicates = new HashSet<>();
     private QueryRequest queryRequest;
 
@@ -50,11 +50,12 @@ public class QueryRepository {
      * @throws JsonProcessingException if the json is invalid
      */
     public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             unpackQueryRequest(queryRequest, conn);
             if (null != queryRequest.getPathQuery())
                 return new PathRepository().queryIM(queryRequest, conn);
-            result = new TTDocument();
+
             if (null != queryRequest.getTextSearch()) {
                 ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
                 if (null != osResult)
@@ -64,6 +65,7 @@ public class QueryRepository {
             SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql();
             return graphSelectSearch(spq, conn);
+
         }
     }
 

@@ -13,17 +13,17 @@ import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
-import org.endeavourhealth.imapi.model.forms.FormGenerator;
+import org.endeavourhealth.imapi.model.iml.FormGenerator;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.MemberType;
-import org.endeavourhealth.imapi.model.valuset.SetAsObject;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.set.ExportSet;
+import org.endeavourhealth.imapi.model.set.MemberType;
+import org.endeavourhealth.imapi.model.set.SetAsObject;
+import org.endeavourhealth.imapi.model.set.SetMember;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
 import org.endeavourhealth.imapi.transforms.TTToString;
@@ -198,23 +198,23 @@ public class EntityService {
         return entityTripleRepository.findPartialWithTotalCount(iri,predicateList, schemeIris,rowNumber, size, inactive);
     }
 
-    public ExportValueSet getHasMember(String iri,String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+    public ExportSet getHasMember(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
 
         List<TTIriRef> hasMembers = getPartialWithTotalCount(iri,predicateList, schemeIris,page, size, inactive).getResult();
         TTArray array = new TTArray();
         for(TTIriRef member: hasMembers){
             array.add(member);
         }
-        Set<ValueSetMember> members = new HashSet<>();
+        Set<SetMember> members = new HashSet<>();
         members.add(getValueSetMemberFromArray(array, true));
-        for(ValueSetMember valueSetMember:members){
-            valueSetMember.setLabel("a_MemberIncluded");
-            valueSetMember.setType(MemberType.INCLUDED_SELF);
-            valueSetMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
+        for(SetMember setMember :members){
+            setMember.setLabel("a_MemberIncluded");
+            setMember.setType(MemberType.INCLUDED_SELF);
+            setMember.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
         }
-        ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
+        ExportSet result = new ExportSet().setValueSet(getEntityReference(iri));
 
-        Map<String, ValueSetMember> processedMembers = processMembers(members, false, 0, 2000);
+        Map<String, SetMember> processedMembers = processMembers(members, false, 0, 2000);
 
         result.addAllMembers(processedMembers.values());
 
@@ -299,21 +299,21 @@ public class EntityService {
         return searchService.getEntitiesByTerm(request);
     }
 
-    public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {
+    public ExportSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks) {
         return getValueSetMembers(iri, expandMembers, expandSets, limit, withHyperlinks, null, iri);
     }
 
-    public ExportValueSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri) {
+    public ExportSet getValueSetMembers(String iri, boolean expandMembers, boolean expandSets, Integer limit, boolean withHyperlinks, String parentSetName, String originalParentIri) {
         if (iri == null || iri.isEmpty()) {
             return null;
         }
-        ExportValueSet result = new ExportValueSet().setValueSet(getEntityReference(iri));
+        ExportSet result = new ExportSet().setValueSet(getEntityReference(iri));
         int memberCount = 0;
 
-        Set<ValueSetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri, limit);
+        Set<SetMember> definedMemberInclusions = getDefinedInclusions(iri, expandSets, withHyperlinks, parentSetName, originalParentIri, limit);
 
 
-        Map<String, ValueSetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
+        Map<String, SetMember> evaluatedMemberInclusions = processMembers(definedMemberInclusions, expandMembers, memberCount, limit);
 
         if (limit != null && memberCount > limit)
             return result.setLimited(true);
@@ -337,10 +337,10 @@ public class EntityService {
         return result;
     }
 
-    private Set<ValueSetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri, Integer limit) {
-        Set<ValueSetMember> definedMemberInclusions = getMembers(iri, withHyperlinks, limit);
+    private Set<SetMember> getDefinedInclusions(String iri, boolean expandSets, boolean withHyperlinks, String parentSetName, String originalParentIri, Integer limit) {
+        Set<SetMember> definedMemberInclusions = getMembers(iri, withHyperlinks, limit);
 
-        for (ValueSetMember included : definedMemberInclusions) {
+        for (SetMember included : definedMemberInclusions) {
             if (originalParentIri.equals(iri)) {
                 included.setLabel("a_MemberIncluded");
                 if (direct) {
@@ -360,10 +360,10 @@ public class EntityService {
             included.setDirectParent(new TTIriRef().setIri(iri).setName(getEntityReference(iri).getName()));
         }
 
-        Set<ValueSetMember> sets = getIsSubsetOf(iri);
+        Set<SetMember> sets = getIsSubsetOf(iri);
 
         if(!sets.isEmpty()){
-            for (ValueSetMember set : sets){
+            for (SetMember set : sets){
                 set.setLabel("isSubsetOf");
                 set.setType(MemberType.IS_SUBSET_OF);
                 definedMemberInclusions.add(set);
@@ -373,9 +373,9 @@ public class EntityService {
         return definedMemberInclusions;
     }
 
-    private Set<ValueSetMember> getIsSubsetOf(String iri) {
+    private Set<SetMember> getIsSubsetOf(String iri) {
         Set<TTIriRef> isSubsetOf = entityRepository2.getIsSubsetOf(iri);
-        Set<ValueSetMember> sets= new HashSet<>();
+        Set<SetMember> sets= new HashSet<>();
         TTArray result = new TTArray();
 
         if (!isSubsetOf.isEmpty()) {
@@ -389,8 +389,8 @@ public class EntityService {
     }
 
 
-    private Set<ValueSetMember> getMembers(String iri, boolean withHyperlinks, Integer limit) {
-        Set<ValueSetMember> members = new HashSet<>();
+    private Set<SetMember> getMembers(String iri, boolean withHyperlinks, Integer limit) {
+        Set<SetMember> members = new HashSet<>();
 
         TTArray result = new TTArray();
         if(limit == null || limit == 0) {
@@ -421,7 +421,7 @@ public class EntityService {
         return members;
     }
 
-    private void getValueSetMember(boolean withHyperlinks, Set<ValueSetMember> members, TTArray result) {
+    private void getValueSetMember(boolean withHyperlinks, Set<SetMember> members, TTArray result) {
         if (result != null && !result.isEmpty()) {
             if (direct) {
                 members.add(getValueSetMemberFromArray(result, withHyperlinks));
@@ -437,8 +437,8 @@ public class EntityService {
         }
     }
 
-    private ValueSetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {
-        ValueSetMember member = new ValueSetMember();
+    private SetMember getValueSetMemberFromArray(TTArray result, boolean withHyperlinks) {
+        SetMember member = new SetMember();
         Map<String, String> defaultPredicates = getDefaultPredicateNames();
         List<String> blockedIris = getBlockedIris();
         String arrayAsString = TTToString.ttValueToString(result, "object", defaultPredicates, 0, withHyperlinks, blockedIris);
@@ -468,8 +468,8 @@ public class EntityService {
         return defaultPredicates;
     }
 
-    private ValueSetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
-        ValueSetMember member = new ValueSetMember();
+    private SetMember getValueSetMemberFromNode(TTValue node, boolean withHyperlinks) {
+        SetMember member = new SetMember();
         Map<String, String> defaultPredicates = getDefaultPredicateNames();
         List<String> blockedIris = getBlockedIris();
         String nodeAsString = TTToString.ttValueToString(node.asNode(), "object", defaultPredicates, 0, withHyperlinks, blockedIris);
@@ -477,8 +477,8 @@ public class EntityService {
         return member;
     }
 
-    private ValueSetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
-        ValueSetMember member = new ValueSetMember();
+    private SetMember getValueSetMemberFromIri(TTIriRef iri, boolean withHyperlinks) {
+        SetMember member = new SetMember();
         List<String> blockedIris = getBlockedIris();
         SearchResultSummary summary = entityRepository.getEntitySummaryByIri(iri.getIri());
         String iriAsString = TTToString.ttIriToString(iri, "object", 0, withHyperlinks, false, blockedIris);
@@ -488,9 +488,9 @@ public class EntityService {
         return member;
     }
 
-    private Map<String, ValueSetMember> processMembers(Set<ValueSetMember> valueSetMembers, boolean expand, Integer memberCount, Integer limit) {
-        Map<String, ValueSetMember> memberHashMap = new HashMap<>();
-        for (ValueSetMember member : valueSetMembers) {
+    private Map<String, SetMember> processMembers(Set<SetMember> setMembers, boolean expand, Integer memberCount, Integer limit) {
+        Map<String, SetMember> memberHashMap = new HashMap<>();
+        for (SetMember member : setMembers) {
 
             if (limit != null && (memberCount + memberHashMap.size()) > limit) return memberHashMap;
 
@@ -652,9 +652,9 @@ public class EntityService {
         return pv;
     }
 
-    private void appendValueSet(ExportValueSet exportValueSet, StringBuilder valueSetMembers, ValueSetMember setMember) {
-        valueSetMembers.append("Inc").append("\t").append(exportValueSet.getValueSet().getIri()).append("\t")
-                .append(exportValueSet.getValueSet().getName()).append("\t").append(setMember.getEntity().asIriRef().getIri())
+    private void appendValueSet(ExportSet exportSet, StringBuilder valueSetMembers, SetMember setMember) {
+        valueSetMembers.append("Inc").append("\t").append(exportSet.getValueSet().getIri()).append("\t")
+                .append(exportSet.getValueSet().getName()).append("\t").append(setMember.getEntity().asIriRef().getIri())
                 .append("\t").append(setMember.getEntity().asIriRef().getName()).append("\t").append(setMember.getCode())
                 .append("\t");
         if (setMember.getScheme() != null)

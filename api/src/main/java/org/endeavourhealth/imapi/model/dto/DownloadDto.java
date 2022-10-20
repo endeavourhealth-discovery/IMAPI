@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
+import org.endeavourhealth.imapi.model.set.ExportSet;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,7 +17,7 @@ public class DownloadDto implements Serializable {
 	private List<EntityReferenceNode> hasSubTypes;
 	private TTNode inferred;
 	private TTNode axioms;
-	private ExportValueSet members;
+	private ExportSet members;
 	private List<DataModelProperty> dataModelProperties;
 	private List<TermCode> terms;
 	private TTArray isChildOf;
@@ -49,11 +49,11 @@ public class DownloadDto implements Serializable {
         return this;
     }
 
-    public ExportValueSet getMembers() {
+    public ExportSet getMembers() {
 		return members;
 	}
 
-	public void setMembers(ExportValueSet members) {
+	public void setMembers(ExportSet members) {
 		this.members = members;
 	}
 

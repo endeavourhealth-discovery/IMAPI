@@ -31,8 +31,8 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.SetAsObject;
+import org.endeavourhealth.imapi.model.set.ExportSet;
+import org.endeavourhealth.imapi.model.set.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -166,7 +166,7 @@ public class EntityController {
 	}
 
     @GetMapping(value = "/public/hasMember")
-    public ExportValueSet getHasMember(
+    public ExportSet getHasMember(
         @RequestParam(name = "iri") String iri,
         @RequestParam(name = "predicate") String predicateIri,
         @RequestParam(name = "page", required = false) Integer page,
@@ -327,7 +327,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/public/members")
-	public ExportValueSet valueSetMembersJson(
+	public ExportSet valueSetMembersJson(
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,

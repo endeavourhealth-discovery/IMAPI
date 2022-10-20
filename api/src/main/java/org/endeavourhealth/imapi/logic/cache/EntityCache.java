@@ -74,7 +74,7 @@ public class EntityCache implements Runnable{
 
 	/**
 	 * Returns the full shape map from IM
-	 * @return a Map of iri to shapes
+	 * @return a TransformMap of iri to shapes
 	 */
 	public static Map<String,TTEntity> getProperties(){
 		return properties;
@@ -159,7 +159,7 @@ public class EntityCache implements Runnable{
 
 	/**
 	 * Returns the full shape map from IM
-	 * @return a Map of iri to shapes
+	 * @return a TransformMap of iri to shapes
 	 */
 	public static Map<String,TTEntity> getShapes(){
 		return shapes;

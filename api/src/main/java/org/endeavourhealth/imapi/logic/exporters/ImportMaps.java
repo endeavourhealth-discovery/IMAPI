@@ -144,7 +144,7 @@ public class ImportMaps implements AutoCloseable {
 
 	/**
 	 * Gets all entities and includes their legacy map if they have one
-	 * @return A Map of all entites and the set of iris they match to
+	 * @return A TransformMap of all entites and the set of iris they match to
 	 * @throws IOException if using the file repository
 	 * @throws TTFilerException if using the graph repository
 	 */
@@ -366,7 +366,7 @@ public class ImportMaps implements AutoCloseable {
 
 	/**
 	 * Extracts term codes from Snomed entities
-	 * @return Map of description code to entity
+	 * @return TransformMap of description code to entity
 	 */
 	public Map<String, String> getDescriptionIds() throws TTFilerException {
 		Map<String,String> termMap= new HashMap<>();

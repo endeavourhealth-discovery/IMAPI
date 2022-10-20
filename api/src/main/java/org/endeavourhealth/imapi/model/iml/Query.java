@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"prefix","iri","name","description","from","where","select","subQuery"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Query extends TTAlias {
+public class Query extends TTIriRef{
 	private String description;
 	private List<TTAlias> from;
 	private List<Select> select;
@@ -38,6 +38,7 @@ public class Query extends TTAlias {
 		this.description = description;
 		return this;
 	}
+
 
 	public String getDirection() {
 		return direction;

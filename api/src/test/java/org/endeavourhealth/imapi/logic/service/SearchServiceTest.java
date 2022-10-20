@@ -40,9 +40,10 @@ class SearchServiceTest {
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException {
 		
 		String name= dataSet.getQuery().getName();
+		name= name.replaceAll(" ","").replaceAll("\\(","").replaceAll("\\)","");
 		SearchService searchService = new SearchService();
 		System.out.println("Testing "+ name);
-		try (FileWriter wr = new FileWriter(testDefinitions+ "\\" + name + ".json")) {
+		try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "x.json")) {
 			wr.write(dataSet.getJson());
 		}
 		ObjectMapper om= new ObjectMapper();

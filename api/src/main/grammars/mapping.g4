@@ -12,7 +12,7 @@ structureMap
     ;
 
 mapId
-	: 'map' url '=' identifier
+	: 'transformMap' url '=' identifier
 	;
 
 url

@@ -5,16 +5,18 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX sn: <http://snomed.info/sct#>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
-SELECT distinct ?entity  ?p3 ?p4 ?p5 ?p6 ?p7 ?p8 ?p9
-WHERE {?entity <http://www.w3.org/ns/shacl#property> ?o1.
-?o1 <http://www.w3.org/ns/shacl#path> ?o2.
-Filter (?o2=<http://endhealth.info/im#dateOfBirth>)
- OPTIONAL { ?entity <http://www.w3.org/ns/shacl#property> ?p3.
- OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#path> ?p4.}
- OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#node> ?p5.}
- OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#minCount> ?p6.}
- OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#maxCount> ?p7.}
- OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#class> ?p8.}
- OPTIONAL { ?p3 <http://www.w3.org/ns/shacl#datatype> ?p9.}
+SELECT distinct ?entity  ?p4 ?p5 ?p6 ?p7 ?p8 ?p9 ?p10
+WHERE {?entity rdf:type ?type1.
+Filter (?type1 in(<http://www.w3.org/ns/shacl#NodeShape>))
+?entity <http://www.w3.org/ns/shacl#property> ?o2.
+?o2 <http://www.w3.org/ns/shacl#path> ?o3.
+Filter (?o3=<http://endhealth.info/im#dateOfBirth>)
+ OPTIONAL { ?entity <http://www.w3.org/ns/shacl#property> ?p4.
+ OPTIONAL { ?p4 <http://www.w3.org/ns/shacl#path> ?p5.}
+ OPTIONAL { ?p4 <http://www.w3.org/ns/shacl#node> ?p6.}
+ OPTIONAL { ?p4 <http://www.w3.org/ns/shacl#minCount> ?p7.}
+ OPTIONAL { ?p4 <http://www.w3.org/ns/shacl#maxCount> ?p8.}
+ OPTIONAL { ?p4 <http://www.w3.org/ns/shacl#class> ?p9.}
+ OPTIONAL { ?p4 <http://www.w3.org/ns/shacl#datatype> ?p10.}
 }
 }

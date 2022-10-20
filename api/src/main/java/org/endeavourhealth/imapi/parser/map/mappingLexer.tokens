@@ -49,7 +49,7 @@ NUMBER=48
 WS=49
 COMMENT=50
 LINE_COMMENT=51
-'map'=1
+'transformMap'=1
 '='=2
 'uses'=3
 'as'=4

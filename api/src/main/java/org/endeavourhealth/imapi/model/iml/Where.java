@@ -31,8 +31,7 @@ public class Where {
 	private Function function;
 	private Where where;
 	private Value value;
-	private List<TTAlias> orderBy;
-	private String direction;
+	private List<OrderBy> orderBy;
 	private Integer limit;
 
 	public String getPath() {
@@ -44,28 +43,25 @@ public class Where {
 		return this;
 	}
 
-	public List<TTAlias> getOrderBy() {
+	public List<OrderBy> getOrderBy() {
 		return orderBy;
 	}
 
-	public Where setOrderBy(List<TTAlias> orderBy) {
+	public Where setOrderBy(List<OrderBy> orderBy) {
 		this.orderBy = orderBy;
 		return this;
 	}
 
-	public Where addOrderBy(TTAlias orderBy){
+	public Where addOrderBy(OrderBy orderBy){
 		if (this.orderBy==null)
 			this.orderBy= new ArrayList<>();
 		this.orderBy.add(orderBy);
 		return this;
 	}
-
-	public String getDirection() {
-		return direction;
-	}
-
-	public Where setDirection(String direction) {
-		this.direction = direction;
+	public Where orderBy(Consumer<OrderBy> builder){
+		OrderBy orderBy= new OrderBy();
+		addOrderBy(orderBy);
+		builder.accept(orderBy);
 		return this;
 	}
 

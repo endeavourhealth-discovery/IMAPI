@@ -141,6 +141,7 @@ public class TestQueries {
 		String ecl= "* :  { 363698007 |Finding site (attribute)| = 61685007 |Lower limb structure (body structure)| }";
 		ECLToIML eclToIML= new ECLToIML();
 		Query query= eclToIML.getQueryFromECL(ecl);
+		query.setName("Concept With Site being LowerLimb");
 		qr.setQuery(query);
 		return qr;
 

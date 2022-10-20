@@ -44,11 +44,11 @@
         "@id" : "im:VSET_StatedGender"
       } ]
     }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
       "sh:path" : [ {
         "@id" : "im:contact"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
       } ]
     }, {
       "sh:path" : [ {
@@ -183,8 +183,8 @@
       "sh:path" : [ {
         "@id" : "im:contact"
       } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
+      "sh:node" : [ {
+        "@id" : "xsd:string"
       } ]
     }, {
       "sh:path" : [ {

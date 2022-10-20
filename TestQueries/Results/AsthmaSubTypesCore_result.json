@@ -12,10 +12,6 @@
     }
   },
   "entities" : [ {
-    "@id" : "sn:195967001",
-    "rdfs:label" : "Asthma (disorder)",
-    "im:code" : "195967001"
-  }, {
     "@id" : "sn:1945002",
     "rdfs:label" : "Allergic asthma with stated cause (disorder)",
     "im:code" : "1945002"
@@ -79,6 +75,10 @@
     "@id" : "sn:21341004",
     "rdfs:label" : "Asthma (disorder)",
     "im:code" : "21341004"
+  }, {
+    "@id" : "sn:195967001",
+    "rdfs:label" : "Asthma (disorder)",
+    "im:code" : "195967001"
   }, {
     "@id" : "sn:405944004",
     "rdfs:label" : "Asthmatic bronchitis (disorder)",

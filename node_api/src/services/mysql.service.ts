@@ -1,12 +1,12 @@
-import mysql, {Connection, RowDataPacket} from 'mysql2';
-import Env from '@/services/env.service';
+import mysql, { Connection, RowDataPacket } from "mysql2";
+import Env from "@/services/env.service";
 
 export class MysqlService {
   private conn: Connection | undefined;
 
   public execute(sql: string, params: any[]): Promise<RowDataPacket[]> {
     return new Promise((resolve, reject) => {
-      this.getConnection().query(sql, params,(err, result) => {
+      this.getConnection().query(sql, params, (err, result) => {
         if (err) {
           reject(err);
           return;

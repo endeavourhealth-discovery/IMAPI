@@ -14,7 +14,7 @@
       "member": "concept"
     }
   },
-  "http://endhealth.info/im#concept" : {
+  "http://endhealth.info/im#concept": {
     "name": "im_live.concept",
     "fields": {
       "pk": "dbid",
@@ -22,7 +22,7 @@
       "iri": "id"
     }
   },
-  "http://endhealth.info/im#conceptTct" : {
+  "http://endhealth.info/im#conceptTct": {
     "name": "im_live.concept_tct",
     "fields": {
       "target": "target",
@@ -30,31 +30,31 @@
       "source": "source"
     }
   },
-  "http://endhealth.info/im#Q_RegisteredGMS" : {
+  "http://endhealth.info/im#Q_RegisteredGMS": {
     "name": "IMQ_Q_RegisteredGMS",
     "fields": {
       "pk": "id"
     }
   },
-  "urn:uuid:6d517466-813b-46a8-b848-aaf5a4fbdcbf" : {
+  "urn:uuid:6d517466-813b-46a8-b848-aaf5a4fbdcbf": {
     "name": "IMQ_SMI_Population",
     "fields": {
       "pk": "id"
     }
   },
-  "urn:uuid:7d9a0a98-4df8-4748-8940-061a5148293c" : {
+  "urn:uuid:7d9a0a98-4df8-4748-8940-061a5148293c": {
     "name": "IMQ_APL_CVD_Bleed",
     "fields": {
       "pk": "id"
     }
   },
-  "urn:uuid:951b62db-4e81-4fcd-8cf7-0e71c28d30e9" : {
+  "urn:uuid:951b62db-4e81-4fcd-8cf7-0e71c28d30e9": {
     "name": "APL_CVD_HT_v1-0_Search_PID",
     "fields": {
       "pk": "id"
     }
   },
-  "http://endhealth.info/im#Patient" : {
+  "http://endhealth.info/im#Patient": {
     "name": "patient",
     "alias": "pat",
     "fields": {

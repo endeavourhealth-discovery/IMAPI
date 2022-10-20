@@ -3,9 +3,6 @@ import cors from "cors";
 import * as https from "https";
 import * as fs from "fs";
 import Env from '@/services/env.service';
-// import swaggerAutogen from 'swagger-autogen';
-// import swaggerUi from 'swagger-ui-express';
-// import swaggerFile from './swagger_output.json';
 
 class App {
   public app: Application;
@@ -29,10 +26,7 @@ class App {
 
     this.app.options("*", cors());
 
-    // this.app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
-
     appInit.middleWares.forEach((m) => this.app.use(m));
-
     appInit.controllers.forEach((c) => this.app.use(c.path, c.router));
   }
 

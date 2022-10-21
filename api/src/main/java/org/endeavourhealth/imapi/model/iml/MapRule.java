@@ -1,11 +1,15 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@JsonPropertyOrder({"source","target"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MapRule {
 	private List<MapRuleSource> source;
 	private List<MapRuleTransform> target;

@@ -1,7 +1,13 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.List;
+import java.util.function.Consumer;
+
+@JsonPropertyOrder({"context","type","variable","min","max","where","check"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MapRuleSource {
 	private String context;
 	private String type;
@@ -10,6 +16,27 @@ public class MapRuleSource {
 	private Integer max;
 	private Where where;
 	private Where check;
+
+	public Where getCheck() {
+		return check;
+	}
+
+	public MapRuleSource setCheck(Where check) {
+		this.check = check;
+		return this;
+	}
+
+	public MapRuleSource check(Consumer<Where> builder){
+		this.check= new Where();
+		builder.accept(this.check);
+		return this;
+	}
+
+	public MapRuleSource where(Consumer<Where> builder){
+		this.where= new Where();
+		builder.accept(this.where);
+		return this;
+	}
 
 	public String getContext() {
 		return context;

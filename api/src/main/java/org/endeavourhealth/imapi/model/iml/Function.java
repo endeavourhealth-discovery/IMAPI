@@ -26,6 +26,12 @@ public class Function extends TTIriRef {
 		return this;
 	}
 
+
+	public Function setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
 	public Map<String, String> getConceptMap() {
 		return conceptMap;
 	}

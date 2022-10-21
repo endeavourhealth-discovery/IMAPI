@@ -375,22 +375,27 @@ public class OSQuery {
             return null;
         Query query = queryRequest.getQuery();
 
-       if (query.getSelect()!=null){
-           for (Select select:query.getSelect()) {
-               if (select.getProperty().getIri() != null) {
-                   if (!propIsSupported(select.getProperty().getIri()))
-                       return null;
-               }
-               if (select.getSelect() != null)
-                   return null;
-           }
-           Where where= query.getWhere();
-           if (where!=null) {
-               if (!validateWhere(where))
-                   return null;
-           }
-
-       }
+        if (query.getSelect() != null) {
+            for (Select select : query.getSelect()) {
+                if (select.getProperty().getIri() != null) {
+                    if (!propIsSupported(select.getProperty().getIri()))
+                        return null;
+                }
+                if (select.getSelect() != null)
+                    return null;
+            }
+        }
+        if (query.getWhere() != null) {
+            Where where = query.getWhere();
+            if (where != null) {
+                if (!validateWhere(where))
+                    return null;
+            }
+        }
+        if (query.getFrom()!=null){
+            if (!validateFrom(query.getFrom()))
+                return null;
+        }
        SearchRequest searchRequest= convertIMToOS(queryRequest);
        List<SearchResultSummary> results= multiPhaseQuery(searchRequest);
        if (results.isEmpty())
@@ -398,6 +403,14 @@ public class OSQuery {
        else
         return   convertOSResult(results,query);
 
+    }
+
+    private boolean validateFrom(List<TTAlias> fromList) {
+        for (TTAlias from:fromList){
+            if (!from.isType())
+                return false;
+        }
+        return true;
     }
 
     private boolean validateWhere(Where where){

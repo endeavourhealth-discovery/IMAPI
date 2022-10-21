@@ -3,6 +3,9 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 
 public class Argument {
@@ -12,6 +15,23 @@ public class Argument {
 	private String valueVariable;
 	private Compare valueFrom;
 	private TTIriRef valueIri;
+	private List<String> valueList;
+
+	public List<String> getValueList() {
+		return valueList;
+	}
+
+	public Argument setValueList(List<String> valueList) {
+		this.valueList = valueList;
+		return this;
+	}
+
+	public Argument addToValueList(String value){
+		if (this.valueList==null)
+			this.valueList= new ArrayList<>();
+			this.valueList.add(value);
+			return this;
+	}
 
 	public TTIriRef getValueIri() {
 		return valueIri;

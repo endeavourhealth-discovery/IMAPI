@@ -1,12 +1,16 @@
 import { MysqlService } from "../services/mysql.service";
 import { GraphdbService, iri } from "../services/graphdb.service";
 import { Sql } from "../model/sql/Sql";
+
+/*
 import { Table } from "../model/sql/Table";
 import { Join } from "../model/sql/Join";
 import { SimpleCondition } from "../model/sql/SimpleCondition";
 import { ConditionList } from "../model/sql/ConditionList";
 import { Condition } from "../model/sql/Condition";
-import { Query, Match, Select, Function, PropertyValue, Argument } from "im-library/dist/types/models/modules/AutoGen";
+*/
+
+import { Query/*, Match, Select, Function, PropertyValue, Argument*/ } from "im-library/dist/types/models/modules/AutoGen";
 import dataModelMap from "./dataModelMap.json";
 import { Vocabulary } from "im-library/dist/api";
 const { IM, RDF, SHACL } = Vocabulary;
@@ -96,11 +100,14 @@ export default class QueryRunner {
 
   private async generateSql(query: Query) {
     this.sql = new Sql(query["@id"]);
+/*
     this.sql.table = this.sql.getTable(query.select.entityType["@id"], "m");
 
     await this.processSelect(query.select);
+*/
   }
 
+/*
   private async processSelect(select: Select) {
     for (const match of select.match) {
       await this.processMatch(this.sql.table, this.sql.conditions, match);
@@ -497,6 +504,7 @@ export default class QueryRunner {
       throw new Error("Unknown function [" + JSON.stringify(property.function, null, 2) + "]");
     }
   }
+*/
 
   // ========================================================================================================================================
 

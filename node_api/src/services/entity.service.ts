@@ -1,4 +1,4 @@
-import Env from '@/services/env.service';
+import Env from "@/services/env.service";
 
 export default class EntityService {
   axios: any;

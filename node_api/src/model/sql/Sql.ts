@@ -1,9 +1,8 @@
-import {Table} from './Table';
-import {Join} from './Join';
-import {ConditionList} from './ConditionList';
-import {SimpleCondition} from './SimpleCondition';
-import dataModelMap from '../../logic/dataModelMap.json';
-
+import { Table } from "./Table";
+import { Join } from "./Join";
+import { ConditionList } from "./ConditionList";
+import { SimpleCondition } from "./SimpleCondition";
+import dataModelMap from "../../logic/dataModelMap.json";
 
 export class Sql extends Join {
   public fields: string[] = [];
@@ -21,11 +20,9 @@ export class Sql extends Join {
 
   public toCreate(): string {
     const table = (<any>dataModelMap)[this.id];
-    if (!table)
-      throw "Id not in data model map [" + this.id + "]";
+    if (!table) throw "Id not in data model map [" + this.id + "]";
 
-    let result = "CREATE TABLE IF NOT EXISTS " + table.name + "\n"
-      + "SELECT m." + this.table.fields.pk;
+    let result = "CREATE TABLE IF NOT EXISTS " + table.name + "\n" + "SELECT m." + this.table.fields.pk;
 
     for (let f = 0; f < this.fields.length; f++) {
       result += ", " + this.fields[f];
@@ -50,11 +47,9 @@ export class Sql extends Join {
   }
 
   public getTable(entityTypeId: string, alias: string): Table {
-    if (!entityTypeId)
-      throw "No entity type provided";
+    if (!entityTypeId) throw "No entity type provided";
 
-    if (!(<any>dataModelMap)[entityTypeId])
-      throw "Entity [" + entityTypeId + "] does not exist in map";
+    if (!(<any>dataModelMap)[entityTypeId]) throw "Entity [" + entityTypeId + "] does not exist in map";
 
     const table = JSON.parse(JSON.stringify((<any>dataModelMap)[entityTypeId]));
     table.alias = alias;
@@ -64,15 +59,13 @@ export class Sql extends Join {
   }
 
   public getField(table: Table, fieldId: string): string {
-    if (!table.fields[fieldId])
-      throw "Table [" + table.name + "] does not contain field [" + fieldId + "]";
+    if (!table.fields[fieldId]) throw "Table [" + table.name + "] does not contain field [" + fieldId + "]";
 
     return table.alias + "." + table.fields[fieldId];
   }
 
   public getJoin(parent: Table, relationshipId: string, childId: string, alias: string): Join {
-    if (!parent.joins[relationshipId])
-      throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "]";
+    if (!parent.joins[relationshipId]) throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "]";
 
     if (!parent.joins[relationshipId][childId])
       throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "] to child table [" + childId + "]";
@@ -81,23 +74,19 @@ export class Sql extends Join {
     join.table = this.getTable(childId, alias);
     join.on = parent.joins[relationshipId][childId];
 
-    join.on = join.on
-      .replace(/{child}/g, join.table.alias)
-      .replace(/{parent}/g, parent.alias);
+    join.on = join.on.replace(/{child}/g, join.table.alias).replace(/{parent}/g, parent.alias);
 
     return join;
   }
 
-  private getConditions(conditionList: ConditionList, initial: string = ''): string {
-    if (!conditionList || conditionList.conditions.length == 0)
-      return '';
+  private getConditions(conditionList: ConditionList, initial: string = ""): string {
+    if (!conditionList || conditionList.conditions.length == 0) return "";
 
     let result: string = "\n" + initial;
 
     if (conditionList && conditionList.conditions.length > 0) {
-      for(let c=0; c<conditionList.conditions.length; c++) {
-        if (c>0)
-          result += "\n" + conditionList.operator + " ";
+      for (let c = 0; c < conditionList.conditions.length; c++) {
+        if (c > 0) result += "\n" + conditionList.operator + " ";
 
         if ((conditionList.conditions[c] as ConditionList).operator) {
           const cl: ConditionList = conditionList.conditions[c] as ConditionList;

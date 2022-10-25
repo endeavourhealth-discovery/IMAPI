@@ -2,6 +2,7 @@ import { TTIriRef } from "@/helpers/text/Clause";
 import Env from "@/services/env.service";
 import { IM, RDFS } from "@/vocabulary";
 import { QueryRequest } from "im-library/dist/types/interfaces/Interfaces";
+import { Query, TTAlias } from "im-library/dist/types/models/modules/AutoGen";
 
 export default class QueryService {
   axios: any;
@@ -58,7 +59,7 @@ export default class QueryService {
         ],
         activeOnly: true
       }
-    } as any;
+    } as QueryRequest;
     const subtypesQuery = {
       query: {
         name: "All subtypes of an entity, active only",
@@ -77,7 +78,7 @@ export default class QueryService {
         ],
         activeOnly: true
       }
-    } as any;
+    } as QueryRequest;
     let suggestions = [] as any[];
     try {
       const allowableRanges = await this.queryIM(allowableRangesQuery);
@@ -87,13 +88,13 @@ export default class QueryService {
             includeSubtypes: true,
             "@id": entity["@id"]
           };
-          subtypesQuery.query.from.push(from);
+          subtypesQuery.query.from.push(from as TTAlias);
         }
-        const response = await this.queryIM(subtypesQuery);
-        suggestions = searchTerm ? this.filterSuggestions(searchTerm, response.entities) : response.entities;
-        suggestions = suggestions.map(suggestion => {
-          return { "@id": suggestion["@id"], name: suggestion[RDFS.LABEL] };
-        });
+        if (searchTerm) {
+          subtypesQuery.textSearch = searchTerm;
+        }
+        suggestions = (await this.queryIM(subtypesQuery)).entities;
+        suggestions = this.convertTTEntitiesToTTIriRefs(suggestions);
       }
       return suggestions;
     } catch (error) {
@@ -138,31 +139,24 @@ export default class QueryService {
         ],
         activeOnly: true
       }
-    } as any;
+    } as QueryRequest;
     let suggestions = [] as any[];
     try {
-      const response = await this.queryIM(query);
-      suggestions = searchTerm ? this.filterSuggestions(searchTerm, response.entities) : response.entities;
-      return suggestions.map(suggestion => {
-        return { "@id": suggestion["@id"], name: suggestion[RDFS.LABEL] };
-      });
+      if (searchTerm) {
+        query.textSearch = searchTerm;
+      }
+      suggestions = (await this.queryIM(query)).entities;
+      return this.convertTTEntitiesToTTIriRefs(suggestions);
     } catch (error) {
       return suggestions;
     }
   }
 
-  filterSuggestions(query: string, suggestions: any[]) {
-    const filteredSuggestions = [];
+  convertTTEntitiesToTTIriRefs(ttEntities: any[]) {
+    return ttEntities.map(ttEntity => this.convertTTEntityToTTIriRef(ttEntity));
+  }
 
-    for (let i = 0; i < suggestions.length; i++) {
-      let item = suggestions[i];
-      const codeStartsWith = item[IM.CODE] && item[IM.CODE].indexOf(query) === 0;
-      const nameStartsWith = item[RDFS.LABEL].toLowerCase().indexOf(query.toLowerCase()) === 0;
-      if (nameStartsWith || codeStartsWith) {
-        filteredSuggestions.push(item);
-      }
-    }
-
-    return filteredSuggestions;
+  private convertTTEntityToTTIriRef(ttEntity: any) {
+    return { "@id": ttEntity["@id"], name: ttEntity[RDFS.LABEL] };
   }
 }

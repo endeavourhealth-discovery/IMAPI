@@ -27,5 +27,5 @@ artifacts:
     - api/build/libs/imapi.war
     - node_api/dist/**/*
     - node_api/package.json
-    - node_api/src/swagger_output.json
+
 

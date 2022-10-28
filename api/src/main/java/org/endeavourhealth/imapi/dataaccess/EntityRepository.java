@@ -382,9 +382,10 @@ public class EntityRepository {
             try (TupleQueryResult qr = tupleQuery.evaluate()) {
                 if (qr.hasNext()) {
                     BindingSet rs = qr.next();
-                    entityDocument.setName(rs.getValue("name").stringValue());
-                    entityDocument.addTermCode(entityDocument.getName(), null, null);
-
+                    if (rs.hasBinding("name")) {
+                        entityDocument.setName(rs.getValue("name").stringValue());
+                        entityDocument.addTermCode(entityDocument.getName(), null, null);
+                    }
                     if (rs.hasBinding("code"))
                         entityDocument.setCode(rs.getValue("code").stringValue());
 
@@ -397,12 +398,14 @@ public class EntityRepository {
                             status.setName(rs.getValue("statusName").stringValue());
                         entityDocument.setStatus(status);
                     }
+                    TTIriRef type;
+                    if (rs.hasBinding("type")) {
+                        type = TTIriRef.iri(rs.getValue("type").stringValue());
 
-                    TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
-                    if (rs.hasBinding("typeName"))
-                        type.setName(rs.getValue("typeName").stringValue());
-                    entityDocument.addType(type);
-
+                        if (rs.hasBinding("typeName"))
+                            type.setName(rs.getValue("typeName").stringValue());
+                        entityDocument.addType(type);
+                    }
                     if (rs.hasBinding("extraType")) {
                         TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
                         entityDocument.addType(extraType);

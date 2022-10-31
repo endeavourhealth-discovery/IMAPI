@@ -81,10 +81,10 @@ public class SetRepository {
                       .setIri(RDFS.LABEL.getIri()).setAlias("legacySchemeName"))))
                 .select(s->s
                   .property(p->p
-                    .setIri(IM.NAMESPACE+"usageTotal").setAlias("LegacyUse")))
+                    .setIri(IM.NAMESPACE+"usageTotal").setAlias("legacyUse")))
                 .select(s->s
                   .property(p->p
-                    .setIri(IM.IM1ID.getIri()).setAlias("LegacyIm1Id")));
+                    .setIri(IM.IM1ID.getIri()).setAlias("legacyIm1Id")));
               imQuery.addSelect(legacy);
         }
         String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql();

@@ -1,0 +1,473 @@
+{
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#2733002"
+  }, {
+    "@id" : "http://snomed.info/sct#47933007"
+  }, {
+    "@id" : "http://snomed.info/sct#4063001"
+  }, {
+    "@id" : "http://snomed.info/sct#300954003"
+  }, {
+    "@id" : "http://snomed.info/sct#7674000"
+  }, {
+    "@id" : "http://snomed.info/sct#10601006"
+  }, {
+    "@id" : "http://snomed.info/sct#8799007"
+  }, {
+    "@id" : "http://snomed.info/sct#10085004"
+  }, {
+    "@id" : "http://snomed.info/sct#303081002"
+  }, {
+    "@id" : "http://snomed.info/sct#23056005"
+  }, {
+    "@id" : "http://snomed.info/sct#78514002"
+  }, {
+    "@id" : "http://snomed.info/sct#1003721002"
+  }, {
+    "@id" : "http://snomed.info/sct#1003722009"
+  }, {
+    "@id" : "http://snomed.info/sct#35496009"
+  }, {
+    "@id" : "http://snomed.info/sct#36031001"
+  }, {
+    "@id" : "http://snomed.info/sct#46960006"
+  }, {
+    "@id" : "http://snomed.info/sct#202794004"
+  }, {
+    "@id" : "http://snomed.info/sct#49218002"
+  }, {
+    "@id" : "http://snomed.info/sct#50510006"
+  }, {
+    "@id" : "http://snomed.info/sct#54314008"
+  }, {
+    "@id" : "http://snomed.info/sct#279043006"
+  }, {
+    "@id" : "http://snomed.info/sct#62171003"
+  }, {
+    "@id" : "http://snomed.info/sct#85007004"
+  }, {
+    "@id" : "http://snomed.info/sct#86345004"
+  }, {
+    "@id" : "http://snomed.info/sct#129179000"
+  }, {
+    "@id" : "http://snomed.info/sct#267954009"
+  }, {
+    "@id" : "http://snomed.info/sct#288231001"
+  }, {
+    "@id" : "http://snomed.info/sct#288232008"
+  }, {
+    "@id" : "http://snomed.info/sct#287047008"
+  }, {
+    "@id" : "http://snomed.info/sct#287048003"
+  }, {
+    "@id" : "http://snomed.info/sct#285365001"
+  }, {
+    "@id" : "http://snomed.info/sct#418237007"
+  }, {
+    "@id" : "http://snomed.info/sct#202489000"
+  }, {
+    "@id" : "http://snomed.info/sct#202490009"
+  }, {
+    "@id" : "http://snomed.info/sct#247373008"
+  }, {
+    "@id" : "http://snomed.info/sct#202491008"
+  }, {
+    "@id" : "http://snomed.info/sct#279066007"
+  }, {
+    "@id" : "http://snomed.info/sct#202493006"
+  }, {
+    "@id" : "http://snomed.info/sct#202495004"
+  }, {
+    "@id" : "http://snomed.info/sct#279067003"
+  }, {
+    "@id" : "http://snomed.info/sct#202496003"
+  }, {
+    "@id" : "http://snomed.info/sct#202497007"
+  }, {
+    "@id" : "http://snomed.info/sct#239733006"
+  }, {
+    "@id" : "http://snomed.info/sct#202888004"
+  }, {
+    "@id" : "http://snomed.info/sct#202889007"
+  }, {
+    "@id" : "http://snomed.info/sct#275318002"
+  }, {
+    "@id" : "http://snomed.info/sct#734988007"
+  }, {
+    "@id" : "http://snomed.info/sct#734987002"
+  }, {
+    "@id" : "http://snomed.info/sct#309765009"
+  }, {
+    "@id" : "http://snomed.info/sct#309767001"
+  }, {
+    "@id" : "http://snomed.info/sct#230654000"
+  }, {
+    "@id" : "http://snomed.info/sct#247385000"
+  }, {
+    "@id" : "http://snomed.info/sct#247386004"
+  }, {
+    "@id" : "http://snomed.info/sct#247387008"
+  }, {
+    "@id" : "http://snomed.info/sct#247392005"
+  }, {
+    "@id" : "http://snomed.info/sct#247393000"
+  }, {
+    "@id" : "http://snomed.info/sct#247395007"
+  }, {
+    "@id" : "http://snomed.info/sct#247396008"
+  }, {
+    "@id" : "http://snomed.info/sct#299308007"
+  }, {
+    "@id" : "http://snomed.info/sct#299377003"
+  }, {
+    "@id" : "http://snomed.info/sct#299447008"
+  }, {
+    "@id" : "http://snomed.info/sct#299513007"
+  }, {
+    "@id" : "http://snomed.info/sct#299554004"
+  }, {
+    "@id" : "http://snomed.info/sct#299633000"
+  }, {
+    "@id" : "http://snomed.info/sct#301773003"
+  }, {
+    "@id" : "http://snomed.info/sct#307176005"
+  }, {
+    "@id" : "http://snomed.info/sct#307177001"
+  }, {
+    "@id" : "http://snomed.info/sct#734986006"
+  }, {
+    "@id" : "http://snomed.info/sct#408749000"
+  }, {
+    "@id" : "http://snomed.info/sct#704677002"
+  }, {
+    "@id" : "http://snomed.info/sct#708020008"
+  }, {
+    "@id" : "http://snomed.info/sct#710230000"
+  }, {
+    "@id" : "http://snomed.info/sct#713412006"
+  }, {
+    "@id" : "http://snomed.info/sct#713674006"
+  }, {
+    "@id" : "http://snomed.info/sct#713847007"
+  }, {
+    "@id" : "http://snomed.info/sct#771545003"
+  }, {
+    "@id" : "http://snomed.info/sct#788480001"
+  }, {
+    "@id" : "http://snomed.info/sct#788481002"
+  }, {
+    "@id" : "http://snomed.info/sct#788483004"
+  }, {
+    "@id" : "http://snomed.info/sct#788484005"
+  }, {
+    "@id" : "http://snomed.info/sct#788485006"
+  }, {
+    "@id" : "http://snomed.info/sct#788486007"
+  }, {
+    "@id" : "http://snomed.info/sct#792844003"
+  }, {
+    "@id" : "http://snomed.info/sct#51741000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#51881000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#112581000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#291781000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#291791000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#292521000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#292531000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#293931000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#293951000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#293961000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#301201000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#316801000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#301281000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#316941000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#310391000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#11996561000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#11996641000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#12236951000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#12237071000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#12237191000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#12236991000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#12237111000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#12237231000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#12247531000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#12247571000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#12400141000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#12400221000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#12400301000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#12400181000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#12400261000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#12400341000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#15633361000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#16638401000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#15634471000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#15749801000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#16002911000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#16002871000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#15968741000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#16839401000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#16002791000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#16002831000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#16002951000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#16013431000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#16206741000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#16206781000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#16207081000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#16438171000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#16438211000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#16438251000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#711331000000102"
+  }, {
+    "@id" : "http://snomed.info/sct#836711000000108"
+  }, {
+    "@id" : "http://snomed.info/sct#1089331000000100"
+  }, {
+    "@id" : "http://snomed.info/sct#1089341000000109"
+  }, {
+    "@id" : "http://snomed.info/sct#2237002"
+  }, {
+    "@id" : "http://snomed.info/sct#29857009"
+  }, {
+    "@id" : "http://snomed.info/sct#3368006"
+  }, {
+    "@id" : "http://snomed.info/sct#4557003"
+  }, {
+    "@id" : "http://snomed.info/sct#194828000"
+  }, {
+    "@id" : "http://snomed.info/sct#4568003"
+  }, {
+    "@id" : "http://snomed.info/sct#9267009"
+  }, {
+    "@id" : "http://snomed.info/sct#10000006"
+  }, {
+    "@id" : "http://snomed.info/sct#13057000"
+  }, {
+    "@id" : "http://snomed.info/sct#300995000"
+  }, {
+    "@id" : "http://snomed.info/sct#19057007"
+  }, {
+    "@id" : "http://snomed.info/sct#20793008"
+  }, {
+    "@id" : "http://snomed.info/sct#281245003"
+  }, {
+    "@id" : "http://snomed.info/sct#21470009"
+  }, {
+    "@id" : "http://snomed.info/sct#267981009"
+  }, {
+    "@id" : "http://snomed.info/sct#35928006"
+  }, {
+    "@id" : "http://snomed.info/sct#36859004"
+  }, {
+    "@id" : "http://snomed.info/sct#41334000"
+  }, {
+    "@id" : "http://snomed.info/sct#426396005"
+  }, {
+    "@id" : "http://snomed.info/sct#53430007"
+  }, {
+    "@id" : "http://snomed.info/sct#59021001"
+  }, {
+    "@id" : "http://snomed.info/sct#59139008"
+  }, {
+    "@id" : "http://snomed.info/sct#61490001"
+  }, {
+    "@id" : "http://snomed.info/sct#71884009"
+  }, {
+    "@id" : "http://snomed.info/sct#81953000"
+  }, {
+    "@id" : "http://snomed.info/sct#83264000"
+  }, {
+    "@id" : "http://snomed.info/sct#85284003"
+  }, {
+    "@id" : "http://snomed.info/sct#87343002"
+  }, {
+    "@id" : "http://snomed.info/sct#89323001"
+  }, {
+    "@id" : "http://snomed.info/sct#102589003"
+  }, {
+    "@id" : "http://snomed.info/sct#103015000"
+  }, {
+    "@id" : "http://snomed.info/sct#135876005"
+  }, {
+    "@id" : "http://snomed.info/sct#279038004"
+  }, {
+    "@id" : "http://snomed.info/sct#161974007"
+  }, {
+    "@id" : "http://snomed.info/sct#315248002"
+  }, {
+    "@id" : "http://snomed.info/sct#315250005"
+  }, {
+    "@id" : "http://snomed.info/sct#1010235008"
+  }, {
+    "@id" : "http://snomed.info/sct#1010237000"
+  }, {
+    "@id" : "http://snomed.info/sct#315025001"
+  }, {
+    "@id" : "http://snomed.info/sct#314116003"
+  }, {
+    "@id" : "http://snomed.info/sct#233821000"
+  }, {
+    "@id" : "http://snomed.info/sct#233819005"
+  }, {
+    "@id" : "http://snomed.info/sct#247350000"
+  }, {
+    "@id" : "http://snomed.info/sct#194823009"
+  }, {
+    "@id" : "http://snomed.info/sct#225566008"
+  }, {
+    "@id" : "http://snomed.info/sct#233845001"
+  }, {
+    "@id" : "http://snomed.info/sct#200430001"
+  }, {
+    "@id" : "http://snomed.info/sct#247415009"
+  }, {
+    "@id" : "http://snomed.info/sct#274668005"
+  }, {
+    "@id" : "http://snomed.info/sct#230597003"
+  }, {
+    "@id" : "http://snomed.info/sct#713829001"
+  }, {
+    "@id" : "http://snomed.info/sct#230648001"
+  }, {
+    "@id" : "http://snomed.info/sct#237453001"
+  }, {
+    "@id" : "http://snomed.info/sct#237454007"
+  }, {
+    "@id" : "http://snomed.info/sct#237455008"
+  }, {
+    "@id" : "http://snomed.info/sct#237477007"
+  }, {
+    "@id" : "http://snomed.info/sct#247389006"
+  }, {
+    "@id" : "http://snomed.info/sct#274664007"
+  }, {
+    "@id" : "http://snomed.info/sct#279036000"
+  }, {
+    "@id" : "http://snomed.info/sct#279037009"
+  }, {
+    "@id" : "http://snomed.info/sct#279048002"
+  }, {
+    "@id" : "http://snomed.info/sct#279054001"
+  }, {
+    "@id" : "http://snomed.info/sct#285385002"
+  }, {
+    "@id" : "http://snomed.info/sct#285386001"
+  }, {
+    "@id" : "http://snomed.info/sct#285389008"
+  }, {
+    "@id" : "http://snomed.info/sct#298254008"
+  }, {
+    "@id" : "http://snomed.info/sct#298579007"
+  }, {
+    "@id" : "http://snomed.info/sct#371030007"
+  }, {
+    "@id" : "http://snomed.info/sct#371806006"
+  }, {
+    "@id" : "http://snomed.info/sct#371807002"
+  }, {
+    "@id" : "http://snomed.info/sct#371808007"
+  }, {
+    "@id" : "http://snomed.info/sct#371809004"
+  }, {
+    "@id" : "http://snomed.info/sct#371810009"
+  }, {
+    "@id" : "http://snomed.info/sct#371811008"
+  }, {
+    "@id" : "http://snomed.info/sct#371812001"
+  }, {
+    "@id" : "http://snomed.info/sct#425991004"
+  }, {
+    "@id" : "http://snomed.info/sct#429559004"
+  }, {
+    "@id" : "http://snomed.info/sct#713839007"
+  }, {
+    "@id" : "http://snomed.info/sct#774134007"
+  }, {
+    "@id" : "http://snomed.info/sct#774135008"
+  }, {
+    "@id" : "http://snomed.info/sct#866043000"
+  }, {
+    "@id" : "http://snomed.info/sct#791000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#7921000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#34791000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#41321000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#136791000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#97001000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#15743681000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#15960061000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#15960141000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#15960341000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#15960381000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#15960461000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#15960541000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#15960581000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#15960661000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#16754391000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#298301000000106"
+  }, {
+    "@id" : "http://snomed.info/sct#298311000000108"
+  } ]
+}

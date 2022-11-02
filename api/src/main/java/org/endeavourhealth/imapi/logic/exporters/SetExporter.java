@@ -5,26 +5,35 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.model.CoreLegacyCode;
+import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.zip.DataFormatException;
 
 @Component
 public class SetExporter {
@@ -32,23 +41,22 @@ public class SetExporter {
 
     private EntityRepository2 entityRepository2 = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetRepository setRepository= new SetRepository();
 
-    public void publishSetToIM1(String setIri){
+    public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException {
         StringJoiner results = generateForIm1(setIri);
 
         pushToS3(results);
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) {
+    public StringJoiner generateForIm1(String setIri) throws DataFormatException, JsonProcessingException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
-        Set<String> setIris = getSetsRecursive(setIri);
-
-        Set<CoreLegacyCode> members = getExpandedSetMembers(setIris);
+        Set<Concept> members = getExpandedSetMembers(setIri, true);
 
         return generateTSV(setIri, name, members);
     }
@@ -57,7 +65,7 @@ public class SetExporter {
         LOG.trace("Getting set list...");
         Set<String> setIris = new HashSet<>();
 
-        Set<String> subsets = entityRepository2.getSubsets(setIri);
+        Set<String> subsets = setRepository.getSubsets(setIri);
 
         if (subsets.isEmpty())
             setIris.add(setIri);
@@ -69,51 +77,71 @@ public class SetExporter {
         return setIris;
     }
 
-    private Set<CoreLegacyCode> getExpandedSetMembers(Set<String> setIris) {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException {
+        Set<String> setIris = getSetsRecursive(setIri);
+
         LOG.trace("Expanding members for sets...");
-        Set<CoreLegacyCode> members = new HashSet<>();
+        Set<Concept> result = new HashSet<>();
 
-        for(String iri : setIris){
+        for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
-            TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri())).getEntity();
 
-            // Inject direct members into definition
-            if (entity.get(IM.HAS_MEMBER) != null) {
-                TTNode orNode = new TTNode();
-                entity.addObject(IM.DEFINITION,orNode);
-                for (TTValue value:entity.get(IM.HAS_MEMBER).getElements()){
-                    orNode.addObject(SHACL.OR,value);
-                }
+            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
+
+            if (members != null && !members.isEmpty()) {
+                result.addAll(members);
+            } else {
+                TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
+                if (entity.get(IM.DEFINITION)!=null)
+                    result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
+                        includeLegacy));
+                else
+                  result.addAll(setRepository.getSetExpansion(new Query().setWhere(new Where().addFrom(TTAlias.iri(entity.getIri()).setIncludeSubtypes(true))),includeLegacy));
             }
-
-            members.addAll(entityRepository2.getSetExpansion(entity.get(IM.DEFINITION), true));
         }
-        return members;
+
+        return result;
     }
 
-    private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
+    private StringJoiner generateTSV(String setIri, String name, Set<Concept> members) {
         LOG.trace("Generating output...");
+
+        Set<String> im1Ids = new HashSet<>();
 
         StringJoiner results = new StringJoiner(System.lineSeparator());
         results.add("vsId\tvsName\tmemberDbid");
 
-        for(CoreLegacyCode member : members) {
-            if (member.getIm1Id() != null)
-                results.add(
-                    new StringJoiner("\t")
-                        .add(setIri)
-                        .add(name)
-                        .add(member.getIm1Id())
-                        .toString()
-                );
-            if (member.getLegacyIm1Id() != null)
-                results.add(
-                    new StringJoiner("\t")
-                        .add(setIri)
-                        .add(name)
-                        .add(member.getLegacyIm1Id())
-                        .toString()
-                );
+        for(Concept member : members) {
+            if (member.getIm1Id() != null) {
+                for (String im1Id : member.getIm1Id()) {
+                    if (!im1Ids.contains(im1Id)) {
+                        results.add(
+                          new StringJoiner("\t")
+                            .add(setIri)
+                            .add(name)
+                            .add(im1Id)
+                            .toString());
+                        im1Ids.add(im1Id);
+                    }
+                }
+            }
+            if (member.getMatchedFrom() != null){
+                for (Concept legacy:member.getMatchedFrom()) {
+                    if (legacy.getIm1Id() != null) {
+                        for (String im1Id : legacy.getIm1Id()) {
+                            if (!im1Ids.contains(im1Id)) {
+                                results.add(
+                                  new StringJoiner("\t")
+                                    .add(setIri)
+                                    .add(name)
+                                    .add(im1Id)
+                                    .toString());
+                                im1Ids.add(im1Id);
+                            }
+                        }
+                    }
+                }
+            }
         }
         return results;
     }
@@ -122,8 +150,8 @@ public class SetExporter {
         LOG.trace("Publishing to S3...");
         String bucket = "im-inbound-dev";
         String region = "eu-west-2";
-        String accessKey = "";
-        String secretKey = "";
+        String accessKey = null;
+        String secretKey = null;
 
         try {
             JsonNode config = new ConfigManager().getConfig(CONFIG.IM1_PUBLISH.getIri());
@@ -132,24 +160,38 @@ public class SetExporter {
             } else {
                 bucket = config.get("bucket").asText();
                 region = config.get("region").asText();
-                accessKey = config.get("accessKey").asText();
-                secretKey = config.get("secretKey").asText();
+                if (config.has("accessKey"))
+                    accessKey = config.get("accessKey").asText();
+                if (config.has("secretKey"))
+                    secretKey = config.get("secretKey").asText();
             }
         } catch (JsonProcessingException e) {
             LOG.debug("No IM1_PUBLISH config found, reverting to defaults");
         }
 
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        final AmazonS3 s3 = AmazonS3ClientBuilder
+        AmazonS3ClientBuilder s3Builder = AmazonS3ClientBuilder
             .standard()
-            .withRegion(region)
-            .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-            .build();
+            .withRegion(region);
+
+        if (accessKey != null && !accessKey.isEmpty() && secretKey != null && !secretKey.isEmpty())
+            s3Builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+
+        final AmazonS3 s3 = s3Builder.build();
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat date = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss");
-            String filename = date.format(timestamp.getTime()) + "_valuset.tsv";
-            s3.putObject(bucket, filename, results.toString());
+            String filename = date.format(timestamp.getTime()) + "_valueset.tsv";
+
+            byte[] byteData = results.toString().getBytes();
+            InputStream stream = new ByteArrayInputStream(byteData);
+
+            ObjectMetadata meta = new ObjectMetadata();
+            meta.setContentLength(byteData.length);
+
+            PutObjectRequest por = new PutObjectRequest(bucket, filename, stream, meta)
+                .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
+
+            s3.putObject(por);
         } catch (AmazonServiceException e) {
             LOG.error(e.getErrorMessage());
         }

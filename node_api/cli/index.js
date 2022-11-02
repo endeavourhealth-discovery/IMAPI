@@ -1,20 +1,19 @@
-// const { TextGenerator } = require(".../helpers/text");
-const { TextGenerator } = require("../src/model/text");
-
+// import { TextGenerator } from ".../helpers/text";
+import { TextGenerator } from "../src/model/text";
 
 function summarise(clause) {
-  let summary = TextGenerator.summarise(JSON.parse(clause))
+  let summary = TextGenerator.summarise(JSON.parse(clause));
 }
 
 const printHelp = () => {
   const txt = `
   Text Generator CLI supported commands
-  
+
   - summarise: returns a string for a Match/Filter clause JSON string
-  
+
   -------------------------------------------------------------------------
   Invoke as:
-  
+
   $ node cli summarise "json_object_here"
   -------------------------------------------------------------------------
 

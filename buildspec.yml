@@ -14,9 +14,6 @@ phases:
       - echo Build started on `date`
       - chmod +x aws_scripts/build.sh
       - aws_scripts/build.sh
-      - cd node_api
-      - npm i
-      - npm run build
   post_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
@@ -30,5 +27,5 @@ artifacts:
     - api/build/libs/imapi.war
     - node_api/dist/**/*
     - node_api/package.json
-    - node_api/src/swagger_output.json
+
 

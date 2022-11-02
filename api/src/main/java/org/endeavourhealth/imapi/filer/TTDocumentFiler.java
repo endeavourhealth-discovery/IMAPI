@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class TTDocumentFiler implements AutoCloseable {
 
@@ -19,6 +17,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
     protected Map<String, String> prefixMap = new HashMap<>();
     protected TTEntityFiler conceptFiler;
     protected TTEntityFiler instanceFiler;
+    private Set<String> entitiesFiled;
 
     protected abstract void startTransaction() throws TTFilerException;
     protected abstract void commit() throws TTFilerException;
@@ -49,6 +48,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
     public void fileInsideTraction(TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
         int i = 0;
+        entitiesFiled= new HashSet<>();
         for (TTEntity entity : document.getEntities()) {
             if (entity.getCrud() == null) {
                 if (document.getCrud() == null) {
@@ -57,25 +57,34 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                     entity.setCrud(document.getCrud());
                 }
             }
+
             TTIriRef entityGraph= entity.getGraph();
             if (entityGraph==null)
                 entityGraph= document.getGraph();
-            entity.setCrud(document.getCrud());
             if (document.getGraph()==null)
                 document.setGraph(entity.getGraph());
             if (entity.get(IM.PRIVACY_LEVEL)!=null)
                 if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
                             continue;
                 fileEntity(entity, entityGraph);
-                updateTct(entity);
+                entitiesFiled.add(entity.getIri());
                 i++;
-                LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(),entityGraph.getIri());
+                if (i %100== 0)
+                 LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(),entityGraph.getIri());
 
         }
+        updateTct(document);
     }
 
-    public void updateTct(TTEntity entity) throws TTFilerException {
-        conceptFiler.updateTct(entity);
+    public void updateTct(TTDocument document) throws TTFilerException {
+        LOG.info("Generating isas.... ");
+        int i = 0;
+        for (String entityIri:entitiesFiled) {
+            i++;
+            if (i %100== 0)
+                LOG.info("Checked and built  isas up to entity {} in transaction from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
+            conceptFiler.updateTct(entityIri);
+        }
 
     }
 

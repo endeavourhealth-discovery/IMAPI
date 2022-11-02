@@ -1,29 +1,26 @@
 package org.endeavourhealth.imapi.logic.exporters;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.model.CoreLegacyCode;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.transforms.TTToECL;
-import org.endeavourhealth.imapi.transforms.TTToTurtle;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 
@@ -33,16 +30,16 @@ import java.util.zip.DataFormatException;
 @Component
 public class ExcelSetExporter {
 
-    private EntityRepository2 repo = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
 
+    private SetExporter setExporter = new SetExporter();
+
     private XSSFWorkbook workbook;
-    private XSSFFont font;
     private CellStyle headerStyle;
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();
-        font = workbook.createFont();
+        XSSFFont font = workbook.createFont();
         headerStyle = workbook.createCellStyle();
         font.setBold(true);
         headerStyle.setFont(font);
@@ -55,133 +52,159 @@ public class ExcelSetExporter {
      * <p>Sheet 2 = the expanded core concept set</p>
      * <p>Sheet 3 = the expanded core and legacy code set</p>
      *
-     * @param setIri
-     * @return
-     * @throws DataFormatException
+     * @param setIri iri of the set
+     * @return work book
      */
-    public XSSFWorkbook getSetAsExcel(String setIri,boolean legacy) throws DataFormatException {
-        Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri(),IM.HAS_MEMBER.getIri());
-        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, predicates).getEntity();
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy,boolean flat) throws DataFormatException, JsonProcessingException {
+        TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
 
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
+        if (entity.get(IM.DEFINITION)==null && entity.get(IM.HAS_MEMBER)==null)
+            throw new DataFormatException(setIri+" has neither a definition nor members");
+        if (!entity.has(IM.DEFINITION))
+            entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();
 
         String ecl = getEcl(entity);
-        String ttl = getTtl(entity);
-        addDefinitionToWorkbook(ecl, ttl);
+        addDefinitionToWorkbook(ecl);
 
-        Set<String> subsets = repo.getSubsets(entity.getIri());
+        if (core || legacy) {
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy);
 
-        if (!subsets.isEmpty()) {
-            Set<String> codesAddedToWorkbook = new HashSet<>();
-            Set<String> legacyCodesAddedToWorkbook = new HashSet<>();
-            Set<String> expandedSets = new HashSet<>();
-            Set<String> legacyExpandedSets = new HashSet<>();
-            for (String memberIri : subsets) {
-                TTEntity member = entityTripleRepository.getEntityPredicates(memberIri, predicates).getEntity();
-                addCoreExpansionToWorkBook(expandedSets, codesAddedToWorkbook, member);
-                if (legacy)
-                    addLegacyExpansionToWorkBook(legacyExpandedSets, legacyCodesAddedToWorkbook, member);
+            if (core) {
+                addCoreExpansionToWorkBook(members,flat);
             }
-        } else {
-            addCoreExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
-            if (legacy)
-                addLegacyExpansionToWorkBook(new HashSet<>(), new HashSet<>(), entity);
+
+            if (legacy) {
+                addLegacyExpansionToWorkBook(members,flat);
+            }
         }
 
         return workbook;
     }
 
-    private String getEcl(TTEntity entity) throws DataFormatException {
+    private String getEcl(TTEntity entity) throws DataFormatException, JsonProcessingException {
         if (entity.get(IM.DEFINITION) == null && entity.get(IM.HAS_MEMBER) == null)
             return null;
 
         String ecl;
         if (entity.get(IM.HAS_MEMBER) != null) {
-            ecl = "";
-            TTNode orNode = new TTNode();
-            entity.addObject(IM.DEFINITION, orNode);
-            for (TTValue value : entity.get(IM.HAS_MEMBER).getElements()) {
-                orNode.addObject(SHACL.OR, value);
-            }
+            ecl = IMLToECL.getMembersAsECL(entity.get(IM.HAS_MEMBER));
         } else {
-            ecl = TTToECL.getExpressionConstraint(entity.get(IM.DEFINITION), true);
+            ecl = IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
         }
 
         return ecl;
     }
 
-    private String getTtl(TTEntity entity) {
-        TTToTurtle turtleConverter = new TTToTurtle();
-        List<Namespace> namespaces = entityTripleRepository.findNamespaces();
-        TTContext context = new TTContext();
-        for(Namespace namespace : namespaces){
-            context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
-        }
-        return turtleConverter.transformEntity(entity, context);
-    }
 
-    private void addLegacyExpansionToWorkBook(Set<String> expandedSets, Set<String> legacyIrisAddedToWorkbook, TTEntity entity) {
-        Sheet sheet = workbook.getSheet("Full expansion");
-        if (null == sheet) sheet = workbook.createSheet("Full expansion");
-        addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme");
-        sheet.setColumnWidth(0, 5000);
-        sheet.setColumnWidth(1, 25000);
-        sheet.setColumnWidth(2, 2500);
-        sheet.setColumnWidth(4, 20000);
 
-        if (!expandedSets.contains(entity.getIri())) {
-            List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), true);
-            for (CoreLegacyCode cl : expansion) {
-                Row row = addRow(sheet);
-                String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                String legacyScheme = cl.getLegacyScheme() == null ? "" : cl.getLegacyScheme().getIri();
-                addCells(row, cl.getCode(), cl.getTerm(), isExtension, cl.getLegacyCode(), cl.getLegacyTerm(), legacyScheme);
-                legacyIrisAddedToWorkbook.add(cl.getLegacyIri());
-            }
-            sheet.autoSizeColumn(3);
-            expandedSets.add(entity.getIri());
-        }
 
-    }
+    private void addCoreExpansionToWorkBook(Set<Concept> members,boolean flat) {
 
-    private void addCoreExpansionToWorkBook(Set<String> expandedSets, Set<String> codesAddedToWorkbook, TTEntity entity) {
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
-        addHeaders(sheet, headerStyle, "code", "term", "extension");
+        addHeaders(sheet, headerStyle, "code", "term", "extension","usage","im1Id");
         sheet.setColumnWidth(0, 5000);
         sheet.setColumnWidth(1, 20000);
         sheet.setColumnWidth(2, 2500);
+        sheet.setColumnWidth(3, 2500);
+        sheet.setColumnWidth(4, 2500);
 
-        if (!expandedSets.contains(entity.getIri())) {
-            List<CoreLegacyCode> expansion = repo.getSetExpansion(entity.get(IM.DEFINITION), false);
-            for (CoreLegacyCode cl : expansion) {
-                if (!codesAddedToWorkbook.contains(cl.getIri())) {
-                    Row row = addRow(sheet);
-                    String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                    addCells(row, cl.getCode(), cl.getTerm(), isExtension);
-                    codesAddedToWorkbook.add(cl.getIri());
+        Set<String> addedCoreIris = new HashSet<>();
+        for (Concept cl : members) {
+            if (!addedCoreIris.contains(cl.getIri())) {
+                Integer usage= cl.getUsage();
+                String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+                if (cl.getIm1Id()!=null&&flat) {
+                    for (String im1 : cl.getIm1Id()) {
+                        Row row = addRow(sheet);
+                        addCells(row, cl.getCode(), cl.getName(), isExtension, usage == null ? "" : usage, im1);
+                    }
                 }
+                else {
+                    Row row = addRow(sheet);
+                    addCells(row, cl.getCode(), cl.getName(), isExtension, usage == null ? "" : usage, "");
+                }
+                addedCoreIris.add(cl.getIri());
             }
-            expandedSets.add(entity.getIri());
         }
-
     }
 
-    private void addDefinitionToWorkbook(String ecl, String ttl) {
+    private void addLegacyExpansionToWorkBook(Set<Concept> members,boolean flat) {
+
+        Sheet sheet = workbook.getSheet("Full expansion");
+        if (null == sheet) sheet = workbook.createSheet("Full expansion");
+        if (flat) {
+            addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme",
+              "usage", "im1Id");
+            sheet.setColumnWidth(0, 5000);
+            sheet.setColumnWidth(1, 25000);
+            sheet.setColumnWidth(2, 2500);
+            sheet.setColumnWidth(3, 20000);
+            sheet.setColumnWidth(4, 20000);
+            sheet.setColumnWidth(5, 2500);
+            sheet.setColumnWidth(6, 2500);
+            sheet.setColumnWidth(7, 2500);
+        }
+        else {
+            addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme"
+              );
+            sheet.setColumnWidth(0, 5000);
+            sheet.setColumnWidth(1, 25000);
+            sheet.setColumnWidth(2, 2500);
+            sheet.setColumnWidth(3, 20000);
+            sheet.setColumnWidth(4, 20000);
+            sheet.setColumnWidth(5, 2500);
+        }
+
+        for (Concept cl : members) {
+
+            String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+            if (cl.getMatchedFrom()==null){
+                Row row = addRow(sheet);
+                addCells(row, cl.getCode(), cl.getName(), isExtension,"");
+
+            }
+            else {
+                List<Concept> sortedLegacy= cl.getMatchedFrom()
+                  .stream()
+                  .sorted(Comparator
+                    .comparing(Concept::getIri)
+                  )
+                  .collect(Collectors.toList());
+                for (Concept legacy:sortedLegacy){
+                    String legacyCode= legacy.getCode();
+                    String legacyScheme= legacy.getScheme().getIri();
+                    String legacyTerm= legacy.getName();
+                    Integer legacyUsage= legacy.getUsage();
+                    if (legacy.getIm1Id()==null||!flat){
+                        Row row = addRow(sheet);
+                        addCells(row,cl.getCode(),cl.getName(),isExtension,legacyCode,legacyTerm,legacyScheme);
+                    }
+                    else {
+                        for (String im1Id:legacy.getIm1Id()){
+                            Row row = addRow(sheet);
+                            addCells(row,cl.getCode(),cl.getName(),isExtension,legacyCode,legacyTerm,legacyScheme,
+                              legacyUsage==null ? "" : legacyUsage,im1Id);
+                        }
+
+                        }
+                    }
+                }
+            }
+        sheet.autoSizeColumn(3);
+    }
+
+    private void addDefinitionToWorkbook(String ecl) {
         Sheet sheet = workbook.getSheet("Definition");
         if (null == sheet) sheet = workbook.createSheet("Definition");
-        addHeaders(sheet, headerStyle, "ECL", "Turtle");
+        addHeaders(sheet, headerStyle, "ECL");
 
         String[] eclLines = ecl.split("\n");
-        String[] ttlLines = ttl.split("\n");
-
-        for (int i = 0; i < Math.max(eclLines.length, ttlLines.length); i++) {
-            String e = (i < eclLines.length) ? eclLines[i] : "";
-            String t = (i < ttlLines.length) ? ttlLines[i] : "";
-
-            Row row = addRow(sheet);
-            addCells(row, e, t);
+        for (String eclLine:eclLines){
+            Row row= addRow(sheet);
+            addCells(row,eclLine);
         }
     }
 
@@ -203,15 +226,23 @@ public class ExcelSetExporter {
         return sheet.createRow(sheet.getLastRowNum() + 1);
     }
 
-    private void addCells(Row row, String... values) {
-        for (String value : values) {
-            Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
+    private void addCells(Row row, Object... values) {
+        for (Object value : values) {
             if (value != null) {
-                if (value.contains("\n")) {
-                    iriCell.getRow()
-                            .setHeightInPoints(iriCell.getSheet().getDefaultRowHeightInPoints() * value.split("\n").length);
+                if (value instanceof String) {
+                    Cell stringCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+                    if (((String)value).contains("\n")) {
+                        stringCell.getRow()
+                            .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * ((String)value).split("\n").length);
+                    }
+                    stringCell.setCellValue((String)value);
+                } else if (value instanceof Integer) {
+                    Cell intCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.NUMERIC);
+                    intCell.setCellValue((Integer)value);
+                } else {
+                    Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+                    iriCell.setCellValue("UNHANDLED TYPE");
                 }
-                iriCell.setCellValue(value);
             }
         }
     }

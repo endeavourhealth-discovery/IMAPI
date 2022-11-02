@@ -7,9 +7,9 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.TermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.MemberType;
-import org.endeavourhealth.imapi.model.valuset.ValueSetMember;
+import org.endeavourhealth.imapi.model.set.ExportSet;
+import org.endeavourhealth.imapi.model.set.MemberType;
+import org.endeavourhealth.imapi.model.set.SetMember;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -106,17 +106,17 @@ public class XlsHelper {
 		addChild(childList, "Has children");
 	}
 
-	public void addMembersSheet(ExportValueSet exportValueSet) {
+	public void addMembersSheet(ExportSet exportSet) {
 		Sheet sheet = workbook.createSheet("Members");
 		List<String> headers = Arrays.asList("Member type", "Member name", "Member iri", "Member code", "Scheme name", "Scheme iri", "Subset name", "Subset iri");
 		addHeaders(sheet, 10000, headers);
 
-        addMembers(sheet, exportValueSet.getMembers());
+        addMembers(sheet, exportSet.getMembers());
 
     }
 
-    private void addMembers(Sheet sheet, List<ValueSetMember> included) {
-        for (ValueSetMember c : included) {
+    private void addMembers(Sheet sheet, List<SetMember> included) {
+        for (SetMember c : included) {
             Row row = sheet.createRow(sheet.getLastRowNum() + 1);
             Cell cell = row.createCell(0);
 			cell.setCellValue(c.getType().name());

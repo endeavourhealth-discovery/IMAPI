@@ -7,7 +7,7 @@ public class QueryGenerator {
     private final EntityService svc = new EntityService();
     private final List<String> fields = new ArrayList<>();
     private Table mainTable;
-    private final Map<String, Table> joins = new HashMap<>();
+    private final TransformMap<String, Table> joins = new HashMap<>();
     private final List<String> conditions = new ArrayList<>();
     private final List<String> orderBy = new ArrayList<>();
     private Integer limit = null;
@@ -31,7 +31,9 @@ public class QueryGenerator {
         LOG.info(query);
 
         LOG.info("Deserializing");
-        Match json = new ObjectMapper().readValue(query, Match.class);
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            Match json = om.readValue(query, Match.class);
+        }
         LOG.info(json.toString());
 
         return json;

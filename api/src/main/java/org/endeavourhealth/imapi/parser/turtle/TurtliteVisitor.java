@@ -1,4 +1,4 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/Discovery Data Service/IMAPI/parser/src/main/grammars\Turtlite.g4 by ANTLR 4.9.1
+// Generated from C:/Users/david/CloudStation/EhealthTrust/DiscoveryDataService/IMAPI/api/src/main/grammars\Turtlite.g4 by ANTLR 4.10.1
 package org.endeavourhealth.imapi.parser.turtle;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -118,6 +118,12 @@ public interface TurtliteVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitRdfLiteral(TurtliteParser.RdfLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TurtliteParser#comment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComment(TurtliteParser.CommentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TurtliteParser#iri}.
 	 * @param ctx the parse tree

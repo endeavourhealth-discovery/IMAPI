@@ -18,8 +18,6 @@ public class TTIriRef implements TTValue, Serializable {
         return new TTIriRef(iri, name);
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(TTIriRef.class);
-
     private String iri;
     private String name;
 
@@ -41,7 +39,6 @@ public class TTIriRef implements TTValue, Serializable {
     public TTIriRef setIri(String iri) {
         this.iri = iri;
         if (iri != null && !iri.isEmpty() && !iri.matches("[a-z]+[:].*")){
-            LOG.error("Invalid IRI [{}]", iri);
             Thread.dumpStack();
         }
         return this;
@@ -76,7 +73,7 @@ public class TTIriRef implements TTValue, Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof TTIriRef)) return false;
+        if (!(o instanceof TTIriRef)) return false;
         TTIriRef ttIriRef = (TTIriRef) o;
         return iri.equals(ttIriRef.iri);
     }

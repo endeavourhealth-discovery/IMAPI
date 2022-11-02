@@ -1,0 +1,17 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http://endhealth.info/im#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http://snomed.info/sct#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+SELECT distinct ?entity  ?p4 ?p5
+WHERE {?entity rdf:type ?type1.
+Filter (?type1 in(<http://endhealth.info/im#Concept>))
+?entity <http://www.w3.org/2000/01/rdf-schema#domain> ?o2.
+?o2 ^im:isA ?subtype3.
+Filter (?subtype3=<http://snomed.info/sct#840539006>)
+?entity im:status im:Active.
+ OPTIONAL { ?entity <http://endhealth.info/im#code> ?p4.}
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p5.}
+}

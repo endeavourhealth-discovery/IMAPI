@@ -1,0 +1,15 @@
+{
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#71388002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Procedure (procedure)",
+    "http://endhealth.info/im#code" : "71388002"
+  }, {
+    "@id" : "http://snomed.info/sct#272379006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Event (event)",
+    "http://endhealth.info/im#code" : "272379006"
+  }, {
+    "@id" : "http://snomed.info/sct#404684003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Clinical finding (finding)",
+    "http://endhealth.info/im#code" : "404684003"
+  } ]
+}

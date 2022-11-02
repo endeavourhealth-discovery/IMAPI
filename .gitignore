@@ -7,6 +7,7 @@ target
 build
 node_modules
 /node_api/dist/
+/node_api/node/
 .env
 package-lock.json
 /api/bin/

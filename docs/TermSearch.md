@@ -1,4 +1,4 @@
-#Term searches
+# Term searches
 Term searches use IMAPI, which uses AWS open search to perform a series of searches on the concept index.
 
 Term searches accept codes, IRIs partial or full words in any order. Words may be parts of preferred names or alternative synonyms or key words (aka snomed descriptions).
@@ -7,11 +7,11 @@ QOF clode cluster acronyms are examples of keys.
 
 Paging is suppported in an approximate manner.
 
-Results are sorted according firstly by whether the matched term starts with the entered term and then by length as the shorter terms tend to be higher level concepts.
+Results are sorted according firstly by whether the matched term starts from the entered term and then by length as the shorter terms tend to be higher level concepts.
 
 The API accepts a Request document, which is a JSON document containing a number of filters.
 
-##IMAPI
+## IMAPI
 
 POST API   ...../api/entity/public/search
 
@@ -28,7 +28,7 @@ Post body containing search request json e.g.
 
 In the above example the client is looking for matches of the term substance that are subclasses of the concept substance, and return iri, code and name
 
-###Search match parameters
+### Search match parameters
 (n.b. prefix im: = http://endhealth.info/im#)
 
 
@@ -42,8 +42,8 @@ select | list of fields to return (defaults to iri, name, entityType, code, sche
 page  |  page number
 size  | size per page 
 
-###Response body
-An array of json documents conforming to a SearchReultSummary class, with the following optional fields
+### Response body
+An array of json documents conforming to a SearchReultSummary class, from the following optional fields
 
 field | meaning |
 --- | --- |
@@ -62,7 +62,7 @@ termCode  | object containing a term and code
  ...code  | code of the term code
  ...term  | term of the term code
 
-###Logic
+### Logic
 SearchService is called from the controller and SearchService creates an open search query object.
 OSQuery is an object that processes the open search request, creates the elastic query syntax, submits the search (using environment variables for authentication),
 and processes the response.

@@ -22,7 +22,7 @@ public class SCGToTT {
 		this.lexer = new SCGLexer(null);
 		this.parser = new SCGParser(null);
 		this.parser.removeErrorListeners();
-		this.parser.addErrorListener(new ECLErrorListener());
+		this.parser.addErrorListener(new ParserErrorListener());
 	}
 	public TTEntity setDefinition(TTEntity entity,String scgInput) throws DataFormatException {
 		this.scg = scgInput;

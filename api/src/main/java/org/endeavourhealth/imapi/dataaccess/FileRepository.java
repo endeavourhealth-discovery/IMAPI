@@ -1,13 +1,11 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.endeavourhealth.imapi.controllers.EntityController;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -15,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class FileRepository {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FileRepository.class);
 
 	private final Map<String,Map<String,Set<String>>> codeCoreMap= new HashMap<>();
 	private final Map<String,Map<String,Set<String>>> termCoreMap= new HashMap<>();
@@ -89,7 +87,7 @@ public class FileRepository {
 			 return result;
 		 }
 	 }
-	 return null;
+	 return Collections.emptySet();
 	}
 
 
@@ -121,7 +119,7 @@ public class FileRepository {
 			return concepts;
 		}
 		else
-			return null;
+			return Collections.emptySet();
 	}
 
 	public Map<String, Set<String>> getAllMatchedLegacy() throws IOException{
@@ -171,10 +169,10 @@ public class FileRepository {
 					return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 				}
 			}
-			return null;
+			return Collections.emptySet();
 		} catch (Exception e) {
 			LOG.error("unable to retrieve core from code : {}", e.getMessage());
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -184,7 +182,7 @@ public class FileRepository {
 		if (termCoreMap.get(scheme).get(originalTerm)!=null)
 			return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 		else
-			return null;
+			return Collections.emptySet();
 	}
 	public Set<String> getCodes(String scheme) throws IOException {
 		if (codes.get(scheme)==null)
@@ -328,11 +326,11 @@ public class FileRepository {
 
 	private String getSchemeFile(String fileType,String scheme){
 		scheme= scheme.substring(scheme.lastIndexOf("/")+1);
-		return dataPath+"\\"+fileType+"-"+scheme+".txt";
+		return dataPath+"/"+fileType+"-"+scheme+".txt";
 	}
 
 	private String getFile(String fileType){
-		return dataPath+"\\"+fileType+".txt";
+		return dataPath+"/"+fileType+".txt";
 	}
 
 	public String getDataPath() {

@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
@@ -11,6 +11,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -20,12 +21,11 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Various utility functions to support triple tree entities and documents.
  * Create document creates a document with default common prefixes.
  */
-public class TTManager {
+public class TTManager implements AutoCloseable {
    private Map<String, TTEntity> entityMap;
    private Map<String, TTEntity> nameMap;
    private TTDocument document;
    private TTContext context;
-   private Set<TTIriRef> templatedPredicates;
    private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP};
 
    public enum Grammar {JSON,TURTLE}
@@ -121,16 +121,17 @@ public class TTManager {
     * @throws IOException covering file format exceptions and content exceptions of various kinds
     */
    public TTDocument loadDocument(File inputFile) throws IOException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      document = objectMapper.readValue(inputFile, TTDocument.class);
-      return document;
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           document = om.readValue(inputFile, TTDocument.class);
+           return document;
+       }
    }
 
    public TTDocument loadDocument(String json) throws IOException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      document = objectMapper.readValue(json, TTDocument.class);
-      return document;
-
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           document = om.readValue(json, TTDocument.class);
+           return document;
+       }
    }
 
 
@@ -201,16 +202,17 @@ public class TTManager {
    public void saveDocument(File outputFile) throws JsonProcessingException {
       if (document == null)
          throw new NullPointerException("Manager has no ontology document assigned");
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-         writer.write(json);
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+           String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+           try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile,StandardCharsets.UTF_8))) {
+               writer.write(json);
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+       }
    }
 
    /**
@@ -223,17 +225,18 @@ public class TTManager {
    public static void saveDocument(TTDocument document, String outputFile,Grammar grammar) throws JsonProcessingException {
       String outputString;
       if (grammar== Grammar.JSON) {
-         ObjectMapper objectMapper = new ObjectMapper();
-         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-         outputString = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+          try (CachedObjectMapper om = new CachedObjectMapper()) {
+              om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+              om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+              om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+              outputString = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+          }
       }
       else {
          TTToTurtle converter= new TTToTurtle();
          outputString= converter.transformDocument(document);
       }
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, StandardCharsets.UTF_8))) {
          writer.write(outputString);
       } catch (Exception e) {
          e.printStackTrace();
@@ -270,11 +273,12 @@ public class TTManager {
     * @return the json serialization of the document
     */
    public String getJson(TTDocument document) throws JsonProcessingException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      return objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+           return om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+       }
    }
    /**
     * Returns a string of JSON from a TTEntity instance
@@ -284,12 +288,13 @@ public class TTManager {
     * @throws JsonProcessingException
     */
    public String getJson(TTEntity entity) throws JsonProcessingException {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      return objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
-        .writeValueAsString(entity);
+       try (CachedObjectMapper om = new CachedObjectMapper()) {
+           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+           return om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
+               .writeValueAsString(entity);
+       }
    }
 
    public TTDocument replaceIri(TTDocument document, TTIriRef from, TTIriRef to) {
@@ -318,7 +323,6 @@ public class TTManager {
       if (node.getPredicateMap() != null) {
          HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
          for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
-             TTIriRef predicate = entry.getKey();
              TTArray value = entry.getValue();
 
              List<TTValue> toRemove = new ArrayList<>();
@@ -346,26 +350,6 @@ public class TTManager {
          }
       }
       return false;
-   }
-
-   private TTArray replaceArray(TTArray array, TTIriRef from, TTIriRef to) {
-      TTArray newArray = new TTArray();
-      for (TTValue value : array.iterator()) {
-         if (value.isIriRef()) {
-            if (value.asIriRef().equals(from))
-               newArray.add(to);
-            else
-               newArray.add(value);
-         } else {
-            newArray.add(value);
-            if (value.isNode()) {
-               replaceNode(value.asNode(), from, to);
-            } else {
-               newArray.add(value);
-            }
-         }
-      }
-      return newArray;
    }
 
    /**
@@ -535,15 +519,16 @@ public class TTManager {
       for (TTIriRef predicate : jsonPredicates) {
          if (node.get(predicate) != null) {
             TTArray jsons = new TTArray();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-            for (TTValue value : node.get(predicate).getElements()) {
-               String json = objectMapper.writeValueAsString(value.asNode());
-               jsons.add(TTLiteral.literal(json));
-            }
-            node.set(predicate, jsons);
+             try (CachedObjectMapper om = new CachedObjectMapper()) {
+                 om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                 om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                 om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+                 for (TTValue value : node.get(predicate).getElements()) {
+                     String json = om.writeValueAsString(value.asNode());
+                     jsons.add(TTLiteral.literal(json));
+                 }
+                 node.set(predicate, jsons);
+             }
          }
       }
       return node;
@@ -557,20 +542,21 @@ public class TTManager {
        */
       public static boolean unwrapRDFfromJson(TTNode node) throws IOException {
          boolean unwrapped= false;
-         for (TTIriRef predicate:jsonPredicates) {
-            if (node.get(predicate) != null) {
-               if (node.get(predicate).isLiteral()) {
-                  TTArray rdfNodes = new TTArray();
-                  ObjectMapper objectMapper = new ObjectMapper();
-                  for (TTValue value : node.get(predicate).getElements()) {
-                     rdfNodes.add(objectMapper.readValue(value.asLiteral().getValue(), TTNode.class));
+          try (CachedObjectMapper om = new CachedObjectMapper()) {
+              for (TTIriRef predicate : jsonPredicates) {
+                  if (node.get(predicate) != null) {
+                      if (node.get(predicate).isLiteral()) {
+                          TTArray rdfNodes = new TTArray();
+                          for (TTValue value : node.get(predicate).getElements()) {
+                              rdfNodes.add(om.readValue(value.asLiteral().getValue(), TTNode.class));
+                          }
+                          node.set(predicate, rdfNodes);
+                          unwrapped = true;
+                      }
                   }
-                  node.set(predicate, rdfNodes);
-                  unwrapped = true;
-               }
-            }
-         }
-         return unwrapped;
+              }
+              return unwrapped;
+          }
       }
 
 
@@ -614,16 +600,22 @@ public class TTManager {
    public static void populateFromNode (TTNode source,TTNode target,Set<TTEntity> ranges){
       Class<? extends TTNode> clazz= target.getClass();
       target.setPredicateMap(source.getPredicateMap());
-      for (Map.Entry<TTIriRef,TTArray> statement:source.getPredicateMap().entrySet()){
-
-      }
    }
    public static TTContext getDefaultContext(){
       TTContext ctx=new TTContext();
       ctx.add(IM.NAMESPACE,"");
+      ctx.add(IM.NAMESPACE,"im");
       ctx.add(RDFS.NAMESPACE,"rdfs");
       ctx.add(RDF.NAMESPACE,"rdf");
       ctx.add(SNOMED.NAMESPACE,"sn");
+      ctx.add(SHACL.NAMESPACE,"sh");
+      ctx.add(XSD.NAMESPACE,"xsd");
       return ctx;
    }
+
+    @Override
+    public void close() throws Exception {
+        if (entityMap != null) entityMap.clear();
+        if (nameMap != null) nameMap.clear();
+    }
 }

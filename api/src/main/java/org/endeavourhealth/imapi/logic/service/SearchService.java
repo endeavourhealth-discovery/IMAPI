@@ -1,20 +1,19 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.QueryRequest;
+import org.endeavourhealth.imapi.model.iml.Select;
+import org.endeavourhealth.imapi.model.iml.Where;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.sets.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 
@@ -24,18 +23,21 @@ import java.util.zip.DataFormatException;
 
 public class SearchService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(org.endeavourhealth.imapi.logic.service.SearchService.class);
-	private final TTIriRef PROPNAME= TTIriRef.iri(IM.NAMESPACE+"propName");
-	private final TTIriRef OBNAME= TTIriRef.iri(IM.NAMESPACE+"obName");
 
 	/**
 	 * Queries any IM entity using the query model
-	 * @param query data model entity object to populate
-	 * @return a generic JSONDocument containing the results and including predicate map
+	 * @param queryRequest Query inside a request with parameters
+	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
 	 * @throws DataFormatException if query format is invalid
 	 */
-	public ObjectNode queryIM(Query query) throws DataFormatException, JsonProcessingException {
-		return new IMQuery().queryIM(query);
+	public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+		validateQueryRequest(queryRequest);
+		return new QueryRepository().queryIM(queryRequest);
+	}
+
+	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
+			if (queryRequest.getQuery()==null)
+				throw new DataFormatException("Query request must have a Query or an Query object with an iri");
 	}
 
 	/**
@@ -44,8 +46,7 @@ public class SearchService {
 	 * @return A set of Summaries of entity documents from the store
 	 *
 	 */
-	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws URISyntaxException,
-		IOException, InterruptedException, ExecutionException, OpenSearchException, DataFormatException {
+	public List<SearchResultSummary> getEntitiesByTerm(SearchRequest request) throws DataFormatException {
 		return new OSQuery().multiPhaseQuery(request);
 	}
 }

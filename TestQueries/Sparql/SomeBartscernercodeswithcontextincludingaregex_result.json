@@ -1,0 +1,21 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http://endhealth.info/im#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http://snomed.info/sct#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+SELECT distinct ?entity  ?p3 ?p4 ?p5 ?p6 ?p7 ?p8 ?p9 ?p10 ?p11
+WHERE {?entity <http://endhealth.info/im#sourceContext> ?o1.
+?o1 <http://endhealth.info/im#sourceRegex> ?o2.
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p3.}
+ OPTIONAL { ?entity <http://endhealth.info/im#code> ?p4.}
+ OPTIONAL { ?entity <http://endhealth.info/im#sourceContext> ?p5.
+ OPTIONAL { ?p5 <http://endhealth.info/im#sourceCodeScheme> ?p6.}
+ OPTIONAL { ?p5 <http://endhealth.info/im#sourceHeading> ?p7.}
+ OPTIONAL { ?p5 <http://endhealth.info/im#sourceSystem> ?p8.}
+ OPTIONAL { ?p5 <http://endhealth.info/im#sourceTable> ?p9.}
+ OPTIONAL { ?p5 <http://endhealth.info/im#sourceField> ?p10.}
+ OPTIONAL { ?p5 <http://endhealth.info/im#sourceSchema> ?p11.}
+}
+}

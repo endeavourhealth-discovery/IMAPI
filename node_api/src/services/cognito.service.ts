@@ -1,9 +1,10 @@
-import AWS from 'aws-sdk';
+import AWS from "aws-sdk";
+import Env from "@/services/env.service";
 
 class CognitoService {
   private config = {
-    region: (process.env.COGNITO_REGION || "eu-west-2")
-  }
+    region: Env.COGNITO_REGION
+  };
 
   private cognitoIdentity;
 

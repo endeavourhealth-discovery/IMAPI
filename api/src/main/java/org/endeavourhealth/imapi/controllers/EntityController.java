@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.controllers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
@@ -11,13 +12,13 @@ import java.util.zip.DataFormatException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -30,8 +31,8 @@ import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.SetAsObject;
+import org.endeavourhealth.imapi.model.set.ExportSet;
+import org.endeavourhealth.imapi.model.set.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -82,6 +83,7 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
+
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
@@ -89,11 +91,17 @@ public class EntityController {
 		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
 	}
 
-	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
+	@GetMapping(value = "/public/matchedFrom", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getSimpleMaps");
-		return entityService.getSimpleMaps(iri);
+		LOG.debug("getMatchedFrom");
+		return entityService.getMatchedFrom(iri);
 	}
+
+    @GetMapping(value = "/public/matchedTo", produces = "application/json")
+    public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) {
+        LOG.debug("getMatchedTo");
+        return entityService.getMatchedTo(iri);
+    }
 
     @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(
@@ -103,6 +111,15 @@ public class EntityController {
         LOG.debug("getPartialEntityBundle");
         return entityService.getBundle(iri, predicates);
     }
+
+	@GetMapping(value = "/public/entityAsPlainJson", produces = "application/json")
+	public String getForm(
+		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "depth", required = false) Integer depth
+	) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, JsonProcessingException {
+		LOG.debug("getEntityAsPlainJson");
+		return entityService.getAsPlainJson(iri, depth == null ? 5 : depth);
+	}
 
     @GetMapping(value = "/public/inferredBundle", produces = "application/json")
     public TTBundle getInferredBundle(@RequestParam(name = "iri") String iri) {
@@ -148,21 +165,21 @@ public class EntityController {
 		return entityService.getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, false);
 	}
 
-	@GetMapping(value = "/public/hasMember")
-	public ExportValueSet getHasMember(
-		@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "predicate") String predicateIri,
-		@RequestParam(name = "page", required = false) Integer page,
-		@RequestParam(name = "size", required = false) Integer size,
-		@RequestParam(name = "schemeIris", required = false) List<String> schemeIris
-	) {
-		LOG.debug("getHasMember");
-		if (page == null && size == null) {
-			page = 1;
-			size = 10;
-		}
-		return entityService.getHasMember(iri,predicateIri, schemeIris, page, size, false);
-	}
+    @GetMapping(value = "/public/hasMember")
+    public ExportSet getHasMember(
+        @RequestParam(name = "iri") String iri,
+        @RequestParam(name = "predicate") String predicateIri,
+        @RequestParam(name = "page", required = false) Integer page,
+        @RequestParam(name = "size", required = false) Integer size,
+        @RequestParam(name = "schemeIris", required = false) List<String> schemeIris
+    ) {
+        LOG.debug("getHasMember");
+        if (page == null && size == null) {
+            page = 1;
+            size = 10;
+        }
+        return entityService.getHasMember(iri,predicateIri, schemeIris, page, size, false);
+    }
 
 	@GetMapping(value = "/public/partialAndTotalCount")
 	public Pageable<TTIriRef> getPartialAndTotalCount(
@@ -229,14 +246,15 @@ public class EntityController {
 			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".txt\"");
 			return new HttpEntity<>(turtle, headers);
 		} else {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
-			return new HttpEntity<>(json, headers);
+            try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+                String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
+                return new HttpEntity<>(json, headers);
+            }
 		}
 	}
 
@@ -309,7 +327,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/public/members")
-	public ExportValueSet valueSetMembersJson(
+	public ExportSet valueSetMembersJson(
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
@@ -329,15 +347,6 @@ public class EntityController {
 	){
 		LOG.debug("valueSetMembersNode");
 		return entityService.getValueSetMembersAsNode(iri, expandMembers, expandSubsets, limit);
-	}
-
-	@GetMapping(value = "/public/members", produces = { "text/csv" })
-	public String valueSetMembersCSV(@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "expandedMember", required = false) boolean expandedMember,
-		@RequestParam(name = "expandedSubset", required = false) boolean expandedSubset
-	) {
-        LOG.debug("valueSetMembersCSV");
-        return entityService.valueSetMembersCSV(iri, expandedMember, expandedSubset);
 	}
 
 	@GetMapping(value = "/public/referenceSuggestions")
@@ -387,7 +396,7 @@ public class EntityController {
 	    LOG.debug("getDataModelProperties");
 		return entityService.getDataModelProperties(iri);
 	}
-	
+
 	@GetMapping("/public/definition")
 	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getEntityDefinitionDto");
@@ -407,7 +416,7 @@ public class EntityController {
 	}
 
 	@PostMapping("/public/ecl")
-	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
+	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException, JsonProcessingException {
 		LOG.debug("getEcl");
 		return entityService.getEcl(inferred);
 	}
@@ -415,25 +424,12 @@ public class EntityController {
 	@GetMapping("/public/setExport")
 	public HttpEntity<Object> getSetExport(
 		@RequestParam(name = "iri") String iri,
-		@RequestParam(name = "legacy") boolean legacy
+		@RequestParam(name = "core") boolean core,
+		@RequestParam(name = "legacy") boolean legacy,
+        @RequestParam(name = "flat") boolean flat
 	) throws DataFormatException, IOException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri,legacy);
-		HttpHeaders headers = new HttpHeaders();
-
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			workbook.write(outputStream);
-			workbook.close();
-			headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport.xlsx\"");
-
-			return new HttpEntity<>(outputStream.toByteArray(), headers);
-		}
-	}
-	@GetMapping("/public/setExport/core")
-	public HttpEntity<Object> getSetExportCore(@RequestParam(name = "iri") String iri) throws DataFormatException, IOException {
-		LOG.debug("getSetExportCore");
-		XSSFWorkbook workbook = entityService.getSetExport(iri,false);
+		XSSFWorkbook workbook = entityService.getSetExport(iri, core, legacy, flat);
 		HttpHeaders headers = new HttpHeaders();
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -452,12 +448,6 @@ public class EntityController {
 		return entityService.getParentPath(iri);
 	}
 
-	@GetMapping("/public/parentHierarchy")
-	public EntityReferenceNode getParentHierarchy(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getParentHierarchy");
-		return entityService.getParentHierarchy(iri);
-	}
-
     @GetMapping("/public/pathBetweenNodes")
     public List<TTIriRef> getPathBetweenNodes(
 		@RequestParam(name = "descendant") String descendant,
@@ -466,7 +456,7 @@ public class EntityController {
         LOG.debug("getPathBetweenNodes");
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
-	
+
 	@GetMapping("/public/unassigned")
 	public List<TTIriRef> getUnassigned() {
 		LOG.debug("getUnassigned");
@@ -474,9 +464,9 @@ public class EntityController {
 	}
 
 	@GetMapping("/public/unmapped")
-	public List<TTIriRef> getUnmapped() {
+	public List<TTEntity> getUnmapped(@RequestParam(name = "term") Optional<String> term, @RequestParam(name = "status") Optional<List<String>> status, @RequestParam(name = "scheme") Optional<List<String>> scheme, @RequestParam(name = "type") Optional<List<String>> type, @RequestParam(name = "usage") Optional<Integer> usage, @RequestParam(name = "limit") Optional<Integer> limit) {
 		LOG.debug("getUnmapped");
-		return entityService.getUnmapped();
+		return entityService.getUnmapped(term.orElse(""), status.orElse(new ArrayList<>()), scheme.orElse(new ArrayList<>()), type.orElse(new ArrayList<>()), usage.orElse(null), limit.orElse(100));
 	}
 
 	@GetMapping("/public/unclassified")
@@ -517,15 +507,14 @@ public class EntityController {
 		return entityService.iriExists(iri);
 	}
 
-	@PostMapping("/task")
+	@GetMapping("/task/action")
 	@PreAuthorize("isAuthenticated()")
-	public TTEntity createTask(@RequestBody TTEntity entity, HttpServletRequest request) throws Exception {
-		LOG.debug("createTask");
-		String agentName = reqObjService.getRequestAgentName(request);
-		return entityService.saveTask(entity, agentName);
+	public List<TTEntity> getTaskActions(@RequestParam(name = "taskIri") String taskIri){
+		LOG.debug("getTaskActions");
+		return entityService.getActions(taskIri);
 	}
 
-	@GetMapping("/task/action")
+	@PostMapping("/task/action")
 	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity addTaskAction(
 		@RequestParam(name = "entityIri") String entityIri,
@@ -571,5 +560,31 @@ public class EntityController {
 	) {
 		LOG.debug("getBundleByPredicateExclusions");
 		return entityService.getBundleByPredicateExclusions(iri,predicates);
+	}
+
+	@GetMapping("/public/shapeFromType")
+	public TTIriRef getShapeFromType(
+		@RequestParam(name = "iri") String iri
+	) {
+		LOG.debug("getShapeFromType");
+		return entityService.getShapeFromType(iri);
+	}
+
+	@GetMapping("/public/properties")
+	public List<TTIriRef> getProperties() {
+		LOG.debug("getProperties");
+		return entityService.getProperties();
+	}
+
+    @GetMapping("/public/classes")
+    public List<TTIriRef> getClasses() {
+        LOG.debug("getClasses");
+        return entityService.getClasses();
+    }
+
+	@GetMapping("/public/statuses")
+	public List<TTIriRef> getStatuses() {
+		LOG.debug("getStatuses");
+		return entityService.getStatuses();
 	}
 }

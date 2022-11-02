@@ -1,0 +1,822 @@
+{
+  "entities" : [ {
+    "@id" : "http://endhealth.info/bc#3848116",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#182",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#182__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_182_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#182__",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#182Z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/tpp#182Z_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_182Z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/vis#182Z_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/bc#3844666",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Type"
+  }, {
+    "@id" : "http://endhealth.info/emis#182C",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#182C_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XSJF8",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_182C",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#182C_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y092a",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain: none"
+  }, {
+    "@id" : "http://endhealth.info/bc#332237058",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCH530768",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating"
+  }, {
+    "@id" : "http://endhealth.info/tpp#X77QU",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCH264788",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain at rest"
+  }, {
+    "@id" : "http://endhealth.info/bc#3844663",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Location"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y0929",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain: unknown"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y2497",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain referral"
+  }, {
+    "@id" : "http://endhealth.info/tpp#~2473",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pain referral"
+  }, {
+    "@id" : "http://endhealth.info/bc#3844669",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Radiation"
+  }, {
+    "@id" : "http://snomed.info/sct#139228007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#29857009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#1821",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present"
+  }, {
+    "@id" : "http://endhealth.info/tpp#1821_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_1821",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present"
+  }, {
+    "@id" : "http://endhealth.info/vis#1821_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present"
+  }, {
+    "@id" : "http://endhealth.info/emis#182A",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion"
+  }, {
+    "@id" : "http://endhealth.info/tpp#182A_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_182A",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion"
+  }, {
+    "@id" : "http://endhealth.info/vis#182A_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCH556513",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing"
+  }, {
+    "@id" : "http://endhealth.info/icd10#R071",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XM1B3",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing"
+  }, {
+    "@id" : "http://endhealth.info/icd10#R074",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain, unspecified"
+  }, {
+    "@id" : "http://endhealth.info/bc#332237211",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic Letter"
+  }, {
+    "@id" : "http://snomed.info/sct#139240007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#161978005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#559961000000104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#102588006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#366958004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#367183005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest wall pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCH801525",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain of pericarditis"
+  }, {
+    "@id" : "http://endhealth.info/bc#71836413",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain/angina freetext"
+  }, {
+    "@id" : "http://endhealth.info/emis#EMISNQCH691",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain relieved by rest"
+  }, {
+    "@id" : "http://snomed.info/sct#9267009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain at rest (finding)"
+  }, {
+    "@id" : "http://endhealth.info/bc#3844672",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Associated Symptoms"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y5917",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain                 [D]"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_R65_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain                 [D]"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y5918",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS             [D]"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_R65Z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain NOS             [D]"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCH801524",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain due to pericarditis"
+  }, {
+    "@id" : "http://snomed.info/sct#139229004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#139238002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#81953000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on exertion (finding)"
+  }, {
+    "@id" : "http://endhealth.info/bc#705190",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain/Angina Medical History"
+  }, {
+    "@id" : "http://snomed.info/sct#274664007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain on breathing (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#251897005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating (staging scale)"
+  }, {
+    "@id" : "http://endhealth.info/bc#332237324",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest Pain Clinic Follow Up Letter"
+  }, {
+    "@id" : "http://snomed.info/sct#161971004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain not present (situation)"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_cF2hqfa42AJmyqAqa",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pain follow up: face to face"
+  }, {
+    "@id" : "http://snomed.info/sct#514831000000109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain assessment (regime/therapy)"
+  }, {
+    "@id" : "http://snomed.info/sct#34791000119103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain due to pericarditis (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#EMISNQCH692",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain relieved by glyceryl trinitrate"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCH505649",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain with normal coronary angiography"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_OPeBvelNNXVMaVYOE",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pain initial assessment: face to face"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_AvKMW/lDOnwyl3HXI",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pain/trouble breathing/swollen glands/ (msg #414396)"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_10406",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "chest pains since saturday, v sore, thought it was muscular (msg #752148)"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTDU255268",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dull chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y2571",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "H/O: Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#HMPNQHO3",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "H/O: chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTAC407738",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute chest pain"
+  }, {
+    "@id" : "http://endhealth.info/icd10#R073",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Other chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTUP570067",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Upper chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Xa35v",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Upper chest pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#71842600",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Angina/Chest Pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065z",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
+  }, {
+    "@id" : "http://snomed.info/sct#471551000000103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCA705845",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#1822",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#1822_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_1822",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#1822_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#1828",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#1828_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_1828",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#1828_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCR346072",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Crushing chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#X75rV",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Crushing chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTIS494333",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischemic chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#Ryu04",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Ryu04",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#Ryu04",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#G33z4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischaemic chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#G33z4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischaemic chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Ua1eH",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischaemic chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#G33z4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischaemic chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTLO803048",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Localised chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTLO803049",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Localized chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTRA265927",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Radiating chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTSQ634815",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Squeezing chest pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#3848083",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "ED MTS Chest Pain Red"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTES309401",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Esophageal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTHI988227",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "History of chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaLS2",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "History of chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTLE570063",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Left sided chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Xa35r",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Left sided chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTNO556519",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Noncardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#71841974",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "POA chest pain/angina"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065D",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065D",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaELT",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065D",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#3848095",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "ED MTS Chest Pain Blue"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065B",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-cardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XM1B7",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-cardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTOE309400",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Oesophageal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTRI570064",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Right sided chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Xa35s",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Right sided chest pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#3848092",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "ED MTS Chest Pain Green"
+  }, {
+    "@id" : "http://endhealth.info/emis#R0650-1",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Retrosternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#1824",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#1824_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_1824",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#1824_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTAS729840",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Assessment of chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#182B0",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Costal margin chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#182B0",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Costal margin chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#182B0",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Costal margin chest pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#3848086",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "ED MTS Chest Pain Orange"
+  }, {
+    "@id" : "http://endhealth.info/bc#3848089",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "ED MTS Chest Pain Yellow"
+  }, {
+    "@id" : "http://endhealth.info/icd10#R07",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain in throat and chest"
+  }, {
+    "@id" : "http://endhealth.info/bc#326432524",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COP 1 Chest Pain Severity"
+  }, {
+    "@id" : "http://endhealth.info/bc#326432539",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COP1 Chest Pain Frequency"
+  }, {
+    "@id" : "http://snomed.info/sct#3368006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dull chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#158393008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#207078009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#498151000000109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain (situation)"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065B",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Non cardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065B-4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Non-cardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065B",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Non-cardiac chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#R0659",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Parasternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R0659",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Parasternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#R0659",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Parasternal chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#102587001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Acute chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTAN345879",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anginal chest pain at rest"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065A",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Musculoskeletal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Xa1hJ",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Musculoskeletal chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#285389008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Upper chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#R0650",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain, unspecified"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XE2rt",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain, unspecified"
+  }, {
+    "@id" : "http://endhealth.info/vis#R0650",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain, unspecified"
+  }, {
+    "@id" : "http://endhealth.info/emis#R065C",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065C",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaBMV",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065C",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_eUOK2uRld/5HgC1xy",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "engage consulk: chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTCE562042",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central crushing chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Xa0wX",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central crushing chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#R0652",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R0652",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#R0652",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Anterior chest wall pain"
+  }, {
+    "@id" : "http://endhealth.info/bc#326432950",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "cop chest pain how long for"
+  }, {
+    "@id" : "http://snomed.info/sct#239671000000106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiac chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#426396005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiac chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#139230009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#161972006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTPL270722",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pleuropericardial chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#102589003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#139236003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#59139008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Crushing chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#225566008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischemic chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/bc#215170441",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "POA Chest Pain/Angina Details"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_8HTG",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Refer acute chest pain clinic"
+  }, {
+    "@id" : "http://snomed.info/sct#158404009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#207093008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS (situation)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065A",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Musculoskeletal chest pain"
+  }, {
+    "@id" : "http://endhealth.info/vis#R065A",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Musculoskeletal chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#207583009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#97001000119106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Localized chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#EMISNQMA126",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Manchester triage - Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y7713",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Musculoskeletal chest pain [D]"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_R659",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Musculoskeletal chest pain [D]"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y8240",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain, anterior chest wall  [D]"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_R652",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain, anterior chest wall  [D]"
+  }, {
+    "@id" : "http://snomed.info/sct#10000006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Radiating chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_8HTJ",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ref to rap acc chest pain clin"
+  }, {
+    "@id" : "http://endhealth.info/tpp#_9N0f",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen rap acc chest pain clinic"
+  }, {
+    "@id" : "http://snomed.info/sct#371030007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Squeezing chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_wOhYfvJcCBFl0Ew1G",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/bc#326432554",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "COP1 Chest Pain Characteristics"
+  }, {
+    "@id" : "http://snomed.info/sct#36859004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Esophageal chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#194835008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischaemic chest pain (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#285385002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Left sided chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y25db",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "PC19Q I have unusual chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#274668005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Non-cardiac chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#285386001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Right sided chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#16089411000119109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "History of chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#203731000000105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "History of chest pain (situation)"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTPA707282",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to center of chest"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTPA707281",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to centre of chest"
+  }, {
+    "@id" : "http://snomed.info/sct#207092003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#313438003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#139232001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anterior chest wall pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#161973001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Anterior chest wall pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#161977000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Costal margin chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y25ce",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "PC19Q I have had unusual chest pain"
+  }, {
+    "@id" : "http://endhealth.info/emis#8HTG",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referred to acute chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/tpp#8HTG_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referred to acute chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/vis#8HTG_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referred to acute chest pain clinic"
+  }, {
+    "@id" : "http://snomed.info/sct#444821009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Assessment of chest pain (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#281245003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Musculoskeletal chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTPA707183",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to left side of chest"
+  }, {
+    "@id" : "http://snomed.info/sct#279019008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central crushing chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#_ESCTPA707126",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to right side of chest"
+  }, {
+    "@id" : "http://snomed.info/sct#207090006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Non-cardiac chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#498251000000103",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Non-cardiac chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#207088005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Parasternal chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#498231000000105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Parasternal chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#13057000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pleuropericardial chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/emis#9N0f",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/tpp#9N0f_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaFs4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/vis#9N0f_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic"
+  }, {
+    "@id" : "http://snomed.info/sct#158396000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Anterior chest wall pain (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#271330001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain, unspecified (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#502141000000102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain, unspecified (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#207091005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#308150007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#207081004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Anterior chest wall pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#498171000000100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Anterior chest wall pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#158403003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Musculoskeletal chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#207089002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Musculoskeletal chest pain (situation)"
+  }, {
+    "@id" : "http://snomed.info/sct#498241000000101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Musculoskeletal chest pain (situation)"
+  }, {
+    "@id" : "http://endhealth.info/emis#8HTJ",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/tpp#8HTJ_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaFs5",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic"
+  }, {
+    "@id" : "http://endhealth.info/vis#8HTJ_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic"
+  }, {
+    "@id" : "http://snomed.info/sct#427365005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to center of chest (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#239191000000102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to centre of chest (finding)"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_hAKLNj+++KOPi3jyf",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "clinical, chest pain follow up: face to face"
+  }, {
+    "@id" : "http://snomed.info/sct#239261000000101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to left side of chest (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#427293006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to left side of chest (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#397721000000106",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain NOS (context-dependent category)"
+  }, {
+    "@id" : "http://snomed.info/sct#239351000000107",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to right side of chest (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#427252003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pain radiating to right side of chest (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#152096003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referred to acute chest pain clinic (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#183867000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referred to acute chest pain clinic (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#153403001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#185199005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#315014005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Seen in rapid access chest pain clinic (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R0650",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D](Chest pain: (unspecified) or (retrosternal))"
+  }, {
+    "@id" : "http://snomed.info/sct#425421000000105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other chest pain (context-dependent category)"
+  }, {
+    "@id" : "http://snomed.info/sct#502911000000100",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain (context-dependent category)"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_eaHvdU9tIp45TPrVp",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "administrative, chest pain follow up: face to face"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y25b9",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "PC19Q In the last month I have had unusual chest pain"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_FsGcagE6R8GxfJppe",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "clinical, chest pain initial assessment: face to face"
+  }, {
+    "@id" : "http://snomed.info/sct#152099005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#183870001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#315015006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Referral to rapid access chest pain clinic (procedure)"
+  }, {
+    "@id" : "http://snomed.info/sct#502641000000109",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain (context-dependent category)"
+  }, {
+    "@id" : "http://snomed.info/sct#207079001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D](Chest pain: (unspecified) or (retrosternal)) (situation)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Y1064",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Possible indicators: Venous Disease: Chest pain / pulmonary embolism"
+  }, {
+    "@id" : "http://endhealth.info/enc#LE_2238",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "GP Surgery, Seen by Dr Puvan - pt had chest pain- subsequent investigati"
+  } ]
+}

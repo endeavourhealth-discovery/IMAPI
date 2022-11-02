@@ -1,24 +1,20 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
-import org.endeavourhealth.imapi.model.EntitySummary;
+import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UnknownFormatConversionException;
@@ -30,56 +26,20 @@ import java.util.zip.DataFormatException;
 @Tag(name="SetController")
 @RequestScope
 public class SetController {
-    private static final Logger LOG = LoggerFactory.getLogger(SetController.class);
 
     private final EntityService entityService = new EntityService();
     private final SetService setService = new SetService();
     private final SetExporter setExporter = new SetExporter();
-
-	@GetMapping(value = "/public/download")
-    @Operation(
-        summary = "Download set",
-        description = "Returns a download for a set"
-    )
-	public HttpEntity<Object> downloadSet(@RequestParam(name = "iri") String iri,
-                                          @RequestParam(name = "expandMembers") boolean expanded,
-                                          @RequestParam(name = "v1") boolean v1) throws IOException {
-        LOG.debug("downloadSet");
-
-        TTIriRef entity = entityService.getEntityReference(iri);
-        String filename = entity.getName() + " " + LocalDate.now();
-
-        Workbook wb = setService.getExcelDownload(iri, expanded, v1);
-
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            wb.write(outputStream);
-            wb.close();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(new MediaType("application", "force-download"));
-            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".xlsx\"");
-
-            return new HttpEntity<>(outputStream.toByteArray(), headers);
-        }
-    }
-
-    @GetMapping(value = "/public/evaluate")
-    @Operation(
-        summary = "Evaluate set",
-        description = "Evaluates a given set"
-    )
-    public Set<EntitySummary> evaluate(@RequestParam(name = "iri") String iri, @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy) {
-	    return setService.evaluateConceptSet(iri, includeLegacy);
-    }
 
     @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
     @Operation(
         summary = "Evaluate ECL",
         description = "Evaluates an query"
     )
-    public Set<EntitySummary> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
+    public Set<Concept> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
         try {
-            return setService.evaluateDefinition(ecl, includeLegacy);
-        } catch (UnknownFormatConversionException ex) {
+            return setService.evaluateECL(ecl, includeLegacy);
+        } catch (UnknownFormatConversionException | JsonProcessingException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
     }
@@ -93,9 +53,9 @@ public class SetController {
             @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
             @RequestParam(name="limit", required = false) Integer limit,
             @RequestBody String ecl
-    ) throws DataFormatException, EclFormatException {
+    ) throws DataFormatException, EclFormatException,JsonProcessingException {
         try {
-            return setService.eclSearch(includeLegacy,limit,ecl);
+            return new SetService().eclSearch(includeLegacy,limit,ecl);
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
@@ -107,7 +67,7 @@ public class SetController {
         description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-    public void publish(@RequestParam(name = "iri") String iri) {
+    public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException {
         setExporter.publishSetToIM1(iri);
     }
 
@@ -117,7 +77,7 @@ public class SetController {
             summary = "Export set",
             description = "Exporting an expanded set to IM1"
     )
-    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) {
+    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException {
         TTIriRef entity = entityService.getEntityReference(iri);
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();

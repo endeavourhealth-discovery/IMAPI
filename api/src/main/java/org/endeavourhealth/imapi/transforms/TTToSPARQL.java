@@ -15,8 +15,6 @@ public class TTToSPARQL {
 
 		private StringBuilder turtle;
 		private int level;
-		private Map<String,String> prefixes= new HashMap<>();
-
 
 		public String transformEntity(TTEntity entity){
 			turtle = new StringBuilder();
@@ -25,14 +23,9 @@ public class TTToSPARQL {
 			return turtle.toString();
 		}
 
-
-
 		private void nl() {
 			turtle.append(" ");
 		}
-
-
-
 
 		private  void appendEntity(TTEntity entity){
 			level=0;

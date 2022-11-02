@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -14,10 +14,18 @@ import java.util.UUID;
 
 public class ProvService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
-        String uir = getPerson(agentName, targetEntity.getScheme());
+        String root;
+
+        if (targetEntity.getGraph() != null)
+            root = targetEntity.getGraph().getIri();
+        else if (targetEntity.getScheme().getIri() != null)
+            root = targetEntity.getScheme().getIri();
+        else
+            root = IM.NAMESPACE;
+
+        String uir = getPerson(agentName, root);
         ProvAgent agent = new ProvAgent()
                 .setPersonInRole(TTIriRef.iri(uir))
                 .setParticipationType(IM.AUTHOR_ROLE);
@@ -42,19 +50,20 @@ public class ProvService {
     }
 
     public TTEntity buildUsedEntity(TTEntity usedEntity) throws JsonProcessingException {
-        return new TTEntity()
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return new TTEntity()
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
-                .set(IM.DEFINITION, new TTLiteral(objectMapper.writeValueAsString(usedEntity)))
+                .set(IM.DEFINITION, new TTLiteral(om.writeValueAsString(usedEntity)))
                 .setCrud(IM.ADD_QUADS);
+        }
     }
 
-    private String getPerson(String name, TTIriRef scheme) {
+    private String getPerson(String name, String root) {
         StringBuilder uri = new StringBuilder();
         name.chars().forEach(c -> {
             if (Character.isLetterOrDigit(c))
                 uri.append(Character.toString(c));
         });
-        String root = scheme.getIri();
         root = root.substring(0, root.lastIndexOf("#"));
         return root.replace("org.", "uir.") + "/personrole#" +
                 uri;

@@ -1,0 +1,58 @@
+{
+    "query" : {
+      "name" : "get entities with property",
+      "description" : "get entities with property",
+      "mainEntity" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "resultFormat" : "OBJECT",
+      "select" : {
+        "property" : [ {
+          "@id" : "http://www.w3.org/ns/shacl#property",
+          "select" : {
+            "property" : [ {
+              "@id" : "http://www.w3.org/ns/shacl#path"
+            }, {
+              "@id" : "http://www.w3.org/ns/shacl#datatype"
+            }, {
+              "@id" : "http://www.w3.org/ns/shacl#class"
+            }, {
+              "@id" : "http://www.w3.org/ns/shacl#nodeKind"
+            }, {
+              "@id" : "http://www.w3.org/ns/shacl#node"
+            }, {
+              "@id" : "http://www.w3.org/ns/shacl#minCount"
+            }, {
+              "@id" : "http://www.w3.org/ns/shacl#maxCount"
+            } ]
+          }
+        } ],
+        "match": [
+          {
+            "entityType": {
+              "@id": "http://www.w3.org/ns/shacl#NodeShape"
+            },
+            "property": [
+              {
+                "@id": "http://www.w3.org/ns/shacl#property",
+                "match": {
+                  "property": [
+                    {
+                      "@id": "http://www.w3.org/ns/shacl#path",
+                      "isConcept": [
+                        {
+                          "includeSubtypes": true,
+                          "@id": "http://endhealth.info/im#address"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "usePrefixes" : true
+    }
+  }

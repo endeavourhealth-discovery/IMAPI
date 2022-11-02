@@ -1,5 +1,5 @@
 grammar ECL;
-expressionconstraint : ws ( refinedexpressionconstraint | compoundexpressionconstraint | dottedexpressionconstraint | subexpressionconstraint ) ws;
+expressionconstraint :  ws ( refinedexpressionconstraint | compoundexpressionconstraint | dottedexpressionconstraint | subexpressionconstraint ) ws;
 refinedexpressionconstraint : subexpressionconstraint ws COLON ws eclrefinement;
 compoundexpressionconstraint : conjunctionexpressionconstraint | disjunctionexpressionconstraint | exclusionexpressionconstraint;
 conjunctionexpressionconstraint : subexpressionconstraint (ws conjunction ws subexpressionconstraint)+;
@@ -7,13 +7,13 @@ disjunctionexpressionconstraint : subexpressionconstraint (ws disjunction ws sub
 exclusionexpressionconstraint : subexpressionconstraint ws exclusion ws subexpressionconstraint;
 dottedexpressionconstraint : subexpressionconstraint (ws dottedexpressionattribute)+;
 dottedexpressionattribute : dot ws eclattributename;
-subexpressionconstraint : (constraintoperator ws)? (memberof ws)? (eclfocusconcept | (LEFT_PAREN ws expressionconstraint ws RIGHT_PAREN));
+subexpressionconstraint : (constraintoperator ws)? (memberof ws)? (eclfocusconcept | (LEFT_PAREN ws expressionconstraint ws RIGHT_PAREN)) ;
 eclfocusconcept : eclconceptreference | wildcard;
 dot : PERIOD;
 memberof : CARAT;
-eclconceptreference : conceptid (ws PIPE ws term ws PIPE)?;
+eclconceptreference : conceptid (ws PIPE ws term ws PIPE)? ;
 conceptid : sctid ;
-term : nonwsnonpipe+ ( sp+ nonwsnonpipe+ )*;
+term : nonwsnonpipe+  ( sp+ nonwsnonpipe+ )*;
 wildcard : ASTERISK;
 constraintoperator : childof | descendantorselfof | descendantof | parentof | ancestororselfof | ancestorof;
 descendantof : LESS_THAN;

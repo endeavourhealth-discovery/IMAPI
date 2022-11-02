@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.imapi.model.sets.Comparison;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +36,10 @@ public class QueryGenHelper {
                 default: throw new IllegalArgumentException("Unknown entity property [" + entityIri + "].[" + propertyIri + "]");
             }
         } else if ("http://endhealth.info/im#Person".equals(entityIri)) {
-            switch (propertyIri) {
-                case "http://endhealth.info/im#age": return "TIMESTAMPDIFF(YEAR, " + prefix + "date_of_birth, $ReferenceDate)";
-                default: throw new IllegalArgumentException("Unknown entity property [" + entityIri + "].[" + propertyIri + "]");
+            if ("http://endhealth.info/im#age".equals(propertyIri)) {
+                return "TIMESTAMPDIFF(YEAR, " + prefix + "date_of_birth, $ReferenceDate)";
             }
+            throw new IllegalArgumentException("Unknown entity property [" + entityIri + "].[" + propertyIri + "]");
         } else if ("http://endhealth.info/im#PersonDetails".equals(entityIri)) {
             switch (propertyIri) {
                 case "http://endhealth.info/im#age": return "TIMESTAMPDIFF(YEAR, " + prefix + "date_of_birth, $ReferenceDate)";
@@ -65,14 +64,7 @@ public class QueryGenHelper {
         return getField(table, propertyIri, true);
     }
 
-    public static String getComparison(Comparison comparison) {
-        switch(comparison) {
-            case LESS_THAN_OR_EQUAL: return "<=";
-            case GREATER_THAN: return ">";
-            case GREATER_THAN_OR_EQUAL: return ">=";
-            default: throw new IllegalArgumentException("Unknown comparison [" + comparison + "]");
-        }
-    }
+
 
     public static String getValue(TTIriRef i) {
         // Selection concept DBID (compass) or Iri (Resolution)

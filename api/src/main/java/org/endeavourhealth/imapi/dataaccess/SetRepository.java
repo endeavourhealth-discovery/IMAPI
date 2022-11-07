@@ -173,8 +173,9 @@ public class SetRepository {
                                     legacy.setCode(lc.stringValue());
                                 if (lt != null)
                                     legacy.setName(lt.stringValue());
-                                if (ls != null)
+                                if (ls != null) {
                                     legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
+                                }
                                 legacy.setUsage(luse == null ? null : ((Literal) luse).intValue());
                             }
                             Value lid = bs.getValue("legacyIm1Id");

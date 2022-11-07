@@ -46,6 +46,8 @@ public class IM {
     public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
     public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
     public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "functionProperty");
+    public static final TTIriRef MAP_GRAPH = iri(NAMESPACE + "GraphMap");
+    public static final TTIriRef MAP_ENTITY = iri(NAMESPACE + "EntityMap");
 
 
     //Collection predicates
@@ -85,6 +87,7 @@ public class IM {
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE + "hasMap");
+    public static final TTIriRef ENTITY_MAP = iri(NAMESPACE + "entityMap");
     public static final TTIriRef MAPPED_TO = iri(NAMESPACE + "mappedTo");
     public static final TTIriRef HAS_NUMERIC = iri(NAMESPACE + "hasNumericValue");
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
@@ -94,7 +97,6 @@ public class IM {
     public static final TTIriRef DESCRIPTION_ID = iri(NAMESPACE + "descriptionId");
     public static final TTIriRef CODE_ID = iri(NAMESPACE + "codeId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE + "matchedTo");
-    public static final TTIriRef SIMILAR = iri(NAMESPACE + "similarTo");
     public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
     public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
@@ -197,15 +199,14 @@ public class IM {
     public static final TTIriRef IS_PERSON = iri(NAMESPACE + "isPerson");
 
     //Miscalleneous
-    public static final TTIriRef COUNTER = iri(NAMESPACE + "counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE + "hasContext");
     //public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE + "displayOrder");
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
-    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
     public static final TTIriRef EXAMPLE = iri(NAMESPACE + "example");
+    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
 
 
     //im1

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.FunctionService;
-import org.endeavourhealth.imapi.model.function.FunctionRequest;
+import org.endeavourhealth.imapi.model.iml.FunctionRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

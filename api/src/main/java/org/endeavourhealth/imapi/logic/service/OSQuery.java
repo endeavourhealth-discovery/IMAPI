@@ -275,7 +275,15 @@ public class OSQuery {
     }
 
     public List<SearchResultSummary> runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-        String queryJson = bld.toString();
+       String queryJson = bld.toString();
+       /*
+       String queryJson= "{\n" +
+          "  \"query\" : {\n" +
+          "    \"match_all\": {}\n" +
+          "  }\n" +
+          "}";
+
+        */
 
         String url = System.getenv("OPENSEARCH_URL");
         if (url == null)

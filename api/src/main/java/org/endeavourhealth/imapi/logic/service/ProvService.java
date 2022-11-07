@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
+import org.endeavourhealth.imapi.dataaccess.ProvRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
@@ -8,11 +10,19 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+@Component
 public class ProvService {
+
+    ProvRepository provRepository = new ProvRepository();
+    EntityRepository2 entityRepository2 = new EntityRepository2();
 
 
     public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
@@ -53,6 +63,7 @@ public class ProvService {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             return new TTEntity()
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
+                .setName(usedEntity.getName())
                 .set(IM.DEFINITION, new TTLiteral(om.writeValueAsString(usedEntity)))
                 .setCrud(IM.ADD_QUADS);
         }
@@ -67,6 +78,16 @@ public class ProvService {
         root = root.substring(0, root.lastIndexOf("#"));
         return root.replace("org.", "uir.") + "/personrole#" +
                 uri;
+    }
+
+    public List<TTEntity> getProvHistory(String iri) {
+        List<TTEntity> results = provRepository.getProvHistory(iri);
+        for(TTEntity r:results) {
+            String name = entityRepository2.getBundle(r.get(IM.PROV_ACIVITY_TYPE)
+                    .asIriRef().getIri(), Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+            r.get(IM.PROV_ACIVITY_TYPE).asIriRef().setName(name);
+        }
+        return results;
     }
 
 }

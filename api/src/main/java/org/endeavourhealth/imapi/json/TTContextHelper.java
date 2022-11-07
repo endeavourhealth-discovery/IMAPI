@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.tripletree.json;
+package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;

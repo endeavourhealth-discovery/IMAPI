@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.tripletree.json;
+package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -12,7 +12,7 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 /**
  * JSON LD- Serializer for TTDocument (triple tree node with collection of entities)

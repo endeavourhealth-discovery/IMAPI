@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
@@ -8,8 +7,6 @@ import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.ValidatingValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.SHACL;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -17,7 +14,6 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -25,8 +21,7 @@ import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -233,22 +228,23 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
     private IRI toIri(String iri) throws TTFilerException {
         iri = expand(iri);
-        int h = iri.indexOf("#");
-        if (h == -1)
+        if(iri.startsWith("urn")){
             return iri(iri);
-
-        String prefix = iri.substring(0, h + 1);
-        String suffix = iri.substring(h + 1);
+        }
 
         try {
-            String result = prefix + URLEncoder.encode(suffix, StandardCharsets.UTF_8.toString());
+
+            String decodedURL = URLDecoder.decode(iri, StandardCharsets.UTF_8);
+            URL url = new URL(decodedURL);
+            URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+            String result = uri.toASCIIString();
 
 
             if (!iri.equals(result))
                 LOG.trace("Encoded iri [{}] => [{}]", iri, result);
 
             return iri(result);
-        } catch (UnsupportedEncodingException e) {
+        } catch ( MalformedURLException | URISyntaxException e) {
             throw new TTFilerException("Unable to encode iri", e);
         }
     }

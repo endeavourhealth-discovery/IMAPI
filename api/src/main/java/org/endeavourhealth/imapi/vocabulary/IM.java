@@ -144,6 +144,8 @@ public class IM {
     public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
     public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
     public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
+    public static final TTIriRef GRAPH_PROV = TTIriRef.iri(DOMAIN + "prov#");
+
 
 
     // redant code schemes are now the same as graphs

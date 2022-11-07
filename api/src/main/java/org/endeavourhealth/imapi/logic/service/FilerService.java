@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class FilerService {
 
     private final TTDocumentFiler documentFiler = new TTDocumentFilerRdf4j();
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
-    private final TTEntityFiler entityProvFiler = new TTEntityFilerRdf4j(ConnectionManager.getProvConnection(), new HashMap<>());
+    private final TTEntityFiler entityProvFiler = entityFiler;
     private final ProvService provService = new ProvService();
     private final TTTransactionFiler transactionFiler = new TTTransactionFiler();
     private final EntityService entityService = new EntityService();
@@ -43,7 +44,7 @@ public class FilerService {
     public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {
         try {
             entityFiler.fileEntity(entity, graph);
-            fileProv(entity, graph, agentName, usedEntity);
+            fileProv(entity, agentName, usedEntity);
             fileOpenSearch(entity.getIri());
         } catch (Exception e) {
             throw new TTFilerException("Error filing entity", e);
@@ -56,11 +57,12 @@ public class FilerService {
             if(entityService.iriExists(entity.getIri())) {
                 usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
             }
-            fileProv(entity, document.getGraph(), agentName, usedEntity);
+            fileProv(entity, agentName, usedEntity);
         }
     }
 
-    private void fileProv(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
+    private void fileProv(TTEntity entity, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
+        TTIriRef graph = IM.GRAPH_PROV;
         ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
         entityProvFiler.fileEntity(agent, graph);
 

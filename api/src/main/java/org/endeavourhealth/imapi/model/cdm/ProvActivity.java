@@ -14,7 +14,13 @@ public class ProvActivity extends Entry {
 		this.addType(IM.PROV_ACIVITY);
 	}
 
-	@Override
+    @Override
+    public ProvActivity setGraph(TTIriRef graph) {
+        super.setGraph(graph);
+        return this;
+    }
+
+    @Override
 	public ProvActivity setIri(String iri){
 		super.setIri(iri);
 		return this;

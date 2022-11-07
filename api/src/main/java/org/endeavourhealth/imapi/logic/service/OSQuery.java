@@ -86,7 +86,7 @@ public class OSQuery {
      * @return search request object
      * @throws DataFormatException if problem with data format of query
      */
-    public List<SearchResultSummary> multiPhaseQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary>  multiPhaseQuery(SearchRequest request) throws DataFormatException {
 
         String term = request.getTermFilter();
         int page = request.getPage();
@@ -301,7 +301,7 @@ public class OSQuery {
                 .get();
 
         if (299 < response.statusCode()) {
-            LOG.debug("Open search request failed with code: " + response.statusCode());
+            LOG.debug("Open search request failed with code: {}", response.statusCode());
             throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
         }
 

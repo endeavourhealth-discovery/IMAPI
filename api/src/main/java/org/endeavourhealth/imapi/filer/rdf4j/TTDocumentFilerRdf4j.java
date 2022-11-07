@@ -27,8 +27,6 @@ public class TTDocumentFilerRdf4j extends TTDocumentFiler {
         LOG.info("Connecting");
         if (repo.equals("config")) {
             conn = ConnectionManager.getConfigConnection();
-        } else if (repo.equals("prov")) {
-            conn = ConnectionManager.getProvConnection();
         } else {
             conn = ConnectionManager.getIMConnection();
         }

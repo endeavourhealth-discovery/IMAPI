@@ -31,7 +31,7 @@ public class ProvRepository {
                 .add("Optional {?agent rdfs:label ?agentName }")
                 .add("} order by desc(?effectiveDate)");
 
-        try (RepositoryConnection conn = ConnectionManager.getProvConnection()) {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("entity", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {

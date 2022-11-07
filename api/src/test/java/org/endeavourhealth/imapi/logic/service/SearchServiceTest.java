@@ -4,14 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.SparqlConverter;
 import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.search.SearchRequest;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
@@ -22,6 +26,19 @@ class SearchServiceTest {
 	private String testSparql;
 
 
+	//@Test
+	void runOS() throws DataFormatException {
+		SearchRequest request= new SearchRequest();
+		request.setIndex("david");
+		request.setTermFilter("hospital admission");
+		List<String> schemes= Arrays.asList(SNOMED.NAMESPACE,IM.NAMESPACE);
+		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
+		request.setSchemeFilter(schemes);
+		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
+		request.setTypeFilter(types);
+		SearchService ss= new SearchService();
+		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
+	}
 
 	//@Test
 	void queryIM() throws DataFormatException, IOException {

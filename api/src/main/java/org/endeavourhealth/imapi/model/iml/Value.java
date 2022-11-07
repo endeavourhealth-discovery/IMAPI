@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.model.iml;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"comparison","value","relativeTo"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Value {
 	private String comparison;
 	private String value;

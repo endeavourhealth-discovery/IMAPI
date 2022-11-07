@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
@@ -34,7 +31,7 @@ public class TTUtil {
 			int order=0;
 			if (node.get(predicate)!=null)
 				order= node.get(predicate).size();
-			value.asNode().set(IM.ORDER,TTLiteral.literal(order));
+			value.asNode().set(SHACL.ORDER,TTLiteral.literal(order));
 
 		}
 		node.addObject(predicate,value);
@@ -60,7 +57,7 @@ public class TTUtil {
 	public static <T> List<T> getOrderedList(TTNode node,TTIriRef predicate,Class clazz){
 		List<T> result = getList(node,predicate,clazz);
 		try {
-			Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(IM.ORDER).asLiteral().intValue()));
+			Collections.sort(result, Comparator.comparing(o -> ((TTNode) o).get(SHACL.ORDER).asLiteral().intValue()));
 			return result;
 		} catch (Exception e) {
 			return result;

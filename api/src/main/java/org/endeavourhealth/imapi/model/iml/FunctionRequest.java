@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.function;
+package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;

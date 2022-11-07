@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 
-@JsonPropertyOrder({"alias","property"})
+@JsonPropertyOrder({"alias","property","variable"})
 public class Compare {
 	private String alias;
 	private TTAlias property;

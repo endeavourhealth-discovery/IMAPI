@@ -170,6 +170,11 @@ public class EntityCache implements Runnable{
 	}
 
 
+	public static void addEntity(TTEntity entity){
+		entities.put(entity.getIri(),entity);
+	}
+
+
 
 	public static void setPredicateOrder(String iri,List<TTIriRef> properties){
 		predicateOrder.put(iri,properties);

@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.model.tripletree.json.TTArrayDeserializer;
-import org.endeavourhealth.imapi.model.tripletree.json.TTArraySerializer;
+import org.endeavourhealth.imapi.json.TTArrayDeserializer;
+import org.endeavourhealth.imapi.json.TTArraySerializer;
 
 import java.io.Serializable;
 import java.util.*;

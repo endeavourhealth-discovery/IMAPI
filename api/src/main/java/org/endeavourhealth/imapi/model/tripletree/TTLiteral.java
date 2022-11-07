@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralDeserializer;
-import org.endeavourhealth.imapi.model.tripletree.json.TTLiteralSerializer;
+import org.endeavourhealth.imapi.json.TTLiteralDeserializer;
+import org.endeavourhealth.imapi.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.Serializable;

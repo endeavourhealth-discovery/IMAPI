@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeDeserializerV2;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
+import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
 
 import java.io.Serializable;
 import java.util.*;

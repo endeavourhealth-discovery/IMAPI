@@ -4,12 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.json.TTNodeSerializer;
+import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;

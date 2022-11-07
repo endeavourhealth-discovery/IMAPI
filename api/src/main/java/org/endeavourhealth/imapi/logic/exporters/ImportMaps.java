@@ -340,7 +340,7 @@ public class ImportMaps implements AutoCloseable {
 	private Map<String,Set<String>> importEmisToSnomedRdf4j() throws TTFilerException {
 		Map<String,Set<String>> emisToSnomed= new HashMap<>();
 		RepositoryConnection conn= ConnectionManager.getIMConnection();
-		TupleQuery qry= conn.prepareTupleQuery("select ?code ?snomed  ?name\n"+
+		TupleQuery qry= conn.prepareTupleQuery("select ?code ?snomedIri  ?name\n"+
 			"where {GRAPH <"+IM.GRAPH_EMIS.getIri()+"> \n"+
 			"{?concept <"+IM.CODE.getIri()+"> ?code. \n"+
 			"?concept <"+RDFS.LABEL.getIri()+"> ?name.\n"+
@@ -352,7 +352,7 @@ public class ImportMaps implements AutoCloseable {
 			while (rs.hasNext()){
 				BindingSet bs= rs.next();
 				String read= bs.getValue("code").stringValue();
-				String snomed= bs.getValue("snomed").stringValue();
+				String snomed= bs.getValue("snomedIri").stringValue();
 				Set<String> maps = emisToSnomed.computeIfAbsent(read, k -> new HashSet<>());
 				maps.add(snomed);
 			}

@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.tripletree.json;
+package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -11,7 +11,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

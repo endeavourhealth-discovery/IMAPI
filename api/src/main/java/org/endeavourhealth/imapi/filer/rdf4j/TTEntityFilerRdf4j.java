@@ -244,7 +244,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
                 LOG.trace("Encoded iri [{}] => [{}]", iri, result);
 
             return iri(result);
-        } catch ( MalformedURLException | URISyntaxException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new TTFilerException("Unable to encode iri", e);
         }
     }
@@ -261,7 +261,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             else
                 return path + iri.substring(colonPos + 1);
         } catch (StringIndexOutOfBoundsException e) {
-            LOG.debug("invalid iri " + iri);
+            LOG.debug("invalid iri [{}]", iri);
             return null;
         }
     }

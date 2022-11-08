@@ -667,10 +667,9 @@ public class EntityTripleRepository {
 
     public TTIriRef getShapeFromType(String iri) {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?s2")
+            .add("SELECT ?shape")
             .add("WHERE {")
-            .add("?s <http://www.w3.org/ns/shacl#targetClass> ?iri .")
-            .add("?s2 im:targetShape ?s .")
+            .add("  ?shape im:targetShape ?iri .")
             .add("}")
             .add("LIMIT 1");
 
@@ -680,7 +679,7 @@ public class EntityTripleRepository {
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    return new TTIriRef(bs.getValue("s2").stringValue());
+                    return new TTIriRef(bs.getValue("shape").stringValue());
                 }
             }
         }

@@ -23,12 +23,13 @@ public class ProvRepository {
         StringJoiner sql = new StringJoiner(System.lineSeparator())
                 .add("SELECT * WHERE {")
                 .add("?prov <http://endhealth.info/im#provenanceTarget> ?entity ;")
-                .add("      <http://endhealth.info/im#usedEntity> ?usedEntity ;")
                 .add("      <http://endhealth.info/im#effectiveDate> ?effectiveDate ;")
-                .add("      <http://endhealth.info/im#provenanceActivityType> ?activityType ;")
-                .add("      <http://endhealth.info/im#provenanceAgent> ?agent .")
-                .add("Optional {?usedEntity rdfs:label ?usedEntityName }")
-                .add("Optional {?agent rdfs:label ?agentName }")
+                .add("      <http://endhealth.info/im#provenanceActivityType> ?activityType .")
+                .add("Optional {?prov <http://endhealth.info/im#provenanceAgent> ?agent .")
+                .add("         Optional {?agent rdfs:label ?agentName .}}")
+                .add("Optional {?prov <http://endhealth.info/im#usedEntity> ?usedEntity .")
+                .add("         Optional {?usedEntity rdfs:label ?usedEntityName .}}")
+                .add("Optional {?activityType rdfs:label ?activityTypeName .}")
                 .add("} order by desc(?effectiveDate)");
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -39,11 +40,15 @@ public class ProvRepository {
                     BindingSet bs = rs.next();
                     TTEntity entity = new TTEntity(bs.getValue("prov").stringValue());
                     entity.set(IM.PROV_TARGET,iri);
-                    entity.set(IM.PROV_USED, new TTIriRef(bs.getValue("usedEntity").stringValue(), bs.getValue("usedEntityName")!= null ? bs.getValue("usedEntityName").stringValue() : null));
                     entity.set(IM.EFFECTIVE_DATE,bs.getValue("effectiveDate").stringValue());
-                    entity.set(IM.PROV_ACIVITY_TYPE,new TTIriRef(bs.getValue("activityType").stringValue()));
-                    entity.set(IM.PROV_AGENT,new TTIriRef(bs.getValue("agent").stringValue(),bs.getValue("agentName").stringValue()));
-
+                    entity.set(IM.PROV_ACIVITY_TYPE,new TTIriRef(bs.getValue("activityType").stringValue(), bs.getValue("activityTypeName").toString()));
+                    if(bs.getValue("agent") != null) {
+                        entity.set(IM.PROV_AGENT,new TTIriRef(bs.getValue("agent").stringValue(),bs.getValue("agentName").stringValue()));
+                    }
+                    if (bs.getValue("usedEntity") != null){
+                        entity.set(IM.PROV_USED, new TTIriRef(bs.getValue("usedEntity").stringValue(),
+                                bs.getValue("usedEntityName")!= null ? bs.getValue("usedEntityName").stringValue() : null));
+                    }
                     results.add(entity);
                 }
             }

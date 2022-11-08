@@ -81,13 +81,7 @@ public class ProvService {
     }
 
     public List<TTEntity> getProvHistory(String iri) {
-        List<TTEntity> results = provRepository.getProvHistory(iri);
-        for(TTEntity r:results) {
-            String name = entityRepository2.getBundle(r.get(IM.PROV_ACIVITY_TYPE)
-                    .asIriRef().getIri(), Set.of(RDFS.LABEL.getIri())).getEntity().getName();
-            r.get(IM.PROV_ACIVITY_TYPE).asIriRef().setName(name);
-        }
-        return results;
+        return provRepository.getProvHistory(iri);
     }
 
 }

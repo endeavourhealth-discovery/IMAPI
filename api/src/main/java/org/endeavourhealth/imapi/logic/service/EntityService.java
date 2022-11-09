@@ -1106,7 +1106,10 @@ public class EntityService {
     }
 
     public TTIriRef getShapeFromType(String iri) {
-        if (null != iri) return entityTripleRepository.getShapeFromType(iri);
+        if (null != iri) {
+            if (iri.equals(IM.CONCEPT_SET.getIri()) || iri.equals(IM.VALUESET.getIri())) return entityTripleRepository.getShapeFromType(IM.SET.getIri());
+            else return entityTripleRepository.getShapeFromType(iri);
+        }
         else return null;
     }
 

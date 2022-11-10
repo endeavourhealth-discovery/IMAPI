@@ -58,6 +58,12 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
          for (TTEntity entity: document.getEntities()){
             gen.writeStartObject();
             gen.writeStringField("@id", helper.prefix(entity.getIri()));
+            if(entity.getGraph() != null ){
+               gen.writeStringField("@graph", helper.prefix(entity.getGraph().getIri()));
+            }
+            if(entity.getCrud() != null) {
+               gen.writeStringField("crud", helper.prefix(entity.getCrud().getIri()));
+            }
             helper.serializeNode(entity, gen,prov);
             gen.writeEndObject();
          }

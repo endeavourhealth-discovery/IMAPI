@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -16,13 +15,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
 
 @Component
 public class FilerService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FilerService.class);
     private final TTDocumentFiler documentFiler = new TTDocumentFilerRdf4j();
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
     private final TTEntityFiler entityProvFiler = entityFiler;
@@ -44,11 +44,19 @@ public class FilerService {
     public void fileEntity(TTEntity entity, TTIriRef graph, String agentName, TTEntity usedEntity) throws TTFilerException {
         try {
             entityFiler.fileEntity(entity, graph);
-            fileProv(entity, agentName, usedEntity);
+            ProvActivity activity = fileProv(entity, agentName, usedEntity);
+            writeDelta(entity, activity);
             fileOpenSearch(entity.getIri());
         } catch (Exception e) {
             throw new TTFilerException("Error filing entity", e);
         }
+    }
+
+    public void writeDelta(TTEntity entity, ProvActivity activity) throws JsonProcessingException {
+        TTDocument document = new TTDocument();
+        document.addEntity(entity);
+        document.addEntity(activity);
+        transactionFiler.writeLog(document);
     }
 
     private void fileProvDoc(TTDocument document, String agentName) throws JsonProcessingException, TTFilerException {
@@ -61,7 +69,7 @@ public class FilerService {
         }
     }
 
-    private void fileProv(TTEntity entity, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
+    private ProvActivity fileProv(TTEntity entity, String agentName, TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
         TTIriRef graph = IM.GRAPH_PROV;
         ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
         entityProvFiler.fileEntity(agent, graph);
@@ -75,6 +83,7 @@ public class FilerService {
 
         ProvActivity activity = provService.buildProvenanceActivity(entity, agent, usedEntityIri);
         entityProvFiler.fileEntity(activity, graph);
+        return activity;
     }
 
     private void fileOpenSearch(String iri) throws TTFilerException {

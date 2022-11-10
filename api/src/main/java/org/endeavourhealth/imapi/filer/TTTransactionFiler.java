@@ -136,8 +136,7 @@ public class TTTransactionFiler {
         }
     }
 
-
-    private void writeLog(TTDocument document) throws JsonProcessingException {
+    public void writeLog(TTDocument document) throws JsonProcessingException {
         LOG.debug("Writing transaction to [{}]", logPath);
         File directory = new File(logPath);
         int logNumber = 0;

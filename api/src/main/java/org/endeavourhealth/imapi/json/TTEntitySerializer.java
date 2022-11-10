@@ -28,6 +28,12 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
         gen.writeStartObject();
         helper.serializeContexts(entity.getPrefixes(), gen);
         gen.writeStringField("@id", helper.prefix(entity.getIri()));
+        if(entity.getCrud() != null) {
+            gen.writeStringField("crud", helper.prefix(entity.getCrud().getIri()));
+        }
+        if(entity.getGraph()!= null) {
+            gen.writeStringField("@graph", helper.prefix(entity.getGraph().getIri()));
+        }
         TTNodeSerializer nodeSerializer = new TTNodeSerializer(entity.getContext(), usePrefixes);
         nodeSerializer.serializeNode(entity, gen,prov);
         gen.writeEndObject();

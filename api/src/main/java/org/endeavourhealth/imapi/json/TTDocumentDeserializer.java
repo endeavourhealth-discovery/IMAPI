@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,7 +64,11 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
                 Map.Entry<String, JsonNode> field = fields.next();
                 if (field.getKey().equals("@id")) {
                     entity.setIri(helper.expand(field.getValue().textValue()));
-                } else {
+                } else if (field.getKey().equals("@graph")) {
+                    entity.setGraph(new TTIriRef(helper.expand(field.getValue().textValue())));
+                } else if (field.getKey().equals("crud")) {
+                    entity.setCrud(new TTIriRef(helper.expand(field.getValue().textValue())));
+                }else {
                     if (field.getValue().isArray())
                         entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
                     else

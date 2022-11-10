@@ -26,6 +26,7 @@ public class TTTransactionFiler {
     private static final Logger LOG = LoggerFactory.getLogger(TTTransactionFiler.class);
 
     private final String logPath;
+    private final String TTLog = "TTLog-";
     /**
      * Destination folder for transaction log files must be set.
      */
@@ -65,7 +66,7 @@ public class TTTransactionFiler {
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
                 String name = file.getName();
-                if (name.startsWith("TTLog-")) {
+                if (name.startsWith(TTLog)) {
                     int counter = Integer.parseInt(name.split("-")[1].split("\\.")[0]);
                     transactionLogs.put(counter, file.getAbsolutePath());
                 }
@@ -144,14 +145,14 @@ public class TTTransactionFiler {
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
                 String name = file.getName();
-                if (name.startsWith("TTLog-")) {
+                if (name.startsWith(TTLog)) {
                     int counter = Integer.parseInt(name.split("-")[1].split("\\.")[0]);
                     if (counter > logNumber)
                         logNumber = counter;
                 }
             }
         logNumber++;
-        File logFile = new File(logPath + "TTLog-" + logNumber + ".json");
+        File logFile = new File(logPath + TTLog + logNumber + ".json");
         try(TTManager manager = new TTManager()) {
             manager.setDocument(document);
             manager.saveDocument(logFile);

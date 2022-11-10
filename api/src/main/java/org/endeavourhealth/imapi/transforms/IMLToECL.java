@@ -132,10 +132,10 @@ public class IMLToECL {
 				ecl.append(" OR ");
 			else
 				first = false;
-			if (or.getPath()!=null| or.getProperty()!=null| or.getAnd()!=null)
+			if (or.getPath()!=null || or.getProperty()!=null || or.getAnd()!=null)
 				ecl.append(" (");
 			where(or, ecl, includeName);
-			if (or.getPath()!=null| or.getProperty()!=null| or.getAnd()!=null)
+			if (or.getPath()!=null || or.getProperty()!=null || or.getAnd()!=null)
 				ecl.append(")");
 		}
 	}
@@ -147,10 +147,10 @@ public class IMLToECL {
 				ecl.append(" AND ");
 			else
 				first = false;
-			if (and.getPath()!=null| and.getProperty()!=null| and.getOr()!=null)
+			if (and.getPath()!=null || and.getProperty()!=null || and.getOr()!=null)
 				ecl.append(" (");
 			where(and, ecl, includeName);
-			if (and.getPath()!=null| and.getProperty()!=null| and.getOr()!=null)
+			if (and.getPath()!=null || and.getProperty()!=null || and.getOr()!=null)
 				ecl.append(")");
 		}
 	}

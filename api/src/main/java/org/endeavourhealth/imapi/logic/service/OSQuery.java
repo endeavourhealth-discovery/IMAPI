@@ -38,7 +38,11 @@ import java.util.zip.DataFormatException;
 public class OSQuery {
     private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
     private final Set<String> resultCache = new HashSet<>();
-
+    private final String termCodeTerm = "termCode.term";
+    private final String scheme = "scheme";
+    private final String weighting = "weighting";
+    private final String status = "status";
+    private final String comment = "comment";
 
     public Set<String> getResultCache() {
         return resultCache;
@@ -179,10 +183,9 @@ public class OSQuery {
 
     private QueryBuilder buildTermQuery(SearchRequest request) {
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder("termCode.term", request.getTermFilter()).boost(1.5F);
+        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(termCodeTerm, request.getTermFilter()).boost(1.5F);
         boolQuery.should(mpq);
-        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term",
-                request.getTermFilter()).boost(0.5F);
+        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(termCodeTerm, request.getTermFilter()).boost(0.5F);
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -200,10 +203,9 @@ public class OSQuery {
         PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", request.getTermFilter());
         pqb.boost(2F);
         boolQuery.should(pqb);
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder("termCode.term", request.getTermFilter()).boost(1.5F);
+        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(termCodeTerm, request.getTermFilter()).boost(1.5F);
         boolQuery.should(mpq);
-        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term",
-                request.getTermFilter()).boost(0.5F);
+        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(termCodeTerm, request.getTermFilter()).boost(0.5F);
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -212,14 +214,14 @@ public class OSQuery {
 
     private QueryBuilder buildMultiWordQuery(SearchRequest request) {
         BoolQueryBuilder qry = new BoolQueryBuilder();
-        MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder("termCode.term", request.getTermFilter());
+        MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder(termCodeTerm, request.getTermFilter());
         qry.should(pqry);
         BoolQueryBuilder wqry = new BoolQueryBuilder();
         qry.should(wqry);
         int wordPos = 0;
         for (String term : request.getTermFilter().split(" ")) {
             wordPos++;
-            MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder("termCode.term", term);
+            MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(termCodeTerm, term);
             mfs.boost(wordPos == 1 ? 4 : 1);
             wqry.must(mfs);
         }
@@ -246,10 +248,10 @@ public class OSQuery {
         if (null != sortField) {
             bld.sort(sortField, null != sortDirection ? SortOrder.fromString(sortDirection) : SortOrder.DESC);
         }
-
+        String termCode = "termCode";
         if (!request.getSelect().isEmpty()) {
             int extraFields = 0;
-            if (!request.getSelect().contains("termCode"))
+            if (!request.getSelect().contains(termCode))
                 extraFields++;
             if (!request.getSelect().contains("name"))
                 extraFields++;
@@ -258,11 +260,11 @@ public class OSQuery {
             if (extraFields > 0)
                 fields[fields.length - extraFields] = "name";
             if (extraFields == 2)
-                fields[fields.length - 1] = "termCode";
+                fields[fields.length - 1] = termCode;
             bld.fetchSource(fields, null);
 
         } else {
-            String[] fields = {"iri", "name", "code", "termCode", "entityType", "status", "scheme", "weighting"};
+            String[] fields = {"iri", "name", "code", termCode, "entityType", status, scheme, weighting};
             bld.fetchSource(fields, null);
         }
 
@@ -458,24 +460,25 @@ public class OSQuery {
                             case (RDFS.NAMESPACE + "label"):
                                 resultNode.put(field, searchResult.getName());
                                 break;
-                            case (RDFS.NAMESPACE + "comment"):
+                            case (RDFS.NAMESPACE + comment):
                                 if (searchResult.getDescription() != null)
                                     resultNode.put(field, searchResult.getDescription());
                                 break;
                             case (IM.NAMESPACE + "code"):
                                 resultNode.put(field, searchResult.getCode());
                                 break;
-                            case (IM.NAMESPACE + "status"):
+                            case (IM.NAMESPACE + status):
                                 resultNode.set(field, fromIri(searchResult.getStatus(), om));
                                 break;
-                            case (IM.NAMESPACE + "scheme"):
+                            case (IM.NAMESPACE + scheme):
                                 resultNode.set(field, fromIri(searchResult.getScheme(), om));
                                 break;
                             case (RDF.NAMESPACE + "type"):
                                 resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
                                 break;
-                            case (IM.NAMESPACE + "weighting"):
+                            case (IM.NAMESPACE + weighting):
                                 resultNode.put(field, searchResult.getWeighting());
+                                break;
                             default:
 
                         }
@@ -526,23 +529,24 @@ public class OSQuery {
                 TTAlias prop = select.getProperty();
                 if (prop.getIri() != null) {
                     switch (prop.getIri()) {
-                        case (RDFS.NAMESPACE + "comment"):
+                        case (RDFS.NAMESPACE + comment):
                             request.addSelect("description");
                             break;
                         case (IM.NAMESPACE + "code"):
                             request.addSelect("code");
                             break;
-                        case (IM.NAMESPACE + "status"):
-                            request.addSelect("status");
+                        case (IM.NAMESPACE + status):
+                            request.addSelect(status);
                             break;
-                        case (IM.NAMESPACE + "scheme"):
-                            request.addSelect("scheme");
+                        case (IM.NAMESPACE + scheme):
+                            request.addSelect(scheme);
                             break;
                         case (RDF.NAMESPACE + "type"):
                             request.addSelect("entityType");
                             break;
-                        case (IM.NAMESPACE + "weighting"):
-                            request.addSelect("weighting");
+                        case (IM.NAMESPACE + weighting):
+                            request.addSelect(weighting);
+                            break;
                         default:
                     }
                 }

@@ -48,6 +48,7 @@ public class IM {
     public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "functionProperty");
     public static final TTIriRef MAP_GRAPH = iri(NAMESPACE + "GraphMap");
     public static final TTIriRef MAP_ENTITY = iri(NAMESPACE + "EntityMap");
+    public static final TTIriRef SET = iri(NAMESPACE + "Set");
 
 
     //Collection predicates

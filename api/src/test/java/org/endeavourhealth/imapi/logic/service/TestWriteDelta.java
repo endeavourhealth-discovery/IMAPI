@@ -12,7 +12,7 @@ public class TestWriteDelta {
     private final FilerService filerService = new FilerService();
 
     //@Test
-    void writeDelta() throws JsonProcessingException {
+    void writeDelta() throws Exception {
         TTEntity entity = new TTEntity("http://endhealth.info/im#Q_RegisteredGMS")
                 .setName("Patients registered for GMS services on the reference date")
                 .addType(IM.QUERY)

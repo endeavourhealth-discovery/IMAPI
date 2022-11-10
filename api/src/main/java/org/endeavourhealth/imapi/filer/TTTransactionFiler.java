@@ -71,13 +71,14 @@ public class TTTransactionFiler {
                 }
             }
         SortedSet<Integer> keys = new TreeSet<>(transactionLogs.keySet());
-        TTManager manager = new TTManager();
-        try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported at this point
-            for (Integer logNumber : keys) {
-                manager.loadDocument(new File(transactionLogs.get(logNumber)));
-                filer.startTransaction();
-                filer.fileInsideTraction(manager.getDocument());
-                filer.commit();
+        try (TTManager manager = new TTManager()) {
+            try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported at this point
+                for (Integer logNumber : keys) {
+                    manager.loadDocument(new File(transactionLogs.get(logNumber)));
+                    filer.startTransaction();
+                    filer.fileInsideTraction(manager.getDocument());
+                    filer.commit();
+                }
             }
         }
 
@@ -136,7 +137,7 @@ public class TTTransactionFiler {
         }
     }
 
-    public void writeLog(TTDocument document) throws JsonProcessingException {
+    public void writeLog(TTDocument document) throws Exception {
         LOG.debug("Writing transaction to [{}]", logPath);
         File directory = new File(logPath);
         int logNumber = 0;
@@ -151,9 +152,10 @@ public class TTTransactionFiler {
             }
         logNumber++;
         File logFile = new File(logPath + "TTLog-" + logNumber + ".json");
-        TTManager manager = new TTManager();
-        manager.setDocument(document);
-        manager.saveDocument(logFile);
+        try(TTManager manager = new TTManager()) {
+            manager.setDocument(document);
+            manager.saveDocument(logFile);
+        }
     }
 
 

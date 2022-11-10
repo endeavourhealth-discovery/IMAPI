@@ -52,7 +52,7 @@ public class FilerService {
         }
     }
 
-    public void writeDelta(TTEntity entity, ProvActivity activity) throws JsonProcessingException {
+    public void writeDelta(TTEntity entity, ProvActivity activity) throws Exception {
         TTDocument document = new TTDocument();
         document.addEntity(entity);
         document.addEntity(activity);

@@ -56,7 +56,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	}
 
 	@Override
-	public void generateClosure(String outpath, boolean secure) throws IOException {
+	public void generateClosure(String outpath, boolean secure) throws Exception {
 		getTctBlockers();
 		LOG.info("Clearing out all isAs.. This will take some time....");
 		clearIsAs();
@@ -128,7 +128,7 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 	 Update upd = conn.prepareUpdate(sql);
 	 upd.execute();
  }
-	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) {
+	private void loadRelationships(RepositoryConnection conn, TTIriRef relationship) throws Exception {
 			LOG.info("Extracting " + relationship.getIri());
 		TupleQuery stmt;
 		stmt = conn.prepareTupleQuery(getDefaultPrefixes() + "\nSelect ?child ?parent\n" +
@@ -170,14 +170,15 @@ public class ClosureGeneratorRdf4j implements TCGenerator {
 		LOG.debug(String.format("Closure built with  %d triples with  %d keys", counter, closureMap.size()));
 	}
 
-	private String getDefaultPrefixes() {
-		TTManager manager = new TTManager();
-		StringJoiner prefixes = new StringJoiner("\n");
-		TTContext context = manager.createDefaultContext();
-		for (TTPrefix pref : context.getPrefixes()) {
-			prefixes.add("PREFIX " + pref.getPrefix() + ": <" + pref.getIri() + ">");
+	private String getDefaultPrefixes() throws Exception {
+		try(TTManager manager = new TTManager()) {
+			StringJoiner prefixes = new StringJoiner("\n");
+			TTContext context = manager.createDefaultContext();
+			for (TTPrefix pref : context.getPrefixes()) {
+				prefixes.add("PREFIX " + pref.getPrefix() + ": <" + pref.getIri() + ">");
+			}
+			return prefixes.toString();
 		}
-		return prefixes.toString();
 	}
 
 	private Set<String> generateClosure(String child) {

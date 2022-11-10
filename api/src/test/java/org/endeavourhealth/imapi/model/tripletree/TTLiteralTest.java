@@ -29,6 +29,7 @@ class TTLiteralTest {
     private final String json = new StringJoiner(System.lineSeparator())
         .add("{")
         .add("  \"@id\" : \"http://endhealth.co.uk/im#objectTest\",")
+        .add("  \"@graph\" : \"http://endhealth.co.uk/im#Rich\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#label\" : \"Test object\",")
         .add("  \"http://www.w3.org/2000/01/rdf-schema#comment\" : \"This is an entity to test object serialization\",")
         .add("  \"http://endhealth.info/im#Query\" : \"{\\\"name\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"scheme\\\":null,\\\"entityTermCode\\\":null}\"")

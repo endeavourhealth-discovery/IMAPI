@@ -18,10 +18,7 @@ export default class SetController {
 
   async getSetQueryObjectFromQuery(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log(req.body);
       const data = buildSetQueryObjectFromQuery(req.body as Query);
-      console.log("response");
-      console.log(data);
       res.send(data).end();
     } catch (e) {
       next(e);
@@ -30,7 +27,6 @@ export default class SetController {
 
   async getQueryFromSetQueryObject(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log(req.body);
       const data = buildQueryFromSetQueryObject(req.body as SetQueryObject[]);
       res.send(data).end();
     } catch (e) {

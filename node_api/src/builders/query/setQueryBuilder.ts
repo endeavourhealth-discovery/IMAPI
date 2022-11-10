@@ -5,7 +5,6 @@ const { DataTypeCheckers } = Helpers;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 export function buildSetQueryObjectFromQuery(value: Query) {
-  console.log(value);
   const constructedClauses: SetQueryObject[] = [];
   if (isArrayHasLength(value?.where?.from)) {
     for (const from of value.where.from) {
@@ -17,8 +16,6 @@ export function buildSetQueryObjectFromQuery(value: Query) {
       constructedClauses.push(clause);
     }
   }
-  console.log("here");
-  console.log(constructedClauses);
   if (isArrayHasLength(value?.where?.notExist?.from)) {
     for (const from of value.where.notExist.from) {
       const clause = {

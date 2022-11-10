@@ -28,7 +28,7 @@ export default class GithubController {
       const processedResult = this.processRelease(result.data);
       res.send(processedResult);
     } catch (e) {
-      console.error(e);
+      // console.error(e);
       res.end();
     }
   }

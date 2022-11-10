@@ -2,12 +2,15 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
+import org.endeavourhealth.imapi.model.maps.EntityMap;
 import org.endeavourhealth.imapi.model.maps.TransformRequest;
 
 import java.util.*;
 import java.util.zip.DataFormatException;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transformengine.Transformer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -20,40 +23,61 @@ public class TransformService {
 	 */
 
 	public Set<Object> runTransform(TransformRequest request) throws Exception{
-		/*
-		if (request.getTransformMap()==null)
-			throw new DataFormatException("Transform request must provide the transform map for this transform. The transform map must include all transform maps as imports");
+		validateInputs(request.getSourceFormat(),request.getTargetFormat(),request.getTransformMap(),request.getSource());
 		String mapIri= request.getTransformMap().getIri();
 		TTEntity mapEntity = EntityCache.getEntity(mapIri).getEntity();
-		if (mapEntity.get(IM.DEFINITION)==null){
-			throw new RuntimeException("Transform map with iri : "+ mapIri+" not found in IM or cache.");
+
+		//Is it a graph map
+		if (mapEntity.get(IM.ENTITY_MAP)!=null) {
+			return transformGraph(request, mapEntity);
 		}
-		TransformMap transformMap= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(TransformMap.class);
-		Map<String,TransformMap> imports=null;
-		try {
-			if (transformMap.getImports() != null) {
-				imports = new HashMap<>();
-				Map<String, TransformMap> finalImports = imports;
-				transformMap.getImports().forEach(tm -> {
-					TTEntity importEntity = EntityCache.getEntity(tm.getIri()).getEntity();
-					TransformMap imp = null;
-					try {
-						imp = importEntity.get(IM.DEFINITION).asLiteral().objectValue(TransformMap.class);
-					} catch (JsonProcessingException e) {
-						throw new RuntimeException("Transform map "+ importEntity.getIri()+" does not exist or has no map definition");
-					}
-					finalImports.put(importEntity.getIri(), imp);
-				});
+		else if (mapEntity.get(IM.DEFINITION) == null) {
+				throw new DataFormatException("IRI sent as graph map is not a graph map or entity map?");
+			}
+		else {
+			//Must be entity map
+			EntityMap entityMap= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(EntityMap.class);
+			return transformEntities(request,entityMap);
 			}
 		}
-		catch (Exception e){
-			throw new Exception("Unable to retrieve imported transform maps from "+ mapIri+ " due to "+ e.getMessage());
+
+	private Set<Object> transformEntities(TransformRequest request, EntityMap entityMap) throws Exception {
+		Transformer transform = new Transformer(entityMap,request.getSourceFormat(),request.getTargetFormat());
+		//Look for the typed source data (String iri, object list) to transform
+		for (String sourceIri: request.getSource().keySet()){
+				if (entityMap.getSource().getIri().equals(sourceIri))
+					 return transform.transform(request.getSource().get(sourceIri));
+				}
+		throw new DataFormatException("Source types do not match with the entity map ");
+
+	}
+
+	private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws Exception{
+		for (TTValue map:graphMapEntity.get(IM.ENTITY_MAP).getElements()){
+			TTEntity mapEntity= EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
+			EntityMap entityMap= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(EntityMap.class);
+			//Matches the entity map with the typed source map
+			for (String source:request.getSource().keySet()){
+				if (source.equals(entityMap.getSource().getIri())){
+					Transformer transformer= new Transformer(entityMap,request.getSourceFormat(),request.getTargetFormat());
+					return transformer.transform(request.getSource().get(source));
+				}
 			}
-		Transformer transform = new Transformer();
-		Map<String, List<Object>> sources= request.getSource();
-		transform.transform(sources,transformMap,request.getSourceFormat(),request.getTargetFormat(),imports);
-		*/
+
+		}
 		return null;
+	}
+
+
+	private void validateInputs(String sourceFormat, String targetFormat, TTIriRef graphMapIri,Map<String,List<Object>> sources) throws DataFormatException {
+		if (sourceFormat == null)
+			throw new DataFormatException("Source format must be defined in request (e.g. sourceFormat : JSON)");
+		if (targetFormat == null)
+			throw new DataFormatException("Target format must be defined in request (e.g. targetFormat : JSON-LD)");
+		if (graphMapIri == null)
+			throw new DataFormatException("Graph Map iri (\"@id\" : \"http...\" must be present in request");
+		if (sources==null)
+			throw new DataFormatException("No data Sources in request...");
 
 	}
 

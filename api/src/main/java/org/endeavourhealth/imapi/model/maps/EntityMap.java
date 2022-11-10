@@ -16,18 +16,42 @@ import java.util.function.Consumer;
 
 public class EntityMap extends TTIriRef {
 	private TTVariable source;
+	private List<TTVariable> targets;
 	private List<TTVariable> inputs;
-	private SourceTargetMap subjectMap;
 	private List<SourceTargetMap> propertyMaps;
 
-	public SourceTargetMap getSubjectMap() {
-		return subjectMap;
+	public List<TTVariable> getTargets() {
+		return targets;
 	}
 
-	public EntityMap setSubjectMap(SourceTargetMap sourceTargetMap) {
-		this.subjectMap = sourceTargetMap;
+	@JsonSetter
+	public EntityMap setTargets(List<TTVariable> targets) {
+		this.targets = targets;
 		return this;
 	}
+
+	public EntityMap addTarget(TTVariable target){
+		if (this.targets==null)
+			this.targets= new ArrayList<>();
+		this.targets.add(target);
+		return this;
+	}
+
+	public EntityMap target(Consumer<TTVariable> builder) {
+		TTVariable target= new TTVariable();
+		addTarget(target);
+		builder.accept(target);
+		return this;
+	}
+
+
+
+	@Override
+	public EntityMap setIri(String iri) {
+		super.setIri(iri);
+		return this;
+	}
+
 
 	public TTVariable getSource() {
 		return source;

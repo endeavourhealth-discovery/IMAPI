@@ -1,0 +1,10 @@
+{
+  "argument" : {
+    "this" : {
+      "@id" : "http://endhealth.info/im#Status"
+    }
+  },
+  "query" : {
+    "@id" : "http://endhealth.info/im#Query_GetIsas"
+  }
+}

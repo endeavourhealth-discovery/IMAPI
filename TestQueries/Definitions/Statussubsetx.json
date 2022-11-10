@@ -1,0 +1,10 @@
+{
+  "query" : {
+    "name" : "Status subset",
+    "from" : [ {
+      "@id" : "http://endhealth.info/im#Status",
+      "includeSubtypes" : true,
+      "excludeSelf" : true
+    } ]
+  }
+}

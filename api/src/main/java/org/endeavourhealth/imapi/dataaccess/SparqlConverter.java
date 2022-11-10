@@ -149,6 +149,12 @@ public class SparqlConverter {
 		whereQl.append("       con:entities ?entity.\n");
 	}
 
+	private void excludeSelf(StringBuilder whereQl,List<TTAlias> types) throws DataFormatException {
+		for (TTAlias type:types){
+			if (type.isExcludeSelf())
+				whereQl.append("Filter (?entity!= "+ iriFromAlias(type)+")\n");
+		}
+	}
 
 
 	private void from(StringBuilder whereQl, List<TTAlias> fromList) throws DataFormatException {
@@ -176,7 +182,6 @@ public class SparqlConverter {
 
 			}
 			else if (from.getVariable()!=null){
-				fromTypes.computeIfAbsent("variables",s-> new ArrayList<>());
 				String resolved= resolveReference(from.getVariable(),queryRequest);
 				if (resolved.startsWith("http")) {
 					if (from.isIncludeSubtypes()) {
@@ -222,12 +227,15 @@ public class SparqlConverter {
 				o++;
 				whereQl.append("?").append("entity").append(" im:isA ?").append("superinstance").append(o).append(".\n");
 				whereQl.append("Filter (?superinstance").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+				excludeSelf(whereQl,fromList);
+
 			}
 			else if (key.equals("subtypes")) {
 				o++;
 				whereQl.append("?").append("entity").append(" rdf:type ?").append("supertype").append(o).append(".\n");
 				whereQl.append("?").append("supertype").append(o).append(" im:isA ?").append("supersupertype").append(o).append(".\n");
 				whereQl.append("Filter (?supersupertype").append(o).append(" in(").append(String.join(",",fromTypes.get(key))).append("))\n");
+				excludeSelf(whereQl,fromList);
 			}
 			else if (key.equals("aliases")) {
 				o++;
@@ -385,6 +393,7 @@ public class SparqlConverter {
 		if (where.getIs()!=null) {
 			whereQl.append("Filter (?").append(object).append(not).append("=").append(iriFromAlias(where.getIs()))
 				.append(")\n");
+
 		}
 		else if (where.getIn()!=null){
 			List<TTAlias> in= where.getIn();
@@ -412,6 +421,8 @@ public class SparqlConverter {
 			o++;
 			whereQl.append("?").append(object).append(" im:isA ?").append("supertype").append(o).append(".\n");
 			whereQl.append("Filter (?supertype").append(o).append(not).append("=").append(iriFromAlias(is)).append(")\n");
+			if (is.isExcludeSelf())
+				whereQl.append("Filter (?").append(object).append("!=").append(iriFromAlias(is)).append(")\n");
 		}
 		else if (is.isIncludeSupertypes()){
 			o++;
@@ -506,6 +517,8 @@ public class SparqlConverter {
 						return ((Integer) queryRequest.getArgument().get(value)).toString();
 					else if (result instanceof Number)
 						return String.valueOf(queryRequest.getArgument().get(value));
+					else if (result instanceof TTIriRef)
+						return ((TTIriRef) result).getIri();
 					else
 						return (String) queryRequest.getArgument().get(value);
 				} else

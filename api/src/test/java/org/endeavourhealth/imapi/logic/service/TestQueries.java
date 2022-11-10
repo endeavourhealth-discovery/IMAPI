@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -62,6 +63,26 @@ public class TestQueries {
 					.setIs(IM.NAMESPACE+"dateOfBirth")));
 		return new QueryRequest().setQuery(query);
 	}
+
+	public static  QueryRequest statuses(){
+		Query query= new Query()
+			.setName("Status subset")
+			.from(s->s
+				.setIri(IM.NAMESPACE+"Status")
+				.setIncludeSubtypes(true)
+				.setExcludeSelf(true));
+		return new QueryRequest().setQuery(query);
+	}
+
+	public static  QueryRequest statuses2(){
+		Query query= new Query();
+		query.setIri(IM.NAMESPACE+"Query_GetIsas");
+		QueryRequest qr= new QueryRequest();
+		qr.setQuery(query);
+		qr.addArgument("this", TTIriRef.iri(IM.NAMESPACE+"Status"));
+		return qr;
+	}
+
 
 
 	public  static QueryRequest query4() {

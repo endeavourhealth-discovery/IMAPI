@@ -3,33 +3,33 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.maps.GraphMap;
+import org.endeavourhealth.imapi.model.maps.EntityMap;
 import org.endeavourhealth.imapi.model.maps.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.MAP;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 class TransformServiceTest {
 
-	//@Test
+	@Test
 	void transform() throws Exception {
-		//Creates an example transform map
-		GraphMap map= TestMaps.fhirDstu2();
+		//Creates an example transform map and adds to ebntity cache
+		TestMaps.fhirDstu2();
 
 		//Adds map to the IM cache so it can be accessed by the service
-		TTEntity mapEntity= new TTEntity();
-		mapEntity.setIri(map.getIri());
-		mapEntity.set(IM.DEFINITION, TTLiteral.literal(map));
-		EntityCache.addEntity(mapEntity);
+		TTEntity mapEntity= EntityCache.getEntity(MAP.NAMESPACE+"FHIR_2_PatientToIM").getEntity();
+		EntityMap map= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(EntityMap.class);
+		System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(map));
 
 		//Create transform request;
 		TransformRequest request= new TransformRequest();
-		request.setTransformMap(TTIriRef.iri(map.getIri()));
+		request.setTransformMap(TTIriRef.iri(mapEntity.getIri()));
 		request.setSourceFormat("JSON");
 		request.setTargetFormat("JSON-LD");
 

@@ -45,11 +45,16 @@ class SearchServiceTest {
 		testDefinitions= System.getenv("testDefinitions");
 		testResults= System.getenv("testResults");
 		testSparql = System.getenv("testSparql");
+		QueryRequest qr= TestQueries.statuses2();
+		output(qr);
 
+		/*
 		for (QueryRequest qr: List.of(TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr);
 		}
+
+		 */
 
 	}
 
@@ -57,7 +62,10 @@ class SearchServiceTest {
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException {
 		
 		String name= dataSet.getQuery().getName();
-		name= name.replaceAll(" ","").replaceAll("\\(","").replaceAll("\\)","");
+		if (name!=null)
+			name= name.replaceAll(" ","").replaceAll("\\(","").replaceAll("\\)","");
+		else
+			name="unnamed query";
 		SearchService searchService = new SearchService();
 		System.out.println("Testing "+ name);
 		try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "x.json")) {
@@ -67,12 +75,12 @@ class SearchServiceTest {
 
 		QueryRequest redo= om.readValue(dataSet.getJson(),QueryRequest.class);
 
-		SparqlConverter converter= new SparqlConverter(dataSet);
+		//SparqlConverter converter= new SparqlConverter(dataSet);
 
-		String spq= converter.getSelectSparql();
-		try (FileWriter wr = new FileWriter(testSparql+"\\" + name + "_result.json")) {
-			wr.write(spq);
-		}
+		//String spq= converter.getSelectSparql();
+		//try (FileWriter wr = new FileWriter(testSparql+"\\" + name + "_result.json")) {
+		//	wr.write(spq);
+		//}
 
 		TTDocument result = searchService.queryIM(dataSet);
 		try (FileWriter wr = new FileWriter(testResults+"\\" + name + "_result.json")) {

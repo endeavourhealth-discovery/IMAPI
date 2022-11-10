@@ -1,20 +1,18 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.maps.GraphMap;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.maps.EntityMap;
 import org.endeavourhealth.imapi.model.maps.SourceTargetMap;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTVariable;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
 
 public class TestMaps {
-	public static GraphMap fhirDstu2(){
-		GraphMap graphMap = new GraphMap();
-		graphMap.setIri(MAP.NAMESPACE+"FHIR_2_ToIM")
-			.setName("Transform graph map FHIR DSTU2 to IM")
-			.setDescription("Maps FHIR DSTU2 with Discovery extensions to IM conformant resources");
+	public static EntityMap fhirDstu2() throws JsonProcessingException {
 
 		TTEntity patientMapEntity= new TTEntity();
 		patientMapEntity
@@ -22,18 +20,16 @@ public class TestMaps {
 			.setName("FHIR DSTU2 Patient to IM Patient transformMap")
 			.setDescription("Maps a FHIR DSTU2 Patient resource to IM Patient entity");
 		EntityMap patientMap = new EntityMap();
-		patientMapEntity.set(IM.DEFINITION, patientMap);
 		patientMap
+			.setIri(patientMapEntity.getIri())
 			.setSource(new TTVariable()
 				.setIri(FHIR.DSTU2+"Patient")
-				.setVariable("fhirPatient"));
-		SourceTargetMap sourceTargetMap = new SourceTargetMap();
-		patientMap.setSubjectMap(sourceTargetMap);
-		sourceTargetMap.
-			setTargetEntity(new TTVariable()
-			.setIri(IM.NAMESPACE+"Patient")
-			.setVariable("imPatient"))
-			.setTargetPath(IM.IRI)
+				.setVariable("fhirPatient"))
+			.addTarget(new TTVariable()
+				.setIri(IM.NAMESPACE+"Patient")
+			.setVariable("imPatient"));
+		patientMap.propertyMap(pm->pm
+			.setTargetEntity(new TTVariable())
 			.sourcePath(sp-> sp
 				.setPath("id")
 				.setVariable("fhirId"))
@@ -42,7 +38,7 @@ public class TestMaps {
 				.argument(a->a
 					.setValueData("urn:uuid"))
 				.argument(a->a
-					.setValueVariable("fhirId")));
+					.setValueVariable("fhirId"))));
 
 		patientMap.propertyMap(pm->pm
 			.sourcePath(sp->sp
@@ -79,6 +75,8 @@ public class TestMaps {
 										.argument(a->a
 											.setParameter("elements")
 											.setValueVariable("forenames"))))));
-			return graphMap;
+		patientMapEntity.set(IM.DEFINITION, TTLiteral.literal(patientMap));
+		EntityCache.addEntity(patientMapEntity);
+			return patientMap;
 	}
 }

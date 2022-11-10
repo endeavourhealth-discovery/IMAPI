@@ -80,12 +80,14 @@ public class QueryRepository {
     private Query unpackQuery(Query query, RepositoryConnection conn) throws JsonProcessingException, DataFormatException {
         if (null == query.getSelect()) {
             if (null == query.getWhere()) {
-                if (null == query.getIri()) {
-                    throw new DataFormatException("No query iri or body in request");
-                } else {
-                    TTEntity entity = getEntity(query.getIri(), conn);
-                    try (CachedObjectMapper om = new CachedObjectMapper()) {
-                        return om.readValue(entity.get(IM.DEFINITION).asLiteral().getValue(), Query.class);
+                if (null == query.getFrom()) {
+                    if (null == query.getIri()) {
+                        throw new DataFormatException("No query iri or body in request");
+                    } else {
+                        TTEntity entity = getEntity(query.getIri(), conn);
+                        try (CachedObjectMapper om = new CachedObjectMapper()) {
+                            return om.readValue(entity.get(IM.DEFINITION).asLiteral().getValue(), Query.class);
+                        }
                     }
                 }
             }

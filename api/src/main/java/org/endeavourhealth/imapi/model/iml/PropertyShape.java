@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri","label","comment","name","order","minCount","maxCount","componentType","path","dataType","class","node",
-"function","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue"})
+"function","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue","forceIsValue", "builderChild"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
 	private String label;
@@ -38,6 +38,16 @@ public class PropertyShape {
 	private List<TTIriRef> select;
 	private Boolean builderChild;
 	private NodeShape expression;
+	private Boolean forceIsValue;
+
+	public Boolean getForceIsValue() {
+		return forceIsValue;
+	}
+
+	public PropertyShape setForceIsValue(Boolean forceIsValue) {
+		this.forceIsValue = forceIsValue;
+		return this;
+	}
 
 	public String getValidationErrorMessage() {
 		return validationErrorMessage;

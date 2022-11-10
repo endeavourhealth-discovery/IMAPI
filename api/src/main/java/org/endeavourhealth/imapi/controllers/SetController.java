@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.http.*;
@@ -23,7 +24,7 @@ import java.util.zip.DataFormatException;
 @RestController
 @RequestMapping("api/set")
 @CrossOrigin(origins = "*")
-@Tag(name="SetController")
+@Tag(name = "SetController")
 @RequestScope
 public class SetController {
 
@@ -33,8 +34,8 @@ public class SetController {
 
     @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
     @Operation(
-        summary = "Evaluate ECL",
-        description = "Evaluates an query"
+            summary = "Evaluate ECL",
+            description = "Evaluates an query"
     )
     public Set<Concept> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
         try {
@@ -44,18 +45,18 @@ public class SetController {
         }
     }
 
-    @PostMapping(value="/public/eclSearch", consumes="text/plain", produces="application/json")
+    @PostMapping(value = "/public/eclSearch", consumes = "text/plain", produces = "application/json")
     @Operation(
-        summary="ECL search",
-        description="Search entities using ECL string"
+            summary = "ECL search",
+            description = "Search entities using ECL string"
     )
     public SearchResponse eclSearch(
-            @RequestParam(name="includeLegacy", defaultValue="false") boolean includeLegacy,
-            @RequestParam(name="limit", required = false) Integer limit,
+            @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy,
+            @RequestParam(name = "limit", required = false) Integer limit,
             @RequestBody String ecl
-    ) throws DataFormatException, EclFormatException,JsonProcessingException {
+    ) throws DataFormatException, EclFormatException, JsonProcessingException {
         try {
-            return new SetService().eclSearch(includeLegacy,limit,ecl);
+            return setService.eclSearch(includeLegacy, limit, ecl);
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
@@ -63,14 +64,40 @@ public class SetController {
 
     @GetMapping(value = "/publish")
     @Operation(
-        summary = "Publish set",
-        description = "Publishes an expanded set to IM1"
+            summary = "Publish set",
+            description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
     public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException {
         setExporter.publishSetToIM1(iri);
     }
 
+    @GetMapping(value = "/public/ecl/query")
+    @Operation(
+            summary = "Get query from ecl",
+            description = "Transform ecl to an IM query"
+    )
+    public Query getQueryFromECL(@RequestParam(name = "ecl") String ecl) throws DataFormatException {
+        return setService.getQueryFromECL(ecl);
+    }
+
+    @PostMapping(value = "/public/query/ecl")
+    @Operation(
+            summary = "Get ecl from query",
+            description = "Transform an IM query to ecl"
+    )
+    public String getECLFromQuery(@RequestBody Query query) throws DataFormatException {
+        return setService.getECLFromQuery(query);
+    }
+
+    @GetMapping(value = "/public/ecl/validity")
+    @Operation(
+            summary = "Validate ecl",
+            description = "Return validity of ecl string"
+    )
+    public boolean isValidECL(@RequestParam(name = "ecl") String ecl) {
+        return setService.validateECL(ecl);
+    }
 
     @GetMapping(value = "/public/export")
     @Operation(

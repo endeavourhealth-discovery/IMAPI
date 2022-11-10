@@ -66,7 +66,9 @@ public class ExcelSetExporter {
             entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();
 
         String ecl = getEcl(entity);
-        addDefinitionToWorkbook(ecl);
+        if(ecl != null) {
+            addDefinitionToWorkbook(ecl);
+        }
 
         if (core || legacy) {
             Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy);

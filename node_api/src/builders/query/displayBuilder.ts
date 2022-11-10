@@ -69,7 +69,7 @@ function isPrimitiveType(object: any) {
 function isIri(object: any) {
   if (typeof object === "string") {
     object = object as string;
-    return object.startsWith("http://") || object.startsWith("http://");
+    return object.startsWith("http://") || object.startsWith("https://");
   }
   return false;
 }

@@ -47,14 +47,16 @@ public class TTCompare {
 			return false;
 		if (from != null && from.size()!=to.size())
 			return false;
-		for (TTValue fromVal:from.getElements()){
-			boolean found=false;
-			for (TTValue toVal:to.getElements()){
-				if (equals(fromVal,toVal))
-					found=true;
+		if (from != null) {
+			for (TTValue fromVal:from.getElements()){
+				boolean found=false;
+				for (TTValue toVal:to.getElements()){
+					if (equals(fromVal,toVal))
+						found=true;
+				}
+				if (!found)
+					return false;
 			}
-			if (!found)
-				return false;
 		}
 		return true;
 	}

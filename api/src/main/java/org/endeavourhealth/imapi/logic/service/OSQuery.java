@@ -272,6 +272,7 @@ public class OSQuery {
         try {
             return runQuery(request, bld);
         } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
             throw new InterruptedException("failure to run open search query due to :" + ie.getMessage());
         }
     }

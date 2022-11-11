@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.SearchService;
-import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.slf4j.Logger;
@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 @RestController
@@ -44,7 +46,7 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a generic query on IM"
     )
-    public TTDocument queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+    public TTDocument queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
         LOG.debug("queryIM");
         return searchService.queryIM(queryRequest);
     }

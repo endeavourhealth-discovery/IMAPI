@@ -55,27 +55,27 @@ public class OSQuery {
     }
 
 
-    public List<SearchResultSummary> codeIriQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary> codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildCodeIriQuery(request);
         return wrapandRun(qry, request);
     }
 
-    public List<SearchResultSummary> termQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary> termQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildTermQuery(request);
         return wrapandRun(qry, request);
     }
 
-    public List<SearchResultSummary> boolQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary> boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildBoolQuery(request);
         return wrapandRun(qry, request);
     }
 
-    public List<SearchResultSummary> iriTermQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary> iriTermQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildIriTermQuery(request);
         return wrapandRun(qry, request);
     }
 
-    public List<SearchResultSummary> multiWordQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary> multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         QueryBuilder qry = buildMultiWordQuery(request);
         return wrapandRun(qry, request);
     }
@@ -90,7 +90,7 @@ public class OSQuery {
      * @return search request object
      * @throws DataFormatException if problem with data format of query
      */
-    public List<SearchResultSummary>  multiPhaseQuery(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary>  multiPhaseQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
 
         String term = request.getTermFilter();
         int page = request.getPage();
@@ -231,7 +231,7 @@ public class OSQuery {
 
     }
 
-    private List<SearchResultSummary> wrapandRun(QueryBuilder qry, SearchRequest request) throws DataFormatException {
+    private List<SearchResultSummary> wrapandRun(QueryBuilder qry, SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         if (request.getIndex() == null)
             request.setIndex("concept");
 
@@ -271,8 +271,8 @@ public class OSQuery {
 
         try {
             return runQuery(request, bld);
-        } catch (Exception e) {
-            throw new DataFormatException("failure to run open search query due to :" + e.getMessage());
+        } catch (InterruptedException ie) {
+            throw new InterruptedException("failure to run open search query due to :" + ie.getMessage());
         }
     }
 
@@ -380,7 +380,7 @@ public class OSQuery {
      * @throws DataFormatException if content of query definition is invalid
      */
 
-    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws DataFormatException {
+    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         if (queryRequest.getTextSearch() == null)
             return null;
         Query query = queryRequest.getQuery();

@@ -14,6 +14,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.OSQuery;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.iml.Select;
@@ -24,8 +25,10 @@ import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -49,7 +52,7 @@ public class QueryRepository {
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+    public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             unpackQueryRequest(queryRequest, conn);

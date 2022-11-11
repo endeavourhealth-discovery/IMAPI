@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.SparqlConverter;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -15,8 +17,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
 class SearchServiceTest {
@@ -27,7 +31,7 @@ class SearchServiceTest {
 
 
 	//@Test
-	void runOS() throws DataFormatException {
+	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
 		SearchRequest request= new SearchRequest();
 		request.setIndex("david");
 		request.setTermFilter("hospital admission");
@@ -41,7 +45,7 @@ class SearchServiceTest {
 	}
 
 	//@Test
-	void queryIM() throws DataFormatException, IOException {
+	void queryIM() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		testDefinitions= System.getenv("testDefinitions");
 		testResults= System.getenv("testResults");
 		testSparql = System.getenv("testSparql");
@@ -59,7 +63,7 @@ class SearchServiceTest {
 	}
 
 
-	private void output(QueryRequest dataSet) throws IOException, DataFormatException {
+	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		
 		String name= dataSet.getQuery().getName();
 		if (name!=null)

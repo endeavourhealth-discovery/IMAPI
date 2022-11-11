@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
@@ -34,7 +35,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -295,7 +298,7 @@ public class EntityService {
         return entityTripleRepository.getCountOfActiveSubjectByObjectExcludeByPredicate(iri, RDFS.SUBCLASSOF.getIri());
     }
 
-    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws DataFormatException {
+    public List<SearchResultSummary> advancedSearch(SearchRequest request) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         return searchService.getEntitiesByTerm(request);
     }
 

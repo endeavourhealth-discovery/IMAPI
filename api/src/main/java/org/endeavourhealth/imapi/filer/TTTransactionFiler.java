@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.filer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;

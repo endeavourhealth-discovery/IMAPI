@@ -65,7 +65,7 @@ public class TransformService {
 			}
 
 		}
-		return null;
+		return Collections.emptySet();
 	}
 
 

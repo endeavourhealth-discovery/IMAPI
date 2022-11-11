@@ -15,14 +15,11 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FilerService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FilerService.class);
     private final TTDocumentFiler documentFiler = new TTDocumentFilerRdf4j();
     private final TTEntityFiler entityFiler = new TTEntityFilerRdf4j();
     private final TTEntityFiler entityProvFiler = entityFiler;

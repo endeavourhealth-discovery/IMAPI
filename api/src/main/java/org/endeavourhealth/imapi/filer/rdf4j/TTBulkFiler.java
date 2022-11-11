@@ -32,22 +32,22 @@ public class TTBulkFiler  extends TTDocumentFiler {
 	private FileWriter coreIris;
 	private static int privacyLevel=0;
 	private static int statementCount;
-	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
+	private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
 
 	@Override
-	protected void startTransaction() throws TTFilerException {
-
+	protected void startTransaction() {
+		// Do nothing
 	}
 
 	@Override
-	protected void commit() throws TTFilerException {
-
+	protected void commit() {
+		// Do nothing
 	}
 
 	@Override
 	protected void rollback() {
+		// Do nothing
 	}
-
 
 	public void fileDocument(TTDocument document) throws TTFilerException {
 		if (document.getEntities() == null)
@@ -91,9 +91,8 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				for (TTEntity entity : document.getEntities()) {
 					counter++;
 					String entityGraph= entity.getGraph()!=null ? entity.getGraph().getIri() : graph;
-					if (entity.get(IM.PRIVACY_LEVEL)!=null)
-						if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>getPrivacyLevel())
-							continue;
+					if (entity.get(IM.PRIVACY_LEVEL)!=null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > getPrivacyLevel()))
+						continue;
 
 				//	if (entity.getIri().equals("http://endhealth.info/emis#_ESCTMA381305"))
 				//		System.out.println(entity.getIri());
@@ -146,9 +145,8 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
 	private void addTerms(TTEntity entity, String graph) throws IOException {
 		boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
-		if (isCoreGraph)
-			if (entity.getName()!=null)
-				coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
+		if (isCoreGraph && entity.getName()!=null)
+			coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
 	}
 
 	private void addSubtypes(TTEntity entity) throws IOException {
@@ -234,34 +232,32 @@ public class TTBulkFiler  extends TTDocumentFiler {
  public static void createRepository() throws TTFilerException {
 	 LOG.info("Fast import of {} quad data", new Date());
 	 String pathDelimiter = "/";
-		try {
-				String config = configTTl;
-				String data = dataPath;
-				String preloadPath =preload;
-				String command=  "importrdf preload -c "+config+"\\config.ttl --force -q "+data+" "+data+"\\BulkImport*.nq";
-				Process process = Runtime.getRuntime()
-					.exec("cmd /c " + command,
-						null, new File(preloadPath));
-				BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				String line;
-				while (true) {
-					line = r.readLine();
-					if (line == null) {
-						break;
-					}
-					System.out.println(line);
-				}
-			File directory= new File(data + pathDelimiter);
-			for(File file: Objects.requireNonNull(directory.listFiles())) {
-				if (!file.isDirectory())
-				if(!file.delete()){
-				LOG.error("File delete failed");
-				}
-			}
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new TTFilerException(e.getMessage());
-		}
+	 try {
+		 String config = configTTl;
+		 String data = dataPath;
+		 String preloadPath = preload;
+		 String command = "importrdf preload -c " + config + "\\config.ttl --force -q " + data + " " + data + "\\BulkImport*.nq";
+		 Process process = Runtime.getRuntime()
+				 .exec("cmd /c " + command,
+						 null, new File(preloadPath));
+		 BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		 String line;
+		 while (true) {
+			 line = r.readLine();
+			 if (line == null) {
+				 break;
+			 }
+			 System.out.println(line);
+		 }
+		 File directory = new File(data + pathDelimiter);
+		 for (File file : Objects.requireNonNull(directory.listFiles())) {
+			 if (!file.isDirectory() && !file.delete())
+				 LOG.error("File delete failed");
+		 }
+	 } catch (IOException e) {
+		 e.printStackTrace();
+		 throw new TTFilerException(e.getMessage());
+	 }
  }
 
 

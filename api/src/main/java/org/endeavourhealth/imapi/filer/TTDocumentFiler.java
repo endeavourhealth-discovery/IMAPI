@@ -48,7 +48,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
     public void fileInsideTraction(TTDocument document) throws TTFilerException {
         LOG.info("Filing entities.... ");
         int i = 0;
-        entitiesFiled= new HashSet<>();
+        entitiesFiled = new HashSet<>();
         for (TTEntity entity : document.getEntities()) {
             if (entity.getCrud() == null) {
                 if (document.getCrud() == null) {
@@ -58,19 +58,18 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                 }
             }
 
-            TTIriRef entityGraph= entity.getGraph();
-            if (entityGraph==null)
-                entityGraph= document.getGraph();
-            if (document.getGraph()==null)
+            TTIriRef entityGraph = entity.getGraph();
+            if (entityGraph == null)
+                entityGraph = document.getGraph();
+            if (document.getGraph() == null)
                 document.setGraph(entity.getGraph());
-            if (entity.get(IM.PRIVACY_LEVEL)!=null)
-                if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
-                            continue;
-                fileEntity(entity, entityGraph);
-                entitiesFiled.add(entity.getIri());
-                i++;
-                if (i %100== 0)
-                 LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(),entityGraph.getIri());
+            if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+                continue;
+            fileEntity(entity, entityGraph);
+            entitiesFiled.add(entity.getIri());
+            i++;
+            if (i % 100 == 0)
+                LOG.info("Filed {}  entities in transaction from {} in graph {}", i, document.getEntities().size(), entityGraph.getIri());
 
         }
         updateTct(document);
@@ -97,10 +96,9 @@ public abstract class TTDocumentFiler implements AutoCloseable {
             if (document.getEntities() != null) {
                 int i = 0;
                 for (TTEntity entity : document.getEntities()) {
-                    TTIriRef entityGraph= entity.getGraph()!=null ?entity.getGraph() : graph;
-                    if (entity.get(IM.PRIVACY_LEVEL)!=null)
-                        if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>TTFilerFactory.getPrivacyLevel())
-                            continue;
+                    TTIriRef entityGraph = entity.getGraph() != null ? entity.getGraph() : graph;
+                    if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+                        continue;
                     if (entity.getCrud() == null) {
                         if (document.getCrud() == null) {
                             entity.setCrud(IM.UPDATE_ALL);
@@ -111,7 +109,7 @@ public abstract class TTDocumentFiler implements AutoCloseable {
                     fileEntity(entity, entityGraph);
                     i++;
                     if (i % 10000 == 0) {
-                        LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(),document.getGraph().getIri());
+                        LOG.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), document.getGraph().getIri());
                         commit();
                         startTransaction();
                     }

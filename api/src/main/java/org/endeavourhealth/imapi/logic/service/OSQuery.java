@@ -345,19 +345,16 @@ public class OSQuery {
             return;
         if (searchResult.getName().toLowerCase().startsWith(searchTerm.toLowerCase()))
             return;
-        if (searchResult.getCode() != null)
-            if (searchResult.getCode().equals(searchTerm))
-                return;
+        if (searchResult.getCode() != null && searchResult.getCode().equals(searchTerm))
+            return;
         searchTerm = searchTerm.toLowerCase();
         if (searchResult.getTermCode() != null) {
             for (SearchTermCode tc : searchResult.getTermCode()) {
                 TTIriRef status = tc.getStatus();
                 if ((status != null) && (!(status.equals(IM.INACTIVE)))) {
-                    if (tc.getTerm() != null) {
-                        if (tc.getTerm().toLowerCase().startsWith(searchTerm)) {
-                            searchResult.setMatch(tc.getTerm());
-                            break;
-                        }
+                    if (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm)) {
+                        searchResult.setMatch(tc.getTerm());
+                        break;
                     }
                 }
             }
@@ -388,10 +385,8 @@ public class OSQuery {
 
         if (query.getSelect() != null) {
             for (Select select : query.getSelect()) {
-                if (select.getProperty().getIri() != null) {
-                    if (!propIsSupported(select.getProperty().getIri()))
-                        return null;
-                }
+                if (select.getProperty().getIri() != null && !propIsSupported(select.getProperty().getIri()))
+                    return null;
                 if (select.getSelect() != null)
                     return null;
             }
@@ -403,9 +398,8 @@ public class OSQuery {
                     return null;
             }
         }
-        if (query.getFrom()!=null){
-            if (!validateFrom(query.getFrom()))
-                return null;
+        if (query.getFrom()!=null && !validateFrom(query.getFrom())){
+            return null;
         }
        SearchRequest searchRequest= convertIMToOS(queryRequest);
        List<SearchResultSummary> results= multiPhaseQuery(searchRequest);
@@ -425,9 +419,8 @@ public class OSQuery {
     }
 
     private boolean validateWhere(Where where){
-        if (where.getProperty()!=null){
-            if (!propIsSupported(where.getProperty().getIri()))
-                return false;
+        if (where.getProperty()!=null && !propIsSupported(where.getProperty().getIri())){
+            return false;
         }
         if (where.getAnd()!=null){
             for (Where and:where.getAnd())

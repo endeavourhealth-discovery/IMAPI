@@ -21,7 +21,7 @@ ext {
             rdf4j               : '4.1.1',
             reactor             : '3.5.0',
             slf4j               : '1.7.32',
-            spring              : '2.5.12',
+            spring              : '2.7.5',
             springContext       : '5.3.18',
             springdoc           : '1.3.3',
             springStatemachine  : '3.0.0',

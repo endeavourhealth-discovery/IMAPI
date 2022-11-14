@@ -9,7 +9,7 @@ ext {
             elasticSearch       : '7.16.3',
             factPlusPlus        : '1.6.5',
             grpc                : '1.49.0',
-            h2                  : '1.4.200',
+            h2                  : '2.1.214',
             jackson             : '2.11.4',
             jersey              : '2.25.1',
             junit               : '5.8.1',

@@ -121,7 +121,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				LOG.debug(counter + "Document written to file");
 				LOG.info("Finished - total of {} statements,  {}", statementCount,new Date());
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOG.error(e.getMessage());
 				throw new TTFilerException(e.getMessage());
 			} finally {
 				quads.close();
@@ -137,7 +137,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				coreIris.close();
 			}
 		} catch (Exception e)  {
-		e.printStackTrace();
+		LOG.error(e.getMessage());
 		throw new TTFilerException("Unable to bulk file");
 	}
 
@@ -255,7 +255,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				 LOG.error("File delete failed");
 		 }
 	 } catch (IOException e) {
-		 e.printStackTrace();
+		 LOG.error(e.getMessage());
 		 throw new TTFilerException(e.getMessage());
 	 }
  }

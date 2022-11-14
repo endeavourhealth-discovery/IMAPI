@@ -9,6 +9,8 @@ import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,8 @@ public class TTManager implements AutoCloseable {
    private TTDocument document;
    private TTContext context;
    private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP};
+
+    private static final Logger LOG = LoggerFactory.getLogger(TTManager.class);
 
    public enum Grammar {JSON,TURTLE}
 
@@ -210,7 +214,7 @@ public class TTManager implements AutoCloseable {
            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile,StandardCharsets.UTF_8))) {
                writer.write(json);
            } catch (Exception e) {
-               e.printStackTrace();
+               LOG.error(e.getMessage());
            }
        }
    }
@@ -239,7 +243,7 @@ public class TTManager implements AutoCloseable {
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, StandardCharsets.UTF_8))) {
          writer.write(outputString);
       } catch (Exception e) {
-         e.printStackTrace();
+         LOG.error(e.getMessage());
       }
    }
 
@@ -260,7 +264,7 @@ public class TTManager implements AutoCloseable {
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
          writer.write(ttl);
       } catch (Exception e) {
-         e.printStackTrace();
+         LOG.error(e.getMessage());
       }
 
    }

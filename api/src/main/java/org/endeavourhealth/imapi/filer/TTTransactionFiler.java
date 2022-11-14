@@ -131,7 +131,7 @@ public class TTTransactionFiler {
                    writeLog(document);
                 filer.commit();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage());
                 filer.rollback();
             }
         }

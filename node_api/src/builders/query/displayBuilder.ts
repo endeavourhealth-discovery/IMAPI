@@ -23,8 +23,9 @@ export async function buildQueryDisplayFromQuery(queryAPI: any) {
 }
 
 export function buildQueryDisplay(label: string, type?: any, value?: any, selectable?: boolean): QueryDisplay {
+  const crypto = require('crypto');
   return {
-    key: Math.floor(Math.random() * 9999999999999999),
+    key: Math.floor(crypto.randomBytes(1) * 9999999999999999),
     label: getLabelFromKey(label),
     type: type,
     value: value,

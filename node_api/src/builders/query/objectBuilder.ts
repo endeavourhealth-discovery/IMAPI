@@ -1,5 +1,5 @@
-import { QueryObject } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Vocabulary, Helpers } from "im-library/dist/api";
+import {QueryObject} from "im-library/dist/types/interfaces/Interfaces";
+import {Enums, Helpers, Vocabulary} from "im-library/dist/api";
 import axios from "axios";
 import EntityService from "@/services/entity.service";
 
@@ -23,15 +23,15 @@ export function buildQueryObjectFromQuery(queryAPI: any) {
 }
 
 export function buildQueryObject(label: string, queryAPIObject: any) {
-  const queryObject = {
-    key: Math.floor(Math.random() * 9999999999999999),
+  const crypto = require('crypto');
+  return {
+    key: Math.floor(crypto.randomBytes(1) * 9999999999999999),
     label: label,
     // type: { firstType: "org.endeavourhealth.imapi.model.tripletree.TTIriRef" },
     // value: { "@id": selected.value["@id"], name: selected.value.name },
     children: [] as QueryObject[],
     selectable: true
   } as QueryObject;
-  return queryObject;
 }
 
 function buildRecursively(queryAPI: any, queryUI: QueryObject) {

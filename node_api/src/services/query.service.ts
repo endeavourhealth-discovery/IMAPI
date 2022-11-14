@@ -22,42 +22,11 @@ export default class QueryService {
 
   public async getAllowableRangeSuggestions(iri: string, searchTerm?: string) {
     const allowableRangesQuery = {
+      query: {
+        "@id": "http://endhealth.info/im#Query_AllowableRanges"
+      },
       argument: {
         this: iri
-      },
-      query: {
-        name: "Allowable Ranges for a property",
-        description: "'using property domains get the allowable properties from the supertypes of this concept",
-        from: [
-          {
-            "@id": "http://endhealth.info/im#Concept",
-            isType: true
-          }
-        ],
-        where: {
-          property: {
-            inverse: true,
-            "@id": "http://www.w3.org/2000/01/rdf-schema#range"
-          },
-          is: {
-            variable: "$this",
-            includeSupertypes: true,
-            includeSubtypes: true
-          }
-        },
-        select: [
-          {
-            property: {
-              "@id": "http://endhealth.info/im#code"
-            }
-          },
-          {
-            property: {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
-          }
-        ],
-        activeOnly: true
       }
     } as QueryRequest;
     const subtypesQuery = {
@@ -103,49 +72,22 @@ export default class QueryService {
   }
 
   public async getAllowablePropertySuggestions(iri: string, searchTerm?: string) {
-    const query = {
+    const queryRequest = {
+      query: {
+        "@id": "http://endhealth.info/im#Query_AllowableProperties"
+      },
       argument: {
         this: iri
-      },
-      query: {
-        name: "Allowable Properties for a concept",
-        description: "'using property domains get the allowable properties from the supertypes of this concept",
-        from: [
-          {
-            "@id": "http://endhealth.info/im#Concept",
-            isType: true
-          }
-        ],
-        where: {
-          property: {
-            "@id": "http://www.w3.org/2000/01/rdf-schema#domain"
-          },
-          is: {
-            variable: "$this",
-            includeSupertypes: true
-          }
-        },
-        select: [
-          {
-            property: {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
-          },
-          {
-            property: {
-              "@id": "http://endhealth.info/im#code"
-            }
-          }
-        ],
-        activeOnly: true
       }
     } as QueryRequest;
+
+    if (searchTerm) {
+      queryRequest.textSearch = searchTerm;
+    }
+
     let suggestions = [] as any[];
     try {
-      if (searchTerm) {
-        query.textSearch = searchTerm;
-      }
-      suggestions = (await this.queryIM(query)).entities;
+      suggestions = (await this.queryIM(queryRequest)).entities;
       return this.convertTTEntitiesToTTIriRefs(suggestions);
     } catch (error) {
       return suggestions;

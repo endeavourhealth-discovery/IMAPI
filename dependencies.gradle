@@ -15,7 +15,7 @@ ext {
             junit               : '5.8.1',
             junitRunner         : '1.9.1',
             logback             : '1.2.6',
-            lombok              : '1.18.22',
+            lombok              : '1.18.24',
             mockito             : '3.9.0',
             owlApi              : '5.1.20',
             rdf4j               : '4.1.1',

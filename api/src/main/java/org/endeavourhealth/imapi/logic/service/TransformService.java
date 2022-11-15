@@ -1,18 +1,19 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.maps.EntityMap;
-import org.endeavourhealth.imapi.model.maps.TransformRequest;
-
-import java.util.*;
-import java.util.zip.DataFormatException;
-
+import org.endeavourhealth.imapi.model.iml.DataMap;
+import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transformengine.Transformer;
 import org.endeavourhealth.imapi.vocabulary.IM;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.DataFormatException;
 
 public class TransformService {
 	/**
@@ -36,16 +37,16 @@ public class TransformService {
 			}
 		else {
 			//Must be entity map
-			EntityMap entityMap= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(EntityMap.class);
-			return transformEntities(request,entityMap);
+			DataMap dataMap = mapEntity.get(IM.DEFINITION).asLiteral().objectValue(DataMap.class);
+			return transformEntities(request, dataMap);
 			}
 		}
 
-	private Set<Object> transformEntities(TransformRequest request, EntityMap entityMap) throws Exception {
-		Transformer transform = new Transformer(entityMap,request.getSourceFormat(),request.getTargetFormat());
+	private Set<Object> transformEntities(TransformRequest request, DataMap dataMap) throws Exception {
+		Transformer transform = new Transformer(dataMap,request.getSourceFormat(),request.getTargetFormat());
 		//Look for the typed source data (String iri, object list) to transform
 		for (String sourceIri: request.getSource().keySet()){
-				if (entityMap.getSource().getIri().equals(sourceIri))
+				if (dataMap.getSource().getIri().equals(sourceIri))
 					 return transform.transform(request.getSource().get(sourceIri));
 				}
 		throw new DataFormatException("Source types do not match with the entity map ");
@@ -55,11 +56,11 @@ public class TransformService {
 	private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws Exception{
 		for (TTValue map:graphMapEntity.get(IM.ENTITY_MAP).getElements()){
 			TTEntity mapEntity= EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
-			EntityMap entityMap= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(EntityMap.class);
+			DataMap dataMap = mapEntity.get(IM.DEFINITION).asLiteral().objectValue(DataMap.class);
 			//Matches the entity map with the typed source map
 			for (String source:request.getSource().keySet()){
-				if (source.equals(entityMap.getSource().getIri())){
-					Transformer transformer= new Transformer(entityMap,request.getSourceFormat(),request.getTargetFormat());
+				if (source.equals(dataMap.getSource().getIri())){
+					Transformer transformer= new Transformer(dataMap,request.getSourceFormat(),request.getTargetFormat());
 					return transformer.transform(request.getSource().get(source));
 				}
 			}

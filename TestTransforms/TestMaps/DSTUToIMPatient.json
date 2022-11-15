@@ -1,0 +1,68 @@
+{
+  "source" : {
+    "@id" : "http://hl7.org/2-0/fhir/StructureDefinition#Patient",
+    "variable" : "fhirPatient"
+  },
+  "rules" : [ {
+    "create" : {
+      "@id" : "http://endhealth.info/im#Patient",
+      "variable" : "imPatient"
+    }
+  }, {
+    "function" : {
+      "@id" : "http://endhealth.info/im#Concatenate",
+      "argument" : [ {
+        "valueData" : "urn:uuid:"
+      }, {
+        "valueVariable" : "fhirId"
+      } ]
+    },
+    "sourceProperty" : "id",
+    "sourceVariable" : "fhirId",
+    "targetProperty" : "@id",
+    "targetVariable" : "imId"
+  }, {
+    "where" : {
+      "path" : "system",
+      "value" : {
+        "value" : "http://fhir.nhs.net/Id/nhs-number"
+      }
+    },
+    "valueMap" : {
+      "rules" : [ {
+        "sourceProperty" : "value",
+        "sourceVariable" : "fhirNhsNumber",
+        "targetProperty" : "nhsNumber"
+      } ]
+    },
+    "sourceProperty" : "identifier"
+  }, {
+    "valueMap" : {
+      "rules" : [ {
+        "sourceProperty" : "family",
+        "targetProperty" : "familyName"
+      }, {
+        "sourceProperty" : "given",
+        "listMode" : "First",
+        "targetProperty" : "callingName"
+      }, {
+        "function" : {
+          "@id" : "http://endhealth.info/im#StringJoin",
+          "argument" : [ {
+            "parameter" : "delimiter",
+            "valueData" : " "
+          }, {
+            "parameter" : "elements",
+            "valueVariable" : "forenames"
+          } ]
+        },
+        "sourceProperty" : "given",
+        "listMode" : "All",
+        "targetProperty" : "forenames"
+      } ]
+    },
+    "sourceProperty" : "name",
+    "sourceVariable" : "fhirName"
+  } ],
+  "@id" : "http://endhealth.info/map#FHIR_2_PatientToIM"
+}

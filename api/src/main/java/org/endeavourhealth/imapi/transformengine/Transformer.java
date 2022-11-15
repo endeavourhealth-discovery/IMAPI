@@ -1,17 +1,10 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.iml.*;
-import org.endeavourhealth.imapi.model.maps.EntityMap;
-import org.endeavourhealth.imapi.model.maps.MapPath;
-import org.endeavourhealth.imapi.model.maps.SourceTargetMap;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.model.iml.MapRule;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 /**
@@ -22,20 +15,24 @@ import java.util.zip.DataFormatException;
  */
 public class Transformer {
 
-	private String sourceFormat;
-	private String targetFormat;
-	private EntityMap entityMap;
-	private Map<String, Set<Object>> typedTargets;
-	private Map<String, String> sourceVarMap;
-	private Map<String,List<Object>> typedResources;
-	private Set<Object> targetObjects;
-	private Map<String,Object> variables= new HashMap<>();
+	private final String sourceFormat;
+	private final String targetFormat;
+	private DataMap dataMap;
+	private Map<String,List<Object>> typeToResources;
+	private final Set<Object> targetObjects= new HashSet<>();
+	private final Map<String,Object> varToObject= new HashMap<>();
 	private Object entitySource;
+	private Object targetObject;
+	private ObjectReader sourceReader;
+	private ObjectFiler targetFiler;
 
-	public Transformer(EntityMap entityMap,String sourceFormat, String targetFormat) {
+	public Transformer(DataMap dataMap, String sourceFormat, String targetFormat) throws DataFormatException {
 		this.sourceFormat= sourceFormat;
 		this.targetFormat= targetFormat;
-		this.entityMap= entityMap;
+		this.dataMap = dataMap;
+		this.sourceReader= TransformFactory.createReader(sourceFormat);
+		this.targetFiler= TransformFactory.createFiler(targetFormat);
+
 	}
 
 	/**
@@ -62,12 +59,12 @@ public class Transformer {
 	 * The same logical source in different formats if the plugins have been developed
 	 *
 	 * @param sources a list of source objects to transform for example, derived from the typed source map from the transform request.
-	 * @param targets a map of type to target object that already exists i.e. to be further populated
+	 * @param target an existing target object passed in i.e. to be further populated
 	 * @return a set of target objects in the target format
 	 */
 
-	public Set<Object> transform(List<Object> sources,Map<String,Object> targets) throws Exception {
-		return transform(sources,null,null);
+	public Set<Object> transform(List<Object> sources,Object target) throws Exception {
+		return transform(sources,target,null);
 	}
 	/**
 	 * Transforms a collection of typed objects to a set of objects.
@@ -81,79 +78,73 @@ public class Transformer {
 	 * @return a set of target objects in the target format
 	 */
 
-	public Set<Object> transform(List<Object> sources, Map<String,Object> targets,Map<String,List<Object>> typedResources) throws DataFormatException, JsonProcessingException {
-		this.typedResources= typedResources;
-		this.targetObjects= new HashSet<>();
+	public Set<Object> transform(List<Object> sources, Object targetObject,Map<String,List<Object>> typedResources) throws DataFormatException, JsonProcessingException {
+
+
 		for (Object sourceObject:sources) {
-			this.entitySource= getObjectFromSource(sourceObject);
-			targetObjects.addAll(transformRules());
+			transformSource(sourceObject, targetObject, typedResources);
+		}
+		return targetObjects;
+
+		}
+
+	public Set<Object> transformSource(Object sourceObject, Object targetObject, Map<String, List<Object>> typedResources) throws DataFormatException, JsonProcessingException {
+		if (targetObject!=null) {
+			this.targetObjects.add(targetObject);
+			this.targetObject = targetObject;
+		}
+		this.entitySource= sourceObject;
+		if (dataMap.getRules()!=null){
+			for (MapRule rule: dataMap.getRules())
+				transformRule(rule);
 		}
 		return targetObjects;
 	}
 
-	private Object getObjectFromSource(Object sourceObject) {
-		if (sourceFormat.equalsIgnoreCase("JSON")){
-			JsonNode node= new ObjectMapper().valueToTree(sourceObject);
-			return node;
+
+
+
+
+
+	private void transformRule(MapRule map) throws DataFormatException, JsonProcessingException {
+		if (map.getCreate()!=null){
+			 this.targetObject= targetFiler.createEntity(map.getCreate().getIri());
+			 targetObjects.add(targetObject);
 		}
-		else
-			throw new RuntimeException("Source object not compatible with source format : "+ sourceFormat+" source= "+ sourceObject.getClass().getName());
-	}
-
-
-	private Set<Object> transformRules() throws DataFormatException, JsonProcessingException {
-		subjectMap();
-		return targetObjects;
-	}
-
-	private void subjectMap() throws DataFormatException, JsonProcessingException {
-		/*
-		Object targetEntity= createEntity(subjectMap.getTargetEntity().getIri());
-		for (MapPath sourcePath:subjectMap.getSourcePaths()){
-			String path= sourcePath.getPath();
-			String variable= sourcePath.getVariable();
-			variables.put(variable,resolvePath(this.entitySource,path));
+		if (map.getSourceProperty()!=null){
+			String path= map.getSourceProperty();
+			String variable= map.getSourceVariable();
+			Where where= map.getWhere();
+			Object sourceValue= sourceReader.getPropertyValue(this.entitySource, path,where);
+			varToObject.put(variable,sourceValue);
 			Object targetValue;
-			if (subjectMap.getFunction()!=null) {
-				targetValue = runFunction(subjectMap.getFunction());
+			if (map.getFunction()!=null) {
+				targetValue = runFunction(map.getFunction());
 			}
 			else
-				targetValue= variables.get(variable);
-			setTargetValue(targetEntity,subjectMap.getTargetPath(),targetValue);
+				targetValue= varToObject.get(variable);
+			if (map.getValueMap()!=null){
+				if (map.getTargetProperty() == null) {
+					new Transformer(map.getValueMap(), sourceFormat, targetFormat).transformSource(sourceValue, targetObject, typeToResources);
+				}
+				else {
+					targetFiler.setPropertyValue(targetObject,map.getTargetProperty(),new Transformer(map.getValueMap(), sourceFormat, targetFormat).transformSource(sourceValue, targetObject, typeToResources));
+				}
+			}
+			else {
+				targetFiler.setPropertyValue(targetObject, map.getTargetProperty(), targetValue);
+			}
 		}
-
-		 */
 
 	}
 
-	private void setTargetValue(Object targetEntity, String targetPath,Object targetValue) throws JsonProcessingException {
-		if (targetFormat.equalsIgnoreCase("JSON-LD")){
-			TTTransform.setValueWithPath(targetEntity,targetPath,targetValue);
-		}
-	}
+
 
 	private Object runFunction(Function function) throws DataFormatException {
 			Map<String,List<Object>> args= getFunctionArguments(function);
 			return TransformFunctions.runFunction(function.getIri(),args);
 	}
 
-	private Object createEntity(String entityType){
-		if (targetFormat.equalsIgnoreCase("JSON-LD")){
-			Object target= TTTransform.createEntity(entityType);
-			targetObjects.add(target);
-			return target;
-		}
-		else
-			throw new RuntimeException("target format unsupported : "+targetFormat);
-	}
-
-	private Object resolvePath(Object source,String path){
-		if (sourceFormat.equalsIgnoreCase("JSON")){
-			return JsonTransform.getValuefromPath(source,path);
-		}
-		else
-			throw new RuntimeException("source format unsupported : "+ sourceFormat);
-	}
 
 
 
@@ -161,17 +152,15 @@ public class Transformer {
 			Map<String, List<Object>> result = null;
 			if (function.getArgument() != null) {
 				result = new HashMap<>();
-				int i = 0;
 				for (Argument argument : function.getArgument()) {
-					i++;
 					String parameter = argument.getParameter();
 					if (parameter == null)
-						parameter = String.valueOf(i);
+						parameter = "null";
 					result.putIfAbsent(parameter,new ArrayList<>());
 					if (argument.getValueData() != null)
 						result.get(parameter).add(argument.getValueData());
 					else if (argument.getValueVariable() != null) {
-						result.get(parameter).add(variables.get(argument.getValueVariable()));
+						result.get(parameter).add(varToObject.get(argument.getValueVariable()));
 
 					}
 				}

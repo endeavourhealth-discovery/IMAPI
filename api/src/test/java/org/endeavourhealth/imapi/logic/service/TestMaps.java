@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.maps.EntityMap;
-import org.endeavourhealth.imapi.model.maps.SourceTargetMap;
+import org.endeavourhealth.imapi.model.iml.DataMap;
+import org.endeavourhealth.imapi.model.iml.MapRule;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTVariable;
@@ -12,62 +12,61 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
 
 public class TestMaps {
-	public static EntityMap fhirDstu2() throws JsonProcessingException {
+	public static DataMap fhirDstu2() throws JsonProcessingException {
 
 		TTEntity patientMapEntity= new TTEntity();
 		patientMapEntity
 			.setIri(MAP.NAMESPACE+"FHIR_2_PatientToIM")
 			.setName("FHIR DSTU2 Patient to IM Patient transformMap")
 			.setDescription("Maps a FHIR DSTU2 Patient resource to IM Patient entity");
-		EntityMap patientMap = new EntityMap();
+		DataMap patientMap = new DataMap();
 		patientMap
 			.setIri(patientMapEntity.getIri())
 			.setSource(new TTVariable()
 				.setIri(FHIR.DSTU2+"Patient")
 				.setVariable("fhirPatient"))
-			.addTarget(new TTVariable()
+			.rule(r->r
+				.setCreate(new TTVariable()
 				.setIri(IM.NAMESPACE+"Patient")
-			.setVariable("imPatient"));
-		patientMap.propertyMap(pm->pm
-			.setTargetEntity(new TTVariable())
-			.sourcePath(sp-> sp
-				.setPath("id")
-				.setVariable("fhirId"))
+			.setVariable("imPatient")));
+		patientMap.rule(r-> r
+				.setSourceProperty("id")
+				.setSourceVariable("fhirId")
 			.function(f->f
 				.setIri(IM.NAMESPACE+ "Concatenate")
 				.argument(a->a
-					.setValueData("urn:uuid"))
+					.setValueData("urn:uuid:"))
 				.argument(a->a
-					.setValueVariable("fhirId"))));
-
-		patientMap.propertyMap(pm->pm
-			.sourcePath(sp->sp
-				.setPath("identifier value")
-				.setVariable("fhirNhsNumber"))
-				.where(chk->chk
-							.setPath("identifier.system")
-							.value(v-> v.setValue("https://fhir.nhs.uk/Id/nhs-number")))
-					.setTargetPath("nhsNumber"))
-			.propertyMap(pm->pm
-				.sourcePath(sp->sp
-						.setPath("name")
-						.setVariable("fhirName"))
-				.valueMap(te->te
-					.propertyMap(pm1->pm1
-						.sourcePath(sp1->sp1
-							.setPath("family"))
-						.setTargetPath("familyName"))
-					.propertyMap(pm1->pm1
-						.sourcePath(sp1->sp1
-							.setPath("given")
-									.setListMode("First"))
-						.setTargetPath("callingName"))
-					.propertyMap(pm1->pm1
-						.sourcePath(sp1->sp1
-							.setPath("given")
-							.setListMode("All"))
-						.setTargetPath("forenames")
-						.function(f->f
+					.setValueVariable("fhirId")))
+			.setTargetProperty("@id")
+				.setTargetVariable("imId"));
+		patientMap.rule(r->r
+					.setSourceProperty("identifier")
+				.where(w->w
+					.setPath("system")
+					.value(v->v
+						.setValue("http://fhir.nhs.net/Id/nhs-number")))
+					.valueMap(m1->m1
+						.rule(r1->r1
+							.setSourceProperty("value")
+							.setSourceVariable("fhirNhsNumber")
+							.setTargetProperty("nhsNumber"))))
+						.rule(r->r
+							.setSourceProperty("name")
+							.setSourceVariable("fhirName")
+							.valueMap(m1->m1
+								.rule(r1->r1
+									.setSourceProperty("family")
+									.setTargetProperty("familyName"))
+								.rule(r1->r1
+								.setSourceProperty("given")
+								.setListMode("First")
+								.setTargetProperty("callingName"))
+							.rule(r1->r1
+						  	.setSourceProperty("given")
+								.setListMode("All")
+								.setTargetProperty("forenames")
+								.function(f->f
 										.setIri(IM.NAMESPACE+"StringJoin")
 										.argument(a->a
 											.setParameter("delimiter")

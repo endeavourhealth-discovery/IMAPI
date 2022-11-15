@@ -1,31 +1,43 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.maps.EntityMap;
-import org.endeavourhealth.imapi.model.maps.TransformRequest;
+import org.endeavourhealth.imapi.model.iml.DataMap;
+import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Set;
 
 class TransformServiceTest {
 
-	@Test
+	private String testSources;
+	private String testTargets;
+	private String testMaps;
+
+//	@Test
 	void transform() throws Exception {
+		String root= new File(System.getProperty("user.dir")).getParent();
+		testSources = root+"\\TestTransforms\\TestSources";
+		testTargets= root+"\\TestTransforms\\TestTargets";
+		testMaps = root+"\\TestTransforms\\TestMaps";
 		//Creates an example transform map and adds to ebntity cache
 		TestMaps.fhirDstu2();
-
+		ObjectMapper om= new ObjectMapper();
 		//Adds map to the IM cache so it can be accessed by the service
 		TTEntity mapEntity= EntityCache.getEntity(MAP.NAMESPACE+"FHIR_2_PatientToIM").getEntity();
-		EntityMap map= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(EntityMap.class);
-		System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(map));
+		DataMap map= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(DataMap.class);
+		writeObject(testMaps,"DSTUToIMPatient",map);
+		System.out.println("Map written to" + testMaps+ "\\"+mapEntity.getName());
 
 		//Create transform request;
 		TransformRequest request= new TransformRequest();
@@ -34,13 +46,17 @@ class TransformServiceTest {
 		request.setTargetFormat("JSON-LD");
 
 		//Add patient resource to the request;
-		request.addSource(FHIR.DSTU2+"Patient",new ObjectMapper().readValue(getPatient(), JsonNode.class));
+		JsonNode patient= om.readValue(getPatient(),JsonNode.class);
+		request.addSource(FHIR.DSTU2+"Patient",patient);
+		writeObject(testSources,"DSTUPatient",patient);
+		System.out.println("Source written to"+ testSources+"\\"+"DSTUPatient");
 
 		//Perform transform
 		Set<Object> result= new TransformService().runTransform(request);
 
 		//Displays result
-		System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result));
+		writeObject(testTargets,"IMPatient",result);
+		System.out.println("Target written to "+ testTargets+"\\IMPatient");
 	}
 
 	private String getPatient(){
@@ -132,5 +148,11 @@ class TransformServiceTest {
 			"\t]\n" +
 			"}";
 		return patient;
+	}
+
+	private void writeObject(String path, String fileName,Object object) throws JsonProcessingException , IOException {
+		try (FileWriter wr= new FileWriter(path+"\\"+ fileName+".json")){
+			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object));
+		}
 	}
 }

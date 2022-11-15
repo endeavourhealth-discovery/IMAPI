@@ -18,7 +18,7 @@ ext {
             lombok              : '1.18.22',
             mockito             : '3.9.0',
             owlApi              : '5.1.20',
-            rdf4j               : '4.2.1',
+            rdf4j               : '4.1.1',
             reactor             : '3.5.0',
             slf4j               : '1.7.32',
             spring              : '2.7.5',

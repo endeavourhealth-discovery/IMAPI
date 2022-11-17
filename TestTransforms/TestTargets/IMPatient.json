@@ -3,8 +3,9 @@
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
     "@id" : "http://endhealth.info/im#Patient"
   } ],
-  "familyName" : [ { } ],
-  "callingName" : [ { } ],
-  "forenames" : "\"null\"",
-  "nhsNumber" : [ { } ]
+  "http://endhealth.info/im#addressLine" : [ "29", "", "GREENWAY" ],
+  "http://endhealth.info/im#forenames" : "null",
+  "http://endhealth.info/im#familyName" : "Albergaria",
+  "http://endhealth.info/im#nhsNumber" : 3127565459,
+  "http://endhealth.info/im#callingName" : "Lindsey"
 } ]

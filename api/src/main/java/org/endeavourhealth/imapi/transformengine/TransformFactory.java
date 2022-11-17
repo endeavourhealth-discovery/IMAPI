@@ -19,4 +19,13 @@ public class TransformFactory {
 			throw new DataFormatException("Unknown source format : "+ sourceFormat);
 
 	}
+
+	public static ObjectConverter createConverter(String sourceFormat,String targetFormat) throws DataFormatException {
+		if (sourceFormat.equalsIgnoreCase("JSON")){
+			if (targetFormat.equalsIgnoreCase("JSON-LD"))
+				return new JsonToLDConverter();
+				}
+		throw new DataFormatException("Source format : "+ sourceFormat+" and target Format : "+ targetFormat+" Object converter Not configured");
+		}
+
 }

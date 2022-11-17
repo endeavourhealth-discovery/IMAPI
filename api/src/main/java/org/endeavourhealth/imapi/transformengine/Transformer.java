@@ -22,9 +22,10 @@ public class Transformer {
 	private final Set<Object> targetObjects= new HashSet<>();
 	private final Map<String,Object> varToObject= new HashMap<>();
 	private Object entitySource;
-	private Object targetObject;
+	private Object workingTarget;
 	private ObjectReader sourceReader;
 	private ObjectFiler targetFiler;
+	private ObjectConverter objectConverter;
 
 	public Transformer(DataMap dataMap, String sourceFormat, String targetFormat) throws DataFormatException {
 		this.sourceFormat= sourceFormat;
@@ -32,6 +33,8 @@ public class Transformer {
 		this.dataMap = dataMap;
 		this.sourceReader= TransformFactory.createReader(sourceFormat);
 		this.targetFiler= TransformFactory.createFiler(targetFormat);
+		this.objectConverter= TransformFactory.createConverter(sourceFormat,targetFormat);
+
 
 	}
 
@@ -91,7 +94,7 @@ public class Transformer {
 	public Set<Object> transformSource(Object sourceObject, Object targetObject, Map<String, List<Object>> typedResources) throws DataFormatException, JsonProcessingException {
 		if (targetObject!=null) {
 			this.targetObjects.add(targetObject);
-			this.targetObject = targetObject;
+			this.workingTarget = targetObject;
 		}
 		this.entitySource= sourceObject;
 		if (dataMap.getRules()!=null){
@@ -106,33 +109,33 @@ public class Transformer {
 
 
 
-	private void transformRule(MapRule map) throws DataFormatException, JsonProcessingException {
-		if (map.getCreate()!=null){
-			 this.targetObject= targetFiler.createEntity(map.getCreate().getIri());
-			 targetObjects.add(targetObject);
+	private void transformRule(MapRule rule) throws DataFormatException, JsonProcessingException {
+		if (rule.getCreate()!=null){
+			 this.workingTarget = targetFiler.createEntity(rule.getCreate().getIri());
+			 targetObjects.add(workingTarget);
 		}
-		if (map.getSourceProperty()!=null){
-			String path= map.getSourceProperty();
-			String variable= map.getSourceVariable();
-			Where where= map.getWhere();
+		if (rule.getSourceProperty()!=null){
+			String path= rule.getSourceProperty();
+			String variable= rule.getSourceVariable();
+			Where where= rule.getWhere();
 			Object sourceValue= sourceReader.getPropertyValue(this.entitySource, path,where);
 			varToObject.put(variable,sourceValue);
-			Object targetValue;
-			if (map.getFunction()!=null) {
-				targetValue = runFunction(map.getFunction());
-			}
-			else
-				targetValue= varToObject.get(variable);
-			if (map.getValueMap()!=null){
-				if (map.getTargetProperty() == null) {
-					new Transformer(map.getValueMap(), sourceFormat, targetFormat).transformSource(sourceValue, targetObject, typeToResources);
+			if (rule.getValueMap()!=null){
+				if (rule.getTargetProperty() == null) {
+					new Transformer(rule.getValueMap(), sourceFormat, targetFormat).transformSource(sourceValue, workingTarget, typeToResources);
 				}
 				else {
-					targetFiler.setPropertyValue(targetObject,map.getTargetProperty(),new Transformer(map.getValueMap(), sourceFormat, targetFormat).transformSource(sourceValue, targetObject, typeToResources));
+					targetFiler.setPropertyValue(rule, workingTarget,rule.getTargetProperty(),new Transformer(rule.getValueMap(), sourceFormat, targetFormat).transformSource(sourceValue, workingTarget, typeToResources));
 				}
 			}
 			else {
-				targetFiler.setPropertyValue(targetObject, map.getTargetProperty(), targetValue);
+				Object targetValue;
+				if (rule.getFunction()!=null) {
+					targetValue = objectConverter.convert(runFunction(rule.getFunction()));
+				}
+				else
+					targetValue= objectConverter.convert(varToObject.get(variable));
+				targetFiler.setPropertyValue(rule, workingTarget, rule.getTargetProperty(), targetValue);
 			}
 		}
 

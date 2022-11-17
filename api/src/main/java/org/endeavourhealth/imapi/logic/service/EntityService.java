@@ -611,7 +611,7 @@ public class EntityService {
         if (entity.has(SHACL.PROPERTY)) {
             getDataModelPropertyGroups(entity, properties);
         }
-        return properties;
+        return properties.stream().sorted(Comparator.comparing(DataModelProperty::getOrder)).collect(Collectors.toList());
     }
 
     private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties) {
@@ -652,6 +652,8 @@ public class EntityService {
             pv.setMaxExclusive(property.asNode().get(SHACL.MAXCOUNT).asLiteral().getValue());
         if (property.asNode().has(SHACL.MINCOUNT))
             pv.setMinExclusive(property.asNode().get(SHACL.MINCOUNT).asLiteral().getValue());
+        pv.setOrder(property.asNode().has(SHACL.ORDER) ? property.asNode().get(SHACL.ORDER).asLiteral().intValue() : 0);
+
         return pv;
     }
 

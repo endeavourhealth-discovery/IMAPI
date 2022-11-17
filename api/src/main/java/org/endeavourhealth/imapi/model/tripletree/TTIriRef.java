@@ -20,6 +20,16 @@ public class TTIriRef implements TTValue, Serializable {
 
     private String iri;
     private String name;
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public TTIriRef setDescription(String description) {
+        this.description = description;
+        return this;
+    }
 
     public TTIriRef() {
     }

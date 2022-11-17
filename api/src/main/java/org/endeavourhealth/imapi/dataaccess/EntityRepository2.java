@@ -770,6 +770,8 @@ public class EntityRepository2 {
         return result;
     }
 
+
+
     public static Map<String, String> getIriNames(RepositoryConnection conn, Set<TTIriRef> iris) {
         Map<String, String> names = new HashMap<>();
         if (iris == null || iris.isEmpty())
@@ -777,10 +779,11 @@ public class EntityRepository2 {
 
         String iriTokens = iris.stream().map(i -> "<" + i.getIri() + ">").collect(Collectors.joining(","));
         StringJoiner sql = new StringJoiner(System.lineSeparator());
-        sql.add("SELECT ?iri ?label")
+        sql.add("SELECT ?iri ?label ?description")
                 .add("WHERE {")
-                .add("?iri rdfs:label ?label")
-                .add(" filter (?iri in (")
+                .add("?iri rdfs:label ?label.");
+        sql.add("Optional { ?iri rdfs:comment ?description }");
+        sql.add(" filter (?iri in (")
                 .add(iriTokens + "))")
                 .add("}");
         TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -789,7 +792,8 @@ public class EntityRepository2 {
                 BindingSet bs = rs.next();
                 TTIriRef iri = iri(bs.getValue("iri").stringValue());
                 iris.stream().filter(i -> i.equals(iri))
-                        .findFirst().ifPresent(i -> i.setName(bs.getValue("label").stringValue()));
+                        .findFirst().ifPresent(i -> {i.setName(bs.getValue("label").stringValue());
+                                         if (bs.getValue("description")!=null) i.setDescription(bs.getValue("description").stringValue());});
             }
         }
         return names;

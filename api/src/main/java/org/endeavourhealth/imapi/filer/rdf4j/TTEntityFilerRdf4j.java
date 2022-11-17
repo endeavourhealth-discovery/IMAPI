@@ -150,7 +150,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             deleteTriples.setBinding("graph", valueFactory.createIRI(graph.getIri()));
             deleteTriples.execute();
         } catch (Exception e) {
-            throw new TTFilerException("Failed to delete triples");
+            throw new TTFilerException("Failed to delete triples : "+ e.getMessage());
         }
 
     }

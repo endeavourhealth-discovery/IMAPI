@@ -3,10 +3,11 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.iml.DataMap;
-import org.endeavourhealth.imapi.model.iml.MapRule;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTVariable;
+import org.endeavourhealth.imapi.model.iml.ListMode;
+import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
@@ -60,11 +61,11 @@ public class TestMaps {
 									.setTargetProperty("familyName"))
 								.rule(r1->r1
 								.setSourceProperty("given")
-								.setListMode("First")
+								.setListMode(ListMode.FIRST)
 								.setTargetProperty("callingName"))
 							.rule(r1->r1
 						  	.setSourceProperty("given")
-								.setListMode("All")
+								.setListMode(ListMode.ALL)
 								.setTargetProperty("forenames")
 								.function(f->f
 										.setIri(IM.NAMESPACE+"StringJoin")
@@ -74,6 +75,19 @@ public class TestMaps {
 										.argument(a->a
 											.setParameter("elements")
 											.setValueVariable("forenames"))))));
+		patientMap.rule(r->r
+			.setSourceProperty("address")
+			.valueMap(m1->m1
+				.rule(r1->r1
+					.setSourceProperty("line")
+					.setTargetProperty("addressLine"))
+				.rule(r1->r1
+					.setSourceProperty("postalCode")
+					.setTargetProperty("postCode"))
+					.rule(r1->r1
+						.setSourceProperty("city")
+						.setTargetProperty("line")
+						.setTargetUpdateMode(TargetUpdateMode.ADDTOLIST))));
 		patientMapEntity.set(IM.DEFINITION, TTLiteral.literal(patientMap));
 		EntityCache.addEntity(patientMapEntity);
 			return patientMap;

@@ -3,11 +3,8 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTVariable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"create","sourcePath","where","function","target","targetPath","valueMap"})
@@ -17,13 +14,23 @@ public class MapRule{
 	private TTVariable create;
 	private String sourceProperty;
 	private String sourceVariable;
-	private String listMode;
+	private ListMode listMode;
 	private Where where;
 	private Function function;
 	private TTVariable targetEntity;
 	private String targetProperty;
 	private String targetVariable;
+	private TargetUpdateMode targetUpdateMode;
 	private DataMap valueMap;
+
+	public TargetUpdateMode getTargetUpdateMode() {
+		return targetUpdateMode;
+	}
+
+	public MapRule setTargetUpdateMode(TargetUpdateMode targetUpdateMode) {
+		this.targetUpdateMode = targetUpdateMode;
+		return this;
+	}
 
 	public DataMap getValueMap() {
 		return valueMap;
@@ -73,11 +80,11 @@ public class MapRule{
 		return this;
 	}
 
-	public String getListMode() {
+	public ListMode getListMode() {
 		return listMode;
 	}
 
-	public MapRule setListMode(String listMode) {
+	public MapRule setListMode(ListMode listMode) {
 		this.listMode = listMode;
 		return this;
 	}

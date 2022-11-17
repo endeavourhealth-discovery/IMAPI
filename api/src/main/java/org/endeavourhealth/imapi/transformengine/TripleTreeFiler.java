@@ -1,7 +1,12 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.model.iml.MapRule;
+import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+
+import java.util.zip.DataFormatException;
 
 public class TripleTreeFiler implements ObjectFiler {
 
@@ -14,20 +19,24 @@ public class TripleTreeFiler implements ObjectFiler {
 
 
 	@Override
-	public void setPropertyValue(Object targetEntity, String property, Object targetValue) throws RuntimeException{
-				if (property.equals("@id")|property.equals("id")|property.equals("iri"))
-					((TTNode) targetEntity).setIri(String.valueOf(targetValue));
+	public void setPropertyValue(MapRule rule, Object targetEntity, String property, Object targetValue) throws DataFormatException {
+		    if (property.equals("@id")|property.equals("id")|property.equals("iri"))
+					((TTNode) targetEntity).setIri(((TTLiteral) targetValue).getValue());
 				else {
-					try {
-						if (targetValue instanceof String|(targetValue instanceof Number))
-							((TTNode) targetEntity).set(TTIriRef.iri(property),TTLiteral.literal(targetValue));
-						else {
-							TTNode node= new TTNode();
-							((TTNode) targetEntity).set(TTIriRef.iri(property),node);
+					String predicate= property;
+					if (!property.contains(":"))
+						predicate= IM.NAMESPACE+property;
+					if (targetValue instanceof TTArray)
+						((TTNode) targetEntity).set(TTIriRef.iri(predicate),(TTArray) targetValue);
+					else if (targetValue instanceof TTValue) {
+						if (rule.getTargetUpdateMode()== TargetUpdateMode.ADDTOLIST){
+							((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), (TTValue) targetValue);
 						}
-					} catch (JsonProcessingException e) {
-						throw new RuntimeException("Unable to transform source to target literal");
+						else
+							((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTValue) targetValue);
 					}
+					else
+						throw new DataFormatException("Value of property : "+property+" cannot be set as its class is invalid ("+ targetValue.getClass().getSimpleName()+")");
 				}
 	}
 }

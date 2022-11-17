@@ -43,7 +43,7 @@
         "targetProperty" : "familyName"
       }, {
         "sourceProperty" : "given",
-        "listMode" : "First",
+        "listMode" : "FIRST",
         "targetProperty" : "callingName"
       }, {
         "function" : {
@@ -57,12 +57,20 @@
           } ]
         },
         "sourceProperty" : "given",
-        "listMode" : "All",
+        "listMode" : "ALL",
         "targetProperty" : "forenames"
       } ]
     },
     "sourceProperty" : "name",
     "sourceVariable" : "fhirName"
+  }, {
+    "valueMap" : {
+      "rules" : [ {
+        "sourceProperty" : "line",
+        "targetProperty" : "addressLine"
+      } ]
+    },
+    "sourceProperty" : "address"
   } ],
   "@id" : "http://endhealth.info/map#FHIR_2_PatientToIM"
 }

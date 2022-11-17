@@ -1,7 +1,8 @@
 import { QueryDisplay } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Vocabulary, Helpers } from "im-library/dist/api";
 import axios from "axios";
-import EntityService from '@/services/entity.service';
+import EntityService from "@/services/entity.service";
+import * as crypto from "crypto";
 
 const { DataTypeCheckers } = Helpers;
 const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
@@ -23,9 +24,8 @@ export async function buildQueryDisplayFromQuery(queryAPI: any) {
 }
 
 export function buildQueryDisplay(label: string, type?: any, value?: any, selectable?: boolean): QueryDisplay {
-  const crypto = require('crypto');
   return {
-    key: Math.floor(crypto.randomBytes(1) * 9999999999999999),
+    key: Number(crypto.randomBytes(64).readBigUInt64BE()),
     label: getLabelFromKey(label),
     type: type,
     value: value,

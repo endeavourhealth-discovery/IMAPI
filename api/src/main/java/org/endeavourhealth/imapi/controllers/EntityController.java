@@ -587,4 +587,10 @@ public class EntityController {
 		LOG.debug("getStatuses");
 		return entityService.getStatuses();
 	}
+
+	@PostMapping(value = "public/distillation")
+	public List<TTIriRef> getDistillation(@RequestBody List<TTIriRef> conceptList) {
+		LOG.debug("getDistillation");
+		return entityService.getDistillation(conceptList);
+	}
 }

@@ -1142,5 +1142,9 @@ public class EntityService {
     }
 
     public List<TTIriRef> getStatuses() { return entityRepository.getStatuses(); }
+
+    public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
+        return entityRepository.getDistillation(conceptList);
+    }
 }
 

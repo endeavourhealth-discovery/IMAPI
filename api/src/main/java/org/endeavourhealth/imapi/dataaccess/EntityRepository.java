@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -595,5 +596,33 @@ public class EntityRepository {
         }
 
         return result;
+    }
+
+    public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
+        List<String> iriList= conceptList.stream().map(c-> "<"+ c.getIri()+">").collect(Collectors.toList());
+        String iris= String.join(",",iriList);
+        Set<String> isas = new HashSet<>();
+
+        for (TTIriRef c : conceptList) {
+            try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+                StringJoiner sql = new StringJoiner(System.lineSeparator())
+                        .add("SELECT ?s WHERE {")
+                        .add("?s <http://endhealth.info/im#isA> ?iri .")
+                        .add("FILTER (?s IN(" + iris + "))}");
+                TupleQuery qry= conn.prepareTupleQuery(String.valueOf(sql));
+                qry.setBinding("iri", iri(c.getIri()));
+                TupleQueryResult rs= qry.evaluate();
+                while (rs.hasNext()){
+                    BindingSet bs= rs.next();
+                    if(!c.getIri().equals(bs.getValue("s").stringValue())){
+                        isas.add(bs.getValue("s").stringValue());
+                    }
+                }
+
+            }
+
+        }
+        conceptList.removeIf(c -> isas.contains(c.getIri()));
+        return conceptList;
     }
 }

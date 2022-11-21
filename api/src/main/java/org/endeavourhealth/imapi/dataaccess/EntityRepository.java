@@ -598,9 +598,7 @@ public class EntityRepository {
         return result;
     }
 
-    public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
-        List<String> iriList= conceptList.stream().map(c-> "<"+ c.getIri()+">").collect(Collectors.toList());
-        String iris= String.join(" ",iriList);
+    public Set<String> getDistillation(String iris) {
         Set<String> isas = new HashSet<>();
 
         try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -617,9 +615,7 @@ public class EntityRepository {
                 isas.add(bs.getValue("child").stringValue());
 
             }
-
         }
-        conceptList.removeIf(c -> isas.contains(c.getIri()));
-        return conceptList;
+        return isas;
     }
 }

@@ -1144,7 +1144,11 @@ public class EntityService {
     public List<TTIriRef> getStatuses() { return entityRepository.getStatuses(); }
 
     public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
-        return entityRepository.getDistillation(conceptList);
+        List<String> iriList= conceptList.stream().map(c-> "<"+ c.getIri()+">").collect(Collectors.toList());
+        String iris= String.join(" ",iriList);
+        Set<String> isas = entityRepository.getDistillation(iris);
+        conceptList.removeIf(c -> isas.contains(c.getIri()));
+        return conceptList;
     }
 }
 

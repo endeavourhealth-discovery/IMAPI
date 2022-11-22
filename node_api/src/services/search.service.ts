@@ -26,20 +26,28 @@ export default class SearchService {
   async findValidatedEntitiesBySnomedCodes(codes: string[]) {
     const entities = await this.findEntitiesBySnomedCodes(codes);
     const needed = await this.entityService.getDistillation(entities as TTIriRef[]);
+    const response = [] as any[];
     for (const entity of entities) {
       const isInvalid = isObjectHasKeys(entity, ["@id"]) && !isObjectHasKeys(entity, [RDFS.LABEL, IM.CODE]);
       const index = needed.findIndex(neededEntity => neededEntity["@id"] === entity["@id"]);
+      const isIncluded = response.some(added => entity["@id"] === added["@id"]);
       if (isInvalid) {
         entity.statusCode = "Invalid";
+        entity[RDFS.LABEL] = "Not an entity"
       } else if (index !== -1) {
         needed.splice(index, 1);
         entity.statusCode = "Valid";
       } else {
-        entity.statusCode = "Redundant";
+        entity.statusCode = "Child";
       }
+      if (isIncluded) {
+        entity.statusCode = "Duplicate";
+      }
+      entity[IM.CODE] = (entity["@id"] as string).split("#")[1];
+      response.push(entity);
     }
 
-    return entities;
+    return response;
   }
 
   buildCodeKeyQuery(searchRequest: any): any {

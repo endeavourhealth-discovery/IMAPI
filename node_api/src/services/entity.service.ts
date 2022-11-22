@@ -1,4 +1,5 @@
 import Env from "@/services/env.service";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 
 export default class EntityService {
   axios: any;
@@ -29,6 +30,15 @@ export default class EntityService {
       return await Promise.all(promises);
     } catch (error) {
       return [];
+    }
+  }
+
+  public async getDistillation(refs: TTIriRef[]): Promise<TTIriRef[]> {
+    try {
+      const response = await this.axios.post(Env.API + "api/entity/public/distillation", refs);
+      return response.data;
+    } catch (error) {
+      return [] as TTIriRef[];
     }
   }
 }

@@ -3,6 +3,7 @@ import Env from "@/services/env.service";
 import EntityService from "@/services/entity.service";
 import { Vocabulary } from "im-library/dist/api";
 import { Helpers } from "im-library";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -24,14 +25,22 @@ export default class SearchService {
   }
 
   async findValidatedEntitiesBySnomedCodes(codes: string[]) {
-    const resolved = await this.findEntitiesBySnomedCodes(codes);
-    for (const entity of resolved) {
-      if (isObjectHasKeys(entity, ["@id"]) && !isObjectHasKeys(entity, [RDFS.LABEL, IM.CODE])) {
-        console.log(entity);
+    const entities = await this.findEntitiesBySnomedCodes(codes);
+    const needed = await this.entityService.getDistillation(entities as TTIriRef[]);
+    for (const entity of entities) {
+      const isInvalid = isObjectHasKeys(entity, ["@id"]) && !isObjectHasKeys(entity, [RDFS.LABEL, IM.CODE]);
+      const index = needed.findIndex(neededEntity => neededEntity["@id"] === entity["@id"]);
+      if (isInvalid) {
         entity.statusCode = "Invalid";
+      } else if (index !== -1) {
+        needed.splice(index, 1);
+        entity.statusCode = "Valid";
+      } else {
+        entity.statusCode = "Redundant";
       }
     }
-    return resolved;
+
+    return entities;
   }
 
   buildCodeKeyQuery(searchRequest: any): any {

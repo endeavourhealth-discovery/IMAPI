@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import Env from "@/services/env.service";
 import EntityService from "@/services/entity.service";
-import { Vocabulary } from "im-library/dist/api";
-import { Helpers } from "im-library";
+import { Vocabulary, Helpers } from "im-library/dist/api";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys }

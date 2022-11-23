@@ -5,7 +5,15 @@ const { DataTypeCheckers } = Helpers;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 export function buildSetQueryObjectFromQuery(value: Query) {
+  if (!isObjectHasKeys(value)) {
+    return [];
+  }
   const constructedClauses: SetQueryObject[] = [];
+  recursivelyBuildSetQueryObject(value, constructedClauses);
+  return constructedClauses;
+}
+
+function recursivelyBuildSetQueryObject(value: Query, constructedClauses: SetQueryObject[]) {
   if (isArrayHasLength(value?.where?.from)) {
     for (const from of value.where.from) {
       const clause = {
@@ -16,6 +24,18 @@ export function buildSetQueryObjectFromQuery(value: Query) {
       constructedClauses.push(clause);
     }
   }
+
+  if (isArrayHasLength(value?.from)) {
+    for (const from of value.from) {
+      const clause = {
+        concept: from,
+        include: true,
+        refinements: []
+      } as SetQueryObject;
+      constructedClauses.push(clause);
+    }
+  }
+
   if (isArrayHasLength(value?.where?.notExist?.from)) {
     for (const from of value.where.notExist.from) {
       const clause = {
@@ -37,6 +57,12 @@ export function buildSetQueryObjectFromQuery(value: Query) {
     }
   }
 
+  if (isArrayHasLength(value?.where?.or)) {
+    for (const or of value.where.or) {
+      recursivelyBuildSetQueryObject(or as any, constructedClauses);
+    }
+  }
+
   if (isObjectHasKeys(value?.where?.where, ["property", "is"])) {
     if (!isArrayHasLength(constructedClauses)) constructedClauses.push({} as SetQueryObject);
     constructedClauses[0].refinements.push({
@@ -44,8 +70,6 @@ export function buildSetQueryObjectFromQuery(value: Query) {
       is: value?.where?.where.is
     });
   }
-
-  return constructedClauses;
 }
 
 export function buildQueryFromSetQueryObject(clauses: SetQueryObject[]): any {

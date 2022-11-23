@@ -183,7 +183,12 @@ async function getLabelForObject(object: any): Promise<string> {
   if (object.name) {
     return object.name;
   }
-  return (await entityService.getPartialEntity(object["@id"], [RDFS.LABEL])).data[RDFS.LABEL];
+  const entity = (await entityService.getPartialEntity(object["@id"], [RDFS.LABEL])).data;
+  if (!isObjectHasKeys(entity, [RDFS.LABEL])) {
+    return "no name";
+  }
+
+  return entity[RDFS.LABEL];
 }
 
 function getLabelFromKey(key: string): string {

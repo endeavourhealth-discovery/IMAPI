@@ -1,4 +1,5 @@
 {
+  "@id" : "http://endhealth.info/map#FHIR_2_PatientToIM",
   "source" : {
     "@id" : "http://hl7.org/2-0/fhir/StructureDefinition#Patient",
     "variable" : "fhirPatient"
@@ -9,6 +10,8 @@
       "variable" : "imPatient"
     }
   }, {
+    "sourceProperty" : "id",
+    "sourceVariable" : "fhirId",
     "function" : {
       "@id" : "http://endhealth.info/im#Concatenate",
       "argument" : [ {
@@ -17,27 +20,27 @@
         "valueVariable" : "fhirId"
       } ]
     },
-    "sourceProperty" : "id",
-    "sourceVariable" : "fhirId",
     "targetProperty" : "@id",
     "targetVariable" : "imId"
   }, {
-    "where" : {
-      "path" : "system",
-      "value" : {
-        "value" : "http://fhir.nhs.net/Id/nhs-number"
-      }
-    },
-    "valueMap" : {
+    "sourceProperty" : "identifier",
+    "flatMap" : {
       "rules" : [ {
         "sourceProperty" : "value",
         "sourceVariable" : "fhirNhsNumber",
+        "where" : {
+          "path" : "system",
+          "value" : {
+            "value" : "http://fhir.nhs.net/Id/nhs-number"
+          }
+        },
         "targetProperty" : "nhsNumber"
       } ]
-    },
-    "sourceProperty" : "identifier"
+    }
   }, {
-    "valueMap" : {
+    "sourceProperty" : "name",
+    "sourceVariable" : "fhirName",
+    "flatMap" : {
       "rules" : [ {
         "sourceProperty" : "family",
         "targetProperty" : "familyName"
@@ -46,6 +49,9 @@
         "listMode" : "FIRST",
         "targetProperty" : "callingName"
       }, {
+        "sourceProperty" : "given",
+        "sourceVariable" : "fhirGiven",
+        "listMode" : "ALL",
         "function" : {
           "@id" : "http://endhealth.info/im#StringJoin",
           "argument" : [ {
@@ -53,24 +59,79 @@
             "valueData" : " "
           }, {
             "parameter" : "elements",
-            "valueVariable" : "forenames"
+            "valueVariable" : "fhirGiven"
           } ]
         },
-        "sourceProperty" : "given",
-        "listMode" : "ALL",
         "targetProperty" : "forenames"
       } ]
-    },
-    "sourceProperty" : "name",
-    "sourceVariable" : "fhirName"
+    }
   }, {
+    "sourceProperty" : "address",
+    "targetProperty" : "homeAddress",
     "valueMap" : {
       "rules" : [ {
+        "create" : {
+          "@id" : "http://endhealth.info/im#Address"
+        },
+        "where" : {
+          "path" : "use",
+          "value" : {
+            "value" : "home"
+          }
+        }
+      }, {
         "sourceProperty" : "line",
         "targetProperty" : "addressLine"
+      }, {
+        "sourceProperty" : "postalCode",
+        "targetProperty" : "postCode"
+      }, {
+        "sourceProperty" : "city",
+        "targetProperty" : "addressLine",
+        "targetUpdateMode" : "ADDTOLIST"
       } ]
-    },
-    "sourceProperty" : "address"
-  } ],
-  "@id" : "http://endhealth.info/map#FHIR_2_PatientToIM"
+    }
+  }, {
+    "sourceProperty" : "telecom",
+    "flatMap" : {
+      "rules" : [ {
+        "sourceProperty" : "value",
+        "where" : {
+          "and" : [ {
+            "path" : "system",
+            "value" : {
+              "value" : "phone"
+            }
+          }, {
+            "path" : "use",
+            "value" : {
+              "value" : "mobile"
+            }
+          } ]
+        },
+        "targetProperty" : "mobileTelephoneNumber"
+      } ]
+    }
+  }, {
+    "sourceProperty" : "telecom",
+    "flatMap" : {
+      "rules" : [ {
+        "sourceProperty" : "value",
+        "where" : {
+          "and" : [ {
+            "path" : "system",
+            "value" : {
+              "value" : "phone"
+            }
+          }, {
+            "path" : "use",
+            "value" : {
+              "value" : "home"
+            }
+          } ]
+        },
+        "targetProperty" : "homeTelephoneNumber"
+      } ]
+    }
+  } ]
 }

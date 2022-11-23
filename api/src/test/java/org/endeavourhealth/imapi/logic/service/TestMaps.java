@@ -43,19 +43,19 @@ public class TestMaps {
 				.setTargetVariable("imId"));
 		patientMap.rule(r->r
 					.setSourceProperty("identifier")
-				.where(w->w
-					.setPath("system")
-					.value(v->v
-						.setValue("http://fhir.nhs.net/Id/nhs-number")))
-					.valueMap(m1->m1
+					.flatMap(m1->m1
 						.rule(r1->r1
 							.setSourceProperty("value")
 							.setSourceVariable("fhirNhsNumber")
+							.where(w->w
+								.setPath("system")
+								.value(v->v
+									.setValue("http://fhir.nhs.net/Id/nhs-number")))
 							.setTargetProperty("nhsNumber"))))
 						.rule(r->r
 							.setSourceProperty("name")
 							.setSourceVariable("fhirName")
-							.valueMap(m1->m1
+							.flatMap(m1->m1
 								.rule(r1->r1
 									.setSourceProperty("family")
 									.setTargetProperty("familyName"))
@@ -65,6 +65,7 @@ public class TestMaps {
 								.setTargetProperty("callingName"))
 							.rule(r1->r1
 						  	.setSourceProperty("given")
+								.setSourceVariable("fhirGiven")
 								.setListMode(ListMode.ALL)
 								.setTargetProperty("forenames")
 								.function(f->f
@@ -74,10 +75,18 @@ public class TestMaps {
 											.setValueData(" "))
 										.argument(a->a
 											.setParameter("elements")
-											.setValueVariable("forenames"))))));
+											.setValueVariable("fhirGiven"))))));
 		patientMap.rule(r->r
 			.setSourceProperty("address")
+			.setTargetProperty("homeAddress")
 			.valueMap(m1->m1
+				.rule(r1->r1
+					.where(w->w
+						.setPath("use")
+						.value(v->v
+							.setValue("home")))
+					.setCreate(new TTVariable()
+						.setIri(IM.NAMESPACE+"Address")))
 				.rule(r1->r1
 					.setSourceProperty("line")
 					.setTargetProperty("addressLine"))
@@ -86,8 +95,43 @@ public class TestMaps {
 					.setTargetProperty("postCode"))
 					.rule(r1->r1
 						.setSourceProperty("city")
-						.setTargetProperty("line")
+						.setTargetProperty("addressLine")
 						.setTargetUpdateMode(TargetUpdateMode.ADDTOLIST))));
+		patientMap.rule(r->r
+			.setSourceProperty("telecom")
+				.flatMap(m->m
+					.rule(r1->r1
+						.setSourceProperty("value")
+						.where(w->w
+							.and(w1->w1
+								.setPath("system")
+								.value(v->v
+										.setValue("phone")
+									))
+							.and(w1->w1
+								.setPath("use")
+								.value(v->v
+									.setValue("mobile"))))
+						.setTargetProperty("mobileTelephoneNumber"))));
+		patientMap.rule(r->r
+			.setSourceProperty("telecom")
+			.flatMap(m->m
+				.rule(r1->r1
+					.setSourceProperty("value")
+					.where(w->w
+						.and(w1->w1
+							.setPath("system")
+							.value(v->v
+								.setValue("phone")
+							))
+						.and(w1->w1
+							.setPath("use")
+							.value(v->v
+								.setValue("home"))))
+					.setTargetProperty("homeTelephoneNumber"))));
+		patientMap.rule(r->r
+			.setSourceProperty("birthDate")
+			.setTargetProperty("dataOfBirth"));
 		patientMapEntity.set(IM.DEFINITION, TTLiteral.literal(patientMap));
 		EntityCache.addEntity(patientMapEntity);
 			return patientMap;

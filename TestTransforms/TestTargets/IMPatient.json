@@ -1,11 +1,35 @@
-[ {
-  "@id" : "urn:uuid:1",
-  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
-    "@id" : "http://endhealth.info/im#Patient"
-  } ],
-  "http://endhealth.info/im#addressLine" : [ "29", "", "GREENWAY" ],
-  "http://endhealth.info/im#forenames" : "null",
-  "http://endhealth.info/im#familyName" : "Albergaria",
-  "http://endhealth.info/im#nhsNumber" : 3127565459,
-  "http://endhealth.info/im#callingName" : "Lindsey"
-} ]
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "im" : "http://endhealth.info/im#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "entities" : {
+      "@id" : "http://envhealth.info/im#entities",
+      "@container" : "@set"
+    }
+  },
+  "@graph" : {
+    "@id" : "im:"
+  },
+  "entities" : [ {
+    "@id" : "urn:uuid:1",
+    "rdf:type" : [ {
+      "@id" : "im:Patient"
+    } ],
+    "im:forenames" : "Lindsey",
+    "im:familyName" : "Albergaria",
+    "im:nhsNumber" : "3127565459",
+    "im:callingName" : "Lindsey",
+    "im:mobileTelephoneNumber" : "07456223456",
+    "im:homeTelephoneNumber" : "01945 668768",
+    "im:homeAddress" : [ {
+      "rdf:type" : [ {
+        "@id" : "im:Address"
+      } ],
+      "im:addressLine" : [ "29", "", "GREENWAY", "STOCKPORT" ],
+      "im:postCode" : "SK6 4HH"
+    } ]
+  } ]
+}

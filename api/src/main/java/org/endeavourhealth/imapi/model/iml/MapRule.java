@@ -7,7 +7,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTVariable;
 
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"create","sourcePath","where","function","target","targetPath","valueMap"})
+@JsonPropertyOrder({"create","sourceProperty","sourceVariable","listMode","where",
+	"function","targetProperty","targetVariable","targetEntity","targetUpdateMode","valueMap"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MapRule{
 
@@ -22,6 +23,23 @@ public class MapRule{
 	private String targetVariable;
 	private TargetUpdateMode targetUpdateMode;
 	private DataMap valueMap;
+	private DataMap flatMap;
+
+	public DataMap getFlatMap() {
+		return flatMap;
+	}
+
+	@JsonSetter
+	public MapRule setFlatMap(DataMap flatMap) {
+		this.flatMap = flatMap;
+		return this;
+	}
+
+	public MapRule flatMap(Consumer<DataMap> builder){
+		this.flatMap= new DataMap();
+		builder.accept(this.flatMap);
+		return this;
+	}
 
 	public TargetUpdateMode getTargetUpdateMode() {
 		return targetUpdateMode;

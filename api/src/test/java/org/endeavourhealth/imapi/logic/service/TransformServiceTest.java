@@ -7,8 +7,10 @@ import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.iml.DataMap;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.MAP;
@@ -19,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class TransformServiceTest {
 
@@ -56,10 +59,13 @@ class TransformServiceTest {
 		System.out.println("Source written to"+ testSources+"\\"+"DSTUPatient");
 
 		//Perform transform
-		Set<Object> result= new TransformService().runTransform(request);
+		Set<Object> results= new TransformService().runTransform(request);
 
 		//Displays result
-		writeObject(testTargets,"IMPatient",result);
+	  TTManager manager= new TTManager();
+		TTDocument document= manager.createDocument();
+		document.setEntities(results.stream().map(r-> (TTEntity) r).collect(Collectors.toList()));
+		manager.saveDocument(new File(testTargets+"\\IMPatient.json"));
 		System.out.println("Target written to "+ testTargets+"\\IMPatient");
 	}
 
@@ -142,12 +148,12 @@ class TransformServiceTest {
 			"\t\t{\n" +
 			"\t\t\t \"system\": \"phone\",\n" +
 			"\t\t\t \"use\": \"mobile\",\n" +
-			"\t\t\t \"value\": \"0544-647-3274\"\n" +
+			"\t\t\t \"value\": \"07456223456\"\n" +
 			"\t\t},\n" +
 			"\t\t{\n" +
 			"\t\t\t \"system\": \"phone\",\n" +
-			"\t\t\t \"use\": \"mobile\",\n" +
-			"\t\t\t \"value\": \"0426-420-6546\"\n" +
+			"\t\t\t \"use\": \"home\",\n" +
+			"\t\t\t \"value\": \"01945 668768\"\n" +
 			"\t\t}\n" +
 			"\t]\n" +
 			"}";

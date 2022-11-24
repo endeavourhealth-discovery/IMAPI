@@ -65,6 +65,7 @@ public class ProvService {
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
                 .setName(usedEntity.getName())
                 .set(IM.DEFINITION, new TTLiteral(om.writeValueAsString(usedEntity)))
+                .setGraph(IM.GRAPH_PROV)
                 .setCrud(IM.ADD_QUADS);
         }
     }

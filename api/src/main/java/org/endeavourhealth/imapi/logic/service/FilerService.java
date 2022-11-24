@@ -27,6 +27,7 @@ public class FilerService {
     private final TTTransactionFiler transactionFiler = new TTTransactionFiler();
     private final EntityService entityService = new EntityService();
     private final OpenSearchService openSearchService = new OpenSearchService();
+    private TTEntity provUsedEntity = new TTEntity();
 
     public void fileTransactionDocument(TTDocument document, String agentName) throws Exception {
         transactionFiler.fileTransaction(document);
@@ -53,6 +54,7 @@ public class FilerService {
         TTDocument document = new TTDocument();
         document.addEntity(entity);
         document.addEntity(activity);
+        document.addEntity(provUsedEntity);
         transactionFiler.writeLog(document);
     }
 
@@ -73,9 +75,9 @@ public class FilerService {
 
         String usedEntityIri = null;
         if (null != usedEntity) {
-            TTEntity provUsed = provService.buildUsedEntity(usedEntity);
-            usedEntityIri = provUsed.getIri();
-            entityProvFiler.fileEntity(provUsed, graph);
+            provUsedEntity = provService.buildUsedEntity(usedEntity);
+            usedEntityIri = provUsedEntity.getIri();
+            entityProvFiler.fileEntity(provUsedEntity, graph);
         }
 
         ProvActivity activity = provService.buildProvenanceActivity(entity, agent, usedEntityIri);

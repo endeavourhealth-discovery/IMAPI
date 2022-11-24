@@ -125,8 +125,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
 
     private void replacePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {
-        if (!TTFilerFactory.isSkipDeletes())
-            deleteTriples(entity, graph);
+        deleteTriples(entity, graph);
         addQuads(entity, graph);
     }
 
@@ -195,8 +194,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     private void updatePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
         //Deletes the previous predicate values and adds in the new ones
-        if (!TTFilerFactory.isSkipDeletes())
-            deletePredicates(entity, graph);
+        deletePredicates(entity, graph);
         addQuads(entity, graph);
     }
 

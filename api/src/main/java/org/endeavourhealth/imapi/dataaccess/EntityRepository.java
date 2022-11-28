@@ -73,12 +73,13 @@ public class EntityRepository {
         SearchResultSummary result = new SearchResultSummary();
 
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?sname ?scode ?sstatus ?sstatusname ?g ?gname WHERE {")
+            .add("SELECT ?sname ?scode ?sstatus ?sstatusname ?sdescription ?g ?gname WHERE {")
             .add("  GRAPH ?g {")
             .add("    ?s rdfs:label ?sname .")
             .add("  }")
             .add("  OPTIONAL { ?s im:code ?scode . }")
             .add("  OPTIONAL { ?s im:status ?sstatus . ?sstatus rdfs:label ?sstatusname . }")
+            .add("  OPTIONAL { ?s rdfs:comment ?sdescription } .")
             .add("  OPTIONAL { ?g rdfs:label ?gname } .")
             .add("}");
 
@@ -95,7 +96,8 @@ public class EntityRepository {
                         .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
                         .setScheme(new TTIriRef(bs.getValue("g").stringValue(), (bs.getValue("gname") == null ? "" : bs.getValue("gname").stringValue())))
                         .setEntityType(types)
-                        .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()));
+                        .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+                        .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
                 }
             }
         }

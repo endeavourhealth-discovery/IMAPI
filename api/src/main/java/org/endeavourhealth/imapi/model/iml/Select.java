@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"path","property","sum","average","name","inverseOf","alias","argument","function","select","where","orderBy","direction","limit","groupBy"})
+@JsonPropertyOrder({"path","property","filtered","sum","average","name","inverseOf","alias","argument","function","select","where","orderBy","direction","limit","groupBy"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select  {
 	private TTAlias property;
@@ -81,24 +81,6 @@ public class Select  {
 	}
 
 
-	public Select select(String property){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		Select select= new Select();
-		this.select.add(select);
-		select.setProperty(property);
-		return this;
-	}
-
-
-	public Select select(TTIriRef property){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		Select select= new Select();
-		this.select.add(select);
-		select.setProperty(property);
-		return this;
-	}
 
 	public Select addSelect(Select select){
 		if (this.select==null)

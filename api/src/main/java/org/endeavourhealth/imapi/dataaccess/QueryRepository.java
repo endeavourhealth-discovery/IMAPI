@@ -409,13 +409,7 @@ public class QueryRepository {
         }
     }
 
-    private String localName(String iri) {
-        String del = "#";
-        if (!iri.contains("#"))
-            del = ":";
-        String[] iriSplit = iri.split(del);
-        return iriSplit[iriSplit.length - 1];
-    }
+
 
     /**
      * is the variable im:id or iri i.e. the id

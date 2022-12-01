@@ -15,29 +15,6 @@
     "@id" : "im:Patient",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "im:provider"
-      } ],
-      "sh:maxCount" : "1",
-      "sh:node" : [ {
-        "@id" : "im:Organisation"
-      } ],
-      "sh:minCount" : "1"
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:event"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:HealthRecordEntry"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:samePersonAs"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:Patient"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:statedGender"
       } ],
       "sh:class" : [ {
@@ -48,63 +25,42 @@
         "@id" : "xsd:string"
       } ],
       "sh:path" : [ {
-        "@id" : "im:contact"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:deathIndicator"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:ethnicity"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
+        "@id" : "im:title"
       } ]
     }, {
       "sh:datatype" : [ {
         "@id" : "xsd:string"
       } ],
       "sh:path" : [ {
-        "@id" : "im:fullName"
+        "@id" : "im:callingName"
       } ]
     }, {
-      "sh:path" : [ {
-        "@id" : "im:language"
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
       } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
+      "sh:path" : [ {
+        "@id" : "im:forenames"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:familyName"
       } ]
     }, {
       "sh:path" : [ {
-        "@id" : "im:address"
+        "@id" : "im:homeAddress"
       } ],
       "sh:node" : [ {
         "@id" : "im:Address"
       } ]
     }, {
       "sh:path" : [ {
-        "@id" : "im:pdsSensitive"
+        "@id" : "im:temporaryAddress"
       } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:relatedPersons"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:residences"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
+      "sh:node" : [ {
+        "@id" : "im:Address"
       } ]
     }, {
       "sh:datatype" : [ {
@@ -118,14 +74,21 @@
         "@id" : "xsd:string"
       } ],
       "sh:path" : [ {
-        "@id" : "im:dateOfDeath"
+        "@id" : "im:nhsNumber"
       } ]
     }, {
-      "sh:datatype" : [ {
-        "@id" : "xsd:string"
-      } ],
       "sh:path" : [ {
-        "@id" : "im:nhsNumber"
+        "@id" : "im:gpGMSRegisteredPractice"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Organisation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:ethnicity"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
       } ]
     }, {
       "sh:datatype" : [ {
@@ -157,17 +120,89 @@
       } ]
     }, {
       "sh:path" : [ {
-        "@id" : "im:gpGMSRegisteredPractice"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:Organisation"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:placeOfResidenceAtEvent"
       } ],
       "sh:node" : [ {
         "@id" : "im:PlaceOfResidenceAtEvent"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:deathIndicator"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:dateOfDeath"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:oldAddress"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Address"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:workAddress"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Address"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:language"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:contact"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:provider"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:node" : [ {
+        "@id" : "im:Organisation"
+      } ],
+      "sh:minCount" : "1"
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:event"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:HealthRecordEntry"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:samePersonAs"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Patient"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:pdsSensitive"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:relatedPersons"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
       } ]
     } ]
   }, {
@@ -194,11 +229,32 @@
         "@id" : "im:VSET_Unspecified"
       } ]
     }, {
-      "sh:path" : [ {
-        "@id" : "im:fullName"
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
       } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Unspecified"
+      "sh:path" : [ {
+        "@id" : "im:title"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:familyName"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:callingName"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:foreNames"
       } ]
     }, {
       "sh:path" : [ {

@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transformengine;
 
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +16,16 @@ public class TransformFunctions {
 			return concatenate(args);
 		else if (iri.equals(IM.NAMESPACE+"StringJoin"))
 			return stringJoin(args);
+		else if (iri.equals(IM.NAMESPACE+"SchemedCodeConceptMap"))
+			return schemeCodeConcept(args);
+		else
 			throw new RuntimeException("Function not supported : "+ iri);
 	}
+
+	private static Object schemeCodeConcept(Map<String, Object> args) {
+		return null;
+	}
+
 
 	private static Object stringJoin(Map<String, Object> args) throws DataFormatException {
 		try {

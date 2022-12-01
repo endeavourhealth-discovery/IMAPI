@@ -997,6 +997,10 @@
     "@id" : "sn:1149514007",
     "rdfs:label" : "Family history of malignant epithelial neoplasm (situation)",
     "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1444903",
+      "rdfs:label" : "Family history of malignant epithelial neoplasm",
+      "im:code" : "^ESCT1444903"
+    }, {
       "@id" : "http://endhealth.info/icd10#Z809",
       "rdfs:label" : "Family history of malignant neoplasm, unspecified",
       "im:code" : "Z80.9"
@@ -1113,6 +1117,10 @@
     "@id" : "sn:1149518005",
     "rdfs:label" : "Family history of neoplasm of trachea (situation)",
     "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1444907",
+      "rdfs:label" : "Family history of neoplasm of trachea",
+      "im:code" : "^ESCT1444907"
+    }, {
       "@id" : "http://endhealth.info/icd10#Z801",
       "rdfs:label" : "Family history of malignant neoplasm of trachea, bronchus and lung",
       "im:code" : "Z80.1"
@@ -1122,6 +1130,10 @@
     "@id" : "sn:1149519002",
     "rdfs:label" : "Family history of neoplasm of bronchus (situation)",
     "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1444908",
+      "rdfs:label" : "Family history of neoplasm of bronchus",
+      "im:code" : "^ESCT1444908"
+    }, {
       "@id" : "http://endhealth.info/icd10#Z801",
       "rdfs:label" : "Family history of malignant neoplasm of trachea, bronchus and lung",
       "im:code" : "Z80.1"
@@ -1341,6 +1353,10 @@
     "@id" : "sn:1149524004",
     "rdfs:label" : "Family history of neoplasm of urinary system (situation)",
     "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1444916",
+      "rdfs:label" : "Family history of neoplasm of urinary system",
+      "im:code" : "^ESCT1444916"
+    }, {
       "@id" : "http://endhealth.info/icd10#Z805",
       "rdfs:label" : "Family history of malignant neoplasm of urinary tract",
       "im:code" : "Z80.5"
@@ -5740,10 +5756,6 @@
     "@id" : "sn:289916006",
     "rdfs:label" : "Family history of kidney disease (situation)",
     "im:matchedTo" : [ {
-      "@id" : "http://endhealth.info/emis#ZV186",
-      "rdfs:label" : "Family history of kidney disease",
-      "im:code" : "ZV186"
-    }, {
       "@id" : "http://endhealth.info/emis#12FZ-2",
       "rdfs:label" : "FH: Renal disorder",
       "im:code" : "12FZ-2"
@@ -5751,6 +5763,10 @@
       "@id" : "http://endhealth.info/emis#12FZ-1",
       "rdfs:label" : "FH: Kidney disorder",
       "im:code" : "12FZ-1"
+    }, {
+      "@id" : "http://endhealth.info/emis#ZV186",
+      "rdfs:label" : "Family history of kidney disease",
+      "im:code" : "ZV186"
     }, {
       "@id" : "http://endhealth.info/emis#_ESCTFH575367",
       "rdfs:label" : "FH: - kidney disorder",
@@ -6470,6 +6486,10 @@
     "@id" : "sn:160417009",
     "rdfs:label" : "Family history of congenital disease (situation)",
     "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1450026",
+      "rdfs:label" : "Family history of congenital disease",
+      "im:code" : "^ESCT1450026"
+    }, {
       "@id" : "http://endhealth.info/emis#12J",
       "rdfs:label" : "FH: Congenital anomaly",
       "im:code" : "12J"
@@ -6485,6 +6505,10 @@
       "@id" : "http://endhealth.info/emis#_ESCTFA453100",
       "rdfs:label" : "Family history: Congenital anomaly",
       "im:code" : "^ESCTFA453100"
+    }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1450027",
+      "rdfs:label" : "Family history of congenital anomaly",
+      "im:code" : "^ESCT1450027"
     }, {
       "@id" : "http://endhealth.info/tpp#_12J_",
       "rdfs:label" : "FH: congenital anomaly",
@@ -6805,6 +6829,10 @@
       "@id" : "http://endhealth.info/emis#12J8",
       "rdfs:label" : "FH: Chromosomal anomaly",
       "im:code" : "12J8"
+    }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1450028",
+      "rdfs:label" : "Family history of chromosomal anomaly",
+      "im:code" : "^ESCT1450028"
     }, {
       "@id" : "http://endhealth.info/emis#_ESCTFA453121",
       "rdfs:label" : "Family history: Chromosomal anomaly",
@@ -8011,6 +8039,14 @@
       "rdfs:label" : "Family history of trisomy 21 down syndrome",
       "im:code" : "^ESCTFA564649"
     }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1450403",
+      "rdfs:label" : "Family history of complete trisomy 21 syndrome",
+      "im:code" : "^ESCT1450403"
+    }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1450404",
+      "rdfs:label" : "Family history of Down syndrome",
+      "im:code" : "^ESCT1450404"
+    }, {
       "@id" : "http://endhealth.info/tpp#13L2_",
       "rdfs:label" : "(Relativ - mental hand) or ([Downs][Mongol] child in family)",
       "im:code" : "13L2."
@@ -8613,6 +8649,14 @@
       "rdfs:label" : "Maternal history of disorder",
       "im:code" : "^ESCTMA565430"
     }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1450412",
+      "rdfs:label" : "Maternal history of illness",
+      "im:code" : "^ESCT1450412"
+    }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1450413",
+      "rdfs:label" : "Maternal medical problem",
+      "im:code" : "^ESCT1450413"
+    }, {
       "@id" : "http://endhealth.info/tpp#_O114",
       "rdfs:label" : "Maternal chronic RS/CVS NOS",
       "im:code" : ".O114"
@@ -8726,27 +8770,6 @@
       "im:code" : "XE1fJ"
     } ],
     "im:code" : "268858006"
-  }, {
-    "@id" : "sn:157044005",
-    "rdfs:label" : "Maternal surgical operation (disorder)",
-    "im:code" : "157044005"
-  }, {
-    "@id" : "sn:288255006",
-    "rdfs:label" : "Maternal surgical operation (situation)",
-    "im:matchedTo" : [ {
-      "@id" : "http://endhealth.info/emis#_ESCTMA573094",
-      "rdfs:label" : "Maternal surgical operation",
-      "im:code" : "^ESCTMA573094"
-    }, {
-      "@id" : "http://endhealth.info/tpp#_O117",
-      "rdfs:label" : "Maternal surgical operation",
-      "im:code" : ".O117"
-    }, {
-      "@id" : "http://endhealth.info/tpp#Xa41J",
-      "rdfs:label" : "Maternal surgical operation",
-      "im:code" : "Xa41J"
-    } ],
-    "im:code" : "288255006"
   }, {
     "@id" : "sn:157046007",
     "rdfs:label" : "H/O - maternal psychiatric problem (disorder)",
@@ -11853,15 +11876,6 @@
     } ],
     "im:code" : "737366005"
   }, {
-    "@id" : "sn:430722000",
-    "rdfs:label" : "Family history of operative procedure (situation)",
-    "im:matchedTo" : [ {
-      "@id" : "http://endhealth.info/emis#_ESCTFA712567",
-      "rdfs:label" : "Family history of operative procedure",
-      "im:code" : "^ESCTFA712567"
-    } ],
-    "im:code" : "430722000"
-  }, {
     "@id" : "sn:288257003",
     "rdfs:label" : "Maternal medical problem NOS (situation)",
     "im:code" : "288257003"
@@ -14332,7 +14346,7 @@
     "rdfs:label" : "Family history of Ménière disease (situation)",
     "im:matchedTo" : [ {
       "@id" : "http://endhealth.info/emis#_ESCTFA711339",
-      "rdfs:label" : "Family history of M?ni?re disease",
+      "rdfs:label" : "Family history of Mï¿½niï¿½re disease",
       "im:code" : "^ESCTFA711339"
     }, {
       "@id" : "http://endhealth.info/emis#_ESCTFA711340",
@@ -14578,6 +14592,10 @@
       "@id" : "http://endhealth.info/emis#_ESCTFA712300",
       "rdfs:label" : "Family history of psoriatic arthritis",
       "im:code" : "^ESCTFA712300"
+    }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1467172",
+      "rdfs:label" : "Family history of psoriasis with psoriatic arthritis",
+      "im:code" : "^ESCT1467172"
     }, {
       "@id" : "http://endhealth.info/tpp#_12H5",
       "rdfs:label" : "FH: psoriasis with arthropathy",
@@ -14840,6 +14858,10 @@
       "rdfs:label" : "Family history of juvenile rheumatoid arthritis",
       "im:code" : "^ESCTFA712524"
     }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1467173",
+      "rdfs:label" : "Family history of juvenile idiopathic arthritis",
+      "im:code" : "^ESCT1467173"
+    }, {
       "@id" : "http://endhealth.info/icd10#Z826",
       "rdfs:label" : "Family history of arthritis and other diseases of the musculoskeletal system and connective tissue",
       "im:code" : "Z82.6"
@@ -14909,6 +14931,15 @@
       "im:code" : "Z83.5"
     } ],
     "im:code" : "430719002"
+  }, {
+    "@id" : "sn:430722000",
+    "rdfs:label" : "Family history of operative procedure (situation)",
+    "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCTFA712567",
+      "rdfs:label" : "Family history of operative procedure",
+      "im:code" : "^ESCTFA712567"
+    } ],
+    "im:code" : "430722000"
   }, {
     "@id" : "sn:430726002",
     "rdfs:label" : "Family history of tremor (situation)",
@@ -16593,6 +16624,14 @@
     "@id" : "sn:1148759006",
     "rdfs:label" : "Family history of congenital microcephaly (situation)",
     "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1444175",
+      "rdfs:label" : "Family history of congenital microcephaly",
+      "im:code" : "^ESCT1444175"
+    }, {
+      "@id" : "http://endhealth.info/emis#_ESCT1444176",
+      "rdfs:label" : "Family history of congenital microcephalus",
+      "im:code" : "^ESCT1444176"
+    }, {
       "@id" : "http://endhealth.info/icd10#Z827",
       "rdfs:label" : "Family history of congenital malformations, deformations and chromosomal abnormalities",
       "im:code" : "Z82.7"
@@ -17579,7 +17618,7 @@
     "rdfs:label" : "Family history of Muir-Torré syndrome (situation)",
     "im:matchedTo" : [ {
       "@id" : "http://endhealth.info/emis#_ESCTFA804357",
-      "rdfs:label" : "Family history of Muir-Torr? syndrome",
+      "rdfs:label" : "Family history of Muir-Torrï¿½ syndrome",
       "im:code" : "^ESCTFA804357"
     }, {
       "@id" : "http://endhealth.info/icd10#Z840",
@@ -17763,6 +17802,19 @@
       "im:code" : "Z82.6"
     } ],
     "im:code" : "14580001000004104"
+  }, {
+    "@id" : "sn:50040131000188105",
+    "rdfs:label" : "Mother under medication treatment (situation)",
+    "im:code" : "50040131000188105"
+  }, {
+    "@id" : "sn:50050161000188101",
+    "rdfs:label" : "Family history of congenital immunodeficiency disease (situation)",
+    "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/icd10#Z832",
+      "rdfs:label" : "Family history of diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism",
+      "im:code" : "Z83.2"
+    } ],
+    "im:code" : "50050161000188101"
   }, {
     "@id" : "sn:46421000000106",
     "rdfs:label" : "FH: Haemochromatosis",
@@ -19008,6 +19060,11 @@
   }, {
     "@id" : "sn:1290351000000105",
     "rdfs:label" : "Parent socially isolated (situation)",
+    "im:matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#_ESCT1451910",
+      "rdfs:label" : "Parent socially isolated",
+      "im:code" : "^ESCT1451910"
+    } ],
     "im:code" : "1290351000000105"
   }, {
     "@id" : "sn:778441000000103",

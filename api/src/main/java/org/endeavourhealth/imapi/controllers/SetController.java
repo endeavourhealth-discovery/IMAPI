@@ -75,7 +75,7 @@ public class SetController {
     @GetMapping(value = "/public/ecl/query")
     @Operation(
             summary = "Get query from ecl",
-            description = "Transform ecl to an IM query"
+            description = "MapObject ecl to an IM query"
     )
     public Query getQueryFromECL(@RequestParam(name = "ecl") String ecl) throws DataFormatException {
         return setService.getQueryFromECL(ecl);
@@ -84,7 +84,7 @@ public class SetController {
     @PostMapping(value = "/public/query/ecl")
     @Operation(
             summary = "Get ecl from query",
-            description = "Transform an IM query to ecl"
+            description = "MapObject an IM query to ecl"
     )
     public String getECLFromQuery(@RequestBody Query query) throws DataFormatException {
         return setService.getECLFromQuery(query);

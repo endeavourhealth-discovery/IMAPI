@@ -4,14 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.SetToSparql;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -340,19 +338,31 @@ public class SparqlConverter {
 	 */
 	private void whereProperty(StringBuilder whereQl, String subject,Where where) throws DataFormatException {
 		String path = where.getProperty().getIri();
-		String inverse= where.getProperty().isInverse() ? "^" : "";
 		o++;
-		String object= "o"+o;
-		if (!where.getProperty().isIncludeSubtypes()) {
-			whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(path))
-				.append(" ?").append(object).append(".\n");
+		String object = "o" + o;
+		if (path==null){
+			String propertyAlias= where.getProperty().getAlias();
+			List<TTAlias> propertyIn= where.getPropertyIn();
+			if (propertyIn==null)
+				throw new DataFormatException("Where clause with a property alias must have a property in filter");
+			List<String> inList =
+				propertyIn.stream().map(iri -> iriFromString(iri.getIri())).collect(Collectors.toList());
+			String inString = String.join(",", inList);
+			whereQl.append("?").append(subject).append(" ").append("?").append(propertyAlias).append(" ?").append(o).append(".\n");
+			whereQl.append("Filter (").append("?").append(propertyAlias).append(" in(").append(inString).append("))\n");
+
 		}
 		else {
-			o++;
-			whereQl.append("?").append(subject).append(" ").append(inverse).append("?p").append(o)
-				.append(" ?").append(object).append(".\n");
-			whereQl.append("?p").append(o).append(" im:isA ").append(iriFromString(path)).append(".\n");
-
+			String inverse = where.getProperty().isInverse() ? "^" : "";
+			if (!where.getProperty().isIncludeSubtypes()) {
+				whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(path))
+					.append(" ?").append(object).append(".\n");
+			} else {
+				o++;
+				whereQl.append("?").append(subject).append(" ").append(inverse).append("?p").append(o)
+					.append(" ?").append(object).append(".\n");
+				whereQl.append("?p").append(o).append(" im:isA ").append(iriFromString(path)).append(".\n");
+			}
 		}
 
 		if (where.getWhere() != null) {
@@ -417,6 +427,16 @@ public class SparqlConverter {
 
 	private void whereIs(StringBuilder whereQl, String object, TTAlias is,boolean isNot) throws DataFormatException {
 		String not = isNot ? "!" : "";
+		if (is.isSet()) {
+			String expansion = new SetToSparql().getExpansionSparql(object, is.getIri());
+			if (!expansion.equals("")) {
+				whereQl.append("Filter (?").append(object).append(not).append(" in (");
+				whereQl.append(expansion);
+				whereQl.append("))\n");
+				return;
+			} else
+				throw new DataFormatException(" where is -> iri " + is.getIri() + " is said to be a set but it has no members");
+		}
 		if (is.isIncludeSubtypes()){
 			o++;
 			whereQl.append("?").append(object).append(" im:isA ?").append("supertype").append(o).append(".\n");
@@ -443,20 +463,20 @@ public class SparqlConverter {
 
 
 	private void whereIn(StringBuilder whereQl, String object, List<TTAlias> in, boolean isNot) {
-
 		String not= isNot ?" not " : "";
 		whereQl.append("Filter (?").append(object).append(not).append(" in (");
 		if (in.size()==1) {
 			String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getIri());
 			if (!expansion.equals("")) {
 				whereQl.append(expansion);
-			} else {
-				List<String> inList =
+				whereQl.append("))\n");
+				return;
+			}
+		}
+		List<String> inList =
 					in.stream().map(iri -> iriFromString(iri.getIri())).collect(Collectors.toList());
 				String inString = String.join(",", inList);
 				whereQl.append(inString);
-			}
-		}
 		whereQl.append("))\n");
 	}
 
@@ -502,33 +522,24 @@ public class SparqlConverter {
 	 * @throws DataFormatException if the variable is unresolvable
 	 */
 	public static String resolveReference(String value,QueryRequest queryRequest) throws DataFormatException {
-		try {
 			if (value.equalsIgnoreCase("$referenceDate")) {
-				return queryRequest.getReferenceDate();
+				if (queryRequest.getReferenceDate()!=null)
+					return queryRequest.getReferenceDate();
 			}
-			else {
-				value = value.replace("$", "");
-				if (queryRequest.getArgument().get(value) != null) {
-					Object result = queryRequest.getArgument().get(value);
-					if (result instanceof Map) {
-						if (((Map<?, ?>) result).get("@id") != null)
-							return (String) ((Map<?, ?>) result).get("@id");
-					} else if (result instanceof Integer)
-						return ((Integer) queryRequest.getArgument().get(value)).toString();
-					else if (result instanceof Number)
-						return String.valueOf(queryRequest.getArgument().get(value));
-					else if (result instanceof TTIriRef)
-						return ((TTIriRef) result).getIri();
-					else
-						return (String) queryRequest.getArgument().get(value);
-				} else
-					throw new DataFormatException("unknown parameter variable " + value + ". ");
+			value = value.replace("$", "");
+			if (queryRequest.getArgument() != null) {
+					for (Argument argument: queryRequest.getArgument()) {
+						if (argument.getParameter().equals(value)) {
+							if (argument.getValueData() != null)
+								return argument.getValueData();
+							if (argument.getValueIri() != null)
+								return argument.getValueIri().getIri();
+						}
+					}
+					throw new DataFormatException("Query Variable "+ value+" has not been assigned in the request");
 			}
-		}
-		catch (Exception e) {
-			throw new DataFormatException("unknown parameter variable " + value);
-		}
-		throw new DataFormatException("unknown paramater variable "+ value);
+			else
+					throw new DataFormatException("Query needs variable "+ value+" but this has not been assigned in the request");
 	}
 
 		/**
@@ -639,6 +650,13 @@ public class SparqlConverter {
 			if (alias.getVariable()!=null){
 				return iriFromString(resolveReference(alias.getVariable(),queryRequest));
 			}
+			else if (alias.getIri()==null) {
+				if (alias.getAlias()!=null) {
+					return iriFromString(resolveReference(alias.getAlias(), queryRequest));
+				}
+				else
+					throw new DataFormatException("iri place holder has neither a variable nor an alias nor an actual iri");
+			}
 			else
 				return (iriFromString(alias.getIri()));
 	}
@@ -652,9 +670,11 @@ public class SparqlConverter {
 
 
 	private String localName(String iri){
-		String del="#";
-		if (!iri.contains("#"))
-			del=":";
+			String del=":";
+			if (iri.contains("#"))
+				del="#";
+			else if (iri.startsWith("http"))
+				del="/";
 		String[] iriSplit= iri.split(del);
 		return iriSplit[iriSplit.length-1];
 	}

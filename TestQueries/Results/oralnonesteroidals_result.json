@@ -141,12 +141,6 @@
     "@id" : "sn:329803004",
     "rdfs:label" : "Product containing precisely mefenamic acid 500 milligram/1 each conventional release oral tablet (clinical drug)"
   }, {
-    "@id" : "sn:329806007",
-    "rdfs:label" : "Product containing precisely naproxen 250 milligram/1 each conventional release oral tablet (clinical drug)"
-  }, {
-    "@id" : "sn:329807003",
-    "rdfs:label" : "Product containing precisely naproxen 500 milligram/1 each conventional release oral tablet (clinical drug)"
-  }, {
     "@id" : "sn:329838002",
     "rdfs:label" : "Product containing precisely naproxen 250 milligram/1 each gastro-resistant oral tablet (clinical drug)"
   }, {

@@ -122,13 +122,13 @@ dependent
     ;
 
 ruleTarget
-    : ruleContext ('=' transform)? alias? targetListMode?
+    : ruleContext ('=' mapObject)? alias? targetListMode?
     | invocation alias?     // alias is not required when simply invoking a group
     ;
 
-transform
-    : literal           // trivial constant transform
-    | ruleContext       // 'copy' transform
+mapObject
+    : literal           // trivial constant mapObject
+    | ruleContext       // 'copy' mapObject
     | invocation        // other named transforms
     ;
 

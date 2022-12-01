@@ -1,9 +1,10 @@
 {
-  "argument" : {
-    "this" : "http://snomed.info/sct#42752001"
-  },
+  "argument" : [ {
+    "parameter" : "this",
+    "valueData" : "http://snomed.info/sct#840539006"
+  } ],
   "query" : {
-    "name" : "Allowable Ranges for a property",
+    "name" : "Allowable Properties for a concept",
     "description" : "'using property domains get the allowable properties from the supertypes of this concept",
     "from" : [ {
       "@id" : "http://endhealth.info/im#Concept",
@@ -11,13 +12,11 @@
     } ],
     "where" : {
       "property" : {
-        "inverse" : true,
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#range"
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
       },
       "is" : {
         "variable" : "$this",
-        "includeSupertypes" : true,
-        "includeSubtypes" : true
+        "includeSupertypes" : true
       }
     },
     "select" : [ {

@@ -613,8 +613,12 @@ public class EntityRepository2 {
     }
 
     private String getShort(String iri, String prefix, Map<String, String> prefixMap) {
-        prefixMap.put(iri.substring(0, iri.lastIndexOf("#") + 1), prefix);
-        return prefix + ":" + iri.substring(iri.lastIndexOf("#") + 1);
+        if (iri.contains("#")) {
+            prefixMap.put(iri.substring(0, iri.lastIndexOf("#") + 1), prefix);
+            return prefix + ":" + iri.substring(iri.lastIndexOf("#") + 1);
+        }
+        else
+            return "<"+ iri+">";
     }
 
     private Boolean andClause(TTArray and, boolean group, StringJoiner spql, Map<String, String> prefixMap) {

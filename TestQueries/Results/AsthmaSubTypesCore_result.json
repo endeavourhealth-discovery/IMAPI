@@ -108,14 +108,6 @@
     "rdfs:label" : "Acute severe exacerbation of asthma (disorder)",
     "im:code" : "708090002"
   }, {
-    "@id" : "sn:37981002",
-    "rdfs:label" : "Allergic bronchopulmonary aspergillosis (disorder)",
-    "im:code" : "37981002"
-  }, {
-    "@id" : "sn:103781000119103",
-    "rdfs:label" : "Allergic bronchopulmonary mycosis (disorder)",
-    "im:code" : "103781000119103"
-  }, {
     "@id" : "sn:41553006",
     "rdfs:label" : "Detergent asthma (disorder)",
     "im:code" : "41553006"
@@ -188,6 +180,14 @@
     "rdfs:label" : "Platinum asthma (disorder)",
     "im:code" : "404804003"
   }, {
+    "@id" : "sn:91053000",
+    "rdfs:label" : "Pulmonary eosinophilia (disorder)",
+    "im:code" : "91053000"
+  }, {
+    "@id" : "sn:233691007",
+    "rdfs:label" : "Asthmatic pulmonary eosinophilia (disorder)",
+    "im:code" : "233691007"
+  }, {
     "@id" : "sn:91340006",
     "rdfs:label" : "Extrinsic asthma with status asthmaticus (disorder)",
     "im:code" : "91340006"
@@ -235,6 +235,10 @@
     "@id" : "sn:155579003",
     "rdfs:label" : "Asthma: [NOS] or [attack] (disorder)",
     "im:code" : "155579003"
+  }, {
+    "@id" : "sn:155623005",
+    "rdfs:label" : "Pulmonary eosinophilia (disorder)",
+    "im:code" : "155623005"
   }, {
     "@id" : "sn:170643001",
     "rdfs:label" : "Occasional asthma (procedure)",
@@ -787,10 +791,6 @@
     "@id" : "sn:689431000000102",
     "rdfs:label" : "Asthma NOS (disorder)",
     "im:code" : "689431000000102"
-  }, {
-    "@id" : "sn:707361000000103",
-    "rdfs:label" : "Allergic bronchopulmonary aspergillosis",
-    "im:code" : "707361000000103"
   }, {
     "@id" : "sn:866881000000101",
     "rdfs:label" : "Chronic asthma with fixed airflow obstruction (disorder)",

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
@@ -40,6 +41,7 @@ public class SetExpander {
 			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
 			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false);
+
 			updateMembers(iri,members);
 
 		}
@@ -52,6 +54,7 @@ public class SetExpander {
 		if (setDefinition.getEntity().get(IM.DEFINITION)==null)
 			throw new DataFormatException(iri+ " : Unknown iri or this set has no definition");
 		//get the expansion.
+
 		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
 			.objectValue(Query.class),false);
 		updateMembers(iri,members);
@@ -64,16 +67,20 @@ public class SetExpander {
 				"\nWHERE { <" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> ?x.}";
 			Update upd = conn.prepareUpdate(spq);
 			upd.execute();
-			String graph= "<"+iri.substring(0,iri.lastIndexOf("#")+1)+">";
+			spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE.getIri()+"> ?type }}";
+			TupleQuery qry= conn.prepareTupleQuery(spq);
+			TupleQueryResult rs= qry.evaluate();
+			BindingSet bs= rs.next();
+			String graph= bs.getValue("g").stringValue();
 			StringJoiner sj = new StringJoiner("\n");
-			sj.add("INSERT DATA { graph "+ graph+"{");
+			sj.add("INSERT DATA { graph <"+ graph+"> {");
 			int batch = 0;
 			for (Concept member : members) {
 				batch++;
 				if (batch == 1000) {
 					sendUp(sj, conn);
 					sj = new StringJoiner("\n");
-					sj.add("INSERT DATA { graph " + graph + "{");
+					sj.add("INSERT DATA { graph <" + graph + "> {");
 					batch = 0;
 				}
 				sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");

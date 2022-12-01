@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"alias","from","graph","path","notExist","not","inverse","property","in","range","and","or","compare","function","argument","value"})
+@JsonPropertyOrder({"alias","from","graph","path","notExist","not","inverse","property","propertyIn","in","range","and","or","compare","function","argument","value"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
@@ -21,6 +21,7 @@ public class Where {
 	private boolean not;
 	private String path;
 	private TTAlias property;
+	private List<TTAlias> propertyIn;
 	private List<TTAlias> in;
 	private TTAlias is;
 	private Range range;
@@ -33,6 +34,32 @@ public class Where {
 	private Value value;
 	private List<OrderBy> orderBy;
 	private Integer limit;
+
+	public List<TTAlias> getPropertyIn() {
+		return propertyIn;
+	}
+
+	@JsonSetter
+	public Where setPropertyIn(List<TTAlias> propertyIn) {
+		this.propertyIn = propertyIn;
+		return this;
+	}
+
+	public Where addPropertyIn(TTAlias in){
+		if (this.propertyIn==null)
+			this.propertyIn= new ArrayList<>();
+		this.propertyIn.add(in);
+		return this;
+	}
+
+	public Where propertyIn(Consumer<TTAlias> builder){
+		TTAlias in= new TTAlias();
+		addPropertyIn(in);
+		builder.accept(in);
+		return this;
+	}
+
+
 
 	public String getPath() {
 		return path;

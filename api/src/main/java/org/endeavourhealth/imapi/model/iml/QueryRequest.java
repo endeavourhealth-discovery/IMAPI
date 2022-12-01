@@ -7,7 +7,9 @@ import org.endeavourhealth.imapi.model.iml.PathQuery;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -19,7 +21,7 @@ public class QueryRequest{
 	private Page page;
 
 	private String textSearch;
-	private Map<String,Object> argument;
+	private List<Argument> argument;
 	private Query query;
 	private PathQuery pathQuery;
 	private String referenceDate;
@@ -42,28 +44,55 @@ public class QueryRequest{
 		return this;
 	}
 
-	public Map<String, Object> getArgument() {
+	public List<Argument> getArgument() {
 		return argument;
 	}
 
 	@JsonSetter
-	public QueryRequest setArgument(Map<String, Object> argument) {
+	public QueryRequest setArgument(List<Argument> argument) {
 		this.argument = argument;
 		return this;
 	}
 
-	@JsonIgnore
-	public QueryRequest putArgument(String variable, Object value){
+
+
+	public QueryRequest addArgument(Argument argument){
 		if (this.argument==null)
-			this.argument= new HashMap<>();
-		argument.put(variable,value);
+			this.argument= new ArrayList<>();
+		this.argument.add(argument);
+		return this;
+	}
+	public QueryRequest argument(Consumer<Argument> builder){
+		Argument argument= new Argument();
+		addArgument(argument);
+		builder.accept(argument);
 		return this;
 	}
 
-	@JsonIgnore
-	public QueryRequest addArgument(String variable,Object value){
-		putArgument(variable,value);
+	public QueryRequest addArgument(String parameter, Object value){
+		Argument argument= new Argument();
+		argument.setParameter(parameter);
+		if (value instanceof String)
+			argument.setValueData((String) value);
+		else if (value instanceof TTIriRef)
+			argument.setValueIri((TTIriRef) value);
+		else
+			throw new IllegalArgumentException("Using add argument this way must include a string value or TTIref value");
+		addArgument(argument);
 		return this;
+	}
+
+	public Object getArgumentDataValue(String parameter){
+		if (this.argument==null)
+			return null;
+		else {
+			for (Argument arg : this.argument) {
+				if (arg.getParameter().equals(parameter))
+					return arg.getValueData();
+			}
+		}
+		return null;
+
 	}
 
 

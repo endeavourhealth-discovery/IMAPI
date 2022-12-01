@@ -1,17 +1,11 @@
 {
   "@id" : "http://endhealth.info/map#FHIR_2_PatientToIM",
-  "source" : {
-    "@id" : "http://hl7.org/2-0/fhir/StructureDefinition#Patient",
-    "variable" : "fhirPatient"
-  },
-  "rules" : [ {
-    "create" : {
-      "@id" : "http://endhealth.info/im#Patient",
-      "variable" : "imPatient"
-    }
-  }, {
-    "sourceProperty" : "id",
+  "sourceType" : "http://hl7.org/2-0/fhir/StructureDefinition#Patient",
+  "targetType" : "http://endhealth.info/im#Patient",
+  "propertyMap" : [ {
+    "source" : "id",
     "sourceVariable" : "fhirId",
+    "target" : "iri",
     "function" : {
       "@id" : "http://endhealth.info/im#Concatenate",
       "argument" : [ {
@@ -19,118 +13,124 @@
       }, {
         "valueVariable" : "fhirId"
       } ]
-    },
-    "targetProperty" : "@id",
-    "targetVariable" : "imId"
-  }, {
-    "sourceProperty" : "identifier",
-    "flatMap" : {
-      "rules" : [ {
-        "sourceProperty" : "value",
-        "sourceVariable" : "fhirNhsNumber",
-        "where" : {
-          "path" : "system",
-          "value" : {
-            "value" : "http://fhir.nhs.net/Id/nhs-number"
-          }
-        },
-        "targetProperty" : "nhsNumber"
-      } ]
     }
   }, {
-    "sourceProperty" : "name",
-    "sourceVariable" : "fhirName",
-    "flatMap" : {
-      "rules" : [ {
-        "sourceProperty" : "family",
-        "targetProperty" : "familyName"
-      }, {
-        "sourceProperty" : "given",
-        "listMode" : "FIRST",
-        "targetProperty" : "callingName"
-      }, {
-        "sourceProperty" : "given",
-        "sourceVariable" : "fhirGiven",
-        "listMode" : "ALL",
-        "function" : {
-          "@id" : "http://endhealth.info/im#StringJoin",
-          "argument" : [ {
-            "parameter" : "delimiter",
-            "valueData" : " "
-          }, {
-            "parameter" : "elements",
-            "valueVariable" : "fhirGiven"
-          } ]
-        },
-        "targetProperty" : "forenames"
-      } ]
-    }
-  }, {
-    "sourceProperty" : "address",
-    "targetProperty" : "homeAddress",
-    "valueMap" : {
-      "rules" : [ {
-        "create" : {
-          "@id" : "http://endhealth.info/im#Address"
-        },
-        "where" : {
-          "path" : "use",
-          "value" : {
-            "value" : "home"
-          }
+    "source" : "identifier",
+    "propertyMap" : [ {
+      "where" : {
+        "path" : "system",
+        "value" : {
+          "value" : "http://fhir.nhs.net/Id/nhs-number"
         }
+      },
+      "source" : "value",
+      "target" : "nhsNumber"
+    } ]
+  }, {
+    "source" : "name",
+    "propertyMap" : [ {
+      "source" : "family",
+      "target" : "familyName"
+    }, {
+      "source" : "given",
+      "listMode" : "FIRST",
+      "target" : "callingName"
+    }, {
+      "source" : "given",
+      "sourceVariable" : "fhirGiven",
+      "listMode" : "ALL",
+      "target" : "forenames",
+      "function" : {
+        "@id" : "http://endhealth.info/im#StringJoin",
+        "argument" : [ {
+          "parameter" : "delimiter",
+          "valueData" : " "
+        }, {
+          "parameter" : "elements",
+          "valueVariable" : "fhirGiven"
+        } ]
+      }
+    } ]
+  }, {
+    "source" : "address",
+    "target" : "homeAddress",
+    "objectMap" : {
+      "where" : {
+        "path" : "use",
+        "value" : {
+          "value" : "home"
+        }
+      },
+      "targetType" : "http://endhealth.info/im#Address",
+      "propertyMap" : [ {
+        "source" : "line",
+        "target" : "addressLine"
       }, {
-        "sourceProperty" : "line",
-        "targetProperty" : "addressLine"
+        "source" : "postalCode",
+        "target" : "postCode"
       }, {
-        "sourceProperty" : "postalCode",
-        "targetProperty" : "postCode"
-      }, {
-        "sourceProperty" : "city",
-        "targetProperty" : "addressLine",
+        "source" : "city",
+        "target" : "addressLine",
         "targetUpdateMode" : "ADDTOLIST"
       } ]
     }
   }, {
-    "sourceProperty" : "telecom",
-    "flatMap" : {
-      "rules" : [ {
-        "sourceProperty" : "value",
-        "where" : {
-          "and" : [ {
-            "path" : "system",
-            "value" : {
-              "value" : "phone"
-            }
-          }, {
-            "path" : "use",
-            "value" : {
-              "value" : "mobile"
-            }
-          } ]
-        },
-        "targetProperty" : "mobileTelephoneNumber"
-      } ]
-    }
+    "source" : "telecom",
+    "propertyMap" : [ {
+      "where" : {
+        "and" : [ {
+          "path" : "system",
+          "value" : {
+            "value" : "phone"
+          }
+        }, {
+          "path" : "use",
+          "value" : {
+            "value" : "mobile"
+          }
+        } ]
+      },
+      "source" : "value",
+      "target" : "mobileTelephoneNumber"
+    } ]
   }, {
-    "sourceProperty" : "telecom",
-    "flatMap" : {
-      "rules" : [ {
-        "sourceProperty" : "value",
-        "where" : {
-          "and" : [ {
-            "path" : "system",
-            "value" : {
-              "value" : "phone"
-            }
-          }, {
-            "path" : "use",
-            "value" : {
-              "value" : "home"
-            }
-          } ]
-        },
-        "targetProperty" : "homeTelephoneNumber"
+    "where" : {
+      "and" : [ {
+        "path" : "system",
+        "value" : {
+          "value" : "phone"
+        }
+      }, {
+        "path" : "use",
+        "value" : {
+          "value" : "home"
+        }
+      } ]
+    },
+    "source" : "telecom",
+    "target" : "homeTelephoneNumber",
+    "propertyMap" : [ {
+      "source" : "value"
+    } ]
+  }, {
+    "source" : "birthDate",
+    "target" : "dateOfBirth"
+  }, {
+    "source" : "managingOrganization",
+    "propertyMap" : [ {
+      "source" : "reference",
+      "target" : "provider"
+    } ]
+  }, {
+    "target" : "administrativeGender",
+    "objectMap" : {
+      "targetType" : "http://endhealth.info/im#CodeableConcept",
+      "propertyMap" : [ {
+        "source" : "gender",
+        "target" : "originalCode"
+      }, {
+        "target" : "originalScheme",
+        "valueData" : "http://hl7.org/fhir/administrative-gender"
       } ]
     }
   } ]

@@ -4,20 +4,57 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class TestQueries {
 
 
+	public static QueryRequest allowableChildTypes(){
+		Query query= new Query();
+		query.setName("Allowable child types for editor");
+		query
+			.where(w->w
+				.and(a->a
+					.setProperty(IM.IS_CONTAINED_IN)
+					.setIs(IM.NAMESPACE+"EntityTypes"))
+				.and(a->a
+					.setProperty(SHACL.PROPERTY)
+					.where(w1->w1
+						.and(a2->a2
+							.setProperty(SHACL.CLASS)
+							.setIs(new TTAlias().setVariable("this")))
+						.and(a2->a2
+							.setProperty(SHACL.PATH)
+						.setIn(List.of(TTAlias.iri(IM.IS_CONTAINED_IN.getIri()).setAlias("predicate")
+								,TTAlias.iri(RDFS.SUBCLASSOF.getIri()),TTAlias.iri(IM.IS_SUBSET_OF.getIri())))))))
+			.select(s->s
+				.setProperty(RDFS.LABEL))
+			.select(s->s
+				.setProperty(SHACL.PROPERTY)
+				.where(w->w
+					.and(a->a
+						.setProperty(SHACL.PATH)
+						.setIn(List.of(TTAlias.iri(IM.IS_CONTAINED_IN.getIri()).setAlias("predicate")
+							,TTAlias.iri(RDFS.SUBCLASSOF.getIri()),TTAlias.iri(IM.IS_SUBSET_OF.getIri()))))
+					.and(a->a
+						.setProperty(SHACL.CLASS)
+						.setIs(new TTAlias().setVariable("this"))))
+				.select(s1->s1
+					.setProperty(SHACL.PATH)));
+		QueryRequest qr= new QueryRequest()
+			.setQuery(query)
+			.addArgument("this",IM.FOLDER);
+		return qr;
+
+	}
 	public static QueryRequest query1() {
 		Query query = new Query()
 			.setName("FamilyHistoryExpansionObjectFormat")
@@ -93,8 +130,8 @@ public class TestQueries {
 			.setUsePrefixes(true)
 			.from(f ->f
 				.setIri(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true))
-			.select(RDFS.LABEL.getIri())
-			.select(IM.CODE.getIri());
+			.select(s->s.setProperty(RDFS.LABEL))
+			.select(s->s.setProperty(IM.CODE));
 		return new QueryRequest().setQuery(query);
 	}
 
@@ -106,8 +143,8 @@ public class TestQueries {
 				.setActiveOnly(true)
 				.from(f -> f
 					.setType(IM.CONCEPT))
-				.select(IM.CODE.getIri())
-				.select(RDFS.LABEL.getIri())
+				.select(s->s.setProperty(IM.CODE))
+				.select(s->s.setProperty(RDFS.LABEL))
 				.where(w -> w
 					.setProperty(new TTAlias(RDFS.RANGE).setInverse(true))
 					.setIs(new TTAlias().setVariable("$this").setIncludeSupertypes(true).setIncludeSubtypes(true))
@@ -123,8 +160,8 @@ public class TestQueries {
 				.setActiveOnly(true)
 				.from(f ->f
 					.setType(TTAlias.iri(IM.CONCEPT.getIri()).setIncludeSubtypes(true)))
-				.select(IM.CODE.getIri())
-				.select(RDFS.LABEL.getIri())
+				.select(s->s.setProperty(IM.CODE))
+				.select(s->s.setProperty(RDFS.LABEL))
 				.where(w->w
 					.setProperty(new TTAlias(RDFS.DOMAIN))
 					.setIs(new TTAlias().setVariable("$this").setIncludeSupertypes(true))
@@ -192,8 +229,8 @@ public class TestQueries {
 			query
 				.from(f ->f
 					.setType(IM.CONCEPT))
-				.select(IM.CODE.getIri())
-				.select(RDFS.LABEL.getIri())
+				.select(s->s.setProperty(IM.CODE))
+				.select(s->s.setProperty(RDFS.LABEL))
 				.where(w->w
 					.setProperty(IM.IS_A)
 					.where(w1-> w1
@@ -210,16 +247,16 @@ public class TestQueries {
 			.setUsePrefixes(true);
 
 		query
-			.select(RDFS.LABEL)
-			.select(IM.CODE)
+			.select(s->s.setProperty(RDFS.LABEL))
+			.select(s->s.setProperty(IM.CODE))
 			.select(s->s
 				.setProperty(IM.SOURCE_CONTEXT)
-				.select(IM.SOURCE_CODE_SCHEME)
-				.select(IM.SOURCE_HEADING)
-				.select(IM.SOURCE_SYSTEM)
-				.select(IM.SOURCE_TABLE)
-				.select(IM.SOURCE_FIELD)
-				.select(IM.SOURCE_SCHEMA))
+				.select(s1->s1.setProperty(IM.SOURCE_CODE_SCHEME))
+				.select(s1->s1.setProperty(IM.SOURCE_HEADING))
+				.select(s1->s1.setProperty(IM.SOURCE_SYSTEM))
+				.select(s1->s1.setProperty(IM.SOURCE_TABLE))
+				.select(s1->s1.setProperty(IM.SOURCE_FIELD))
+				.select(s1->s1.setProperty(IM.SOURCE_SCHEMA)))
 			.where(w->w
 					.setProperty(IM.SOURCE_CONTEXT)
 						.where(w1->w1.
@@ -232,7 +269,7 @@ public class TestQueries {
 			.setName("oral none steroidals")
 			.setUsePrefixes(true)
 
-			.select(RDFS.LABEL)
+			.select(s->s.setProperty(RDFS.LABEL))
 			.where(w->w
 				.and(a->a
 					.from(f->f

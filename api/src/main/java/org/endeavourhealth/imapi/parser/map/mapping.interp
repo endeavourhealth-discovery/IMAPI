@@ -136,7 +136,7 @@ checkClause
 log
 dependent
 ruleTarget
-transform
+mapObject
 invocation
 paramList
 param

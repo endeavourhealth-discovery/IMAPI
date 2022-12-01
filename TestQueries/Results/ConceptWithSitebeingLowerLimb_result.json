@@ -704,9 +704,15 @@
   }, {
     "@id" : "http://snomed.info/sct#1187506008"
   }, {
+    "@id" : "http://snomed.info/sct#1204421005"
+  }, {
+    "@id" : "http://snomed.info/sct#1230024004"
+  }, {
     "@id" : "http://snomed.info/sct#18751000119106"
   }, {
     "@id" : "http://snomed.info/sct#25581000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#34131000146109"
   }, {
     "@id" : "http://snomed.info/sct#88121000119101"
   }, {
@@ -726,9 +732,13 @@
   }, {
     "@id" : "http://snomed.info/sct#323041000119109"
   }, {
+    "@id" : "http://snomed.info/sct#323051000119106"
+  }, {
     "@id" : "http://snomed.info/sct#323081000119104"
   }, {
     "@id" : "http://snomed.info/sct#323101000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#323111000119109"
   }, {
     "@id" : "http://snomed.info/sct#323141000119108"
   }, {

@@ -1,0 +1,25 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX im: <http://endhealth.info/im#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX sn: <http://snomed.info/sct#>
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+
+SELECT distinct ?entity  ?p5 ?p6 ?p9
+WHERE {?entity <http://endhealth.info/im#isContainedIn> ?o1.
+Filter (?o1=<http://endhealth.info/im#EntityTypes>)
+?entity <http://www.w3.org/ns/shacl#property> ?o2.
+?o2 <http://www.w3.org/ns/shacl#class> ?o3.
+Filter (?o3=<http://endhealth.info/im#Folder>)
+?o2 <http://www.w3.org/ns/shacl#path> ?o4.
+Filter (?o4 in (<http://endhealth.info/im#isContainedIn>,<http://www.w3.org/2000/01/rdf-schema#subClassOf>,<http://endhealth.info/im#isSubsetOf>))
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p5.}
+ OPTIONAL { ?entity <http://www.w3.org/ns/shacl#property> ?p6.
+?p6 <http://www.w3.org/ns/shacl#path> ?o7.
+Filter (?o7 in (<http://endhealth.info/im#isContainedIn>,<http://www.w3.org/2000/01/rdf-schema#subClassOf>,<http://endhealth.info/im#isSubsetOf>))
+?p6 <http://www.w3.org/ns/shacl#class> ?o8.
+Filter (?o8=<http://endhealth.info/im#Folder>)
+
+ OPTIONAL { ?p6 <http://www.w3.org/ns/shacl#path> ?p9.}
+}
+}

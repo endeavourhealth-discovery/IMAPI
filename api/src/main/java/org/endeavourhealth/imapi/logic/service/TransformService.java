@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.iml.DataMap;
+import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -9,10 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transformengine.Transformer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.DataFormatException;
 
 public class TransformService {
@@ -37,36 +34,48 @@ public class TransformService {
 			}
 		else {
 			//Must be entity map
-			DataMap dataMap = mapEntity.get(IM.DEFINITION).asLiteral().objectValue(DataMap.class);
-			return transformEntities(request, dataMap);
+			MapObject mapObject = mapEntity.get(IM.DEFINITION).asLiteral().objectValue(MapObject.class);
+			return transformEntities(request, mapObject);
 			}
 		}
 
-	private Set<Object> transformEntities(TransformRequest request, DataMap dataMap) throws Exception {
-		Transformer transform = new Transformer(dataMap,request.getSourceFormat(),request.getTargetFormat());
+	private Set<Object> transformEntities(TransformRequest request, MapObject mapData) throws Exception {
+		Transformer transform = new Transformer(request.getSourceFormat(),request.getTargetFormat());
+		Set<Object> targetObjects= new HashSet<>();
 		//Look for the typed source data (String iri, object list) to transform
-		for (String sourceIri: request.getSource().keySet()){
-				if (dataMap.getSource().getIri().equals(sourceIri))
-					 return transform.transform(request.getSource().get(sourceIri));
+		for (String sourceIri: request.getSource().keySet()) {
+			if (mapData.getSourceType().equals(sourceIri)) {
+				List<Object> source = request.getSource().get(sourceIri);
+				for (Object sourceItem : source) {
+						targetObjects.addAll(transform.transformObject(sourceItem, mapData, null));
 				}
-		throw new DataFormatException("Source types do not match with the entity map ");
-
+			}
+		}
+		if (targetObjects.isEmpty())
+			throw new DataFormatException("transform request source types do not have valid Data maps");
+		return targetObjects;
 	}
 
 	private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws Exception{
-		for (TTValue map:graphMapEntity.get(IM.ENTITY_MAP).getElements()){
-			TTEntity mapEntity= EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
-			DataMap dataMap = mapEntity.get(IM.DEFINITION).asLiteral().objectValue(DataMap.class);
+		Transformer transform= new Transformer(request.getSourceFormat(),request.getTargetFormat());
+		Set<Object> targetObjects= new HashSet<>();
+		for (TTValue map:graphMapEntity.get(IM.ENTITY_MAP).getElements()) {
+			TTEntity mapEntity = EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
+			MapObject mapObject = mapEntity.get(IM.DEFINITION).asLiteral().objectValue(MapObject.class);
+
 			//Matches the entity map with the typed source map
-			for (String source:request.getSource().keySet()){
-				if (source.equals(dataMap.getSource().getIri())){
-					Transformer transformer= new Transformer(dataMap,request.getSourceFormat(),request.getTargetFormat());
-					return transformer.transform(request.getSource().get(source));
+			for (String sourceIri : request.getSource().keySet()) {
+				if (sourceIri.equals(mapObject.getSourceType())) {
+					List<Object> source = request.getSource().get(sourceIri);
+					for (Object sourceItem : source) {
+						targetObjects.addAll(transform.transformObject(sourceItem, mapObject, null));
+					}
 				}
 			}
-
 		}
-		return Collections.emptySet();
+		if (targetObjects.isEmpty())
+				throw new DataFormatException("transform request source types do not have valid Data maps");
+		return targetObjects;
 	}
 
 

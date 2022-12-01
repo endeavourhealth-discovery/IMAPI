@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.iml.ListMode;
-import org.endeavourhealth.imapi.model.iml.MapRule;
+import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
@@ -25,10 +25,6 @@ public class TTTranslator implements SyntaxTranslator {
 		return null;
 	}
 
-	@Override
-	public Object getListItems(Object source, ListMode listMode) throws DataFormatException {
-		return null;
-	}
 
 	@Override
 	public boolean isCollection(Object source) {
@@ -75,26 +71,13 @@ public class TTTranslator implements SyntaxTranslator {
 
 	private Object convertToTargetSingle(Object from) throws DataFormatException {
 		try {
-				if (from instanceof TTEntity){
-					TTNode nodeValue= (TTNode) from;
-					if (((TTEntity) from).getIri()!=null)
-						nodeValue.setIri(((TTEntity) from).getIri());
-					return nodeValue;
-				}
-				else if (from instanceof TTNode){
-					return from;
-				}
-				else if (from instanceof TTValue) {
-					return from;
-				}
-				else {
 					if (from instanceof String)
 						return TTLiteral.literal((String) from);
 					else if (from instanceof Number)
 						return TTLiteral.literal(from);
-					else
-						throw new DataFormatException("Unknown target value type "+ from.getClass().getName());
-				}
+					else {
+						return from;
+					}
 		}
 		catch (JsonProcessingException e){
 			throw new DataFormatException("Unknown target value type "+ from.getClass().getName());
@@ -104,33 +87,41 @@ public class TTTranslator implements SyntaxTranslator {
 
 
 	@Override
-	public void setPropertyValue(MapRule rule, Object targetEntity, String property, Object targetValue) throws DataFormatException {
-		    if (property.equals("@id")|property.equals("id")|property.equals("iri"))
-					((TTNode) targetEntity).setIri(((TTLiteral) targetValue).getValue());
-				else {
-					String predicate= property;
-					if (!property.contains(":"))
-						predicate= IM.NAMESPACE+property;
-
-					if (targetValue instanceof TTArray) {
-						((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTArray) targetValue);
+	public void setPropertyValue(MapProperty rule, Object targetEntity, String property, Object targetValue) throws DataFormatException {
+		try {
+			if (property.equals("@id") | property.equals("id") | property.equals("iri"))
+				((TTNode) targetEntity).setIri(((TTLiteral) targetValue).getValue());
+			else {
+				String predicate = property;
+				if (!property.contains(":"))
+					predicate = IM.NAMESPACE + property;
+				if (targetValue instanceof List) {
+					TTArray array = new TTArray();
+					for (Object item : (List) targetValue) {
+						array.add((TTValue) convertToTargetSingle(item));
 					}
-					else if (targetValue instanceof TTEntity){
-						TTNode nodeValue= (TTNode) targetValue;
-						if (((TTEntity) targetValue).getIri()!=null)
-							nodeValue.setIri(((TTEntity) targetValue).getIri());
-						if (rule.getTargetUpdateMode()== TargetUpdateMode.ADDTOLIST){
-							((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), nodeValue);
-						}
+					((TTNode) targetEntity).set(TTIriRef.iri(predicate), array);
+				} else if (targetValue instanceof TTArray) {
+					((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTArray) targetValue);
+				} else if (targetValue instanceof TTEntity) {
+					TTNode nodeValue = (TTNode) targetValue;
+					if (((TTEntity) targetValue).getIri() != null)
+						nodeValue.setIri(((TTEntity) targetValue).getIri());
+					if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
+						((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), nodeValue);
 					}
-					else if (targetValue instanceof TTValue) {
-						if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-							((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), (TTValue) targetValue);
-						} else
-							((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTValue) targetValue);
-					}
-					else
-						throw new DataFormatException("Value of property : "+property+" cannot be set as its class is invalid ("+ targetValue.getClass().getSimpleName()+")");
+				} else if (targetValue instanceof TTValue) {
+					if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
+						((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), (TTValue) targetValue);
+					} else
+						((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTValue) targetValue);
+				} else {
+					((TTNode) targetEntity).set(TTIriRef.iri(predicate), TTLiteral.literal(targetValue));
 				}
+			}
+		} catch (JsonProcessingException e) {
+			 throw new DataFormatException("Value of property : " + property + " cannot be set as its class is invalid (" + targetValue.getClass().getSimpleName() + ")");
+		}
 	}
+
 }

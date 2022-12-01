@@ -1,0 +1,83 @@
+{
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "@id" : "http://endhealth.info/im#Folder"
+    }
+  } ],
+  "query" : {
+    "name" : "Allowable child types for editor",
+    "where" : {
+      "and" : [ {
+        "property" : {
+          "@id" : "http://endhealth.info/im#isContainedIn"
+        },
+        "is" : {
+          "@id" : "http://endhealth.info/im#EntityTypes"
+        }
+      }, {
+        "property" : {
+          "@id" : "http://www.w3.org/ns/shacl#property"
+        },
+        "where" : {
+          "and" : [ {
+            "property" : {
+              "@id" : "http://www.w3.org/ns/shacl#class"
+            },
+            "is" : {
+              "variable" : "this"
+            }
+          }, {
+            "property" : {
+              "@id" : "http://www.w3.org/ns/shacl#path"
+            },
+            "in" : [ {
+              "@id" : "http://endhealth.info/im#isContainedIn",
+              "alias" : "predicate"
+            }, {
+              "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+            }, {
+              "@id" : "http://endhealth.info/im#isSubsetOf"
+            } ]
+          } ]
+        }
+      } ]
+    },
+    "select" : [ {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    }, {
+      "property" : {
+        "@id" : "http://www.w3.org/ns/shacl#property"
+      },
+      "select" : [ {
+        "property" : {
+          "@id" : "http://www.w3.org/ns/shacl#path"
+        }
+      } ],
+      "where" : {
+        "and" : [ {
+          "property" : {
+            "@id" : "http://www.w3.org/ns/shacl#path"
+          },
+          "in" : [ {
+            "@id" : "http://endhealth.info/im#isContainedIn",
+            "alias" : "predicate"
+          }, {
+            "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+          }, {
+            "@id" : "http://endhealth.info/im#isSubsetOf"
+          } ]
+        }, {
+          "property" : {
+            "@id" : "http://www.w3.org/ns/shacl#class"
+          },
+          "is" : {
+            "variable" : "this"
+          }
+        } ]
+      }
+    } ]
+  }
+}

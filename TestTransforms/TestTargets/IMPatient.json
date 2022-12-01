@@ -20,16 +20,23 @@
     } ],
     "im:forenames" : "Lindsey",
     "im:familyName" : "Albergaria",
+    "im:administrativeGender" : [ {
+      "rdf:type" : [ {
+        "@id" : "im:CodeableConcept"
+      } ],
+      "im:originalCode" : "F",
+      "im:originalScheme" : "\"http://hl7.org/fhir/administrative-gender\""
+    } ],
     "im:nhsNumber" : "3127565459",
     "im:callingName" : "Lindsey",
-    "im:mobileTelephoneNumber" : "07456223456",
-    "im:homeTelephoneNumber" : "01945 668768",
     "im:homeAddress" : [ {
       "rdf:type" : [ {
         "@id" : "im:Address"
       } ],
       "im:addressLine" : [ "29", "", "GREENWAY", "STOCKPORT" ],
       "im:postCode" : "SK6 4HH"
-    } ]
+    } ],
+    "im:dateOfBirth" : "2011-09-07",
+    "im:provider" : "Organization/328"
   } ]
 }

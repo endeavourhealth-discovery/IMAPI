@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.iml.DataMap;
+import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,18 +29,18 @@ class TransformServiceTest {
 
 
 
-//@Test
+ //@Test
 	void transform() throws Exception {
 		String root= new File(System.getProperty("user.dir")).getParent();
 		testSources = root+"\\TestTransforms\\TestSources";
 		testTargets= root+"\\TestTransforms\\TestTargets";
 		testMaps = root+"\\TestTransforms\\TestMaps";
 		//Creates an example transform map and adds to ebntity cache
-		TestMaps.fhirDstu2();
+		TestMaps.patientDSTU2();
 		ObjectMapper om= new ObjectMapper();
 		//Adds map to the IM cache so it can be accessed by the service
 		TTEntity mapEntity= EntityCache.getEntity(MAP.NAMESPACE+"FHIR_2_PatientToIM").getEntity();
-		DataMap map= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(DataMap.class);
+		MapObject map= mapEntity.get(IM.DEFINITION).asLiteral().objectValue(MapObject.class);
 		writeObject(testMaps,"DSTUToIMPatient",map);
 		System.out.println("Map written to" + testMaps+ "\\"+mapEntity.getName());
 

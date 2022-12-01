@@ -2,13 +2,14 @@ package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.iml.*;
-import org.endeavourhealth.imapi.model.iml.MapRule;
+import org.endeavourhealth.imapi.model.map.MapProperty;
+import org.endeavourhealth.imapi.model.map.MapObject;
 
 import java.util.*;
 import java.util.zip.DataFormatException;
 
 /**
- * Transformer engine to transform a collection of source objects to target objects using a transformation map
+ * Transformer engine to mapObject a collection of source objects to target objects using a transformation map
  * All source objects must be able to support graph like property paths (e.g. json, xml, object reflection.
  * <p> The transformation engine does not include extracting data from csv or tables.
  * However, the format dependent plugins may be extended to retrieve or cache data</p>
@@ -17,19 +18,14 @@ public class Transformer {
 
 	private final String sourceFormat;
 	private final String targetFormat;
-	private final DataMap dataMap;
-	private Map<String,List<Object>> typeToResources;
 	private final Set<Object> targetObjects= new HashSet<>();
-	private final Map<String,Object> varToObject= new HashMap<>();
-	private Object entitySource;
-	private Object workingTarget;
+	private Map<String,Object> varToObject= new HashMap<>();
 	private final SyntaxTranslator sourceTranslator;
 	private final SyntaxTranslator targetTranslator;
 
-	public Transformer(DataMap dataMap, String sourceFormat, String targetFormat) throws DataFormatException {
+	public Transformer(String sourceFormat, String targetFormat) throws DataFormatException {
 		this.sourceFormat= sourceFormat;
 		this.targetFormat= targetFormat;
-		this.dataMap = dataMap;
 		this.sourceTranslator = TransformFactory.createConverter(sourceFormat);
 		this.targetTranslator = TransformFactory.createConverter(targetFormat);
 	}
@@ -38,71 +34,40 @@ public class Transformer {
 	 * Transforms a collection of typed objects to a set of objects.
 	 * At least one types should match the source list in the transformation map
 	 * The objects are object references in a logical form that matches the type
-	 * Note that the actual format of source and target (e.g. json) are used as arguments to this function so that the engine could transform
+	 * Note that the actual format of source and target (e.g. json) are used as arguments to this function so that the engine could mapObject
 	 * The same logical source in different formats if the plugins have been developed
 	 *
-	 * @param sources a list of source objects to transform for example, derived from the typed source map from the transform request.
+	 * @param source a source object to transform mapObject for example, derived from the typed source map from the mapObject request.
+	 * @param objectMap  a Map object declaring the relatoinships between a source object class and target object class
+	 * @param varToObject a map mappking variables to its values passed in by parent transforms.
 	 * @return a set of target objects in the target format
 	 */
 
-	public Set<Object> transform(List<Object> sources) throws Exception {
-		return transform(sources,null,null);
-	}
-
-	/**
-	 * Transforms a collection of typed objects to a set of objects.
-	 * At least one types should match the source list in the transformation map
-	 * This method is used when the target resource already exists
-	 * The objects are object references in a logical form that matches the type
-	 * Note that the actual format of source and target (e.g. json) are used as arguments to this function so that the engine could transform
-	 * The same logical source in different formats if the plugins have been developed
-	 *
-	 * @param sources a list of source objects to transform for example, derived from the typed source map from the transform request.
-	 * @param target an existing target object passed in i.e. to be further populated
-	 * @return a set of target objects in the target format
-	 */
-
-	public Set<Object> transform(List<Object> sources,Object target) throws Exception {
-		return transform(sources,target,null);
-	}
-	/**
-	 * Transforms a collection of typed objects to a set of objects.
-	 * At least one types should match the source list in the transformation map
-	 * The objects are object references in a logical form that matches the type
-	 * Note that the actual format of source and target (e.g. json) are used as arguments to this function so that the engine could transform
-	 * The same logical source in different formats if the plugins have been developed
-	 *
-	 * @param sources a list of source objects to transform for example, derived from the typed source map from the transform request.
-	 * @param typedResources a map of type to a list of resources used in the map, where required.
-	 * @return a set of target objects in the target format
-	 */
-
-	public Set<Object> transform(List<Object> sources, Object targetObject,Map<String,List<Object>> typedResources) throws DataFormatException, JsonProcessingException {
-
-
-		for (Object sourceObject:sources) {
-			transformSource(sourceObject, targetObject, typedResources);
-		}
-		return targetObjects;
-
-		}
-
-	public Set<Object> transformSource(Object sourceObject, Object targetObject, Map<String, List<Object>> typedResources) throws DataFormatException, JsonProcessingException {
-		if (sourceTranslator.isCollection(sourceObject)) {
-			for (Object sourceItem : (Iterable<?>) sourceObject) {
-				transformSource(sourceItem, targetObject, typedResources);
+	public Set<Object> transformObject(Object source, MapObject objectMap, Map<String, Object> varToObject) throws Exception {
+		this.varToObject= varToObject;
+		if (this.varToObject==null)
+			this.varToObject= new HashMap<>();
+		if (source instanceof List) {
+			for (Object sourceItem : (List<?>) source) {
+				transformObject(sourceItem, objectMap, varToObject);
 			}
 			return targetObjects;
 		}
 		else {
-			if (targetObject != null) {
-				this.targetObjects.add(targetObject);
-				this.workingTarget = targetObject;
+			if (objectMap.getWhere()!=null){
+				if (!where(objectMap.getWhere(), source))
+					return null;
 			}
-			this.entitySource = sourceObject;
-			if (dataMap.getRules() != null) {
-				for (MapRule rule : dataMap.getRules())
-					transformRule(rule);
+			Object targetObject;
+			if (objectMap.getTargetType()!=null){
+				 targetObject= targetTranslator.createEntity(objectMap.getTargetType());
+				targetObjects.add(targetObject);
+			}
+			else
+				throw new DataFormatException("Object map has no target object to create");
+			if (objectMap.getPropertyMap() != null) {
+				for (MapProperty propertyMap : objectMap.getPropertyMap())
+					transformProperty(source,targetObject,propertyMap,this.varToObject);
 			}
 			return targetObjects;
 		}
@@ -113,48 +78,90 @@ public class Transformer {
 
 
 
-	private void transformRule(MapRule rule) throws DataFormatException, JsonProcessingException {
-		if (rule.getCreate()!=null){
-			 this.workingTarget = targetTranslator.createEntity(rule.getCreate().getIri());
-			 targetObjects.add(workingTarget);
+
+
+	public void transformProperty(Object sourceObject,Object targetObject,MapProperty rule,Map<String, Object> varToObject) throws Exception {
+		if (sourceObject instanceof List){
+			for (Object sourceItem:(List) sourceObject){
+				transformProperty(sourceItem,targetObject,rule,varToObject);
+			}
 		}
-		if (rule.getSourceProperty()!=null) {
-			if (this.workingTarget == null)
-				throw new DataFormatException("Data map or value map has not created or retrieved a target entity to populate ");
-			String path = rule.getSourceProperty();
-			String variable = rule.getSourceVariable();
-			Where where = rule.getWhere();
-			Object sourceValue;
-			if (where==null) {
-				sourceValue = sourceTranslator.getPropertyValue(this.entitySource, path);
+		else {
+			this.varToObject= varToObject;
+			if (rule.getSource() != null) {
+				if (targetObject == null)
+					throw new DataFormatException("Data map or value map has not created or retrieved a target entity to populate ");
+				Where where = rule.getWhere();
+				if (where != null) {
+					if (!where(where, sourceObject))
+						return;
+				}
+				String source = rule.getSource();
+				String variable = rule.getSourceVariable();
+				if (source != null) {
+					Object sourceValue;
+					sourceValue = sourceTranslator.getPropertyValue(sourceObject, source);
+					if (rule.getListMode() != null) {
+						if (sourceValue instanceof List) {
+							sourceValue = getListItems((List<?>) sourceValue, rule.getListMode());
+						}
+					}
+					if (variable != null)
+						this.varToObject.put(variable, sourceValue);
+					if (rule.getPropertyMap() != null) {
+						Transformer flatTransformer = new Transformer(sourceFormat, targetFormat);
+						for (MapProperty propertyMap : rule.getPropertyMap()) {
+								flatTransformer.transformProperty(sourceValue, targetObject, propertyMap, this.varToObject);
+						}
+					}
+					else if (rule.getObjectMap() != null) {
+						Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
+						if (rule.getTarget() != null) {
+							Object targetValue = targetTranslator.convertToTarget(nestedTransformer
+								.transformObject(sourceValue, rule.getObjectMap(), this.varToObject));
+							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
+						}
+						else
+							throw new DataFormatException("Map has an object map for processing property "+ source+" but no target property to assien the aobjec to. This should be a property map list instead");
+					}
+					else if (rule.getFunction() != null) {
+						Object targetValue = targetTranslator.convertToTarget(runFunction(rule.getFunction()));
+						if (rule.getTarget() != null)
+							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
+					}
+					else if (rule.getTarget() != null) {
+						if (rule.getValueData() != null) {
+							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), rule.getValueData());
+						}
+						else if (rule.getValueVariable() != null) {
+							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetTranslator.convertToTarget(varToObject.get(rule.getValueVariable())));
+						}
+						else {
+							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetTranslator.convertToTarget(sourceValue));
+						}
+					}
+					else
+						throw new DataFormatException("no target property, property map or object map for source " + source + "property");
+				}
+			}
+			else if (rule.getTarget()!=null){
+				if (rule.getObjectMap()!=null){
+					Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
+					Object targetValue = targetTranslator.convertToTarget(nestedTransformer
+						.transformObject(sourceObject, rule.getObjectMap(), this.varToObject));
+					targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
+				}
+				else if (rule.getValueData()!=null){
+					targetTranslator.setPropertyValue(rule,targetObject,rule.getTarget(),rule.getValueData());
+				}
+				else if (rule.getValueVariable()!=null){
+					targetTranslator.setPropertyValue(rule,targetObject,rule.getTarget(),varToObject.get(rule.getValueVariable()));
+				}
+				else
+					throw new DataFormatException("Property map has a target property of "+ rule.getTarget()+" but no source property and no object map for the target property.");
 			}
 			else
-				sourceValue= query(this.entitySource,path,where);
-			if (sourceValue != null){
-				if (variable!=null)
-				 varToObject.put(variable, sourceValue);
-				ListMode listMode= rule.getListMode();
-				if (listMode!=null)
-					sourceValue= sourceTranslator.getListItems(sourceValue,listMode);
-				if (rule.getFlatMap()!=null) {
-					new Transformer(rule.getFlatMap(), sourceFormat, targetFormat).transformSource(sourceValue, workingTarget, typeToResources);
-				}
-				else {
-					Object targetValue;
-					if (rule.getFunction() != null) {
-						targetValue = targetTranslator.convertToTarget(runFunction(rule.getFunction()));
-				}
-				else 	if (rule.getValueMap() != null) {
-					targetValue = targetTranslator.convertToTarget(
-						new Transformer(rule.getValueMap(), sourceFormat, targetFormat)
-							.transformSource(sourceValue, null, typeToResources));
-				}
-				else {
-					targetValue = targetTranslator.convertToTarget(sourceTranslator.convertFromSource(sourceValue));
-					}
-				targetTranslator.setPropertyValue(rule, workingTarget, rule.getTargetProperty(), targetValue);
-			}
-			}
+				throw new DataFormatException("unrecognised property map. No source property");
 		}
 
 	}
@@ -169,12 +176,18 @@ public class Transformer {
 
 
 
-		private Map<String, Object> getFunctionArguments(Function function) throws DataFormatException {
-			Map<String, Object> result = null;
-			int argIndex=0;
-			if (function.getArgument() != null) {
-				result = new HashMap<>();
-				for (Argument argument : function.getArgument()) {
+	private Map<String, Object> getFunctionArguments(Function function) throws DataFormatException {
+		if (function.getArgument() != null) {
+				return getArguments (function.getArgument());
+		}
+			else
+				return null;
+	}
+
+	private Map<String,Object> getArguments(List<Argument> arguments) throws DataFormatException {
+			Map<String, Object> result = new HashMap<>();
+			int argIndex = 0;
+				for (Argument argument : arguments) {
 					argIndex++;
 					String parameter = argument.getParameter();
 					if (parameter == null)
@@ -185,11 +198,10 @@ public class Transformer {
 						Object variableValue= varToObject.get(argument.getValueVariable());
 						if (variableValue==null)
 							throw new DataFormatException("argument : "+ parameter+",  variable: "+ argument.getValueVariable()+"  in function has not been defined");
-						result.put(parameter,sourceTranslator.convertFromSource(varToObject.get(argument.getValueVariable())));
+						result.put(parameter,varToObject.get(argument.getValueVariable()));
 					}
 
 				}
-			}
 			return result;
 		}
 
@@ -212,8 +224,7 @@ public class Transformer {
 	}
 
 	private boolean where (Where where,Object sourceNode) throws DataFormatException, JsonProcessingException {
-		Object sourceValue = sourceTranslator
-			.convertFromSource(sourceTranslator.getPropertyValue(sourceNode, where.getPath()));
+		Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, where.getPath());
 		if (where.getValue() != null) {
 			if (where.getValue().getValue().equals(sourceValue)) {
 				return true;
@@ -223,6 +234,15 @@ public class Transformer {
 		return false;
 	}
 
-
-
+	public Object getListItems(List source, ListMode listMode){
+			if (listMode== ListMode.FIRST)
+				return source.get(0);
+			else if (listMode==ListMode.REST) {
+				source.remove(0);
+				return source;
+			}
+			else
+				return source;
+		}
 }
+

@@ -120,24 +120,6 @@ public class Query extends TTIriRef{
 	}
 
 
-	public Query select(String property){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		Select select= new Select();
-		this.select.add(select);
-		select.setProperty(property);
-		return this;
-	}
-
-
-	public Query select(TTIriRef property){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		Select select= new Select();
-		this.select.add(select);
-		select.setProperty(property);
-		return this;
-	}
 
 	public Where getWhere() {
 		return where;

@@ -16,6 +16,17 @@ public class Argument {
 	private Compare valueFrom;
 	private TTIriRef valueIri;
 	private List<String> valueList;
+	private Object valueObject;
+
+
+	public Object getValueObject() {
+		return valueObject;
+	}
+
+	public Argument setValueObject(Object valueObject) {
+		this.valueObject = valueObject;
+		return this;
+	}
 
 	public List<String> getValueList() {
 		return valueList;

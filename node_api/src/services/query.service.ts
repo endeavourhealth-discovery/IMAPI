@@ -27,7 +27,7 @@ export default class QueryService {
       },
       argument: [
         {
-          parameter: "this",
+          parameter: "entityIri",
           valueIri: {
             "@id": iri
           }
@@ -83,7 +83,7 @@ export default class QueryService {
       },
       argument: [
         {
-          parameter: "this",
+          parameter: "entityIri",
           valueIri: {
             "@id": iri
           }

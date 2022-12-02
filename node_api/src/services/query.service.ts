@@ -1,7 +1,9 @@
 import Env from "@/services/env.service";
 import { QueryRequest } from "im-library/dist/types/interfaces/Interfaces";
-import { Query, TTAlias } from "im-library/dist/types/models/modules/AutoGen";
-import { Vocabulary } from "im-library/dist/api";
+import { TTAlias } from "im-library/dist/types/models/modules/AutoGen";
+import { Vocabulary, Helpers } from "im-library/dist/api";
+const { DataTypeCheckers } = Helpers;
+const { isObjectHasKeys } = DataTypeCheckers;
 const { IM, RDFS } = Vocabulary;
 
 export default class QueryService {
@@ -127,6 +129,9 @@ export default class QueryService {
       }
     };
 
-    return (await this.queryIM(queryRequest as any)).entities;
+    const response = await this.queryIM(queryRequest as any);
+
+    if (!isObjectHasKeys(response)) return [];
+    return response.entities;
   }
 }

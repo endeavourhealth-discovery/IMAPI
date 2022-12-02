@@ -25,9 +25,14 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#Query_AllowableRanges"
       },
-      argument: {
-        this: iri
-      }
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": iri
+          }
+        }
+      ]
     } as QueryRequest;
     const subtypesQuery = {
       query: {
@@ -76,9 +81,14 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#Query_AllowableProperties"
       },
-      argument: {
-        this: iri
-      }
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": iri
+          }
+        }
+      ]
     } as QueryRequest;
 
     if (searchTerm) {
@@ -100,5 +110,23 @@ export default class QueryService {
 
   private convertTTEntityToTTIriRef(ttEntity: any) {
     return { "@id": ttEntity["@id"], name: ttEntity[RDFS.LABEL] };
+  }
+
+  public async getAllowableChildTypes(iri: string) {
+    const queryRequest = {
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": iri
+          }
+        }
+      ],
+      query: {
+        "@id": "http://endhealth.info/im#AllowableChildTypes"
+      }
+    };
+
+    return (await this.queryIM(queryRequest as any)).entities;
   }
 }

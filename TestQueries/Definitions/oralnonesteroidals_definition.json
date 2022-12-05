@@ -3,7 +3,7 @@
     "name" : "oral none steroidals",
     "where" : {
       "and" : [ {
-        "from" : [ {
+        "entityId" : [ {
           "@id" : "http://snomed.info/sct#763158003",
           "includeSubtypes" : true
         } ]

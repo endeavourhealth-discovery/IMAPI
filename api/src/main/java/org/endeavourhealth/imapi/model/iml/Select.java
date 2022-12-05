@@ -11,22 +11,66 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"path","property","filtered","sum","average","name","inverseOf","alias","argument","function","select","where","orderBy","direction","limit","groupBy"})
+@JsonPropertyOrder({"alias","path","property","filtered","sum","average","name","inverseOf","alias","argument","function","select","where","orderBy","direction","limit","groupBy","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Select  {
+public class Select  extends TTAlias{
 	private TTAlias property;
 	private String path;
-	private boolean sum;
-	private boolean average;
-	private boolean max;
+	private Aggregate aggregate;
 	List<Argument> argument;
 	Function function;
 	private List<Select> select;
 	private Where where;
 	private List<OrderBy> orderBy;
-
 	private Integer limit;
+	private String direction;
 	private List<TTAlias> groupBy;
+	private Having having;
+
+
+
+	@JsonSetter
+	public Select setAlias(String alias) {
+		super.setAlias(alias);
+		return this;
+	}
+
+
+	public Having getHaving() {
+		return having;
+	}
+
+	@JsonSetter
+	public Select setHaving(Having having) {
+		this.having = having;
+		return this;
+	}
+
+
+	public Select having(Consumer<Having> builder) {
+		this.having= new Having();
+		builder.accept(this.having);
+		return this;
+	}
+
+	public String getDirection() {
+		return direction;
+	}
+
+	public Select setDirection(String direction) {
+		this.direction = direction;
+		return this;
+	}
+
+	public Aggregate getAggregate() {
+		return aggregate;
+	}
+
+	public Select setAggregate(Aggregate aggregate) {
+		this.aggregate = aggregate;
+		return this;
+	}
+
 
 	public List<TTAlias> getGroupBy() {
 		return groupBy;
@@ -167,32 +211,6 @@ public class Select  {
 		return this;
 	}
 
-	public boolean isSum() {
-		return sum;
-	}
-
-	public Select setSum(boolean sum) {
-		this.sum = sum;
-		return this;
-	}
-
-	public boolean isAverage() {
-		return average;
-	}
-
-	public Select setAverage(boolean average) {
-		this.average = average;
-		return this;
-	}
-
-	public boolean isMax() {
-		return max;
-	}
-
-	public Select setMax(boolean max) {
-		this.max = max;
-		return this;
-	}
 
 	public List<Argument> getArgument() {
 		return argument;

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix","iri","name","description","from","where","select","subQuery"})
+@JsonPropertyOrder({"prefix","iri","name","description","from","where","select","subQuery","groupBy","orderBy","direction","limit","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends TTIriRef{
 	private String description;
@@ -25,10 +25,27 @@ public class Query extends TTIriRef{
 	private String direction;
 	private Integer limit;
 	private List<TTAlias> groupBy;
+	private Having having;
 	private TTContext prefix;
 	private List<Query> subQuery;
 	private boolean activeOnly;
 	private boolean usePrefixes;
+
+	public Having getHaving() {
+		return having;
+	}
+
+	@JsonSetter
+	public Query setHaving(Having having) {
+		this.having = having;
+		return this;
+	}
+
+	public Query having(Consumer<Having> builder) {
+		this.having= new Having();
+		builder.accept(this.having);
+		return this;
+	}
 
 	public String getDescription() {
 		return description;

@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"alias","from","graph","path","notExist","not","inverse","property","propertyIn","in","range","and","or","compare","function","argument","value"})
+@JsonPropertyOrder({"alias","path","entityId","select","graph","notExist","not","inverse","property","propertyIn","in","range",
+	"and","or","compare","function","argument","value","orderBy","limit","where","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
 	private String description;
+	private Select select;
 	private List<TTAlias> from;
 	private String graph;
 	private boolean not;
@@ -32,8 +34,23 @@ public class Where {
 	private Function function;
 	private Where where;
 	private Value value;
-	private List<OrderBy> orderBy;
-	private Integer limit;
+
+
+	public Select getSelect() {
+		return select;
+	}
+
+	@JsonSetter
+	public Where setSelect(Select select) {
+		this.select = select;
+		return this;
+	}
+
+	public Where select(Consumer<Select> builder){
+		this.select= new Select();
+		builder.accept(this.select);
+		return this;
+	}
 
 	public List<TTAlias> getPropertyIn() {
 		return propertyIn;
@@ -70,36 +87,7 @@ public class Where {
 		return this;
 	}
 
-	public List<OrderBy> getOrderBy() {
-		return orderBy;
-	}
 
-	public Where setOrderBy(List<OrderBy> orderBy) {
-		this.orderBy = orderBy;
-		return this;
-	}
-
-	public Where addOrderBy(OrderBy orderBy){
-		if (this.orderBy==null)
-			this.orderBy= new ArrayList<>();
-		this.orderBy.add(orderBy);
-		return this;
-	}
-	public Where orderBy(Consumer<OrderBy> builder){
-		OrderBy orderBy= new OrderBy();
-		addOrderBy(orderBy);
-		builder.accept(orderBy);
-		return this;
-	}
-
-	public Integer getLimit() {
-		return limit;
-	}
-
-	public Where setLimit(Integer limit) {
-		this.limit = limit;
-		return this;
-	}
 
 	public List<TTAlias> getFrom() {
 		return from;
@@ -112,8 +100,8 @@ public class Where {
 	}
 
 	public Where addFrom(TTAlias from){
-		if (this.from==null)
-			this.from= new ArrayList<>();
+		if (this.from ==null)
+			this.from = new ArrayList<>();
 		this.from.add(from);
 		return this;
 	}

@@ -3,23 +3,23 @@
     "name" : "Pain in lower limb OR Chest pain minus (Chest wall pain or chest pain with sudden onset",
     "where" : {
       "or" : [ {
-        "from" : [ {
+        "entityId" : [ {
           "@id" : "http://snomed.info/sct#10601006",
           "includeSubtypes" : true
         } ]
       }, {
-        "from" : [ {
+        "entityId" : [ {
           "@id" : "http://snomed.info/sct#29857009",
           "includeSubtypes" : true
         } ],
         "notExist" : {
           "or" : [ {
-            "from" : [ {
+            "entityId" : [ {
               "@id" : "http://snomed.info/sct#102588006",
               "includeSubtypes" : true
             } ]
           }, {
-            "from" : [ {
+            "entityId" : [ {
               "@id" : "http://snomed.info/sct#29857009",
               "includeSubtypes" : true
             } ],

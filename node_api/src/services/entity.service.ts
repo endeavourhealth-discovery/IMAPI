@@ -1,6 +1,10 @@
 import Env from "@/services/env.service";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { TTBundle, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 
+import { Vocabulary } from "im-library/dist/api";
+import { buildDetails } from "@/builders/entity/detailsBuilder";
+
+const { IM, RDFS, RDF } = Vocabulary;
 export default class EntityService {
   axios: any;
 
@@ -18,6 +22,18 @@ export default class EntityService {
       });
     } catch (error) {
       return {} as any;
+    }
+  }
+
+  public async getBundleByPredicateExclusions(iri: string, predicates: string[]): Promise<TTBundle> {
+    try {
+      return (
+        await this.axios.get(Env.API + "api/entity/public/bundleByPredicateExclusions", {
+          params: { iri: iri, predicates: predicates.join(",") }
+        })
+      ).data;
+    } catch (error) {
+      return {} as TTBundle;
     }
   }
 
@@ -39,6 +55,15 @@ export default class EntityService {
       return response.data;
     } catch (error) {
       return [] as TTIriRef[];
+    }
+  }
+
+  public async getDetailsDisplay(iri: string): Promise<any[]> {
+    try {
+      const response = await this.getBundleByPredicateExclusions(iri, [IM.CODE, RDF.TYPE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT]);
+      return buildDetails(response);
+    } catch (error) {
+      return [] as any[];
     }
   }
 }

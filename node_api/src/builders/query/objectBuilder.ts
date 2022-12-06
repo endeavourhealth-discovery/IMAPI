@@ -1,26 +1,10 @@
 import { QueryObject } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Helpers, Vocabulary } from "im-library/dist/api";
-import axios from "axios";
-import EntityService from "@/services/entity.service";
 import * as crypto from "crypto";
-
-const { DataTypeCheckers } = Helpers;
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
-const { RDFS, IM } = Vocabulary;
-const { QueryDisplayType } = Enums;
-const entityService = new EntityService(axios);
-
-export async function getQueryObjectByIri(iri: string) {
-  const entity = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data;
-  if (!entity[IM.DEFINITION]) return {} as QueryObject;
-  return buildQueryObjectFromQuery(JSON.parse(entity[IM.DEFINITION]));
-}
 
 export function buildQueryObjectFromQuery(queryAPI: any) {
   const queryUI = {} as QueryObject;
   queryUI.children = [] as QueryObject[];
   buildRecursively(queryAPI, queryUI);
-
   return queryUI;
 }
 
@@ -28,8 +12,6 @@ export function buildQueryObject(label: string, queryAPIObject: any) {
   return {
     key: Number(crypto.randomBytes(64).readBigUInt64BE()),
     label: label,
-    // type: { firstType: "org.endeavourhealth.imapi.model.tripletree.TTIriRef" },
-    // value: { "@id": selected.value["@id"], name: selected.value.name },
     children: [] as QueryObject[],
     selectable: true
   } as QueryObject;

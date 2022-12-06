@@ -1,7 +1,9 @@
 import Env from "@/services/env.service";
-import { TTBundle, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { QueryDisplay, QueryObject, TTBundle, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { Vocabulary } from "im-library/dist/api";
+import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
+import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
 const { IM, RDFS, RDF } = Vocabulary;
 export default class EntityService {
   axios: any;
@@ -58,9 +60,10 @@ export default class EntityService {
 
   public async getDetailsDisplay(iri: string): Promise<any[]> {
     try {
-      const excludedPredicates = [IM.CODE, RDF.TYPE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT];
+      const excludedPredicates = [IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT];
       const entityPredicates = await this.getPredicates(iri);
       let response: TTBundle = {} as TTBundle;
+      let types: TTIriRef[] = [] as TTIriRef[];
       if (entityPredicates.includes(IM.HAS_MEMBER)) {
         response = await this.getBundleByPredicateExclusions(iri, excludedPredicates.concat([IM.HAS_MEMBER]));
         const partialAndCount = await this.getPartialAndTotalCount(iri, IM.HAS_MEMBER, 1, 10);
@@ -71,7 +74,9 @@ export default class EntityService {
       } else {
         response = await this.getBundleByPredicateExclusions(iri, excludedPredicates);
       }
-      return buildDetails(response);
+      types = response.entity[RDF.TYPE];
+      delete response.entity[RDF.TYPE];
+      return buildDetails(response, types);
     } catch (error) {
       return [] as any[];
     }
@@ -113,5 +118,17 @@ export default class EntityService {
     } catch (error) {
       return {} as any;
     }
+  }
+
+  async getQueryDefinitionDisplayByIri(iri: string): Promise<QueryDisplay> {
+    const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
+    if (!entity[IM.DEFINITION]) return {} as QueryDisplay;
+    return buildQueryDisplayFromQuery(JSON.parse(entity[IM.DEFINITION]));
+  }
+
+  async getQueryObjectByIri(iri: string) {
+    const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
+    if (!entity[IM.DEFINITION]) return {} as QueryObject;
+    return buildQueryObjectFromQuery(JSON.parse(entity[IM.DEFINITION]));
   }
 }

@@ -593,4 +593,10 @@ public class EntityController {
 		LOG.debug("getDistillation");
 		return entityService.getDistillation(conceptList);
 	}
+
+	@GetMapping(value = "/public/predicates")
+	public Set<String> getPredicates(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getPredicates");
+		return entityService.getPredicates(iri);
+	}
 }

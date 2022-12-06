@@ -1,9 +1,8 @@
-import { Vocabulary, Helpers } from "im-library/dist/api";
 import { TTBundle, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { add } from "lodash";
+import { Vocabulary, Helpers } from "im-library/dist/api";
 const { DataTypeCheckers } = Helpers;
 const { isObjectHasKeys, isArrayHasLength } = DataTypeCheckers;
-const { IM, RDFS, SHACL, RDF } = Vocabulary;
+const { IM, RDFS, SHACL } = Vocabulary;
 import * as crypto from "crypto";
 
 export function buildDetails(definition: TTBundle): any[] {
@@ -45,7 +44,9 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
-  treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
+  if (item["@id"] === IM.NAMESPACE + "loadMore")
+    treeNode.children?.push({ key: item["@id"], label: item.name, type: "loadMore", data: { predicate: treeNode.key, totalCount: (item as any).totalCount } });
+  else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
 }
 
 function addDefault(treeNode: any, entity: any, predicates: any, key: string | number) {

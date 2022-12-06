@@ -1150,5 +1150,10 @@ public class EntityService {
         conceptList.removeIf(c -> isas.contains(c.getIri()));
         return conceptList;
     }
+
+    public Set<String> getPredicates(String iri) {
+        return entityRepository.getPredicates(iri);
+    }
+
 }
 

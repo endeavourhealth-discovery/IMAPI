@@ -68,6 +68,8 @@ export default class EntityService {
           { name: "Load more", "@id": IM.NAMESPACE + "loadMore", totalCount: partialAndCount.totalCount as number }
         ]);
         response.predicates[IM.HAS_MEMBER] = "has member";
+      } else {
+        response = await this.getBundleByPredicateExclusions(iri, excludedPredicates);
       }
       return buildDetails(response);
     } catch (error) {

@@ -200,95 +200,107 @@ public class EntityTripleRepository {
     public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
+
+        StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
+                .add("SELECT (COUNT(?c) as ?count)")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .");
+        if (!inactive) {
+            sqlCount.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
+        }
+        sqlCount.add("}");
+
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT DISTINCT ?count ?c ?cname")
-            .add("WHERE {")
-            .add("{ SELECT (COUNT(?c) as ?count) {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p }}")
-            .add("UNION ")
-            .add("{ SELECT ?c ?cname {")
-            .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
-            .add("GRAPH ?g { ?c rdfs:label ?cname } .");
+                .add("SELECT ?c ?cname ")
+                .add("WHERE {")
+                .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?p .")
+                .add("GRAPH ?g { ?c rdfs:label ?cname } .");
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
         }
-
         if (!inactive) {
             sql.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
         }
-
-        sql.add("}}}");
+        sql.add("}");
         sql.add("ORDER BY ?cname");
-
         if (rowNumber != null && pageSize != null) {
             sql.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
         }
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+
+            TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
+            qryCount.setBinding("p", iri(parentIri));
+            try (TupleQueryResult rsCount = qryCount.evaluate()) {
+                BindingSet bsCount = rsCount.next();
+                result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
+            }
+
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("p", iri(parentIri));
             try (TupleQueryResult rs = qry.evaluate()) {
-                BindingSet bs = rs.next();
-                if(rowNumber==0){
-                    result.setTotalCount(((Literal) bs.getValue("count")).intValue());
-                } else {
-                    children.add(new TTIriRef(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
-                }
                 result.setPageSize(pageSize);
                 while (rs.hasNext()) {
-                    bs = rs.next();
+                    BindingSet bs = rs.next();
                     children.add(new TTIriRef(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
                 }
-                result.setResult(children);
+                result.setResult(children);;
             }
         }
+
         return result;
     }
 
     public Pageable<TTIriRef> findPartialWithTotalCount(String parentIri,String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> children = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
+
+        StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
+                .add("SELECT (COUNT(?p) as ?count)")
+                .add("WHERE {")
+                .add("  ?c ?pr ?p .");
+        if (!inactive) {
+            sqlCount.add("  OPTIONAL { ?p im:status ?s}").add("  FILTER (?s != im:Inactive) .");
+        }
+            sqlCount.add("}");
+
         StringJoiner sql = new StringJoiner(System.lineSeparator())
-            .add("SELECT ?count ?p ?pname")
-            .add("WHERE {")
-            .add("{ SELECT (COUNT(?p) as ?count) {")
-            .add("  ?c ?pr ?p }}")
-            .add("UNION ")
-            .add("{ SELECT ?p ?pname {")
-            .add("  ?c ?pr ?p .")
-            .add("?p rdfs:label ?pname .");
+                .add("SELECT ?p ?pname ")
+                .add("WHERE {")
+                .add("  ?c ?pr ?p .")
+                .add("?p rdfs:label ?pname .");
         if (schemeIris != null && !schemeIris.isEmpty()) {
             sql.add(valueList("g", schemeIris));
         }
-
         if (!inactive) {
             sql.add("  OPTIONAL { ?p im:status ?s}").add("  FILTER (?s != im:Inactive) .");
         }
-
-        sql.add("}}}");
+        sql.add("}");
         sql.add("ORDER BY ?pname");
-
         if (rowNumber != null && pageSize != null) {
             sql.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
         }
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+
+            TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
+            qryCount.setBinding("c", iri(parentIri));
+            qryCount.setBinding("pr", iri(predicateIri));
+            try (TupleQueryResult rsCount = qryCount.evaluate()) {
+                BindingSet bsCount = rsCount.next();
+                result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
+            }
+
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("c", iri(parentIri));
-            qry.setBinding("pr", iri( predicateIri));
+            qry.setBinding("pr", iri(predicateIri));
             try (TupleQueryResult rs = qry.evaluate()) {
-                BindingSet bs = rs.next();
-                if(rowNumber==0){
-                    result.setTotalCount(((Literal) bs.getValue("count")).intValue());
-                }else{
-                    children.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
-                }
                 result.setPageSize(pageSize);
                 while (rs.hasNext()) {
-                    bs = rs.next();
+                    BindingSet bs = rs.next();
                     children.add(new TTIriRef(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
                 }
-                result.setResult(children);
+                result.setResult(children);;
             }
         }
         return result;

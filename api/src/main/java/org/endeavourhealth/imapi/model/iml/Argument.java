@@ -15,7 +15,8 @@ public class Argument {
 	private String valueVariable;
 	private Compare valueFrom;
 	private TTIriRef valueIri;
-	private List<String> valueList;
+	private List<TTIriRef> valueIriList;
+	private List<String> valueDataList;
 	private Object valueObject;
 
 
@@ -28,19 +29,19 @@ public class Argument {
 		return this;
 	}
 
-	public List<String> getValueList() {
-		return valueList;
+	public List<String> getValueDataList() {
+		return valueDataList;
 	}
 
-	public Argument setValueList(List<String> valueList) {
-		this.valueList = valueList;
+	public Argument setValueDataList(List<String> valueDataList) {
+		this.valueDataList = valueDataList;
 		return this;
 	}
 
 	public Argument addToValueList(String value){
-		if (this.valueList==null)
-			this.valueList= new ArrayList<>();
-			this.valueList.add(value);
+		if (this.valueDataList ==null)
+			this.valueDataList = new ArrayList<>();
+			this.valueDataList.add(value);
 			return this;
 	}
 

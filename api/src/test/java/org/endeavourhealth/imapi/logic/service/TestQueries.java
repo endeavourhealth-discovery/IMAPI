@@ -275,7 +275,7 @@ public class TestQueries {
 					.from(f->f
 						.setIri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true)))
 				.and(a->a
-					.setPath(IM.ROLE_GROUP.getIri())
+					.setPathTo(IM.ROLE_GROUP.getIri())
 					.and(a1->a1
 						.setProperty(TTAlias.iri(SNOMED.NAMESPACE+"127489000").setIncludeSubtypes(true))
 						.setIs(TTAlias.iri(SNOMED.NAMESPACE+"372665008").setIncludeSubtypes(true)))

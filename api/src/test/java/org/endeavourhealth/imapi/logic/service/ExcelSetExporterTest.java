@@ -80,7 +80,7 @@ public class ExcelSetExporterTest {
               .or(o->o
                 .from(f->f
                     .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setIncludeSubtypes(true))
-                  .setPath(IM.ROLE_GROUP.getIri())
+                  .setPathTo(IM.ROLE_GROUP.getIri())
                   .property(p->p
                     .setIri("http://snomed.info/sct#10362601000001103")
                     .setName("Has VMP (attribute)")

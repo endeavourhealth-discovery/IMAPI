@@ -21,7 +21,7 @@ public class Where {
 	private List<TTAlias> from;
 	private String graph;
 	private boolean not;
-	private String path;
+	private String pathTo;
 	private TTAlias property;
 	private List<TTAlias> propertyIn;
 	private List<TTAlias> in;
@@ -78,12 +78,12 @@ public class Where {
 
 
 
-	public String getPath() {
-		return path;
+	public String getPathTo() {
+		return pathTo;
 	}
 
-	public Where setPath(String path) {
-		this.path = path;
+	public Where setPathTo(String pathTo) {
+		this.pathTo = pathTo;
 		return this;
 	}
 

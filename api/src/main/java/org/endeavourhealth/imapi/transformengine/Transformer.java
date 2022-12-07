@@ -206,7 +206,7 @@ public class Transformer {
 		}
 
 	private Object query(Object sourceEntity, String path,Where where) throws DataFormatException, JsonProcessingException {
-		if (where.getPath() != null) {
+		if (where.getPathTo() != null) {
 			if (where(where, sourceEntity))
 				return sourceTranslator.getPropertyValue(sourceEntity,path);
 			else
@@ -224,7 +224,7 @@ public class Transformer {
 	}
 
 	private boolean where (Where where,Object sourceNode) throws DataFormatException, JsonProcessingException {
-		Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, where.getPath());
+		Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, where.getPathTo());
 		if (where.getValue() != null) {
 			if (where.getValue().getValue().equals(sourceValue)) {
 				return true;

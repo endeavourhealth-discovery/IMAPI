@@ -84,7 +84,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 				if (or.getFrom() != null) {
 					if (or.getAnd() == null) {
 						if (or.getOr() == null) {
-							if (or.getPath()==null){
+							if (or.getPathTo()==null){
 								if (or.getNotExist() == null) {
 									for (TTAlias from : or.getFrom()) {
 										flatWhere.addFrom(from);
@@ -161,11 +161,11 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
 		ECLParser.SubrefinementContext subref = refinement.subrefinement();
 		if (subref.eclattributeset() != null) {
-			mainWhere.setPath(IM.ROLE_GROUP.getIri());
+			mainWhere.setPathTo(IM.ROLE_GROUP.getIri());
 			convertAttributeSet(mainWhere,subref.eclattributeset());
 		}
 		else if (subref.eclattributegroup() != null) {
-			mainWhere.setPath(IM.ROLE_GROUP.getIri());
+			mainWhere.setPathTo(IM.ROLE_GROUP.getIri());
 			convertAttributeGroup(mainWhere, subref.eclattributegroup());
 		}
 		else
@@ -173,7 +173,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		if (refinement.conjunctionrefinementset() != null) {
 			Where pv= new Where();
 			mainWhere.addAnd(pv);
-			pv.setPath(IM.ROLE_GROUP.getIri());
+			pv.setPathTo(IM.ROLE_GROUP.getIri());
 			for (ECLParser.SubrefinementContext subref2 : refinement.conjunctionrefinementset().subrefinement()) {
 				Where refinedGroup= new Where();
 				pv.addAnd(refinedGroup);

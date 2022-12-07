@@ -43,11 +43,11 @@ public class IMLToECL {
 				addClass(from, ecl, includeName);
 			}
 		}
-		else if (where.getPath()!=null) {
+		else if (where.getPathTo()!=null) {
 			ecl.append("* ");
 		}
-		if (where.getPath() != null) {
-					if (where.getPath().equals(IM.ROLE_GROUP.getIri())) {
+		if (where.getPathTo() != null) {
+					if (where.getPathTo().equals(IM.ROLE_GROUP.getIri())) {
 						if (where.getAnd() != null) {
 							addRefinedConjunction(where.getAnd(), ecl, includeName);
 						} else if (where.getOr() != null) {
@@ -132,10 +132,10 @@ public class IMLToECL {
 				ecl.append(" OR ");
 			else
 				first = false;
-			if (or.getPath()!=null || or.getProperty()!=null || or.getAnd()!=null)
+			if (or.getPathTo()!=null || or.getProperty()!=null || or.getAnd()!=null)
 				ecl.append(" (");
 			where(or, ecl, includeName);
-			if (or.getPath()!=null || or.getProperty()!=null || or.getAnd()!=null)
+			if (or.getPathTo()!=null || or.getProperty()!=null || or.getAnd()!=null)
 				ecl.append(")");
 		}
 	}
@@ -147,10 +147,10 @@ public class IMLToECL {
 				ecl.append(" AND ");
 			else
 				first = false;
-			if (and.getPath()!=null || and.getProperty()!=null || and.getOr()!=null)
+			if (and.getPathTo()!=null || and.getProperty()!=null || and.getOr()!=null)
 				ecl.append(" (");
 			where(and, ecl, includeName);
-			if (and.getPath()!=null || and.getProperty()!=null || and.getOr()!=null)
+			if (and.getPathTo()!=null || and.getProperty()!=null || and.getOr()!=null)
 				ecl.append(")");
 		}
 	}

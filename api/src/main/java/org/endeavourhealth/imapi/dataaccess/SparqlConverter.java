@@ -93,7 +93,7 @@ public class SparqlConverter {
 	}
 
 	private void validateWhere(Where where) throws DataFormatException {
-		if(where.getProperty()==null&&where.getPath()==null
+		if(where.getProperty()==null&&where.getPathTo()==null
 			&&where.getAnd()==null&&where.getOr()==null&&where.getNotExist()==null&&where.getFrom()==null)
 			throw new DataFormatException("Where clause must have a path, property or boolean and/or, or not exist");
 		if (where.getProperty() != null) {
@@ -280,8 +280,8 @@ public class SparqlConverter {
 			}
 			if (where.getFrom()!=null)
 				from(whereQl,where.getFrom());
-			if (where.getPath()!=null){
-				for (String prop:where.getPath().split(" ")){
+			if (where.getPathTo()!=null){
+				for (String prop:where.getPathTo().split(" ")){
 					o++;
 					String object= localName(prop)+o;
 					whereQl.append("?").append(subject).append(" ").append(iriFromString(prop))
@@ -289,7 +289,7 @@ public class SparqlConverter {
 					subject= object;
 				}
 			}
-			if (where.getProperty()==null&&where.getPath()!=null&&where.getWhere()!=null){
+			if (where.getProperty()==null&&where.getPathTo()!=null&&where.getWhere()!=null){
 					where(whereQl,subject,where.getWhere());
 				}
 				else if (where.getProperty() != null) {

@@ -1,18 +1,19 @@
-import { Vocabulary, Helpers } from "im-library/dist/api";
 import { TTBundle, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { add } from "lodash";
+import { Vocabulary, Helpers } from "im-library/dist/api";
 const { DataTypeCheckers } = Helpers;
 const { isObjectHasKeys, isArrayHasLength } = DataTypeCheckers;
-const { IM, RDFS, SHACL, RDF } = Vocabulary;
+const { IM, RDFS, SHACL } = Vocabulary;
 import * as crypto from "crypto";
+import { buildQueryObjectFromQuery } from "../query/objectBuilder";
+import { buildQueryDisplayFromQuery } from "../query/displayBuilder";
 
-export function buildDetails(definition: TTBundle): any[] {
+export function buildDetails(definition: TTBundle, types?: TTIriRef[]): any[] {
   const treeNode = { children: [] as any[] };
-  buildTreeDataRecursively(treeNode, definition.entity, definition.predicates);
+  buildTreeDataRecursively(treeNode, definition.entity, definition.predicates, types);
   return treeNode.children!;
 }
 
-function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any) {
+function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any, types?: TTIriRef[]) {
   if (isObjectHasKeys(entity)) {
     for (const key of Object.keys(entity)) {
       if (key === IM.ROLE_GROUP) {
@@ -21,12 +22,16 @@ function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any) {
         addTermCodes(treeNode, entity, predicates, key);
       } else if (key === SHACL.PROPERTY) {
         addProperty(treeNode, entity, predicates, key);
+      } else if (key === SHACL.PARAMETER) {
+        addParameter(treeNode, entity, predicates, key);
+      } else if (key === IM.DEFINITION) {
+        addDefinition(treeNode, entity, predicates, key, types || []);
       } else if (key === IM.HAS_MAP) {
         const defaultNode = { key: key, label: predicates[key], children: [] };
         treeNode.children.push(defaultNode);
-        addDefault(defaultNode, entity, predicates, key);
+        addDefault(defaultNode, entity, predicates);
       } else if (key !== "@id") {
-        const newTreeNode = { key: key, label: predicates[key], children: [] };
+        const newTreeNode = { key: key, label: predicates[key] || key, children: [] };
         treeNode.children?.push(newTreeNode);
         buildTreeDataRecursively(newTreeNode, entity[key], predicates);
       }
@@ -45,31 +50,59 @@ function addValueToLabel(treeNode: any, divider: string, value: any) {
 }
 
 function addIriLink(treeNode: any, item: TTIriRef) {
-  treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
+  if (item["@id"] === IM.NAMESPACE + "loadMore")
+    treeNode.children?.push({ key: item["@id"], label: item.name, type: "loadMore", data: { predicate: treeNode.key, totalCount: (item as any).totalCount } });
+  else treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
 }
 
-function addDefault(treeNode: any, entity: any, predicates: any, key: string | number) {
-  if (isArrayHasLength(entity[key])) {
-    for (const [index, item] of [entity[key]].entries()) {
-      if (isObjectHasKeys(item[index], ["@id", "name"])) {
-        addIriLink(treeNode, item[index]);
-      } else {
-        addDefault(treeNode, item, predicates, index);
-      }
-    }
-  } else if (isObjectHasKeys(entity[key])) {
-    for (const objectKey of Object.keys(entity[key])) {
-      const objectNode = {
-        key: String(crypto.randomBytes(64).readBigUInt64BE()),
-        label: predicates[objectKey] || objectKey,
-        children: [] as any
-      };
+function addDefinition(treeNode: any, entity: any, predicates: any, key: string, types: TTIriRef[]) {
+  const isQuery = types.some(type => type["@id"] === IM.QUERY);
+  const definition = JSON.parse(entity[IM.DEFINITION]);
+  const definitionValue = isQuery ? buildQueryObjectFromQuery(definition) : buildQueryDisplayFromQuery(definition);
+  const definitionNode = { key: key, label: predicates[key] || key, children: definitionValue.children };
+  treeNode.children.push(definitionNode);
+}
 
-      treeNode.children.push(objectNode);
-      addDefault(objectNode, entity[key], predicates, objectKey);
+function addParameter(treeNode: any, entity: any, predicates: any, key: string) {
+  const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
+  treeNode.children?.push(newTreeNode);
+  if (isArrayHasLength(entity[key])) {
+    for (const parameter of entity[key]) {
+      const parameterNode = {
+        key: String(crypto.randomBytes(64).readBigUInt64BE()),
+        label: parameter[RDFS.LABEL],
+        children: [] as any[]
+      };
+      newTreeNode.children.push(parameterNode);
+      buildTreeDataRecursively(parameterNode, parameter, predicates);
     }
-  } else {
-    addValueToLabel(treeNode, " - ", entity[key]);
+  }
+}
+
+function addDefault(treeNode: any, entity: any, predicates: any) {
+  for (const key of Object.keys(entity)) {
+    if (isArrayHasLength(entity[key])) {
+      for (const [index, item] of [entity[key]].entries()) {
+        if (isObjectHasKeys(item[index], ["@id", "name"])) {
+          addIriLink(treeNode, item[index]);
+        } else {
+          addDefault(treeNode, item, predicates);
+        }
+      }
+    } else if (isObjectHasKeys(entity[key])) {
+      for (const objectKey of Object.keys(entity[key])) {
+        const objectNode = {
+          key: String(crypto.randomBytes(64).readBigUInt64BE()),
+          label: predicates[objectKey] || objectKey,
+          children: [] as any
+        };
+
+        treeNode.children.push(objectNode);
+        addDefault(objectNode, entity[key], predicates);
+      }
+    } else {
+      addValueToLabel(treeNode, " - ", entity[key]);
+    }
   }
 }
 

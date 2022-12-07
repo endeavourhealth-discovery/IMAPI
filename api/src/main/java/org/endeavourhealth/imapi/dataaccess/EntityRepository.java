@@ -620,4 +620,22 @@ public class EntityRepository {
         }
         return isas;
     }
+
+    public Set<String> getPredicates(String iri) {
+        Set<String> predicates = new HashSet<>();
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner query = new StringJoiner(System.lineSeparator())
+                    .add("SELECT DISTINCT ?p WHERE {")
+                    .add("  ?s ?p ?o .")
+                    .add("}");
+            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
+            qry.setBinding("s", iri(iri));
+            TupleQueryResult rs = qry.evaluate();
+            while (rs.hasNext()){
+                BindingSet bs= rs.next();
+                predicates.add(bs.getValue("p").stringValue());
+            }
+        }
+        return predicates;
+    }
 }

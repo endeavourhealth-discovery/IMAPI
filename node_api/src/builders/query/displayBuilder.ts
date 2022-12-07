@@ -33,7 +33,7 @@ function buildRecursively(queryAPI: any, queryUI: QueryDisplay) {
           addSimpleWhere(queryAPI, key, queryUI);
         } else if (isSimpleWhereList(key, queryAPI[key])) {
           addSimpleWhereList(queryAPI, key, queryUI);
-        } else if ("from" === key) {
+        } else if ("entityId" === key || "from" === key) {
           addFrom(queryAPI, key, queryUI);
         } else if (isPrimitiveType(queryAPI[key])) {
           addPrimitiveType(queryAPI, key, queryUI);

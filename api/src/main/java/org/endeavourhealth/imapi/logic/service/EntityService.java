@@ -562,6 +562,10 @@ public class EntityService {
         return downloadDto;
     }
 
+    public boolean getHasChildren(String iri) {
+        return entityRepository.getHasChildren(iri);
+    }
+
     public XlsHelper getExcelDownload(String iri, List<ComponentLayoutItem> configs, DownloadParams params) {
         if (iri == null || iri.isEmpty())
             return null;

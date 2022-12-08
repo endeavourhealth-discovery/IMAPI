@@ -638,4 +638,19 @@ public class EntityRepository {
         }
         return predicates;
     }
+
+    public boolean getHasChildren(String iri) {
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner query = new StringJoiner(System.lineSeparator())
+                    .add("PREFIX im: <http://endhealth.info/im#>")
+                    .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                    .add("SELECT ?c {")
+                    .add("  ?c (rdfs:subClassOf | rdfs:subPropertyOf | im:isContainedIn | im:isChildOf | im:inTask | im:isSubsetOf) ?parent.")
+                    .add("} LIMIT 1");
+            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
+            qry.setBinding("parent", iri(iri));
+            TupleQueryResult rs = qry.evaluate();
+            return rs.hasNext();
+        }
+    }
 }

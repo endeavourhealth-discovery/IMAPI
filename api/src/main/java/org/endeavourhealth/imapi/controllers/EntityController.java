@@ -599,4 +599,10 @@ public class EntityController {
 		LOG.debug("getPredicates");
 		return entityService.getPredicates(iri);
 	}
+
+	@GetMapping(value = "/public/hasChildren")
+	public Boolean getHasChildren(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getHasChildren");
+		return entityService.getHasChildren(iri);
+	}
 }

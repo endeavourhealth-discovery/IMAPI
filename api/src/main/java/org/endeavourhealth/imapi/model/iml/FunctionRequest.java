@@ -3,11 +3,13 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 public class FunctionRequest {
 	private String functionIri;
-	private Map<String,Object> arguments;
+	private List<Argument> arguments;
 	public String getFunctionIri() {
 		return functionIri;
 	}
@@ -15,23 +17,18 @@ public class FunctionRequest {
 		this.functionIri = functionIri;
 		return this;
 	}
-	public Map<String, Object> getArguments() {
+	public List<Argument> getArguments() {
 		return arguments;
 	}
-	public FunctionRequest setArguments(Map<String, Object> arguments) {
+
+	public FunctionRequest setArguments(List<Argument> arguments) {
 		this.arguments = arguments;
 		return this;
 	}
 
-	public FunctionRequest putArgument(String variable, String value) {
-		if (this.arguments==null)
-			this.arguments= new HashMap<>();
-		arguments.put(variable,value);
-		return this;
-	}
-
-	public FunctionRequest addArgument(String variable, String value){
-		putArgument(variable,value);
+	public FunctionRequest addArgument(Argument argument) {
+		if (null == argument) this.arguments = new ArrayList<>();
+		this.arguments.add(argument);
 		return this;
 	}
 }

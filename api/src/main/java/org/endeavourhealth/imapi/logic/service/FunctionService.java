@@ -28,6 +28,8 @@ public class FunctionService {
 				return getAdditionalAllowableTypes(arguments);
 			case (IM.NAMESPACE+"Function_GetLogicOptions") :
 				return getLogicOptions();
+			case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes"):
+				return getSetEditorIriSchemes();
 			default :
 				throw new IllegalArgumentException("No such function");
 		}
@@ -83,5 +85,13 @@ public class FunctionService {
             List<TTIriRef> options = new ArrayList<>(iriRefs);
             return om.valueToTree(options);
         }
+	}
+
+	private JsonNode getSetEditorIriSchemes() {
+		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.getIri(),null,1,200,false);
+		List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
+		try (CachedObjectMapper om = new CachedObjectMapper()) {
+			return om.valueToTree(resultsAsIri);
+		}
 	}
 }

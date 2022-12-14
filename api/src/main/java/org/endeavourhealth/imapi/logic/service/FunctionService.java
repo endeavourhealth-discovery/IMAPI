@@ -28,6 +28,8 @@ public class FunctionService {
 				return getAdditionalAllowableTypes(arguments);
 			case (IM.NAMESPACE+"Function_GetLogicOptions") :
 				return getLogicOptions();
+			case (IM.NAMESPACE + "Function_GetSetEditorIriSchemes"):
+				return getSetEditorIriSchemes();
 			default :
 				throw new IllegalArgumentException("No such function");
 		}
@@ -70,8 +72,10 @@ public class FunctionService {
                 List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
                 return om.valueToTree(filteredResultsAsIri);
             } else {
-                List<TTIriRef> filteredResultsAsIri = results.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
-                return om.valueToTree(filteredResultsAsIri);
+				String finalEntityIri1 = entityIri;
+				List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri1).contains(t.getIri())).collect(Collectors.toList());
+				List<TTIriRef> originalResultIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+                return om.valueToTree(originalResultIri);
             }
         }
 	}
@@ -83,5 +87,13 @@ public class FunctionService {
             List<TTIriRef> options = new ArrayList<>(iriRefs);
             return om.valueToTree(options);
         }
+	}
+
+	private JsonNode getSetEditorIriSchemes() {
+		List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.GRAPH.getIri(),null,1,200,false);
+		List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(),r.getName())).collect(Collectors.toList());
+		try (CachedObjectMapper om = new CachedObjectMapper()) {
+			return om.valueToTree(resultsAsIri);
+		}
 	}
 }

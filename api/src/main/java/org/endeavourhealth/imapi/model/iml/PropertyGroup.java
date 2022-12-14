@@ -28,6 +28,20 @@ public class PropertyGroup {
 	private TTIriRef function;
 	private TTIriRef valueIri;
 	private Boolean builderChild;
+	private List<Argument> argument;
+
+	public Boolean getBuilderChild() {
+		return builderChild;
+	}
+
+	public List<Argument> getArgument() {
+		return argument;
+	}
+
+	public PropertyGroup setArgument(List<Argument> argument) {
+		this.argument = argument;
+		return this;
+	}
 
 	public Boolean isBuilderChild() {
 		return builderChild;

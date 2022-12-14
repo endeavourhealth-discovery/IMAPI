@@ -83,6 +83,19 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
+	@GetMapping(value = "/public/partials", produces = "application/json")
+	public List<TTEntity> getPartialEntities(
+		@RequestParam(name = "iris") Set<String> iris,
+		@RequestParam(name = "predicates") Set<String> predicates
+	) {
+		LOG.debug("getPartialEntities");
+		List<TTEntity> entities = new ArrayList<>();
+		for (String iri : iris) {
+			TTEntity entity = entityService.getBundle(iri, predicates).getEntity();
+			entities.add(entity);
+		}
+		return entities;
+	}
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
 	@PreAuthorize("hasAuthority('IMAdmin')")

@@ -72,8 +72,10 @@ public class FunctionService {
                 List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
                 return om.valueToTree(filteredResultsAsIri);
             } else {
-                List<TTIriRef> filteredResultsAsIri = results.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
-                return om.valueToTree(filteredResultsAsIri);
+				String finalEntityIri1 = entityIri;
+				List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri1).contains(t.getIri())).collect(Collectors.toList());
+				List<TTIriRef> originalResultIri = filteredResults.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).collect(Collectors.toList());
+                return om.valueToTree(originalResultIri);
             }
         }
 	}

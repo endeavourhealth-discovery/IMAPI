@@ -18,9 +18,9 @@ tasks {
                 'org.endeavourhealth.imapi.model.search.SearchResponse'
         ]
         classPatterns = [
-                'org.endeavourhealth.imapi.model.sets.*'
+                'org.endeavourhealth.imapi.model.iml.*'
         ]
-        outputFile = '../../IMLibrary/src/models/modules/AutoGen.ts'
+        outputFile = '../../IMDirectory/im_library/src/models/AutoGen.ts'
         outputKind = 'module'
     }
 }

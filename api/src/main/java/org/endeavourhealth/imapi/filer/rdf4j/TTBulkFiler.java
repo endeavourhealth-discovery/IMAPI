@@ -172,8 +172,8 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
 		}
 		if (entity.get(IM.CODE_ID)!=null)
-			codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
-				entity.getIri()+"\n");
+			for (TTValue codeId: entity.get(IM.CODE_ID).getElements())
+			codeIds.write(codeId.asLiteral().getValue()+"\t"+ entity.getIri()+"\n");
 		if (entity.get(IM.HAS_TERM_CODE)!=null){
 				for (TTValue tc:entity.get(IM.HAS_TERM_CODE).getElements()) {
 					if (tc.asNode().get(IM.CODE) != null) {
@@ -202,9 +202,12 @@ public class TTBulkFiler  extends TTDocumentFiler {
 							String code = termCode.get(IM.CODE).asLiteral().getValue();
 							codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
 						}
+						if (termCode.get(IM.OLD_CODE) != null) {
+							String code = termCode.get(IM.OLD_CODE).asLiteral().getValue();
+							codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
+						}
 						if (termCode.get(RDFS.LABEL) != null) {
 							String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
-
 							writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
 						}
 					}

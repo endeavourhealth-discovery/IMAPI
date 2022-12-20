@@ -304,17 +304,18 @@ public class ImportMaps implements AutoCloseable {
 		Map<String,TTEntity> emisRead2= new HashMap<>();
 		try (RepositoryConnection conn= ConnectionManager.getIMConnection()) {
 			StringJoiner sql = new StringJoiner("\n");
-			sql.add("SELECT ?code ?name ?snomedIri");
+			sql.add("SELECT ?oldCode ?name ?snomedIri");
 			sql.add("WHERE {");
 			sql.add("Graph <" + IM.GRAPH_EMIS.getIri() + "> {");
-			sql.add("?concept <" + IM.CODE.getIri() + "> ?code.");
 			sql.add("?concept <" + RDFS.LABEL.getIri() + "> ?name.");
-			sql.add("?concept <" + IM.MATCHED_TO.getIri() + "> ?snomedIri . } }");
+			sql.add("?concept <" + IM.MATCHED_TO.getIri() + "> ?snomedIri . ");
+			sql.add("OPTIONAL {?concept <"+ IM.HAS_TERM_CODE.getIri()+"> ?tc.");
+			sql.add(" ?tc <"+IM.CODE.getIri()+"> ?oldCode)}} }");
 			TupleQuery qry = conn.prepareTupleQuery(sql.toString());
 			TupleQueryResult rs = qry.evaluate();
 			while (rs.hasNext()) {
 				BindingSet bs = rs.next();
-				String code = bs.getValue("code").stringValue();
+				String code = bs.getValue("oldCode").stringValue();
 				String name = bs.getValue("name").stringValue();
 				String snomedIri = bs.getValue("snomedIri").stringValue();
 				if (isRead(code)) {

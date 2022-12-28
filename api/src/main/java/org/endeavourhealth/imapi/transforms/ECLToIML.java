@@ -161,8 +161,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
 		ECLParser.SubrefinementContext subref = refinement.subrefinement();
 		if (subref.eclattributeset() != null) {
-			mainWhere.setPathTo(IM.ROLE_GROUP.getIri());
-			convertAttributeSet(mainWhere,subref.eclattributeset());
+			convertAttributeSet(mainWhere,subref.eclattributeset(),false);
 		}
 		else if (subref.eclattributegroup() != null) {
 			mainWhere.setPathTo(IM.ROLE_GROUP.getIri());
@@ -184,10 +183,13 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		return mainWhere;
 	}
 
-	private void convertAttributeSet(Where where, ECLParser.EclattributesetContext eclAtSet) throws DataFormatException {
+	private void convertAttributeSet(Where where, ECLParser.EclattributesetContext eclAtSet,
+																	 boolean alreadyGrouped) throws DataFormatException {
 		if (eclAtSet.subattributeset() != null) {
 			if (eclAtSet.subattributeset().eclattribute() != null) {
 				Where attWhere= new Where();
+				if (!alreadyGrouped)
+					attWhere.setPathTo(IM.ROLE_GROUP.getIri());
 				if(eclAtSet.conjunctionattributeset()!=null) {
 					where.addAnd(attWhere);
 				}
@@ -197,14 +199,17 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 				}
 			}
 			if (eclAtSet.conjunctionattributeset() != null) {
-				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset());
+				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset(),alreadyGrouped);
 			}
 	}
 
 	private void convertAndAttributeSet(Where where, ECLParser
-		.ConjunctionattributesetContext eclAtAnd) throws DataFormatException {
+		.ConjunctionattributesetContext eclAtAnd,
+																			boolean alreadyGrouped) throws DataFormatException {
 		for (ECLParser.SubattributesetContext subAt : eclAtAnd.subattributeset()) {
 			Where and= new Where();
+			if (!alreadyGrouped)
+				and.setPathTo(IM.ROLE_GROUP.getIri());
 			where.addAnd(and);
 			convertAttribute(and,subAt.eclattribute());
 		}
@@ -291,7 +296,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 	private void convertAttributeGroup(Where group,
 																		 ECLParser.EclattributegroupContext eclGroup) throws DataFormatException {
 		if (eclGroup.eclattributeset()!=null) {
-			convertAttributeSet(group, eclGroup.eclattributeset());
+			convertAttributeSet(group, eclGroup.eclattributeset(),true);
 		}
 		else
 			throw new DataFormatException("Unable to cope with this type of attribute group : "+ ecl);

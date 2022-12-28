@@ -160,25 +160,48 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
 		ECLParser.SubrefinementContext subref = refinement.subrefinement();
+		Where subWhere=mainWhere;
+		if (refinement.conjunctionrefinementset()!=null){
+			subWhere= new Where();
+			mainWhere.addAnd(subWhere);
+		}
+		if (refinement.disjunctionrefinementset()!=null){
+			subWhere= new Where();
+			mainWhere.addOr(subWhere);
+		}
+
 		if (subref.eclattributeset() != null) {
-			convertAttributeSet(mainWhere,subref.eclattributeset(),false);
+			convertAttributeSet(subWhere,subref.eclattributeset(),false);
 		}
 		else if (subref.eclattributegroup() != null) {
-			mainWhere.setPathTo(IM.ROLE_GROUP.getIri());
-			convertAttributeGroup(mainWhere, subref.eclattributegroup());
+			subWhere.setPathTo(IM.ROLE_GROUP.getIri());
+			convertAttributeGroup(subWhere, subref.eclattributegroup());
 		}
 		else
 			throw new UnknownFormatConversionException("ECL attribute format not supported " + ecl);
 		if (refinement.conjunctionrefinementset() != null) {
-			Where pv= new Where();
-			mainWhere.addAnd(pv);
-			pv.setPathTo(IM.ROLE_GROUP.getIri());
-			for (ECLParser.SubrefinementContext subref2 : refinement.conjunctionrefinementset().subrefinement()) {
-				Where refinedGroup= new Where();
-				pv.addAnd(refinedGroup);
-				convertAttributeGroup(refinedGroup, subref2.eclattributegroup());
+			for (ECLParser.SubrefinementContext subAndRef : refinement.conjunctionrefinementset().subrefinement()) {
+				Where pv = new Where();
+				mainWhere.addAnd(pv);
+				if (subref.eclattributeset() != null) {
+					convertAttributeSet(pv, subAndRef.eclattributeset(), false);
+				} else if (subref.eclattributegroup() != null) {
+					pv.setPathTo(IM.ROLE_GROUP.getIri());
+					convertAttributeGroup(pv, subAndRef.eclattributegroup());
+				}
 			}
-
+		}
+		if (refinement.disjunctionrefinementset()!=null) {
+			for (ECLParser.SubrefinementContext subOrRef : refinement.disjunctionrefinementset().subrefinement()) {
+				Where pv = new Where();
+				mainWhere.addOr(pv);
+				if (subref.eclattributeset() != null) {
+					convertAttributeSet(pv, subOrRef.eclattributeset(), false);
+				} else if (subref.eclattributegroup() != null) {
+					pv.setPathTo(IM.ROLE_GROUP.getIri());
+					convertAttributeGroup(pv, subOrRef.eclattributegroup());
+				}
+			}
 		}
 		return mainWhere;
 	}

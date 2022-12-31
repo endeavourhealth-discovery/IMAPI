@@ -11,21 +11,31 @@ import java.util.function.Consumer;
 public class Value {
 	private String comparison;
 	private String value;
-	private Compare relativeTo;
+	private Compare valueOf;
+	private String unitOfTime;
 
-	public Compare getRelativeTo() {
-		return relativeTo;
+	public String getUnitOfTime() {
+		return unitOfTime;
 	}
 
-	@JsonSetter
-	public Value setRelativeTo(Compare relativeTo) {
-		this.relativeTo = relativeTo;
+	public Value setUnitOfTime(String unitOfTime) {
+		this.unitOfTime = unitOfTime;
 		return this;
 	}
 
-	public Value relativeTo(Consumer<Compare> builder){
-		this.relativeTo= new Compare();
-		builder.accept(this.relativeTo);
+	public Compare getValueOf() {
+		return valueOf;
+	}
+
+	@JsonSetter
+	public Value setValueOf(Compare valueOf) {
+		this.valueOf = valueOf;
+		return this;
+	}
+
+	public Value valueOf(Consumer<Compare> builder){
+		this.valueOf= new Compare();
+		builder.accept(this.valueOf);
 		return this;
 	}
 

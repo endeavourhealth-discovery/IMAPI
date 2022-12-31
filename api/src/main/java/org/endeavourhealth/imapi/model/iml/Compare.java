@@ -2,12 +2,14 @@ package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @JsonPropertyOrder({"alias","property","variable"})
 public class Compare {
-	private String alias;
-	private TTAlias property;
+
+	private TTIriRef property;
 	private String variable;
+	private String alias;
 
 	public String getVariable() {
 		return variable;
@@ -27,11 +29,11 @@ public class Compare {
 		return this;
 	}
 
-	public TTAlias getProperty() {
+	public TTIriRef getProperty() {
 		return property;
 	}
 
-	public Compare setProperty(TTAlias property) {
+	public Compare setProperty(TTIriRef property) {
 		this.property = property;
 		return this;
 	}

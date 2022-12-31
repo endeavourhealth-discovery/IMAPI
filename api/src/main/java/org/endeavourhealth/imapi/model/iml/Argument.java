@@ -15,10 +15,28 @@ public class Argument {
 	private String valueVariable;
 	private Compare valueFrom;
 	private TTIriRef valueIri;
+	private TTIriRef valueProperty;
 	private List<TTIriRef> valueIriList;
 	private List<String> valueDataList;
 	private Object valueObject;
 
+	public TTIriRef getValueProperty() {
+		return valueProperty;
+	}
+
+	public Argument setValueProperty(TTIriRef valueProperty) {
+		this.valueProperty = valueProperty;
+		return this;
+	}
+
+	public List<TTIriRef> getValueIriList() {
+		return valueIriList;
+	}
+
+	public Argument setValueIriList(List<TTIriRef> valueIriList) {
+		this.valueIriList = valueIriList;
+		return this;
+	}
 
 	public Object getValueObject() {
 		return valueObject;

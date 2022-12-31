@@ -13,7 +13,9 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"alias","path","property","filtered","sum","average","name","inverseOf","alias","argument","function","select","where","orderBy","direction","limit","groupBy","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Select  extends TTAlias{
+public class Select{
+	private String variable;
+	private String alias;
 	private TTAlias property;
 	private String path;
 	private Aggregate aggregate;
@@ -27,13 +29,25 @@ public class Select  extends TTAlias{
 	private List<TTAlias> groupBy;
 	private Having having;
 
+	public String getAlias() {
+		return alias;
+	}
 
+	public String getVariable() {
+		return variable;
+	}
+
+	public Select setVariable(String variable) {
+		this.variable = variable;
+		return this;
+	}
 
 	@JsonSetter
 	public Select setAlias(String alias) {
-		super.setAlias(alias);
+		this.alias= alias;
 		return this;
 	}
+
 
 
 	public Having getHaving() {

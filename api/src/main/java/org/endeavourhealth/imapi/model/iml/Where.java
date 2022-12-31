@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 
 @JsonPropertyOrder({"alias","pathTo","entityId","select","graph","notExist","not","inverse","property","propertyIn","in","range",
-	"and","or","compare","function","argument","value","orderBy","limit","where","then"})
+	"and","or","compare","function","within","value","orderBy","limit","where","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
@@ -27,7 +27,8 @@ public class Where {
 	private List<TTAlias> in;
 	private TTAlias is;
 	private Range range;
-	private List<Argument> argument;
+	private Within within;
+
 	private List<Where> and;
 	private List<Where> or;
 	private Where notExist;
@@ -35,6 +36,14 @@ public class Where {
 	private Where where;
 	private Value value;
 
+	public Within getWithin() {
+		return within;
+	}
+
+	public Where setWithin(Within within) {
+		this.within = within;
+		return this;
+	}
 
 	public Select getSelect() {
 		return select;
@@ -290,29 +299,7 @@ public class Where {
 		return this;
 	}
 
-	public List<Argument> getArgument() {
-		return argument;
-	}
 
-	@JsonSetter
-	public Where setArgument(List<Argument> argument) {
-		this.argument = argument;
-		return this;
-	}
-	public Where addArgument(Argument argument){
-		if (this.argument==null)
-			this.argument= new ArrayList<>();
-		this.argument.add(argument);
-		return this;
-	}
-
-
-	public Where argument(Consumer<Argument> builder){
-		Argument argument= new Argument();
-		addArgument(argument);
-		builder.accept(argument);
-		return this;
-	}
 
 	public List<Where> getOr() {
 		return or;

@@ -484,12 +484,7 @@ public class SparqlConverter {
 		String not= isNot ?"!" : "";
 		Value value= where.getValue();
 		whereQl.append("Filter (?").append(object).append(not).append(value.getComparison()).append(" ");
-		if (null != value.getRelativeTo()) {
-			if (null != value.getRelativeTo().getVariable())
-				whereQl.append(convertValue(resolveReference(value.getRelativeTo().getVariable(), queryRequest)));
-		}
-		else
-			whereQl.append(convertValue(value.getValue()));
+		whereQl.append(convertValue(value.getValue()));
 		whereQl.append(")\n");
 
 	}

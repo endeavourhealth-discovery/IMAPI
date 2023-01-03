@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-@JsonPropertyOrder({"alias","property","variable"})
+@JsonPropertyOrder({"variable","alias","property"})
 public class Compare {
 
 	private TTIriRef property;

@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class Where {
 	private String alias;
 	private String description;
-	private Select select;
+	private Select with;
 	private List<TTAlias> from;
 	private String graph;
 	private boolean not;
@@ -45,19 +45,19 @@ public class Where {
 		return this;
 	}
 
-	public Select getSelect() {
-		return select;
+	public Select getWith() {
+		return with;
 	}
 
 	@JsonSetter
-	public Where setSelect(Select select) {
-		this.select = select;
+	public Where setWith(Select with) {
+		this.with = with;
 		return this;
 	}
 
-	public Where select(Consumer<Select> builder){
-		this.select= new Select();
-		builder.accept(this.select);
+	public Where with(Consumer<Select> builder){
+		this.with = new Select();
+		builder.accept(this.with);
 		return this;
 	}
 
@@ -139,7 +139,7 @@ public class Where {
 
 
 	public Where setProperty(String property) {
-			this.property = new TTAlias().setIri(property);
+		this.property = new TTAlias().setIri(property);
 		return this;
 	}
 

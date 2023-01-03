@@ -39,7 +39,7 @@ public class SparqlConverter {
 				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
 		}
 		if (query.isUsePrefixes())
-			query.setPrefix(TTManager.getDefaultContext());
+			query.setContext(TTManager.getDefaultContext());
 
 		selectQl.append("SELECT ");
 		selectQl.append("distinct ");

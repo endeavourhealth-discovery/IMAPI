@@ -1,20 +1,20 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix","iri","name","description","from","where","select","subQuery","groupBy","orderBy","direction","limit","having"})
+@JsonPropertyOrder({"@context","iri","name","description","from","where","select","subQuery","groupBy","orderBy","direction","limit","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends TTIriRef{
 	private String description;
@@ -26,11 +26,15 @@ public class Query extends TTIriRef{
 	private Integer limit;
 	private List<TTAlias> groupBy;
 	private Having having;
-	private TTContext prefix;
+	private TTContext context;
 	private List<Query> subQuery;
 	private boolean activeOnly;
 	private boolean usePrefixes;
 
+	public Query(){
+		this.context= new TTContext();
+		this.context.add(IM.NAMESPACE,"");
+	}
 	public Having getHaving() {
 		return having;
 	}
@@ -208,12 +212,13 @@ public class Query extends TTIriRef{
 		return this;
 	}
 
-	public TTContext getPrefix() {
-		return prefix;
+	@JsonProperty("@context")
+	public TTContext getContext() {
+		return context;
 	}
 
-	public Query setPrefix(TTContext prefix) {
-		this.prefix = prefix;
+	public Query setContext(TTContext context) {
+		this.context = context;
 		return this;
 	}
 

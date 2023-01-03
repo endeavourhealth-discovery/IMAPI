@@ -48,7 +48,7 @@ public class TTIriRef implements TTValue, Serializable {
 
     public TTIriRef setIri(String iri) {
         this.iri = iri;
-        if (iri != null && !iri.isEmpty() && !iri.matches("[a-z]+[:].*")){
+        if (iri != null && !iri.isEmpty() && !iri.matches("([a-z]+)?[:].*")){
             Thread.dumpStack();
         }
         return this;

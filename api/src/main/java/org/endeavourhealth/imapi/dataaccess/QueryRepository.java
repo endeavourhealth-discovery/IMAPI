@@ -69,8 +69,8 @@ public class QueryRepository {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
-        if (null != query.getPrefix())
-            result.setContext(query.getPrefix());
+        if (null != query.getContext())
+            result.setContext(query.getContext());
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {

@@ -48,9 +48,9 @@ public class QueryRepository {
     public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
 
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            unpackQueryRequest(queryRequest);
             if (null != queryRequest.getPathQuery())
                 return new PathRepository().queryIM(queryRequest, conn);
+            unpackQueryRequest(queryRequest);
 
             if (null != queryRequest.getTextSearch()) {
                 ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);

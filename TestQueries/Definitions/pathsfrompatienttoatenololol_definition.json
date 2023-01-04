@@ -1,0 +1,12 @@
+{
+  "pathQuery" : {
+    "name" : "paths from patient to atenololol",
+    "source" : {
+      "@id" : "http://endhealth.info/im#Patient"
+    },
+    "target" : {
+      "@id" : "http://snomed.info/sct#387506000"
+    },
+    "depth" : 8
+  }
+}

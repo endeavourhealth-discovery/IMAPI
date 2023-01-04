@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.model.iml.PathQuery;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.iml.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
@@ -15,6 +16,16 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class TestQueries {
+
+	public static QueryRequest pathQuery(){
+		return new QueryRequest()
+			.setPathQuery(new PathQuery()
+				.setName("paths from patient to atenololol")
+				.setDepth(8)
+				.setSource(IM.NAMESPACE+"Patient")
+				.setTarget(SNOMED.NAMESPACE+"387506000"));
+
+	}
 
 
 	public static QueryRequest allowableChildTypes(){

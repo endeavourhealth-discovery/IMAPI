@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"alias","pathTo","entityId","select","graph","notExist","not","inverse","property","propertyIn","in","range",
+@JsonPropertyOrder({"alias","pathTo","entityId","with","graph","notExist","not","inverse","property","propertyIn","in","range",
 	"and","or","compare","function","within","value","orderBy","limit","where","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {

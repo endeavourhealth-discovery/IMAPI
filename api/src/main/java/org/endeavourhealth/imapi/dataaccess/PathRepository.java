@@ -285,40 +285,84 @@ public class PathRepository {
 
 	public static TTDocument bindResults(TupleQueryResult rs,QueryRequest request) {
 		Integer depth = request.getPathQuery().getDepth();
-		Map<String, TTNode> sourceEntities = new HashMap<>();
 		TTDocument result = new TTDocument();
 		if (!rs.hasNext())
 			return result;
+		TTEntity entity = null;
 		while (rs.hasNext()) {
 			BindingSet bs = rs.next();
-			String entity = bs.getValue("entity").stringValue();
-			TTNode shape = sourceEntities.get(entity);
-			if (shape == null) {
-				shape= new TTEntity()
-					.setIri(entity)
+			if (entity == null) {
+				entity = new TTEntity();
+				result.addEntity(entity);
+				String iri = bs.getValue("entity").stringValue();
+				entity
+					.setIri(iri)
 					.setName(bs.getValue("entityLabel").stringValue());
-				result.addEntity((TTEntity) shape);
-				sourceEntities.put(entity,shape);
-			}
 
-			for (int i = 1; i < (depth+1); i++) {
+			}
+			TTNode shape = entity;
+			for (int i = 1; i < (depth + 1); i++) {
 				if (bs.getValue("path" + i) != null) {
 					String property = bs.getValue("path" + i).stringValue();
-					TTNode propertyNode = getNode(shape, TTIriRef.iri(property));
-					propertyNode.set(RDFS.LABEL, TTLiteral.literal(bs.getValue("path" + i + "Label").stringValue()));
-					shape= propertyNode;
-
-					if (bs.getValue("conceptProperty") != null) {
+					TTNode propertyNode = getPropertyNode(shape, property, bs.getValue("path" + i + "Label").stringValue());
+					if (bs.getValue("subEntity" + i) != null) {
+						String subEntity = bs.getValue("subEntity" + i).stringValue();
+						TTNode subEntityNode = getSubEntityMode(propertyNode, subEntity, bs.getValue("subEntity" + i + "Label").stringValue());
+						shape = subEntityNode;
+					} else if (bs.getValue("conceptProperty") != null) {
+						TTNode conceptNode = new TTNode();
+						propertyNode.set(SHACL.CLASS, conceptNode);
+						conceptNode.setIri(IM.CONCEPT.getIri());
+						conceptNode.set(RDFS.LABEL, TTLiteral.literal("Terminology concept"));
 						String conceptProperty = bs.getValue("conceptProperty").stringValue();
-						TTNode conceptPropertyNode = addNode(propertyNode, TTIriRef.iri(conceptProperty));
-						conceptPropertyNode.set(RDFS.LABEL, TTLiteral.literal(bs.getValue("conceptPropertyLabel").stringValue()));
-					}
+						TTNode conceptPropertyNode = new TTNode();
+						conceptNode.addObject(SHACL.PROPERTY, conceptPropertyNode);
+						conceptPropertyNode.set(SHACL.PATH, TTIriRef.iri(conceptProperty).setName(bs.getValue("conceptPropertyLabel").stringValue()));
+						conceptPropertyNode.set(SHACL.CLASS, request.getPathQuery().getTarget());
+					} else
+						propertyNode.set(SHACL.CLASS, request.getPathQuery().getTarget());
 				}
 			}
 		}
 		return result;
+
 	}
 
+	private static TTNode getSubEntityMode(TTNode propertyNode, String subEntity,String label) {
+		if (propertyNode.get(SHACL.NODE)==null) {
+			TTNode subEntityNode = new TTNode();
+			propertyNode.addObject(SHACL.NODE, subEntityNode);
+			subEntityNode.setIri(subEntity);
+			subEntityNode.set(RDFS.LABEL, TTLiteral.literal((label)));
+			return subEntityNode;
+		}
+		for (TTValue prop:propertyNode.get(SHACL.NODE).getElements()){
+			if (prop.asNode().getIri().equals(subEntity))
+				return prop.asNode();
+		}
+		TTNode subEntityNode = new TTNode();
+		propertyNode.addObject(SHACL.NODE, subEntityNode);
+		subEntityNode.setIri(subEntity);
+		subEntityNode.set(RDFS.LABEL, TTLiteral.literal((label)));
+		return subEntityNode;
 
+	}
+
+	private static TTNode getPropertyNode(TTNode shape, String property,String label) {
+		if (shape.get(SHACL.PROPERTY)==null) {
+			TTNode propertyNode = new TTNode();
+			shape.addObject(SHACL.PROPERTY, propertyNode);
+			propertyNode.set(SHACL.PATH,TTIriRef.iri(property).setName(label));
+			return propertyNode;
+		}
+		TTIriRef check= TTIriRef.iri(property);
+		for (TTValue prop:shape.get(SHACL.PROPERTY).getElements()){
+			if (prop.asNode().get(SHACL.PATH).equals(check))
+				return prop.asNode();
+		}
+		TTNode propertyNode = new TTNode();
+		shape.addObject(SHACL.PROPERTY, propertyNode);
+		propertyNode.set(SHACL.PATH,TTIriRef.iri(property).setName(label));
+		return propertyNode;
+	}
 }
-

@@ -44,19 +44,23 @@ class SearchServiceTest {
 		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
 	}
 
-	//@Test
+	@Test
 	void queryIM() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		testDefinitions= System.getenv("testDefinitions");
-		testResults= System.getenv("testResults");
-		testSparql = System.getenv("testSparql");
-		QueryRequest qr= TestQueries.allowableChildTypes();
+		testDefinitions= System.getenv("folder")+"\\Definitions";
+		testResults= System.getenv("folder")+"\\Results";
+		testSparql = System.getenv("folder")+"\\Sparql";
+		//QueryRequest qr= TestQueries.allowableChildTypes();
+		QueryRequest qr= TestQueries.pathQuery();
 		output(qr);
 
+		/*
 
 		for (QueryRequest qr1: List.of(TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
+		 */
+
 
 
 
@@ -64,8 +68,11 @@ class SearchServiceTest {
 
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		
-		String name= dataSet.getQuery().getName();
+		String name;
+		if (dataSet.getPathQuery()!=null)
+			name= dataSet.getPathQuery().getName();
+		else
+			name= dataSet.getQuery().getName();
 		if (name!=null)
 			name= name.replaceAll(" ","").replaceAll("\\(","").replaceAll("\\)","");
 		else
@@ -76,14 +83,12 @@ class SearchServiceTest {
 			wr.write(dataSet.getJson());
 		}
 		ObjectMapper om= new ObjectMapper();
-
-		QueryRequest redo= om.readValue(dataSet.getJson(),QueryRequest.class);
-
-		SparqlConverter converter= new SparqlConverter(dataSet);
-
-		String spq= converter.getSelectSparql();
-		try (FileWriter wr = new FileWriter(testSparql+"\\" + name + "_sparql.json")) {
-			wr.write(spq);
+		if (dataSet.getQuery()!=null) {
+			SparqlConverter converter = new SparqlConverter(dataSet);
+			String spq = converter.getSelectSparql();
+			try (FileWriter wr = new FileWriter(testSparql + "\\" + name + "_sparql.json")) {
+				wr.write(spq);
+			}
 		}
 
 		TTDocument result = searchService.queryIM(dataSet);

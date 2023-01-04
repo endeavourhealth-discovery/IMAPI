@@ -39,7 +39,7 @@ public class SearchService {
 	}
 
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
-			if (queryRequest.getQuery()==null)
+			if (queryRequest.getQuery()==null&& queryRequest.getPathQuery()==null)
 				throw new DataFormatException("Query request must have a Query or an Query object with an iri");
 	}
 

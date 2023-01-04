@@ -7,9 +7,15 @@ import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A document containing various instance entities conforming to data model shapes of various kinds
+ */
 @JsonPropertyOrder ({"@context","query"})
-public class QueryDocument {
+public class ModelDocument {
 	private TTContext context;
+	private List<Folder> folder;
+	private List<ConceptSet> conceptSet;
+	private List<Function> function;
 	private List<Query> query;
 
 	@JsonProperty("@context")
@@ -17,7 +23,7 @@ public class QueryDocument {
 		return context;
 	}
 
-	public QueryDocument setContext(TTContext context) {
+	public ModelDocument setContext(TTContext context) {
 		this.context = context;
 		return this;
 	}
@@ -26,12 +32,12 @@ public class QueryDocument {
 		return query;
 	}
 
-	public QueryDocument setQuery(List<Query> query) {
+	public ModelDocument setQuery(List<Query> query) {
 		this.query = query;
 		return this;
 	}
 
-	public QueryDocument addQuery(Query query){
+	public ModelDocument addQuery(Query query){
 		if (this.query==null)
 			this.query= new ArrayList<>();
 		this.query.add(query);

@@ -1,0 +1,223 @@
+{
+  "entities" : [ {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#isSubjectOf",
+        "name" : "is subject of"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Allergy, intolerance or adverse reaction",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#246075003",
+                "name" : "Causative agent (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#Condition",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Condition",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#246075003",
+                "name" : "Causative agent (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Medication authorisation",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#732943007",
+                "name" : "Has basis of strength substance (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#MedicationRequest",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Medication request / Prescription",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#authorisation",
+            "name" : "authorisation"
+          } ],
+          "http://www.w3.org/ns/shacl#node" : [ {
+            "@id" : "http://endhealth.info/im#MedicationAuthorisation",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Medication authorisation",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://endhealth.info/im#concept",
+                "name" : "codeable expression"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://endhealth.info/im#Concept",
+                "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+                "http://www.w3.org/ns/shacl#property" : [ {
+                  "http://www.w3.org/ns/shacl#path" : [ {
+                    "@id" : "http://snomed.info/sct#732943007",
+                    "name" : "Has basis of strength substance (attribute)"
+                  } ],
+                  "http://www.w3.org/ns/shacl#class" : [ {
+                    "@id" : "http://snomed.info/sct#387506000"
+                  } ]
+                } ]
+              } ]
+            } ]
+          } ]
+        }, {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#732943007",
+                "name" : "Has basis of strength substance (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#NumericMeasure",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Numeric measurement",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#246075003",
+                "name" : "Causative agent (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#Observation",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Observation",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#246075003",
+                "name" : "Causative agent (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#Procedure",
+        "http://www.w3.org/2000/01/rdf-schema#label" : "Procedure ",
+        "http://www.w3.org/ns/shacl#property" : [ {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#concept",
+            "name" : "codeable expression"
+          } ],
+          "http://www.w3.org/ns/shacl#class" : [ {
+            "@id" : "http://endhealth.info/im#Concept",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://snomed.info/sct#246093002",
+                "name" : "Component (attribute)"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://snomed.info/sct#387506000"
+              } ]
+            } ]
+          } ]
+        }, {
+          "http://www.w3.org/ns/shacl#path" : [ {
+            "@id" : "http://endhealth.info/im#linkedProblems",
+            "name" : "linked problems"
+          } ],
+          "http://www.w3.org/ns/shacl#node" : [ {
+            "@id" : "http://endhealth.info/im#Condition",
+            "http://www.w3.org/2000/01/rdf-schema#label" : "Condition",
+            "http://www.w3.org/ns/shacl#property" : [ {
+              "http://www.w3.org/ns/shacl#path" : [ {
+                "@id" : "http://endhealth.info/im#concept",
+                "name" : "codeable expression"
+              } ],
+              "http://www.w3.org/ns/shacl#class" : [ {
+                "@id" : "http://endhealth.info/im#Concept",
+                "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
+                "http://www.w3.org/ns/shacl#property" : [ {
+                  "http://www.w3.org/ns/shacl#path" : [ {
+                    "@id" : "http://snomed.info/sct#246075003",
+                    "name" : "Causative agent (attribute)"
+                  } ],
+                  "http://www.w3.org/ns/shacl#class" : [ {
+                    "@id" : "http://snomed.info/sct#387506000"
+                  } ]
+                } ]
+              } ]
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}

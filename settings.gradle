@@ -21,4 +21,3 @@ pluginManagement {
 
 rootProject.name = 'IMAPI'
 include(':api')
-include(':node_api')

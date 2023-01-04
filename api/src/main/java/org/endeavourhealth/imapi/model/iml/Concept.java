@@ -6,25 +6,33 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Concept{
-	private String iri;
-	private String name;
-	private String description;
+public class Concept extends Entity{
+
 	private String code;
-	private TTIriRef scheme;
 	private Set<String> im1Id;
+	private Set<TTIriRef> subClassOf;
 	private Set<Concept> matchedFrom;
 	private Integer usage;
 
+	public Set<TTIriRef> getSubClassOf() {
+		return subClassOf;
+	}
 
-	@JsonProperty("@id")
-	public String getIri() {
-		return iri;
+	public Concept setSubClassOf(Set<TTIriRef> subClassOf) {
+		this.subClassOf = subClassOf;
+		return this;
+	}
+
+	public Concept addSubClassOf(TTIriRef superClass){
+		if (this.subClassOf==null)
+			this.subClassOf= new HashSet<>();
+		this.subClassOf.add(superClass);
+		return this;
 	}
 
 	@JsonProperty("@id")
 	public Concept setIri(String iri) {
-		this.iri = iri;
+		super.setIri(iri);
 		return this;
 	}
 
@@ -38,22 +46,15 @@ public class Concept{
 	}
 
 
-	public String getName() {
-		return name;
-	}
 
 
 	public Concept setName(String name) {
-		this.name = name;
+		super.setName(name);
 		return this;
 	}
 
-	public String getDescription() {
-		return description;
-	}
-
 	public Concept setDescription(String description) {
-		this.description = description;
+		super.setDescription(description);
 		return this;
 	}
 
@@ -66,12 +67,9 @@ public class Concept{
 		return this;
 	}
 
-	public TTIriRef getScheme() {
-		return scheme;
-	}
 
 	public Concept setScheme(TTIriRef scheme) {
-		this.scheme = scheme;
+		super.setScheme(scheme);
 		return this;
 	}
 

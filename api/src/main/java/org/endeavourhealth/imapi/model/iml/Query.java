@@ -11,13 +11,15 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"@context","iri","name","description","from","where","select","subQuery","groupBy","orderBy","direction","limit","having"})
+@JsonPropertyOrder({"@context","iri","name","description","isContainedIn","from","where","select","subQuery","groupBy","orderBy","direction","limit","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Query extends TTIriRef{
-	private String description;
+public class Query extends Entity{
+
 	private List<TTAlias> from;
 	private List<Select> select;
 	private Where where;
@@ -35,6 +37,8 @@ public class Query extends TTIriRef{
 		this.context= new TTContext();
 		this.context.add(IM.NAMESPACE,"");
 	}
+
+
 	public Having getHaving() {
 		return having;
 	}
@@ -51,12 +55,10 @@ public class Query extends TTIriRef{
 		return this;
 	}
 
-	public String getDescription() {
-		return description;
-	}
+
 
 	public Query setDescription(String description) {
-		this.description = description;
+		super.setDescription(description);
 		return this;
 	}
 

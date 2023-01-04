@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
-import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -23,21 +23,21 @@ import java.util.zip.DataFormatException;
 public class EqdToIMQ {
 	private final EqdResources resources= new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
-	private TTIriRef owner;
-	public static final Map<TTIriRef,TTEntity> valueSets= new HashMap<>();
+	public static final Map<TTIriRef, ConceptSet> valueSets= new HashMap<>();
 
 
 
-	public void convertDoc(TTDocument document, TTIriRef mainFolder, TTIriRef fieldGroupFolder, TTIriRef valueSetFolder, EnquiryDocument eqd, TTIriRef owner, Properties dataMap,
-												 Properties criteriaLabels) throws DataFormatException, IOException {
-		this.owner = owner;
+	public ModelDocument convertEQD(EnquiryDocument eqd,Properties dataMap,
+
+																	Properties criteriaLabels) throws DataFormatException, IOException {
+
 		resources.setDataMap(dataMap);
-		resources.setDocument(document);
+		resources.setDocument(new ModelDocument());
 		resources.setLabels(criteriaLabels);
-		resources.setValueSetFolder(valueSetFolder);
 		addReportNames(eqd);
-		convertFolders(mainFolder, eqd);
+		convertFolders(eqd);
 		convertReports(eqd);
+		return resources.getDocument();
 	}
 
 	private void addReportNames(EnquiryDocument eqd) {
@@ -55,13 +55,12 @@ public class EqdToIMQ {
 			if (eqReport.getName() == null)
 				throw new DataFormatException("No report name");
 			System.out.println(eqReport.getName());
-			TTEntity qry = convertReport(eqReport);
-			resources.getDocument().addEntity(qry);
-			setProvenance(qry.getIri(), "CEG");
+			QueryEntity qry = convertReport(eqReport);
+			resources.getDocument().addQuery(qry);
 		}
 	}
 
-	private void convertFolders(TTIriRef mainFolder, EnquiryDocument eqd) throws DataFormatException {
+	private void convertFolders(EnquiryDocument eqd) throws DataFormatException {
 		List<EQDOCFolder> eqFolders = eqd.getReportFolder();
 		if (eqFolders != null) {
 			for (EQDOCFolder eqFolder : eqFolders) {
@@ -70,88 +69,38 @@ public class EqdToIMQ {
 				if (eqFolder.getName() == null)
 					throw new DataFormatException("No folder name");
 				String iri = "urn:uuid:" + eqFolder.getId();
-				TTEntity folder = new TTEntity()
+				Entity folder = new Entity()
 					.setIri(iri)
-					.addType(IM.FOLDER)
-					.setName(eqFolder.getName())
-					.set(IM.IS_CONTAINED_IN, mainFolder);
-				resources.getDocument().addEntity(folder);
-				if (eqFolder.getAuthor() != null && eqFolder.getAuthor().getAuthorName() != null)
-					setProvenance(iri, eqFolder.getAuthor().getAuthorName());
+					.setType(IM.FOLDER)
+					.setName(eqFolder.getName());
+				resources.getDocument().addFolder(folder);
 			}
 		}
 	}
 
-	private void setProvenance(String iri, String authorName) {
-		ProvActivity activity = new ProvActivity()
-			.setIri("urn:uuid:" + UUID.randomUUID())
-			.setActivityType(IM.PROV_CREATION)
-			.setEffectiveDate(LocalDateTime.now().toString());
-		resources.getDocument().addEntity(activity);
-		if (authorName != null) {
-			String uir = getPerson(authorName);
-			ProvAgent agent = new ProvAgent()
-				.setPersonInRole(TTIriRef.iri(uir))
-				.setParticipationType(IM.AUTHOR_ROLE);
-			agent.setName(authorName);
-			agent.setIri(uir.replace("uir.", "agent."));
-			activity.addAgent(TTIriRef.iri(agent.getIri()))
-				.setTargetEntity(TTIriRef.iri(iri));
-			if (!roles.contains(agent.getIri())) {
-				resources.getDocument().addEntity(agent);
-				roles.add(agent.getIri());
-			}
 
-		}
-	}
 
-	private String getPerson(String name) {
-		StringBuilder uri = new StringBuilder();
-		name.chars().forEach(c -> {
-			if (Character.isLetterOrDigit(c))
-				uri.append(Character.toString(c));
-		});
-		String root = owner.getIri();
-		root = root.substring(0, root.lastIndexOf("#"));
-		return root.replace("org.", "uir.") + "/personrole#" +
-			uri;
-	}
-
-	public TTEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException {
+	public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException {
 
 		resources.setActiveReport(eqReport.getId());
-		TTEntity entity = new TTEntity();
-		entity.setIri("urn:uuid:" + eqReport.getId());
-		entity.setName(eqReport.getName());
-		entity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
+		QueryEntity queryEntity= new QueryEntity();
+		queryEntity.setIri("urn:uuid:" + eqReport.getId());
+		queryEntity.setName(eqReport.getName());
+		queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
 		if (eqReport.getFolder() != null)
-			entity.addObject(IM.IS_CONTAINED_IN, TTIriRef.iri("urn:uuid:" + eqReport.getFolder()));
-		if (eqReport.getCreationTime() != null)
-			setProvenance(entity.getIri(), null);
-		entity.addType(IM.QUERY);
-
-		Query query= new Query();
-		query.setIri(entity.getIri());
-		query.setName(entity.getName());
-		query.setDescription(entity.getDescription());
-
+			queryEntity.addIsContainedIn(TTIriRef.iri("urn:uuid:" + eqReport.getFolder()));
+		queryEntity.setType(IM.QUERY);
+		Query qry= new Query();
 		if (eqReport.getPopulation() != null) {
-			new EqdPopToIMQ().convertPopulation(eqReport, query,resources);
+			new EqdPopToIMQ().convertPopulation(eqReport, qry,resources);
 		}
 		else 	if (eqReport.getListReport() != null) {
-			new EqdListToIMQ().convertReport(eqReport, query,resources);
+			new EqdListToIMQ().convertReport(eqReport, qry,resources);
 		}
 		else
-			new EqdAuditToIMQ().convertReport(eqReport,query,resources);
-
-
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-		String json = objectMapper.writeValueAsString(query);
-		entity.set(IM.DEFINITION, TTLiteral.literal(query));
-		return entity;
+			new EqdAuditToIMQ().convertReport(eqReport,qry,resources);
+		queryEntity.setDefinition(qry);
+		return queryEntity;
 	}
 
 

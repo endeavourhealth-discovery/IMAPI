@@ -20,22 +20,21 @@ public class EqdResources {
 	Map<String, String> reportNames = new HashMap<>();
 	private final ImportMaps importMaps = new ImportMaps();
 	private final Map<Object, String> vocabMap = new HashMap<>();
-	private TTIriRef valueSetFolder;
 	private Properties dataMap;
 	private Properties labels;
 	private String activeReport;
-	private TTDocument document;
+	private ModelDocument document;
 	private final Map<String,Set<TTIriRef>> valueMap= new HashMap<>();
 	private int counter=0;
 	private int whereCount=0;
 	
 	
 
-	public TTDocument getDocument() {
+	public ModelDocument getDocument() {
 		return document;
 	}
 
-	public EqdResources setDocument(TTDocument document) {
+	public EqdResources setDocument(ModelDocument document) {
 		this.document = document;
 		return this;
 	}
@@ -44,9 +43,6 @@ public class EqdResources {
 		this.activeReport = activeReport;
 	}
 
-	public void setValueSetFolder(TTIriRef valueSetFolder) {
-		this.valueSetFolder = valueSetFolder;
-	}
 
 	public EqdResources() {
 		setVocabMaps();
@@ -611,13 +607,13 @@ public class EqdResources {
 
 	private void storeLibraryItem(TTIriRef iri) {
 		if (!EqdToIMQ.valueSets.containsKey(iri)) {
-			TTEntity conceptSet = new TTEntity()
-				.setIri(iri.getIri())
-				.addType(IM.CONCEPT_SET)
+			ConceptSet conceptSet = new ConceptSet();
+				conceptSet.setIri(iri.getIri())
+				.setType(IM.CONCEPT_SET)
 				.setName(iri.getName());
-			conceptSet.addObject(IM.IS_CONTAINED_IN, valueSetFolder);
-			conceptSet.addObject(IM.USED_IN, TTIriRef.iri("urn:uuid:" + activeReport));
-			document.addEntity(conceptSet);
+
+			conceptSet.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
+			document.addConceptSet(conceptSet);
 			EqdToIMQ.valueSets.put(TTIriRef.iri(iri.getIri()), conceptSet);
 		}
 	}
@@ -626,20 +622,19 @@ public class EqdResources {
 		if (vs.getId() != null) {
 			TTIriRef iri = TTIriRef.iri("urn:uuid:" + vs.getId()).setName(vSetName);
 			if (!EqdToIMQ.valueSets.containsKey(iri)) {
-				TTEntity conceptSet = new TTEntity()
-					.setIri(iri.getIri())
-					.addType(IM.CONCEPT_SET)
+				ConceptSet conceptSet = new ConceptSet();
+					conceptSet.setIri(iri.getIri())
+					.setType(IM.CONCEPT_SET)
 					.setName(vSetName);
-				conceptSet.addObject(IM.IS_CONTAINED_IN, valueSetFolder);
 				Query definition= new Query();
 
 				for (TTAlias member : valueSet)
 					definition.addFrom(member);
-				conceptSet.set(IM.DEFINITION,TTLiteral.literal(definition) );
-				document.addEntity(conceptSet);
+				conceptSet.setDefinition(definition);
+				document.addConceptSet(conceptSet);
 				EqdToIMQ.valueSets.put(iri, conceptSet);
 			}
-			EqdToIMQ.valueSets.get(iri).addObject(IM.USED_IN, TTIriRef.iri("urn:uuid:" + activeReport));
+			EqdToIMQ.valueSets.get(iri).addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
 		}
 	}
 

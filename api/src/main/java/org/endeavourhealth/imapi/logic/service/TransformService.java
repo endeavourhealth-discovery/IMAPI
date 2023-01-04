@@ -22,7 +22,7 @@ import java.util.zip.DataFormatException;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-	public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException,IOException{
+	public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException, IOException, DataFormatException {
 		Properties dataMap= new Properties();
 		File file = ResourceUtils.getFile("classpath:eqdmap.properties");
 		InputStream in = new FileInputStream(file);
@@ -33,7 +33,7 @@ public class TransformService {
 		criteriaLabels.load(in);
 
 		EqdToIMQ converter= new EqdToIMQ();
-		return null;
+		return converter.convertEQD(eqDoc,dataMap,criteriaLabels);
 
 
 	}

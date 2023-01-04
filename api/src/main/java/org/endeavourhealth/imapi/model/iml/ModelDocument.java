@@ -13,10 +13,10 @@ import java.util.List;
 @JsonPropertyOrder ({"@context","query"})
 public class ModelDocument {
 	private TTContext context;
-	private List<Folder> folder;
+	private List<Entity> folder;
 	private List<ConceptSet> conceptSet;
 	private List<Function> function;
-	private List<Query> query;
+	private List<QueryEntity> query;
 
 	@JsonProperty("@context")
 	public TTContext getContext() {
@@ -28,19 +28,67 @@ public class ModelDocument {
 		return this;
 	}
 
-	public List<Query> getQuery() {
+	public List<QueryEntity> getQuery() {
 		return query;
 	}
 
-	public ModelDocument setQuery(List<Query> query) {
+	public ModelDocument setQuery(List<QueryEntity> query) {
 		this.query = query;
 		return this;
 	}
 
-	public ModelDocument addQuery(Query query){
+	public ModelDocument addQuery(QueryEntity query){
 		if (this.query==null)
 			this.query= new ArrayList<>();
 		this.query.add(query);
+		return this;
+	}
+
+	public List<Entity> getFolder() {
+		return folder;
+	}
+
+	public ModelDocument setFolder(List<Entity> folder) {
+		this.folder = folder;
+		return this;
+	}
+
+	public ModelDocument addFolder(Entity folder){
+		if (this.folder==null)
+			this.folder= new ArrayList<>();
+		this.folder.add(folder);
+		return this;
+	}
+
+	public List<ConceptSet> getConceptSet() {
+		return conceptSet;
+	}
+
+	public ModelDocument setConceptSet(List<ConceptSet> conceptSet) {
+		this.conceptSet = conceptSet;
+		return this;
+	}
+
+	public ModelDocument addConceptSet(ConceptSet set){
+		if (this.conceptSet==null)
+			this.conceptSet= new ArrayList<>();
+		this.conceptSet.add(set);
+		return this;
+	}
+
+	public List<Function> getFunction() {
+		return function;
+	}
+
+	public ModelDocument setFunction(List<Function> function) {
+		this.function = function;
+		return this;
+	}
+
+	public ModelDocument addFunction(Function function){
+		if (this.function==null)
+			this.function= new ArrayList<>();
+		this.function.add(function);
 		return this;
 	}
 }

@@ -23,12 +23,31 @@ public class EqdResources {
 	private Properties dataMap;
 	private Properties labels;
 	private String activeReport;
+	private String activeReportName;
 	private ModelDocument document;
 	private final Map<String,Set<TTIriRef>> valueMap= new HashMap<>();
 	private int counter=0;
 	private int whereCount=0;
-	
-	
+	public Map<TTIriRef, ConceptSet> valueSets = new HashMap<>();
+
+
+	public Map<TTIriRef, ConceptSet> getValueSets() {
+		return valueSets;
+	}
+
+	public EqdResources setValueSets(Map<TTIriRef, ConceptSet> valueSets) {
+		this.valueSets = valueSets;
+		return this;
+	}
+
+	public String getActiveReportName() {
+		return activeReportName;
+	}
+
+	public EqdResources setActiveReportName(String activeReportName) {
+		this.activeReportName = activeReportName;
+		return this;
+	}
 
 	public ModelDocument getDocument() {
 		return document;
@@ -321,8 +340,8 @@ public class EqdResources {
 				else {
 					pv.setNot(true);
 					pv.addIn(iri);
-					storeLibraryItem(iri);
 				}
+				storeLibraryItem(iri);
 			}
 		} else if (cv.getRangeValue() != null) {
 			setRangeValue(cv.getRangeValue(), pv);
@@ -606,22 +625,22 @@ public class EqdResources {
 	}
 
 	private void storeLibraryItem(TTIriRef iri) {
-		if (!EqdToIMQ.valueSets.containsKey(iri)) {
+		if (!valueSets.containsKey(iri)) {
 			ConceptSet conceptSet = new ConceptSet();
 				conceptSet.setIri(iri.getIri())
 				.setType(IM.CONCEPT_SET)
 				.setName(iri.getName());
-
 			conceptSet.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
-			document.addConceptSet(conceptSet);
-			EqdToIMQ.valueSets.put(TTIriRef.iri(iri.getIri()), conceptSet);
+			valueSets.put(TTIriRef.iri(iri.getIri()), conceptSet);
+			valueSets.get(iri).addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport).setName(activeReportName));
+
 		}
 	}
 
 	private void storeValueSet(EQDOCValueSet vs, List<TTAlias> valueSet, String vSetName) throws JsonProcessingException {
 		if (vs.getId() != null) {
 			TTIriRef iri = TTIriRef.iri("urn:uuid:" + vs.getId()).setName(vSetName);
-			if (!EqdToIMQ.valueSets.containsKey(iri)) {
+			if (!valueSets.containsKey(iri)) {
 				ConceptSet conceptSet = new ConceptSet();
 					conceptSet.setIri(iri.getIri())
 					.setType(IM.CONCEPT_SET)
@@ -631,10 +650,9 @@ public class EqdResources {
 				for (TTAlias member : valueSet)
 					definition.addFrom(member);
 				conceptSet.setDefinition(definition);
-				document.addConceptSet(conceptSet);
-				EqdToIMQ.valueSets.put(iri, conceptSet);
+				valueSets.put(iri, conceptSet);
 			}
-			EqdToIMQ.valueSets.get(iri).addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
+			valueSets.get(iri).addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport).setName(activeReportName));
 		}
 	}
 
@@ -821,12 +839,8 @@ public class EqdResources {
 		}
 		if (where.isNot())
 			summary.append("not in ");
-		String path="";
-		if (where.getPathTo()!=null)
-			path= localName(where.getPathTo());
 		if (where.getProperty()!=null) {
 			String property = localName(where.getProperty().getIri());
-			String fullPath = (!path.equals("")) ? path + " " + property : property;
 			if (where.getWithin()!=null){
 				Within within= where.getWithin();
 				summary.append(property);
@@ -868,7 +882,7 @@ public class EqdResources {
 	private String summariseRange(Range range) {
 		String result="from "+ summariseValue(range.getFrom());
 		if (range.getFrom().getUnitOfTime()!=null)
-		result =result+"to "+ summariseValue((range.getTo()));
+		   result =result+"to "+ summariseValue((range.getTo()));
 		if (range.getTo().getUnitOfTime()!=null)
 			result= result+" "+range.getTo().getUnitOfTime();
 		return result;
@@ -896,7 +910,7 @@ public class EqdResources {
 				if (arg.getParameter().equals("units")) {
 					summary.append(" ").append(arg.getValueData().toLowerCase(Locale.ROOT));
 				} else
-					summary.append(" ").append(arg.getParameter() + " = " + arg.getValueData());
+					summary.append(" ").append(arg.getParameter()).append(" = ").append(arg.getValueData());
 			}
 		}
 		return summary.toString();

@@ -23,11 +23,15 @@ import java.util.zip.DataFormatException;
 public class EqdToIMQ {
 	private final EqdResources resources= new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
-	public static final Map<TTIriRef, ConceptSet> valueSets= new HashMap<>();
+	public Map<TTIriRef, ConceptSet> valueSets;
+
+	public Map<TTIriRef, ConceptSet> getValueSets() {
+		return valueSets;
+	}
 
 
 
-	public ModelDocument convertEQD(EnquiryDocument eqd,Properties dataMap,
+	public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
 
 																	Properties criteriaLabels) throws DataFormatException, IOException {
 
@@ -37,6 +41,7 @@ public class EqdToIMQ {
 		addReportNames(eqd);
 		convertFolders(eqd);
 		convertReports(eqd);
+		this.valueSets= resources.getValueSets();
 		return resources.getDocument();
 	}
 
@@ -83,6 +88,7 @@ public class EqdToIMQ {
 	public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException {
 
 		resources.setActiveReport(eqReport.getId());
+		resources.setActiveReportName(eqReport.getName());
 		QueryEntity queryEntity= new QueryEntity();
 		queryEntity.setIri("urn:uuid:" + eqReport.getId());
 		queryEntity.setName(eqReport.getName());

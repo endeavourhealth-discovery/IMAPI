@@ -52,7 +52,10 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity setDescription (String description) {
-        set(RDFS.COMMENT, TTLiteral.literal(description));
+        if (description==null)
+            getPredicateMap().remove(RDFS.COMMENT);
+        else
+            set(RDFS.COMMENT, TTLiteral.literal(description));
         return this;
     }
 

@@ -33,10 +33,6 @@ public class Query extends Entity{
 	private boolean activeOnly;
 	private boolean usePrefixes;
 
-	public Query(){
-		this.context= new TTContext();
-		this.context.add(IM.NAMESPACE,"");
-	}
 
 
 	public Having getHaving() {

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"alias","path","property","filtered","sum","average","name","inverseOf","alias","argument","function","select","where","orderBy","direction","limit","groupBy","having"})
+@JsonPropertyOrder({"alias","path","property","case","aggregate","select","where","orderBy","direction","limit","groupBy","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select{
 	private String variable;
@@ -20,7 +21,7 @@ public class Select{
 	private String path;
 	private Aggregate aggregate;
 	List<Argument> argument;
-	Function function;
+	FunctionClause functionClause;
 	private List<Select> select;
 	private Where where;
 	private List<OrderBy> orderBy;
@@ -28,6 +29,34 @@ public class Select{
 	private String direction;
 	private List<TTAlias> groupBy;
 	private Having having;
+	private List<Case> caze;
+
+	public FunctionClause getFunctionClause() {
+		return functionClause;
+	}
+
+	public Select setFunctionClause(FunctionClause functionClause) {
+		this.functionClause = functionClause;
+		return this;
+	}
+
+	@JsonProperty("case")
+	public List<Case> getCase() {
+		return caze;
+	}
+
+	public Select setCase(List<Case> caze) {
+		this.caze = caze;
+		return this;
+	}
+
+	public Select addCase(Case caze){
+		if (this.caze==null)
+			this.caze= new ArrayList<>();
+		this.caze.add(caze);
+		return this;
+	}
+
 
 	public String getAlias() {
 		return alias;
@@ -254,18 +283,18 @@ public class Select{
 
 
 
-	public Select function(Consumer<Function> builder){
-		this.function= new Function();
-		builder.accept(this.function);
+	public Select function(Consumer<FunctionClause> builder){
+		this.functionClause = new FunctionClause();
+		builder.accept(this.functionClause);
 		return this;
 	}
 
-	public Function getFunction() {
-		return function;
+	public FunctionClause getFunction() {
+		return functionClause;
 	}
 
-	public Select setFunction(Function function) {
-		this.function = function;
+	public Select setFunction(FunctionClause functionClause) {
+		this.functionClause = functionClause;
 		return this;
 	}
 

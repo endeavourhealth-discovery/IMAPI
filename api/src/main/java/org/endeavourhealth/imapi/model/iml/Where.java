@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 
 @JsonPropertyOrder({"alias","pathTo","entityId","with","graph","notExist","not","inverse","property","propertyIn","in","range",
-	"and","or","compare","function","within","value","orderBy","limit","where","then"})
+	"and","or","compare","functionClause","within","value","orderBy","limit","where","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
@@ -32,7 +32,7 @@ public class Where {
 	private List<Where> and;
 	private List<Where> or;
 	private Where notExist;
-	private Function function;
+	private FunctionClause functionClause;
 	private Where where;
 	private Value value;
 
@@ -234,12 +234,12 @@ public class Where {
 
 
 
-	public Function getFunction() {
-		return function;
+	public FunctionClause getFunction() {
+		return functionClause;
 	}
 
-	public Where setFunction(Function function) {
-		this.function = function;
+	public Where setFunction(FunctionClause functionClause) {
+		this.functionClause = functionClause;
 		return this;
 	}
 

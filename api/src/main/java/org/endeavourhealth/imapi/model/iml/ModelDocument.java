@@ -15,7 +15,7 @@ public class ModelDocument {
 	private TTContext context;
 	private List<Entity> folder;
 	private List<ConceptSet> conceptSet;
-	private List<Function> function;
+	private List<FunctionClause> functionClause;
 	private List<QueryEntity> query;
 
 	@JsonProperty("@context")
@@ -76,19 +76,19 @@ public class ModelDocument {
 		return this;
 	}
 
-	public List<Function> getFunction() {
-		return function;
+	public List<FunctionClause> getFunction() {
+		return functionClause;
 	}
 
-	public ModelDocument setFunction(List<Function> function) {
-		this.function = function;
+	public ModelDocument setFunction(List<FunctionClause> functionClause) {
+		this.functionClause = functionClause;
 		return this;
 	}
 
-	public ModelDocument addFunction(Function function){
-		if (this.function==null)
-			this.function= new ArrayList<>();
-		this.function.add(function);
+	public ModelDocument addFunction(FunctionClause functionClause){
+		if (this.functionClause ==null)
+			this.functionClause = new ArrayList<>();
+		this.functionClause.add(functionClause);
 		return this;
 	}
 }

@@ -208,22 +208,27 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 	private void convertAttributeSet(Where where, ECLParser.EclattributesetContext eclAtSet,
 																	 boolean alreadyGrouped) throws DataFormatException {
-		if (eclAtSet.subattributeset() != null) {
-			if (eclAtSet.subattributeset().eclattribute() != null) {
-				Where attWhere= new Where();
-				if (!alreadyGrouped)
-					attWhere.setPathTo(IM.ROLE_GROUP.getIri());
-				if(eclAtSet.conjunctionattributeset()!=null) {
-					where.addAnd(attWhere);
-				}
-				else
-					where.setWhere(attWhere);
-				convertAttribute(attWhere, eclAtSet.subattributeset().eclattribute());
-				}
+		if (eclAtSet.conjunctionattributeset()==null&&eclAtSet.disjunctionattributeset()==null){
+			if (!alreadyGrouped)
+				where.setPathTo(IM.ROLE_GROUP.getIri());
+			convertAttribute(where, eclAtSet.subattributeset().eclattribute());
+		}
+		else {
+			if (eclAtSet.subattributeset().eclattribute() == null) {
+				throw new DataFormatException("nested attribute sets not supported");
 			}
+			Where attWhere = new Where();
+			if (!alreadyGrouped)
+				attWhere.setPathTo(IM.ROLE_GROUP.getIri());
 			if (eclAtSet.conjunctionattributeset() != null) {
-				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset(),alreadyGrouped);
+				where.addAnd(attWhere);
+				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset(), alreadyGrouped);
+			} else {
+				where.addOr(attWhere);
+				convertOrAttributeSet(where, eclAtSet.disjunctionattributeset(), alreadyGrouped);
 			}
+		}
+
 	}
 
 	private void convertAndAttributeSet(Where where, ECLParser
@@ -235,6 +240,18 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 				and.setPathTo(IM.ROLE_GROUP.getIri());
 			where.addAnd(and);
 			convertAttribute(and,subAt.eclattribute());
+		}
+	}
+
+	private void convertOrAttributeSet(Where where, ECLParser
+		.DisjunctionattributesetContext eclAtOr,
+																			boolean alreadyGrouped) throws DataFormatException {
+		for (ECLParser.SubattributesetContext subAt : eclAtOr.subattributeset()) {
+			Where or= new Where();
+			if (!alreadyGrouped)
+				or.setPathTo(IM.ROLE_GROUP.getIri());
+			where.addOr(or);
+			convertAttribute(or,subAt.eclattribute());
 		}
 	}
 

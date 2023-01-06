@@ -1,4 +1,4 @@
-// Generated from C:/Users/david/CloudStation/EhealthTrust/DiscoveryDataService/IMAPI/api/src/main/grammars\ECL.g4 by ANTLR 4.10.1
+// Generated from java-escape by ANTLR 4.11.1
 package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

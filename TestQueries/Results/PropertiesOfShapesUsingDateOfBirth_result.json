@@ -12,8 +12,15 @@
     }
   },
   "entities" : [ {
-    "@id" : "im:Patient",
+    "@id" : "im:Demographics",
     "sh:property" : [ {
+      "sh:path" : [ {
+        "@id" : "im:recordOwner"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Organisation"
+      } ]
+    }, {
       "sh:path" : [ {
         "@id" : "im:statedGender"
       } ],
@@ -78,13 +85,6 @@
       } ]
     }, {
       "sh:path" : [ {
-        "@id" : "im:gpGMSRegisteredPractice"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:Organisation"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:ethnicity"
       } ],
       "sh:class" : [ {
@@ -96,34 +96,6 @@
       } ],
       "sh:path" : [ {
         "@id" : "im:age"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:gpPatientType"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_GPPatientregistrationtype"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:gpRegisteredStatus"
-      } ],
-      "sh:class" : [ {
-        "@id" : "im:VSET_Registeredstatus"
-      } ]
-    }, {
-      "sh:datatype" : [ {
-        "@id" : "im:DateTime"
-      } ],
-      "sh:path" : [ {
-        "@id" : "im:gpGMSRegistrationDate"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:placeOfResidenceAtEvent"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:PlaceOfResidenceAtEvent"
       } ]
     }, {
       "sh:path" : [ {
@@ -166,29 +138,6 @@
       } ],
       "sh:path" : [ {
         "@id" : "im:contact"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:provider"
-      } ],
-      "sh:maxCount" : "1",
-      "sh:node" : [ {
-        "@id" : "im:Organisation"
-      } ],
-      "sh:minCount" : "1"
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:event"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:HealthRecordEntry"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:samePersonAs"
-      } ],
-      "sh:node" : [ {
-        "@id" : "im:Patient"
       } ]
     }, {
       "sh:path" : [ {

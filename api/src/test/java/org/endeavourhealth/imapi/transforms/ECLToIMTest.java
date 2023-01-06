@@ -15,14 +15,9 @@ class ECLToIMTest {
 	//@Test
 	void convertConceptSet() throws DataFormatException, JsonProcessingException {
 		for (String ecl: List.of(
-			"(*:\n" +
-				" 246093002 |Component (attribute)| = 84698008 |Cholesterol (substance)| ,\n" +
-				"  260686004 |Method (attribute)| = 129266000 |Measurement - action (qualifier value)| )\n" +
-				"OR\n" +
-				"(\n" +
-				"365793008 | Finding of cholesterol level (finding)|)\n" +
-				"OR\n" +
-				"( 365794002 | Finding of serum cholesterol level (finding)|)"
+			"<123455:\n" +
+				"<<762951001 = <33373737\n" +
+				"MINUS <<10363901000001102"
 	)) {
 			ECLToIML iml = new ECLToIML();
 			Query query = iml.getQueryFromECL(ecl);

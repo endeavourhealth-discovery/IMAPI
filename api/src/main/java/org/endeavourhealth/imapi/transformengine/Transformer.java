@@ -168,17 +168,17 @@ public class Transformer {
 
 
 
-	private Object runFunction(Function function) throws DataFormatException {
-			Map<String,Object> args= getFunctionArguments(function);
-			return TransformFunctions.runFunction(function.getIri(),args);
+	private Object runFunction(FunctionClause functionClause) throws DataFormatException {
+			Map<String,Object> args= getFunctionArguments(functionClause);
+			return TransformFunctions.runFunction(functionClause.getIri(),args);
 	}
 
 
 
 
-	private Map<String, Object> getFunctionArguments(Function function) throws DataFormatException {
-		if (function.getArgument() != null) {
-				return getArguments (function.getArgument());
+	private Map<String, Object> getFunctionArguments(FunctionClause functionClause) throws DataFormatException {
+		if (functionClause.getArgument() != null) {
+				return getArguments (functionClause.getArgument());
 		}
 			else
 				return null;

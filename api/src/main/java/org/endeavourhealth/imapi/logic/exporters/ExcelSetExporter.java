@@ -54,13 +54,8 @@ public class ExcelSetExporter {
      */
     public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy,boolean flat) throws DataFormatException, JsonProcessingException {
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
-
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
-        if (entity.get(IM.DEFINITION)==null && entity.get(IM.HAS_MEMBER)==null)
-            throw new DataFormatException(setIri+" has neither a definition nor members");
-        if (!entity.has(IM.DEFINITION))
-            entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.HAS_MEMBER.getIri())).getEntity();
 
         String ecl = getEcl(entity);
         if(ecl != null) {
@@ -83,16 +78,9 @@ public class ExcelSetExporter {
     }
 
     private String getEcl(TTEntity entity) throws DataFormatException, JsonProcessingException {
-        if (entity.get(IM.DEFINITION) == null && entity.get(IM.HAS_MEMBER) == null)
+        if (entity.get(IM.DEFINITION) == null)
             return null;
-
-        String ecl;
-        if (entity.get(IM.HAS_MEMBER) != null) {
-            ecl = IMLToECL.getMembersAsECL(entity.get(IM.HAS_MEMBER));
-        } else {
-            ecl = IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
-        }
-
+        String ecl = IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
         return ecl;
     }
 

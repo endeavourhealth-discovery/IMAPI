@@ -53,13 +53,12 @@ class SearchServiceTest {
 		QueryRequest qr= TestQueries.pathQuery();
 		output(qr);
 
-		/*
+
 
 		for (QueryRequest qr1: List.of(TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
-		 */
 
 
 

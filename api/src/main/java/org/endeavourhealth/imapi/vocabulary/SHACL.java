@@ -39,7 +39,7 @@ public class SHACL {
    public static final TTIriRef TARGET_TYPE= iri(NAMESPACE +"targetType");
    public static final TTIriRef TARGET= iri(NAMESPACE +"target");
    public static final TTIriRef SPARQL_TARGET= iri(NAMESPACE +"SPARQLTarget");
-   public static final TTIriRef FUNCTION= iri(NAMESPACE +"Function");
+   public static final TTIriRef FUNCTION= iri(NAMESPACE +"FunctionClause");
    public static final TTIriRef RETURN_TYPE= iri(NAMESPACE +"returnType");
    public static final TTIriRef GROUP= iri(NAMESPACE +"group");
    public static final TTIriRef NAME= iri(NAMESPACE +"name");

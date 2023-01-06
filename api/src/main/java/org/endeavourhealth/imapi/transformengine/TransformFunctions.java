@@ -19,7 +19,7 @@ public class TransformFunctions {
 		else if (iri.equals(IM.NAMESPACE+"SchemedCodeConceptMap"))
 			return schemeCodeConcept(args);
 		else
-			throw new RuntimeException("Function not supported : "+ iri);
+			throw new RuntimeException("FunctionClause not supported : "+ iri);
 	}
 
 	private static Object schemeCodeConcept(Map<String, Object> args) {

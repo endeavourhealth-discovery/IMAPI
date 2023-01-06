@@ -3,28 +3,20 @@
     "name" : "Pain in lower limb OR Chest pain minus (Chest wall pain or chest pain with sudden onset",
     "where" : {
       "or" : [ {
-        "entityId" : [ {
+        "from" : [ {
           "@id" : "http://snomed.info/sct#10601006",
           "includeSubtypes" : true
         } ]
       }, {
-        "entityId" : [ {
-          "@id" : "http://snomed.info/sct#29857009",
-          "includeSubtypes" : true
-        } ],
         "notExist" : {
           "or" : [ {
-            "entityId" : [ {
+            "from" : [ {
               "@id" : "http://snomed.info/sct#102588006",
               "includeSubtypes" : true
             } ]
           }, {
-            "entityId" : [ {
-              "@id" : "http://snomed.info/sct#29857009",
-              "includeSubtypes" : true
-            } ],
-            "path" : "http://endhealth.info/im#roleGroup",
             "where" : {
+              "pathTo" : "http://endhealth.info/im#roleGroup",
               "property" : {
                 "@id" : "http://snomed.info/sct#263502005",
                 "name" : "Clinical course (attribute)"
@@ -33,9 +25,17 @@
                 "@id" : "http://snomed.info/sct#424124008",
                 "name" : "Sudden onset AND/OR short duration (qualifier value)"
               }
-            }
+            },
+            "from" : [ {
+              "@id" : "http://snomed.info/sct#29857009",
+              "includeSubtypes" : true
+            } ]
           } ]
-        }
+        },
+        "from" : [ {
+          "@id" : "http://snomed.info/sct#29857009",
+          "includeSubtypes" : true
+        } ]
       } ]
     },
     "activeOnly" : true

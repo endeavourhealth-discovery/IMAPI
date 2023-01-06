@@ -2,7 +2,7 @@
   "query" : {
     "name" : "Concept With Site being LowerLimb",
     "where" : {
-      "path" : "http://endhealth.info/im#roleGroup",
+      "pathTo" : "http://endhealth.info/im#roleGroup",
       "where" : {
         "property" : {
           "@id" : "http://snomed.info/sct#363698007",

@@ -3,12 +3,12 @@
     "name" : "oral none steroidals",
     "where" : {
       "and" : [ {
-        "entityId" : [ {
+        "from" : [ {
           "@id" : "http://snomed.info/sct#763158003",
           "includeSubtypes" : true
         } ]
       }, {
-        "path" : "http://endhealth.info/im#roleGroup",
+        "pathTo" : "http://endhealth.info/im#roleGroup",
         "and" : [ {
           "property" : {
             "@id" : "http://snomed.info/sct#127489000",

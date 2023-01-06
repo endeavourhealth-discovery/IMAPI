@@ -35,7 +35,7 @@ public class IM {
     public static final TTIriRef TEXT_MAPS = iri(NAMESPACE + "TextMaps");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
+    public static final TTIriRef FUNCTION = iri(NAMESPACE + "FunctionClause");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE + "QueryTemplate");
     public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
@@ -209,7 +209,6 @@ public class IM {
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
     public static final TTIriRef EXAMPLE = iri(NAMESPACE + "example");
-    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
 
 
     //im1

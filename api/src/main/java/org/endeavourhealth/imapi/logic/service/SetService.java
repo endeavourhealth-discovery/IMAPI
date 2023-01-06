@@ -36,7 +36,7 @@ public class SetService {
     public SearchResponse eclSearch(boolean includeLegacy, Integer limit, String ecl) throws DataFormatException, JsonProcessingException {
         Set<Concept> evaluated = evaluateECL(ecl, includeLegacy);
         List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(concept ->
-                new SearchResultSummary().setIri(concept.getIri()).setName(concept.getName())).collect(Collectors.toList());
+                new SearchResultSummary().setIri(concept.getIri()).setName(concept.getName()).setCode(concept.getCode())).collect(Collectors.toList());
         SearchResponse result = new SearchResponse();
         result.setEntities(evaluatedAsSummary);
         result.setCount(evaluated.size());

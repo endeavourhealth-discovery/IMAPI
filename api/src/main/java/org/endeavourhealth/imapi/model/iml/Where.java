@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 
 @JsonPropertyOrder({"alias","pathTo","entityId","with","graph","notExist","not","inverse","property","propertyIn","in","range",
-	"and","or","compare","functionClause","within","value","orderBy","limit","where","then"})
+	"and","or","compare","functionClause","within","value","orderBy","limit","where","minus"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where {
 	private String alias;
@@ -35,6 +35,31 @@ public class Where {
 	private FunctionClause functionClause;
 	private Where where;
 	private Value value;
+	private List<TTAlias> minus;
+
+	public List<TTAlias> getMinus() {
+		return minus;
+	}
+
+	@JsonSetter
+	public Where setMinus(List<TTAlias> minus) {
+		this.minus = minus;
+		return this;
+	}
+
+	public Where addMinus(TTAlias minus){
+		if (this.minus==null)
+			this.minus= new ArrayList<>();
+		this.minus.add(minus);
+		return this;
+	}
+
+	public Where minus(Consumer<TTAlias> builder){
+		TTAlias minus= new TTAlias();
+		addMinus(minus);
+		builder.accept(minus);
+		return this;
+	}
 
 	public Within getWithin() {
 		return within;

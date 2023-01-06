@@ -18,6 +18,13 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitEcl(ECLParser.EclContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitExpressionconstraint(ECLParser.ExpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

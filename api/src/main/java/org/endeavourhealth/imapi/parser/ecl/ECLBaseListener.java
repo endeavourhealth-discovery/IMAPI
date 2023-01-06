@@ -17,6 +17,18 @@ public class ECLBaseListener implements ECLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterEcl(ECLParser.EclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEcl(ECLParser.EclContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterExpressionconstraint(ECLParser.ExpressionconstraintContext ctx) { }
 	/**
 	 * {@inheritDoc}

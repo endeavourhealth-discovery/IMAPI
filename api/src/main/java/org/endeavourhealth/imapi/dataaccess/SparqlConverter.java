@@ -99,8 +99,6 @@ public class SparqlConverter {
 		if (null != where.getProperty()) {
 			if (null != where.getAnd() || null != where.getOr())
 				throw new DataFormatException("Where clause contains a property and an and /or subclause, use 'path' instead");
-			if (null != where.getNotExist())
-				throw new DataFormatException("Where clause contains a not exist and a property. use path instead of property instead and place the property in the not exist clause");
 		}
 		if (null != where.getAnd())
 			for (Where and:where.getAnd())

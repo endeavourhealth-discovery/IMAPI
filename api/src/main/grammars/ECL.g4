@@ -1,5 +1,6 @@
 grammar ECL;
-expressionconstraint :  ws ( refinedexpressionconstraint | compoundexpressionconstraint | dottedexpressionconstraint | subexpressionconstraint ) ws EOF;
+ecl :  ws expressionconstraint ws EOF;
+expressionconstraint :  ws ( refinedexpressionconstraint | compoundexpressionconstraint | dottedexpressionconstraint | subexpressionconstraint ) ws ;
 refinedexpressionconstraint : subexpressionconstraint ws COLON ws eclrefinement;
 compoundexpressionconstraint : conjunctionexpressionconstraint | disjunctionexpressionconstraint | exclusionexpressionconstraint ;
 conjunctionexpressionconstraint : subexpressionconstraint (ws conjunction ws subexpressionconstraint)+;

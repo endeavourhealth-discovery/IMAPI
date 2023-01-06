@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 @JsonPropertyOrder ({"inverse","iri","name","alias","path"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTAlias extends TTIriRef {
@@ -18,7 +22,6 @@ public class TTAlias extends TTIriRef {
 	private boolean excludeSelf;
 	private boolean isType;
 	private boolean isSet;
-
 
 
 	public TTAlias setSet(boolean set) {

@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.parser.ecl.ECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
+import java.util.List;
 import java.util.UnknownFormatConversionException;
 import java.util.zip.DataFormatException;
 
@@ -59,7 +60,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		parser.setTokenStream(tokens);
 		try {
-			ECLParser.ExpressionconstraintContext eclCtx = parser.expressionconstraint();
+			ECLParser.EclContext eclCtx = parser.ecl();
 
 		query= new Query();
 		Where where= convertECContext(eclCtx);
@@ -118,6 +119,9 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			return where;
 	}
 
+	private Where convertECContext(ECLParser.EclContext ctx) throws DataFormatException {
+		return convertECContext(ctx.expressionconstraint());
+	}
 
 	private Where convertECContext(ECLParser.ExpressionconstraintContext ctx) throws DataFormatException {
 		if (ctx.subexpressionconstraint() != null) {
@@ -267,7 +271,8 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 	private Where convertExclusion(ECLParser.ExclusionexpressionconstraintContext eclExc) throws DataFormatException {
 		Where mainWhere;
 			mainWhere= convertSubECContext(eclExc.subexpressionconstraint().get(0));
-		  mainWhere.setNotExist(convertSubECContext(eclExc.
+			ECLParser.SubexpressionconstraintContext eclMinus= eclExc.subexpressionconstraint().get(1);
+			mainWhere.setNotExist(convertSubECContext(eclExc.
 			subexpressionconstraint().get(1)));
 		return mainWhere;
 	}
@@ -357,6 +362,7 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			}
 		}
 	}
+
 	private void pairPropertyValue(Where where, ECLParser.SubexpressionconstraintContext eclSub) {
 		boolean includeSubs=false;
 		boolean excludeSelf= false;

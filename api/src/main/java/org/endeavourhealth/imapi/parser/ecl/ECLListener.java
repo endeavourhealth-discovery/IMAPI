@@ -8,6 +8,16 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface ECLListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link ECLParser#ecl}.
+	 * @param ctx the parse tree
+	 */
+	void enterEcl(ECLParser.EclContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#ecl}.
+	 * @param ctx the parse tree
+	 */
+	void exitEcl(ECLParser.EclContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ECLParser#expressionconstraint}.
 	 * @param ctx the parse tree
 	 */

@@ -8,7 +8,3 @@ hooks:
     - location: aws_scripts/cleanup
       timeout: 300
       runas: root
-  AfterInstall:
-    - location: aws_scripts/deploy
-      timeout: 300
-      runas: root

@@ -1,18 +1,13 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Query;
-import org.endeavourhealth.imapi.model.iml.QueryRequest;
-import org.endeavourhealth.imapi.model.iml.Select;
-import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -38,9 +33,20 @@ public class SearchService {
 		return new QueryRepository().queryIM(queryRequest);
 	}
 
+	/**
+	 * Queries any IM entity using the query model
+	 * @param queryRequest Query inside a request with parameters
+	 * @return a generic JSONDocument containing the results in a format defined by the selecr staement and including predicate map
+	 * @throws DataFormatException if query format is invalid
+	 */
+	public PathDocument pathQuery(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+		validateQueryRequest(queryRequest);
+		return new PathRepository().pathQuery(queryRequest);
+	}
+
 	public void validateQueryRequest(QueryRequest queryRequest) throws DataFormatException {
 			if (queryRequest.getQuery()==null&& queryRequest.getPathQuery()==null)
-				throw new DataFormatException("Query request must have a Query or an Query object with an iri");
+				throw new DataFormatException("Query request must have a Query or an Query object with an iri or a pathQuery");
 	}
 
 	/**

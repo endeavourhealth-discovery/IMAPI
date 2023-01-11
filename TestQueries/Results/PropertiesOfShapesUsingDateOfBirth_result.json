@@ -14,6 +14,64 @@
   "entities" : [ {
     "@id" : "im:Demographics",
     "sh:property" : [ {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "rdfs:label"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1"
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "rdfs:comment"
+      } ],
+      "sh:maxCount" : "1"
+    }, {
+      "sh:path" : [ {
+        "@id" : "rdf:type"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1",
+      "sh:class" : [ {
+        "@id" : "rdfs:Resource"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:status"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1",
+      "sh:class" : [ {
+        "@id" : "im:Status"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:scheme"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1",
+      "sh:class" : [ {
+        "@id" : "im:Graph"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:isContainedIn"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:Folder"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "sn:370124000"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:Entity"
+      } ]
+    }, {
       "sh:path" : [ {
         "@id" : "im:recordOwner"
       } ],
@@ -157,6 +215,64 @@
   }, {
     "@id" : "im:PractitionerInRole",
     "sh:property" : [ {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "rdfs:label"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1"
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "rdfs:comment"
+      } ],
+      "sh:maxCount" : "1"
+    }, {
+      "sh:path" : [ {
+        "@id" : "rdf:type"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1",
+      "sh:class" : [ {
+        "@id" : "rdfs:Resource"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:status"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1",
+      "sh:class" : [ {
+        "@id" : "im:Status"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:scheme"
+      } ],
+      "sh:maxCount" : "1",
+      "sh:minCount" : "1",
+      "sh:class" : [ {
+        "@id" : "im:Graph"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:isContainedIn"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:Folder"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "sn:370124000"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:Entity"
+      } ]
+    }, {
       "sh:path" : [ {
         "@id" : "im:active_Inactive"
       } ],

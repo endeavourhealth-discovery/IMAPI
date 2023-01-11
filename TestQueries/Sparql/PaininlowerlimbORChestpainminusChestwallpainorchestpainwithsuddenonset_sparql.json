@@ -24,7 +24,9 @@ Filter (?superinstance3 in(<http://snomed.info/sct#102588006>))
 UNION {
 ?entity im:isA ?superinstance4.
 Filter (?superinstance4 in(<http://snomed.info/sct#29857009>))
-?entity im:status im:Active.
+?entity <http://endhealth.info/im#roleGroup> ?roleGroup5.
+?roleGroup5 <http://snomed.info/sct#263502005> ?o6.
+Filter (?o6=<http://snomed.info/sct#424124008>)
 }
 ?entity im:status im:Active.
 }

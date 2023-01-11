@@ -17,13 +17,32 @@ import java.util.zip.DataFormatException;
 
 public class TestQueries {
 
-	public static QueryRequest pathQuery(){
+	public static QueryRequest pathDobQuery(){
 		return new QueryRequest()
 			.setPathQuery(new PathQuery()
-				.setName("paths from patient to atenololol")
-				.setDepth(8)
+				.setName("paths from patient to date of birth")
+				.setDepth(3)
+				.setSource(IM.NAMESPACE+"Patient")
+				.setTarget(IM.NAMESPACE+"dateOfBirth"));
+
+	}
+
+	public static QueryRequest pathToAtenolol(){
+		return new QueryRequest()
+			.setPathQuery(new PathQuery()
+				.setName("paths from patient to Atenolol")
+				.setDepth(3)
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget(SNOMED.NAMESPACE+"387506000"));
+
+	}
+	public static QueryRequest pathToCSA(){
+		return new QueryRequest()
+			.setPathQuery(new PathQuery()
+				.setName("paths from patient to common service agency")
+				.setDepth(3)
+				.setSource(IM.NAMESPACE+"Patient")
+				.setTarget("http://endhealth.info/im#1000161000252107"));
 
 	}
 

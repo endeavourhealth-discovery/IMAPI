@@ -15,21 +15,19 @@
               "includeSubtypes" : true
             } ]
           }, {
-            "where" : {
-              "pathTo" : "http://endhealth.info/im#roleGroup",
-              "property" : {
-                "@id" : "http://snomed.info/sct#263502005",
-                "name" : "Clinical course (attribute)"
-              },
-              "is" : {
-                "@id" : "http://snomed.info/sct#424124008",
-                "name" : "Sudden onset AND/OR short duration (qualifier value)"
-              }
+            "pathTo" : "http://endhealth.info/im#roleGroup",
+            "property" : {
+              "@id" : "http://snomed.info/sct#263502005",
+              "name" : "Clinical course (attribute)"
             },
             "from" : [ {
               "@id" : "http://snomed.info/sct#29857009",
               "includeSubtypes" : true
-            } ]
+            } ],
+            "is" : {
+              "@id" : "http://snomed.info/sct#424124008",
+              "name" : "Sudden onset AND/OR short duration (qualifier value)"
+            }
           } ]
         },
         "from" : [ {

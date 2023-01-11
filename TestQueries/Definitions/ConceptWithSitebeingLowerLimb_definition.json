@@ -3,15 +3,13 @@
     "name" : "Concept With Site being LowerLimb",
     "where" : {
       "pathTo" : "http://endhealth.info/im#roleGroup",
-      "where" : {
-        "property" : {
-          "@id" : "http://snomed.info/sct#363698007",
-          "name" : "Finding site (attribute)"
-        },
-        "is" : {
-          "@id" : "http://snomed.info/sct#61685007",
-          "name" : "Lower limb structure (body structure)"
-        }
+      "property" : {
+        "@id" : "http://snomed.info/sct#363698007",
+        "name" : "Finding site (attribute)"
+      },
+      "is" : {
+        "@id" : "http://snomed.info/sct#61685007",
+        "name" : "Lower limb structure (body structure)"
       }
     }
   }

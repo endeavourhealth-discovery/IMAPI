@@ -1,0 +1,1601 @@
+{
+  "source" : {
+    "@id" : "http://endhealth.info/im#Patient"
+  },
+  "paths" : [ {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication request / Prescription",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationRequest"
+    }, {
+      "name" : "authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#authorisation"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Place of residence at event",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
+    }, {
+      "name" : "location",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#location"
+    }, {
+      "name" : "Location",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Location"
+    }, {
+      "name" : "organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#organisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "location",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#location"
+    }, {
+      "name" : "Location",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Location"
+    }, {
+      "name" : "organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#organisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Appointment session",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#AppointmentSession"
+    }, {
+      "name" : "location",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#location"
+    }, {
+      "name" : "Location",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Location"
+    }, {
+      "name" : "organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#organisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is operated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isOperatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is operated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isOperatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is operated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isOperatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is operated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isOperatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is located in the geography of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isLocatedInTheGeographyOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is located in the geography of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isLocatedInTheGeographyOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is located in the geography of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isLocatedInTheGeographyOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is located in the geography of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isLocatedInTheGeographyOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is commissioned by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCommissionedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is commissioned by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCommissionedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is commissioned by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCommissionedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is commissioned by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCommissionedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is directed by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isDirectedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is directed by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isDirectedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is directed by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isDirectedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is directed by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isDirectedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is partner to",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isPartnerTo"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is partner to",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isPartnerTo"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is partner to",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isPartnerTo"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is partner to",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isPartnerTo"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is covid nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCovidNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is covid nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCovidNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is covid nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCovidNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is covid nominated payee for",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isCovidNominatedPayeeFor"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Medication authorisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+    }, {
+      "name" : "originated by",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#originatedBy"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is a subdivision of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isASubdivisionOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "GP Current registration",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+    }, {
+      "name" : "GP patient registered practice",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#gpGMSRegisteredPractice"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is a subdivision of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isASubdivisionOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Referral Request or procedure request",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+    }, {
+      "name" : "source organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#sourceOrganisation"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is a subdivision of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isASubdivisionOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  }, {
+    "items" : [ {
+      "name" : "is subject of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isSubjectOf"
+    }, {
+      "name" : "Consultation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Consultation"
+    }, {
+      "name" : "provider",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#provider"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "is a subdivision of",
+      "type" : {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      },
+      "@id" : "http://endhealth.info/im#isASubdivisionOf"
+    }, {
+      "name" : "Organisation",
+      "type" : {
+        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
+      },
+      "@id" : "http://endhealth.info/im#Organisation"
+    }, {
+      "name" : "has organisation role",
+      "@id" : "http://endhealth.info/im#organisationRole"
+    } ]
+  } ],
+  "target" : {
+    "@id" : "http://endhealth.info/im#1000161000252107"
+  }
+}

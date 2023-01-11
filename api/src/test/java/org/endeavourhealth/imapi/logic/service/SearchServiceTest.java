@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTTypedRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
@@ -50,18 +51,19 @@ class SearchServiceTest {
 		testResults= System.getenv("folder")+"\\Results";
 		testSparql = System.getenv("folder")+"\\Sparql";
 		//QueryRequest qr= TestQueries.allowableChildTypes();
-		QueryRequest qr= TestQueries.pathQuery();
-		output(qr);
+		for (QueryRequest qr1: List.of(TestQueries.pathToCSA(),TestQueries.pathToAtenolol(),TestQueries.pathDobQuery())) {
+			output(qr1);
+		}
 
 
+		/*
 
 		for (QueryRequest qr1: List.of(TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
 
-
-
+		 */
 
 	}
 
@@ -88,14 +90,18 @@ class SearchServiceTest {
 			try (FileWriter wr = new FileWriter(testSparql + "\\" + name + "_sparql.json")) {
 				wr.write(spq);
 			}
+			TTDocument result = searchService.queryIM(dataSet);
+			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
+				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+			}
+			System.out.println("Found " + result.getEntities().size() + " entities");
 		}
-
-		TTDocument result = searchService.queryIM(dataSet);
-		try (FileWriter wr = new FileWriter(testResults+"\\" + name + "_result.json")) {
-			wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+		else {
+			PathDocument result = searchService.pathQuery(dataSet);
+			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
+				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+			}
 		}
-		System.out.println("Found "+ result.getEntities().size()+ " entities");
-
 
 	}
 }

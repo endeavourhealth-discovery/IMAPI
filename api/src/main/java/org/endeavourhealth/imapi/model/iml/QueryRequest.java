@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  * Wrapper class for a query containing the run time parameters for passing into the query
  */
 public class QueryRequest{
+    private String iri;
 	private String name;
 	private Page page;
 
@@ -26,7 +27,16 @@ public class QueryRequest{
 	private PathQuery pathQuery;
 	private String referenceDate;
 
-	public PathQuery getPathQuery() {
+    public String getIri() {
+        return iri;
+    }
+
+    public QueryRequest setIri(java.lang.String iri) {
+        this.iri = iri;
+        return this;
+    }
+
+    public PathQuery getPathQuery() {
 		return pathQuery;
 	}
 

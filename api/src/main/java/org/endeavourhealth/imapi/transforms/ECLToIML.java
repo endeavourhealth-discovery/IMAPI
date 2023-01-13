@@ -164,15 +164,16 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
 		ECLParser.SubrefinementContext subref = refinement.subrefinement();
-		Where subWhere=mainWhere;
+		Where subWhere;
 		if (refinement.conjunctionrefinementset()!=null){
 			subWhere= new Where();
 			mainWhere.addAnd(subWhere);
 		}
-		if (refinement.disjunctionrefinementset()!=null){
-			subWhere= new Where();
-			mainWhere.addOr(subWhere);
-		}
+		else if (refinement.disjunctionrefinementset()!=null){
+				subWhere= new Where();
+				mainWhere.addOr(subWhere);
+			}
+		else subWhere= mainWhere;
 
 		if (subref.eclattributeset() != null) {
 			convertAttributeSet(subWhere,subref.eclattributeset(),false);
@@ -221,14 +222,19 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			if (eclAtSet.subattributeset().eclattribute() == null) {
 				throw new DataFormatException("nested attribute sets not supported");
 			}
-			Where attWhere = new Where();
+
 			if (!alreadyGrouped)
-				attWhere.setPathTo(IM.ROLE_GROUP.getIri());
+				where.setPathTo(IM.ROLE_GROUP.getIri());
+			ECLParser.EclattributeContext firstAt= eclAtSet.subattributeset().eclattribute();
 			if (eclAtSet.conjunctionattributeset() != null) {
-				where.addAnd(attWhere);
+				Where firstWhere = new Where();
+				where.addAnd(firstWhere);
+				convertAttribute(firstWhere,firstAt);
 				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset(), alreadyGrouped);
 			} else {
-				where.addOr(attWhere);
+				Where firstWhere = new Where();
+				where.addOr(firstWhere);
+				convertAttribute(firstWhere,firstAt);
 				convertOrAttributeSet(where, eclAtSet.disjunctionattributeset(), alreadyGrouped);
 			}
 		}

@@ -221,24 +221,32 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 			if (eclAtSet.subattributeset().eclattribute() == null) {
 				throw new DataFormatException("nested attribute sets not supported");
 			}
-			Where attWhere = new Where();
+/*			Where attWhere = new Where();
 			if (!alreadyGrouped)
-				attWhere.setPathTo(IM.ROLE_GROUP.getIri());
+				attWhere.setPathTo(IM.ROLE_GROUP.getIri());*/
 			if (eclAtSet.conjunctionattributeset() != null) {
-				where.addAnd(attWhere);
-				convertAndAttributeSet(where, eclAtSet.conjunctionattributeset(), alreadyGrouped);
+				// where.addAnd(attWhere);
+				convertAndAttributeSet(where, eclAtSet, alreadyGrouped);
 			} else {
-				where.addOr(attWhere);
-				convertOrAttributeSet(where, eclAtSet.disjunctionattributeset(), alreadyGrouped);
+				// where.addOr(attWhere);
+				convertOrAttributeSet(where, eclAtSet, alreadyGrouped);
 			}
 		}
 
 	}
 
-	private void convertAndAttributeSet(Where where, ECLParser
-		.ConjunctionattributesetContext eclAtAnd,
-																			boolean alreadyGrouped) throws DataFormatException {
-		for (ECLParser.SubattributesetContext subAt : eclAtAnd.subattributeset()) {
+	private void convertAndAttributeSet(Where where,
+                                        ECLParser.EclattributesetContext eclAtSet,
+                                        boolean alreadyGrouped) throws DataFormatException {
+        if (eclAtSet.subattributeset() != null) {
+            Where and= new Where();
+            if (!alreadyGrouped)
+                and.setPathTo(IM.ROLE_GROUP.getIri());
+            where.addAnd(and);
+            convertAttribute(and,eclAtSet.subattributeset().eclattribute());
+        }
+
+		for (ECLParser.SubattributesetContext subAt : eclAtSet.conjunctionattributeset().subattributeset()) {
 			Where and= new Where();
 			if (!alreadyGrouped)
 				and.setPathTo(IM.ROLE_GROUP.getIri());
@@ -247,10 +255,18 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		}
 	}
 
-	private void convertOrAttributeSet(Where where, ECLParser
-		.DisjunctionattributesetContext eclAtOr,
-																			boolean alreadyGrouped) throws DataFormatException {
-		for (ECLParser.SubattributesetContext subAt : eclAtOr.subattributeset()) {
+	private void convertOrAttributeSet(Where where,
+                                       ECLParser.EclattributesetContext eclAtSet,
+                                       boolean alreadyGrouped) throws DataFormatException {
+        if (eclAtSet.subattributeset() != null) {
+            Where or= new Where();
+            if (!alreadyGrouped)
+                or.setPathTo(IM.ROLE_GROUP.getIri());
+            where.addOr(or);
+            convertAttribute(or,eclAtSet.subattributeset().eclattribute());
+        }
+
+		for (ECLParser.SubattributesetContext subAt : eclAtSet.disjunctionattributeset().subattributeset()) {
 			Where or= new Where();
 			if (!alreadyGrouped)
 				or.setPathTo(IM.ROLE_GROUP.getIri());

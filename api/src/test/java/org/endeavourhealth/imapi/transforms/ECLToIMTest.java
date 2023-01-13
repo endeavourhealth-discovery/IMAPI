@@ -12,12 +12,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ECLToIMTest {
 
-	//@Test
+//	@Test
 	void convertConceptSet() throws DataFormatException, JsonProcessingException {
 		for (String ecl: List.of(
-			"<123455:\n" +
-				"<<762951001 = <33373737\n" +
-				"MINUS <<10363901000001102"
+			"<  404684003 |Clinical finding| \n" +
+				"\t: {  \n" +
+				"\t\t  363698007 |Finding site|  = <<  39057004 |Pulmonary valve structure| \n" +
+				"\t\t, 116676008 |Associated morphology|  = <<  415582006 |Stenosis| \n" +
+				"\t}, \n" +
+				"\t{  \n" +
+				"\t\t  363698007 |Finding site|  = <<  53085002 |Right ventricular structure| \n" +
+				"\t\t, 116676008 |Associated morphology|  = <<  56246009 |Hypertrophy| \n" +
+				"\t}"
 	)) {
 			ECLToIML iml = new ECLToIML();
 			Query query = iml.getQueryFromECL(ecl);

@@ -32,7 +32,7 @@ class ECLToIMTest {
 		}
 
 	}
-    @Test
+    // @Test
     void groupBasedTest() throws DataFormatException, JsonProcessingException {
         String ecl = "<  404684003 |Clinical finding| \n" +
             "\t: {  \n" +

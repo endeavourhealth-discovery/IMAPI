@@ -33,11 +33,6 @@ public class SearchService {
 	 * @throws DataFormatException if query format is invalid
 	 */
 	public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-        if (queryRequest.getQuery() == null && queryRequest.getIri() != null) {
-            TTBundle queryBundle = new EntityRepository2().getBundle(queryRequest.getIri(), Set.of(IM.DEFINITION.getIri()));
-            queryRequest.setQuery(queryBundle.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class));
-        }
-
 		validateQueryRequest(queryRequest);
 		return new QueryRepository().queryIM(queryRequest);
 	}

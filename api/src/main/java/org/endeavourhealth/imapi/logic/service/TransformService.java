@@ -24,13 +24,16 @@ public class TransformService {
 
 	public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException, IOException, DataFormatException {
 		Properties dataMap= new Properties();
+        Properties criteriaLabels = new Properties();
+
 		File file = ResourceUtils.getFile("classpath:eqdmap.properties");
-		InputStream in = new FileInputStream(file);
-		dataMap.load(in);
-		Properties criteriaLabels= new Properties();
-		file = ResourceUtils.getFile("classpath:criterialabels.properties");
-		in = new FileInputStream(file);
-		criteriaLabels.load(in);
+		try (InputStream in = new FileInputStream(file)) {
+            dataMap.load(in);
+            file = ResourceUtils.getFile("classpath:criterialabels.properties");
+        }
+        try (InputStream in = new FileInputStream(file)) {
+            criteriaLabels.load(in);
+        }
 
 		EqdToIMQ converter= new EqdToIMQ();
 		return converter.convertEQD(eqDoc,dataMap,criteriaLabels);

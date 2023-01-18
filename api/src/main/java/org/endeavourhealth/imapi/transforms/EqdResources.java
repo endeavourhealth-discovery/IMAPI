@@ -712,7 +712,7 @@ public class EqdResources {
 			return importMaps.getCoreFromCodeId(originalCode, IM.CODE_SCHEME_EMIS.getIri());
 		} catch (Exception e) {
 			System.err.println("unable to retrieve iri from term code " + e.getMessage());
-			e.printStackTrace();
+			// e.printStackTrace();
 			return null;
 		}
 	}

@@ -244,14 +244,27 @@ public class TTBulkFiler  extends TTDocumentFiler {
 				 .exec("cmd /c " + command,
 						 null, new File(preloadPath));
 		 BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		 String line;
-		 while (true) {
+		 BufferedReader e = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+		 String line = r.readLine();
+		 while (line != null) {
+             System.out.println(line);
 			 line = r.readLine();
-			 if (line == null) {
-				 break;
-			 }
-			 System.out.println(line);
 		 }
+
+         boolean error = false;
+         line = e.readLine();
+         while (line != null) {
+             error = true;
+             System.err.println(line);
+             line = e.readLine();
+         }
+
+         if (error || process.exitValue() != 0) {
+             System.err.println("Bulk import failed");
+             throw new TTFilerException("Bulk import failed");
+         }
+
 		 File directory = new File(data + pathDelimiter);
 		 for (File file : Objects.requireNonNull(directory.listFiles())) {
 			 if (!file.isDirectory() && !file.delete())

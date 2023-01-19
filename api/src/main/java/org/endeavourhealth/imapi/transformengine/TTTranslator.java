@@ -89,7 +89,7 @@ public class TTTranslator implements SyntaxTranslator {
 	@Override
 	public void setPropertyValue(MapProperty rule, Object targetEntity, String property, Object targetValue) throws DataFormatException {
 		try {
-			if (property.equals("@id") | property.equals("id") | property.equals("iri"))
+			if (property.equals("@id") || property.equals("id") || property.equals("iri"))
 				((TTNode) targetEntity).setIri(((TTLiteral) targetValue).getValue());
 			else {
 				String predicate = property;

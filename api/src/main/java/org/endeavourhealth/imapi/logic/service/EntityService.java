@@ -896,15 +896,9 @@ public class EntityService {
         return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
-    public String getEcl(TTBundle inferred) throws DataFormatException, JsonProcessingException {
+    public String getEcl(Query inferred) throws DataFormatException, JsonProcessingException {
         if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
-        if (inferred.getEntity().get(IM.DEFINITION) != null)
-            return IMLToECL.getECLFromQuery(inferred.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);
-        else if (inferred.getEntity().get(IM.HAS_MEMBER) != null)
-            return IMLToECL.getMembersAsECL(inferred.getEntity().get(IM.HAS_MEMBER));
-        else {
-            return IMLToECL.getECLFromQuery(new Query().setWhere(new Where().addFrom(TTAlias.iri(inferred.getEntity().getIri()).setIncludeSubtypes(true))), false);
-        }
+         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
     public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException {

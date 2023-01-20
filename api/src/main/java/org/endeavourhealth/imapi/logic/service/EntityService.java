@@ -99,15 +99,24 @@ public class EntityService {
 
     public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
         TTBundle bundle = entityRepository2.getBundle(iri, excludePredicates, true);
+        filterOutSpecifiedPredicates(excludePredicates, bundle);
+        filterOutInactiveTermCodes(bundle);
+        return bundle;
+    }
+
+    private static void filterOutSpecifiedPredicates(Set<String> excludePredicates, TTBundle bundle) {
         if (excludePredicates != null) {
             Map<String, String> filtered = bundle.getPredicates().entrySet().stream()
-                    .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .filter(entry -> !entry.getKey().equals(RDFS.LABEL.getIri()) && entry.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             bundle.setPredicates(filtered);
             if (excludePredicates.contains(RDFS.LABEL.getIri())) {
                 bundle.getEntity().set(RDFS.LABEL, (TTValue) null);
             }
         }
+    }
+
+    private static void filterOutInactiveTermCodes(TTBundle bundle) {
         if (bundle.getEntity().get(IM.HAS_TERM_CODE) != null) {
             List<TTValue> termCodes = bundle.getEntity().get(IM.HAS_TERM_CODE).getElements();
             TTArray activeTermCodes = new TTArray();
@@ -121,7 +130,6 @@ public class EntityService {
             }
             bundle.getEntity().set(IM.HAS_TERM_CODE, activeTermCodes);
         }
-        return bundle;
     }
 
     public TTIriRef getEntityReference(String iri) {
@@ -397,31 +405,41 @@ public class EntityService {
 
         TTArray result = new TTArray();
         if (limit == null || limit == 0) {
-            TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
-            if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
-                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
-                desc = true;
-            } else if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
-                result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
-                direct = true;
-            }
+            result = getAllMembers(iri, result);
         } else {
-            TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
-            if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
-                result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
-                desc = true;
-            } else {
-                List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri, IM.HAS_MEMBER.getIri(), null, 0, limit, false).getResult();
-                if (!hasMembers.isEmpty()) {
-                    for (TTIriRef member : hasMembers) {
-                        result.add(member);
-                    }
-                    direct = true;
-                }
-            }
+            result = getLimitedMembers(iri, limit, result);
         }
         getValueSetMember(withHyperlinks, members, result);
         return members;
+    }
+
+    private TTArray getAllMembers(String iri, TTArray result) {
+        TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri(), IM.HAS_MEMBER.getIri()));
+        if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
+            result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            desc = true;
+        } else if (bundle.getEntity().get(IM.HAS_MEMBER.asIriRef()) != null) {
+            result = bundle.getEntity().get(IM.HAS_MEMBER.asIriRef());
+            direct = true;
+        }
+        return result;
+    }
+
+    private TTArray getLimitedMembers(String iri, Integer limit, TTArray result) {
+        TTBundle bundle = getBundle(iri, Set.of(IM.DEFINITION.getIri()));
+        if (bundle.getEntity().get(IM.DEFINITION.asIriRef()) != null) {
+            result = bundle.getEntity().get(IM.DEFINITION.asIriRef());
+            desc = true;
+        } else {
+            List<TTIriRef> hasMembers = entityTripleRepository.findPartialWithTotalCount(iri, IM.HAS_MEMBER.getIri(), null, 0, limit, false).getResult();
+            if (!hasMembers.isEmpty()) {
+                for (TTIriRef member : hasMembers) {
+                    result.add(member);
+                }
+                direct = true;
+            }
+        }
+        return result;
     }
 
     private void getValueSetMember(boolean withHyperlinks, Set<SetMember> members, TTArray result) {

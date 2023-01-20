@@ -31,61 +31,60 @@ public class EqdPopToIMQ {
 		}
 		Where mainWhere= new Where();
 		query.setWhere(mainWhere);
-		boolean lastOr= false;
-
-		for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-			VocRuleAction ifTrue = eqGroup.getActionIfTrue();
-			VocRuleAction ifFalse = eqGroup.getActionIfFalse();
-
-			if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
-					Where or= new Where();
-					mainWhere.addOr(or);
-					convertGroup(eqGroup,or);
-					lastOr= true;
-			}
-			else if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT) {
-				if (lastOr) {
-					Where or = new Where();
-					mainWhere.addOr(or);
-					convertGroup(eqGroup, or);
-					lastOr = false;
-				} else {
-					Where and = new Where();
-					mainWhere.addAnd(and);
-					convertGroup(eqGroup, and);
-				}
-			}
-			else if (ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT) {
-				if (lastOr) {
-					Where or= new Where();
-					mainWhere.addOr(or);
-					convertGroup(eqGroup, or);
-					lastOr = false;
-				}
-				else {
-					Where and = new Where();
-					mainWhere.addAnd(and);
-					convertGroup(eqGroup, and);
-				}
-			}
-			else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT||
-				(ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT) ) {
-				if (mainWhere.getNotExist()==null){
-					Where not= new Where();
-					mainWhere.setNotExist(not);
-				}
-				Where not= mainWhere.getNotExist();
-					Where notOr= new Where();
-					not.addOr(notOr);
-					convertGroup(eqGroup,notOr);
-				}
-			else
-				throw new DataFormatException("unrecognised action rule combination : " + activeReport);
-		}
-		flatten(query);
+        convertPopulationCriteriaGroup(eqReport, mainWhere);
+        flatten(query);
 	}
 
-	private void convertGroup(EQDOCCriteriaGroup eqGroup, Where topWhere) throws DataFormatException, IOException {
+    private void convertPopulationCriteriaGroup(EQDOCReport eqReport, Where mainWhere) throws DataFormatException, IOException {
+        boolean lastOr = false;
+
+        for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
+            VocRuleAction ifTrue = eqGroup.getActionIfTrue();
+            VocRuleAction ifFalse = eqGroup.getActionIfFalse();
+
+            if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
+                convertPopulationCriteriaGroupTrueSelectFalseNext(mainWhere, eqGroup);
+                lastOr = true;
+            } else if ((ifTrue == VocRuleAction.SELECT || ifTrue == VocRuleAction.NEXT) && ifFalse == VocRuleAction.REJECT) {
+                convertPopulationCriteriaGroupTrueSelectOrNextFalseReject(mainWhere, lastOr, eqGroup);
+                lastOr = false;
+            } else if (ifTrue == VocRuleAction.REJECT && (ifFalse == VocRuleAction.SELECT || ifFalse == VocRuleAction.NEXT)) {
+                convertPopulationCriteriaGroupTrueRejectFalseSelectOrNext(mainWhere, eqGroup);
+            } else
+                throw new DataFormatException("unrecognised action rule combination : " + activeReport);
+        }
+    }
+
+    private void convertPopulationCriteriaGroupTrueSelectFalseNext(Where mainWhere, EQDOCCriteriaGroup eqGroup) throws DataFormatException, IOException {
+        Where or = new Where();
+        mainWhere.addOr(or);
+        convertGroup(eqGroup, or);
+    }
+
+    private void convertPopulationCriteriaGroupTrueSelectOrNextFalseReject(Where mainWhere, boolean lastOr, EQDOCCriteriaGroup eqGroup) throws DataFormatException, IOException {
+        if (lastOr) {
+            Where or = new Where();
+            mainWhere.addOr(or);
+            convertGroup(eqGroup, or);
+        } else {
+            Where and = new Where();
+            mainWhere.addAnd(and);
+            convertGroup(eqGroup, and);
+        }
+    }
+
+    private void convertPopulationCriteriaGroupTrueRejectFalseSelectOrNext(Where mainWhere, EQDOCCriteriaGroup eqGroup) throws DataFormatException, IOException {
+        if (mainWhere.getNotExist() == null) {
+            Where not = new Where();
+            mainWhere.setNotExist(not);
+        }
+        Where not = mainWhere.getNotExist();
+        Where notOr = new Where();
+        not.addOr(notOr);
+        convertGroup(eqGroup, notOr);
+    }
+
+    private void convertGroup(EQDOCCriteriaGroup eqGroup, Where topWhere) throws DataFormatException, IOException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (eqGroup.getDefinition().getCriteria().size()==1){
 			resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0),topWhere);

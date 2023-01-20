@@ -77,49 +77,32 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 	}
 
-	private Where flattenWhere(Where where) {
-		boolean simpleOr=true;
-		Where flatWhere= new Where();
-		if (where.getOr()!=null){
-			for (Where or:where.getOr()) {
-				if (or.getFrom() != null) {
-					if (or.getAnd() == null) {
-						if (or.getOr() == null) {
-							if (or.getPathTo()==null){
-								if (or.getNotExist() == null) {
-									for (TTAlias from : or.getFrom()) {
-										flatWhere.addFrom(from);
-									}
-								}
-								else {
-									simpleOr= false;
-								}
-							} else {
-								simpleOr= false;
-							}
-						} else {
-							simpleOr= false;
-						}
-					} else
-						simpleOr=false;
-				}
-				else
-					simpleOr= false;
+`	private Where flattenWhere(Where where) {
+        Where flatWhere= new Where();
 
-			}
-		}
-		else
-			simpleOr= false;
-		if (simpleOr) {
-			if (where.getNotExist()!=null)
-				flatWhere.setNotExist(where.getNotExist());
-			return flatWhere;
-		}
-		else
-			return where;
-	}
+        if (where.getOr() == null)
+            return where;
 
-	private Where convertECContext(ECLParser.EclContext ctx) throws DataFormatException {
+        for (Where or : where.getOr()) {
+            if (or.getFrom() == null
+                || or.getAnd() != null
+                || or.getOr() != null
+                || or.getPathTo() != null
+                || or.getNotExist() != null)
+                return where;
+
+            for (TTAlias from : or.getFrom()) {
+                flatWhere.addFrom(from);
+            }
+        }
+
+        if (where.getNotExist()!=null)
+            flatWhere.setNotExist(where.getNotExist());
+
+        return flatWhere;
+    }`
+
+    private Where convertECContext(ECLParser.EclContext ctx) throws DataFormatException {
 		return convertECContext(ctx.expressionconstraint());
 	}
 
@@ -151,32 +134,22 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 	}
 
 	private Where convertRefined(ECLParser.RefinedexpressionconstraintContext refined) throws DataFormatException {
-		Where mainWhere;
-		if (!isWildCard(refined)){
-			if (refined.subexpressionconstraint().expressionconstraint() != null) {
-				mainWhere= convertECContext(refined.subexpressionconstraint().expressionconstraint());
-			} else {
-				mainWhere = convertSubECContext(refined.subexpressionconstraint());
-			}
-		}
-		else
-			mainWhere= new Where();
+        Where mainWhere = getMainWhere(refined);
 
-		ECLParser.EclrefinementContext refinement = refined.eclrefinement();
+        ECLParser.EclrefinementContext refinement = refined.eclrefinement();
 		ECLParser.SubrefinementContext subref = refinement.subrefinement();
-		Where subWhere;
-		if (refinement.conjunctionrefinementset()!=null){
-			subWhere= new Where();
-			mainWhere.addAnd(subWhere);
-		}
-		else if (refinement.disjunctionrefinementset()!=null){
-				subWhere= new Where();
-				mainWhere.addOr(subWhere);
-			}
-		else subWhere= mainWhere;
 
-		if (subref.eclattributeset() != null) {
-			convertAttributeSet(subWhere,subref.eclattributeset(),false);
+        Where subWhere = getSubWhere(mainWhere, refinement);
+
+        convertRefinedAttributes(subref, subWhere);
+        convertRefinedConjunction(mainWhere, refinement, subref);
+        convertRefinedDisjunction(mainWhere, refinement, subref);
+        return mainWhere;
+	}
+
+    private void convertRefinedAttributes(ECLParser.SubrefinementContext subref, Where subWhere) throws DataFormatException {
+        if (subref.eclattributeset() != null) {
+			convertAttributeSet(subWhere, subref.eclattributeset(),false);
 		}
 		else if (subref.eclattributegroup() != null) {
 			subWhere.setPathTo(IM.ROLE_GROUP.getIri());
@@ -184,34 +157,67 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 		}
 		else
 			throw new UnknownFormatConversionException("ECL attribute format not supported " + ecl);
-		if (refinement.conjunctionrefinementset() != null) {
-			for (ECLParser.SubrefinementContext subAndRef : refinement.conjunctionrefinementset().subrefinement()) {
-				Where pv = new Where();
-				mainWhere.addAnd(pv);
-				if (subref.eclattributeset() != null) {
-					convertAttributeSet(pv, subAndRef.eclattributeset(), false);
-				} else if (subref.eclattributegroup() != null) {
-					pv.setPathTo(IM.ROLE_GROUP.getIri());
-					convertAttributeGroup(pv, subAndRef.eclattributegroup());
-				}
-			}
-		}
-		if (refinement.disjunctionrefinementset()!=null) {
-			for (ECLParser.SubrefinementContext subOrRef : refinement.disjunctionrefinementset().subrefinement()) {
-				Where pv = new Where();
-				mainWhere.addOr(pv);
-				if (subref.eclattributeset() != null) {
-					convertAttributeSet(pv, subOrRef.eclattributeset(), false);
-				} else if (subref.eclattributegroup() != null) {
-					pv.setPathTo(IM.ROLE_GROUP.getIri());
-					convertAttributeGroup(pv, subOrRef.eclattributegroup());
-				}
-			}
-		}
-		return mainWhere;
-	}
+    }
 
-	private void convertAttributeSet(Where where, ECLParser.EclattributesetContext eclAtSet,
+    private void convertRefinedConjunction(Where mainWhere, ECLParser.EclrefinementContext refinement, ECLParser.SubrefinementContext subref) throws DataFormatException {
+        if (refinement.conjunctionrefinementset() != null) {
+            for (ECLParser.SubrefinementContext subAndRef : refinement.conjunctionrefinementset().subrefinement()) {
+                Where pv = new Where();
+                mainWhere.addAnd(pv);
+                if (subref.eclattributeset() != null) {
+                    convertAttributeSet(pv, subAndRef.eclattributeset(), false);
+                } else if (subref.eclattributegroup() != null) {
+                    pv.setPathTo(IM.ROLE_GROUP.getIri());
+                    convertAttributeGroup(pv, subAndRef.eclattributegroup());
+                }
+            }
+        }
+    }
+
+    private void convertRefinedDisjunction(Where mainWhere, ECLParser.EclrefinementContext refinement, ECLParser.SubrefinementContext subref) throws DataFormatException {
+        if (refinement.disjunctionrefinementset()!=null) {
+            for (ECLParser.SubrefinementContext subOrRef : refinement.disjunctionrefinementset().subrefinement()) {
+                Where pv = new Where();
+                mainWhere.addOr(pv);
+                if (subref.eclattributeset() != null) {
+                    convertAttributeSet(pv, subOrRef.eclattributeset(), false);
+                } else if (subref.eclattributegroup() != null) {
+                    pv.setPathTo(IM.ROLE_GROUP.getIri());
+                    convertAttributeGroup(pv, subOrRef.eclattributegroup());
+                }
+            }
+        }
+    }
+
+    private static Where getSubWhere(Where mainWhere, ECLParser.EclrefinementContext refinement) {
+        Where subWhere;
+        if (refinement.conjunctionrefinementset()!=null){
+            subWhere= new Where();
+            mainWhere.addAnd(subWhere);
+        }
+        else if (refinement.disjunctionrefinementset()!=null){
+                subWhere= new Where();
+                mainWhere.addOr(subWhere);
+            }
+        else subWhere= mainWhere;
+        return subWhere;
+    }
+
+    private Where getMainWhere(ECLParser.RefinedexpressionconstraintContext refined) throws DataFormatException {
+        Where mainWhere;
+        if (!isWildCard(refined)){
+            if (refined.subexpressionconstraint().expressionconstraint() != null) {
+                mainWhere= convertECContext(refined.subexpressionconstraint().expressionconstraint());
+            } else {
+                mainWhere = convertSubECContext(refined.subexpressionconstraint());
+            }
+        }
+        else
+            mainWhere= new Where();
+        return mainWhere;
+    }
+
+    private void convertAttributeSet(Where where, ECLParser.EclattributesetContext eclAtSet,
 																	 boolean alreadyGrouped) throws DataFormatException {
 		if (eclAtSet.conjunctionattributeset()==null&&eclAtSet.disjunctionattributeset()==null){
 			if (!alreadyGrouped)

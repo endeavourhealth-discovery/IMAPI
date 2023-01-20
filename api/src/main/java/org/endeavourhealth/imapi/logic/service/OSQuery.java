@@ -383,31 +383,35 @@ public class OSQuery {
             return null;
         Query query = queryRequest.getQuery();
 
-        if (query.getSelect() != null) {
-            for (Select select : query.getSelect()) {
-                if (select.getProperty().getIri() != null && !propIsSupported(select.getProperty().getIri()))
-                    return null;
-                if (select.getSelect() != null)
-                    return null;
-            }
-        }
-        if (query.getWhere() != null) {
-            Where where = query.getWhere();
-            if (where != null) {
-                if (!validateWhere(where))
-                    return null;
-            }
-        }
-        if (query.getFrom()!=null && !validateFrom(query.getFrom())){
+        if (query.getSelect() != null && !validateSelects(query)) {
             return null;
         }
-       SearchRequest searchRequest= convertIMToOS(queryRequest);
-       List<SearchResultSummary> results= multiPhaseQuery(searchRequest);
-       if (results.isEmpty())
-           return null;
-       else
-        return   convertOSResult(results,query);
 
+        if (query.getWhere() != null && !validateWhere(query.getWhere())) {
+            return null;
+        }
+
+        if (query.getFrom() != null && !validateFrom(query.getFrom())) {
+            return null;
+        }
+
+        SearchRequest searchRequest = convertIMToOS(queryRequest);
+        List<SearchResultSummary> results = multiPhaseQuery(searchRequest);
+        if (results.isEmpty())
+            return null;
+        else
+            return convertOSResult(results, query);
+
+    }
+
+    private static boolean validateSelects(Query query) {
+        for (Select select : query.getSelect()) {
+            if (select.getProperty().getIri() != null && !propIsSupported(select.getProperty().getIri()))
+                return false;
+            if (select.getSelect() != null)
+                return false;
+        }
+        return true;
     }
 
     private boolean validateFrom(List<TTAlias> fromList) {
@@ -518,6 +522,12 @@ public class OSQuery {
         request.addSelect("name");
         if (query.isActiveOnly())
             request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
+        processSelects(request, query);
+        if (!validateFromList(request, query)) return null;
+        return request;
+    }
+
+    private void processSelects(SearchRequest request, Query query) {
         if (query.getSelect() != null) {
             for (Select select : query.getSelect()) {
                 TTAlias prop = select.getProperty();
@@ -546,17 +556,20 @@ public class OSQuery {
                 }
             }
         }
+    }
+
+    private static boolean validateFromList(SearchRequest request, Query query) {
         List<TTAlias> fromList = query.getFrom();
         if (fromList!=null){
             for (TTAlias from:fromList){
                 if (!from.isType())
-                    return null;
+                    return false;
                 else if (from.getAlias()!=null)
-                    return null;
+                    return false;
                 else  request.addType(from.getIri());
             }
         }
-        return request;
+        return true;
     }
 
     private static boolean propIsSupported(String iri) {

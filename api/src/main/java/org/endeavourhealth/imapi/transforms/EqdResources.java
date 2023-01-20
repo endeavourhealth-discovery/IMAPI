@@ -608,8 +608,11 @@ public class EqdResources {
 					if (i==1) {
 						if (ev.getDisplayName() != null) {
 							vsetName.append(ev.getDisplayName());
-						} else
-							vsetName.append(concepts.stream().findFirst().get().getName());
+						} else {
+                            Optional<TTAlias> first = concepts.stream().findFirst();
+                            if (first.isPresent())
+                                vsetName.append(first.get().getName());
+                        }
 					}
 					if (i==2)
 						vsetName.append("AndMore");

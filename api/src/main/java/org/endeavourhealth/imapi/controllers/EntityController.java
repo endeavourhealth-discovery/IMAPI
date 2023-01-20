@@ -25,6 +25,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -429,7 +430,7 @@ public class EntityController {
 	}
 
 	@PostMapping("/public/ecl")
-	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException, JsonProcessingException {
+	public String getEcl(@RequestBody Query inferred) throws DataFormatException, JsonProcessingException {
 		LOG.debug("getEcl");
 		return entityService.getEcl(inferred);
 	}

@@ -318,7 +318,6 @@ public class TTManager implements AutoCloseable {
    }
 
    private boolean replaceNode(TTNode node, TTIriRef from, TTIriRef to) {
-      boolean replaced = false;
       if (node.get(from) != null) {
          node.set(to, node.get(from));
          node.getPredicateMap().remove(from);
@@ -327,36 +326,42 @@ public class TTManager implements AutoCloseable {
       if (node.getPredicateMap() != null) {
          HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
          for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
-             TTArray value = entry.getValue();
-
-             List<TTValue> toRemove = new ArrayList<>();
-             for (TTValue arrayValue : value.iterator()) {
-                 if (arrayValue.isIriRef()) {
-                     if (arrayValue.asIriRef().equals(from)) {
-                         toRemove.add(arrayValue);
-                     }
-                 } else if (arrayValue.isNode()) {
-                     replaced = replaceNode(arrayValue.asNode(), from, to);
-                 }
-             }
-             if (!toRemove.isEmpty()) {
-                 for (TTValue remove : toRemove) {
-                     value.remove(remove);
-                 }
-                 value.add(to);
-             }
+             removeValues(from, to, entry.getValue());
          }
          if (!newPredicates.isEmpty()) {
-            for (Map.Entry<TTIriRef, TTValue> entry : newPredicates.entrySet()) {
-               node.getPredicateMap().remove(entry.getKey());
-               node.set(entry.getKey(), entry.getValue());
-            }
+             removePredicates(node, newPredicates);
          }
       }
       return false;
    }
 
-   /**
+    private void removeValues(TTIriRef from, TTIriRef to, TTArray value) {
+        List<TTValue> toRemove = new ArrayList<>();
+        for (TTValue arrayValue : value.iterator()) {
+            if (arrayValue.isIriRef()) {
+                if (arrayValue.asIriRef().equals(from)) {
+                    toRemove.add(arrayValue);
+                }
+            } else if (arrayValue.isNode()) {
+                replaceNode(arrayValue.asNode(), from, to);
+            }
+        }
+        if (!toRemove.isEmpty()) {
+            for (TTValue remove : toRemove) {
+                value.remove(remove);
+            }
+            value.add(to);
+        }
+    }
+
+    private static void removePredicates(TTNode node, HashMap<TTIriRef, TTValue> newPredicates) {
+        for (Map.Entry<TTIriRef, TTValue> entry : newPredicates.entrySet()) {
+           node.getPredicateMap().remove(entry.getKey());
+           node.set(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
     * Tests whether a entity is a descendant of an ancestor, entity test against iri
     * uses standard prefixes in this version
     *
@@ -396,28 +401,35 @@ public class TTManager implements AutoCloseable {
    }
 
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
-      if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
-         return true;
-      TTIriRef subType= descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
-      boolean isa = false;
-      if (descendant.get(subType) != null)
-         for (TTValue ref : descendant.get(subType).iterator())
-            if (ref.equals(ancestor))
-               return true;
-            else {
-               TTIriRef parent = ref.asIriRef();
-               if (!done.contains(parent)) {
-                  done.add(parent);
-                  TTEntity parentEntity = entityMap.get(parent.getIri());
-                  if (parentEntity != null)
-                     isa = isA1(parentEntity, ancestor, done);
-                  if (isa)
-                     return true;
-               }
-            }
-      return false;
+       if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
+           return true;
+
+       TTIriRef subType = descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
+
+       boolean isa = false;
+       if (descendant.get(subType) != null) {
+           for (TTValue ref : descendant.get(subType).iterator()) {
+               if (isA2(ref, ancestor, done))
+                   return true;
+           }
+       }
+       return false;
    }
 
+   private boolean isA2(TTValue ref, TTIriRef ancestor, Set<TTIriRef> done) {
+       if (ref.equals(ancestor)) {
+           return true;
+       } else {
+           TTIriRef parent = ref.asIriRef();
+           if (!done.contains(parent)) {
+               done.add(parent);
+               TTEntity parentEntity = entityMap.get(parent.getIri());
+               return parentEntity != null && isA1(parentEntity, ancestor, done);
+           }
+       }
+
+       return false;
+   }
 
    public static TTEntity createInstance(TTIriRef iri,TTIriRef crud){
       TTEntity result= new TTEntity();
@@ -579,21 +591,25 @@ public class TTManager implements AutoCloseable {
          iris.add(subject.asIriRef());
       else if (subject.isNode()){
          if (subject.asNode().getPredicateMap()!=null){
-            for (Map.Entry<TTIriRef,TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
-               iris.add(entry.getKey());
-               for (TTValue v:entry.getValue().getElements()){
-                  if (v.isIriRef())
-                     iris.add(v.asIriRef());
-                  else if (v.isNode())
-                     addToIrisFromNode(v,iris);
-               }
-            }
+             addToIrisFromNodePredicateMap(subject, iris);
          }
       }
       return iris;
    }
 
-   /**
+    private static void addToIrisFromNodePredicateMap(TTValue subject, Set<TTIriRef> iris) {
+        for (Map.Entry<TTIriRef,TTArray> entry: subject.asNode().getPredicateMap().entrySet()){
+           iris.add(entry.getKey());
+           for (TTValue v:entry.getValue().getElements()){
+              if (v.isIriRef())
+                 iris.add(v.asIriRef());
+              else if (v.isNode())
+                 addToIrisFromNode(v, iris);
+           }
+        }
+    }
+
+    /**
     * Populates a business object from an entity or node, the business object being a subclass of
     * a TTnode. Uses ontological properties and ranges to calculate the classes of the target
     * objects to populate

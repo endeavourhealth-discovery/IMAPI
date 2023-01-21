@@ -298,58 +298,67 @@ public class EqdResources {
 
 	private void setWhere(EQDOCColumnValue cv, String eqTable, String eqColumn,
 																Where pv,String mainPath) throws DataFormatException, IOException {
-		String subPath= getPath(eqTable+"/"+ eqColumn);
-		if (!mainPath.equals(""))
-			subPath= mainPath+" "+ subPath;
-		if (subPath.contains(" ")) {
-			pv.setPathTo(subPath.substring(0, subPath.lastIndexOf(" ") ));
-			pv.setProperty(new TTAlias().setIri(subPath.substring(subPath.lastIndexOf(" ")+1)));
-		}
-		else
-			pv.setProperty(new TTAlias().setIri(subPath));
-		VocColumnValueInNotIn in = cv.getInNotIn();
-		boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
-		if (!cv.getValueSet().isEmpty()) {
-			for (EQDOCValueSet vs : cv.getValueSet()) {
-				if (vs.getId()!=null)
-					if (labels.get(vs.getId())!=null) {
-						String alias = labels.get(vs.getId()).toString();
-						pv.setAlias(pv.getAlias() == null ? alias : pv.getAlias() + " " + alias);
-					}
-				if (vs.getAllValues() != null) {
-					pv.setNot(true);
-					pv.setIn(getExceptionSet(vs.getAllValues()));
-				} else {
-					if (!notIn) {
-							pv.setIn(getInlineValues(vs));
-					}
-					else {
-							pv.setNot(true);
-							pv.setIn(getInlineValues(vs));
-						}
-				}
-			}
-		} else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
-			for (String vset : cv.getLibraryItem()) {
-				String vsetName = "Unknown code set";
-				if (labels.get(vset) != null)
-					vsetName = (String) labels.get(vset);
-				TTAlias iri = TTAlias.iri("urn:uuid:" + vset).setName(vsetName);
-				if (!notIn)
-					pv.addIn(iri);
-				else {
-					pv.setNot(true);
-					pv.addIn(iri);
-				}
-				storeLibraryItem(iri);
-			}
-		} else if (cv.getRangeValue() != null) {
-			setRangeValue(cv.getRangeValue(), pv);
-		}
+        String subPath = getPath(eqTable + "/" + eqColumn);
 
-	}
+        if (!mainPath.equals(""))
+            subPath = mainPath + " " + subPath;
 
-	public String getPath(String eqdPath) throws DataFormatException {
+        if (subPath.contains(" ")) {
+            pv.setPathTo(subPath.substring(0, subPath.lastIndexOf(" ")));
+            pv.setProperty(new TTAlias().setIri(subPath.substring(subPath.lastIndexOf(" ") + 1)));
+        } else
+            pv.setProperty(new TTAlias().setIri(subPath));
+
+        VocColumnValueInNotIn in = cv.getInNotIn();
+        boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
+        if (!cv.getValueSet().isEmpty()) {
+            setWhereValueSet(cv, pv, notIn);
+        } else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
+            setWhereLibraryItem(cv, pv, notIn);
+        } else if (cv.getRangeValue() != null) {
+            setRangeValue(cv.getRangeValue(), pv);
+        }
+
+    }
+
+    private void setWhereValueSet(EQDOCColumnValue cv, Where pv, boolean notIn) throws DataFormatException, IOException {
+        for (EQDOCValueSet vs : cv.getValueSet()) {
+            if (vs.getId() != null)
+                if (labels.get(vs.getId()) != null) {
+                    String alias = labels.get(vs.getId()).toString();
+                    pv.setAlias(pv.getAlias() == null ? alias : pv.getAlias() + " " + alias);
+                }
+            if (vs.getAllValues() != null) {
+                pv.setNot(true);
+                pv.setIn(getExceptionSet(vs.getAllValues()));
+            } else {
+                if (!notIn) {
+                    pv.setIn(getInlineValues(vs));
+                } else {
+                    pv.setNot(true);
+                    pv.setIn(getInlineValues(vs));
+                }
+            }
+        }
+    }
+
+    private void setWhereLibraryItem(EQDOCColumnValue cv, Where pv, boolean notIn) {
+        for (String vset : cv.getLibraryItem()) {
+            String vsetName = "Unknown code set";
+            if (labels.get(vset) != null)
+                vsetName = (String) labels.get(vset);
+            TTAlias iri = TTAlias.iri("urn:uuid:" + vset).setName(vsetName);
+            if (!notIn)
+                pv.addIn(iri);
+            else {
+                pv.setNot(true);
+                pv.addIn(iri);
+            }
+            storeLibraryItem(iri);
+        }
+    }
+
+    public String getPath(String eqdPath) throws DataFormatException {
 		Object target = dataMap.get(eqdPath);
 		if (target == null)
 			throw new DataFormatException("unknown map : " + eqdPath);
@@ -468,8 +477,9 @@ public class EqdResources {
 				return ">";
 			case "<=":
 				return ">=";
+            default:
+                return comp;
 		}
-		return comp;
 	}
 
 
@@ -493,70 +503,75 @@ public class EqdResources {
 
 
 	private void setRangeCompare(Where pv, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
-		String fromComp;
-		Within within= null;
-		Range range= new Range();
-		if (rFrom.getOperator() != null)
-			fromComp = vocabMap.get(rFrom.getOperator());
-		else
-			fromComp = "=";
-		String fromValue = rFrom.getValue().getValue();
-		String units = null;
-		if (rFrom.getValue().getUnit() != null)
-			units = rFrom.getValue().getUnit().value();
-		if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
-			within= new Within();
-			pv.setWithin(within);
-			within.setRange(range);
-			within.of(w->w
-				.setVariable("$referenceDate"));
-			range.setFrom(new Value()
-				.setComparison(fromComp)
-				.setValue(fromValue));
-			if (units!=null)
-				range.getFrom().setUnitOfTime(units);
-		}
-		else {
-			pv.setRange(range);
-			range.setFrom(new Value()
-				.setComparison(fromComp)
-				.setValue(fromValue));
-			if (pv.getProperty().getIri().contains("age")) {
-				if (units == null)
-					throw new DataFormatException("missing units from age");
-				range.getFrom().setUnitOfTime(units);
-			}
-		}
+        Range range= new Range();
+        setRangeCompareFrom(pv, rFrom, range);
+        setRangeCompareTo(rTo, range);
 
-		String toComp;
-		if (rTo.getOperator() != null)
-			toComp = vocabMap.get(rTo.getOperator());
-		else
-			toComp = "=";
-		String toValue = rTo.getValue().getValue();
-		units = null;
-		if (rTo.getValue().getUnit() != null)
-			units = rTo.getValue().getUnit().value();
-		if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
-			range.setTo(new Value()
-				.setComparison(toComp)
-				.setValue(toValue));
-			if (units!=null)
-				range.getTo().setUnitOfTime(units);
-		}
-		else {
-			range.setTo(new Value()
-				.setComparison(toComp)
-				.setValue(toValue));
-		}
+    }
 
-	}
+    private void setRangeCompareFrom(Where pv, EQDOCRangeFrom rFrom, Range range) throws DataFormatException {
+        String fromComp;
+        Within within= null;
+        if (rFrom.getOperator() != null)
+            fromComp = vocabMap.get(rFrom.getOperator());
+        else
+            fromComp = "=";
+        String fromValue = rFrom.getValue().getValue();
+        String units = null;
+        if (rFrom.getValue().getUnit() != null)
+            units = rFrom.getValue().getUnit().value();
+        if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
+            within= new Within();
+            pv.setWithin(within);
+            within.setRange(range);
+            within.of(w->w
+                .setVariable("$referenceDate"));
+            range.setFrom(new Value()
+                .setComparison(fromComp)
+                .setValue(fromValue));
+            if (units!=null)
+                range.getFrom().setUnitOfTime(units);
+        }
+        else {
+            pv.setRange(range);
+            range.setFrom(new Value()
+                .setComparison(fromComp)
+                .setValue(fromValue));
+            if (pv.getProperty().getIri().contains("age")) {
+                if (units == null)
+                    throw new DataFormatException("missing units from age");
+                range.getFrom().setUnitOfTime(units);
+            }
+        }
+    }
+
+    private void setRangeCompareTo(EQDOCRangeTo rTo, Range range) {
+        String units;
+        String toComp;
+        if (rTo.getOperator() != null)
+            toComp = vocabMap.get(rTo.getOperator());
+        else
+            toComp = "=";
+        String toValue = rTo.getValue().getValue();
+        units = null;
+        if (rTo.getValue().getUnit() != null)
+            units = rTo.getValue().getUnit().value();
+        if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
+            range.setTo(new Value()
+                .setComparison(toComp)
+                .setValue(toValue));
+            if (units!=null)
+                range.getTo().setUnitOfTime(units);
+        }
+        else {
+            range.setTo(new Value()
+                .setComparison(toComp)
+                .setValue(toValue));
+        }
+    }
 
 
-
-
-
-	private List<TTAlias> getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
+    private List<TTAlias> getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
 		List<TTAlias> valueSet = new ArrayList<>();
 		VocCodeSystemEx scheme = set.getCodeSystem();
 		for (EQDOCExceptionValue ev : set.getValues()) {
@@ -599,35 +614,38 @@ public class EqdResources {
 		}
 		if (vs.getDescription() != null)
 			vsetName = new StringBuilder(vs.getDescription());
-		int i = 0;
-		for (EQDOCValueSetValue ev : vs.getValues()) {
-			i++;
-			Set<TTAlias> concepts = getValue(scheme, ev);
-			if (concepts != null) {
-				setContent.addAll(new ArrayList<>(concepts));
-					if (i==1) {
-						if (ev.getDisplayName() != null) {
-							vsetName.append(ev.getDisplayName());
-						} else {
-                            Optional<TTAlias> first = concepts.stream().findFirst();
-                            if (first.isPresent())
-                                vsetName.append(first.get().getName());
-                        }
-					}
-					if (i==2)
-						vsetName.append("AndMore");
-				}
-			else
-				System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
+        getValueSetValues(vs, setContent, vsetName, scheme);
 
-		}
-
-		storeValueSet(vs, setContent, vsetName.toString());
+        storeValueSet(vs, setContent, vsetName.toString());
 		setContent.add(TTAlias.iri("urn:uuid:" + vs.getId()).setName(vsetName.toString()));
 		return setContent;
 	}
 
-	private void storeLibraryItem(TTIriRef iri) {
+    private void getValueSetValues(EQDOCValueSet vs, List<TTAlias> setContent, StringBuilder vsetName, VocCodeSystemEx scheme) throws DataFormatException, IOException {
+        int i = 0;
+        for (EQDOCValueSetValue ev : vs.getValues()) {
+            i++;
+            Set<TTAlias> concepts = getValue(scheme, ev);
+            if (concepts != null) {
+                setContent.addAll(new ArrayList<>(concepts));
+                if (i == 1) {
+                    if (ev.getDisplayName() != null) {
+                        vsetName.append(ev.getDisplayName());
+                    } else {
+                        Optional<TTAlias> first = concepts.stream().findFirst();
+                        if (first.isPresent())
+                            vsetName.append(first.get().getName());
+                    }
+                }
+                if (i == 2)
+                    vsetName.append("AndMore");
+            } else
+                System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
+
+        }
+    }
+
+    private void storeLibraryItem(TTIriRef iri) {
 		if (!valueSets.containsKey(iri)) {
 			ConceptSet conceptSet = new ConceptSet();
 				conceptSet.setIri(iri.getIri())
@@ -666,50 +684,58 @@ public class EqdResources {
 	private Set<TTAlias> getValue(VocCodeSystemEx scheme, String originalCode,
 																	 String originalTerm, String legacyCode) throws DataFormatException, IOException {
 		if (scheme == VocCodeSystemEx.EMISINTERNAL) {
-			String key = "EMISINTERNAL/" + originalCode;
-			Object mapValue = dataMap.get(key);
-			if (mapValue != null) {
-				TTAlias iri = new TTAlias(getIri(mapValue.toString()));
-				String name = importMaps.getCoreName(iri.getIri());
-				if (name != null)
-					iri.setName(name);
-				Set<TTAlias> result = new HashSet<>();
-				result.add(iri);
-				return result;
-			} else
-				throw new DataFormatException("unmapped emis internal code : " + key);
-		} else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
-			List<String> schemes = new ArrayList<>();
-			schemes.add(SNOMED.NAMESPACE);
-			schemes.add(IM.CODE_SCHEME_EMIS.getIri());
-			Set<TTIriRef> snomed = valueMap.get(originalCode);
-			if (snomed == null) {
-
-				snomed = getCoreFromCode(originalCode, schemes);
-				if (snomed == null)
-					if (legacyCode != null)
-						snomed = getCoreFromCode(legacyCode, schemes);
-				if (snomed == null)
-					if (originalTerm != null)
-						snomed = getCoreFromLegacyTerm(originalTerm);
-				if (snomed == null)
-					snomed = getCoreFromCodeId(originalCode);
-				if (snomed == null)
-					snomed = getLegacyFromTermCode(originalCode);
-
-				if (snomed != null)
-					valueMap.put(originalCode, snomed);
-			}
-			if (snomed!=null)
-				return snomed.stream().map(e-> TTAlias.iri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
-			else return null;
-		} else
+            return getValueEmisInternal(originalCode);
+        } else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
+            return getValueSnomed(originalCode, originalTerm, legacyCode);
+        } else
 			throw new DataFormatException("code scheme not recognised : " + scheme.value());
 
 	}
 
+    private Set<TTAlias> getValueEmisInternal(String originalCode) throws IOException, DataFormatException {
+        String key = "EMISINTERNAL/" + originalCode;
+        Object mapValue = dataMap.get(key);
+        if (mapValue != null) {
+            TTAlias iri = new TTAlias(getIri(mapValue.toString()));
+            String name = importMaps.getCoreName(iri.getIri());
+            if (name != null)
+                iri.setName(name);
+            Set<TTAlias> result = new HashSet<>();
+            result.add(iri);
+            return result;
+        } else
+            throw new DataFormatException("unmapped emis internal code : " + key);
+    }
 
-	private Set<TTIriRef> getCoreFromCodeId(String originalCode) {
+    private Set<TTAlias> getValueSnomed(String originalCode, String originalTerm, String legacyCode) {
+        List<String> schemes = new ArrayList<>();
+        schemes.add(SNOMED.NAMESPACE);
+        schemes.add(IM.CODE_SCHEME_EMIS.getIri());
+        Set<TTIriRef> snomed = valueMap.get(originalCode);
+        if (snomed == null) {
+
+            snomed = getCoreFromCode(originalCode, schemes);
+            if (snomed == null)
+                if (legacyCode != null)
+                    snomed = getCoreFromCode(legacyCode, schemes);
+            if (snomed == null)
+                if (originalTerm != null)
+                    snomed = getCoreFromLegacyTerm(originalTerm);
+            if (snomed == null)
+                snomed = getCoreFromCodeId(originalCode);
+            if (snomed == null)
+                snomed = getLegacyFromTermCode(originalCode);
+
+            if (snomed != null)
+                valueMap.put(originalCode, snomed);
+        }
+        if (snomed!=null)
+            return snomed.stream().map(e -> TTAlias.iri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
+        else return null;
+    }
+
+
+    private Set<TTIriRef> getCoreFromCodeId(String originalCode) {
 
 		try {
 			return importMaps.getCoreFromCodeId(originalCode, IM.CODE_SCHEME_EMIS.getIri());
@@ -746,143 +772,153 @@ public class EqdResources {
 		return importMaps.getCoreFromCode(originalCode, schemes);
 	}
 
-	private String getLabel(EQDOCCriterion eqCriterion){
+	private String getLabel(EQDOCCriterion eqCriterion) {
 
-		List<EQDOCColumnValue> cvs= eqCriterion.getFilterAttribute().getColumnValue();
-		if (cvs!=null) {
-			for (EQDOCColumnValue cv : cvs) {
-				if (cv.getValueSet() != null) {
-					StringBuilder setIds = new StringBuilder();
-					int i = 0;
-					for (EQDOCValueSet vs : cv.getValueSet()) {
-						i++;
-						if (i > 1)
-							setIds.append(",");
-						setIds.append(vs.getId());
-					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
-					else {
-						i = 0;
-						for (EQDOCValueSet vs : cv.getValueSet()) {
-							i++;
-							if (vs.getValues() != null)
-								if (vs.getValues().get(0).getDisplayName() != null) {
-									counter++;
-									return (vs.getValues().get(0).getDisplayName().split(" ")[0] + "_" + counter);
-								}
-						}
-					}
-				}
-				else if (cv.getLibraryItem()!=null){
-					StringBuilder setIds = new StringBuilder();
-					int i = 0;
-					for (String item:cv.getLibraryItem()){
-						i++;
-						if (i>1)
-							setIds.append(",");
-						setIds.append(item);
-					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
+        List<EQDOCColumnValue> cvs = eqCriterion.getFilterAttribute().getColumnValue();
+        if (cvs != null) {
+            for (EQDOCColumnValue cv : cvs) {
+                if (cv.getValueSet() != null) {
+                    String label = getLabelValueSet(cv.getValueSet());
+                    if (label != null)
+                        return label;
+                } else if (cv.getLibraryItem() != null) {
+                    String label = getLabelLibraryItem(cv.getLibraryItem());
+                    if (label != null)
+                        return label;
+                }
+            }
+        }
+        if (labels.get(eqCriterion.getId()) != null)
+            return (String) labels.get(eqCriterion.getId());
 
-				}
-			}
-		}
-		if (labels.get(eqCriterion.getId())!=null)
-			return (String) labels.get(eqCriterion.getId());
-		counter++;
-		return "NoAlias_"+counter;
-	}
+        return "NoAlias_" + (++counter);
+    }
 
-	private String summarise(Where match,EQDOCColumnValue cv){
-		StringBuilder summary= new StringBuilder();
-		if (cv!=null) {
-			if (labels.get(cv.getId()) != null) {
-				return labels.get(cv.getId()).toString();
-			}
-			if (cv.getValueSet() != null) {
-				StringBuilder setIds = new StringBuilder();
-				int i = 0;
-				for (EQDOCValueSet vs : cv.getValueSet()) {
-					i++;
-					if (i > 1)
-						setIds.append(",");
-					setIds.append(vs.getId());
-				}
-				if (labels.get(setIds.toString()) != null)
-					summary.append((String) labels.get(setIds.toString()));
-			}
-			if (cv.getLibraryItem() != null) {
-				StringBuilder setIds = new StringBuilder();
-				int i = 0;
-				for (String item : cv.getLibraryItem()) {
-					i++;
-					if (i > 1)
-						setIds.append(",");
-					setIds.append(item);
-				}
-				if (labels.get(setIds.toString()) != null)
-					summary.append((String) labels.get(setIds.toString()));
-			}
-		}
-			if (summary.toString().isEmpty())
-					summariseWhere(match,summary);
-			if (summary.toString().isEmpty()) {
-				whereCount++;
-				summary.append("Criteria_").append(whereCount);
-			}
-			return summary.toString();
-	}
+    private String getLabelValueSet(List<EQDOCValueSet> sets) {
+        String setIds = sets.stream()
+            .map(EQDOCValueSet::getId)
+            .collect(Collectors.joining(","));
 
-	private void summariseWhere(Where where,StringBuilder summary) {
-		if (where.getNotExist()!=null) {
-			summary.append("Not ");
-			summary.append(where.getNotExist().getAlias());
-		}
-		if (where.isNot())
-			summary.append("not in ");
-		if (where.getProperty()!=null) {
-			String property = localName(where.getProperty().getIri());
-			if (where.getWithin()!=null){
-				Within within= where.getWithin();
-				summary.append(property);
-				summary.append("within ");
-				if (within.getValue()!=null)
-					summary.append(" ").append(summariseValue(within.getValue()));
-				else
-					summary.append(" ").append(summariseRange(within.getRange()));
-				summary.append(" ").append(summariseCompare(within.getOf()));
-			}
-			else if (where.getValue()!=null)
-				summary.append(" ").append(summariseValue(where.getValue()));
-			}
-			else if (where.getRange() != null) {
-				summary.append(" ").append(summariseRange(where.getRange()));
-			}
+        if (labels.get(setIds) != null)
+            return (String) labels.get(setIds);
 
-			if (where.getIn()!=null){
-				int i=0;
-				for (TTIriRef in:where.getIn()){
-					i++;
-					if (i==1){
-						if (in.getName()!=null)
-							summary.append(in.getName());
-					}
-					if (i==2)
-						summary.append(" (and more) ");
-				}
+        Optional<EQDOCValueSet> vs = sets.stream()
+            .filter(vsv -> vsv.getValues() != null && vsv.getValues().get(0) != null)
+            .findFirst();
 
-			}
-			else if( where.getAnd()!=null){
-				List<String> ands= where.getAnd().stream().map(Where::getAlias).collect(Collectors.toList());
-				summary.append(String.join("+",ands));
-			}
+        if (vs.isPresent()) {
+            return vs.get().getValues().get(0).getDisplayName().split(" ")[0] + "_" + (++counter);
+        }
 
+        return null;
+    }
+    private String getLabelLibraryItem(List<String> libraryItems) {
+        String setIds = String.join(",", libraryItems);
+        if (labels.get(setIds) != null)
+            return (String) labels.get(setIds);
+        return null;
+    }
 
-		}
+	private String summarise(Where match,EQDOCColumnValue cv) {
+        StringBuilder summary = new StringBuilder();
+        if (cv != null) {
+            if (labels.get(cv.getId()) != null) {
+                return labels.get(cv.getId()).toString();
+            }
+            if (cv.getValueSet() != null) {
+                summarizeValueSet(cv, summary);
+            }
+            if (cv.getLibraryItem() != null) {
+                summarizeLibraryItem(cv, summary);
+            }
+        }
 
-	private String summariseRange(Range range) {
+        if (summary.toString().isEmpty())
+            summariseWhere(match, summary);
+
+        if (summary.toString().isEmpty())
+            summary.append("Criteria_").append(++whereCount);
+
+        return summary.toString();
+    }
+
+    private void summarizeLibraryItem(EQDOCColumnValue cv, StringBuilder summary) {
+        StringBuilder setIds = new StringBuilder();
+        int i = 0;
+        for (String item : cv.getLibraryItem()) {
+            i++;
+            if (i > 1)
+                setIds.append(",");
+            setIds.append(item);
+        }
+        if (labels.get(setIds.toString()) != null)
+            summary.append((String) labels.get(setIds.toString()));
+    }
+
+    private void summarizeValueSet(EQDOCColumnValue cv, StringBuilder summary) {
+        StringBuilder setIds = new StringBuilder();
+        int i = 0;
+        for (EQDOCValueSet vs : cv.getValueSet()) {
+            i++;
+            if (i > 1)
+                setIds.append(",");
+            setIds.append(vs.getId());
+        }
+        if (labels.get(setIds.toString()) != null)
+            summary.append((String) labels.get(setIds.toString()));
+    }
+
+    private void summariseWhere(Where where,StringBuilder summary) {
+        if (where.getNotExist() != null) {
+            summary.append("Not ").append(where.getNotExist().getAlias());
+        }
+
+        if (where.isNot())
+            summary.append("not in ");
+
+        if (where.getProperty() != null) {
+            summariseWhereProperty(where, summary);
+        } else if (where.getRange() != null) {
+            summary.append(" ").append(summariseRange(where.getRange()));
+        }
+
+        if (where.getIn() != null) {
+            summariseWhereIn(where, summary);
+        } else if (where.getAnd() != null) {
+            summariseWhereAnd(where, summary);
+        }
+    }
+
+    private void summariseWhereProperty(Where where, StringBuilder summary) {
+        String property = localName(where.getProperty().getIri());
+        if (where.getWithin() != null) {
+            Within within = where.getWithin();
+            summary.append(property);
+            summary.append("within ");
+            if (within.getValue() != null)
+                summary.append(" ").append(summariseValue(within.getValue()));
+            else
+                summary.append(" ").append(summariseRange(within.getRange()));
+            summary.append(" ").append(summariseCompare(within.getOf()));
+        } else if (where.getValue() != null)
+            summary.append(" ").append(summariseValue(where.getValue()));
+    }
+
+    private static void summariseWhereIn(Where where, StringBuilder summary) {
+        Optional<TTAlias> firstNamed = where.getIn().stream().filter(in -> in.getName() != null).findFirst();
+        if (firstNamed.isPresent())
+            summary.append(firstNamed.get().getName());
+
+        if (where.getIn().size() > 1)
+            summary.append(" (and mode) ");
+    }
+
+    private static void summariseWhereAnd(Where where, StringBuilder summary) {
+        List<String> ands = where.getAnd().stream().map(Where::getAlias).collect(Collectors.toList());
+        summary.append(String.join("+", ands));
+    }
+
+    private String summariseRange(Range range) {
 		String result="from "+ summariseValue(range.getFrom());
 		if (range.getFrom().getUnitOfTime()!=null)
 		   result =result+"to "+ summariseValue((range.getTo()));

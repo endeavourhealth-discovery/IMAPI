@@ -29,57 +29,67 @@ public class IMLToECL {
 
 
 	private static void where(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		if (null == where)
-			return;
-		if (where.getNotExist()!=null)
-			ecl.append("(");
-		if (where.getFrom()!=null) {
-			boolean first = true;
-			for (TTAlias from : where.getFrom()) {
-				if (!first)
-					ecl.append(" OR ");
-				else
-					first = false;
-				addClass(from, ecl, includeName);
-			}
-		}
-		else if (where.getPathTo()!=null) {
-			ecl.append("* ");
-		}
-		if (where.getPathTo() != null) {
-					if (where.getPathTo().equals(IM.ROLE_GROUP.getIri())) {
-						if (where.getAnd() != null) {
-							addRefinedConjunction(where.getAnd(), ecl, includeName);
-						} else if (where.getOr() != null) {
-							addRefinedDisjunction(where.getOr(), ecl, includeName);
-						} else {
-							if (where.getProperty()!=null) {
-								addRefined(where, ecl, includeName,true);
-							}
-							else
-								addRefined(where.getWhere(),ecl,includeName,true);
-						}
-					}
-					else
-						throw new DataFormatException("Unrecognised property path. Only im:roleGroup is supported");
-				}
-		else {
-			if (where.getAnd() != null) {
-				addConjunction(where.getAnd(), ecl, includeName);
-			}
-			if (where.getOr() != null) {
-				addDisjunction(where.getOr(), ecl, includeName);
-			}
-		}
-		if (where.getNotExist()!=null){
-			ecl.append(" MINUS (");
-			where(where.getNotExist(),ecl,includeName);
-			ecl.append(" ) )"); //has to have brackets in a clause with a MINUS
-		}
-	}
+        if (null == where)
+            return;
+        if (where.getNotExist() != null)
+            ecl.append("(");
+        if (where.getFrom() != null) {
+            whereFrom(where, ecl, includeName);
+        } else if (where.getPathTo() != null) {
+            ecl.append("* ");
+        }
+        if (where.getPathTo() != null) {
+            wherePathTo(where, ecl, includeName);
+        } else {
+            if (where.getAnd() != null) {
+                addConjunction(where.getAnd(), ecl, includeName);
+            }
+            if (where.getOr() != null) {
+                addDisjunction(where.getOr(), ecl, includeName);
+            }
+        }
+        if (where.getNotExist() != null) {
+            whereNotExists(where, ecl, includeName);
+        }
+    }
+
+    private static void whereFrom(Where where, StringBuilder ecl, Boolean includeName) {
+        boolean first = true;
+        for (TTAlias from : where.getFrom()) {
+            if (!first)
+                ecl.append(" OR ");
+            else
+                first = false;
+            addClass(from, ecl, includeName);
+        }
+    }
+
+    private static void wherePathTo(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+        if (where.getPathTo().equals(IM.ROLE_GROUP.getIri())) {
+            if (where.getAnd() != null) {
+                addRefinedConjunction(where.getAnd(), ecl, includeName);
+            } else if (where.getOr() != null) {
+                addRefinedDisjunction(where.getOr(), ecl, includeName);
+            } else {
+                if (where.getProperty()!=null) {
+                    addRefined(where, ecl, includeName,true);
+                }
+                else
+                    addRefined(where.getWhere(), ecl, includeName,true);
+            }
+        }
+        else
+            throw new DataFormatException("Unrecognised property path. Only im:roleGroup is supported");
+    }
+
+    private static void whereNotExists(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+        ecl.append(" MINUS (");
+        where(where.getNotExist(), ecl, includeName);
+        ecl.append(" ) )"); //has to have brackets in a clause with a MINUS
+    }
 
 
-	private static void addRefinedDisjunction(List<Where> ors, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+    private static void addRefinedDisjunction(List<Where> ors, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		boolean first= true;
 		for (Where or:ors){
 			if (!first)

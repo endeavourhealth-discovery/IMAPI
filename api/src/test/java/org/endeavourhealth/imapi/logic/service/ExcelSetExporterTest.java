@@ -54,7 +54,7 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-        when(setRepository.getSetExpansion(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(setRepository.getSetExpansion(any(), anyBoolean(),new HashSet<>())).thenReturn(new HashSet<>());
         when(setRepository.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);

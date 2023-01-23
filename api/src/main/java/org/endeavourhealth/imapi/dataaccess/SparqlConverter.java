@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.SetToSparql;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -29,7 +30,7 @@ public class SparqlConverter {
 	 * Takes an IMQ select query model and converts to SPARQL
 	 * @return String of SPARQL
 	 **/
-	public String getSelectSparql() throws DataFormatException {
+	public String getSelectSparql(Set<TTIriRef> statusFilter) throws DataFormatException {
 		validateQuery();
 
 		StringBuilder selectQl = new StringBuilder();
@@ -66,6 +67,13 @@ public class SparqlConverter {
 				select(selectQl,whereQl,select,"entity");
 		}
 
+		if (0 != statusFilter.size()) {
+			List<String> statusStrings = new ArrayList<>();
+			for (TTIriRef status:statusFilter) {
+				statusStrings.add("<" + status.getIri()+ ">");
+			}
+			whereQl.append("Filter (?status in(" + String.join(",",statusStrings) + "))\n");
+		}
 
 		selectQl.append("\n");
 

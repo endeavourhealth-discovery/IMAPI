@@ -43,7 +43,7 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy) throws JsonProcessingException, DataFormatException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException {
         imQuery
           .select(s->s
             .property(p->p
@@ -100,7 +100,7 @@ public class SetRepository {
                     .setIri(IM.IM1ID.getIri()).setAlias("legacyIm1Id")));
               imQuery.addSelect(legacy);
         }
-        String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql();
+        String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             return getCoreLegacyCodesForSparql(qry, includeLegacy);

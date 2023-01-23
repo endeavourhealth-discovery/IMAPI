@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
@@ -29,16 +30,17 @@ public class SetService {
         return query;
     }
 
-    public Set<Concept> evaluateECL(String ecl, boolean includeLegacy) throws DataFormatException, JsonProcessingException {
-        Query definition = eclToIML.getQueryFromECL(ecl);
-        return setRepository.getSetExpansion(definition, includeLegacy);
+    public Set<Concept> evaluateECL(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
+        Query definition = eclToIML.getQueryFromECL(request.getEcl());
+        return setRepository.getSetExpansion(definition, request.isIncludeLegacy(),request.getStatusFilter());
     }
 
-    public SearchResponse eclSearch(boolean includeLegacy, Integer limit, String ecl) throws DataFormatException, JsonProcessingException {
-        Set<Concept> evaluated = evaluateECL(ecl, includeLegacy);
+    public SearchResponse eclSearch(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
+        int limit = request.getLimit();
+        Set<Concept> evaluated = evaluateECL(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated
             .stream()
-            .limit(limit != null ? limit : 1000)
+            .limit(limit != 0 ? limit : 1000)
             .map(concept ->
                 new SearchResultSummary()
                     .setIri(concept.getIri())

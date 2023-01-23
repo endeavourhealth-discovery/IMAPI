@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
@@ -86,7 +87,7 @@ class SearchServiceTest {
 		ObjectMapper om= new ObjectMapper();
 		if (dataSet.getQuery()!=null) {
 			SparqlConverter converter = new SparqlConverter(dataSet);
-			String spq = converter.getSelectSparql();
+			String spq = converter.getSelectSparql(new HashSet<>());
 			try (FileWriter wr = new FileWriter(testSparql + "\\" + name + "_sparql.json")) {
 				wr.write(spq);
 			}

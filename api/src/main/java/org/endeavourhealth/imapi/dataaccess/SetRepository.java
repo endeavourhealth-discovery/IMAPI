@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,19 @@ public class SetRepository {
               .setIri(IM.NAMESPACE+"usageTotal").setAlias("use")))
             .select(s->s
               .property(p->p
-                .setIri(IM.IM1ID.getIri()).setAlias("im1Id")));
+                .setIri(IM.IM1ID.getIri()).setAlias("im1Id")))
+            .select(s->s
+                .property(p->p
+                    .setIri(IM.HAS_STATUS.getIri()).setAlias("status"))
+                .select(s2->s2
+                    .property(p2 -> p2
+                        .setIri(RDFS.LABEL.getIri()).setAlias("statusName"))))
+            .select(s->s
+                .property(p->p
+                    .setIri(RDF.TYPE.getIri()).setAlias("type"))
+                .select(s2->s2
+                    .property(p2->p2
+                        .setIri(RDFS.LABEL.getIri()).setAlias("typeName"))));
         if (includeLegacy) {
             Select legacy= new Select();
               legacy
@@ -144,6 +157,10 @@ public class SetRepository {
                     Value scheme = bs.getValue("scheme");
                     Value schemeName = bs.getValue("schemeName");
                     Value use = bs.getValue("use");
+                    Value status = bs.getValue("status");
+                    Value statusName = bs.getValue("statusName");
+                    Value type = bs.getValue("type");
+                    Value typeName = bs.getValue("typeName");
                     cl.setIri(concept);
                     if (name != null)
                         cl.setName(name.stringValue());
@@ -151,7 +168,19 @@ public class SetRepository {
                         cl.setCode(code.stringValue());
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
+                    if (null != status) {
+                        cl.setStatus(iri(status.stringValue(),statusName.stringValue()));
+                    }
+                    if (null != type) {
+                        cl.addType(iri(type.stringValue(),typeName.stringValue()));
+                    }
                     cl.setUsage(use == null ? null : ((Literal) use).intValue());
+                } else {
+                    Value type = bs.getValue("type");
+                    Value typeName = bs.getValue("typeName");
+                    if (null != type) {
+                        cl.addType(iri(type.stringValue(),typeName.stringValue()));
+                    }
                 }
                 Value im1Id = bs.getValue("im1Id");
                 if (im1Id != null)

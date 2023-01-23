@@ -628,7 +628,7 @@ public class EqdResources {
 		if (!valueSets.containsKey(iri)) {
 			ConceptSet conceptSet = new ConceptSet();
 				conceptSet.setIri(iri.getIri())
-				.setType(IM.CONCEPT_SET)
+				.addType(IM.CONCEPT_SET)
 				.setName(iri.getName());
 			conceptSet.addUsedIn(TTIriRef.iri("urn:uuid:" + activeReport));
 			valueSets.put(TTIriRef.iri(iri.getIri()), conceptSet);
@@ -643,7 +643,7 @@ public class EqdResources {
 			if (!valueSets.containsKey(iri)) {
 				ConceptSet conceptSet = new ConceptSet();
 					conceptSet.setIri(iri.getIri())
-					.setType(IM.CONCEPT_SET)
+					.addType(IM.CONCEPT_SET)
 					.setName(vSetName);
 				Query definition= new Query();
 

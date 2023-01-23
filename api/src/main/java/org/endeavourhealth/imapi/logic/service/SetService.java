@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.slf4j.Logger;
@@ -35,8 +36,18 @@ public class SetService {
 
     public SearchResponse eclSearch(boolean includeLegacy, Integer limit, String ecl) throws DataFormatException, JsonProcessingException {
         Set<Concept> evaluated = evaluateECL(ecl, includeLegacy);
-        List<SearchResultSummary> evaluatedAsSummary = evaluated.stream().limit(limit != null ? limit : 1000).map(concept ->
-                new SearchResultSummary().setIri(concept.getIri()).setName(concept.getName()).setCode(concept.getCode())).collect(Collectors.toList());
+        List<SearchResultSummary> evaluatedAsSummary = evaluated
+            .stream()
+            .limit(limit != null ? limit : 1000)
+            .map(concept ->
+                new SearchResultSummary()
+                    .setIri(concept.getIri())
+                    .setName(concept.getName())
+                    .setCode(concept.getCode())
+                    .setScheme(concept.getScheme())
+                    .setStatus(concept.getStatus())
+                    .setEntityType(concept.getType())
+            ).collect(Collectors.toList());
         SearchResponse result = new SearchResponse();
         result.setEntities(evaluatedAsSummary);
         result.setCount(evaluated.size());

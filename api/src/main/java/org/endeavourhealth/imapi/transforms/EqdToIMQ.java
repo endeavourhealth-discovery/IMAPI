@@ -76,7 +76,7 @@ public class EqdToIMQ {
 				String iri = "urn:uuid:" + eqFolder.getId();
 				Entity folder = new Entity()
 					.setIri(iri)
-					.setType(IM.FOLDER)
+					.addType(IM.FOLDER)
 					.setName(eqFolder.getName());
 				resources.getDocument().addFolder(folder);
 			}
@@ -95,7 +95,7 @@ public class EqdToIMQ {
 		queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
 		if (eqReport.getFolder() != null)
 			queryEntity.addIsContainedIn(TTIriRef.iri("urn:uuid:" + eqReport.getFolder()));
-		queryEntity.setType(IM.QUERY);
+		queryEntity.addType(IM.QUERY);
 		Query qry= new Query();
 		if (eqReport.getPopulation() != null) {
 			new EqdPopToIMQ().convertPopulation(eqReport, qry,resources);

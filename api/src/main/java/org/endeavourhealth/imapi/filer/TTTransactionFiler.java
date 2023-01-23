@@ -85,42 +85,54 @@ public class TTTransactionFiler {
     }
 
     private void checkDeletes(TTDocument transaction) throws TTFilerException {
-        Map<String, Set<String>> toCheck = new HashMap<>();
-            for (TTEntity entity : transaction.getEntities()) {
-                if (entity.getCrud()==null) {
-                    if (transaction.getCrud() != null) {
-                        entity.setCrud(transaction.getCrud());
-                    }
-                    else
-                        entity.setCrud(IM.UPDATE_ALL);
-                }
+        Map<String, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
+        if (!toCheck.isEmpty()) {
+            checkIfEntitiesCurrentlyInUse(toCheck);
+        }
+    }
 
-                if (entity.getCrud()== IM.UPDATE_ALL) {
+    private static Map<String, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
+        Map<String, Set<String>> toCheck = new HashMap<>();
+        for (TTEntity entity : transaction.getEntities()) {
+            setEntityCrudOperation(transaction, entity);
+
+            if (entity.getCrud() == IM.UPDATE_ALL) {
                 if (entity.getGraph() == null && transaction.getGraph() == null)
                     throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
                 String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
                 if (entity.getPredicateMap().isEmpty())
                     toCheck.computeIfAbsent(graph, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
             }
-            if (!toCheck.isEmpty()) {
-                try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-                    for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
-                        String graph = entry.getKey();
-                        Set<String> entities = entry.getValue();
-                        String sql = "select * where \n{ graph <" + graph + "> {" +
-                                "?s ?p ?o.\n" +
-                                "filter (?o in(" + String.join(",", entities) + "))" +
-                                "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
-                        TupleQuery qry = conn.prepareTupleQuery(sql);
-                        TupleQueryResult rs = qry.evaluate();
-                        if (rs.hasNext())
-                            throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
-                    }
-                }
+        }
+        return toCheck;
+    }
+
+    private static void setEntityCrudOperation(TTDocument transaction, TTEntity entity) {
+        if (entity.getCrud()==null) {
+            if (transaction.getCrud() != null) {
+                entity.setCrud(transaction.getCrud());
             }
+            else
+                entity.setCrud(IM.UPDATE_ALL);
         }
     }
 
+    private static void checkIfEntitiesCurrentlyInUse(Map<String, Set<String>> toCheck) throws TTFilerException {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
+                String graph = entry.getKey();
+                Set<String> entities = entry.getValue();
+                String sql = "select * where \n{ graph <" + graph + "> {" +
+                    "?s ?p ?o.\n" +
+                    "filter (?o in(" + String.join(",", entities) + "))" +
+                    "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
+                TupleQuery qry = conn.prepareTupleQuery(sql);
+                TupleQueryResult rs = qry.evaluate();
+                if (rs.hasNext())
+                    throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
+            }
+        }
+    }
 
     private void fileAsDocument(TTDocument document) throws Exception {
         try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported

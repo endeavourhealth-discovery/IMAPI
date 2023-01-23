@@ -20,66 +20,76 @@ import java.util.List;
  */
 public class TTDocumentSerializer extends StdSerializer<TTDocument> {
 
-   public TTDocumentSerializer() {
-      this(null);
-   }
+    public TTDocumentSerializer() {
+        this(null);
+    }
 
-   public TTDocumentSerializer(Class<TTDocument> t) {
-      super(t);
-   }
+    public TTDocumentSerializer(Class<TTDocument> t) {
+        super(t);
+    }
 
 
-   @Override
-   public void serialize(TTDocument document, JsonGenerator gen, SerializerProvider prov) throws IOException {
+    @Override
+    public void serialize(TTDocument document, JsonGenerator gen, SerializerProvider prov) throws IOException {
         Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
         usePrefixes = (usePrefixes != null && usePrefixes);
 
-      setPredicateOrder();
-      TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
-      gen.writeStartObject();
-      helper.serializeContexts(document.getPrefixes(), gen);
-      if (document.getGraph()!=null) {
-         gen.writeFieldName("@graph");
-         gen.writeStartObject();
-         gen.writeStringField("@id", helper.prefix(document.getGraph().getIri()));
-         gen.writeEndObject();
-      }
-      if (document.getCrud()!=null){
-         gen.writeFieldName("crud");
-         TTIriRef ref = document.getCrud().asIriRef();
-         gen.writeStartObject();
-         gen.writeStringField("@id", helper.prefix(ref.getIri()));
-         if (ref.getName() != null && !ref.getName().isEmpty())
-            gen.writeStringField("name", ref.getName());
-         gen.writeEndObject();
-      }
-      if (document.getEntities()!=null&&!document.getEntities().isEmpty()) {
-         gen.writeArrayFieldStart("entities");
-         for (TTEntity entity: document.getEntities()){
+        setPredicateOrder();
+        TTNodeSerializer helper = new TTNodeSerializer(document.getContext(), usePrefixes);
+        gen.writeStartObject();
+        helper.serializeContexts(document.getPrefixes(), gen);
+        processGraph(document, gen, helper);
+        processCrud(document, gen, helper);
+        processEntities(document, gen, prov, helper);
+
+
+        gen.writeEndObject();
+    }
+
+    private static void processGraph(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
+        if (document.getGraph() != null) {
+            gen.writeFieldName("@graph");
             gen.writeStartObject();
-            gen.writeStringField("@id", helper.prefix(entity.getIri()));
-            if(entity.getGraph() != null ){
-               gen.writeStringField("@graph", helper.prefix(entity.getGraph().getIri()));
-            }
-            if(entity.getCrud() != null) {
-               gen.writeStringField("crud", helper.prefix(entity.getCrud().getIri()));
-            }
-            helper.serializeNode(entity, gen,prov);
+            gen.writeStringField("@id", helper.prefix(document.getGraph().getIri()));
             gen.writeEndObject();
-         }
-         gen.writeEndArray();
-      }
+        }
+    }
 
+    private static void processCrud(TTDocument document, JsonGenerator gen, TTNodeSerializer helper) throws IOException {
+        if (document.getCrud() != null) {
+            gen.writeFieldName("crud");
+            TTIriRef ref = document.getCrud().asIriRef();
+            gen.writeStartObject();
+            gen.writeStringField("@id", helper.prefix(ref.getIri()));
+            if (ref.getName() != null && !ref.getName().isEmpty())
+                gen.writeStringField("name", ref.getName());
+            gen.writeEndObject();
+        }
+    }
 
+    private static void processEntities(TTDocument document, JsonGenerator gen, SerializerProvider prov, TTNodeSerializer helper) throws IOException {
+        if (document.getEntities() != null && !document.getEntities().isEmpty()) {
+            gen.writeArrayFieldStart("entities");
+            for (TTEntity entity : document.getEntities()) {
+                gen.writeStartObject();
+                gen.writeStringField("@id", helper.prefix(entity.getIri()));
+                if (entity.getGraph() != null) {
+                    gen.writeStringField("@graph", helper.prefix(entity.getGraph().getIri()));
+                }
+                if (entity.getCrud() != null) {
+                    gen.writeStringField("crud", helper.prefix(entity.getCrud().getIri()));
+                }
+                helper.serializeNode(entity, gen, prov);
+                gen.writeEndObject();
+            }
+            gen.writeEndArray();
+        }
+    }
 
-      gen.writeEndObject();
-   }
-
-   private void setPredicateOrder() {
-      List<TTIriRef> predicateTemplate = List.of(RDF.TYPE, RDFS.LABEL,
-              RDFS.COMMENT, IM.CODE, IM.HAS_SCHEME, IM.HAS_STATUS,
-              RDFS.SUBCLASSOF);
-   }
-
+    private void setPredicateOrder() {
+        List<TTIriRef> predicateTemplate = List.of(RDF.TYPE, RDFS.LABEL,
+            RDFS.COMMENT, IM.CODE, IM.HAS_SCHEME, IM.HAS_STATUS,
+            RDFS.SUBCLASSOF);
+    }
 }
 

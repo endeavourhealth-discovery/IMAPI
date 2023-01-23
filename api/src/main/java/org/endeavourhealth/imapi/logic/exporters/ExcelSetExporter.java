@@ -101,21 +101,25 @@ public class ExcelSetExporter {
         Set<String> addedCoreIris = new HashSet<>();
         for (Concept cl : members) {
             if (!addedCoreIris.contains(cl.getIri())) {
-                Integer usage= cl.getUsage();
-                String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-                if (cl.getIm1Id()!=null&&flat) {
-                    for (String im1 : cl.getIm1Id()) {
-                        Row row = addRow(sheet);
-                        addCells(row, cl.getCode(), cl.getName(), isExtension, usage == null ? "" : usage, im1);
-                    }
-                }
-                else {
-                    Row row = addRow(sheet);
-                    addCells(row, cl.getCode(), cl.getName(), isExtension, usage == null ? "" : usage, "");
-                }
-                addedCoreIris.add(cl.getIri());
+                addCoreExpansionConceptToWorkBook(flat, sheet, addedCoreIris, cl);
             }
         }
+    }
+
+    private void addCoreExpansionConceptToWorkBook(boolean flat, Sheet sheet, Set<String> addedCoreIris, Concept cl) {
+        Integer usage= cl.getUsage();
+        String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+        if (cl.getIm1Id()!=null&& flat) {
+            for (String im1 : cl.getIm1Id()) {
+                Row row = addRow(sheet);
+                addCells(row, cl.getCode(), cl.getName(), isExtension, usage == null ? "" : usage, im1);
+            }
+        }
+        else {
+            Row row = addRow(sheet);
+            addCells(row, cl.getCode(), cl.getName(), isExtension, usage == null ? "" : usage, "");
+        }
+        addedCoreIris.add(cl.getIri());
     }
 
     private void addLegacyExpansionToWorkBook(Set<Concept> members,boolean flat) {
@@ -124,7 +128,7 @@ public class ExcelSetExporter {
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         if (flat) {
             addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme",
-              "usage", "im1Id");
+                "usage", "im1Id");
             sheet.setColumnWidth(0, 5000);
             sheet.setColumnWidth(1, 25000);
             sheet.setColumnWidth(2, 2500);
@@ -133,10 +137,9 @@ public class ExcelSetExporter {
             sheet.setColumnWidth(5, 2500);
             sheet.setColumnWidth(6, 2500);
             sheet.setColumnWidth(7, 2500);
-        }
-        else {
+        } else {
             addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme"
-              );
+            );
             sheet.setColumnWidth(0, 5000);
             sheet.setColumnWidth(1, 25000);
             sheet.setColumnWidth(2, 2500);
@@ -148,39 +151,40 @@ public class ExcelSetExporter {
         for (Concept cl : members) {
 
             String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-            if (cl.getMatchedFrom()==null){
+            if (cl.getMatchedFrom() == null) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), cl.getName(), isExtension,"");
+                addCells(row, cl.getCode(), cl.getName(), isExtension, "");
 
+            } else {
+                List<Concept> sortedLegacy = cl.getMatchedFrom()
+                    .stream()
+                    .sorted(Comparator
+                        .comparing(Concept::getIri)
+                    )
+                    .collect(Collectors.toList());
+                addLegacyExpansionConceptsToWorkbook(flat, sheet, cl, isExtension, sortedLegacy);
             }
-            else {
-                List<Concept> sortedLegacy= cl.getMatchedFrom()
-                  .stream()
-                  .sorted(Comparator
-                    .comparing(Concept::getIri)
-                  )
-                  .collect(Collectors.toList());
-                for (Concept legacy:sortedLegacy){
-                    String legacyCode= legacy.getCode();
-                    String legacyScheme= legacy.getScheme().getIri();
-                    String legacyTerm= legacy.getName();
-                    Integer legacyUsage= legacy.getUsage();
-                    if (legacy.getIm1Id()==null||!flat){
-                        Row row = addRow(sheet);
-                        addCells(row,cl.getCode(),cl.getName(),isExtension,legacyCode,legacyTerm,legacyScheme);
-                    }
-                    else {
-                        for (String im1Id:legacy.getIm1Id()){
-                            Row row = addRow(sheet);
-                            addCells(row,cl.getCode(),cl.getName(),isExtension,legacyCode,legacyTerm,legacyScheme,
-                              legacyUsage==null ? "" : legacyUsage,im1Id);
-                        }
+        }
+        sheet.autoSizeColumn(3);
+    }
 
-                        }
-                    }
+    private void addLegacyExpansionConceptsToWorkbook(boolean flat, Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy) {
+        for (Concept legacy : sortedLegacy) {
+            String legacyCode = legacy.getCode();
+            String legacyScheme = legacy.getScheme().getIri();
+            String legacyTerm = legacy.getName();
+            Integer legacyUsage = legacy.getUsage();
+            if (legacy.getIm1Id() == null || !flat) {
+                Row row = addRow(sheet);
+                addCells(row, cl.getCode(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme);
+            } else {
+                for (String im1Id : legacy.getIm1Id()) {
+                    Row row = addRow(sheet);
+                    addCells(row, cl.getCode(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,
+                        legacyUsage == null ? "" : legacyUsage, im1Id);
                 }
             }
-        sheet.autoSizeColumn(3);
+        }
     }
 
     private void addDefinitionToWorkbook(String ecl) {
@@ -216,21 +220,25 @@ public class ExcelSetExporter {
     private void addCells(Row row, Object... values) {
         for (Object value : values) {
             if (value != null) {
-                if (value instanceof String) {
-                    Cell stringCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-                    if (((String)value).contains("\n")) {
-                        stringCell.getRow()
-                            .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * ((String)value).split("\n").length);
-                    }
-                    stringCell.setCellValue((String)value);
-                } else if (value instanceof Integer) {
-                    Cell intCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.NUMERIC);
-                    intCell.setCellValue((Integer)value);
-                } else {
-                    Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
-                    iriCell.setCellValue("UNHANDLED TYPE");
-                }
+                addCellValue(row, value);
             }
+        }
+    }
+
+    private static void addCellValue(Row row, Object value) {
+        if (value instanceof String) {
+            Cell stringCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+            if (((String) value).contains("\n")) {
+                stringCell.getRow()
+                    .setHeightInPoints(stringCell.getSheet().getDefaultRowHeightInPoints() * ((String) value).split("\n").length);
+            }
+            stringCell.setCellValue((String) value);
+        } else if (value instanceof Integer) {
+            Cell intCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.NUMERIC);
+            intCell.setCellValue((Integer) value);
+        } else {
+            Cell iriCell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum(), CellType.STRING);
+            iriCell.setCellValue("UNHANDLED TYPE");
         }
     }
 }

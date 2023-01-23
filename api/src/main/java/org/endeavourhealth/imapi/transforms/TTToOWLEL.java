@@ -92,22 +92,27 @@ public class TTToOWLEL {
          addDeclaration(entity);
          Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
          for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
-            if (entry.getKey().equals(RDFS.SUBCLASSOF)) {
-               if (!entity.isType(RDF.PROPERTY))
-                  addSubClassOf(iri, entry.getValue());
-               else
-                  addSubPropertyOf(iri,OWL.OBJECTPROPERTY,entry.getValue());
-            }
-            else if (entry.getKey().equals(OWL.EQUIVALENTCLASS)) {
-                  addEquivalentClasses(iri, entry.getValue());
-            } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF)) {
-               addSubPropertyOf(iri, OWL.OBJECTPROPERTY,entry.getValue());
-            } else if (entry.getValue().isLiteral())
-               addAnnotation(iri,entry.getKey(),entry.getValue().asLiteral());
+             processEntityPredicates(entity, iri, entry);
          }
       }
    }
-   private void checkUndeclared(IRI iri,OWLEntity entity){
+
+    private void processEntityPredicates(TTEntity entity, IRI iri, Map.Entry<TTIriRef, TTArray> entry) {
+        if (entry.getKey().equals(RDFS.SUBCLASSOF)) {
+           if (!entity.isType(RDF.PROPERTY))
+              addSubClassOf(iri, entry.getValue());
+           else
+              addSubPropertyOf(iri,OWL.OBJECTPROPERTY, entry.getValue());
+        }
+        else if (entry.getKey().equals(OWL.EQUIVALENTCLASS)) {
+              addEquivalentClasses(iri, entry.getValue());
+        } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF)) {
+           addSubPropertyOf(iri, OWL.OBJECTPROPERTY, entry.getValue());
+        } else if (entry.getValue().isLiteral())
+           addAnnotation(iri, entry.getKey(), entry.getValue().asLiteral());
+    }
+
+    private void checkUndeclared(IRI iri,OWLEntity entity){
       if (ttManager.getEntity(iri.toString())==null) {
          OWLDeclarationAxiom declaration = dataFactory.getOWLDeclarationAxiom(entity);
          manager.addAxiom(ontology, declaration);

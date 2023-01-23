@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -848,10 +849,7 @@ class EntityModelServiceTest {
 
     @Test
     void getEcl_NotNullInferred() throws DataFormatException, JsonProcessingException {
-        String actual = entityService.getEcl(new TTBundle()
-                .setEntity(new TTEntity()
-                        .setIri("http://endhealth.info/im#25451000252115")
-                        .setScheme(new TTIriRef().setIri("http://endhealth.info/im#25451000252115"))));
+        String actual = entityService.getEcl(new Query());
         assertNotNull(actual);
     }
 

@@ -16,13 +16,8 @@ public class Entity {
 	private String name;
 	private String description;
 	private Set<TTIriRef> isContainedIn;
-
 	private TTIriRef status;
 	private TTIriRef scheme;
-
-	public Entity() {
-		this.type = new HashSet<>();
-	}
 
 	@JsonProperty("@id")
 	public String getIri() {

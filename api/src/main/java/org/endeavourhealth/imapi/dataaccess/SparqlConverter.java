@@ -67,7 +67,7 @@ public class SparqlConverter {
 				select(selectQl,whereQl,select,"entity");
 		}
 
-		if (0 != statusFilter.size()) {
+		if (null != statusFilter && 0 != statusFilter.size()) {
 			List<String> statusStrings = new ArrayList<>();
 			for (TTIriRef status:statusFilter) {
 				statusStrings.add("<" + status.getIri()+ ">");

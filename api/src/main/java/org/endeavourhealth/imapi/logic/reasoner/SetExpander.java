@@ -40,7 +40,7 @@ public class SetExpander {
 			//get the definition
 			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
-			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,new HashSet<>());
+			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null);
 
 			updateMembers(iri,members);
 
@@ -56,7 +56,7 @@ public class SetExpander {
 		//get the expansion.
 
 		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
-			.objectValue(Query.class),false,new HashSet<>());
+			.objectValue(Query.class),false,null);
 		updateMembers(iri,members);
 
 	}

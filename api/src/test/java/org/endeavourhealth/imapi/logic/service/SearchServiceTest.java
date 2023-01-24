@@ -87,7 +87,7 @@ class SearchServiceTest {
 		ObjectMapper om= new ObjectMapper();
 		if (dataSet.getQuery()!=null) {
 			SparqlConverter converter = new SparqlConverter(dataSet);
-			String spq = converter.getSelectSparql(new HashSet<>());
+			String spq = converter.getSelectSparql(null);
 			try (FileWriter wr = new FileWriter(testSparql + "\\" + name + "_sparql.json")) {
 				wr.write(spq);
 			}

@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,31 +33,29 @@ public class SetController {
     private final SetService setService = new SetService();
     private final SetExporter setExporter = new SetExporter();
 
-    @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
+    @PostMapping(value = "/public/evaluateEcl", consumes = "application/json", produces = "application/json")
     @Operation(
             summary = "Evaluate ECL",
             description = "Evaluates an query"
     )
-    public Set<Concept> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
+    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, EclFormatException {
         try {
-            return setService.evaluateECL(ecl, includeLegacy);
+            return setService.evaluateECL(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
     }
 
-    @PostMapping(value = "/public/eclSearch", consumes = "text/plain", produces = "application/json")
+    @PostMapping(value = "/public/eclSearch", consumes = "application/json", produces = "application/json")
     @Operation(
             summary = "ECL search",
             description = "Search entities using ECL string"
     )
     public SearchResponse eclSearch(
-            @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy,
-            @RequestParam(name = "limit", required = false) Integer limit,
-            @RequestBody String ecl
+            @RequestBody EclSearchRequest request
     ) throws DataFormatException, EclFormatException, JsonProcessingException {
         try {
-            return setService.eclSearch(includeLegacy, limit, ecl);
+            return setService.eclSearch(request);
         } catch (UnknownFormatConversionException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }

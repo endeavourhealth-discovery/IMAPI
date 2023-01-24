@@ -56,7 +56,7 @@ public class QueryRepository {
             }
             checkReferenceDate();
             SparqlConverter converter = new SparqlConverter(queryRequest);
-            String spq = converter.getSelectSparql();
+            String spq = converter.getSelectSparql(null);
             return graphSelectSearch(spq, conn);
 
         }

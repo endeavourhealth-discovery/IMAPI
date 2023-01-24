@@ -94,9 +94,9 @@ public class SetExporter {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
                 if (entity.get(IM.DEFINITION)!=null)
                     result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
-                        includeLegacy));
+                        includeLegacy,null));
                 else
-                  result.addAll(setRepository.getSetExpansion(new Query().setWhere(new Where().addFrom(TTAlias.iri(entity.getIri()).setIncludeSubtypes(true))),includeLegacy));
+                  result.addAll(setRepository.getSetExpansion(new Query().setWhere(new Where().addFrom(TTAlias.iri(entity.getIri()).setIncludeSubtypes(true))),includeLegacy,null));
             }
         }
 

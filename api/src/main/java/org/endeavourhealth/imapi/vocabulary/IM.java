@@ -225,6 +225,7 @@ public class IM {
 
     // ODS
     public static final String ORGANISATION_NAMESPACE = "http://org.endhealth.info/im#";
+    public static final String SYSTEM_NAMESPACE = "http://sys.endhealth.info/im#";
     public static final String LOCATION_NAMESPACE = "http://loc.endhealth.info/im#";
     public static final TTIriRef ADDRESS_CLASS = iri(NAMESPACE + "Address");
     public static final TTIriRef ADDRESS = iri(NAMESPACE + "address");

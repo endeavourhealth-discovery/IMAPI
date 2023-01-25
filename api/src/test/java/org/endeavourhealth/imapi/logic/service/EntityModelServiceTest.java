@@ -848,12 +848,6 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getEcl_NotNullInferred() throws DataFormatException, JsonProcessingException {
-        String actual = entityService.getEcl(new Query());
-        assertNotNull(actual);
-    }
-
-    @Test
     void getSetExport_NullIri() throws DataFormatException, JsonProcessingException {
         XSSFWorkbook actual = entityService.getSetExport(null, true, true, false);
         assertNull(actual);

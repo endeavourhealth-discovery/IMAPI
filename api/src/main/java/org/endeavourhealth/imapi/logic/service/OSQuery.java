@@ -351,11 +351,10 @@ public class OSQuery {
         if (searchResult.getTermCode() != null) {
             for (SearchTermCode tc : searchResult.getTermCode()) {
                 TTIriRef status = tc.getStatus();
-                if ((status != null) && (!(status.equals(IM.INACTIVE)))) {
-                    if (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm)) {
-                        searchResult.setMatch(tc.getTerm());
-                        break;
-                    }
+                if ((status != null) && (!(status.equals(IM.INACTIVE))) &&
+                    (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm))) {
+                    searchResult.setMatch(tc.getTerm());
+                    break;
                 }
             }
         }

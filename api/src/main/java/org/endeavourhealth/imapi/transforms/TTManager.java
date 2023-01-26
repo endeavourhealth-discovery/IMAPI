@@ -560,15 +560,13 @@ public class TTManager implements AutoCloseable {
          boolean unwrapped= false;
           try (CachedObjectMapper om = new CachedObjectMapper()) {
               for (TTIriRef predicate : jsonPredicates) {
-                  if (node.get(predicate) != null) {
-                      if (node.get(predicate).isLiteral()) {
-                          TTArray rdfNodes = new TTArray();
-                          for (TTValue value : node.get(predicate).getElements()) {
-                              rdfNodes.add(om.readValue(value.asLiteral().getValue(), TTNode.class));
-                          }
-                          node.set(predicate, rdfNodes);
-                          unwrapped = true;
+                  if ((node.get(predicate) != null) && (node.get(predicate).isLiteral())) {
+                      TTArray rdfNodes = new TTArray();
+                      for (TTValue value : node.get(predicate).getElements()) {
+                          rdfNodes.add(om.readValue(value.asLiteral().getValue(), TTNode.class));
                       }
+                      node.set(predicate, rdfNodes);
+                      unwrapped = true;
                   }
               }
               return unwrapped;
@@ -589,10 +587,9 @@ public class TTManager implements AutoCloseable {
    private static Set<TTIriRef> addToIrisFromNode(TTValue subject,Set<TTIriRef> iris){
       if (subject.isIriRef())
          iris.add(subject.asIriRef());
-      else if (subject.isNode()){
-         if (subject.asNode().getPredicateMap()!=null){
+      else if ((subject.isNode()) &&
+         (subject.asNode().getPredicateMap()!=null)) {
              addToIrisFromNodePredicateMap(subject, iris);
-         }
       }
       return iris;
    }

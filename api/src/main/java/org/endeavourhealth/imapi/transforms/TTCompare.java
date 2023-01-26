@@ -47,9 +47,7 @@ public class TTCompare {
 			return false;
 		if (from != null && from.size()!=to.size())
 			return false;
-		if (from != null) {
-            if (arrayEquals(from, to)) return false;
-        }
+		if ((from != null) && (arrayEquals(from, to))) return false;
 		return true;
 	}
 

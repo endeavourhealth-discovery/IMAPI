@@ -15,53 +15,53 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TTBulkFiler  extends TTDocumentFiler {
-	private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
-	private static String dataPath;
-	private static String configTTl;
-	private static String preload;
-	private FileWriter codeMap;
-	private FileWriter termCoreMap;
-	private FileWriter coreTerms;
-	private FileWriter quads;
-	private FileWriter subtypes;
-	private FileWriter codeCoreMap;
-	private FileWriter descendants;
-	private FileWriter legacyCore;
-	private FileWriter allEntities;
-	private FileWriter codeIds;
-	private FileWriter coreIris;
-	private static int privacyLevel=0;
-	private static int statementCount;
-	private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
+    private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
+    private static String dataPath;
+    private static String configTTl;
+    private static String preload;
+    private FileWriter codeMap;
+    private FileWriter termCoreMap;
+    private FileWriter coreTerms;
+    private FileWriter quads;
+    private FileWriter subtypes;
+    private FileWriter codeCoreMap;
+    private FileWriter descendants;
+    private FileWriter legacyCore;
+    private FileWriter allEntities;
+    private FileWriter codeIds;
+    private FileWriter coreIris;
+    private static int privacyLevel=0;
+    private static int statementCount;
+    private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
 
-	@Override
-	protected void startTransaction() {
-		// Do nothing
-	}
+    @Override
+    protected void startTransaction() {
+        // Do nothing
+    }
 
-	@Override
-	protected void commit() {
-		// Do nothing
-	}
+    @Override
+    protected void commit() {
+        // Do nothing
+    }
 
-	@Override
-	protected void rollback() {
-		// Do nothing
-	}
+    @Override
+    protected void rollback() {
+        // Do nothing
+    }
 
-	public void fileDocument(TTDocument document) throws TTFilerException {
-		if (document.getEntities() == null)
-			return;
-		if (document.getEntities().isEmpty())
-			return;
-		writeGraph(document);
+    public void fileDocument(TTDocument document) throws TTFilerException {
+        if (document.getEntities() == null)
+            return;
+        if (document.getEntities().isEmpty())
+            return;
+        writeGraph(document);
 
-	}
-
-
+    }
 
 
-	private void writeGraph(TTDocument document) throws TTFilerException {
+
+
+    private void writeGraph(TTDocument document) throws TTFilerException {
 
         String graph = null;
         if (document.getGraph() != null) {
@@ -156,27 +156,27 @@ public class TTBulkFiler  extends TTDocumentFiler {
     }
 
     private void addTerms(TTEntity entity, String graph) throws IOException {
-		boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
-		if (isCoreGraph && entity.getName()!=null)
-			coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
-	}
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
+        if (isCoreGraph && entity.getName()!=null)
+            coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
+    }
 
-	private void addSubtypes(TTEntity entity) throws IOException {
-		if (entity.get(RDFS.SUBCLASSOF)!=null)
-			for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
-				subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");
-				if (specialChildren.contains(parent.asIriRef().getIri()))
-					descendants.write(parent.asIriRef().getIri()+"\t"+ entity.getIri()+"\t"+ entity.getName()+"\n");
-			}
-		if (entity.get(RDFS.SUBPROPERTYOF)!=null)
-			for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
-				subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
-		if (entity.get(SNOMED.REPLACED_BY)!=null)
-			for (TTValue parent:entity.get(SNOMED.REPLACED_BY).getElements())
-				subtypes.write(entity.getIri()+"\t"+ SNOMED.REPLACED_BY.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
-	}
+    private void addSubtypes(TTEntity entity) throws IOException {
+        if (entity.get(RDFS.SUBCLASSOF)!=null)
+            for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
+                subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");
+                if (specialChildren.contains(parent.asIriRef().getIri()))
+                    descendants.write(parent.asIriRef().getIri()+"\t"+ entity.getIri()+"\t"+ entity.getName()+"\n");
+            }
+        if (entity.get(RDFS.SUBPROPERTYOF)!=null)
+            for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
+                subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
+        if (entity.get(SNOMED.REPLACED_BY)!=null)
+            for (TTValue parent:entity.get(SNOMED.REPLACED_BY).getElements())
+                subtypes.write(entity.getIri()+"\t"+ SNOMED.REPLACED_BY.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
+    }
 
-	private void addToMaps(TTEntity entity,String graph) throws IOException {
+    private void addToMaps(TTEntity entity,String graph) throws IOException {
         addCodeToMaps(entity, graph);
         addCodeIdToMaps(entity);
         addTermCodeToMaps(entity, graph);
@@ -224,62 +224,67 @@ public class TTBulkFiler  extends TTDocumentFiler {
                 }
                 codeCoreMap.write(entity.getCode()+"\t"+ core.asIriRef().getIri()+"\n");
                 writeTermCoreMap(entity.getName(),core.asIriRef().getIri());
-                if (entity.get(IM.HAS_TERM_CODE) != null) {
-                    for (TTValue tc : entity.get(IM.HAS_TERM_CODE).getElements()) {
-                        TTNode termCode = tc.asNode();
-                        if (termCode.get(IM.CODE) != null) {
-                            String code = termCode.get(IM.CODE).asLiteral().getValue();
-                            codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
-                        }
-                        if (termCode.get(IM.OLD_CODE) != null) {
-                            String code = termCode.get(IM.OLD_CODE).asLiteral().getValue();
-                            codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
-                        }
-                        if (termCode.get(RDFS.LABEL) != null) {
-                            String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
-                            writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
-                        }
-                    }
+                addMatchToHasTermCode(entity, core);
+            }
+        }
+    }
+
+    private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
+
+        if (entity.get(IM.HAS_TERM_CODE) != null) {
+            for (TTValue tc : entity.get(IM.HAS_TERM_CODE).getElements()) {
+                TTNode termCode = tc.asNode();
+                if (termCode.get(IM.CODE) != null) {
+                    String code = termCode.get(IM.CODE).asLiteral().getValue();
+                    codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
+                }
+                if (termCode.get(IM.OLD_CODE) != null) {
+                    String code = termCode.get(IM.OLD_CODE).asLiteral().getValue();
+                    codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
+                }
+                if (termCode.get(RDFS.LABEL) != null) {
+                    String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
+                    writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
                 }
             }
         }
     }
 
     private void writeTermCoreMap(String term,String core) throws IOException {
-		if (term== null)
-			return;
+        if (term== null)
+            return;
 
-		termCoreMap.write(term+"\t"+ core+"\n");
-		byte[] arr=term.getBytes(StandardCharsets.UTF_8);
-		if (arr.length != term.length()){
-			StringBuilder newTerm= new StringBuilder();
-			for (byte b : arr) {
-				if (b > 0)
-					newTerm.append((char) b);
-			}
-			termCoreMap.write(newTerm+"\t"+ core+"\n");
-		}
-	}
+        termCoreMap.write(term+"\t"+ core+"\n");
+        byte[] arr=term.getBytes(StandardCharsets.UTF_8);
+        if (arr.length != term.length()){
+            StringBuilder newTerm= new StringBuilder();
+            for (byte b : arr) {
+                if (b > 0)
+                    newTerm.append((char) b);
+            }
+            termCoreMap.write(newTerm+"\t"+ core+"\n");
+        }
+    }
 
  public static void createRepository() throws TTFilerException {
-	 LOG.info("Fast import of {} quad data", new Date());
-	 String pathDelimiter = "/";
-	 try {
-		 String config = configTTl;
-		 String data = dataPath;
-		 String preloadPath = preload;
-		 String command = "importrdf preload -c " + config + "\\config.ttl --force -q " + data + " " + data + "\\BulkImport*.nq";
-		 Process process = Runtime.getRuntime()
-				 .exec("cmd /c " + command,
-						 null, new File(preloadPath));
-		 BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		 BufferedReader e = new BufferedReader(new InputStreamReader(process.getInputStream()));
+     LOG.info("Fast import of {} quad data", new Date());
+     String pathDelimiter = "/";
+     try {
+         String config = configTTl;
+         String data = dataPath;
+         String preloadPath = preload;
+         String command = "importrdf preload -c " + config + "\\config.ttl --force -q " + data + " " + data + "\\BulkImport*.nq";
+         Process process = Runtime.getRuntime()
+                 .exec("cmd /c " + command,
+                         null, new File(preloadPath));
+         BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
+         BufferedReader e = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-		 String line = r.readLine();
-		 while (line != null) {
+         String line = r.readLine();
+         while (line != null) {
              System.out.println(line);
-			 line = r.readLine();
-		 }
+             line = r.readLine();
+         }
 
          boolean error = false;
          line = e.readLine();
@@ -294,60 +299,60 @@ public class TTBulkFiler  extends TTDocumentFiler {
              throw new TTFilerException("Bulk import failed");
          }
 
-		 File directory = new File(data + pathDelimiter);
-		 for (File file : Objects.requireNonNull(directory.listFiles())) {
-			 if (!file.isDirectory() && !file.delete())
-				 LOG.error("File delete failed");
-		 }
-	 } catch (IOException e) {
-		 LOG.error(e.getMessage());
-		 throw new TTFilerException(e.getMessage());
-	 }
+         File directory = new File(data + pathDelimiter);
+         for (File file : Objects.requireNonNull(directory.listFiles())) {
+             if (!file.isDirectory() && !file.delete())
+                 LOG.error("File delete failed");
+         }
+     } catch (IOException e) {
+         LOG.error(e.getMessage());
+         throw new TTFilerException(e.getMessage());
+     }
  }
 
 
-	@Override
-	public void close() throws Exception {
+    @Override
+    public void close() throws Exception {
         // No autoclosable resources
-	}
+    }
 
-	public static String getDataPath() {
-		return dataPath;
-	}
+    public static String getDataPath() {
+        return dataPath;
+    }
 
-	public static void setDataPath(String dataPath) {
-		TTBulkFiler.dataPath = dataPath;
-	}
+    public static void setDataPath(String dataPath) {
+        TTBulkFiler.dataPath = dataPath;
+    }
 
-	public static String getConfigTTl() {
-		return configTTl;
-	}
+    public static String getConfigTTl() {
+        return configTTl;
+    }
 
-	public static void setConfigTTl(String configTTl) {
-		TTBulkFiler.configTTl = configTTl;
-	}
+    public static void setConfigTTl(String configTTl) {
+        TTBulkFiler.configTTl = configTTl;
+    }
 
-	public static String getPreload() {
-		return preload;
-	}
+    public static String getPreload() {
+        return preload;
+    }
 
-	public static void setPreload(String preload) {
-		TTBulkFiler.preload = preload;
-	}
+    public static void setPreload(String preload) {
+        TTBulkFiler.preload = preload;
+    }
 
-	public static int getPrivacyLevel() {
-		return privacyLevel;
-	}
+    public static int getPrivacyLevel() {
+        return privacyLevel;
+    }
 
-	public static void setPrivacyLevel(int privacyLevel) {
-		TTBulkFiler.privacyLevel = privacyLevel;
-	}
+    public static void setPrivacyLevel(int privacyLevel) {
+        TTBulkFiler.privacyLevel = privacyLevel;
+    }
 
-	public static int getStatementCount() {
-		return statementCount;
-	}
+    public static int getStatementCount() {
+        return statementCount;
+    }
 
-	public static void setStatementCount(int statementCount) {
-		TTBulkFiler.statementCount = statementCount;
-	}
+    public static void setStatementCount(int statementCount) {
+        TTBulkFiler.statementCount = statementCount;
+    }
 }

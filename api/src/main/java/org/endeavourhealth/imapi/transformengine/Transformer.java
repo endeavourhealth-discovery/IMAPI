@@ -122,10 +122,8 @@ public class Transformer {
     private void transformPropertySource(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject, String source, String variable) throws Exception {
         Object sourceValue;
         sourceValue = sourceTranslator.getPropertyValue(sourceObject, source);
-        if (rule.getListMode() != null) {
-            if (sourceValue instanceof List) {
+        if ((rule.getListMode() != null) && (sourceValue instanceof List)) {
                 sourceValue = getListItems((List<?>) sourceValue, rule.getListMode());
-            }
         }
         if (variable != null)
             this.varToObject.put(variable, sourceValue);

@@ -323,8 +323,7 @@ public class EqdResources {
 
     private void setWhereValueSet(EQDOCColumnValue cv, Where pv, boolean notIn) throws DataFormatException, IOException {
         for (EQDOCValueSet vs : cv.getValueSet()) {
-            if (vs.getId() != null)
-                if (labels.get(vs.getId()) != null) {
+            if ((vs.getId() != null) && (labels.get(vs.getId()) != null)) {
                     String alias = labels.get(vs.getId()).toString();
                     pv.setAlias(pv.getAlias() == null ? alias : pv.getAlias() + " " + alias);
                 }
@@ -633,8 +632,7 @@ public class EqdResources {
                         vsetName.append(ev.getDisplayName());
                     } else {
                         Optional<TTAlias> first = concepts.stream().findFirst();
-                        if (first.isPresent())
-                            vsetName.append(first.get().getName());
+						first.ifPresent(ttAlias -> vsetName.append(ttAlias.getName()));
                     }
                 }
                 if (i == 2)
@@ -687,9 +685,9 @@ public class EqdResources {
             return getValueEmisInternal(originalCode);
         } else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
             return getValueSnomed(originalCode, originalTerm, legacyCode);
-        } else
+        } else {
 			throw new DataFormatException("code scheme not recognised : " + scheme.value());
-
+		}
 	}
 
     private Set<TTAlias> getValueEmisInternal(String originalCode) throws IOException, DataFormatException {
@@ -715,11 +713,9 @@ public class EqdResources {
         if (snomed == null) {
 
             snomed = getCoreFromCode(originalCode, schemes);
-            if (snomed == null)
-                if (legacyCode != null)
+            if ((snomed == null) && (legacyCode != null))
                     snomed = getCoreFromCode(legacyCode, schemes);
-            if (snomed == null)
-                if (originalTerm != null)
+            if ((snomed == null) && (originalTerm != null))
                     snomed = getCoreFromLegacyTerm(originalTerm);
             if (snomed == null)
                 snomed = getCoreFromCodeId(originalCode);
@@ -774,18 +770,17 @@ public class EqdResources {
 
 	private String getLabel(EQDOCCriterion eqCriterion) {
 
+		String label = null;
         List<EQDOCColumnValue> cvs = eqCriterion.getFilterAttribute().getColumnValue();
         if (cvs != null) {
             for (EQDOCColumnValue cv : cvs) {
                 if (cv.getValueSet() != null) {
-                    String label = getLabelValueSet(cv.getValueSet());
-                    if (label != null)
-                        return label;
+                    label = getLabelValueSet(cv.getValueSet());
                 } else if (cv.getLibraryItem() != null) {
-                    String label = getLabelLibraryItem(cv.getLibraryItem());
-                    if (label != null)
-                        return label;
+                    label = getLabelLibraryItem(cv.getLibraryItem());
                 }
+				if (label != null)
+					return label;
             }
         }
         if (labels.get(eqCriterion.getId()) != null)

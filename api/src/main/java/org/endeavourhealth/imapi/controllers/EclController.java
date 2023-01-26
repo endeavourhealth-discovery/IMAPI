@@ -90,7 +90,7 @@ public class EclController {
         return eclService.validateECL(ecl);
     }
 
-    @PostMapping(value = "/public/parseEcl")
+    @PostMapping(value = "/public/parseEcl",consumes = "text/plain", produces = "application/json")
     @Operation(
         summary = "Parse ecl into objects"
     )

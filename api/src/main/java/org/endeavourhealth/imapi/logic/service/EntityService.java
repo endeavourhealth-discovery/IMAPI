@@ -1175,5 +1175,12 @@ public class EntityService {
         return entityRepository.getPredicates(iri);
     }
 
+    public Boolean isValidProperty(String entity, String property) {
+        return entityRepository.isValidProperty(entity, property);
+    }
+
+    public Boolean isValidPropertyValue(String property, String value) {
+        return entityRepository.isValidPropertyValue(property, value);
+    }
 }
 

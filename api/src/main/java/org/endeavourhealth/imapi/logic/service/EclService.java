@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -10,8 +11,6 @@ import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
-import org.endeavourhealth.imapi.parser.ecl.ECLLexer;
-import org.endeavourhealth.imapi.parser.ecl.ECLParser;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UnknownFormatConversionException;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -79,21 +77,6 @@ public class EclService {
             return true;
         } catch (Exception _e) {
             return false;
-        }
-    }
-
-    public ECLParser.EclContext parseEcl(String ecl) throws DataFormatException {
-        ECLLexer lexer = new ECLLexer(null);
-        ECLParser parser = new ECLParser(null);
-
-        lexer.setInputStream(CharStreams.fromString(ecl));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        parser.setTokenStream(tokens);
-        try {
-            ECLParser.EclContext eclCtx = parser.ecl();
-            return eclCtx;
-        } catch (UnknownFormatConversionException e) {
-            throw new DataFormatException(e.getMessage());
         }
     }
 }

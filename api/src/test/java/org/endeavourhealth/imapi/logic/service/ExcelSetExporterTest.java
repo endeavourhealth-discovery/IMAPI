@@ -55,7 +55,7 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
-        when(setRepository.getSetExpansion(any(), anyBoolean(),null)).thenReturn(new HashSet<>());
+        when(setRepository.getSetExpansion(any(), anyBoolean(),any())).thenReturn(new HashSet<>());
         when(setRepository.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
@@ -85,10 +85,10 @@ public class ExcelSetExporterTest {
                     .where(p1->p1
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
-                      .setIncludeSubtypes(true))
+                      .setIncludeSubtypes(true)
                     .addIn(TTAlias.iri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
-                      .setIncludeSubtypes(true))))));
+                      .setIncludeSubtypes(true)))))));
         return definition;
     }
 

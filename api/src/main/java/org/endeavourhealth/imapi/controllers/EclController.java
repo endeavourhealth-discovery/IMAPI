@@ -89,12 +89,4 @@ public class EclController {
     public boolean isValidECL(@RequestParam(name = "ecl") String ecl) {
         return eclService.validateECL(ecl);
     }
-
-    @PostMapping(value = "/public/parseEcl",consumes = "text/plain", produces = "application/json")
-    @Operation(
-        summary = "Parse ecl into objects"
-    )
-    public ECLParser.EclContext parseEcl(@RequestBody String ecl) throws DataFormatException {
-        return eclService.parseEcl(ecl);
-    }
 }

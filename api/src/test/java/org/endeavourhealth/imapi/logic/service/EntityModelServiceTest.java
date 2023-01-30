@@ -846,8 +846,6 @@ class EntityModelServiceTest {
         assertNotNull(actual);
     }
 
-
-
     @Test
     void getSetExport_NullIri() throws DataFormatException, JsonProcessingException {
         XSSFWorkbook actual = entityService.getSetExport(null, true, true, false);

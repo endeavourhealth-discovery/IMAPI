@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.iml;
+package org.endeavourhealth.imapi.model.imq;
 
 public enum Aggregate {
 	SUM,COUNT,AVERAGE,MIN,MAX

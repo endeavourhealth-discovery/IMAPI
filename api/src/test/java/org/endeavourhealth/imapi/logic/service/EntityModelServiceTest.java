@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.iml.Query;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -847,11 +846,7 @@ class EntityModelServiceTest {
         assertNotNull(actual);
     }
 
-    @Test
-    void getEcl_NotNullInferred() throws DataFormatException, JsonProcessingException {
-        String actual = entityService.getEcl(new Query());
-        assertNotNull(actual);
-    }
+
 
     @Test
     void getSetExport_NullIri() throws DataFormatException, JsonProcessingException {

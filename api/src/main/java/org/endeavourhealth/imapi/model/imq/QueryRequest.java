@@ -1,22 +1,16 @@
-package org.endeavourhealth.imapi.model.iml;
+package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.iml.PathQuery;
-import org.endeavourhealth.imapi.model.iml.Query;
+
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
-/**
- * Wrapper class for a query containing the run time parameters for passing into the query
- */
-public class QueryRequest{
+public class QueryRequest {
+
 	private String name;
 	private Page page;
 
@@ -26,7 +20,9 @@ public class QueryRequest{
 	private PathQuery pathQuery;
 	private String referenceDate;
 
-    public PathQuery getPathQuery() {
+
+
+	public PathQuery getPathQuery() {
 		return pathQuery;
 	}
 
@@ -149,8 +145,5 @@ public class QueryRequest{
 		return this;
 	}
 
-	@JsonIgnore
-	public String getJson() throws JsonProcessingException {
-		return Query.getJson(this);
-	}
+
 }

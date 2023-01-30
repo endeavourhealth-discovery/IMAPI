@@ -6,7 +6,7 @@ PREFIX sn: <http://snomed.info/sct#>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 SELECT distinct ?entity 
-WHERE {?entity <http://endhealth.info/im#roleGroup> ?roleGroup1.
-?roleGroup1 <http://snomed.info/sct#363698007> ?o2.
-Filter (?o2=<http://snomed.info/sct#61685007>)
+WHERE {?entity <http://endhealth.info/im#roleGroup>?o1.
+?o1 <http://snomed.info/sct#363698007> ?o2.
+Filter (?o2 in (<http://snomed.info/sct#61685007>))
 }

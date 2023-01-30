@@ -213,6 +213,345 @@
       } ]
     } ]
   }, {
+    "@id" : "im:Patient",
+    "sh:property" : [ {
+      "sh:path" : [ {
+        "@id" : "im:statedGender"
+      } ],
+      "sh:class" : [ {
+        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:contact"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:deathIndicator"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:ethnicity"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:title"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:callingName"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:forenames"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:familyName"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:language"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:homeAddress"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Address"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:workAddress"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Address"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:temporaryAddress"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Address"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:oldAddress"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Address"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:pdsSensitive"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:relatedPersons"
+      } ],
+      "sh:class" : [ {
+        "@id" : "im:VSET_Unspecified"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:dateOfBirth"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:dateOfDeath"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:string"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:nhsNumber"
+      } ]
+    }, {
+      "sh:datatype" : [ {
+        "@id" : "xsd:integer"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:age"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:hospitalInpatientStay"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:HospitalInpatientStay"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:medicationAuthorisation"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:MedicationAuthorisation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:gPCurrentRegistration"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:GPCurrentRegistration"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:placeOfResidenceAtEvent"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:PlaceOfResidenceAtEvent"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:appointment"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Appointment"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:carePlan"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:CarePlan"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:condition"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Condition"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:accidentAndEmergencyEncounter"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:AccidentAndEmergencyEncounter"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:allergyIntoleranceAndAdverseReaction"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:AllergyIntoleranceAndAdverseReaction"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:familyHistory"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:FamilyHistory"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:referralRequestOrProcedureRequest"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:ReferralRequestOrProcedureRequest"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:immunisation"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Immunisation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:hospitalOutpatientEncounter"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:HospitalOutpatientEncounter"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:consultation"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Consultation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:administrationNote"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:AdministrationNote"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:appointmentAttendance"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:AppointmentAttendance"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:criticalCareEncounter"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:CriticalCareEncounter"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:medicationRequest"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:MedicationRequest"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:hospitalDischarge"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:HospitalDischarge"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:appointmentSession"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:AppointmentSession"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:observation"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Observation"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:numericMeasure"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:NumericMeasure"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:flag"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Flag"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:hospitalAdmission"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:HospitalAdmission"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:procedure"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:Procedure"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:diagnosticReport"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:DiagnosticReport"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:episodeOfCare"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:EpisodeOfCare"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:gPAdminRegistrationStatus"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:GPAdminRegistrationStatus"
+      } ]
+    }, {
+      "sh:path" : [ {
+        "@id" : "im:gPRegistration"
+      } ],
+      "sh:node" : [ {
+        "@id" : "im:GPRegistration"
+      } ]
+    } ]
+  }, {
     "@id" : "im:PractitionerInRole",
     "sh:property" : [ {
       "sh:datatype" : [ {
@@ -262,14 +601,14 @@
       "sh:path" : [ {
         "@id" : "im:isContainedIn"
       } ],
-      "sh:class" : [ {
+      "sh:node" : [ {
         "@id" : "im:Folder"
       } ]
     }, {
       "sh:path" : [ {
         "@id" : "sn:370124000"
       } ],
-      "sh:class" : [ {
+      "sh:node" : [ {
         "@id" : "im:Entity"
       } ]
     }, {

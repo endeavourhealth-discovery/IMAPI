@@ -5,17 +5,17 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX sn: <http://snomed.info/sct#>
 PREFIX sh: <http://www.w3.org/ns/shacl#>
 
-SELECT distinct ?entity  ?p9
-WHERE {?entity im:isA ?superinstance1.
-Filter (?superinstance1 in(<http://snomed.info/sct#763158003>))
-?entity <http://endhealth.info/im#roleGroup> ?roleGroup2.
-?roleGroup2 ?p4 ?o3.
+SELECT distinct ?entity  ?p7
+WHERE {?entity im:isA ?supertype1.
+Filter (?supertype1 =<http://snomed.info/sct#763158003>)
+?entity <http://endhealth.info/im#roleGroup>?o2.
+?o2 ?p4 ?o3.
 ?p4 im:isA <http://snomed.info/sct#127489000>.
-?o3 im:isA ?supertype5.
-Filter (?supertype5=<http://snomed.info/sct#372665008>)
-?roleGroup2 ?p7 ?o6.
-?p7 im:isA <http://snomed.info/sct#411116001>.
-?o6 im:isA ?supertype8.
-Filter (?supertype8=<http://snomed.info/sct#385268001>)
- OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p9.}
+?o3 im:isA ?supero3.
+Filter (?supero3 in (<http://snomed.info/sct#372665008>))
+?o2 ?p6 ?o5.
+?p6 im:isA <http://snomed.info/sct#411116001>.
+?o5 im:isA ?supero5.
+Filter (?supero5 in (<http://snomed.info/sct#385268001>))
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p7.}
 }

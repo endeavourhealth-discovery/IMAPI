@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.iml.Query;
-import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class IMLToECL {
@@ -22,157 +20,130 @@ public class IMLToECL {
 	 */
 	public static String getECLFromQuery(Query query, Boolean includeName) throws DataFormatException {
 		StringBuilder ecl = new StringBuilder();
-
-		where(query.getWhere(), ecl, includeName);
+		fromWhere(query.getFrom(), ecl, includeName);
 		return ecl.toString();
 	}
 
-
-	private static void where(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-        if (null == where)
-            return;
-        if (where.getNotExist() != null)
-            ecl.append("(");
-        if (where.getFrom() != null) {
-            whereFrom(where, ecl, includeName);
-        } else if (where.getPathTo() != null) {
-            ecl.append("* ");
-        }
-        if (where.getPathTo() != null) {
-            wherePathTo(where, ecl, includeName);
-        } else {
-            if (where.getAnd() != null) {
-                addConjunction(where.getAnd(), ecl, includeName);
-            }
-            if (where.getOr() != null) {
-                addDisjunction(where.getOr(), ecl, includeName);
-            }
-        }
-        if (where.getNotExist() != null) {
-            whereNotExists(where, ecl, includeName);
-        }
-    }
-
-    private static void whereFrom(Where where, StringBuilder ecl, Boolean includeName) {
-        boolean first = true;
-        for (TTAlias from : where.getFrom()) {
-            if (!first)
-                ecl.append(" OR ");
-            else
-                first = false;
-            addClass(from, ecl, includeName);
-        }
-    }
-
-    private static void wherePathTo(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-        if (where.getPathTo().equals(IM.ROLE_GROUP.getIri())) {
-            if (where.getAnd() != null) {
-                addRefinedConjunction(where.getAnd(), ecl, includeName);
-            } else if (where.getOr() != null) {
-                addRefinedDisjunction(where.getOr(), ecl, includeName);
-            } else {
-                if (where.getProperty()!=null) {
-                    addRefined(where, ecl, includeName,true);
-                }
-                else
-                    addRefined(where.getWhere(), ecl, includeName,true);
-            }
-        }
-        else
-            throw new DataFormatException("Unrecognised property path. Only im:roleGroup is supported");
-    }
-
-    private static void whereNotExists(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-        ecl.append(" MINUS (");
-        where(where.getNotExist(), ecl, includeName);
-        ecl.append(" ) )"); //has to have brackets in a clause with a MINUS
-    }
-
-
-    private static void addRefinedDisjunction(List<Where> ors, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		boolean first= true;
-		for (Where or:ors){
-			if (!first)
-				ecl.append(" OR ");
-			else
-				first= false;
-			if (or.getProperty()!=null) {
-				addRefined(or, ecl, includeName,first);
-			}
-			else if (or.getAnd()!=null) {
-				ecl.append("\n( ");
-				addRefinedConjunction(or.getAnd(),ecl,includeName);
-				ecl.append(")");
-			}
-			else if (or.getOr()!=null){
-				ecl.append("\n( ");
-				addRefinedDisjunction(or.getOr(),ecl,includeName);
-				ecl.append(")");
-			}
-		}
-	}
-
-	private static void addRefinedConjunction(List<Where> ands, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		boolean first= true;
-		for (Where and:ands){
-			if (!first)
-				ecl.append(" , ");
-			if (and.getProperty()!=null) {
-				addRefined(and, ecl, includeName,first);
-			}
-			else if (and.getAnd()!=null) {
-				ecl.append("\n( ");
-				addRefinedConjunction(and.getAnd(),ecl,includeName);
-				ecl.append(")");
-			}
-			else if (and.getOr()!=null){
-				ecl.append("\n( ");
-				addRefinedDisjunction(and.getOr(),ecl,includeName);
-				ecl.append(")");
-			}
-			first= false;
-		}
+	private static boolean isList(From from){
+		if (from.getFrom()!=null)
+				return true;
+		return false;
 	}
 
 
-	private static void addDisjunction(List<Where> ors, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		boolean first = true;
-		for (Where or : ors) {
-			if (!first)
-				ecl.append(" OR ");
-			else
+
+
+
+
+	private static void fromWhere(From fromWhere, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+			from(fromWhere, ecl, includeName,fromWhere.getWhere()!=null);
+	}
+	private static void from(From from,StringBuilder ecl, boolean includeName,boolean isRefined) throws DataFormatException {
+		if (from.getIri()!=null){
+			addClass(from,ecl,includeName);
+		}
+		else if (from.getFrom()!=null) {
+			boolean bracketFrom=isRefined;
+			if (bracketFrom)
+				ecl.append("(");
+
+
+			boolean first = true;
+			for (From subFrom : from.getFrom()) {
+				if (subFrom.getBool()==Bool.not){
+					ecl.append(" MINUS ");
+				}
+				else {
+					if (!first) {
+						if (from.getBool() == Bool.and) {
+							ecl.append(" AND ");
+						}
+						else if (from.getBool() == Bool.or) {
+							ecl.append("  OR ");
+						}
+						else
+							ecl.append(" OR ");
+					}
+				}
+				boolean bracket= false;
+				if (subFrom.getWhere()!=null) {
+					if (isList(from)) {
+						bracket = true;
+					}
+				}
+				if (subFrom.getFrom()!=null){
+					if (subFrom.getFrom().size()>1)
+						bracket= true;
+				}
+				if (subFrom.getBool()==Bool.not)
+					if (subFrom.getFrom()!=null)
+						if (subFrom.getFrom().size()>1)
+							bracket=true;
+
+				if (bracket)
+						ecl.append("(");
+				from(subFrom, ecl, includeName, subFrom.getWhere()!=null);
+					if (bracket){
+						ecl.append(")\n");
+				}
 				first = false;
-			if (or.getPathTo()!=null || or.getProperty()!=null || or.getAnd()!=null)
-				ecl.append(" (");
-			where(or, ecl, includeName);
-			if (or.getPathTo()!=null || or.getProperty()!=null || or.getAnd()!=null)
+			}
+			if (bracketFrom) {
 				ecl.append(")");
+			}
+		}
+		if (from.getWhere() != null) {
+			if (from.getIri()==null&&from.getFrom()==null)
+				ecl.append("*");
+			addRefinements(from.getWhere(), ecl, includeName);
 		}
 	}
 
-	private static void addConjunction(List<Where> ands, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		boolean first = true;
-		for (Where and : ands) {
-			if (!first)
-				ecl.append(" AND ");
-			else
-				first = false;
-			if (and.getPathTo()!=null || and.getProperty()!=null || and.getOr()!=null)
-				ecl.append(" (");
-			where(and, ecl, includeName);
-			if (and.getPathTo()!=null || and.getProperty()!=null || and.getOr()!=null)
-				ecl.append(")");
+	private static void addRefinements(Where where,StringBuilder ecl,boolean includeName) throws DataFormatException {
+		ecl.append(":");
+		addRefinedGroup(where, ecl, includeName);
+	}
+
+	private static void addRefinedGroup(Where where,StringBuilder ecl,Boolean includeName) throws DataFormatException {
+		if (where.getWhere()==null){
+			addRefined(where,ecl,includeName);
+		}
+		else {
+			boolean grouped= false;
+			if (where.getIri()!=null){
+				if (where.getIri().equals(IM.ROLE_GROUP.getIri())){
+					grouped= true;
+				}
+			}
+			if (grouped)
+				ecl.append("{");
+			if (where.getWhere().size()==1){
+				addRefinedGroup(where.getWhere().get(0),ecl,includeName);
+			}
+			else for (int i=0; i<where.getWhere().size();i++){
+					if (i>0) {
+						if (where.getBool() == Bool.or)
+							ecl.append(" OR ");
+						else if (where.getBool() == Bool.and)
+							ecl.append(" , ");
+						else if (where.getBool() == Bool.not) {
+							ecl.append(" MINUS (");
+						}
+					}
+					addRefinedGroup(where.getWhere().get(i),ecl,includeName);
+					if (where.getBool()==Bool.not)
+							ecl.append(")");
+					}
+			if (grouped)
+				ecl.append("}");
 		}
 	}
 
-
-	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName, boolean first) throws DataFormatException {
-		if (first)
-		  ecl.append(" : ");
+	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		try {
-			TTAlias property = where.getProperty();
+			TTAlias property = where;
 			try {
-				TTAlias value = where.getIs();
+				TTAlias value = where.getIn().get(0);
 				addClass(property, ecl, includeName);
 				ecl.append(" = ");
 				addClass(value, ecl, includeName);

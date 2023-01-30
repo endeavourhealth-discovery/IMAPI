@@ -10,62 +10,54 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder ({"inverse","iri","name","alias","path"})
+@JsonPropertyOrder ({"inverse","iri","name","alias","inverse","type","entity","set"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTAlias extends TTIriRef {
 	private String alias;
-	private boolean inverse;
+	private String id;
 	private String variable;
+	private SourceType sourceType;
 	private boolean includeSupertypes;
 	private boolean includeSubtypes;
-	private boolean includeMembers;
 	private boolean excludeSelf;
-	private boolean isType;
-	private boolean isSet;
+	private boolean inverse;
 
+	public SourceType getSourceType() {
+		return sourceType;
+	}
 
-	public TTAlias setSet(boolean set) {
-		isSet = set;
+	public TTAlias setSourceType(SourceType sourceType) {
+		this.sourceType = sourceType;
 		return this;
 	}
 
-	@JsonProperty("isSet")
-	public boolean isSet() {
-		return isSet;
+	public String getVariable() {
+		return variable;
+	}
+
+	public TTAlias setVariable(String variable) {
+		this.variable = variable;
+		return this;
+	}
+
+	public boolean isInverse() {
+		return inverse;
+	}
+
+	public TTAlias setInverse(boolean inverse) {
+		this.inverse = inverse;
+		return this;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	@JsonSetter
-	public TTAlias setIsSet(boolean set) {
-		isSet = set;
+	public TTAlias setId(String id) {
+		this.id = id;
 		return this;
 	}
-
-
-
-
-	public boolean isType() {
-		return isType;
-	}
-
-	@JsonSetter
-	public TTAlias setType(boolean type) {
-		this.isType = type;
-		return this;
-	}
-
-	public TTAlias setType(TTIriRef type){
-		setIri(type.getIri());
-		if (type.getName()!=null)
-			setName(type.getName());
-		isType= true;
-		return this;
-	}
-
-	public TTAlias setIsType(boolean asType) {
-		this.isType = asType;
-		return this;
-	}
-
 
 	public boolean isExcludeSelf() {
 		return excludeSelf;
@@ -96,14 +88,6 @@ public class TTAlias extends TTIriRef {
 		return this;
 	}
 
-	public boolean isIncludeMembers() {
-		return includeMembers;
-	}
-
-	public TTAlias setIncludeMembers(boolean includeMembers) {
-		this.includeMembers = includeMembers;
-		return this;
-	}
 
 	public static TTAlias iri(String iri) {
 		return new TTAlias().setIri(iri);
@@ -113,30 +97,7 @@ public class TTAlias extends TTIriRef {
 		super.setIri(iri.getIri());
 	}
 
-	public String getVariable() {
-		return variable;
-	}
-
-	public TTAlias setVariable(String variable) {
-		this.variable = variable;
-		return this;
-	}
-
-	public boolean isInverse() {
-		return inverse;
-	}
-
-	public TTAlias setInverse(boolean inverse) {
-		this.inverse = inverse;
-		return this;
-	}
-
 	public TTAlias(){}
-
-
-
-
-
 
 	public String getAlias() {
 		return alias;

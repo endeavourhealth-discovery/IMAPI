@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.SparqlConverter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
@@ -20,7 +21,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
@@ -52,19 +52,20 @@ class SearchServiceTest {
 		testResults= System.getenv("folder")+"\\Results";
 		testSparql = System.getenv("folder")+"\\Sparql";
 		//QueryRequest qr= TestQueries.allowableChildTypes();
-		for (QueryRequest qr1: List.of(TestQueries.pathToCSA(),TestQueries.pathToAtenolol(),TestQueries.pathDobQuery())) {
-			output(qr1);
-		}
 
 
-		/*
 
-		for (QueryRequest qr1: List.of(TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.getIsas(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
+
+		for (QueryRequest qr1: List.of(TestQueries.oralNsaids(),TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
 
-		 */
+		for (QueryRequest qr1: List.of(TestQueries.pathToAtenolol(),TestQueries.pathToCSA(),TestQueries.pathDobQuery())) {
+			output(qr1);
+		}
+
+
 
 	}
 
@@ -82,7 +83,7 @@ class SearchServiceTest {
 		SearchService searchService = new SearchService();
 		System.out.println("Testing "+ name);
 		try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "_definition.json")) {
-			wr.write(dataSet.getJson());
+			new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT,true).writeValueAsString(dataSet);
 		}
 		ObjectMapper om= new ObjectMapper();
 		if (dataSet.getQuery()!=null) {

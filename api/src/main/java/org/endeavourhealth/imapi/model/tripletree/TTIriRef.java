@@ -54,11 +54,6 @@ public class TTIriRef implements TTValue, Serializable {
         return this;
     }
 
-    @JsonProperty("@id")
-    public TTIriRef setId(String iri){
-        this.iri=iri;
-        return this;
-    }
 
     public String getName() {
         return name;

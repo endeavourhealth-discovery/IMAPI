@@ -12,8 +12,92 @@
     }
   },
   "entities" : [ {
+    "@id" : "http://endhealth.info/tpp#X75N8",
+    "rdfs:label" : "Causative agent",
+    "im:code" : "X75N8"
+  }, {
+    "@id" : "http://endhealth.info/emis#246075003",
+    "rdfs:label" : "Causative agent (attribute)",
+    "im:code" : "246075003"
+  }, {
     "@id" : "sn:246075003",
     "rdfs:label" : "Causative agent (attribute)",
     "im:code" : "246075003"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Ua1SC",
+    "rdfs:label" : "Causative factors for behaviour",
+    "im:code" : "Ua1SC"
+  }, {
+    "@id" : "http://endhealth.info/emis#362944004",
+    "rdfs:label" : "Causative_agents (qualifier value)",
+    "im:code" : "362944004"
+  }, {
+    "@id" : "sn:362944004",
+    "rdfs:label" : "Causative_agents (qualifier value)",
+    "im:code" : "362944004"
+  }, {
+    "@id" : "http://endhealth.info/emis#305181000000102",
+    "rdfs:label" : "Causative factors for behaviour (observable entity)",
+    "im:code" : "305181000000102"
+  }, {
+    "@id" : "sn:305181000000102",
+    "rdfs:label" : "Causative factors for behaviour (observable entity)",
+    "im:code" : "305181000000102"
+  }, {
+    "@id" : "sn:834671000000103",
+    "rdfs:label" : "Bacterial infections - causative organisms",
+    "im:code" : "834671000000103"
+  }, {
+    "@id" : "sn:834681000000101",
+    "rdfs:label" : "Bacterial infections - causative organisms",
+    "im:code" : "834681000000101"
+  }, {
+    "@id" : "sn:834701000000104",
+    "rdfs:label" : "Bacterial infections - causative organisms",
+    "im:code" : "834701000000104"
+  }, {
+    "@id" : "http://endhealth.info/tpp#A3B__",
+    "rdfs:label" : "Bacterial infections - causative organisms",
+    "im:code" : "A3B.."
+  }, {
+    "@id" : "http://endhealth.info/vis#A3B__",
+    "rdfs:label" : "Bacterial infections - causative organisms",
+    "im:code" : "A3B.."
+  }, {
+    "@id" : "http://endhealth.info/emis#400209005",
+    "rdfs:label" : "Injury caused by causative force (disorder)",
+    "im:code" : "400209005"
+  }, {
+    "@id" : "sn:400209005",
+    "rdfs:label" : "Injury caused by causative force (disorder)",
+    "im:code" : "400209005"
+  }, {
+    "@id" : "sn:186433006",
+    "rdfs:label" : "Bacterial infections - causative organisms (disorder)",
+    "im:code" : "186433006"
+  }, {
+    "@id" : "sn:528931000000104",
+    "rdfs:label" : "Bacterial infections - causative organisms (disorder)",
+    "im:code" : "528931000000104"
+  }, {
+    "@id" : "http://endhealth.info/emis#30931000001101",
+    "rdfs:label" : "Allergy or adverse effect causative agent simple reference set (foundation metadata concept)",
+    "im:code" : "30931000001101"
+  }, {
+    "@id" : "sn:30931000001101",
+    "rdfs:label" : "Allergy or adverse effect causative agent simple reference set (foundation metadata concept)",
+    "im:code" : "30931000001101"
+  }, {
+    "@id" : "sn:999001081000000102",
+    "rdfs:label" : "Allergy and adverse reaction drug causative agent simple reference set (foundation metadata concept)",
+    "im:code" : "999001081000000102"
+  }, {
+    "@id" : "sn:999001091000000100",
+    "rdfs:label" : "Allergy and adverse reaction food causative agent simple reference set (foundation metadata concept)",
+    "im:code" : "999001091000000100"
+  }, {
+    "@id" : "http://endhealth.info/emis#999001241000000101",
+    "rdfs:label" : "Allergies and adverse reaction causative agent groups simple reference set (foundation metadata concept)",
+    "im:code" : "999001241000000101"
   } ]
 }

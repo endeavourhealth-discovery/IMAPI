@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -71,12 +71,7 @@ public class QueryRepository {
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
-        if (null == query.getSelect()) {
-            if (null == query.getWhere()) {
-                if (null == query.getFrom()) {
-                    if (null == query.getIri()) {
-                        throw new DataFormatException("No query iri or body in request");
-                    } else {
+        if (query.getIri()!=null&&query.getSelect()==null&&query.getFrom()==null){
                         TTEntity entity = getEntity(query.getIri());
                         if (entity.get(SHACL.PARAMETER)!=null){
                             for (TTValue param:entity.get(SHACL.PARAMETER).getElements()){
@@ -112,9 +107,6 @@ public class QueryRepository {
                             return om.readValue(entity.get(IM.DEFINITION).asLiteral().getValue(), Query.class);
                         }
                     }
-                }
-            }
-        }
         return query;
     }
 
@@ -174,8 +166,8 @@ public class QueryRepository {
     }
 
     private void bindObject(BindingSet bs, Map<String, TTNode> valueMap, TTNode node, Select select, String path) {
-        String alias = select.getProperty().getAlias();
-        TTIriRef predicate= TTIriRef.iri(select.getProperty().getIri());
+        String alias = select.getAlias();
+        TTIriRef predicate= TTIriRef.iri(select.getIri());
         Value value = bs.getValue(alias);
         if (value == null)
             return;
@@ -344,47 +336,50 @@ public class QueryRepository {
     }
     private void gatherQueryLabels(Query query,List<TTIriRef> ttIris, Map<String,String> iris ){
         if (query.getFrom()!=null)
-            for (TTAlias from:query.getFrom())
-                addToIriList(from,ttIris,iris);
-        if (query.getWhere()!=null)
-            gatherWhereLabels(query.getWhere(),ttIris,iris);
+                gatherFromLabels(query.getFrom(), ttIris, iris);
         if (query.getSelect()!=null)
             for (Select select:query.getSelect())
                 gatherSelectLabels(select,ttIris,iris);
-        if (query.getSubQuery()!=null)
-            for (Query subQuery: query.getSubQuery())
+        if (query.getQuery()!=null)
+            for (Query subQuery: query.getQuery())
                 gatherQueryLabels(subQuery,ttIris,iris);
     }
 
     private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String,String> iris) {
-        if (select.getProperty()!=null)
-            addToIriList(select.getProperty(),ttIris,iris);
+        if (select.getIri()!=null)
+            addToIriList(select,ttIris,iris);
         if (select.getSelect()!=null)
             for (Select sub:select.getSelect())
                 gatherSelectLabels(sub,ttIris,iris);
     }
 
     private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String,String> iris) {
-        if (where.getFrom()!=null){
-            for (TTAlias from:where.getFrom())
-                addToIriList(from,ttIris,iris);
+        if (where.getIri()!=null)
+            addToIriList(where,ttIris,iris);
+        if (where.getIri()!=null){
+                addToIriList(where,ttIris,iris);
         }
-        if (where.getNotExist()!=null)
-            gatherWhereLabels(where.getNotExist(),ttIris,iris);
-        if (where.getProperty()!=null)
-            addToIriList(where.getProperty(),ttIris,iris);
-        if (where.getIs()!=null)
-            addToIriList(where.getIs(),ttIris,iris);
+        if (where.getWhere()!=null){
+            for (Where subWhere: where.getWhere()){
+                gatherWhereLabels(subWhere,ttIris,iris);
+            }
+        }
         if (where.getIn()!=null)
             for (TTAlias in:where.getIn())
                 addToIriList(in,ttIris,iris);
-        if (where.getAnd()!=null)
-            for (Where and:where.getAnd())
-                gatherWhereLabels(and,ttIris,iris);
-        if (where.getOr()!=null)
-            for (Where or:where.getOr())
-                gatherWhereLabels(or,ttIris,iris);
 
+
+    }
+
+    private void gatherFromLabels(From from, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (from.getIri()!=null)
+            addToIriList(from,ttIris,iris);
+        if (from.getWhere()!=null){
+            gatherWhereLabels(from.getWhere(),ttIris,iris);
+        }
+        if (from.getFrom()!=null){
+            from.getFrom().forEach(f-> gatherFromLabels(f,ttIris,iris));
+        }
     }
 
     private void addToIriList(TTIriRef ttIriRef,List<TTIriRef> ttIris, Map<String,String> iris){

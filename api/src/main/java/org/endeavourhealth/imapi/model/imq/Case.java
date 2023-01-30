@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.iml;
+package org.endeavourhealth.imapi.model.imq;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 

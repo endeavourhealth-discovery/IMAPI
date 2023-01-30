@@ -291,32 +291,29 @@ public class EqdResources {
 
 	private String checkForProperty(Where match,String property){
 		boolean found=false;
-		for (Where where:match.getWhere()) {
-			if (where.getId().equals(property)) {
+		if (match.getId()!=null){
+			if (match.getId().equals(property)){
 				counter++;
-				where.setAlias(property + "_" + counter);
-				found = true;
+				match.setAlias(property+"_"+counter);
+				return property+"_"+counter;
 			}
 		}
-		if (!found){
-			if (match.getWhere()!=null){
-				for (Where subWhere:match.getWhere()) {
-					if (subWhere.getId().equals(property)) {
-						counter++;
-						subWhere.setAlias(property + "_" + counter);
-						found = true;
-					}
+		if (match.getWith()!=null){
+			String matchedProperty= checkForProperty(match.getWith(),property);
+			if (matchedProperty!=null)
+				return matchedProperty;
+		}
+		if (match.getWhere()!=null) {
+			for (Where where : match.getWhere()) {
+				if (where.getId().equals(property)) {
+					counter++;
+					where.setAlias(property + "_" + counter);
+					return property + "_" + counter;
 				}
 			}
 		}
-		if (!found){
-			Where missing = new Where();
-			match.addWhere(missing);
-			counter++;
-			missing.setId(property)
-				.setAlias(property+"_"+counter);
-		}
-		return property+"_"+counter;
+		return null;
+
 	}
 
 
@@ -332,13 +329,22 @@ public class EqdResources {
 		Where relationWhere = new Where();
 		linkWhere.addWhere(relationWhere);
 		EQDOCRelationship eqRel = eqLinked.getRelationship();
+		String parentAlias= checkForProperty(targetWhere,"effectiveDate");
+		if (parentAlias==null){
+				Where missing = new Where();
+				topWhere.addWhere(missing);
+				counter++;
+				missing.setId("effectiveDate")
+					.setAlias("effectiveDate_"+counter);
+				parentAlias= "effectiveDate_"+counter;
+			}
 		if (eqRel.getParentColumn().contains("DATE")){
 			relationWhere
 				.setId("effectiveDate")
 				.setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
 				.setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
 			  .setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-				.setRelativeTo(checkForProperty(targetWhere,"effectiveDate"));
+				.setRelativeTo(parentAlias);
 		}
 		else
 			throw new DataFormatException("Only date link fields supported at the moment");

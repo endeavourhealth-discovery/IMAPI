@@ -112,9 +112,9 @@ public class QuerySummariser {
 			}
 		}
 		else if (where.getNotIn()!=null){
-			summary.append("not in");
+			summary.append(" not in");
 			int i = 0;
-			for (TTIriRef in : where.getIn()) {
+			for (TTIriRef in : where.getNotIn()) {
 				i++;
 				if (i == 1) {
 					if (in.getName() != null)

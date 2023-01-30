@@ -1,4 +1,5 @@
-package org.endeavourhealth.imapi.model.iml;
+package org.endeavourhealth.imapi.model.imq;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -13,21 +14,12 @@ public class Argument {
 	private String parameter;
 	private String valueData;
 	private String valueVariable;
-	private Compare valueFrom;
 	private TTIriRef valueIri;
-	private TTIriRef valueProperty;
 	private List<TTIriRef> valueIriList;
 	private List<String> valueDataList;
 	private Object valueObject;
 
-	public TTIriRef getValueProperty() {
-		return valueProperty;
-	}
 
-	public Argument setValueProperty(TTIriRef valueProperty) {
-		this.valueProperty = valueProperty;
-		return this;
-	}
 
 	public List<TTIriRef> getValueIriList() {
 		return valueIriList;
@@ -59,8 +51,8 @@ public class Argument {
 	public Argument addToValueList(String value){
 		if (this.valueDataList ==null)
 			this.valueDataList = new ArrayList<>();
-			this.valueDataList.add(value);
-			return this;
+		this.valueDataList.add(value);
+		return this;
 	}
 
 	public TTIriRef getValueIri() {
@@ -72,14 +64,7 @@ public class Argument {
 		return this;
 	}
 
-	public Compare getValueFrom() {
-		return valueFrom;
-	}
 
-	public Argument setValueFrom(Compare valueFrom) {
-		this.valueFrom = valueFrom;
-		return this;
-	}
 
 	public String getValueVariable() {
 		return valueVariable;

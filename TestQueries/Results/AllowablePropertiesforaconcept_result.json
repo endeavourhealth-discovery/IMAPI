@@ -79,5 +79,9 @@
     "@id" : "http://snomed.info/sct#363705008",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Has definitional manifestation (attribute)",
     "http://endhealth.info/im#code" : "363705008"
+  }, {
+    "@id" : "http://snomed.info/sct#726634005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "During AND/OR after (attribute)",
+    "http://endhealth.info/im#code" : "726634005"
   } ]
 }

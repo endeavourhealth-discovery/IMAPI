@@ -1,17 +1,15 @@
-package org.endeavourhealth.imapi.model.iml;
+package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
 
-import java.util.function.Consumer;
 
 @JsonPropertyOrder({"from","to","relativeTo"})
 public class Range {
-	private Value from;
-	private Value to;
+	private Assignable from;
+	private Assignable to;
 
 
-	public Value getFrom() {
+	public Assignable getFrom() {
 		return from;
 	}
 
@@ -20,7 +18,7 @@ public class Range {
 		return this;
 	}
 
-	public Value getTo() {
+	public Assignable getTo() {
 		return to;
 	}
 

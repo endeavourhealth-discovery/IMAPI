@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.map.MapProperty;
-
 import java.util.zip.DataFormatException;
 
 public interface SyntaxTranslator {

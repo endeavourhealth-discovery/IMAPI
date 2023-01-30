@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -1166,5 +1167,12 @@ public class EntityService {
         return entityRepository.getPredicates(iri);
     }
 
+    public Boolean isValidProperty(String entity, String property) {
+        return entityRepository.isValidProperty(entity, property);
+    }
+
+    public Boolean isValidPropertyValue(String property, String value) {
+        return entityRepository.isValidPropertyValue(property, value);
+    }
 }
 

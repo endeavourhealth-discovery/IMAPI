@@ -6,7 +6,8 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.imq.Bool;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
@@ -73,21 +74,21 @@ public class ExcelSetExporterTest {
         definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety", "Value sets for the Barts Vaccine safety study")));
 
         definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
-            .where(w->w
-              .or(o->o
+            .from(w->w
+              .setBool(Bool.or)
                 .from(f->f
                 .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setIncludeSubtypes(true)))
-              .or(o->o
                 .from(f->f
-                    .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setIncludeSubtypes(true))
-                  .setPathTo(IM.ROLE_GROUP.getIri())
-                  .property(p->p
-                    .setIri("http://snomed.info/sct#10362601000001103")
-                    .setName("Has VMP (attribute)")
-                      .setIncludeSubtypes(true))
-                  .setIs(TTAlias.iri("http://snomed.info/sct#39330711000001103")
-                    .setName("COVID-19 vaccine (product)")
-                    .setIncludeSubtypes(true))))));
+                    .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setIncludeSubtypes(true)
+                  .where(p->p
+                    .setIri(IM.ROLE_GROUP.getIri())
+                    .where(p1->p1
+                      .setIri("http://snomed.info/sct#10362601000001103")
+                      .setName("Has VMP (attribute)")
+                      .setIncludeSubtypes(true)
+                    .addIn(TTAlias.iri("http://snomed.info/sct#39330711000001103")
+                      .setName("COVID-19 vaccine (product)")
+                      .setIncludeSubtypes(true)))))));
         return definition;
     }
 

@@ -25,7 +25,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -612,5 +612,17 @@ public class EntityController {
 	public Boolean getHasChildren(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getHasChildren");
 		return entityService.getHasChildren(iri);
+	}
+
+	@GetMapping(value = "/public/isValidProperty")
+	public Boolean isValidProperty(@RequestParam(name = "entity") String entity, @RequestParam(name = "property") String  property) {
+		LOG.debug("isValidProperty");
+		return entityService.isValidProperty(entity, property);
+	}
+
+	@GetMapping(value = "/public/isValidPropertyValue")
+	public Boolean isValidPropertyValue(@RequestParam(name = "property") String property, @RequestParam(name = "value") String  value) {
+		LOG.debug("isValidPropertyValue");
+		return entityService.isValidPropertyValue(property, value);
 	}
 }

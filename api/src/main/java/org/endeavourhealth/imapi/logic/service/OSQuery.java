@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
@@ -387,9 +388,7 @@ public class OSQuery {
             return null;
         }
 
-        if (query.getWhere() != null && !validateWhere(query.getWhere())) {
-            return null;
-        }
+
 
         if (query.getFrom() != null && !validateFrom(query.getFrom())) {
             return null;
@@ -406,7 +405,7 @@ public class OSQuery {
 
     private static boolean validateSelects(Query query) {
         for (Select select : query.getSelect()) {
-            if (select.getProperty().getIri() != null && !propIsSupported(select.getProperty().getIri()))
+            if (select.getIri() != null && !propIsSupported(select.getIri()))
                 return false;
             if (select.getSelect() != null)
                 return false;
@@ -414,33 +413,29 @@ public class OSQuery {
         return true;
     }
 
-    private boolean validateFrom(List<TTAlias> fromList) {
-        for (TTAlias from:fromList){
-            if (!from.isType())
-                return false;
-        }
+    private boolean validateFrom(From from) {
+        if (from.getWhere()!=null)
+            return validateWhere(from.getWhere());
+        if (from.getFrom()!=null)
+            for (From subFrom:from.getFrom())
+                if (!validateFrom(subFrom))
+                    return false;
         return true;
     }
 
     private boolean validateWhere(Where where){
-        if (where.getProperty()!=null && !propIsSupported(where.getProperty().getIri())){
+        if (where.getWhere()!=null && !propIsSupported(where.getIri())){
             return false;
         }
-        if (where.getAnd()!=null){
-            for (Where and:where.getAnd())
-                if (!validateWhere(and))
-                    return false;
-        }
-        if (where.getOr()!=null){
-            for (Where or:where.getOr())
-                if (!validateWhere(or))
+        if (where.getWhere()!=null){
+            for (Where subWhere:where.getWhere())
+                if (!validateWhere(subWhere))
                     return false;
         }
         return true;
 
 
     }
-
     private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             ObjectNode result = om.createObjectNode();
@@ -451,7 +446,7 @@ public class OSQuery {
                 resultNodes.add(resultNode);
                 resultNode.put("@id", searchResult.getIri());
                 for (Select select : query.getSelect()) {
-                    TTAlias prop = select.getProperty();
+                    TTAlias prop = select;
                     if (prop.getIri() != null) {
                         String field = prop.getIri();
                         switch (prop.getIri()) {
@@ -523,14 +518,14 @@ public class OSQuery {
         if (query.isActiveOnly())
             request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
         processSelects(request, query);
-        if (!validateFromList(request, query)) return null;
+        validateFromList(request, query);
         return request;
     }
 
     private void processSelects(SearchRequest request, Query query) {
         if (query.getSelect() != null) {
             for (Select select : query.getSelect()) {
-                TTAlias prop = select.getProperty();
+                TTAlias prop = select;
                 if (prop.getIri() != null) {
                     switch (prop.getIri()) {
                         case (RDFS.NAMESPACE + comment):
@@ -558,18 +553,21 @@ public class OSQuery {
         }
     }
 
-    private static boolean validateFromList(SearchRequest request, Query query) {
-        List<TTAlias> fromList = query.getFrom();
-        if (fromList!=null){
-            for (TTAlias from:fromList){
-                if (!from.isType())
-                    return false;
-                else if (from.getAlias()!=null)
-                    return false;
-                else  request.addType(from.getIri());
-            }
+    private static void validateFromList(SearchRequest request, Query query) {
+        From from = query.getFrom();
+        addFromTypes(request, from);
+    }
+
+    private static void addFromTypes(SearchRequest request, From from) {
+        if (from.getIri() != null)
+            request.addType(from.getIri());
+        if (from.getIri() != null) {
+            request.addType(from.getIri());
         }
-        return true;
+        if (from.getFrom() != null) {
+            for (From subFrom : from.getFrom())
+                addFromTypes(request, from);
+        }
     }
 
     private static boolean propIsSupported(String iri) {
@@ -589,6 +587,5 @@ public class OSQuery {
         }
 
     }
-
 
 }

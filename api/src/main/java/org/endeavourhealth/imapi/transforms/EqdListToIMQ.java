@@ -1,13 +1,12 @@
 package org.endeavourhealth.imapi.transforms;
 
 
-import org.endeavourhealth.imapi.model.iml.Query;
-import org.endeavourhealth.imapi.model.iml.Select;
-import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Select;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-
 
 import java.io.IOException;
 import java.util.zip.DataFormatException;
@@ -18,11 +17,14 @@ public class EqdListToIMQ {
 	public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException {
 		this.resources= resources;
 		String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-		resources.setFrom(query, TTIriRef.iri("urn:uuid:" + id).setName(resources.reportNames.get(id)));
+		query.from(f->f
+			.setIri("urn:uuid:" + id)
+			.setSourceType(SourceType.set)
+			.setName(resources.reportNames.get(id)));
 		for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
 			EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
 			Query subQuery = new Query();
-			query.addSubQuery(subQuery);
+			query.addQuery(subQuery);
 			convertListGroup(eqColGroup, subQuery);
 		}
 	}
@@ -40,38 +42,38 @@ public class EqdListToIMQ {
 
 	private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException {
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
-
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
 			Select select= new Select();
 			subQuery.addSelect(select);
 			String eqColumn= String.join("/",eqCol.getColumn());
 			String property = resources.getPath(eqTable + "/" + eqColumn);
-			select.setProperty(new TTAlias().setIri(property));
-			select.getProperty().setAlias(eqCol.getDisplayName());
+			select.setId(property);
 		}
 
 	}
 
 	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException {
-		Where match= new Where();
-		subQuery.setWhere(match);
-		resources.convertCriteria(eqColGroup.getCriteria(), match);
 		Select select = new Select();
 		subQuery.addSelect(select);
+		Where match = new Where();
+		select.setWhere(match);
+		resources.convertCriteria(eqColGroup.getCriteria(), match);
 		String mainPath= resources.getPath(eqTable);
-		select.setProperty(resources.getPath(eqTable));
+		select.setId(resources.getPath(eqTable));
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
 			String eqColumn = String.join("/", eqCol.getColumn());
-			String predicatePath = resources.getPath(eqTable + "/" + eqColumn);
-			String fullPath= mainPath.equals("") ? predicatePath : mainPath+" "+ predicatePath;
-			if (fullPath.contains(" ")) {
-				select.setPath(fullPath.substring(0, fullPath.lastIndexOf(" ")));
-				select.setProperty(new TTAlias().setIri(fullPath.substring(fullPath.lastIndexOf(" ")+1)));
+			String subPath = resources.getPath(eqTable + "/" + eqColumn);
+			String[] subPaths= subPath.split(" ");
+			if (subPath.contains(" ")) {
+				for (int i = 0; i < subPaths.length - 1; i++) {
+					select.setId(subPaths[i]);
+					Select subSelect= new Select();
+					select.addSelect(subSelect);
+					select= subSelect;
+				}
 			}
-			else
-				select.setProperty(new TTAlias().setIri(fullPath));
-			select.getProperty().setAlias(eqCol.getDisplayName());
+			select.setId(subPaths[subPaths.length-1]);
 		}
 	}
 

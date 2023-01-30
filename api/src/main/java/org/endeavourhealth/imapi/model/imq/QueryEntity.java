@@ -1,11 +1,12 @@
-package org.endeavourhealth.imapi.model.iml;
+package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.HashSet;
 import java.util.Set;
 
-public class QueryEntity extends Entity{
+public class QueryEntity extends Entity {
 
 	private Query definition;
 

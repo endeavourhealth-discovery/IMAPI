@@ -24,7 +24,6 @@ import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
 import org.endeavourhealth.imapi.model.set.SetAsObject;
 import org.endeavourhealth.imapi.model.set.SetMember;
-import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.validators.EntityValidator;
@@ -55,7 +54,6 @@ public class EntityService {
     private EntityRepository entityRepository = new EntityRepository();
     private EntityTctRepository entityTctRepository = new EntityTctRepository();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private SetRepository setRepository = new SetRepository();
     private TermCodeRepository termCodeRepository = new TermCodeRepository();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
@@ -911,11 +909,6 @@ public class EntityService {
         List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
         schemes.remove(scheme);
         return entityTripleRepository.getMatchedTo(iri, schemes);
-    }
-
-    public String getEcl(Query inferred) throws DataFormatException, JsonProcessingException {
-        if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
-         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
     public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException {

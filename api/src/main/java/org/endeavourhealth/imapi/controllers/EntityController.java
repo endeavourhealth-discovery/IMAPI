@@ -429,12 +429,6 @@ public class EntityController {
 		return entityService.getNamespaces();
 	}
 
-	@PostMapping("/public/ecl")
-	public String getEcl(@RequestBody Query inferred) throws DataFormatException, JsonProcessingException {
-		LOG.debug("getEcl");
-		return entityService.getEcl(inferred);
-	}
-
 	@GetMapping("/public/setExport")
 	public HttpEntity<Object> getSetExport(
 		@RequestParam(name = "iri") String iri,

@@ -25,7 +25,7 @@ public class IMLToECL {
 	}
 
 	private static boolean isList(From from){
-		if (from.getFrom()!=null)
+		if (null!=from.getFrom())
 				return true;
 		return false;
 	}
@@ -36,13 +36,13 @@ public class IMLToECL {
 
 
 	private static void fromWhere(From fromWhere, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-			from(fromWhere, ecl, includeName,fromWhere.getWhere()!=null);
+		if (null!=fromWhere) from(fromWhere, ecl, includeName,null!=fromWhere.getWhere());
 	}
 	private static void from(From from,StringBuilder ecl, boolean includeName,boolean isRefined) throws DataFormatException {
-		if (from.getIri()!=null){
+		if (null!=from.getIri()){
 			addClass(from,ecl,includeName);
 		}
-		else if (from.getFrom()!=null) {
+		else if (null!=from.getFrom()) {
 			boolean bracketFrom=isRefined;
 			if (bracketFrom)
 				ecl.append("(");
@@ -66,23 +66,23 @@ public class IMLToECL {
 					}
 				}
 				boolean bracket= false;
-				if (subFrom.getWhere()!=null) {
+				if (null!=subFrom.getWhere()) {
 					if (isList(from)) {
 						bracket = true;
 					}
 				}
-				if (subFrom.getFrom()!=null){
+				if (null!=subFrom.getFrom()){
 					if (subFrom.getFrom().size()>1)
 						bracket= true;
 				}
 				if (subFrom.getBool()==Bool.not)
-					if (subFrom.getFrom()!=null)
+					if (null!=subFrom.getFrom())
 						if (subFrom.getFrom().size()>1)
 							bracket=true;
 
 				if (bracket)
 						ecl.append("(");
-				from(subFrom, ecl, includeName, subFrom.getWhere()!=null);
+				from(subFrom, ecl, includeName, null!=subFrom.getWhere());
 					if (bracket){
 						ecl.append(")\n");
 				}
@@ -92,8 +92,8 @@ public class IMLToECL {
 				ecl.append(")");
 			}
 		}
-		if (from.getWhere() != null) {
-			if (from.getIri()==null&&from.getFrom()==null)
+		if (null!=from.getWhere()) {
+			if (null==from.getIri()&&null==from.getFrom())
 				ecl.append("*");
 			addRefinements(from.getWhere(), ecl, includeName);
 		}
@@ -105,12 +105,12 @@ public class IMLToECL {
 	}
 
 	private static void addRefinedGroup(Where where,StringBuilder ecl,Boolean includeName) throws DataFormatException {
-		if (where.getWhere()==null){
+		if (null==where.getWhere()){
 			addRefined(where,ecl,includeName);
 		}
 		else {
 			boolean grouped= false;
-			if (where.getIri()!=null){
+			if (null!=where.getIri()){
 				if (where.getIri().equals(IM.ROLE_GROUP.getIri())){
 					grouped= true;
 				}
@@ -168,7 +168,7 @@ public class IMLToECL {
 				subsumption="<";
 			String iri = checkMember(exp.asIriRef().getIri());
 			String pipe = " | ";
-			if (includeName && exp.asIriRef().getName() != null) {
+			if (includeName && null!=exp.asIriRef().getName()) {
 				ecl.append(subsumption).append(iri).append(pipe).append(exp.asIriRef().getName()).append(pipe);
 			} else {
 				ecl.append(subsumption).append(iri);

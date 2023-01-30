@@ -105,7 +105,7 @@ public class QuerySummariser {
 				i++;
 				if (i == 1) {
 					if (in.getName() != null)
-						summary.append(in.getName());
+						summary.append(" ").append(in.getName());
 				}
 				if (i == 2)
 					summary.append(" (and more) ");
@@ -118,7 +118,7 @@ public class QuerySummariser {
 				i++;
 				if (i == 1) {
 					if (in.getName() != null)
-						summary.append(in.getName());
+						summary.append(" "). append(in.getName());
 				}
 				if (i == 2)
 					summary.append(" (and more) ");

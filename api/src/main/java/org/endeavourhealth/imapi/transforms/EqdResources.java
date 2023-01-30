@@ -157,12 +157,16 @@ public class EqdResources {
 
 	private void convertColumns(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
 		match.setDescription(getLabel(eqCriterion));
-		Where tableWhere= null;
 		EQDOCFilterAttribute filterAttribute = eqCriterion.getFilterAttribute();
 		List<EQDOCColumnValue> cvs= filterAttribute.getColumnValue();
 		if (cvs.size()==1){
+			Where columnWhere= match;
+			if (match.getId()!=null){
+				columnWhere= new Where();
+				match.addWhere(columnWhere);
+			}
 			EQDOCColumnValue cv= cvs.get(0);
-			setColumnWhere(cv,eqCriterion.getTable(),match);
+			setColumnWhere(cv,eqCriterion.getTable(),columnWhere);
 		}
 		else {
 			match.setBool(Bool.and);
@@ -257,8 +261,13 @@ public class EqdResources {
 		if (testAtt != null) {
 			List<EQDOCColumnValue> cvs = testAtt.getColumnValue();
 			if (cvs.size()==1){
+				Where columnWhere=match;
+				if (match.getId()!=null){
+					columnWhere= new Where();
+					match.addWhere(columnWhere);
+				}
 				EQDOCColumnValue cv= cvs.get(0);
-				setColumnWhere(cv,eqCriterion.getTable(),match);
+				setColumnWhere(cv,eqCriterion.getTable(),columnWhere);
 			}
 			else {
 				match.setBool(Bool.and);
@@ -669,7 +678,7 @@ public class EqdResources {
 							if (vs.getValues() != null)
 								if (vs.getValues().get(0).getDisplayName() != null) {
 									counter++;
-									return (vs.getValues().get(0).getDisplayName().split(" ")[0] + "_" + counter);
+									return (vs.getValues().get(0).getDisplayName());
 								}
 						}
 					}

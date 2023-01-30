@@ -619,4 +619,16 @@ public class EntityController {
 		LOG.debug("getHasChildren");
 		return entityService.getHasChildren(iri);
 	}
+
+	@GetMapping(value = "/public/isValidProperty")
+	public Boolean isValidProperty(@RequestParam(name = "entity") String entity, @RequestParam(name = "property") String  property) {
+		LOG.debug("isValidProperty");
+		return entityService.isValidProperty(entity, property);
+	}
+
+	@GetMapping(value = "/public/isValidPropertyValue")
+	public Boolean isValidPropertyValue(@RequestParam(name = "property") String property, @RequestParam(name = "value") String  value) {
+		LOG.debug("isValidPropertyValue");
+		return entityService.isValidPropertyValue(property, value);
+	}
 }

@@ -653,4 +653,44 @@ public class EntityRepository {
             return rs.hasNext();
         }
     }
+
+    public Boolean isValidProperty(String entity, String property) {
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+                    .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                    .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                    .add("PREFIX im: <http://endhealth.info/im#>")
+                    .add("ASK {")
+                    .add("?property rdf:type ?supertype1.")
+                    .add("?supertype1 im:isA im:Concept.")
+                    .add("?property rdfs:domain ?o2.")
+                    .add("?o2 ^im:isA ?entity.")
+                    .add("?property im:status im:Active.")
+                    .add("}");
+            BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
+            sparql.setBinding("entity", iri(entity));
+            sparql.setBinding("property", iri(property));
+            return sparql.evaluate();
+        }
+    }
+
+    public Boolean isValidPropertyValue(String property, String value) {
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+                    .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                    .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                    .add("PREFIX im: <http://endhealth.info/im#>")
+                    .add("ASK {")
+                    .add("?range rdf:type im:Concept.")
+                    .add("?range ^rdfs:range ?o2.")
+                    .add("?o2 im:isA ?property.")
+                    .add("?range im:status im:Active.")
+                    .add("?value im:isA ?range.")
+                    .add("}");
+            BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
+            sparql.setBinding("value", iri(value));
+            sparql.setBinding("property", iri(property));
+            return sparql.evaluate();
+        }
+    }
 }

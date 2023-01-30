@@ -10,12 +10,12 @@ ext {
             factPlusPlus        : '1.6.5',
             grpc                : '1.50.2',
             h2                  : '2.1.214',
-            jackson             : '2.11.4',
+            jackson             : '2.14.0',
             jersey              : '2.25.1',
             junit               : '5.8.1',
             junitRunner         : '1.9.1',
-            logback             : '1.2.6',
-            lombok              : '1.18.22',
+            logback             : '1.2.11',
+            lombok              : '1.18.24',
             mockito             : '3.9.0',
             owlApi              : '5.1.20',
             rdf4j               : '4.1.1',
@@ -28,8 +28,8 @@ ext {
             springTestSecurity  : '5.7.5',
             tomcatAnnotations   : '6.0.53',
             validation          : '2.0.1.Final',
-            woodstox            : '3.2.6',
-            wsrs                : '2.0.1'
+            woodstox            : '3.2.9',
+            wsrs                : '2.1.1'
     ]
     libs = [
             imGrammar           : "org.endeavourhealth.informationManager:Grammar:1.0-SNAPSHOT",

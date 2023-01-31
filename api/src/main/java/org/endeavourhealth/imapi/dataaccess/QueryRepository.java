@@ -103,9 +103,7 @@ public class QueryRepository {
 
                             }
                         }
-                        try (CachedObjectMapper om = new CachedObjectMapper()) {
-                            return om.readValue(entity.get(IM.DEFINITION).asLiteral().getValue(), Query.class);
-                        }
+                        return entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
                     }
         return query;
     }

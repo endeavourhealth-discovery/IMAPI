@@ -18,7 +18,7 @@ public class QuerySummariser {
 	}
 
 	public void summarise(boolean override) {
-		this.override = true;
+		this.override = override;
 		if (query.getFrom() != null) {
 				summariseFrom(query.getFrom());
 			}
@@ -65,13 +65,17 @@ public class QuerySummariser {
 					summariseWhere(subWhere);
 				}
 			}
-		summary.append(summariseAlias(match));
+
+
 		summariseWhereProperty(summary,match);
 
 
 	}
 
 	private void summariseFrom(From from) {
+		if (!override)
+			if (from.getDescription()!=null)
+				return;
 		if (from.getIri() != null)
 			from.setDescription(summariseAlias(from));
 		if (from.getFrom()!= null) {
@@ -84,6 +88,9 @@ public class QuerySummariser {
 	}
 
 	private void summariseWith(With with) {
+		if (!override)
+			if (with.getDescription()!=null)
+				return;
 		summariseWhere(with);
 		if (with.getLatest()!=null) {
 			with.setDescription("latest of "+ with.getDescription());
@@ -97,6 +104,9 @@ public class QuerySummariser {
 		if (!override)
 			if (where.getDescription() != null)
 				return;
+		if (where.getId()!=null&&where.getIn()==null&&where.getNotIn()==null){
+				summary.append(summariseAlias(where));
+		}
 		if (where.getBool() == Bool.not)
 			summary.append("not = ");
 		if (where.getIn() != null) {

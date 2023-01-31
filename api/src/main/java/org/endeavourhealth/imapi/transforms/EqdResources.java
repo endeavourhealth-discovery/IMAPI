@@ -148,11 +148,13 @@ public class EqdResources {
 			if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null)
 				restrictionTest(eqCriterion, match);
 		}
-		convertColumns(eqCriterion, match);
-		if (eqCriterion.getId()!=null)
-			if (labels.get(eqCriterion.getId()) != null) {
-				match.setDescription(labels.get(eqCriterion.getId()).toString());
-			}
+		else {
+			convertColumns(eqCriterion, match);
+			if (eqCriterion.getId() != null)
+				if (labels.get(eqCriterion.getId()) != null) {
+					match.setDescription(labels.get(eqCriterion.getId()).toString());
+				}
+		}
 	}
 
 	private void convertColumns(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
@@ -290,11 +292,11 @@ public class EqdResources {
 		EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
 		if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC) {
 			with.setEarliest(orderBy);
-			with.setDescription("Earliest"+ with.getDescription());
+			with.setDescription("Earliest "+ with.getDescription());
 		}
 		else {
 			with.setLatest(orderBy);
-			with.setDescription("Latest" + with.getDescription());
+			with.setDescription("Latest " + with.getDescription());
 		}
 	}
 

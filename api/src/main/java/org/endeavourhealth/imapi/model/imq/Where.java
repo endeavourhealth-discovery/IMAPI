@@ -10,13 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"notExist","id","iri","name","alias","description","type","entity","set","bool","where","with","range"
+@JsonPropertyOrder({"notExist","id","iri","name","alias","description","sourceType","entity","set","bool","with","where","range"
 	,"operator","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
 	private Range range;
-	private SourceType sourceType;
 	private List<TTAlias> in;
 	private List<TTAlias> notIn;
 	private boolean notExist;

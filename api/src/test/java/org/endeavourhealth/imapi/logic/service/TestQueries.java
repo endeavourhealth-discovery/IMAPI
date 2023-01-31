@@ -1,13 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.imapi.model.imq.PathQuery;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -175,22 +170,9 @@ public class TestQueries {
 	}
 
 	public static QueryRequest getAllowableRanges() throws JsonProcessingException {
-		QueryRequest qr = new QueryRequest()
-			.setQuery((Query) new Query()
-				.setName("Allowable Ranges for a property")
-				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
-				.setActiveOnly(true)
-				.select(s->s.setIri(IM.CODE.getIri()))
-				.select(s->s.setIri(RDFS.LABEL.getIri()))
-				.from(f -> f
-					.setIri(IM.CONCEPT.getIri())
-					.setSourceType(SourceType.type)
-				.where(w -> w
-					.setIri(RDFS.RANGE.getIri())
-					.setInverse(true)
-					.addIn(new TTAlias().setVariable("$this").setIncludeSupertypes(true).setIncludeSubtypes(true))
-				)));
-		qr.addArgument("this","http://snomed.info/sct#42752001");
+		QueryRequest qr= new QueryRequest().setQuery(new Query().setIri(IM.NAMESPACE+"Query_AllowableRanges"));
+		qr.addArgument(new Argument().setParameter("this")
+			.setValueIri(TTIriRef.iri("http://snomed.info/sct#127489000")));
 		return qr;
 	}
 
@@ -209,7 +191,7 @@ public class TestQueries {
 					.setIri(RDFS.DOMAIN.getIri())
 					.addIn(new TTAlias().setVariable("$this").setIncludeSupertypes(true))
 				)));
-		qr.addArgument("this",SNOMED.NAMESPACE+"840539006");
+		qr.addArgument(new Argument().setParameter("this").setValueIri(TTIriRef.iri(SNOMED.NAMESPACE+"840539006")));
 		return qr;
 	}
 

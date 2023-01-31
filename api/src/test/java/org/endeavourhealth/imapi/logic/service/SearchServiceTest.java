@@ -56,7 +56,7 @@ class SearchServiceTest {
 
 
 
-		for (QueryRequest qr1: List.of(TestQueries.oralNsaids(),TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
+		for (QueryRequest qr1: List.of(TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
@@ -87,11 +87,13 @@ class SearchServiceTest {
 		}
 		ObjectMapper om= new ObjectMapper();
 		if (dataSet.getQuery()!=null) {
+			/*
 			SparqlConverter converter = new SparqlConverter(dataSet);
 			String spq = converter.getSelectSparql(null);
 			try (FileWriter wr = new FileWriter(testSparql + "\\" + name + "_sparql.json")) {
 				wr.write(spq);
 			}
+		 */
 			TTDocument result = searchService.queryIM(dataSet);
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
 				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"id","iri","name","alias","description","with","type","bool","from","where"})
+@JsonPropertyOrder({"id","iri","name","alias","sourceType","description","with","bool","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
 	private Bool bool;

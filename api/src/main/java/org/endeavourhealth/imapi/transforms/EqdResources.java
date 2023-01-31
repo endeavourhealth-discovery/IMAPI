@@ -677,7 +677,7 @@ public class EqdResources {
 					if (vs.getValues() != null)
 						if (vs.getValues().get(0).getDisplayName() != null) {
 							counter++;
-							return (vs.getValues().get(0).getDisplayName());
+							return (vs.getValues().get(0).getDisplayName()+" ....");
 						}
 				}
 			}

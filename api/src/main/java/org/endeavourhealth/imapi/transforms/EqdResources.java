@@ -158,7 +158,6 @@ public class EqdResources {
 	}
 
 	private void convertColumns(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
-		match.setDescription(getLabel(eqCriterion));
 		EQDOCFilterAttribute filterAttribute = eqCriterion.getFilterAttribute();
 		List<EQDOCColumnValue> cvs= filterAttribute.getColumnValue();
 		if (cvs.size()==1){
@@ -195,6 +194,7 @@ public class EqdResources {
 		}
 		match.setId(subPaths[subPaths.length-1]);
 		setWhere(cv,match);
+		match.setDescription(getLabel(cv));
 	}
 
 
@@ -657,54 +657,47 @@ public class EqdResources {
 		return importMaps.getCoreFromCode(originalCode, schemes);
 	}
 
-	private String getLabel(EQDOCCriterion eqCriterion){
+	private String getLabel(EQDOCColumnValue cv) {
 
-		List<EQDOCColumnValue> cvs= eqCriterion.getFilterAttribute().getColumnValue();
-		if (cvs!=null) {
-			for (EQDOCColumnValue cv : cvs) {
-				if (cv.getValueSet() != null) {
-					StringBuilder setIds = new StringBuilder();
-					int i = 0;
-					for (EQDOCValueSet vs : cv.getValueSet()) {
-						i++;
-						if (i > 1)
-							setIds.append(",");
-						setIds.append(vs.getId());
-					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
-					else {
-						i = 0;
-						for (EQDOCValueSet vs : cv.getValueSet()) {
-							i++;
-							if (vs.getValues() != null)
-								if (vs.getValues().get(0).getDisplayName() != null) {
-									counter++;
-									return (vs.getValues().get(0).getDisplayName());
-								}
+		if (cv.getValueSet() != null) {
+			StringBuilder setIds = new StringBuilder();
+			int i = 0;
+			for (EQDOCValueSet vs : cv.getValueSet()) {
+				i++;
+				if (i > 1)
+					setIds.append(",");
+				setIds.append(vs.getId());
+			}
+			if (labels.get(setIds.toString()) != null)
+				return (String) labels.get(setIds.toString());
+			else {
+				i = 0;
+				for (EQDOCValueSet vs : cv.getValueSet()) {
+					i++;
+					if (vs.getValues() != null)
+						if (vs.getValues().get(0).getDisplayName() != null) {
+							counter++;
+							return (vs.getValues().get(0).getDisplayName());
 						}
-					}
-				}
-				else if (cv.getLibraryItem()!=null){
-					StringBuilder setIds = new StringBuilder();
-					int i = 0;
-					for (String item:cv.getLibraryItem()){
-						i++;
-						if (i>1)
-							setIds.append(",");
-						setIds.append(item);
-					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
-
 				}
 			}
 		}
-		if (labels.get(eqCriterion.getId())!=null)
-			return (String) labels.get(eqCriterion.getId());
-		counter++;
-		return "NoAlias_"+counter;
+		else if (cv.getLibraryItem() != null) {
+			StringBuilder setIds = new StringBuilder();
+			int i = 0;
+			for (String item : cv.getLibraryItem()) {
+				i++;
+				if (i > 1)
+					setIds.append(",");
+				setIds.append(item);
+			}
+			if (labels.get(setIds.toString()) != null)
+				return (String) labels.get(setIds.toString());
+
+		}
+		return null;
 	}
+
 
 
 

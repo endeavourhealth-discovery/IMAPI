@@ -66,7 +66,7 @@ public class QuerySummariser {
 				}
 			}
 
-
+		if (match.getWhere()==null)
 		summariseWhereProperty(summary,match);
 
 
@@ -107,8 +107,7 @@ public class QuerySummariser {
 		if (where.getId()!=null&&where.getIn()==null&&where.getNotIn()==null){
 				summary.append(summariseAlias(where));
 		}
-		if (where.getBool() == Bool.not)
-			summary.append("not = ");
+
 		if (where.getIn() != null) {
 			int i = 0;
 			for (TTIriRef in : where.getIn()) {
@@ -133,12 +132,16 @@ public class QuerySummariser {
 				if (i == 2)
 					summary.append(" (and more) ");
 			}
-		}
+		}if (where.getBool() == Bool.not)
+			summary.append("not = ");
 
 		if (where.getRange() != null) {
+			if (where.getBool() == Bool.not)
+				summary.append("not = ");
 					summary.append(" ").append(summariseRange(where.getRange()));
 				}
 		if (where.getValue() != null) {
+
 					summary.append(" ").append(summariseValue(where));
 		}
 		if (!summary.toString().equals("")) {

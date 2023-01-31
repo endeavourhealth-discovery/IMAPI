@@ -1,6 +1,6 @@
 // Generated from java-escape by ANTLR 4.11.1
-package org.endeavourhealth.imapi.parser.ecl;
 
+package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;

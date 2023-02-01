@@ -10,7 +10,7 @@ ext {
             factPlusPlus        : '1.6.5',
             grpc                : '1.50.2',
             h2                  : '2.1.214',
-            jackson             : '2.14.0',
+            jackson             : '2.14.2',
             jersey              : '2.25.1',
             junit               : '5.8.1',
             junitRunner         : '1.9.2',

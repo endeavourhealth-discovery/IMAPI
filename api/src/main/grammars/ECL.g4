@@ -1,7 +1,7 @@
 grammar ECL;
 ecl :  ws expressionconstraint ws EOF;
 expressionconstraint :  ws ( refinedexpressionconstraint | compoundexpressionconstraint | dottedexpressionconstraint | subexpressionconstraint ) ws ;
-refinedexpressionconstraint : subexpressionconstraint ws COLON ws eclrefinement;
+refinedexpressionconstraint : subexpressionconstraint ws COLON ws (eclrefinement | refinementgroup);
 compoundexpressionconstraint : conjunctionexpressionconstraint | disjunctionexpressionconstraint | exclusionexpressionconstraint ;
 conjunctionexpressionconstraint : subexpressionconstraint (ws conjunction ws subexpressionconstraint)+;
 disjunctionexpressionconstraint : subexpressionconstraint (ws disjunction ws subexpressionconstraint)+;
@@ -26,10 +26,11 @@ parentof : ((GREATER_THAN EXCLAMATION) | ((P|CAP_P) (A|CAP_A) (R|CAP_R) (E|CAP_E
 conjunction : ((A|CAP_A) (N|CAP_N) (D|CAP_D) mws) | COMMA;
 disjunction : (O|CAP_O) (R|CAP_R) mws;
 exclusion : (M|CAP_M) (I|CAP_I) (N|CAP_N) (U|CAP_U) (S|CAP_S) mws;
-eclrefinement : subrefinement ws (conjunctionrefinementset | disjunctionrefinementset)?;
-conjunctionrefinementset : (ws conjunction ws subrefinement)+;
-disjunctionrefinementset : (ws disjunction ws subrefinement)+;
-subrefinement : eclattributeset | eclattributegroup | (LEFT_PAREN ws eclrefinement ws RIGHT_PAREN);
+eclrefinement : subrefinement | conjunctionrefinementset | disjunctionrefinementset;
+conjunctionrefinementset : (ws subrefinement ws conjunction ws subrefinement (ws conjunction ws subrefinement)+?);
+disjunctionrefinementset : (ws subrefinement ws disjunction ws subrefinement (ws disjunction ws subrefinement)+?);
+subrefinement : eclattributeset | eclattributegroup | refinementgroup;
+refinementgroup : LEFT_PAREN ws eclrefinement ws RIGHT_PAREN;
 eclattributeset : subattributeset ws (conjunctionattributeset | disjunctionattributeset)?;
 conjunctionattributeset : (ws conjunction ws subattributeset)+;
 disjunctionattributeset : (ws disjunction ws subattributeset)+;

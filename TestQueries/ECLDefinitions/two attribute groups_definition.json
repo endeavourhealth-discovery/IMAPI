@@ -1,0 +1,35 @@
+{
+  "from" : {
+    "@id" : "http://snomed.info/sct#225399009",
+    "name" : "Pain assessment (procedure)",
+    "includeSubtypes" : true,
+    "where" : {
+      "bool" : "and",
+      "where" : [ {
+        "@id" : "http://endhealth.info/im#roleGroup",
+        "where" : [ {
+          "@id" : "http://snomed.info/sct#260686004",
+          "name" : "Method (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#129265001",
+            "name" : "Evaluation - action (qualifier value)",
+            "includeSubtypes" : true
+          } ],
+          "includeSubtypes" : true
+        } ]
+      }, {
+        "@id" : "http://endhealth.info/im#roleGroup",
+        "where" : [ {
+          "@id" : "http://snomed.info/sct#363702006",
+          "name" : "Has focus (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#29857009",
+            "name" : "Chest pain (finding)",
+            "includeSubtypes" : true
+          } ],
+          "includeSubtypes" : true
+        } ]
+      } ]
+    }
+  }
+}

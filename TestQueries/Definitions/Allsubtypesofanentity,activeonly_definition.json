@@ -1,0 +1,22 @@
+{
+  "name" : null,
+  "page" : null,
+  "textSearch" : null,
+  "argument" : [ {
+    "parameter" : "this",
+    "valueData" : "http://snomed.info/sct#417928002"
+  } ],
+  "query" : {
+    "name" : "All subtypes of an entity, active only",
+    "from" : {
+      "variable" : "$this",
+      "includeSubtypes" : true
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ],
+    "activeOnly" : true
+  },
+  "pathQuery" : null,
+  "referenceDate" : null
+}

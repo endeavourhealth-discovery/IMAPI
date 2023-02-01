@@ -1,0 +1,19 @@
+{
+  "name" : null,
+  "page" : null,
+  "textSearch" : "chest pain",
+  "argument" : null,
+  "query" : {
+    "name" : "Search for concepts",
+    "from" : {
+      "@id" : "http://endhealth.info/im#Concept",
+      "sourceType" : "type"
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ],
+    "activeOnly" : true
+  },
+  "pathQuery" : null,
+  "referenceDate" : null
+}

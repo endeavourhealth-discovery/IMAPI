@@ -309,7 +309,7 @@ public class SparqlConverter {
 					subWhere(whereQl, object, where);
 				}
 				else {
-					List<TTAlias> propertyIn = where.getIn();
+					List<From> propertyIn = where.getIn();
 
 
 					if (!property.isIncludeSubtypes()) {
@@ -337,7 +337,7 @@ public class SparqlConverter {
 		boolean isNot= (where.getBool()==Bool.not);
 		String not = isNot ? "!" : "";
 		if (null != where.getIn()){
-			List<TTAlias> in= where.getIn();
+			List<From> in= where.getIn();
 			whereQl.append("Filter (?").append(object).append(not).append(" in (");
 			if (in.size()==1) {
 				String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getIri());
@@ -357,7 +357,7 @@ public class SparqlConverter {
 	}
 
 
-	private void whereIn(StringBuilder whereQl, String object, List<TTAlias> in, boolean isNot) throws DataFormatException {
+	private void whereIn(StringBuilder whereQl, String object, List<From> in, boolean isNot) throws DataFormatException {
 		String not= isNot ?" not " : "";
 		boolean subTypes= false;
 		boolean superTypes= false;

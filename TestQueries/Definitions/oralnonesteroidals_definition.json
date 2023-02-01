@@ -1,0 +1,41 @@
+{
+  "name" : null,
+  "page" : null,
+  "textSearch" : null,
+  "argument" : null,
+  "query" : {
+    "name" : "oral none steroidals",
+    "from" : {
+      "bool" : "and",
+      "from" : [ {
+        "@id" : "http://snomed.info/sct#763158003",
+        "where" : {
+          "@id" : "http://endhealth.info/im#roleGroup",
+          "bool" : "and",
+          "where" : [ {
+            "@id" : "http://snomed.info/sct#127489000",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#372665008",
+              "includeSubtypes" : true
+            } ],
+            "includeSubtypes" : true
+          }, {
+            "@id" : "http://snomed.info/sct#411116001",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#385268001",
+              "includeSubtypes" : true
+            } ],
+            "includeSubtypes" : true
+          } ]
+        },
+        "includeSubtypes" : true
+      } ]
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ],
+    "usePrefixes" : true
+  },
+  "pathQuery" : null,
+  "referenceDate" : null
+}

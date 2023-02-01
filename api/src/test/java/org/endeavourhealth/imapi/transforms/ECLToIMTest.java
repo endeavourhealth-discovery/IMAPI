@@ -19,7 +19,7 @@ class ECLToIMTest {
 
 	private String testDefinitions;
 	private String testResults;
-// @Test
+//@Test
 	void convertConceptSet() throws DataFormatException, JsonProcessingException, IOException {
 		testDefinitions= System.getenv("folder")+"\\ECLDefinitions";
 		testResults= System.getenv("folder")+"\\ECLResults";
@@ -27,7 +27,7 @@ class ECLToIMTest {
 		for (String ecl:getTestEcl()) {
 			String name= ecl.split("\\*")[1];
 			System.out.println("Testing "+ name);
-			try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "_definition.json")) {
+			try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "_definition.ecl")) {
 				wr.write(ecl);;
 
 			}

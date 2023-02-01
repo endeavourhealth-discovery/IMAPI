@@ -11,7 +11,7 @@ ext {
             grpc                : '1.50.2',
             h2                  : '2.1.214',
             jackson             : '2.14.0',
-            jersey              : '2.25.1',
+            jersey              : '3.1.1',
             junit               : '5.8.1',
             junitRunner         : '1.9.2',
             logback             : '1.2.11',

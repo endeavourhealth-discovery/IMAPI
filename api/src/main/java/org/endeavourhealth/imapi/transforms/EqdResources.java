@@ -675,10 +675,18 @@ public class EqdResources {
 				for (EQDOCValueSet vs : cv.getValueSet()) {
 					i++;
 					if (vs.getValues() != null)
-						if (vs.getValues().get(0).getDisplayName() != null) {
-							counter++;
-							return (vs.getValues().get(0).getDisplayName()+" ....");
+						if (vs.getValues().size() > 0) {
+							if (vs.getValues().get(0).getDisplayName() != null) {
+								counter++;
+								return (vs.getValues().get(0).getDisplayName() + " ....");
+							}
 						}
+						else if (vs.getAllValues() != null)
+							if (vs.getAllValues().getValues() != null)
+								if (vs.getAllValues().getValues().get(0).getDisplayName() != null) {
+									counter++;
+									return (vs.getAllValues().getValues().get(0).getDisplayName() + " ....");
+								}
 				}
 			}
 		}

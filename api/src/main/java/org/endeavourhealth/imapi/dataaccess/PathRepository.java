@@ -7,9 +7,9 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Path;
-import org.endeavourhealth.imapi.model.iml.PathDocument;
-import org.endeavourhealth.imapi.model.imq.PathQuery;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.SourceType;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTTypedRef;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -17,6 +17,7 @@ import java.util.*;
 
 public class PathRepository {
 	private RepositoryConnection conn;
+	private PathDocument document= new PathDocument();
 
 	public PathDocument pathQuery(QueryRequest request) {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()){
@@ -31,17 +32,56 @@ public class PathRepository {
 				return null;
 			else {
 				List<Path> pathsToShape= getPathsToShape(source,depth,pathsFromShape);
-				if (pathsToShape.isEmpty())
-					return null;
+				if (pathsToShape.isEmpty()){
+					pathsToShape.addAll(pathsFromShape);
+				}
 				pathsToShape.sort(Comparator.comparing((Path p) -> p.getItems().size()));
-				PathDocument document= new PathDocument();
-				document.setSource(new TTTypedRef().setIri((source)));
-				document.setTarget(new TTTypedRef().setIri(targetIri));
-				document.setPaths(pathsToShape);
+				for (Path path:pathsToShape){
+					Where where= new Where();
+					document.addWhere(where);
+					whereFromPath(path,where);
+				}
 				return document;
 				}
 			}
 		}
+
+	private String getLocalName(String iri){
+		if (iri==null)
+			return null;
+		if (iri.contains("#"))
+			return iri.substring(iri.lastIndexOf("#")+1);
+		else
+			return iri.substring(iri.lastIndexOf(":")+1);
+	}
+
+	private void whereFromPath(Path path, Where where) {
+		for (TTTypedRef link:path.getItems()){
+			if (link.getType().equals(RDF.PROPERTY)){
+				where.setId(getLocalName(link.getIri()));
+				where.setName(link.getName());
+			}
+			else if (link.getType().equals(SHACL.NODESHAPE)){
+				Where subWhere= new Where();
+				subWhere.setId(getLocalName(link.getIri()));
+				subWhere.setName(link.getName());
+				where.addWhere(subWhere);
+				where= subWhere;
+			}
+			else {
+				where.addIn(new From()
+					.setIri(IM.CONCEPT.getIri())
+					.setSourceType(SourceType.type)
+					.where(w->w
+						.setIri(link.getIri())
+						.setName(link.getName())
+						.setAnyRoleGroup(true)));
+			}
+		}
+	}
+
+
+
 
 	private List<Path> getPathsToShape(String source, Integer depth,List<Path> pathsFromShape) {
 		source="<"+source+">";
@@ -60,18 +100,21 @@ public class PathRepository {
 				append(" ?path").append(i).append("Name ");
 				 if (!(i==depth)) {
 					 selections.append(" ?shape").append(i);
+					 selections.append(" ?shape").append(i).append("Name");
 				 }
 		}
 		sql.add(selections+" ?shape");
 		String path="?path"+depth;
 		String pathName="?path"+depth+"Name";
 		String shape= "?shape";
+		String shapeName="?shapeName";
 		String superShape= "?super"+depth;
 		String prop= "?prop"+depth;
 		sql.add("where {")
-			.add("	{ select "+shape+" "+path+" "+pathName+" "+prop)
+			.add("	{ select "+shape+" "+shapeName+" "+path+" "+pathName+" "+prop)
 			.add("	where {")
 			.add("    ?shape im:isA "+superShape+".")
+			.add("    ?shape rdfs:label ?shapeName.")
 			.add("    filter("+superShape+"!= im:Entity)")
 			.add("		?super"+depth+" ^sh:node ?prop"+depth+".")
 			.add("		filter (?shape in ("+shapes+"))")
@@ -85,11 +128,13 @@ public class PathRepository {
 			path="?path"+i;
 			pathName="?path"+i+"Name";
 			shape= "?shape"+i;
+			shapeName= shape+"Name";
 			superShape= "?super"+i;
 			prop= "?prop"+i;
-			sql.add("{ Select "+shape+" "+prop+" "+path+" "+pathName)
+			sql.add("{ Select "+shape+" "+shapeName+" "+ prop+" "+path+" "+pathName)
 				.add("where {");
 				sql.add("   " + shape + " sh:property ?prop" + (i + 1) + ".")
+					.add("   "+shape+" rdfs:label "+shapeName+".")
 					.add("   filter ("+shape+"!="+source+")")
 				.add("   "+ shape+" im:isA +"+superShape+".")
 					.add("    filter("+superShape+"!= im:Entity)")
@@ -105,7 +150,10 @@ public class PathRepository {
 		}
 		StringBuilder groupBy= new StringBuilder("group by ");
 		for (int i=1;i<(depth+1); i++){
-			groupBy.append(" ?path").append(i).append(" ").append(" ?path").append(i).append("Name ").append(" ?shape").append(i);
+			groupBy.append(" ?path").append(i).append(" ")
+				.append(" ?path").append(i).append("Name ")
+				.append(" ?shape").append(i)
+				.append(" ?shape").append(i).append("Name");
 		}
 		sql.add(groupBy+" ?shape");
 		TupleQuery qry = conn.prepareTupleQuery(sql.toString());
@@ -119,7 +167,14 @@ public class PathRepository {
 					if (pathIri != null) {
 						pathList.addItem(new TTTypedRef()
 							.setIri(pathIri.stringValue())
-							.setName(bs.getValue("path" + i + "Name").stringValue()));
+							.setName(bs.getValue("path" + i + "Name").stringValue())
+							.setType(RDF.PROPERTY));
+						if (bs.getValue("shape"+i)!=null) {
+							pathList.addItem(new TTTypedRef()
+								.setIri(bs.getValue("shape" + i).stringValue())
+								.setName(bs.getValue("shape" + i + "Name").stringValue())
+								.setType(SHACL.NODESHAPE));
+						}
 					}
 				}
 				String toShape = bs.getValue("shape").stringValue();
@@ -193,7 +248,8 @@ public class PathRepository {
 				}
 				if (bs.getValue("conceptProperty") != null) {
 					path.addItem(new TTTypedRef().setIri(bs.getValue("conceptProperty").stringValue())
-						.setName(bs.getValue("conceptPropertyName").stringValue()));
+						.setName(bs.getValue("conceptPropertyName").stringValue())
+						.setType(IM.ROLE_GROUP));
 				}
 			}
 		}

@@ -11,6 +11,7 @@
     } ]
   } ],
   "query" : {
+    "name" : "Get allowable property values with text filter",
     "from" : {
       "includeSubtypes" : true,
       "variable" : "this"

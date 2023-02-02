@@ -49,7 +49,9 @@ class SearchServiceTest {
 		testSparql = System.getenv("folder")+"\\Sparql";
 
 
-		for (QueryRequest qr1: List.of(TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
+		for (QueryRequest qr1: List.of(TestQueries.substanceTextSearch(),
+			TestQueries.rangeTextSearch(),TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),
+			TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}

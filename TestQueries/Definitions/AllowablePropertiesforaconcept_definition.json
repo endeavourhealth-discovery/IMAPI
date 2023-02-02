@@ -13,15 +13,15 @@
     "description" : "'using property domains get the allowable properties from the supertypes of this concept",
     "from" : {
       "@id" : "http://endhealth.info/im#Concept",
+      "includeSubtypes" : true,
       "sourceType" : "type",
       "where" : {
         "@id" : "http://www.w3.org/2000/01/rdf-schema#domain",
         "in" : [ {
-          "variable" : "$this",
-          "includeSupertypes" : true
+          "includeSupertypes" : true,
+          "variable" : "$this"
         } ]
-      },
-      "includeSubtypes" : true
+      }
     },
     "select" : [ {
       "@id" : "http://endhealth.info/im#code"

@@ -14,6 +14,33 @@ import java.util.zip.DataFormatException;
 
 public class TestQueries {
 
+	public static QueryRequest rangeTextSearch(){
+		return new QueryRequest()
+			.setTextSearch("Hyper")
+			.addArgument(new Argument()
+				.setParameter("this")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#404684003"))
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#71388002")))
+			.setQuery(new Query()
+				.setName("Get allowable property values with text filter")
+				.from(f->f
+					.setVariable("this")
+					.setIncludeSubtypes(true)));
+	}
+
+	public static QueryRequest substanceTextSearch(){
+		return new QueryRequest()
+			.setTextSearch("thia")
+			.addArgument(new Argument()
+				.setParameter("this")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#421149006")))
+			.setQuery(new Query()
+				.setName("Get substances starting with thia")
+				.from(f->f
+					.setVariable("this")
+					.setIncludeSubtypes(true)));
+	}
+
 	public static QueryRequest pathDobQuery(){
 		return new QueryRequest()
 			.setPathQuery(new PathQuery()

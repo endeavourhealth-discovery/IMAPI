@@ -24,6 +24,7 @@
               "includeSubtypes" : true
             }, {
               "@id" : "http://snomed.info/sct#29857009",
+              "includeSubtypes" : true,
               "where" : {
                 "@id" : "http://snomed.info/sct#263502005",
                 "name" : "Clinical course (attribute)",
@@ -32,8 +33,7 @@
                   "name" : "Sudden onset AND/OR short duration (qualifier value)"
                 } ],
                 "anyRoleGroup" : true
-              },
-              "includeSubtypes" : true
+              }
             } ]
           } ]
         } ]

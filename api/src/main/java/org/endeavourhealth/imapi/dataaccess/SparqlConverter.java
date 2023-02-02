@@ -161,21 +161,31 @@ public class SparqlConverter {
 	}
 
 
+
 	private void from(StringBuilder whereQl, String subject,From from) throws DataFormatException {
 		if (from.getSourceType()== SourceType.type){
 			type (whereQl,from,subject);
 		}
 		else {
 			if (from.getIri() != null || from.getVariable() != null) {
+				String inList= iriFromAlias((from));
 				if (from.isIncludeSubtypes()) {
 					o++;
 					whereQl.append("?").append(subject).append(" im:isA ?").append("supertype").append(o).append(".\n");
-					whereQl.append("Filter (?supertype").append(o).append(" =").append(String.join(",", iriFromAlias(from))).append(")\n");
+					whereQl.append("Filter (?supertype").append(o);
+					if (!inList.contains(","))
+						whereQl.append(" =").append(inList).append(")\n");
+					else
+						whereQl.append(" im (").append(inList).append("))\n");
 					excludeSelf(whereQl, from);
 				}
 				else {
 					whereQl.append("?").append(subject).append(" rdf:type ").append("?type").append(".\n");
-					whereQl.append("Filter (?").append(subject).append(" =").append(String.join(",", iriFromAlias(from))).append(")\n");
+					whereQl.append("Filter (?").append(subject);
+					if (!inList.contains(","))
+						whereQl.append(" =").append(inList).append(")\n");
+					else
+						whereQl.append(" im (").append(inList).append("))\n");
 				}
 			}
 		}
@@ -450,8 +460,12 @@ public class SparqlConverter {
 						if (argument.getParameter().equals(value)) {
 							if (null != argument.getValueData())
 								return argument.getValueData();
-							if (null != argument.getValueIri())
+							else if (null != argument.getValueIri())
 								return argument.getValueIri().getIri();
+							else if (null!= argument.getValueIriList()){
+								return String.join(",",
+								argument.getValueIriList().stream().map(iri-> iri.getIri()).collect(Collectors.toList()));
+							}
 						}
 					}
 					throw new DataFormatException("Query Variable "+ value+" has not been assigned in the request");
@@ -459,6 +473,8 @@ public class SparqlConverter {
 			else
 					throw new DataFormatException("Query needs variable "+ value+" but this has not been assigned in the request");
 	}
+
+
 
 		/**
 		 * Processes the dataSet clause and binds to the variables created in the where clause
@@ -499,6 +515,9 @@ public class SparqlConverter {
 
 	private void orderGroupLimit(StringBuilder selectQl,Query clause) throws DataFormatException {
 		if (null != queryRequest.getTextSearch()){
+			if (clause.getSelect()==null){
+				clause.select(s->s.setIri(RDFS.LABEL.getIri()).setAlias("label"));
+			}
 			String labelAlias= getLabelAlias(clause);
 			if (null != labelAlias)
 				selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelAlias)
@@ -534,12 +553,14 @@ public class SparqlConverter {
 	}
 
 	private String getLabelAlias(Query clause) {
-			for (Select select:clause.getSelect()){
-				if (null != select.getIri())
-					if (select.getIri().equals(RDFS.LABEL.getIri())){
-						return select.getAlias();
-					}
+			if (clause.getSelect()!=null) {
+				for (Select select : clause.getSelect()) {
+					if (null != select.getIri())
+						if (select.getIri().equals(RDFS.LABEL.getIri())) {
+							return select.getAlias();
+						}
 				}
+			}
 			return "label";
 	}
 
@@ -577,6 +598,11 @@ public class SparqlConverter {
 	}
 
 	public static String iriFromString(String iri){
+			if (iri.contains(",")){
+				iri= iri.replaceAll(",",">,<");
+				iri= "<"+ iri+">";
+				return iri;
+			}
 		if (iri.startsWith("http")||iri.startsWith("urn:"))
 			return "<"+ iri+">";
 		else return iri;

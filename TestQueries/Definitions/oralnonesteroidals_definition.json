@@ -9,6 +9,7 @@
       "bool" : "and",
       "from" : [ {
         "@id" : "http://snomed.info/sct#763158003",
+        "includeSubtypes" : true,
         "where" : {
           "@id" : "http://endhealth.info/im#roleGroup",
           "bool" : "and",
@@ -27,8 +28,7 @@
             } ],
             "includeSubtypes" : true
           } ]
-        },
-        "includeSubtypes" : true
+        }
       } ]
     },
     "select" : [ {

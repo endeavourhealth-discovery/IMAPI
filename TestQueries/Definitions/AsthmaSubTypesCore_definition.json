@@ -1,8 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
-  "textSearch" : null,
-  "argument" : null,
   "query" : {
     "name" : "AsthmaSubTypesCore",
     "from" : {
@@ -15,7 +11,5 @@
       "@id" : "http://endhealth.info/im#code"
     } ],
     "usePrefixes" : true
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

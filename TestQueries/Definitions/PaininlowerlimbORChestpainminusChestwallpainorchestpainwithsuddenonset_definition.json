@@ -1,8 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
-  "textSearch" : null,
-  "argument" : null,
   "query" : {
     "name" : "Pain in lower limb OR Chest pain minus (Chest wall pain or chest pain with sudden onset",
     "from" : {
@@ -40,7 +36,5 @@
       } ]
     },
     "activeOnly" : true
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

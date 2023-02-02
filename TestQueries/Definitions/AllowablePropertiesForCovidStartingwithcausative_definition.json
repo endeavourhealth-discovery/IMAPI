@@ -1,8 +1,5 @@
 {
-  "name" : null,
-  "page" : null,
   "textSearch" : "causative",
-  "argument" : null,
   "query" : {
     "name" : "AllowablePropertiesForCovidStarting with causative",
     "description" : "'using property domains get the allowable properties from the supertypes of this concept",
@@ -27,7 +24,5 @@
     } ],
     "activeOnly" : true,
     "usePrefixes" : true
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

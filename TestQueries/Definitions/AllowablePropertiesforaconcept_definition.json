@@ -1,7 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
-  "textSearch" : null,
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
@@ -29,7 +26,5 @@
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     } ],
     "activeOnly" : true
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

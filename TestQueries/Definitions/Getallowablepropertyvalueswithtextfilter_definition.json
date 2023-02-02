@@ -1,6 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
   "textSearch" : "Hyper",
   "argument" : [ {
     "parameter" : "this",
@@ -15,8 +13,9 @@
     "from" : {
       "includeSubtypes" : true,
       "variable" : "this"
-    }
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ]
+  }
 }

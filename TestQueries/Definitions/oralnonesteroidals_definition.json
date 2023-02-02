@@ -1,8 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
-  "textSearch" : null,
-  "argument" : null,
   "query" : {
     "name" : "oral none steroidals",
     "from" : {
@@ -35,7 +31,5 @@
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     } ],
     "usePrefixes" : true
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

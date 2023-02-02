@@ -14,6 +14,23 @@ import java.util.zip.DataFormatException;
 
 public class TestQueries {
 
+	public static QueryRequest subtypesParameterised(){
+		return new QueryRequest()
+			.addArgument(new Argument()
+				.setParameter("this")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#76661004"))
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#243640007")))
+			.setQuery(new Query()
+				.setName("Subtypes of concepts as a parameterised query")
+				.select(s->s.setIri(RDFS.LABEL.getIri()))
+				.from(f->f
+					.setVariable("$this")
+					.setIncludeSubtypes(true)));
+	}
+
+
+
+
 	public static QueryRequest rangeTextSearch(){
 		return new QueryRequest()
 			.setTextSearch("Hyper")
@@ -23,6 +40,7 @@ public class TestQueries {
 				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#71388002")))
 			.setQuery(new Query()
 				.setName("Get allowable property values with text filter")
+				.select(s->s.setIri(RDFS.LABEL.getIri()))
 				.from(f->f
 					.setVariable("this")
 					.setIncludeSubtypes(true)));
@@ -34,11 +52,8 @@ public class TestQueries {
 			.addArgument(new Argument()
 				.setParameter("this")
 				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#421149006")))
-			.setQuery(new Query()
-				.setName("Get substances starting with thia")
-				.from(f->f
-					.setVariable("this")
-					.setIncludeSubtypes(true)));
+			.setQuery(new Query().setIri(IM.NAMESPACE+"Query_GetIsas")
+				.setName("substances starting with 'thia'"));
 	}
 
 	public static QueryRequest pathDobQuery(){

@@ -1,7 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
-  "textSearch" : null,
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
@@ -11,7 +8,5 @@
   "query" : {
     "@id" : "http://endhealth.info/im#Query_AllowableRanges",
     "name" : "Allowable ranges"
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

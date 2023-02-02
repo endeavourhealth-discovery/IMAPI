@@ -176,7 +176,7 @@ public class SparqlConverter {
 					if (!inList.contains(","))
 						whereQl.append(" =").append(inList).append(")\n");
 					else
-						whereQl.append(" im (").append(inList).append("))\n");
+						whereQl.append(" in (").append(inList).append("))\n");
 					excludeSelf(whereQl, from);
 				}
 				else {
@@ -185,7 +185,7 @@ public class SparqlConverter {
 					if (!inList.contains(","))
 						whereQl.append(" =").append(inList).append(")\n");
 					else
-						whereQl.append(" im (").append(inList).append("))\n");
+						whereQl.append(" in (").append(inList).append("))\n");
 				}
 			}
 		}

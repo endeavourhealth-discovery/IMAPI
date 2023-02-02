@@ -1,8 +1,4 @@
 {
-  "name" : null,
-  "page" : null,
-  "textSearch" : null,
-  "argument" : null,
   "query" : {
     "name" : "Some Barts cerner codes with context including a regex",
     "from" : {
@@ -34,7 +30,5 @@
       "@id" : "http://endhealth.info/im#sourceContext"
     } ],
     "usePrefixes" : true
-  },
-  "pathQuery" : null,
-  "referenceDate" : null
+  }
 }

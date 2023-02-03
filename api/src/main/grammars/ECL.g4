@@ -32,7 +32,7 @@ compoundrefinementset: conjunctionrefinementset | disjunctionrefinementset;
 conjunctionrefinementset : (subrefinement | bracketcompoundrefinementset) (ws conjunction ws (subrefinement | bracketcompoundrefinementset))+;
 disjunctionrefinementset : (subrefinement | bracketcompoundrefinementset) (ws disjunction ws (subrefinement | bracketcompoundrefinementset))+;
 bracketcompoundrefinementset: LEFT_PAREN ws compoundrefinementset ws RIGHT_PAREN;
-subrefinement : compoundattributeset | eclattributegroup | bracketsubrefinement;
+subrefinement : compoundattributeset | eclattributegroup | bracketsubrefinement | eclattribute;
 bracketsubrefinement : LEFT_PAREN ws eclrefinement ws RIGHT_PAREN;
 compoundattributeset : conjunctionattributeset | disjunctionattributeset;
 conjunctionattributeset : (subattributeset | bracketattributeset) (ws conjunction ws (subattributeset | bracketattributeset))+;

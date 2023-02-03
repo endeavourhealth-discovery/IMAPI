@@ -1,0 +1,25 @@
+{
+  "from" : {
+    "@id" : "http://snomed.info/sct#763158003",
+    "includeSubtypes" : true,
+    "where" : {
+      "bool" : "and",
+      "where" : [ {
+        "@id" : "http://snomed.info/sct#127489000",
+        "in" : [ {
+          "@id" : "http://snomed.info/sct#372665008",
+          "includeSubtypes" : true
+        } ],
+        "anyRoleGroup" : true,
+        "includeSubtypes" : true
+      }, {
+        "@id" : "http://snomed.info/sct#411116001",
+        "in" : [ {
+          "@id" : "http://snomed.info/sct#385268001"
+        } ],
+        "anyRoleGroup" : true,
+        "includeSubtypes" : true
+      } ]
+    }
+  }
+}

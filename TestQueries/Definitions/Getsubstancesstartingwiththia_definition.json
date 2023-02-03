@@ -1,0 +1,20 @@
+{
+  "name" : null,
+  "page" : null,
+  "textSearch" : "thia",
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIriList" : [ {
+      "@id" : "http://snomed.info/sct#421149006"
+    } ]
+  } ],
+  "query" : {
+    "name" : "Get substances starting with thia",
+    "from" : {
+      "includeSubtypes" : true,
+      "variable" : "this"
+    }
+  },
+  "pathQuery" : null,
+  "referenceDate" : null
+}

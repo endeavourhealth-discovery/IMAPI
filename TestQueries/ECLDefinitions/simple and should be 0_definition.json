@@ -1,0 +1,11 @@
+{
+  "from" : {
+    "bool" : "and",
+    "from" : [ {
+      "@id" : "http://snomed.info/sct#298705000"
+    }, {
+      "@id" : "http://snomed.info/sct#301366005",
+      "name" : "Pain of truncal structure (finding)"
+    } ]
+  }
+}

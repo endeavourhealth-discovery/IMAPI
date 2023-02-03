@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder ({"inverse","iri","name","alias","inverse","type","entity","set"})
+@JsonPropertyOrder ({"inverse","iri","name","alias","inverse","sourceType","entity","set"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTAlias extends TTIriRef {
 	private String alias;

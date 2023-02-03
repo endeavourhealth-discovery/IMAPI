@@ -125,12 +125,18 @@ public class EqdToIMQ {
 			return oldWhere;
 		}
 		Where flatWhere = new Where();
-		flatWhere.setBool(oldWhere.getBool());
 		if (oldWhere.getBool() == Bool.and) {
 			if (oldWhere.getWhere().size()==1){
+				flatWhere.setBool(oldWhere.getWhere().get(0).getBool());
 				flatWhere.setWhere(oldWhere.getWhere());
+				if (oldWhere.getWhere().get(0).getWhere()!=null&&
+				oldWhere.getWhere().get(0).getId()==null) {
+					flatWhere.setBool(oldWhere.getWhere().get(0).getBool());
+					flatWhere.setWhere(oldWhere.getWhere().get(0).getWhere());
+				}
 			}
 			else {
+				flatWhere.setBool(oldWhere.getBool());
 				for (Where oldAnd : oldWhere.getWhere()) {
 					if (oldAnd.getId() == null) {
 						if (oldAnd.getBool() == Bool.and) {

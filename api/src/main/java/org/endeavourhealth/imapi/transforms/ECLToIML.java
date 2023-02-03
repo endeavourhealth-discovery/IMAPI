@@ -359,8 +359,8 @@ public class ECLToIML extends ECLBaseVisitor<TTValue> {
 
 
 
-	private TTAlias getValue(ECLParser.EclconceptreferenceContext eclRef,ECLParser.ConstraintoperatorContext entail ) throws DataFormatException {
-		TTAlias conRef = new TTAlias();
+	private From getValue(ECLParser.EclconceptreferenceContext eclRef,ECLParser.ConstraintoperatorContext entail ) throws DataFormatException {
+		From conRef = new From();
 		conRef(eclRef, entail, conRef);
 		return conRef;
 	}

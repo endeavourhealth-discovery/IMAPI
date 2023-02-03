@@ -30,6 +30,7 @@ public class Argument {
 		return this;
 	}
 
+
 	public Object getValueObject() {
 		return valueObject;
 	}
@@ -48,10 +49,17 @@ public class Argument {
 		return this;
 	}
 
-	public Argument addToValueList(String value){
+	public Argument addToValueDataList(String value){
 		if (this.valueDataList ==null)
 			this.valueDataList = new ArrayList<>();
 		this.valueDataList.add(value);
+		return this;
+	}
+
+	public Argument addToValueIriList(TTIriRef value){
+		if (this.valueIriList ==null)
+			this.valueIriList = new ArrayList<>();
+		this.valueIriList.add(value);
 		return this;
 	}
 

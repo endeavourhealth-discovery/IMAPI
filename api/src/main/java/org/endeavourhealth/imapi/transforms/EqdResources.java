@@ -148,21 +148,26 @@ public class EqdResources {
 			if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null)
 				restrictionTest(eqCriterion, match);
 		}
-		convertColumns(eqCriterion, match);
-		if (eqCriterion.getId()!=null)
-			if (labels.get(eqCriterion.getId()) != null) {
-				match.setDescription(labels.get(eqCriterion.getId()).toString());
-			}
+		else {
+			convertColumns(eqCriterion, match);
+			if (eqCriterion.getId() != null)
+				if (labels.get(eqCriterion.getId()) != null) {
+					match.setDescription(labels.get(eqCriterion.getId()).toString());
+				}
+		}
 	}
 
 	private void convertColumns(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
-		match.setDescription(getLabel(eqCriterion));
-		Where tableWhere= null;
 		EQDOCFilterAttribute filterAttribute = eqCriterion.getFilterAttribute();
 		List<EQDOCColumnValue> cvs= filterAttribute.getColumnValue();
 		if (cvs.size()==1){
+			Where columnWhere= match;
+			if (match.getId()!=null){
+				columnWhere= new Where();
+				match.addWhere(columnWhere);
+			}
 			EQDOCColumnValue cv= cvs.get(0);
-			setColumnWhere(cv,eqCriterion.getTable(),match);
+			setColumnWhere(cv,eqCriterion.getTable(),columnWhere);
 		}
 		else {
 			match.setBool(Bool.and);
@@ -189,6 +194,7 @@ public class EqdResources {
 		}
 		match.setId(subPaths[subPaths.length-1]);
 		setWhere(cv,match);
+		match.setDescription(getLabel(cv));
 	}
 
 
@@ -219,7 +225,7 @@ public class EqdResources {
 				String vsetName = "Unknown code set";
 				if (labels.get(vset) != null)
 					vsetName = (String) labels.get(vset);
-				TTAlias iri = TTAlias.iri("urn:uuid:" + vset).setName(vsetName);
+				From iri = new From().setIri("urn:uuid:" + vset).setName(vsetName);
 				if (!notIn)
 					pv.addIn(iri);
 				else {
@@ -257,8 +263,13 @@ public class EqdResources {
 		if (testAtt != null) {
 			List<EQDOCColumnValue> cvs = testAtt.getColumnValue();
 			if (cvs.size()==1){
+				Where columnWhere=match;
+				if (match.getId()!=null){
+					columnWhere= new Where();
+					match.addWhere(columnWhere);
+				}
 				EQDOCColumnValue cv= cvs.get(0);
-				setColumnWhere(cv,eqCriterion.getTable(),match);
+				setColumnWhere(cv,eqCriterion.getTable(),columnWhere);
 			}
 			else {
 				match.setBool(Bool.and);
@@ -281,11 +292,11 @@ public class EqdResources {
 		EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
 		if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC) {
 			with.setEarliest(orderBy);
-			with.setDescription("Earliest"+ with.getDescription());
+			with.setDescription("Earliest "+ with.getDescription());
 		}
 		else {
 			with.setLatest(orderBy);
-			with.setDescription("Latest" + with.getDescription());
+			with.setDescription("Latest " + with.getDescription());
 		}
 	}
 
@@ -450,11 +461,11 @@ public class EqdResources {
 		}
 
 
-	private List<TTAlias> getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
-		List<TTAlias> valueSet = new ArrayList<>();
+	private List<From> getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
+		List<From> valueSet = new ArrayList<>();
 		VocCodeSystemEx scheme = set.getCodeSystem();
 		for (EQDOCExceptionValue ev : set.getValues()) {
-			Set<TTAlias> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+			Set<From> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
 			if (values != null) {
 				valueSet.addAll(new ArrayList<>(values));
 			} else
@@ -466,14 +477,14 @@ public class EqdResources {
 
 
 
-	private List<TTAlias> getInlineValues(EQDOCValueSet vs) throws DataFormatException, IOException {
-		List<TTAlias> setContent = new ArrayList<>();
+	private List<From> getInlineValues(EQDOCValueSet vs) throws DataFormatException, IOException {
+		List<From> setContent = new ArrayList<>();
 		VocCodeSystemEx scheme = vs.getCodeSystem();
 		for (EQDOCValueSetValue ev : vs.getValues()) {
-			Set<TTAlias> concepts = getValue(scheme, ev);
+			Set<From> concepts = getValue(scheme, ev);
 			if (concepts != null) {
-				for (TTAlias iri : concepts) {
-					TTAlias conRef = new TTAlias().setIri(iri.getIri()).setName(iri.getName());
+				for (From iri : concepts) {
+					From conRef = new From().setIri(iri.getIri()).setName(iri.getName());
 					setContent.add(conRef);
 				}
 			} else
@@ -484,8 +495,8 @@ public class EqdResources {
 	}
 
 
-	private List<TTAlias> getValueSet(EQDOCValueSet vs) throws DataFormatException, IOException {
-		List<TTAlias> setContent = new ArrayList<>();
+	private List<From> getValueSet(EQDOCValueSet vs) throws DataFormatException, IOException {
+		List<From> setContent = new ArrayList<>();
 		StringBuilder vsetName = new StringBuilder();
 		VocCodeSystemEx scheme = vs.getCodeSystem();
 		if (labels.get(vs.getId())!=null){
@@ -496,7 +507,7 @@ public class EqdResources {
 		int i = 0;
 		for (EQDOCValueSetValue ev : vs.getValues()) {
 			i++;
-			Set<TTAlias> concepts = getValue(scheme, ev);
+			Set<From> concepts = getValue(scheme, ev);
 			if (concepts != null) {
 				setContent.addAll(new ArrayList<>(concepts));
 					if (i==1) {
@@ -514,7 +525,7 @@ public class EqdResources {
 		}
 
 		storeValueSet(vs, setContent, vsetName.toString());
-		setContent.add(TTAlias.iri("urn:uuid:" + vs.getId()).setName(vsetName.toString()));
+		setContent.add(new From().setIri("urn:uuid:" + vs.getId()).setName(vsetName.toString()));
 		return setContent;
 	}
 
@@ -531,7 +542,7 @@ public class EqdResources {
 		}
 	}
 
-	private void storeValueSet(EQDOCValueSet vs, List<TTAlias> valueSet, String vSetName) throws JsonProcessingException {
+	private void storeValueSet(EQDOCValueSet vs, List<From> valueSet, String vSetName) throws JsonProcessingException {
 		if (vs.getId() != null) {
 			TTIriRef iri = TTIriRef.iri("urn:uuid:" + vs.getId()).setName(vSetName);
 			if (!valueSets.containsKey(iri)) {
@@ -557,21 +568,21 @@ public class EqdResources {
 		}
 	}
 
-	private Set<TTAlias> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws DataFormatException, IOException {
+	private Set<From> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws DataFormatException, IOException {
 		return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
 	}
 
-	private Set<TTAlias> getValue(VocCodeSystemEx scheme, String originalCode,
+	private Set<From> getValue(VocCodeSystemEx scheme, String originalCode,
 																	 String originalTerm, String legacyCode) throws DataFormatException, IOException {
 		if (scheme == VocCodeSystemEx.EMISINTERNAL) {
 			String key = "EMISINTERNAL/" + originalCode;
 			Object mapValue = dataMap.get(key);
 			if (mapValue != null) {
-				TTAlias iri = new TTAlias(getIri(mapValue.toString()));
+				From iri = new From().setIri(mapValue.toString());
 				String name = importMaps.getCoreName(iri.getIri());
 				if (name != null)
 					iri.setName(name);
-				Set<TTAlias> result = new HashSet<>();
+				Set<From> result = new HashSet<>();
 				result.add(iri);
 				return result;
 			} else
@@ -599,7 +610,7 @@ public class EqdResources {
 					valueMap.put(originalCode, snomed);
 			}
 			if (snomed!=null)
-				return snomed.stream().map(e-> TTAlias.iri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
+				return snomed.stream().map(e-> new From().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
 			else return null;
 		} else
 			throw new DataFormatException("code scheme not recognised : " + scheme.value());
@@ -646,54 +657,55 @@ public class EqdResources {
 		return importMaps.getCoreFromCode(originalCode, schemes);
 	}
 
-	private String getLabel(EQDOCCriterion eqCriterion){
+	private String getLabel(EQDOCColumnValue cv) {
 
-		List<EQDOCColumnValue> cvs= eqCriterion.getFilterAttribute().getColumnValue();
-		if (cvs!=null) {
-			for (EQDOCColumnValue cv : cvs) {
-				if (cv.getValueSet() != null) {
-					StringBuilder setIds = new StringBuilder();
-					int i = 0;
-					for (EQDOCValueSet vs : cv.getValueSet()) {
-						i++;
-						if (i > 1)
-							setIds.append(",");
-						setIds.append(vs.getId());
-					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
-					else {
-						i = 0;
-						for (EQDOCValueSet vs : cv.getValueSet()) {
-							i++;
-							if (vs.getValues() != null)
-								if (vs.getValues().get(0).getDisplayName() != null) {
-									counter++;
-									return (vs.getValues().get(0).getDisplayName().split(" ")[0] + "_" + counter);
-								}
+		if (cv.getValueSet() != null) {
+			StringBuilder setIds = new StringBuilder();
+			int i = 0;
+			for (EQDOCValueSet vs : cv.getValueSet()) {
+				i++;
+				if (i > 1)
+					setIds.append(",");
+				setIds.append(vs.getId());
+			}
+			if (labels.get(setIds.toString()) != null)
+				return (String) labels.get(setIds.toString());
+			else {
+				i = 0;
+				for (EQDOCValueSet vs : cv.getValueSet()) {
+					i++;
+					if (vs.getValues() != null)
+						if (vs.getValues().size() > 0) {
+							if (vs.getValues().get(0).getDisplayName() != null) {
+								counter++;
+								return (vs.getValues().get(0).getDisplayName() + " ....");
+							}
 						}
-					}
-				}
-				else if (cv.getLibraryItem()!=null){
-					StringBuilder setIds = new StringBuilder();
-					int i = 0;
-					for (String item:cv.getLibraryItem()){
-						i++;
-						if (i>1)
-							setIds.append(",");
-						setIds.append(item);
-					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
-
+						else if (vs.getAllValues() != null)
+							if (vs.getAllValues().getValues() != null)
+								if (vs.getAllValues().getValues().get(0).getDisplayName() != null) {
+									counter++;
+									return (vs.getAllValues().getValues().get(0).getDisplayName() + " ....");
+								}
 				}
 			}
 		}
-		if (labels.get(eqCriterion.getId())!=null)
-			return (String) labels.get(eqCriterion.getId());
-		counter++;
-		return "NoAlias_"+counter;
+		else if (cv.getLibraryItem() != null) {
+			StringBuilder setIds = new StringBuilder();
+			int i = 0;
+			for (String item : cv.getLibraryItem()) {
+				i++;
+				if (i > 1)
+					setIds.append(",");
+				setIds.append(item);
+			}
+			if (labels.get(setIds.toString()) != null)
+				return (String) labels.get(setIds.toString());
+
+		}
+		return null;
 	}
+
 
 
 

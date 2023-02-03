@@ -1,0 +1,20 @@
+{
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIriList" : [ {
+      "@id" : "http://snomed.info/sct#76661004"
+    }, {
+      "@id" : "http://snomed.info/sct#243640007"
+    } ]
+  } ],
+  "query" : {
+    "name" : "Subtypes of concepts as a parameterised query",
+    "from" : {
+      "includeSubtypes" : true,
+      "variable" : "$this"
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ]
+  }
+}

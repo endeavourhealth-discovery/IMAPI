@@ -3,8 +3,11 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.DataFormatException;
@@ -13,12 +16,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ECLToIMTest {
 
- // @Test
-	void convertConceptSet() throws DataFormatException, JsonProcessingException {
-		for (String ecl:getTestEcl()) {
 
+	private String testDefinitions;
+	private String testResults;
+//@Test
+	void convertConceptSet() throws DataFormatException, JsonProcessingException, IOException {
+		testDefinitions= System.getenv("folder")+"\\ECLDefinitions";
+		testResults= System.getenv("folder")+"\\ECLResults";
+
+		for (String ecl:getTestEcl()) {
+			String name= ecl.split("\\*")[1];
+			System.out.println("Testing "+ name);
+			try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "_definition.ecl")) {
+				wr.write(ecl);;
+
+			}
 			ECLToIML iml = new ECLToIML();
 			Query query = iml.getQueryFromECL(ecl);
+			try (FileWriter wr = new FileWriter(testDefinitions+ "\\"  + name+ "_definition.json")) {
+				wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(query));
+			}
 		//	System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(query));
 			String ecl2 = IMLToECL.getECLFromQuery(query, true);
 			String tstecl=ecl.split("\\*/")[1];
@@ -34,6 +51,7 @@ class ECLToIMTest {
 
 	private List<String> getTestEcl() {
 		return List.of(
+			"/*oral nsaids*/<<763158003:<<127489000= <<372665008,<<411116001= 385268001",
 
 			"/*minus a wild card refined*/\t((<<298705000 |Finding of region of thorax (finding)| "+
 				"and <<301366005 |Pain of truncal structure (finding)| ):"+"" +

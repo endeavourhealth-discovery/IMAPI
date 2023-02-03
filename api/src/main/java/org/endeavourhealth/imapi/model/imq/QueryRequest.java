@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import org.endeavourhealth.imapi.model.iml.Page;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class QueryRequest {
 
 	private String name;

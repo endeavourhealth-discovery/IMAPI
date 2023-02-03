@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"notExist","id","iri","name","alias","description","type","entity","set","bool","where","with","range"
+@JsonPropertyOrder({"notExist","id","iri","name","alias","description","sourceType","entity","set","bool","with","where","range"
 	,"operator","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
 	private Range range;
-	private SourceType sourceType;
-	private List<TTAlias> in;
-	private List<TTAlias> notIn;
+	private List<From> in;
+	private List<From> notIn;
 	private boolean notExist;
 	private Bool bool;
 	private List<Where> where;
@@ -34,16 +33,16 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public List<TTAlias> getNotIn() {
+	public List<From> getNotIn() {
 		return notIn;
 	}
 
-	public Where setNotIn(List<TTAlias> notIn) {
+	public Where setNotIn(List<From> notIn) {
 		this.notIn = notIn;
 		return this;
 	}
 
-	public Where addNotIn(TTAlias notIn) {
+	public Where addNotIn(From notIn) {
 		if (this.notIn==null)
 			this.notIn = new ArrayList<>();
 		this.notIn.add(notIn);
@@ -160,24 +159,28 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public List<TTAlias> getIn() {
+	public List<From> getIn() {
 		return in;
 	}
 
-	public Where setIn(List<TTAlias> in) {
+	@JsonSetter
+	public Where setIn(List<From> in) {
 		this.in = in;
 		return this;
 	}
 
-	public Where addIn(TTAlias in){
+
+
+
+	public Where addIn(From in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
 		this.in.add(in);
 		return this;
 	}
 
-	public Where in(Consumer<TTAlias> builder){
-		TTAlias in = new TTAlias();
+	public Where in(Consumer<From> builder){
+		From in = new From();
 		addIn(in);
 		builder.accept(in);
 		return this;
@@ -186,7 +189,7 @@ public class Where extends TTAlias implements Assignable{
 	public Where addIn(String in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
-		this.in.add(new TTAlias().setIri(in));
+		this.in.add(new From().setIri(in));
 		return this;
 	}
 

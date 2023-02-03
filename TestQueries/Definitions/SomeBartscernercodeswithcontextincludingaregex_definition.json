@@ -1,0 +1,34 @@
+{
+  "query" : {
+    "name" : "Some Barts cerner codes with context including a regex",
+    "from" : {
+      "where" : {
+        "@id" : "http://endhealth.info/im#sourceContext",
+        "where" : [ {
+          "@id" : "http://endhealth.info/im#sourceRegex"
+        } ]
+      }
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://endhealth.info/im#code"
+    }, {
+      "select" : [ {
+        "@id" : "http://endhealth.info/im#sourceCodeScheme"
+      }, {
+        "@id" : "http://endhealth.info/im#sourceHeading"
+      }, {
+        "@id" : "http://endhealth.info/im#sourceSystem"
+      }, {
+        "@id" : "http://endhealth.info/im#sourceTable"
+      }, {
+        "@id" : "http://endhealth.info/im#sourceField"
+      }, {
+        "@id" : "http://endhealth.info/im#sourceSchema"
+      } ],
+      "@id" : "http://endhealth.info/im#sourceContext"
+    } ],
+    "usePrefixes" : true
+  }
+}

@@ -20,7 +20,9 @@ public class IMLToECL {
 	 */
 	public static String getECLFromQuery(Query query, Boolean includeName) throws DataFormatException {
 		StringBuilder ecl = new StringBuilder();
-		fromWhere(query.getFrom(), ecl, includeName);
+		if (query.getFrom()!=null) {
+			fromWhere(query.getFrom(), ecl, includeName);
+		}
 		return ecl.toString();
 	}
 

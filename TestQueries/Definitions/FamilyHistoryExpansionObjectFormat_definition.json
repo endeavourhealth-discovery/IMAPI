@@ -1,0 +1,27 @@
+{
+  "query" : {
+    "name" : "FamilyHistoryExpansionObjectFormat",
+    "from" : {
+      "where" : {
+        "@id" : "http://endhealth.info/im#hasMember",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#VSET_FamilyHistory"
+        } ],
+        "inverse" : true
+      }
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://endhealth.info/im#code"
+    }, {
+      "inverse" : true,
+      "@id" : "http://endhealth.info/im#matchedTo"
+    }, {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://endhealth.info/im#code"
+    } ],
+    "usePrefixes" : true
+  }
+}

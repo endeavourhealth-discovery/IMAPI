@@ -1,0 +1,21 @@
+{
+  "textSearch" : "Hyper",
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIriList" : [ {
+      "@id" : "http://snomed.info/sct#404684003"
+    }, {
+      "@id" : "http://snomed.info/sct#71388002"
+    } ]
+  } ],
+  "query" : {
+    "name" : "Get allowable property values with text filter",
+    "from" : {
+      "includeSubtypes" : true,
+      "variable" : "this"
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ]
+  }
+}

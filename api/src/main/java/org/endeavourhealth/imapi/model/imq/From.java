@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"id","iri","name","alias","description","with","type","bool","from","where"})
+@JsonPropertyOrder({"id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","with","bool","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
 	private Bool bool;
@@ -85,8 +85,27 @@ public class From extends TTAlias {
 		return this;
 	}
 
+	public static From iri(String iri)
+	{
+		return new From().setIri(iri);
+	}
+	public From setVariable(String variable){
+		super.setVariable(variable);
+		return this;
+	}
+
+	public From setAlias(String alias){
+		super.setAlias(alias);
+		return this;
+	}
+
 	public From setIncludeSubtypes(boolean include){
 		super.setIncludeSubtypes(include);
+		return this;
+	}
+
+	public From setIncludeSupertypes(boolean include){
+		super.setIncludeSupertypes(include);
 		return this;
 	}
 

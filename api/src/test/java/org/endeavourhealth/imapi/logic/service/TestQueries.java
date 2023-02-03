@@ -1,13 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.imapi.model.imq.PathQuery;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -18,6 +13,48 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class TestQueries {
+
+	public static QueryRequest subtypesParameterised(){
+		return new QueryRequest()
+			.addArgument(new Argument()
+				.setParameter("this")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#76661004"))
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#243640007")))
+			.setQuery(new Query()
+				.setName("Subtypes of concepts as a parameterised query")
+				.select(s->s.setIri(RDFS.LABEL.getIri()))
+				.from(f->f
+					.setVariable("$this")
+					.setIncludeSubtypes(true)));
+	}
+
+
+
+
+	public static QueryRequest rangeTextSearch(){
+		return new QueryRequest()
+			.setTextSearch("Hyper")
+			.addArgument(new Argument()
+				.setParameter("this")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#404684003"))
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#71388002")))
+			.setQuery(new Query()
+				.setName("Get allowable property values with text filter")
+				.select(s->s.setIri(RDFS.LABEL.getIri()))
+				.from(f->f
+					.setVariable("this")
+					.setIncludeSubtypes(true)));
+	}
+
+	public static QueryRequest substanceTextSearch(){
+		return new QueryRequest()
+			.setTextSearch("thia")
+			.addArgument(new Argument()
+				.setParameter("this")
+				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#421149006")))
+			.setQuery(new Query().setIri(IM.NAMESPACE+"Query_GetIsas")
+				.setName("substances starting with 'thia'"));
+	}
 
 	public static QueryRequest pathDobQuery(){
 		return new QueryRequest()
@@ -49,47 +86,7 @@ public class TestQueries {
 	}
 
 
-	public static QueryRequest allowableChildTypes(){
-		Query query= new Query();
-		query.setName("Allowable child types for editor");
-		query
-			.from(f->f
-				.where(rw->rw
-			.setBool(Bool.and)
-			.where(w->w
-					.setIri(IM.IS_CONTAINED_IN.getIri())
-					.addIn(IM.NAMESPACE+"EntityTypes"))
-			.where(a->a
-					.setIri(SHACL.PROPERTY.getIri())
-				.setBool(Bool.and)
-					.where(w1->w1
-							.setIri(SHACL.CLASS.getIri())
-							.addIn(new TTAlias().setVariable("this")))
-				.where(a2->a2
-							.setIri(SHACL.PATH.getIri())
-						.setIn(List.of(TTAlias.iri(IM.IS_CONTAINED_IN.getIri()).setVariable("predicate")
-								,TTAlias.iri(RDFS.SUBCLASSOF.getIri()),TTAlias.iri(IM.IS_SUBSET_OF.getIri())))))))
-			.select(s->s
-				.setIri(RDFS.LABEL.getIri()))
-			.select(s->s
-				.setIri(SHACL.PROPERTY.getIri())
-				.where(w->w
-					.setBool(Bool.and)
-					.where(a->a
-						.setIri(SHACL.PATH.getIri())
-						.setIn(List.of(TTAlias.iri(IM.IS_CONTAINED_IN.getIri()).setAlias("predicate")
-							,TTAlias.iri(RDFS.SUBCLASSOF.getIri()),TTAlias.iri(IM.IS_SUBSET_OF.getIri()))))
-					.where(a->a
-						.setIri(SHACL.CLASS.getIri())
-						.addIn(new TTAlias().setVariable("this"))))
-				.select(s1->s1
-					.setIri(SHACL.PATH.getIri())));
-		QueryRequest qr= new QueryRequest()
-			.setQuery(query)
-			.addArgument("this",IM.FOLDER);
-		return qr;
 
-	}
 	public static QueryRequest query1() {
 		Query query = new Query()
 			.setName("FamilyHistoryExpansionObjectFormat")
@@ -99,7 +96,7 @@ public class TestQueries {
 			.where(w->w
 				.setIri(IM.HAS_MEMBER.getIri())
 				.setInverse(true)
-				.addIn(new TTAlias().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
+				.addIn(new From().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
 			.select(s->s
 				.setIri(RDFS.LABEL.getIri()))
 			.select(s->s
@@ -175,22 +172,10 @@ public class TestQueries {
 	}
 
 	public static QueryRequest getAllowableRanges() throws JsonProcessingException {
-		QueryRequest qr = new QueryRequest()
-			.setQuery((Query) new Query()
-				.setName("Allowable Ranges for a property")
-				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
-				.setActiveOnly(true)
-				.select(s->s.setIri(IM.CODE.getIri()))
-				.select(s->s.setIri(RDFS.LABEL.getIri()))
-				.from(f -> f
-					.setIri(IM.CONCEPT.getIri())
-					.setSourceType(SourceType.type)
-				.where(w -> w
-					.setIri(RDFS.RANGE.getIri())
-					.setInverse(true)
-					.addIn(new TTAlias().setVariable("$this").setIncludeSupertypes(true).setIncludeSubtypes(true))
-				)));
-		qr.addArgument("this","http://snomed.info/sct#42752001");
+		QueryRequest qr= new QueryRequest().setQuery(new Query().setIri(IM.NAMESPACE+"Query_AllowableRanges")
+			.setName("Allowable ranges"));
+		qr.addArgument(new Argument().setParameter("this")
+			.setValueIri(TTIriRef.iri("http://snomed.info/sct#127489000")));
 		return qr;
 	}
 
@@ -207,9 +192,9 @@ public class TestQueries {
 					.setIncludeSubtypes(true)
 				.where(w->w
 					.setIri(RDFS.DOMAIN.getIri())
-					.addIn(new TTAlias().setVariable("$this").setIncludeSupertypes(true))
+					.addIn(new From().setVariable("$this").setIncludeSupertypes(true))
 				)));
-		qr.addArgument("this",SNOMED.NAMESPACE+"840539006");
+		qr.addArgument(new Argument().setParameter("this").setValueIri(TTIriRef.iri(SNOMED.NAMESPACE+"840539006")));
 		return qr;
 	}
 
@@ -278,7 +263,7 @@ public class TestQueries {
 					.setIri(IM.IS_A.getIri())
 					.where(w1-> w1
 						.setIri(RDFS.DOMAIN.getIri())
-						.addIn(new TTAlias().setIri(SNOMED.NAMESPACE+"674814021000119106").setIncludeSupertypes(true))
+						.addIn(new From().setIri(SNOMED.NAMESPACE+"674814021000119106").setIncludeSupertypes(true))
 					)))
 						.select(s->s.setIri(IM.CODE.getIri()))
 						.select(s->s.setIri(RDFS.LABEL.getIri()));
@@ -325,10 +310,10 @@ public class TestQueries {
 					.where(a1->a1
 						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setIncludeSubtypes(true)
-						.addIn(TTAlias.iri(SNOMED.NAMESPACE+"372665008").setIncludeSubtypes(true)))
+						.addIn(From.iri(SNOMED.NAMESPACE+"372665008").setIncludeSubtypes(true)))
 					.where(a2->a2
 						.setIri(SNOMED.NAMESPACE+"411116001").setIncludeSubtypes(true)
-						.addIn(TTAlias.iri(SNOMED.NAMESPACE+"385268001").setIncludeSubtypes(true))))));
+						.addIn(From.iri(SNOMED.NAMESPACE+"385268001").setIncludeSubtypes(true))))));
 
 		return new QueryRequest().setQuery(query);
 

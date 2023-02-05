@@ -85,6 +85,16 @@ public class TestQueries {
 
 	}
 
+	public static QueryRequest pathToPostCode(){
+		return new QueryRequest()
+			.setPathQuery(new PathQuery()
+				.setName("paths from patient to post code")
+				.setDepth(3)
+				.setSource(IM.NAMESPACE+"Patient")
+				.setTarget("http://endhealth.info/im#postCode"));
+
+	}
+
 
 
 	public static QueryRequest query1() {
@@ -180,21 +190,14 @@ public class TestQueries {
 	}
 
 	public static QueryRequest getAllowableProperties() throws JsonProcessingException {
-		QueryRequest qr= new QueryRequest().query(q->q
+		QueryRequest qr= new QueryRequest().
+			addArgument(new Argument()
+				.setParameter("this")
+				.setValueIri(TTIriRef.iri("http://snomed.info/sct#763158003")))
+			.setQuery(new Query()
 				.setName("Allowable Properties for a concept")
-				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
-				.setActiveOnly(true)
-				.select(s->s.setIri(IM.CODE.getIri()))
-				.select(s->s.setIri(RDFS.LABEL.getIri()))
-				.from(f ->f
-					.setIri(IM.CONCEPT.getIri())
-					.setSourceType(SourceType.type)
-					.setIncludeSubtypes(true)
-				.where(w->w
-					.setIri(RDFS.DOMAIN.getIri())
-					.addIn(new From().setVariable("$this").setIncludeSupertypes(true))
-				)));
-		qr.addArgument(new Argument().setParameter("this").setValueIri(TTIriRef.iri(SNOMED.NAMESPACE+"840539006")));
+				.setIri(IM.NAMESPACE+"Query_AllowableProperties")
+				);
 		return qr;
 	}
 

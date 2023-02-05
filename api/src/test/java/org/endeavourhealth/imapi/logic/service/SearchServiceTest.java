@@ -49,19 +49,25 @@ class SearchServiceTest {
 		testSparql = System.getenv("folder")+"\\Sparql";
 
 
-		for (QueryRequest qr1: List.of(TestQueries.subtypesParameterised(),TestQueries.substanceTextSearch(),
+		for (QueryRequest qr1: List.of(
+			TestQueries.pathToPostCode(),
+			TestQueries.pathToCSA(),
+			TestQueries.pathToAtenolol()
+		,TestQueries.pathDobQuery())){
+			output(qr1);
+		}
+		/*
+		for (QueryRequest qr1:List.of(
+			TestQueries.getAllowableProperties(),
+			TestQueries.subtypesParameterised(),TestQueries.substanceTextSearch(),
 			TestQueries.rangeTextSearch(),TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),
-			TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
+			TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),
+			TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
 
-
-/*
-		for (QueryRequest qr1: List.of(TestQueries.pathToAtenolol(),TestQueries.pathToCSA(),TestQueries.pathDobQuery())) {
-			output(qr1);
-		}
-*/
+		 */
 
 
 	}

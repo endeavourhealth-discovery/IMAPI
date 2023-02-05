@@ -1,6 +1,5 @@
 // Generated from java-escape by ANTLR 4.11.1
 
-package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -96,6 +95,18 @@ public class ECLBaseListener implements ECLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBracketcompoundexpressionconstraint(ECLParser.BracketcompoundexpressionconstraintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBracketcompoundexpressionconstraint(ECLParser.BracketcompoundexpressionconstraintContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -353,6 +364,18 @@ public class ECLBaseListener implements ECLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterCompoundrefinementset(ECLParser.CompoundrefinementsetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCompoundrefinementset(ECLParser.CompoundrefinementsetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterConjunctionrefinementset(ECLParser.ConjunctionrefinementsetContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -377,6 +400,18 @@ public class ECLBaseListener implements ECLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBracketcompoundrefinementset(ECLParser.BracketcompoundrefinementsetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBracketcompoundrefinementset(ECLParser.BracketcompoundrefinementsetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSubrefinement(ECLParser.SubrefinementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -389,13 +424,25 @@ public class ECLBaseListener implements ECLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEclattributeset(ECLParser.EclattributesetContext ctx) { }
+	@Override public void enterBracketsubrefinement(ECLParser.BracketsubrefinementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEclattributeset(ECLParser.EclattributesetContext ctx) { }
+	@Override public void exitBracketsubrefinement(ECLParser.BracketsubrefinementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCompoundattributeset(ECLParser.CompoundattributesetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCompoundattributeset(ECLParser.CompoundattributesetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -420,6 +467,18 @@ public class ECLBaseListener implements ECLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBracketattributeset(ECLParser.BracketattributesetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBracketattributeset(ECLParser.BracketattributesetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -456,6 +515,42 @@ public class ECLBaseListener implements ECLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEclattribute(ECLParser.EclattributeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEclattributestringvalue(ECLParser.EclattributestringvalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEclattributestringvalue(ECLParser.EclattributestringvalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEclattributenumbervalue(ECLParser.EclattributenumbervalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEclattributenumbervalue(ECLParser.EclattributenumbervalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEclattributeexpressionvalue(ECLParser.EclattributeexpressionvalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEclattributeexpressionvalue(ECLParser.EclattributeexpressionvalueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -528,18 +623,6 @@ public class ECLBaseListener implements ECLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReverseflag(ECLParser.ReverseflagContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEclattributename(ECLParser.EclattributenameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEclattributename(ECLParser.EclattributenameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

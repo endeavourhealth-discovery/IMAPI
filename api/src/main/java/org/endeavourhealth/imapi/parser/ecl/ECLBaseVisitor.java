@@ -1,5 +1,4 @@
 // Generated from java-escape by ANTLR 4.11.1
-package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -61,6 +60,13 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitBracketcompoundexpressionconstraint(ECLParser.BracketcompoundexpressionconstraintContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -214,6 +220,13 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitCompoundrefinementset(ECLParser.CompoundrefinementsetContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitConjunctionrefinementset(ECLParser.ConjunctionrefinementsetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -228,6 +241,13 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitBracketcompoundrefinementset(ECLParser.BracketcompoundrefinementsetContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitSubrefinement(ECLParser.SubrefinementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -235,7 +255,14 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEclattributeset(ECLParser.EclattributesetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBracketsubrefinement(ECLParser.BracketsubrefinementContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitCompoundattributeset(ECLParser.CompoundattributesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -250,6 +277,13 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitBracketattributeset(ECLParser.BracketattributesetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -271,6 +305,27 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitEclattribute(ECLParser.EclattributeContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitEclattributestringvalue(ECLParser.EclattributestringvalueContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitEclattributenumbervalue(ECLParser.EclattributenumbervalueContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitEclattributeexpressionvalue(ECLParser.EclattributeexpressionvalueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -313,13 +368,6 @@ public class ECLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements EC
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitReverseflag(ECLParser.ReverseflagContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitEclattributename(ECLParser.EclattributenameContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

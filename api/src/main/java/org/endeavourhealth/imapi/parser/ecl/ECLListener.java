@@ -1,5 +1,4 @@
 // Generated from java-escape by ANTLR 4.11.1
-package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -77,6 +76,16 @@ public interface ECLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ECLParser#bracketcompoundexpressionconstraint}.
+	 * @param ctx the parse tree
+	 */
+	void enterBracketcompoundexpressionconstraint(ECLParser.BracketcompoundexpressionconstraintContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#bracketcompoundexpressionconstraint}.
+	 * @param ctx the parse tree
+	 */
+	void exitBracketcompoundexpressionconstraint(ECLParser.BracketcompoundexpressionconstraintContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ECLParser#dottedexpressionconstraint}.
 	 * @param ctx the parse tree
@@ -288,6 +297,16 @@ public interface ECLListener extends ParseTreeListener {
 	 */
 	void exitEclrefinement(ECLParser.EclrefinementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ECLParser#compoundrefinementset}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompoundrefinementset(ECLParser.CompoundrefinementsetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#compoundrefinementset}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompoundrefinementset(ECLParser.CompoundrefinementsetContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ECLParser#conjunctionrefinementset}.
 	 * @param ctx the parse tree
 	 */
@@ -308,6 +327,16 @@ public interface ECLListener extends ParseTreeListener {
 	 */
 	void exitDisjunctionrefinementset(ECLParser.DisjunctionrefinementsetContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ECLParser#bracketcompoundrefinementset}.
+	 * @param ctx the parse tree
+	 */
+	void enterBracketcompoundrefinementset(ECLParser.BracketcompoundrefinementsetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#bracketcompoundrefinementset}.
+	 * @param ctx the parse tree
+	 */
+	void exitBracketcompoundrefinementset(ECLParser.BracketcompoundrefinementsetContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ECLParser#subrefinement}.
 	 * @param ctx the parse tree
 	 */
@@ -318,15 +347,25 @@ public interface ECLListener extends ParseTreeListener {
 	 */
 	void exitSubrefinement(ECLParser.SubrefinementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ECLParser#eclattributeset}.
+	 * Enter a parse tree produced by {@link ECLParser#bracketsubrefinement}.
 	 * @param ctx the parse tree
 	 */
-	void enterEclattributeset(ECLParser.EclattributesetContext ctx);
+	void enterBracketsubrefinement(ECLParser.BracketsubrefinementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ECLParser#eclattributeset}.
+	 * Exit a parse tree produced by {@link ECLParser#bracketsubrefinement}.
 	 * @param ctx the parse tree
 	 */
-	void exitEclattributeset(ECLParser.EclattributesetContext ctx);
+	void exitBracketsubrefinement(ECLParser.BracketsubrefinementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ECLParser#compoundattributeset}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompoundattributeset(ECLParser.CompoundattributesetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#compoundattributeset}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompoundattributeset(ECLParser.CompoundattributesetContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ECLParser#conjunctionattributeset}.
 	 * @param ctx the parse tree
@@ -347,6 +386,16 @@ public interface ECLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ECLParser#bracketattributeset}.
+	 * @param ctx the parse tree
+	 */
+	void enterBracketattributeset(ECLParser.BracketattributesetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#bracketattributeset}.
+	 * @param ctx the parse tree
+	 */
+	void exitBracketattributeset(ECLParser.BracketattributesetContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ECLParser#subattributeset}.
 	 * @param ctx the parse tree
@@ -377,6 +426,36 @@ public interface ECLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEclattribute(ECLParser.EclattributeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ECLParser#eclattributestringvalue}.
+	 * @param ctx the parse tree
+	 */
+	void enterEclattributestringvalue(ECLParser.EclattributestringvalueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#eclattributestringvalue}.
+	 * @param ctx the parse tree
+	 */
+	void exitEclattributestringvalue(ECLParser.EclattributestringvalueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ECLParser#eclattributenumbervalue}.
+	 * @param ctx the parse tree
+	 */
+	void enterEclattributenumbervalue(ECLParser.EclattributenumbervalueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#eclattributenumbervalue}.
+	 * @param ctx the parse tree
+	 */
+	void exitEclattributenumbervalue(ECLParser.EclattributenumbervalueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ECLParser#eclattributeexpressionvalue}.
+	 * @param ctx the parse tree
+	 */
+	void enterEclattributeexpressionvalue(ECLParser.EclattributeexpressionvalueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ECLParser#eclattributeexpressionvalue}.
+	 * @param ctx the parse tree
+	 */
+	void exitEclattributeexpressionvalue(ECLParser.EclattributeexpressionvalueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ECLParser#cardinality}.
 	 * @param ctx the parse tree
@@ -437,16 +516,6 @@ public interface ECLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReverseflag(ECLParser.ReverseflagContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link ECLParser#eclattributename}.
-	 * @param ctx the parse tree
-	 */
-	void enterEclattributename(ECLParser.EclattributenameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ECLParser#eclattributename}.
-	 * @param ctx the parse tree
-	 */
-	void exitEclattributename(ECLParser.EclattributenameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ECLParser#expressioncomparisonoperator}.
 	 * @param ctx the parse tree

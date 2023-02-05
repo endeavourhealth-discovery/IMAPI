@@ -1,5 +1,4 @@
 // Generated from java-escape by ANTLR 4.11.1
-package org.endeavourhealth.imapi.parser.ecl;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -52,6 +51,12 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExclusionexpressionconstraint(ECLParser.ExclusionexpressionconstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ECLParser#bracketcompoundexpressionconstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBracketcompoundexpressionconstraint(ECLParser.BracketcompoundexpressionconstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ECLParser#dottedexpressionconstraint}.
 	 * @param ctx the parse tree
@@ -179,6 +184,12 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEclrefinement(ECLParser.EclrefinementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ECLParser#compoundrefinementset}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompoundrefinementset(ECLParser.CompoundrefinementsetContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ECLParser#conjunctionrefinementset}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -191,17 +202,29 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDisjunctionrefinementset(ECLParser.DisjunctionrefinementsetContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ECLParser#bracketcompoundrefinementset}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBracketcompoundrefinementset(ECLParser.BracketcompoundrefinementsetContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ECLParser#subrefinement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSubrefinement(ECLParser.SubrefinementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ECLParser#eclattributeset}.
+	 * Visit a parse tree produced by {@link ECLParser#bracketsubrefinement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitEclattributeset(ECLParser.EclattributesetContext ctx);
+	T visitBracketsubrefinement(ECLParser.BracketsubrefinementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ECLParser#compoundattributeset}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompoundattributeset(ECLParser.CompoundattributesetContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ECLParser#conjunctionattributeset}.
 	 * @param ctx the parse tree
@@ -214,6 +237,12 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDisjunctionattributeset(ECLParser.DisjunctionattributesetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ECLParser#bracketattributeset}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBracketattributeset(ECLParser.BracketattributesetContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ECLParser#subattributeset}.
 	 * @param ctx the parse tree
@@ -232,6 +261,24 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEclattribute(ECLParser.EclattributeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ECLParser#eclattributestringvalue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEclattributestringvalue(ECLParser.EclattributestringvalueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ECLParser#eclattributenumbervalue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEclattributenumbervalue(ECLParser.EclattributenumbervalueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ECLParser#eclattributeexpressionvalue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEclattributeexpressionvalue(ECLParser.EclattributeexpressionvalueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ECLParser#cardinality}.
 	 * @param ctx the parse tree
@@ -268,12 +315,6 @@ public interface ECLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitReverseflag(ECLParser.ReverseflagContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ECLParser#eclattributename}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEclattributename(ECLParser.EclattributenameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ECLParser#expressioncomparisonoperator}.
 	 * @param ctx the parse tree

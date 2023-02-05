@@ -1,5 +1,29 @@
 {
   "where" : [ {
+    "id" : "allergyIntoleranceAndAdverseReaction",
+    "name" : "allergy, intolerance or adverse reaction",
+    "where" : [ {
+      "type" : {
+        "name" : "Allergy, intolerance or adverse reaction",
+        "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#246075003",
+          "name" : "Causative agent (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
     "id" : "condition",
     "name" : "condition",
     "where" : [ {
@@ -15,6 +39,198 @@
         "where" : {
           "@id" : "http://snomed.info/sct#246075003",
           "name" : "Causative agent (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#10362801000001104",
+          "name" : "Has specific active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#127489000",
+          "name" : "Has active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#732943007",
+          "name" : "Has basis of strength substance (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#762949000",
+          "name" : "Has precise active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#10362801000001104",
+          "name" : "Has specific active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#127489000",
+          "name" : "Has active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#732943007",
+          "name" : "Has basis of strength substance (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
+    } ]
+  }, {
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
+      "type" : {
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
+      },
+      "id" : "concept",
+      "name" : "concept",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#762949000",
+          "name" : "Has precise active ingredient (attribute)",
           "in" : [ {
             "@id" : "http://snomed.info/sct#387506000",
             "name" : "Atenolol (substance)"
@@ -48,78 +264,6 @@
       } ]
     } ]
   }, {
-    "id" : "allergyIntoleranceAndAdverseReaction",
-    "name" : "allergy, intolerance or adverse reaction",
-    "where" : [ {
-      "type" : {
-        "name" : "Allergy, intolerance or adverse reaction",
-        "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#246075003",
-          "name" : "Causative agent (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "medicationAuthorisation",
-    "name" : "medication authorisation",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication authorisation",
-        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#127489000",
-          "name" : "Has active ingredient (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "prescription",
-    "name" : "medication request / prescription",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication request / Prescription",
-        "@id" : "http://endhealth.info/im#MedicationRequest"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#127489000",
-          "name" : "Has active ingredient (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
     "id" : "procedure",
     "name" : "procedure ",
     "where" : [ {
@@ -135,150 +279,6 @@
         "where" : {
           "@id" : "http://snomed.info/sct#246093002",
           "name" : "Component (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "medicationAuthorisation",
-    "name" : "medication authorisation",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication authorisation",
-        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#10362801000001104",
-          "name" : "Has specific active ingredient (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "prescription",
-    "name" : "medication request / prescription",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication request / Prescription",
-        "@id" : "http://endhealth.info/im#MedicationRequest"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#10362801000001104",
-          "name" : "Has specific active ingredient (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "medicationAuthorisation",
-    "name" : "medication authorisation",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication authorisation",
-        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#732943007",
-          "name" : "Has basis of strength substance (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "prescription",
-    "name" : "medication request / prescription",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication request / Prescription",
-        "@id" : "http://endhealth.info/im#MedicationRequest"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#732943007",
-          "name" : "Has basis of strength substance (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "medicationAuthorisation",
-    "name" : "medication authorisation",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication authorisation",
-        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#762949000",
-          "name" : "Has precise active ingredient (attribute)",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#387506000",
-            "name" : "Atenolol (substance)"
-          } ],
-          "anyRoleGroup" : true
-        }
-      } ]
-    } ]
-  }, {
-    "id" : "prescription",
-    "name" : "medication request / prescription",
-    "where" : [ {
-      "type" : {
-        "name" : "Medication request / Prescription",
-        "@id" : "http://endhealth.info/im#MedicationRequest"
-      },
-      "id" : "concept",
-      "name" : "concept",
-      "in" : [ {
-        "@id" : "http://endhealth.info/im#Concept",
-        "sourceType" : "type",
-        "where" : {
-          "@id" : "http://snomed.info/sct#762949000",
-          "name" : "Has precise active ingredient (attribute)",
           "in" : [ {
             "@id" : "http://snomed.info/sct#387506000",
             "name" : "Atenolol (substance)"
@@ -372,8 +372,8 @@
           "@id" : "http://endhealth.info/im#Concept",
           "sourceType" : "type",
           "where" : {
-            "@id" : "http://snomed.info/sct#127489000",
-            "name" : "Has active ingredient (attribute)",
+            "@id" : "http://snomed.info/sct#10362801000001104",
+            "name" : "Has specific active ingredient (attribute)",
             "in" : [ {
               "@id" : "http://snomed.info/sct#387506000",
               "name" : "Atenolol (substance)"
@@ -404,8 +404,8 @@
           "@id" : "http://endhealth.info/im#Concept",
           "sourceType" : "type",
           "where" : {
-            "@id" : "http://snomed.info/sct#10362801000001104",
-            "name" : "Has specific active ingredient (attribute)",
+            "@id" : "http://snomed.info/sct#127489000",
+            "name" : "Has active ingredient (attribute)",
             "in" : [ {
               "@id" : "http://snomed.info/sct#387506000",
               "name" : "Atenolol (substance)"

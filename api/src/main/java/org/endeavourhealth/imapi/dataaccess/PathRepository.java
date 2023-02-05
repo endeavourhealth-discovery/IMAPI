@@ -145,7 +145,7 @@ public class PathRepository {
 		//First get the shapes
 		StringJoiner sql = new StringJoiner("\n");
 		sql.add(getDefaultPrefixes())
-			.add("select ?entity ?entityName ?property ?propertyName ?conceptProperty ?conceptPropertyName ?targetType ?targetName")
+			.add("select ?entity ?entityName ?property ?propertyName ?conceptProperty ?conceptPropertyName ?targetType ?targetName ?order")
 			.add("where {")
 			.add( targetIri+" rdf:type ?targetType.")
 			.add(targetIri+" rdfs:label ?targetName")
@@ -175,11 +175,13 @@ public class PathRepository {
 			.add("}")
 			.add("union {")
 			.add(targetIri+ " ^sh:path ?prop.")
+			.add("optional {?prop sh:order ?order}")
 			.add("?entity sh:property ?prop.")
 			.add("?entity rdfs:label ?entityName }")
 			.add("}")
-			.add("group by ?entity ?entityName ?property ?propertyName ?conceptProperty"+
-					" ?conceptPropertyName ?targetType ?targetName");
+			.add("group by ?entity ?entityName ?property ?propertyName ?conceptProperty ?order"+
+					" ?conceptPropertyName ?targetType ?targetName")
+			.add("order by ?order");
 		TupleQuery qry = conn.prepareTupleQuery(sql.toString());
 		try (TupleQueryResult rs = qry.evaluate()) {
 			while (rs.hasNext()) {

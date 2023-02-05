@@ -1,16 +1,5 @@
 {
   "where" : [ {
-    "id" : "placeOfResidenceAtEvent",
-    "name" : "place of residence at event",
-    "where" : [ {
-      "type" : {
-        "name" : "Place of residence at event",
-        "@id" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
-      },
-      "id" : "postCode",
-      "name" : "Post Code"
-    } ]
-  }, {
     "id" : "homeAddress",
     "name" : "home address",
     "where" : [ {
@@ -50,6 +39,17 @@
       "type" : {
         "name" : "Address",
         "@id" : "http://endhealth.info/im#Address"
+      },
+      "id" : "postCode",
+      "name" : "Post Code"
+    } ]
+  }, {
+    "id" : "placeOfResidenceAtEvent",
+    "name" : "place of residence at event",
+    "where" : [ {
+      "type" : {
+        "name" : "Place of residence at event",
+        "@id" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
       },
       "id" : "postCode",
       "name" : "Post Code"

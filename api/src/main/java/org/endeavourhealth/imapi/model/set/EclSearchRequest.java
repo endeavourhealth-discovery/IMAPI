@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.model.set;
 
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class EclSearchRequest {
-    private String ecl;
+    private Query eclQuery;
     private boolean includeLegacy;
     private int limit = 1000;
     private Set<TTIriRef> statusFilter = new HashSet<>();
@@ -16,12 +17,12 @@ public class EclSearchRequest {
     private String sortDirection;
     private Set<String> select = new HashSet<>();
 
-    public String getEcl() {
-        return ecl;
+    public Query getEclQuery() {
+        return eclQuery;
     }
 
-    public EclSearchRequest setEcl(String ecl) {
-        this.ecl = ecl;
+    public EclSearchRequest setEclQuery(Query eclQuery) {
+        this.eclQuery = eclQuery;
         return this;
     }
 

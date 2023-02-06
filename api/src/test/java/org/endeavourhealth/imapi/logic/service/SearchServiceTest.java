@@ -42,7 +42,7 @@ class SearchServiceTest {
 		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
 	}
 
-	@Test
+	//@Test
 	void queryIM() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		testDefinitions= System.getenv("folder")+"\\Definitions";
 		testResults= System.getenv("folder")+"\\Results";

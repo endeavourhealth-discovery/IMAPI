@@ -34,20 +34,13 @@ public class EclService {
         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
-    public Query getQueryFromECL(String ecl) throws DataFormatException {
-        Query query = eclToIML.getQueryFromECL(ecl);
-        queryRepository.labelQuery(query);
-        return query;
-    }
-
-    public Set<Concept> evaluateECL(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
-        Query definition = eclToIML.getQueryFromECL(request.getEcl());
-        return setRepository.getSetExpansion(definition, request.isIncludeLegacy(),request.getStatusFilter());
+    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
+        return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter());
     }
 
     public SearchResponse eclSearch(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
         int limit = request.getLimit();
-        Set<Concept> evaluated = evaluateECL(request);
+        Set<Concept> evaluated = evaluateECLQuery(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated
             .stream()
             .limit(limit != 0 ? limit : 1000)
@@ -69,14 +62,5 @@ public class EclService {
 
     public String getECLFromQuery(Query query) throws DataFormatException {
         return IMLToECL.getECLFromQuery(query, true);
-    }
-
-    public boolean validateECL(String ecl) {
-        try {
-            eclToIML.getQueryFromECL(ecl);
-            return true;
-        } catch (Exception _e) {
-            return false;
-        }
     }
 }

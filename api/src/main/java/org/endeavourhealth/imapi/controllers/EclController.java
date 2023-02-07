@@ -35,14 +35,14 @@ public class EclController {
         return eclService.getEcl(inferred);
     }
 
-    @PostMapping(value = "/public/evaluateEcl", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/public/evaluateEclQuery", consumes = "application/json", produces = "application/json")
     @Operation(
         summary = "Evaluate ECL",
         description = "Evaluates an query"
     )
     public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, EclFormatException {
         try {
-            return eclService.evaluateECL(request);
+            return eclService.evaluateECLQuery(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {
             throw new EclFormatException("Invalid ECL format", ex);
         }
@@ -63,15 +63,6 @@ public class EclController {
         }
     }
 
-    @GetMapping(value = "/public/queryFromEcl")
-    @Operation(
-        summary = "Get query from ecl",
-        description = "MapObject ecl to an IM query"
-    )
-    public Query getQueryFromECL(@RequestParam(name = "ecl") String ecl) throws DataFormatException {
-        return eclService.getQueryFromECL(ecl);
-    }
-
     @PostMapping(value = "/public/eclFromQuery")
     @Operation(
         summary = "Get ecl from query",
@@ -79,14 +70,5 @@ public class EclController {
     )
     public String getECLFromQuery(@RequestBody Query query) throws DataFormatException {
         return eclService.getECLFromQuery(query);
-    }
-
-    @GetMapping(value = "/public/validateEcl")
-    @Operation(
-        summary = "Validate ecl",
-        description = "Return validity of ecl string"
-    )
-    public boolean isValidECL(@RequestParam(name = "ecl") String ecl) {
-        return eclService.validateECL(ecl);
     }
 }

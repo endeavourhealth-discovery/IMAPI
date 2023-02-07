@@ -3,9 +3,11 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ public class QueryController {
     private static final Logger LOG = LoggerFactory.getLogger(QueryController.class);
 
     private final SearchService searchService = new SearchService();
+    private final QueryService queryService = new QueryService();
 
     @GetMapping(value = "/public/generateSQL", produces = "text/plain")
     @Operation(
@@ -63,5 +66,12 @@ public class QueryController {
         return searchService.pathQuery(queryRequest);
     }
 
-
+    @PostMapping(value = "/public/labelQuery")
+    @Operation(
+        summary = "Add labels to query",
+        description = "Add names to iri's within a query"
+    )
+    public Query labelQuery(@RequestBody Query query) throws DataFormatException {
+        return queryService.labelQuery(query);
+    }
 }

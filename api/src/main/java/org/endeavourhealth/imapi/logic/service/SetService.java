@@ -21,7 +21,6 @@ import java.util.zip.DataFormatException;
 @Component
 public class SetService {
     private final SetRepository setRepository = new SetRepository();
-    private final ECLToIML eclToIML = new ECLToIML();
     private final QueryRepository queryRepository = new QueryRepository();
 
     public Query setQueryLabels(Query query) {

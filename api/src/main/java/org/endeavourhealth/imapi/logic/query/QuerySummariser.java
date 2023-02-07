@@ -96,7 +96,7 @@ public class QuerySummariser {
 			with.setDescription("latest of "+ with.getDescription());
 		}
 		else if (with.getEarliest()!=null) {
-			with.setDescription("earliest from"+ with.getDescription());
+			with.setDescription("earliest from "+ with.getDescription());
 		}
 	}
 

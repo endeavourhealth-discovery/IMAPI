@@ -19,6 +19,7 @@ public class SparqlConverter {
 	private final Query query;
 	private final QueryRequest queryRequest;
 	private String tabs="";
+	private Set<String> aliases= new HashSet<>();
 	int o=0;
 
 	public SparqlConverter(QueryRequest queryRequest) {
@@ -300,8 +301,17 @@ public class SparqlConverter {
 	 * @param where the where clause
 	 */
 	private void whereProperty(StringBuilder whereQl, String subject,Where where) throws DataFormatException {
-			o++;
-			String object = "o" + o;
+			String object=null;
+		  if (where.getIn()!=null){
+				if (where.getIn().get(0).getAlias()!=null) {
+					object = where.getIn().get(0).getAlias();
+					aliases.add(object);
+				}
+			}
+			if (object==null) {
+				o++;
+				object = "o" + o;
+			}
 			if (where.getIri().equals(IM.IS_A.getIri())) {
 				whereIsa(whereQl, subject, where);
 			}
@@ -450,6 +460,7 @@ public class SparqlConverter {
 	 * @throws DataFormatException if the variable is unresolvable
 	 */
 	public static String resolveReference(String value,QueryRequest queryRequest) throws DataFormatException {
+
 			if (value.equalsIgnoreCase("$referenceDate")) {
 				if (null != queryRequest.getReferenceDate())
 					return queryRequest.getReferenceDate();
@@ -588,7 +599,10 @@ public class SparqlConverter {
 	public String iriFromAlias(TTAlias alias) throws DataFormatException {
 		if (null == alias.getIri()) {
 			if (null != alias.getVariable()) {
-				return iriFromString(resolveReference(alias.getVariable(), queryRequest));
+				if (aliases.contains(alias.getVariable()))
+					return "?"+alias.getVariable();
+				else
+					return iriFromString(resolveReference(alias.getVariable(), queryRequest));
 			}
 			else
 				throw new DataFormatException("Type has no iri or variable");

@@ -9,7 +9,9 @@ public enum Operator {
 	gte(">="),
 	gt(">"),
 	lte("<="),
-	lt(">");
+	lt(">"),
+	start("startsWith"),
+	contains("contains");
 
 		// declaring private variable for getting values
 		private String value;

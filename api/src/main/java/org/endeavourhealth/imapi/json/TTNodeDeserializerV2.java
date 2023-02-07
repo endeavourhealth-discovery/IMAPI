@@ -42,7 +42,9 @@ public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
             String key = expand(field.getKey());
             if (!"@context".equals(key)) {
                 JsonNode value = field.getValue();
-                if (value.isTextual())
+                if ("@id".equals(key))
+                    result.setIri(expand(value.textValue()));
+                else if (value.isTextual())
                     result.set(TTIriRef.iri(key), TTLiteral.literal(value.asText()));
                 else if (value.isArray())
                     result.set(TTIriRef.iri(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTArray.class));

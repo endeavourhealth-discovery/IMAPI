@@ -8,8 +8,9 @@ import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
+import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,36 +33,6 @@ public class SetController {
     private final SetService setService = new SetService();
     private final SetExporter setExporter = new SetExporter();
 
-    @PostMapping(value = "/public/evaluateEcl", consumes = "text/plain", produces = "application/json")
-    @Operation(
-            summary = "Evaluate ECL",
-            description = "Evaluates an query"
-    )
-    public Set<Concept> evaluateEcl(@RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy, @RequestBody String ecl) throws DataFormatException, EclFormatException {
-        try {
-            return setService.evaluateECL(ecl, includeLegacy);
-        } catch (UnknownFormatConversionException | JsonProcessingException ex) {
-            throw new EclFormatException("Invalid ECL format", ex);
-        }
-    }
-
-    @PostMapping(value = "/public/eclSearch", consumes = "text/plain", produces = "application/json")
-    @Operation(
-            summary = "ECL search",
-            description = "Search entities using ECL string"
-    )
-    public SearchResponse eclSearch(
-            @RequestParam(name = "includeLegacy", defaultValue = "false") boolean includeLegacy,
-            @RequestParam(name = "limit", required = false) Integer limit,
-            @RequestBody String ecl
-    ) throws DataFormatException, EclFormatException, JsonProcessingException {
-        try {
-            return setService.eclSearch(includeLegacy, limit, ecl);
-        } catch (UnknownFormatConversionException ex) {
-            throw new EclFormatException("Invalid ECL format", ex);
-        }
-    }
-
     @GetMapping(value = "/publish")
     @Operation(
             summary = "Publish set",
@@ -70,33 +41,6 @@ public class SetController {
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
     public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException {
         setExporter.publishSetToIM1(iri);
-    }
-
-    @GetMapping(value = "/public/ecl/query")
-    @Operation(
-            summary = "Get query from ecl",
-            description = "MapObject ecl to an IM query"
-    )
-    public Query getQueryFromECL(@RequestParam(name = "ecl") String ecl) throws DataFormatException {
-        return setService.getQueryFromECL(ecl);
-    }
-
-    @PostMapping(value = "/public/query/ecl")
-    @Operation(
-            summary = "Get ecl from query",
-            description = "MapObject an IM query to ecl"
-    )
-    public String getECLFromQuery(@RequestBody Query query) throws DataFormatException {
-        return setService.getECLFromQuery(query);
-    }
-
-    @GetMapping(value = "/public/ecl/validity")
-    @Operation(
-            summary = "Validate ecl",
-            description = "Return validity of ecl string"
-    )
-    public boolean isValidECL(@RequestParam(name = "ecl") String ecl) {
-        return setService.validateECL(ecl);
     }
 
     @GetMapping(value = "/public/export")

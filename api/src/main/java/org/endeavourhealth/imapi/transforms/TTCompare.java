@@ -47,24 +47,21 @@ public class TTCompare {
 			return false;
 		if (from != null && from.size()!=to.size())
 			return false;
-		if ((from != null) && (arrayEquals(from, to))) return false;
+		if (from != null) {
+			for (TTValue fromVal:from.getElements()){
+				boolean found=false;
+				for (TTValue toVal:to.getElements()){
+					if (equals(fromVal,toVal))
+						found=true;
+				}
+				if (!found)
+					return false;
+			}
+		}
 		return true;
 	}
 
-    private static boolean arrayEquals(TTArray from, TTArray to) {
-        for (TTValue fromVal: from.getElements()){
-            boolean found=false;
-            for (TTValue toVal: to.getElements()){
-                if (equals(fromVal,toVal))
-                    found=true;
-            }
-            if (!found)
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean equals(TTValue from, TTValue to) {
+	public static boolean equals(TTValue from, TTValue to) {
 		if (from.isIriRef())
 			return from.equals(to);
 		if (from.isLiteral())

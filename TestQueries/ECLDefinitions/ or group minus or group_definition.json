@@ -1,0 +1,31 @@
+{
+  "from" : {
+    "bool" : "and",
+    "from" : [ {
+      "bool" : "or",
+      "from" : [ {
+        "@id" : "http://snomed.info/sct#386725007",
+        "name" : "Body temperature (observable entity)",
+        "includeSubtypes" : true
+      }, {
+        "@id" : "http://snomed.info/sct#431314004",
+        "name" : "Peripheral oxygen saturation (observable entity)",
+        "includeSubtypes" : true
+      } ]
+    }, {
+      "bool" : "not",
+      "from" : [ {
+        "bool" : "or",
+        "from" : [ {
+          "@id" : "http://snomed.info/sct#838441000000103",
+          "name" : "Target body mass index (observable entity)",
+          "includeSubtypes" : true
+        }, {
+          "@id" : "http://snomed.info/sct#838451000000100",
+          "name" : "Target body mass index",
+          "includeSubtypes" : true
+        } ]
+      } ]
+    } ]
+  }
+}

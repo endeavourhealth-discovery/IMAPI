@@ -15,8 +15,7 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
-import org.endeavourhealth.imapi.model.iml.Query;
-import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -25,7 +24,6 @@ import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
 import org.endeavourhealth.imapi.model.set.SetAsObject;
 import org.endeavourhealth.imapi.model.set.SetMember;
-import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.transforms.TTToClassObject;
 import org.endeavourhealth.imapi.transforms.TTToString;
 import org.endeavourhealth.imapi.validators.EntityValidator;
@@ -56,7 +54,6 @@ public class EntityService {
     private EntityRepository entityRepository = new EntityRepository();
     private EntityTctRepository entityTctRepository = new EntityTctRepository();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private SetRepository setRepository = new SetRepository();
     private TermCodeRepository termCodeRepository = new TermCodeRepository();
     private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
     private ConfigManager configManager = new ConfigManager();
@@ -914,11 +911,6 @@ public class EntityService {
         return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
-    public String getEcl(Query inferred) throws DataFormatException, JsonProcessingException {
-        if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
-         else return IMLToECL.getECLFromQuery(inferred,true);
-    }
-
     public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException {
         if (iri == null || "".equals(iri)) {
             return null;
@@ -1175,5 +1167,12 @@ public class EntityService {
         return entityRepository.getPredicates(iri);
     }
 
+    public Boolean isValidProperty(String entity, String property) {
+        return entityRepository.isValidProperty(entity, property);
+    }
+
+    public Boolean isValidPropertyValue(String property, String value) {
+        return entityRepository.isValidPropertyValue(property, value);
+    }
 }
 

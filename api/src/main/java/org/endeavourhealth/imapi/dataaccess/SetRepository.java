@@ -10,14 +10,15 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Query;
-import org.endeavourhealth.imapi.model.iml.QueryRequest;
-import org.endeavourhealth.imapi.model.iml.Select;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.imq.Select;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,52 +43,52 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy) throws JsonProcessingException, DataFormatException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException {
         imQuery
           .select(s->s
-            .property(p->p
-              .setIri(RDFS.LABEL.getIri()).setAlias("term")))
+              .setIri(RDFS.LABEL.getIri()).setAlias("term"))
           .select(s->s
-            .property(p->p
-              .setIri(IM.CODE.getIri()).setAlias("code")))
+              .setIri(IM.CODE.getIri()).setAlias("code"))
           .select(s->s
-            .property(p->p
-              .setIri(IM.HAS_SCHEME.getIri()).setAlias("scheme"))
+           
+              .setIri(IM.HAS_SCHEME.getIri()).setAlias("scheme")
             .select(s2->s2
-              .property(p2->p2
-                .setIri(RDFS.LABEL.getIri()).setAlias("schemeName"))))
+                .setIri(RDFS.LABEL.getIri()).setAlias("schemeName")))
           .select(s->s
-            .property(p->p
-              .setIri(IM.NAMESPACE+"usageTotal").setAlias("use")))
+              .setIri(IM.NAMESPACE+"usageTotal").setAlias("use"))
             .select(s->s
-              .property(p->p
-                .setIri(IM.IM1ID.getIri()).setAlias("im1Id")));
+                .setIri(IM.IM1ID.getIri()).setAlias("im1Id"))
+            .select(s->s
+                    .setIri(IM.HAS_STATUS.getIri()).setAlias("status")
+                .select(s2->s2
+                        .setIri(RDFS.LABEL.getIri()).setAlias("statusName")))
+            .select(s->s
+                    .setIri(RDF.TYPE.getIri()).setAlias("type")
+                .select(s2->s2
+                        .setIri(RDFS.LABEL.getIri()).setAlias("typeName")));
+
         if (includeLegacy) {
             Select legacy= new Select();
               legacy
-                .property(p -> p
-                  .setIri(IM.MATCHED_TO.getIri()).setInverse(true).setAlias("legacy"))
+                  .setIri(IM.MATCHED_TO.getIri())
+                .setInverse(true)
+                .setAlias("legacy")
                 .select(s -> s
-                  .property(p -> p
-                    .setIri(RDFS.LABEL.getIri()).setAlias("legacyTerm")))
+                    .setIri(RDFS.LABEL.getIri()).setAlias("legacyTerm"))
                 .select(s -> s
-                  .property(p -> p
-                    .setIri(IM.CODE.getIri()).setAlias("legacyCode")))
+                    .setIri(IM.CODE.getIri()).setAlias("legacyCode"))
                 .select(s -> s
-                  .property(p -> p
-                    .setIri(IM.HAS_SCHEME.getIri()).setAlias("legacyScheme"))
+                    .setIri(IM.HAS_SCHEME.getIri()).setAlias("legacyScheme")
                   .select(s1->s1
-                    .property(p2->p2
-                      .setIri(RDFS.LABEL.getIri()).setAlias("legacySchemeName"))))
+                      .setIri(RDFS.LABEL.getIri()).setAlias("legacySchemeName")))
                 .select(s->s
-                  .property(p->p
-                    .setIri(IM.NAMESPACE+"usageTotal").setAlias("legacyUse")))
+                    .setIri(IM.NAMESPACE+"usageTotal").setAlias("legacyUse"))
                 .select(s->s
-                  .property(p->p
-                    .setIri(IM.IM1ID.getIri()).setAlias("legacyIm1Id")));
+                 
+                    .setIri(IM.IM1ID.getIri()).setAlias("legacyIm1Id"));
               imQuery.addSelect(legacy);
         }
-        String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql();
+        String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
             return getCoreLegacyCodesForSparql(qry, includeLegacy);
@@ -144,6 +145,10 @@ public class SetRepository {
                     Value scheme = bs.getValue("scheme");
                     Value schemeName = bs.getValue("schemeName");
                     Value use = bs.getValue("use");
+                    Value status = bs.getValue("status");
+                    Value statusName = bs.getValue("statusName");
+                    Value type = bs.getValue("type");
+                    Value typeName = bs.getValue("typeName");
                     cl.setIri(concept);
                     if (name != null)
                         cl.setName(name.stringValue());
@@ -151,7 +156,19 @@ public class SetRepository {
                         cl.setCode(code.stringValue());
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
+                    if (null != status) {
+                        cl.setStatus(iri(status.stringValue(),statusName.stringValue()));
+                    }
+                    if (null != type) {
+                        cl.addType(iri(type.stringValue(),typeName.stringValue()));
+                    }
                     cl.setUsage(use == null ? null : ((Literal) use).intValue());
+                } else {
+                    Value type = bs.getValue("type");
+                    Value typeName = bs.getValue("typeName");
+                    if (null != type) {
+                        cl.addType(iri(type.stringValue(),typeName.stringValue()));
+                    }
                 }
                 Value im1Id = bs.getValue("im1Id");
                 if (im1Id != null)

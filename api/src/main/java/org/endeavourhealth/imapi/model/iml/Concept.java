@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Concept extends Entity{
+public class Concept extends Entity {
 
 	private String code;
 	private Set<String> im1Id;

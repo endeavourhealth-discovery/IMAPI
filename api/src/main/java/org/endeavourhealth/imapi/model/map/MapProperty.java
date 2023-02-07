@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.iml.FunctionClause;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
-import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;

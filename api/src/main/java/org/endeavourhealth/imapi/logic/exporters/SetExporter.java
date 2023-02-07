@@ -15,8 +15,8 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Query;
-import org.endeavourhealth.imapi.model.iml.Where;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
@@ -94,9 +94,13 @@ public class SetExporter {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
                 if (entity.get(IM.DEFINITION)!=null)
                     result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
-                        includeLegacy));
+                        includeLegacy,null));
                 else
-                  result.addAll(setRepository.getSetExpansion(new Query().setWhere(new Where().addFrom(TTAlias.iri(entity.getIri()).setIncludeSubtypes(true))),includeLegacy));
+                  result.addAll(setRepository.getSetExpansion(new Query()
+                      .from(f->f
+                        .setIri(entity.getIri())
+                        .setIncludeSubtypes(true))
+                    ,includeLegacy,null));
             }
         }
 
@@ -113,36 +117,39 @@ public class SetExporter {
 
         for(Concept member : members) {
             if (member.getIm1Id() != null) {
-                addConceptToTSV(setIri, name, im1Ids, results, member);
+                for (String im1Id : member.getIm1Id()) {
+                    if (!im1Ids.contains(im1Id)) {
+                        results.add(
+                          new StringJoiner("\t")
+                            .add(setIri)
+                            .add(name)
+                            .add(im1Id)
+                            .toString());
+                        im1Ids.add(im1Id);
+                    }
+                }
             }
             if (member.getMatchedFrom() != null){
-                addLegacyToTSV(setIri, name, im1Ids, results, member.getMatchedFrom());
+                for (Concept legacy:member.getMatchedFrom()) {
+                    if (legacy.getIm1Id() != null) {
+                        for (String im1Id : legacy.getIm1Id()) {
+                            if (!im1Ids.contains(im1Id)) {
+                                results.add(
+                                  new StringJoiner("\t")
+                                    .add(setIri)
+                                    .add(name)
+                                    .add(im1Id)
+                                    .toString());
+                                im1Ids.add(im1Id);
+                            }
+                        }
+                    }
+                }
             }
         }
         return results;
     }
 
-    private static void addLegacyToTSV(String setIri, String name, Set<String> im1Ids, StringJoiner results, Set<Concept> legacy) {
-        for (Concept member: legacy) {
-            if (member.getIm1Id() != null) {
-                addConceptToTSV(setIri, name, im1Ids, results, member);
-            }
-        }
-    }
-
-    private static void addConceptToTSV(String setIri, String name, Set<String> im1Ids, StringJoiner results, Concept member) {
-        for (String im1Id : member.getIm1Id()) {
-            if (!im1Ids.contains(im1Id)) {
-                results.add(
-                    new StringJoiner("\t")
-                        .add(setIri)
-                        .add(name)
-                        .add(im1Id)
-                        .toString());
-                im1Ids.add(im1Id);
-            }
-        }
-    }
     private void pushToS3(StringJoiner results) {
         LOG.trace("Publishing to S3...");
         String bucket = "im-inbound-dev";

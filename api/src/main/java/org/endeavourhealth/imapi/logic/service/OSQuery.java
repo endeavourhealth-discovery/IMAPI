@@ -12,9 +12,11 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -30,6 +32,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 /**
@@ -377,7 +380,7 @@ public class OSQuery {
      * @throws DataFormatException if content of query definition is invalid
      */
 
-    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    public ObjectNode openSearchQuery(QueryRequest queryRequest) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException, DataFormatException {
         if (queryRequest.getTextSearch() == null)
             return null;
         Query query = queryRequest.getQuery();
@@ -386,15 +389,15 @@ public class OSQuery {
             return null;
         }
 
-        if (query.getWhere() != null && !validateWhere(query.getWhere())) {
-            return null;
-        }
+
 
         if (query.getFrom() != null && !validateFrom(query.getFrom())) {
             return null;
         }
 
         SearchRequest searchRequest = convertIMToOS(queryRequest);
+        if (searchRequest==null)
+            return null;
         List<SearchResultSummary> results = multiPhaseQuery(searchRequest);
         if (results.isEmpty())
             return null;
@@ -405,7 +408,7 @@ public class OSQuery {
 
     private static boolean validateSelects(Query query) {
         for (Select select : query.getSelect()) {
-            if (select.getProperty().getIri() != null && !propIsSupported(select.getProperty().getIri()))
+            if (select.getIri() != null && !propIsSupported(select.getIri()))
                 return false;
             if (select.getSelect() != null)
                 return false;
@@ -413,33 +416,29 @@ public class OSQuery {
         return true;
     }
 
-    private boolean validateFrom(List<TTAlias> fromList) {
-        for (TTAlias from:fromList){
-            if (!from.isType())
-                return false;
-        }
+    private boolean validateFrom(From from) {
+        if (from.getWhere()!=null)
+            return validateWhere(from.getWhere());
+        if (from.getFrom()!=null)
+            for (From subFrom:from.getFrom())
+                if (!validateFrom(subFrom))
+                    return false;
         return true;
     }
 
     private boolean validateWhere(Where where){
-        if (where.getProperty()!=null && !propIsSupported(where.getProperty().getIri())){
+        if (where.getWhere()!=null && !propIsSupported(where.getIri())){
             return false;
         }
-        if (where.getAnd()!=null){
-            for (Where and:where.getAnd())
-                if (!validateWhere(and))
-                    return false;
-        }
-        if (where.getOr()!=null){
-            for (Where or:where.getOr())
-                if (!validateWhere(or))
+        if (where.getWhere()!=null){
+            for (Where subWhere:where.getWhere())
+                if (!validateWhere(subWhere))
                     return false;
         }
         return true;
 
 
     }
-
     private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
             ObjectNode result = om.createObjectNode();
@@ -449,8 +448,10 @@ public class OSQuery {
                 ObjectNode resultNode = om.createObjectNode();
                 resultNodes.add(resultNode);
                 resultNode.put("@id", searchResult.getIri());
+                if (query.getSelect()==null)
+                    query.select(s->s.setIri(RDFS.LABEL.getIri()));
                 for (Select select : query.getSelect()) {
-                    TTAlias prop = select.getProperty();
+                    TTAlias prop = select;
                     if (prop.getIri() != null) {
                         String field = prop.getIri();
                         switch (prop.getIri()) {
@@ -508,7 +509,7 @@ public class OSQuery {
     }
 
 
-    private SearchRequest convertIMToOS(QueryRequest imRequest) {
+    private SearchRequest convertIMToOS(QueryRequest imRequest) throws DataFormatException {
 
         SearchRequest request = new SearchRequest();
         if (imRequest.getPage() != null) {
@@ -517,23 +518,26 @@ public class OSQuery {
         }
         request.setTermFilter(imRequest.getTextSearch());
         Query query = imRequest.getQuery();
+        if (!validateFromList(request, query,imRequest))
+            return null;
         request.addSelect("iri");
         request.addSelect("name");
         if (query.isActiveOnly())
             request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
         processSelects(request, query);
-        if (!validateFromList(request, query)) return null;
+
         return request;
     }
 
     private void processSelects(SearchRequest request, Query query) {
         if (query.getSelect() != null) {
             for (Select select : query.getSelect()) {
-                TTAlias prop = select.getProperty();
+                TTAlias prop = select;
                 if (prop.getIri() != null) {
                     switch (prop.getIri()) {
                         case (RDFS.NAMESPACE + comment):
                             request.addSelect("description");
+
                             break;
                         case (IM.NAMESPACE + "code"):
                             request.addSelect("code");
@@ -557,19 +561,81 @@ public class OSQuery {
         }
     }
 
-    private static boolean validateFromList(SearchRequest request, Query query) {
-        List<TTAlias> fromList = query.getFrom();
-        if (fromList!=null){
-            for (TTAlias from:fromList){
-                if (!from.isType())
+    private static boolean validateFromList(SearchRequest request, Query query,QueryRequest imRequest) throws DataFormatException {
+        From from = query.getFrom();
+        return addFromTypes(request, from,imRequest);
+    }
+
+    private static boolean addFromTypes(SearchRequest request, From from,QueryRequest imRequest) throws DataFormatException {
+        if (from.getSourceType()== SourceType.type){
+                request.addType(from.getIri());
+                if (from.getFrom()!=null)
                     return false;
-                else if (from.getAlias()!=null)
+                if (from.getWhere()!=null)
                     return false;
-                else  request.addType(from.getIri());
-            }
+                return true;
         }
+        else if (from.isIncludeSubtypes()) {
+                return processSubTypes(request, from, imRequest);
+        }
+        else if (from.getIri()!=null)
+                throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (from.sourceType= type, or subtypes from.isIncludeSubtypes(true");
+
+        else if (from.getFrom() != null) {
+            if (from.getBool()!=Bool.or){
+                return false;
+            }
+            for (From subFrom : from.getFrom()) {
+                if (!addFromTypes(request, subFrom, imRequest))
+                    return false;
+            }
+            return true;
+            
+        }
+        return false;
+    }
+
+    private static boolean processSubTypes(SearchRequest request, From from, QueryRequest imRequest) throws DataFormatException {
+        List<String> isas= listFromAlias(request,from,imRequest);
+        if (isas==null)
+            return false;
+        request.setIsA(isas);
         return true;
     }
+
+    private static List<String> listFromAlias(SearchRequest request, From from, QueryRequest queryRequest) throws DataFormatException {
+        if (from.getVariable()!=null){
+            String value= from.getVariable();
+            value = value.replace("$", "");
+            if (null != queryRequest.getArgument()) {
+                for (Argument argument: queryRequest.getArgument()) {
+                    if (argument.getParameter().equals(value)) {
+                        if (null != argument.getValueData())
+                            return null;
+                        else if (null != argument.getValueIri()){
+                            List<String> iriList= new ArrayList<>();
+                            iriList.add(argument.getValueIri().getIri());
+                            return iriList;
+                        }
+                        else if (null!= argument.getValueIriList()){
+                            return
+                              argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
+                        }
+                    }
+                }
+                throw new DataFormatException("Query Variable "+ value+" has not been assigned in the request");
+            }
+            else
+                throw new DataFormatException("Query has a query variable but request has no arguments set");
+        }
+        else {
+            List<String> iriList= new ArrayList<>();
+            iriList.add(from.getIri());
+            return iriList;
+        }
+
+    }
+
 
     private static boolean propIsSupported(String iri) {
         if (iri == null)
@@ -588,6 +654,5 @@ public class OSQuery {
         }
 
     }
-
 
 }

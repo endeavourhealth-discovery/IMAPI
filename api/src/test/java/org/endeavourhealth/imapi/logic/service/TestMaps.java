@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
+import org.endeavourhealth.imapi.model.imq.Bool;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -41,10 +42,9 @@ public class TestMaps {
 						.propertyMap(m1->m1
 							.setSource("value")
 							.where(w->w
-								.setPathTo("system")
-								.value(v->v
+								.setId("system")
 									.setValue("http://fhir.nhs.net/Id/nhs-number")))
-							.setTarget("nhsNumber")))
+							.setTarget("nhsNumber"))
 			.propertyMap(m->m
 				.setSource("name")
 				.propertyMap(m1->m1
@@ -72,9 +72,8 @@ public class TestMaps {
 				.setTarget("homeAddress")
 				.objectMap(m1->m1
 						.where(w->w
-							.setPathTo("use")
-							.value(v->v
-								.setValue("home")))
+							.setId("use")
+								.setValue("home"))))
 					.setTargetType(IM.NAMESPACE+"Address")
 					.propertyMap(m2->m2
 						.setSource("line")
@@ -85,36 +84,33 @@ public class TestMaps {
 					.propertyMap(m2->m2
 						.setSource("city")
 						.setTarget("addressLine")
-						.setTargetUpdateMode(TargetUpdateMode.ADDTOLIST))))
+						.setTargetUpdateMode(TargetUpdateMode.ADDTOLIST))
 			.propertyMap(m->m
 				.setSource("telecom")
 				.propertyMap(m1->m1
 						.setSource("value")
 						.where(w->w
-							.and(w1->w1
-								.setPathTo("system")
-								.value(v->v
-										.setValue("phone")
-									))
-							.and(w1->w1
-								.setPathTo("use")
-								.value(v->v
-									.setValue("mobile"))))
+							.setBool(Bool.and)
+							.where(w1->w1
+								.setId("system")
+										.setValue("phone"))
+							.where(w1->w1
+								.setId("use")
+									.setValue("mobile")))
 						.setTarget("mobileTelephoneNumber")))
 			.propertyMap(m->m
 				.setSource("telecom")
 				.propertyMap(m1->m1
 					.setSource("value"))
 					.where(w->w
-						.and(w1->w1
-							.setPathTo("system")
-							.value(v->v
+						.setBool(Bool.and)
+						.where(w1->w1
+							.setId("system")
 								.setValue("phone")
-							))
-						.and(w1->w1
-							.setPathTo("use")
-							.value(v->v
-								.setValue("home"))))
+							)
+						.where(w1->w1
+							.setId("use")
+								.setValue("home")))
 					.setTarget("homeTelephoneNumber"))
 			.propertyMap(m->m
 				.setSource("birthDate")

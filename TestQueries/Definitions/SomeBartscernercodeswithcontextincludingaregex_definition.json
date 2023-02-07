@@ -1,53 +1,33 @@
 {
   "query" : {
     "name" : "Some Barts cerner codes with context including a regex",
-    "where" : {
-      "property" : {
-        "@id" : "http://endhealth.info/im#sourceContext"
-      },
+    "from" : {
       "where" : {
-        "property" : {
+        "@id" : "http://endhealth.info/im#sourceContext",
+        "where" : [ {
           "@id" : "http://endhealth.info/im#sourceRegex"
-        }
+        } ]
       }
     },
     "select" : [ {
-      "property" : {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-      }
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     }, {
-      "property" : {
-        "@id" : "http://endhealth.info/im#code"
-      }
+      "@id" : "http://endhealth.info/im#code"
     }, {
-      "property" : {
-        "@id" : "http://endhealth.info/im#sourceContext"
-      },
       "select" : [ {
-        "property" : {
-          "@id" : "http://endhealth.info/im#sourceCodeScheme"
-        }
+        "@id" : "http://endhealth.info/im#sourceCodeScheme"
       }, {
-        "property" : {
-          "@id" : "http://endhealth.info/im#sourceHeading"
-        }
+        "@id" : "http://endhealth.info/im#sourceHeading"
       }, {
-        "property" : {
-          "@id" : "http://endhealth.info/im#sourceSystem"
-        }
+        "@id" : "http://endhealth.info/im#sourceSystem"
       }, {
-        "property" : {
-          "@id" : "http://endhealth.info/im#sourceTable"
-        }
+        "@id" : "http://endhealth.info/im#sourceTable"
       }, {
-        "property" : {
-          "@id" : "http://endhealth.info/im#sourceField"
-        }
+        "@id" : "http://endhealth.info/im#sourceField"
       }, {
-        "property" : {
-          "@id" : "http://endhealth.info/im#sourceSchema"
-        }
-      } ]
+        "@id" : "http://endhealth.info/im#sourceSchema"
+      } ],
+      "@id" : "http://endhealth.info/im#sourceContext"
     } ],
     "usePrefixes" : true
   }

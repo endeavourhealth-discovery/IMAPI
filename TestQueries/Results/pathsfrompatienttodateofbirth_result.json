@@ -1,139 +1,63 @@
 {
-  "source" : {
-    "@id" : "http://endhealth.info/im#Patient"
-  },
-  "paths" : [ {
-    "items" : [ {
-      "name" : "is subject of",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Demographic details",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#Demographics"
-    } ]
+  "where" : [ {
+    "id" : "dateOfBirth",
+    "name" : "date of birth"
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "gpCurrentRegistration",
+    "name" : "gp current registration",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "GP Current registration",
+        "@id" : "http://endhealth.info/im#GPCurrentRegistration"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "GP Current registration",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#GPCurrentRegistration"
-    }, {
+      "id" : "usualGP",
       "name" : "usual GP",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#usualGP"
-    }, {
-      "name" : "Practitioner in role",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#PractitionerInRole"
+      "where" : [ {
+        "type" : {
+          "name" : "Practitioner in role",
+          "@id" : "http://endhealth.info/im#PractitionerInRole"
+        },
+        "id" : "dateOfBirth",
+        "name" : "date of birth"
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "appointmentSession",
+    "name" : "appointment session",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Appointment session",
+        "@id" : "http://endhealth.info/im#AppointmentSession"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Appointment session",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#AppointmentSession"
-    }, {
+      "id" : "hasPractitioner",
       "name" : "practitioner",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#hasPractitioner"
-    }, {
-      "name" : "Practitioner in role",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#PractitionerInRole"
+      "where" : [ {
+        "type" : {
+          "name" : "Practitioner in role",
+          "@id" : "http://endhealth.info/im#PractitionerInRole"
+        },
+        "id" : "dateOfBirth",
+        "name" : "date of birth"
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "gPRegistration",
+    "name" : "gp registration episode",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "GP Registration Episode",
+        "@id" : "http://endhealth.info/im#GPRegistration"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "GP Registration Episode",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#GPRegistration"
-    }, {
+      "id" : "usualGP",
       "name" : "usual GP",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#usualGP"
-    }, {
-      "name" : "Practitioner in role",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#PractitionerInRole"
+      "where" : [ {
+        "type" : {
+          "name" : "Practitioner in role",
+          "@id" : "http://endhealth.info/im#PractitionerInRole"
+        },
+        "id" : "dateOfBirth",
+        "name" : "date of birth"
+      } ]
     } ]
-  }, {
-    "items" : [ {
-      "name" : "is subject of",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "GP Registration administration status history",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#GPAdminRegistrationStatus"
-    }, {
-      "name" : "gp registration",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#gpRegistration"
-    }, {
-      "name" : "GP Registration Episode",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#GPRegistration"
-    }, {
-      "name" : "usual GP",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#usualGP"
-    }, {
-      "name" : "Practitioner in role",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#PractitionerInRole"
-    } ]
-  } ],
-  "target" : {
-    "@id" : "http://endhealth.info/im#dateOfBirth"
-  }
+  } ]
 }

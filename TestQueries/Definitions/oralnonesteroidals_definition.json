@@ -1,39 +1,34 @@
 {
   "query" : {
     "name" : "oral none steroidals",
-    "where" : {
-      "and" : [ {
-        "from" : [ {
-          "@id" : "http://snomed.info/sct#763158003",
-          "includeSubtypes" : true
-        } ]
-      }, {
-        "pathTo" : "http://endhealth.info/im#roleGroup",
-        "and" : [ {
-          "property" : {
+    "from" : {
+      "bool" : "and",
+      "from" : [ {
+        "@id" : "http://snomed.info/sct#763158003",
+        "includeSubtypes" : true,
+        "where" : {
+          "@id" : "http://endhealth.info/im#roleGroup",
+          "bool" : "and",
+          "where" : [ {
             "@id" : "http://snomed.info/sct#127489000",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#372665008",
+              "includeSubtypes" : true
+            } ],
             "includeSubtypes" : true
-          },
-          "is" : {
-            "@id" : "http://snomed.info/sct#372665008",
-            "includeSubtypes" : true
-          }
-        }, {
-          "property" : {
+          }, {
             "@id" : "http://snomed.info/sct#411116001",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#385268001",
+              "includeSubtypes" : true
+            } ],
             "includeSubtypes" : true
-          },
-          "is" : {
-            "@id" : "http://snomed.info/sct#385268001",
-            "includeSubtypes" : true
-          }
-        } ]
+          } ]
+        }
       } ]
     },
     "select" : [ {
-      "property" : {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-      }
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     } ],
     "usePrefixes" : true
   }

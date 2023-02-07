@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Query;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -40,7 +40,7 @@ public class SetExpander {
 			//get the definition
 			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
-			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false);
+			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null);
 
 			updateMembers(iri,members);
 
@@ -56,7 +56,7 @@ public class SetExpander {
 		//get the expansion.
 
 		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
-			.objectValue(Query.class),false);
+			.objectValue(Query.class),false,null);
 		updateMembers(iri,members);
 
 	}

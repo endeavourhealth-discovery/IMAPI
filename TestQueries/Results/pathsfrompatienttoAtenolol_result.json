@@ -1,537 +1,483 @@
 {
-  "source" : {
-    "@id" : "http://endhealth.info/im#Patient"
-  },
-  "paths" : [ {
-    "items" : [ {
-      "name" : "is subject of",
+  "where" : [ {
+    "id" : "allergyIntoleranceAndAdverseReaction",
+    "name" : "allergy, intolerance or adverse reaction",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Allergy, intolerance or adverse reaction",
+        "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Condition",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#Condition"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Causative agent (attribute)",
-      "@id" : "http://snomed.info/sct#246075003"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#246075003",
+          "name" : "Causative agent (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "condition",
+    "name" : "condition",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Condition",
+        "@id" : "http://endhealth.info/im#Condition"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Observation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#Observation"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Causative agent (attribute)",
-      "@id" : "http://snomed.info/sct#246075003"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#246075003",
+          "name" : "Causative agent (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Numeric measurement",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#NumericMeasure"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Causative agent (attribute)",
-      "@id" : "http://snomed.info/sct#246075003"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#10362801000001104",
+          "name" : "Has specific active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Allergy, intolerance or adverse reaction",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Causative agent (attribute)",
-      "@id" : "http://snomed.info/sct#246075003"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#127489000",
+          "name" : "Has active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#127489000"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#732943007",
+          "name" : "Has basis of strength substance (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "medicationAuthorisation",
+    "name" : "medication authorisation",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication authorisation",
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has specific active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#10362801000001104"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#762949000",
+          "name" : "Has precise active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has basis of strength substance (attribute)",
-      "@id" : "http://snomed.info/sct#732943007"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#10362801000001104",
+          "name" : "Has specific active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has precise active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#762949000"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#127489000",
+          "name" : "Has active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#127489000"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#732943007",
+          "name" : "Has basis of strength substance (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has specific active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#10362801000001104"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#762949000",
+          "name" : "Has precise active ingredient (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "observation",
+    "name" : "observation",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Observation",
+        "@id" : "http://endhealth.info/im#Observation"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has basis of strength substance (attribute)",
-      "@id" : "http://snomed.info/sct#732943007"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#246075003",
+          "name" : "Causative agent (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "procedure",
+    "name" : "procedure ",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Procedure ",
+        "@id" : "http://endhealth.info/im#Procedure"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "concept",
       "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has precise active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#762949000"
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#Concept",
+        "sourceType" : "type",
+        "where" : {
+          "@id" : "http://snomed.info/sct#246093002",
+          "name" : "Component (attribute)",
+          "in" : [ {
+            "@id" : "http://snomed.info/sct#387506000",
+            "name" : "Atenolol (substance)"
+          } ],
+          "anyRoleGroup" : true
+        }
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "condition",
+    "name" : "condition",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Condition",
+        "@id" : "http://endhealth.info/im#Condition"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Procedure ",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#Procedure"
-    }, {
-      "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Component (attribute)",
-      "@id" : "http://snomed.info/sct#246093002"
+      "id" : "parent",
+      "name" : "parent",
+      "where" : [ {
+        "type" : {
+          "name" : "Condition",
+          "@id" : "http://endhealth.info/im#Condition"
+        },
+        "id" : "concept",
+        "name" : "concept",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#Concept",
+          "sourceType" : "type",
+          "where" : {
+            "@id" : "http://snomed.info/sct#246075003",
+            "name" : "Causative agent (attribute)",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#387506000",
+              "name" : "Atenolol (substance)"
+            } ],
+            "anyRoleGroup" : true
+          }
+        } ]
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "procedure",
+    "name" : "procedure ",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Procedure ",
+        "@id" : "http://endhealth.info/im#Procedure"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Procedure ",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#Procedure"
-    }, {
+      "id" : "linkedProblems",
       "name" : "linked problems",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#linkedProblems"
-    }, {
-      "name" : "Condition",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#Condition"
-    }, {
-      "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Causative agent (attribute)",
-      "@id" : "http://snomed.info/sct#246075003"
+      "where" : [ {
+        "type" : {
+          "name" : "Condition",
+          "@id" : "http://endhealth.info/im#Condition"
+        },
+        "id" : "concept",
+        "name" : "concept",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#Concept",
+          "sourceType" : "type",
+          "where" : {
+            "@id" : "http://snomed.info/sct#246075003",
+            "name" : "Causative agent (attribute)",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#387506000",
+              "name" : "Atenolol (substance)"
+            } ],
+            "anyRoleGroup" : true
+          }
+        } ]
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "authorisation",
       "name" : "authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#authorisation"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
-      "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#127489000"
+      "where" : [ {
+        "type" : {
+          "name" : "Medication authorisation",
+          "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+        },
+        "id" : "concept",
+        "name" : "concept",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#Concept",
+          "sourceType" : "type",
+          "where" : {
+            "@id" : "http://snomed.info/sct#10362801000001104",
+            "name" : "Has specific active ingredient (attribute)",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#387506000",
+              "name" : "Atenolol (substance)"
+            } ],
+            "anyRoleGroup" : true
+          }
+        } ]
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "authorisation",
       "name" : "authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#authorisation"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
-      "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has specific active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#10362801000001104"
+      "where" : [ {
+        "type" : {
+          "name" : "Medication authorisation",
+          "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+        },
+        "id" : "concept",
+        "name" : "concept",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#Concept",
+          "sourceType" : "type",
+          "where" : {
+            "@id" : "http://snomed.info/sct#127489000",
+            "name" : "Has active ingredient (attribute)",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#387506000",
+              "name" : "Atenolol (substance)"
+            } ],
+            "anyRoleGroup" : true
+          }
+        } ]
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "authorisation",
       "name" : "authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#authorisation"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
-      "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has basis of strength substance (attribute)",
-      "@id" : "http://snomed.info/sct#732943007"
+      "where" : [ {
+        "type" : {
+          "name" : "Medication authorisation",
+          "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+        },
+        "id" : "concept",
+        "name" : "concept",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#Concept",
+          "sourceType" : "type",
+          "where" : {
+            "@id" : "http://snomed.info/sct#732943007",
+            "name" : "Has basis of strength substance (attribute)",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#387506000",
+              "name" : "Atenolol (substance)"
+            } ],
+            "anyRoleGroup" : true
+          }
+        } ]
+      } ]
     } ]
   }, {
-    "items" : [ {
-      "name" : "is subject of",
+    "id" : "prescription",
+    "name" : "medication request / prescription",
+    "where" : [ {
       "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+        "name" : "Medication request / Prescription",
+        "@id" : "http://endhealth.info/im#MedicationRequest"
       },
-      "@id" : "http://endhealth.info/im#isSubjectOf"
-    }, {
-      "name" : "Medication request / Prescription",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationRequest"
-    }, {
+      "id" : "authorisation",
       "name" : "authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
-      },
-      "@id" : "http://endhealth.info/im#authorisation"
-    }, {
-      "name" : "Medication authorisation",
-      "type" : {
-        "@id" : "http://www.w3.org/ns/shacl#NodeShape"
-      },
-      "@id" : "http://endhealth.info/im#MedicationAuthorisation"
-    }, {
-      "name" : "concept",
-      "@id" : "http://endhealth.info/im#concept"
-    }, {
-      "name" : "Concept",
-      "type" : {
-        "@id" : "http://endhealth.info/im#Concept"
-      },
-      "@id" : "http://endhealth.info/im#Concept"
-    }, {
-      "name" : "Has precise active ingredient (attribute)",
-      "@id" : "http://snomed.info/sct#762949000"
+      "where" : [ {
+        "type" : {
+          "name" : "Medication authorisation",
+          "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+        },
+        "id" : "concept",
+        "name" : "concept",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#Concept",
+          "sourceType" : "type",
+          "where" : {
+            "@id" : "http://snomed.info/sct#762949000",
+            "name" : "Has precise active ingredient (attribute)",
+            "in" : [ {
+              "@id" : "http://snomed.info/sct#387506000",
+              "name" : "Atenolol (substance)"
+            } ],
+            "anyRoleGroup" : true
+          }
+        } ]
+      } ]
     } ]
-  } ],
-  "target" : {
-    "@id" : "http://snomed.info/sct#387506000"
-  }
+  } ]
 }

@@ -7,11 +7,10 @@ PREFIX sh: <http://www.w3.org/ns/shacl#>
 
 SELECT distinct ?entity  ?p2 ?p3 ?p4 ?p5 ?p6
 WHERE {?entity ^<http://endhealth.info/im#hasMember> ?o1.
-Filter (?o1=<http://endhealth.info/im#VSET_FamilyHistory>)
+Filter (?o1 in (<http://endhealth.info/im#VSET_FamilyHistory>))
  OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p2.}
  OPTIONAL { ?entity <http://endhealth.info/im#code> ?p3.}
- OPTIONAL { ?entity ^<http://endhealth.info/im#matchedTo> ?p4.
- OPTIONAL { ?p4 <http://www.w3.org/2000/01/rdf-schema#label> ?p5.}
- OPTIONAL { ?p4 <http://endhealth.info/im#code> ?p6.}
-}
+ OPTIONAL { ?entity ^<http://endhealth.info/im#matchedTo> ?p4.}
+ OPTIONAL { ?entity <http://www.w3.org/2000/01/rdf-schema#label> ?p5.}
+ OPTIONAL { ?entity <http://endhealth.info/im#code> ?p6.}
 }

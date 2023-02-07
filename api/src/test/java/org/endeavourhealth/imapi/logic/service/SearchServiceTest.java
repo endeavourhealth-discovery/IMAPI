@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -50,6 +51,7 @@ class SearchServiceTest {
 
 
 		for (QueryRequest qr1: List.of(
+			TestQueries.getAllowableSubtypes(),
 			TestQueries.pathToPostCode(),
 			TestQueries.pathToCSA(),
 			TestQueries.pathToAtenolol()
@@ -75,6 +77,11 @@ class SearchServiceTest {
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		String name;
+		if (dataSet.getQuery()!=null){
+			if (dataSet.getQuery().getFrom()!=null){
+				new QuerySummariser(dataSet.getQuery()).summarise(true);
+			}
+		}
 		if (dataSet.getPathQuery()!=null)
 			name= dataSet.getPathQuery().getName();
 		else

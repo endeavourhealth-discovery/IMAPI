@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"alias","path","property","bool","case","aggregate",
-	"select","where","orderBy","direction","limit","groupBy","having"})
+@JsonPropertyOrder({"id","iri","@id","alias","case","aggregate",
+	"where","orderBy","direction","limit","groupBy","having","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select extends TTAlias{
 	private Where where;

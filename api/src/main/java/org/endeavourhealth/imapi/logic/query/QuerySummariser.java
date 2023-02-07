@@ -30,6 +30,7 @@ public class QuerySummariser {
 	}
 
 	public String summariseAlias(TTAlias iri){
+
 		if (iri.getName()!=null) {
 			return iri.getName();
 		}
@@ -39,6 +40,8 @@ public class QuerySummariser {
 		else if (iri.getIri()!=null)
 				return localName(iri.getIri());
 		else
+			if (iri.getVariable()!=null)
+				return " {"+ iri.getVariable()+"} ";
 			return "";
 	}
 
@@ -61,13 +64,14 @@ public class QuerySummariser {
 			summariseWith(match.getWith());
 		}
 		if (match.getWhere() != null) {
+			summariseWhereProperty(summary,match);
 				for (Where subWhere : match.getWhere()) {
 					summariseWhere(subWhere);
 				}
 			}
 
 		if (match.getWhere()==null)
-		summariseWhereProperty(summary,match);
+		   summariseWhereProperty(summary,match);
 
 
 	}
@@ -104,35 +108,40 @@ public class QuerySummariser {
 		if (!override)
 			if (where.getDescription() != null)
 				return;
-		if (where.getId()!=null&&where.getIn()==null&&where.getNotIn()==null){
+		if (where.getId()!=null||where.getIri()!=null) {
 				summary.append(summariseAlias(where));
 		}
 
 		if (where.getIn() != null) {
 			int i = 0;
-			for (TTIriRef in : where.getIn()) {
+			summary.append(" is : ");
+			for (From in : where.getIn()) {
 				i++;
 				if (i == 1) {
-					if (in.getName() != null)
-						summary.append(" ").append(in.getName());
+
+					summary.append(summariseAlias(in));
 				}
-				if (i == 2)
-					summary.append(" (and more) ");
+				else
+					summary.append(", ");
+				if (i > 3)
+					summary.append(" .. ");
 			}
 		}
 		else if (where.getNotIn()!=null){
 			summary.append(" not in");
 			int i = 0;
-			for (TTIriRef in : where.getNotIn()) {
+			for (From in : where.getNotIn()) {
 				i++;
 				if (i == 1) {
-					if (in.getName() != null)
-						summary.append(" "). append(in.getName());
+						summary.append(summariseAlias(in));
 				}
-				if (i == 2)
-					summary.append(" (and more) ");
+				else
+					summary.append(", ");
+				if (i > 3)
+					summary.append(" ...");
 			}
-		}if (where.getBool() == Bool.not)
+		}
+		if (where.getBool() == Bool.not)
 			summary.append("not = ");
 
 		if (where.getRange() != null) {

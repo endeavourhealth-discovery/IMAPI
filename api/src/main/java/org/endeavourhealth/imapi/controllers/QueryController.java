@@ -69,11 +69,9 @@ public class QueryController {
     @PostMapping(value = "/public/labelQuery")
     @Operation(
         summary = "Add labels to query",
-        description = "Find iris and add names within a query"
+        description = "Add names to iri's within a query"
     )
     public Query labelQuery(@RequestBody Query query) throws DataFormatException {
         return queryService.labelQuery(query);
     }
-
-
 }

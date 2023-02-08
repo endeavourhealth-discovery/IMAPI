@@ -48,10 +48,12 @@ public class FilerController {
 
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public void fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
+    public ResponseEntity fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
         LOG.debug("fileDocument");
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileDocument(document, agentName);
+        filerService.fileTransactionDocument(document, agentName);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("file/entity")

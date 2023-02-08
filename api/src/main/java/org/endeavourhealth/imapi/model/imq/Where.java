@@ -5,16 +5,18 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"notExist","id","iri","name","alias","description","sourceType","entity","set","bool","with","where","range"
+@JsonPropertyOrder({"notExist","description","type","id","iri","name","alias","bool","with","where","range"
 	,"operator","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
+	private TTIriRef type;
 	private Range range;
 	private List<From> in;
 	private List<From> notIn;
@@ -28,10 +30,16 @@ public class Where extends TTAlias implements Assignable{
 	private String unit;
 	private boolean anyRoleGroup;
 
-	public Where setSourceType(SourceType type){
-		super.setSourceType(type);
+	public TTIriRef getType() {
+		return type;
+	}
+
+	public Where setType(TTIriRef type) {
+		this.type = type;
 		return this;
 	}
+
+
 
 	public List<From> getNotIn() {
 		return notIn;

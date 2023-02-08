@@ -29,13 +29,13 @@ public class EclService {
         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
-    public Set<Concept> evaluateECL(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
+    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
         return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter());
     }
 
     public SearchResponse eclSearch(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
         int limit = request.getLimit();
-        Set<Concept> evaluated = evaluateECL(request);
+        Set<Concept> evaluated = evaluateECLQuery(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated
             .stream()
             .limit(limit != 0 ? limit : 1000)

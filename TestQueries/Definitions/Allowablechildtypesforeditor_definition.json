@@ -1,0 +1,61 @@
+{
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "@id" : "http://endhealth.info/im#Folder"
+    }
+  } ],
+  "query" : {
+    "name" : "Allowable child types for editor",
+    "from" : {
+      "where" : {
+        "bool" : "and",
+        "where" : [ {
+          "description" : "isContainedIn is : EntityTypes",
+          "@id" : "http://endhealth.info/im#isContainedIn",
+          "in" : [ {
+            "@id" : "http://endhealth.info/im#EntityTypes"
+          } ]
+        }, {
+          "description" : "property",
+          "@id" : "http://www.w3.org/ns/shacl#property",
+          "where" : [ {
+            "bool" : "and",
+            "where" : [ {
+              "description" : "node is :  {this} ",
+              "@id" : "http://www.w3.org/ns/shacl#node",
+              "in" : [ {
+                "variable" : "this"
+              } ]
+            }, {
+              "description" : "path is : isContainedIn, , ",
+              "@id" : "http://www.w3.org/ns/shacl#path",
+              "in" : [ {
+                "@id" : "http://endhealth.info/im#isContainedIn",
+                "alias" : "predicate"
+              }, {
+                "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+              }, {
+                "@id" : "http://endhealth.info/im#isSubsetOf"
+              } ]
+            } ]
+          } ]
+        } ]
+      }
+    },
+    "select" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "@id" : "http://www.w3.org/ns/shacl#property",
+      "where" : {
+        "@id" : "http://www.w3.org/ns/shacl#path",
+        "in" : [ {
+          "variable" : "predicate"
+        } ]
+      },
+      "select" : [ {
+        "@id" : "http://www.w3.org/ns/shacl#path"
+      } ]
+    } ]
+  }
+}

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
@@ -49,19 +50,26 @@ class SearchServiceTest {
 		testSparql = System.getenv("folder")+"\\Sparql";
 
 
-		for (QueryRequest qr1: List.of(TestQueries.subtypesParameterised(),TestQueries.substanceTextSearch(),
+		for (QueryRequest qr1: List.of(
+			TestQueries.getAllowableSubtypes(),
+			TestQueries.pathToPostCode(),
+			TestQueries.pathToCSA(),
+			TestQueries.pathToAtenolol()
+		,TestQueries.pathDobQuery())){
+			output(qr1);
+		}
+		/*
+		for (QueryRequest qr1:List.of(
+			TestQueries.getAllowableProperties(),
+			TestQueries.subtypesParameterised(),TestQueries.substanceTextSearch(),
 			TestQueries.rangeTextSearch(),TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),
-			TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),TestQueries.oralNsaids(),TestQueries.getAllowableRanges(),TestQueries.getAllowableProperties(),TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
+			TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),
+			TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
 
-
-/*
-		for (QueryRequest qr1: List.of(TestQueries.pathToAtenolol(),TestQueries.pathToCSA(),TestQueries.pathDobQuery())) {
-			output(qr1);
-		}
-*/
+		 */
 
 
 	}
@@ -69,6 +77,11 @@ class SearchServiceTest {
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		String name;
+		if (dataSet.getQuery()!=null){
+			if (dataSet.getQuery().getFrom()!=null){
+				new QuerySummariser(dataSet.getQuery()).summarise(true);
+			}
+		}
 		if (dataSet.getPathQuery()!=null)
 			name= dataSet.getPathQuery().getName();
 		else

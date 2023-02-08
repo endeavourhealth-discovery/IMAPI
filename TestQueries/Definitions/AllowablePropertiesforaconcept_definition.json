@@ -2,29 +2,11 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
-      "@id" : "http://snomed.info/sct#840539006"
+      "@id" : "http://snomed.info/sct#763158003"
     }
   } ],
   "query" : {
-    "name" : "Allowable Properties for a concept",
-    "description" : "'using property domains get the allowable properties from the supertypes of this concept",
-    "from" : {
-      "@id" : "http://endhealth.info/im#Concept",
-      "includeSubtypes" : true,
-      "sourceType" : "type",
-      "where" : {
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain",
-        "in" : [ {
-          "includeSupertypes" : true,
-          "variable" : "$this"
-        } ]
-      }
-    },
-    "select" : [ {
-      "@id" : "http://endhealth.info/im#code"
-    }, {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    } ],
-    "activeOnly" : true
+    "@id" : "http://endhealth.info/im#Query_AllowableProperties",
+    "name" : "Allowable Properties for a concept"
   }
 }

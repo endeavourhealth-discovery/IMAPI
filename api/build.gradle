@@ -49,6 +49,7 @@ dependencies {
     implementation libs.elasticsearch
     implementation libs.jerseyClient
     implementation libs.owlApi
+    implementation libs.openLlet
     implementation libs.reactorCore
     implementation libs.rdf4jCommon
     implementation libs.rdf4jQuery

@@ -8,7 +8,52 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.zip.DataFormatException;
+
 public class TestQueries {
+
+
+	public static QueryRequest getAllowableSubtypes() throws IOException {
+		QueryRequest qr= new QueryRequest();
+		qr.addArgument(new Argument()
+			.setParameter("this")
+			.setValueIri(IM.FOLDER));
+
+		Query query= new Query();
+		query.setName("Allowable child types for editor");
+		query
+			.from(f->f
+				.where(w->w
+					.setBool(Bool.and)
+					.where(w1->w1.setIri(IM.IS_CONTAINED_IN.getIri())
+						.addIn(IM.NAMESPACE+"EntityTypes"))
+					.where(w1->w1.setIri(SHACL.PROPERTY.getIri())
+						.where(w2->w2
+							.setBool(Bool.and)
+							.where(a2->a2
+								.setIri(SHACL.NODE.getIri())
+								.addIn(new From().setVariable("this")))
+							.where(a2->a2
+								.setIri(SHACL.PATH.getIri())
+								.setIn(List.of(From.iri(IM.IS_CONTAINED_IN.getIri()).setAlias("predicate")
+									,From.iri(RDFS.SUBCLASSOF.getIri()),From.iri(IM.IS_SUBSET_OF.getIri()))))))))
+			.select(s->s
+				.setIri(RDFS.LABEL.getIri()))
+			.select(s->s
+				.setIri(SHACL.PROPERTY.getIri())
+				.where(w->w
+					.setIri(SHACL.PATH.getIri())
+					.addIn(new From().setVariable("predicate")))
+				.select(s1->s1
+					.setIri(SHACL.PATH.getIri())));
+		qr.setQuery(query);
+		return qr;
+	}
+
+
+
 
 	public static QueryRequest subtypesParameterised(){
 		return new QueryRequest()
@@ -78,6 +123,16 @@ public class TestQueries {
 				.setDepth(3)
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget("http://endhealth.info/im#1000161000252107"));
+
+	}
+
+	public static QueryRequest pathToPostCode(){
+		return new QueryRequest()
+			.setPathQuery(new PathQuery()
+				.setName("paths from patient to post code")
+				.setDepth(3)
+				.setSource(IM.NAMESPACE+"Patient")
+				.setTarget("http://endhealth.info/im#postCode"));
 
 	}
 
@@ -176,21 +231,14 @@ public class TestQueries {
 	}
 
 	public static QueryRequest getAllowableProperties() throws JsonProcessingException {
-		QueryRequest qr= new QueryRequest().query(q->q
+		QueryRequest qr= new QueryRequest().
+			addArgument(new Argument()
+				.setParameter("this")
+				.setValueIri(TTIriRef.iri("http://snomed.info/sct#763158003")))
+			.setQuery(new Query()
 				.setName("Allowable Properties for a concept")
-				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
-				.setActiveOnly(true)
-				.select(s->s.setIri(IM.CODE.getIri()))
-				.select(s->s.setIri(RDFS.LABEL.getIri()))
-				.from(f ->f
-					.setIri(IM.CONCEPT.getIri())
-					.setSourceType(SourceType.type)
-					.setIncludeSubtypes(true)
-				.where(w->w
-					.setIri(RDFS.DOMAIN.getIri())
-					.addIn(new From().setVariable("$this").setIncludeSupertypes(true))
-				)));
-		qr.addArgument(new Argument().setParameter("this").setValueIri(TTIriRef.iri(SNOMED.NAMESPACE+"840539006")));
+				.setIri(IM.NAMESPACE+"Query_AllowableProperties")
+				);
 		return qr;
 	}
 
@@ -290,6 +338,8 @@ public class TestQueries {
 		return new QueryRequest().setQuery(query);
 
 	}
+
+
 
 
 

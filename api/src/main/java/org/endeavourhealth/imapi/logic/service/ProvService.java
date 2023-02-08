@@ -28,9 +28,9 @@ public class ProvService {
     public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
         String root;
 
-        if (targetEntity.getGraph() != null)
+        if (null != targetEntity.getGraph())
             root = targetEntity.getGraph().getIri();
-        else if (targetEntity.getScheme().getIri() != null)
+        else if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
             root = targetEntity.getScheme().getIri();
         else
             root = IM.NAMESPACE;

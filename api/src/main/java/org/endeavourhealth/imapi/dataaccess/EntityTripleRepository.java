@@ -697,4 +697,67 @@ public class EntityTripleRepository {
         }
         return null;
     }
+
+    public Pageable<TTIriRef> getPropertySupertypesByConceptPagedWithTotalCount(String conceptIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+        List<TTIriRef> properties = new ArrayList<>();
+        Pageable<TTIriRef> result = new Pageable<>();
+
+        StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
+            .add("SELECT (COUNT(?a1) as ?count)")
+            .add("WHERE {")
+            .add("?concept im:isA ?p .")
+            .add("?a1 rdfs:domain ?p .")
+            .add("FILTER NOT EXISTS {")
+            .add("?a2 rdfs:domain ?p .")
+            .add("?a1 im:isA ?a2 .")
+            .add("FILTER(?a1 != ?a2)")
+            .add("}");
+        if (!inactive) {
+            sqlCount.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
+        }
+        sqlCount.add("}");
+
+        StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+            .add("SELECT ?a1 ?attributeName")
+            .add("WHERE {")
+            .add("?concept im:isA ?p .")
+            .add("?p rdfs:label ?parentName .")
+            .add("?a1 rdfs:domain ?p ;")
+            .add("rdfs:label ?attributeName .")
+            .add("FILTER NOT EXISTS {")
+            .add("?a2 rdfs:domain ?p .")
+            .add("?a1 im:isA ?a2 .")
+            .add("FILTER(?a1 != ?a2)")
+            .add("}");
+        if (!inactive) {
+            stringQuery.add("OPTIONAL {?a1 im:status ?a1s}").add("FILTER(?a1s != im:Inactive) .");
+        }
+        stringQuery.add("}");
+        stringQuery.add("ORDER BY ?attributeName");
+
+        if (rowNumber != null && pageSize != null) {
+            stringQuery.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
+        }
+
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
+            qryCount.setBinding("concept", iri(conceptIri));
+            try(TupleQueryResult rsCount = qryCount.evaluate()) {
+                BindingSet bsCount = rsCount.next();
+                result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
+            }
+
+            TupleQuery qry = prepareSparql(conn,stringQuery.toString());
+            qry.setBinding("concept", iri(conceptIri));
+            try(TupleQueryResult rs = qry.evaluate()) {
+                result.setPageSize(pageSize);
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    properties.add(new TTIriRef(bs.getValue("a1").stringValue(),bs.getValue("attributeName").stringValue()));
+                }
+                result.setResult(properties);
+            }
+        }
+        return result;
+    }
 }

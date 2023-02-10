@@ -1174,5 +1174,29 @@ public class EntityService {
     public Boolean isValidPropertyValue(String property, String value) {
         return entityRepository.isValidPropertyValue(property, value);
     }
+
+    public Pageable<EntityReferenceNode> getPropertySupertypes(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (null == iri || iri.isEmpty()) return null;
+
+        int rowNumber = 0;
+        if (null != page && null != size) rowNumber = (page - 1) * size;
+
+
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getPropertySupertypesByConceptPagedWithTotalCount(iri,schemeIris,rowNumber,size,inactive);
+        Pageable<EntityReferenceNode> result = new Pageable<>();
+        result.setTotalCount(propertiesAndCount.getTotalCount());
+        List<EntityReferenceNode> nodes = new ArrayList<>();
+        for (TTIriRef p : propertiesAndCount.getResult()) {
+            EntityReferenceNode node = new EntityReferenceNode();
+            node.setIri(p.getIri());
+            node.setName(p.getName());
+            node.setType(entityTypeRepository.getEntityTypes(p.getIri()));
+            node.setHasChildren(entityTripleRepository.hasChildren(p.getIri(),schemeIris,inactive));
+            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(p.getIri(),schemeIris,inactive));
+            nodes.add(node);
+        }
+        result.setResult(nodes);
+        return result;
+    }
 }
 

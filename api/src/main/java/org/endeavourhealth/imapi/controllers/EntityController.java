@@ -624,4 +624,18 @@ public class EntityController {
 		LOG.debug("isValidPropertyValue");
 		return entityService.isValidPropertyValue(property, value);
 	}
+
+	@GetMapping(value = "/public/propertySuperTypes")
+	public Pageable<EntityReferenceNode> getPropertySupertypes(
+		@RequestParam(name = "conceptIri") String iri,
+		@RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+		@RequestParam(name = "page", required = false) Integer page,
+		@RequestParam(name = "size", required = false) Integer size,
+		@RequestParam(name = "inactive", required = false) boolean inactive
+	) {
+		LOG.debug("getPropertySupertypes");
+		if (null == page) page = 1;
+		if (null == size) size = EntityService.MAX_CHILDREN;
+		return entityService.getPropertySupertypes(iri,schemeIris,page,size,inactive);
+	}
 }

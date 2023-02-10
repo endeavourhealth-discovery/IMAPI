@@ -1,18 +1,17 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.antlr.v4.runtime.atn.ATNType;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class TestQueries {
+
 
 
 	public static QueryRequest getAllowableSubtypes() throws IOException {
@@ -25,32 +24,40 @@ public class TestQueries {
 		query.setName("Allowable child types for editor");
 		query
 			.from(f->f
-				.where(w->w
-					.setBool(Bool.and)
-					.where(w1->w1.setIri(IM.IS_CONTAINED_IN.getIri())
-						.addIn(IM.NAMESPACE+"EntityTypes"))
-					.where(w1->w1.setIri(SHACL.PROPERTY.getIri())
-						.where(w2->w2
-							.setBool(Bool.and)
-							.where(a2->a2
-								.setIri(SHACL.NODE.getIri())
-								.addIn(new From().setVariable("this")))
-							.where(a2->a2
-								.setIri(SHACL.PATH.getIri())
-								.setIn(List.of(From.iri(IM.IS_CONTAINED_IN.getIri()).setAlias("predicate")
-									,From.iri(RDFS.SUBCLASSOF.getIri()),From.iri(IM.IS_SUBSET_OF.getIri()))))))))
+				.where(w1->w1.setIri(IM.IS_CONTAINED_IN.getIri())
+					.addIn(IM.NAMESPACE+"EntityTypes")))
 			.select(s->s
 				.setIri(RDFS.LABEL.getIri()))
 			.select(s->s
 				.setIri(SHACL.PROPERTY.getIri())
-				.where(w->w
-					.setIri(SHACL.PATH.getIri())
-					.addIn(new From().setVariable("predicate")))
+				.where(w1->w1
+					.setBool(Bool.and)
+					.where(a2->a2
+						.setIri(SHACL.NODE.getIri())
+						.addIn(new From().setVariable("this")))
+					.where(a2->a2
+						.setIri(SHACL.PATH.getIri())
+						.setIn(List.of(From.iri(IM.IS_CONTAINED_IN.getIri())
+							,From.iri(RDFS.SUBCLASSOF.getIri()),From.iri(IM.IS_SUBSET_OF.getIri())))))
 				.select(s1->s1
 					.setIri(SHACL.PATH.getIri())));
 		qr.setQuery(query);
 		return qr;
 	}
+
+	public static QueryRequest clearCodeGroups(){
+		QueryRequest qr= new QueryRequest()
+		.addArgument(new Argument()
+			.setParameter("this")
+			.setValueIri(TTIriRef.iri(QR.NAMESPACE+"QProject_331")))
+			.setUpdate(TTIriRef.iri(IM.NAMESPACE+"DeleteContainsLink"));
+		return qr;
+
+
+	}
+
+
+
 
 
 

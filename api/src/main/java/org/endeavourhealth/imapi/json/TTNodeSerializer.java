@@ -77,8 +77,7 @@ public class TTNodeSerializer {
 
 
     public void serializeFieldValue(String field, TTArray value, JsonGenerator gen) throws IOException {
-        if(simpleProperties){
-          if (field.contains("#"))
+        if(simpleProperties && field.contains("#")){
             field = field.substring(field.indexOf("#")+1);
         }
         if (value.isLiteral()) {

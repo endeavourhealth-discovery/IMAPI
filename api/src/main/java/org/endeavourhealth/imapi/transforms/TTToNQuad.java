@@ -32,12 +32,11 @@ public class TTToNQuad {
 			for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
 				String predicate = "<"+entry.getKey().getIri()+"> ";
 				TTArray value= entry.getValue();
-				if (value!=null)
-					if (!value.isEmpty()) {
-						for (TTValue val:value.getElements()) {
-							setObject(subject, predicate, val);
-						}
+				if ((value!=null) && (!value.isEmpty())) {
+					for (TTValue val:value.getElements()) {
+						setObject(subject, predicate, val);
 					}
+				}
 			}
 		}
 	}

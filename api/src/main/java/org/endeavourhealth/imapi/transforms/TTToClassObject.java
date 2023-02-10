@@ -41,7 +41,7 @@ public class TTToClassObject {
 					field.setAccessible(true);
 					Type type = field.getGenericType();
 					if (type instanceof ParameterizedType) {
-                        ProcessNodeParameterizedType(obj, entry, fieldName, (ParameterizedType) type);
+                        processNodeParameterizedType(obj, entry, fieldName, (ParameterizedType) type);
                     } else {
                         processNodeOtherType(obj, entry, fieldName, type);
                     }
@@ -51,34 +51,34 @@ public class TTToClassObject {
 		}
 	}
 
-    private void ProcessNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException {
-        if (pt.getActualTypeArguments().length == 1) {
-            List<Object> list = new ArrayList<>();
-            setField(obj, fieldName, list);
-            Class<?> listClazz = null;
-            Type listType = pt.getActualTypeArguments()[0];
-            if (listType instanceof Class) {
-                listClazz = (Class<?>) listType;
-            }
-            for (TTValue value : entry.getValue().getElements()) {
-                if (value.isNode()) {
-                    if (listClazz==null)
-                        throw new InstantiationException("unable to converted entity due to class mismatch");
-                    Object listItem = listClazz.newInstance();
-                    list.add(listItem);
-                    processNode(value.asNode(), listItem, listClazz);
-                } else if (value.isIriRef()) {
-                    list.add(value);
-                } else {
-                    if (value.asLiteral().getValue().startsWith("{")) {
-                        list.add(jsonNodeFromLiteral(value.asLiteral().getValue(),listClazz));
-                    }
-                    else
-                        addValue(list, value.asLiteral(), pt);
-                }
-            }
-
-        }
+    private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+		if (1 != pt.getActualTypeArguments().length) {
+			return;
+		}
+		List<Object> list = new ArrayList<>();
+		setField(obj, fieldName, list);
+		Class<?> listClazz = null;
+		Type listType = pt.getActualTypeArguments()[0];
+		if (listType instanceof Class) {
+			listClazz = (Class<?>) listType;
+		}
+		for (TTValue value : entry.getValue().getElements()) {
+			if (value.isNode()) {
+				if (listClazz==null)
+					throw new InstantiationException("unable to converted entity due to class mismatch");
+				Object listItem = listClazz.newInstance();
+				list.add(listItem);
+				processNode(value.asNode(), listItem, listClazz);
+			} else if (value.isIriRef()) {
+				list.add(value);
+			} else {
+				if (value.asLiteral().getValue().startsWith("{")) {
+					list.add(jsonNodeFromLiteral(value.asLiteral().getValue(),listClazz));
+				}
+				else
+					addValue(list, value.asLiteral(), pt);
+			}
+		}
     }
 
     private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException {

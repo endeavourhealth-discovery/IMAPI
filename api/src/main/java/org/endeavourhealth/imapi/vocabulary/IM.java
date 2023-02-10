@@ -24,8 +24,8 @@ public class IM {
     public static final TTIriRef IN_TASK = iri(NAMESPACE + "inTask");
 
     //Entity top level triples
-    public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
-
+    public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+    public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
 
     //Core model types
     public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
@@ -37,6 +37,7 @@ public class IM {
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "FunctionClause");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef DATA_UPDATE = iri(NAMESPACE + "DataUpdate");
     public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE + "QueryTemplate");
     public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
     public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
@@ -54,7 +55,7 @@ public class IM {
 
 
     //Collection predicates
-    public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE + "isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE + "oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE + "combinationOf");

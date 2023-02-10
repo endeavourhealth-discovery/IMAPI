@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -11,7 +8,6 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
-import org.endeavourhealth.imapi.transforms.ECLToIML;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,6 @@ import java.util.zip.DataFormatException;
 @Component
 public class EclService {
     private static final Logger LOG = LoggerFactory.getLogger((EclService.class));
-    private final ECLToIML eclToIML = new ECLToIML();
     private final QueryRepository queryRepository = new QueryRepository();
     private final SetRepository setRepository = new SetRepository();
 

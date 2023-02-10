@@ -20,9 +20,17 @@ public class QueryRequest {
 	private List<Argument> argument;
 	private Query query;
 	private PathQuery pathQuery;
+	private TTIriRef update;
 	private String referenceDate;
 
+	public TTIriRef getUpdate() {
+		return update;
+	}
 
+	public QueryRequest setUpdate(TTIriRef update) {
+		this.update = update;
+		return this;
+	}
 
 	public PathQuery getPathQuery() {
 		return pathQuery;

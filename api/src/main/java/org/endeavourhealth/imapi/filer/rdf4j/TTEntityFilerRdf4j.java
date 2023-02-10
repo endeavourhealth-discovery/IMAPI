@@ -205,11 +205,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
-
         if (value.isLiteral()) {
-            builder.add(subject, predicate, value.asLiteral().getType() == null
-                    ? literal(value.asLiteral().getValue())
-                    : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
+            if (null != value.asLiteral().getValue())
+                builder.add(subject, predicate, value.asLiteral().getType() == null
+                        ? literal(value.asLiteral().getValue())
+                        : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
         } else if (value.isIriRef()) {
             builder.add(subject, predicate, toIri(value.asIriRef().getIri()));
         } else if (value.isNode()) {

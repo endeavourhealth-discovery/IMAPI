@@ -99,7 +99,6 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
-	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
 		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
@@ -378,7 +377,7 @@ public class EntityController {
 	}
 
 	@PostMapping(value = "/create")
-	@PreAuthorize("hasAuthority('IMAdmin')")
+	@PreAuthorize("hasAuthority('create')")
 	public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
 		String agentName = reqObjService.getRequestAgentName(request);
@@ -386,7 +385,7 @@ public class EntityController {
 	}
 
 	@PostMapping(value = "/update")
-	@PreAuthorize("hasAuthority('IMAdmin')")
+	@PreAuthorize("hasAuthority('edit')")
 	public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 		LOG.debug("updateEntity");
 		String agentName = reqObjService.getRequestAgentName(request);

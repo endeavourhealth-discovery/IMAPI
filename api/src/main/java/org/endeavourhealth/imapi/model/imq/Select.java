@@ -8,22 +8,20 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import org.endeavourhealth.imapi.model.iml.FunctionClause;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"alias","path","property","bool","case","aggregate",
-	"select","where","orderBy","direction","limit","groupBy","having"})
+@JsonPropertyOrder({"id","iri","@id","alias","case","aggregate",
+	"where","orderBy","direction","limit","groupBy","having","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Select extends TTAlias{
 	private Where where;
-	private FunctionClause functionClause;
+	private FunctionClause function;
 	private List<Select> select;
 	private List<OrderLimit> orderBy;
-	private Integer limit;
-	private String direction;
+
 	private List<TTAlias> groupBy;
 	private Having having;
 	private List<Case> caze;
@@ -56,14 +54,6 @@ public class Select extends TTAlias{
 		return this;
 	}
 
-	public FunctionClause getFunctionClause() {
-		return functionClause;
-	}
-
-	public Select setFunctionClause(FunctionClause functionClause) {
-		this.functionClause = functionClause;
-		return this;
-	}
 
 	@JsonProperty("case")
 	public List<Case> getCase() {
@@ -112,14 +102,6 @@ public class Select extends TTAlias{
 		return this;
 	}
 
-	public String getDirection() {
-		return direction;
-	}
-
-	public Select setDirection(String direction) {
-		this.direction = direction;
-		return this;
-	}
 
 
 	public List<TTAlias> getGroupBy() {
@@ -200,31 +182,23 @@ public class Select extends TTAlias{
 	}
 
 
-	public Integer getLimit() {
-		return limit;
-	}
-
-	public Select setLimit(Integer limit) {
-		this.limit = limit;
-		return this;
-	}
 
 
 
 
 
 	public Select function(Consumer<FunctionClause> builder) {
-		this.functionClause = new FunctionClause();
-		builder.accept(this.functionClause);
+		this.function = new FunctionClause();
+		builder.accept(this.function);
 		return this;
 	}
 
 	public FunctionClause getFunction() {
-		return functionClause;
+		return function;
 	}
 
 	public Select setFunction(FunctionClause functionClause) {
-		this.functionClause = functionClause;
+		this.function = functionClause;
 		return this;
 	}
 }

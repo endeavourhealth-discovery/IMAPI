@@ -5,29 +5,41 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","with","bool","from","where"})
+@JsonPropertyOrder({"id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
 	private Bool bool;
 	private List<From> from;
+	private TTIriRef type;
+	private TTIriRef graph;
 	private Where where;
 	private String description;
 	private With with;
 
+	public TTIriRef getGraph() {
+		return graph;
+	}
 
-	public From setType (TTAlias type){
-		super.setIri(type.getIri());
-		super.setName(type.getName());
-		super.setVariable(type.getVariable());
-		super.setIncludeSubtypes(type.isIncludeSubtypes());
-		this.setSourceType(SourceType.type);
+	public From setGraph(TTIriRef graph) {
+		this.graph = graph;
 		return this;
 	}
+
+	public TTIriRef getType() {
+		return type;
+	}
+
+	public From setType(TTIriRef type) {
+		this.type = type;
+		return this;
+	}
+
 
 	public From setSourceType(SourceType type){
 		super.setSourceType(type);

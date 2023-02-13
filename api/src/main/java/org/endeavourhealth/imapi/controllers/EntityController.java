@@ -12,27 +12,28 @@ import java.util.zip.DataFormatException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.valuset.ExportValueSet;
-import org.endeavourhealth.imapi.model.valuset.SetAsObject;
+import org.endeavourhealth.imapi.model.set.ExportSet;
+import org.endeavourhealth.imapi.model.set.SetAsObject;
 import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -83,19 +84,37 @@ public class EntityController {
         return entityService.getBundle(iri, predicates).getEntity();
     }
 
+	@GetMapping(value = "/public/partials", produces = "application/json")
+	public List<TTEntity> getPartialEntities(
+		@RequestParam(name = "iris") Set<String> iris,
+		@RequestParam(name = "predicates") Set<String> predicates
+	) {
+		LOG.debug("getPartialEntities");
+		List<TTEntity> entities = new ArrayList<>();
+		for (String iri : iris) {
+			TTEntity entity = entityService.getBundle(iri, predicates).getEntity();
+			entities.add(entity);
+		}
+		return entities;
+	}
 
 	@GetMapping(value = "/fullEntity", produces = "application/json")
-	@PreAuthorize("hasAuthority('IMAdmin')")
 	public TTEntity getFullEntity(@RequestParam(name = "iri") String iri) {
 		LOG.debug("getFullEntity");
 		return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
 	}
 
-	@GetMapping(value = "/public/simpleMaps", produces = "application/json")
+	@GetMapping(value = "/public/matchedFrom", produces = "application/json")
 	public Collection<SimpleMap> getMatchedFrom(@RequestParam(name = "iri") String iri) {
-		LOG.debug("getSimpleMaps");
-		return entityService.getSimpleMaps(iri);
+		LOG.debug("getMatchedFrom");
+		return entityService.getMatchedFrom(iri);
 	}
+
+    @GetMapping(value = "/public/matchedTo", produces = "application/json")
+    public Collection<SimpleMap> getMatchedTo(@RequestParam(name = "iri") String iri) {
+        LOG.debug("getMatchedTo");
+        return entityService.getMatchedTo(iri);
+    }
 
     @GetMapping(value = "/public/partialBundle", produces = "application/json")
     public TTBundle getPartialEntityBundle(
@@ -160,7 +179,7 @@ public class EntityController {
 	}
 
     @GetMapping(value = "/public/hasMember")
-    public ExportValueSet getHasMember(
+    public ExportSet getHasMember(
         @RequestParam(name = "iri") String iri,
         @RequestParam(name = "predicate") String predicateIri,
         @RequestParam(name = "page", required = false) Integer page,
@@ -240,14 +259,15 @@ public class EntityController {
 			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".txt\"");
 			return new HttpEntity<>(turtle, headers);
 		} else {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-			String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
-			return new HttpEntity<>(json, headers);
+            try (CachedObjectMapper objectMapper = new CachedObjectMapper()) {
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+                String json = objectMapper.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + filename + ".json\"");
+                return new HttpEntity<>(json, headers);
+            }
 		}
 	}
 
@@ -320,7 +340,7 @@ public class EntityController {
 	}
 
 	@GetMapping(value = "/public/members")
-	public ExportValueSet valueSetMembersJson(
+	public ExportSet valueSetMembersJson(
 	    @RequestParam(name = "iri") String iri,
 		@RequestParam(name = "expandMembers", required = false) boolean expandMembers,
 		@RequestParam(name = "expandSubsets", required = false) boolean expandSubsets,
@@ -357,7 +377,7 @@ public class EntityController {
 	}
 
 	@PostMapping(value = "/create")
-	@PreAuthorize("hasAuthority('IMAdmin')")
+	@PreAuthorize("hasAuthority('create')")
 	public TTEntity createEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 	    LOG.debug("createEntity");
 		String agentName = reqObjService.getRequestAgentName(request);
@@ -365,7 +385,7 @@ public class EntityController {
 	}
 
 	@PostMapping(value = "/update")
-	@PreAuthorize("hasAuthority('IMAdmin')")
+	@PreAuthorize("hasAuthority('edit')")
 	public TTEntity updateEntity(@RequestBody TTEntity entity, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
 		LOG.debug("updateEntity");
 		String agentName = reqObjService.getRequestAgentName(request);
@@ -389,7 +409,7 @@ public class EntityController {
 	    LOG.debug("getDataModelProperties");
 		return entityService.getDataModelProperties(iri);
 	}
-	
+
 	@GetMapping("/public/definition")
 	public EntityDefinitionDto getEntityDefinitionDto(@RequestParam(name = "iri") String iri) {
 	    LOG.debug("getEntityDefinitionDto");
@@ -406,12 +426,6 @@ public class EntityController {
 	public List<Namespace> getNamespaces() {
 		LOG.debug("getNamespaces");
 		return entityService.getNamespaces();
-	}
-
-	@PostMapping("/public/ecl")
-	public String getEcl(@RequestBody TTBundle inferred) throws DataFormatException {
-		LOG.debug("getEcl");
-		return entityService.getEcl(inferred);
 	}
 
 	@GetMapping("/public/setExport")
@@ -449,7 +463,7 @@ public class EntityController {
         LOG.debug("getPathBetweenNodes");
         return entityService.getPathBetweenNodes(descendant, ancestor);
     }
-	
+
 	@GetMapping("/public/unassigned")
 	public List<TTIriRef> getUnassigned() {
 		LOG.debug("getUnassigned");
@@ -561,5 +575,53 @@ public class EntityController {
 	) {
 		LOG.debug("getShapeFromType");
 		return entityService.getShapeFromType(iri);
+	}
+
+	@GetMapping("/public/properties")
+	public List<TTIriRef> getProperties() {
+		LOG.debug("getProperties");
+		return entityService.getProperties();
+	}
+
+    @GetMapping("/public/classes")
+    public List<TTIriRef> getClasses() {
+        LOG.debug("getClasses");
+        return entityService.getClasses();
+    }
+
+	@GetMapping("/public/statuses")
+	public List<TTIriRef> getStatuses() {
+		LOG.debug("getStatuses");
+		return entityService.getStatuses();
+	}
+
+	@PostMapping(value = "public/distillation")
+	public List<TTIriRef> getDistillation(@RequestBody List<TTIriRef> conceptList) {
+		LOG.debug("getDistillation");
+		return entityService.getDistillation(conceptList);
+	}
+
+	@GetMapping(value = "/public/predicates")
+	public Set<String> getPredicates(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getPredicates");
+		return entityService.getPredicates(iri);
+	}
+
+	@GetMapping(value = "/public/hasChildren")
+	public Boolean getHasChildren(@RequestParam(name = "iri") String iri) {
+		LOG.debug("getHasChildren");
+		return entityService.getHasChildren(iri);
+	}
+
+	@GetMapping(value = "/public/isValidProperty")
+	public Boolean isValidProperty(@RequestParam(name = "entity") String entity, @RequestParam(name = "property") String  property) {
+		LOG.debug("isValidProperty");
+		return entityService.isValidProperty(entity, property);
+	}
+
+	@GetMapping(value = "/public/isValidPropertyValue")
+	public Boolean isValidPropertyValue(@RequestParam(name = "property") String property, @RequestParam(name = "value") String  value) {
+		LOG.debug("isValidPropertyValue");
+		return entityService.isValidPropertyValue(property, value);
 	}
 }

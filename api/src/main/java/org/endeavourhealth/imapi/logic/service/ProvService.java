@@ -1,27 +1,36 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
+import org.endeavourhealth.imapi.dataaccess.ProvRepository;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+@Component
 public class ProvService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    ProvRepository provRepository = new ProvRepository();
+    EntityRepository2 entityRepository2 = new EntityRepository2();
+
 
     public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
         String root;
 
-        if (targetEntity.getGraph() != null)
+        if (null != targetEntity.getGraph())
             root = targetEntity.getGraph().getIri();
-        else if (targetEntity.getScheme().getIri() != null)
+        else if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
             root = targetEntity.getScheme().getIri();
         else
             root = IM.NAMESPACE;
@@ -51,10 +60,14 @@ public class ProvService {
     }
 
     public TTEntity buildUsedEntity(TTEntity usedEntity) throws JsonProcessingException {
-        return new TTEntity()
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return new TTEntity()
                 .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
-                .set(IM.DEFINITION, new TTLiteral(objectMapper.writeValueAsString(usedEntity)))
+                .setName(usedEntity.getName())
+                .set(IM.DEFINITION, new TTLiteral(om.writeValueAsString(usedEntity)))
+                .setGraph(IM.GRAPH_PROV)
                 .setCrud(IM.ADD_QUADS);
+        }
     }
 
     private String getPerson(String name, String root) {
@@ -66,6 +79,10 @@ public class ProvService {
         root = root.substring(0, root.lastIndexOf("#"));
         return root.replace("org.", "uir.") + "/personrole#" +
                 uri;
+    }
+
+    public List<TTEntity> getProvHistory(String iri) {
+        return provRepository.getProvHistory(iri);
     }
 
 }

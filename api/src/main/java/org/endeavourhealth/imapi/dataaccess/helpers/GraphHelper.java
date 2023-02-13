@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Set of static methods fpr handling generic sparql query processes
+ * Query of static methods fpr handling generic sparql query processes
  */
 public class GraphHelper {
 

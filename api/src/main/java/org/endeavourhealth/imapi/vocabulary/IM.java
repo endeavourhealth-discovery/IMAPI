@@ -24,8 +24,8 @@ public class IM {
     public static final TTIriRef IN_TASK = iri(NAMESPACE + "inTask");
 
     //Entity top level triples
-    public static final TTIriRef HAS_DEFINITION = iri(NAMESPACE + "hasDefinition");
-
+    public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+    public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
 
     //Core model types
     public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
@@ -35,8 +35,12 @@ public class IM {
     public static final TTIriRef TEXT_MAPS = iri(NAMESPACE + "TextMaps");
     public static final TTIriRef CONFIG = iri(NAMESPACE + "Config");
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
-    public static final TTIriRef FUNCTION = iri(NAMESPACE + "Function");
+    public static final TTIriRef FUNCTION = iri(NAMESPACE + "FunctionClause");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef DATA_UPDATE = iri(NAMESPACE + "DataUpdate");
+    public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE + "QueryTemplate");
+    public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
+    public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
     public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
     public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
     public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
@@ -45,10 +49,13 @@ public class IM {
     public static final TTIriRef MATCH_CLAUSE = iri(NAMESPACE + "MatchClause");
     public static final TTIriRef FORM_GENERATOR = iri(NAMESPACE + "FormGenerator");
     public static final TTIriRef FUNCTION_PROPERTY = iri(NAMESPACE + "functionProperty");
+    public static final TTIriRef MAP_GRAPH = iri(NAMESPACE + "GraphMap");
+    public static final TTIriRef MAP_ENTITY = iri(NAMESPACE + "EntityMap");
+    public static final TTIriRef SET = iri(NAMESPACE + "Set");
 
 
     //Collection predicates
-    public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+
     public static final TTIriRef IS_CONTAINED_IN = iri(NAMESPACE + "isContainedIn");
     public static final TTIriRef ONE_OF = iri(NAMESPACE + "oneOf");
     public static final TTIriRef COMBINATION_OF = iri(NAMESPACE + "combinationOf");
@@ -84,16 +91,16 @@ public class IM {
 
     //Legacy Mapping
     public static final TTIriRef HAS_MAP = iri(NAMESPACE + "hasMap");
+    public static final TTIriRef ENTITY_MAP = iri(NAMESPACE + "entityMap");
     public static final TTIriRef MAPPED_TO = iri(NAMESPACE + "mappedTo");
     public static final TTIriRef HAS_NUMERIC = iri(NAMESPACE + "hasNumericValue");
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
     public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE + "hasTermCode");
-    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
+    public static final TTIriRef OLD_CODE = iri(NAMESPACE + "oldCode");
     public static final TTIriRef DESCRIPTION_ID = iri(NAMESPACE + "descriptionId");
     public static final TTIriRef CODE_ID = iri(NAMESPACE + "codeId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE + "matchedTo");
-    public static final TTIriRef SIMILAR = iri(NAMESPACE + "similarTo");
     public static final TTIriRef MAP_PRIORITY = iri(NAMESPACE + "mapPriority");
     public static final TTIriRef ASSURANCE_LEVEL = iri(NAMESPACE + "assuranceLevel");
     public static final TTIriRef MAP_ADVICE = iri(NAMESPACE + "mapAdvice");
@@ -104,6 +111,8 @@ public class IM {
     public static final TTIriRef HAS_MEMBER = iri(NAMESPACE + "hasMember");
     public static final TTIriRef IS_MEMBER_OF = iri(NAMESPACE + "isMemberOf");
     public static final TTIriRef IS_SUBSET_OF = iri(NAMESPACE + "isSubsetOf");
+    public static final TTIriRef HAS_SUBSET = iri(NAMESPACE + "hasSubset");
+
 
     //Context
     public static final TTIriRef SOURCE_CONTEXT = iri(NAMESPACE + "sourceContext");
@@ -141,6 +150,8 @@ public class IM {
     public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
     public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
     public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
+    public static final TTIriRef GRAPH_PROV = TTIriRef.iri(DOMAIN + "prov#");
+
 
 
     // redant code schemes are now the same as graphs
@@ -192,14 +203,14 @@ public class IM {
     public static final TTIriRef IS_PERSON = iri(NAMESPACE + "isPerson");
 
     //Miscalleneous
-    public static final TTIriRef COUNTER = iri(NAMESPACE + "counter");
     public static final TTIriRef HAS_CONTEXT = iri(NAMESPACE + "hasContext");
     //public static final TTIriRef HAS_REPLACED = iri(NAMESPACE + "hasReplaced");
     public static final TTIriRef DISPLAY_ORDER = iri(NAMESPACE + "displayOrder");
     public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef PLABEL = iri(NAMESPACE + "pLabel");
     public static final TTIriRef OLABEL = iri(NAMESPACE + "oLabel");
-    public static final TTIriRef ORDER = iri(NAMESPACE + "order");
+    public static final TTIriRef EXAMPLE = iri(NAMESPACE + "example");
+
 
     //im1
     public static final TTIriRef IM1ID = iri(NAMESPACE + "im1Id");
@@ -211,11 +222,11 @@ public class IM {
     public static final TTIriRef VALUE_SELECT = iri(NAMESPACE + "valueSelect");
     public static final TTIriRef VALUE_VARIABLE = iri(NAMESPACE + "valueVariable");
     public static final TTIriRef PLACEHOLDER = iri(NAMESPACE + "placeHolder");
-    public static final TTIriRef QUERY_DEFINITION= iri(NAMESPACE + "query");
     public static final TTIriRef FUNCTION_DEFINITION = iri(NAMESPACE + "function");
 
     // ODS
     public static final String ORGANISATION_NAMESPACE = "http://org.endhealth.info/im#";
+    public static final String SYSTEM_NAMESPACE = "http://sys.endhealth.info/im#";
     public static final String LOCATION_NAMESPACE = "http://loc.endhealth.info/im#";
     public static final TTIriRef ADDRESS_CLASS = iri(NAMESPACE + "Address");
     public static final TTIriRef ADDRESS = iri(NAMESPACE + "address");

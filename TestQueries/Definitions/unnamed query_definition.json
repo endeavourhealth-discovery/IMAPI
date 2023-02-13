@@ -1,0 +1,11 @@
+{
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "@id" : "http://apiqcodes.org/qcodes#"
+    }
+  } ],
+  "update" : {
+    "@id" : "http://endhealth.info/im#DeleteSets"
+  }
+}

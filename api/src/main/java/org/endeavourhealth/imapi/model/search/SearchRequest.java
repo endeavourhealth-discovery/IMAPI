@@ -15,7 +15,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchRequest {
     private String termFilter;
-    private String index = "concept";
+    private String index = System.getenv("OPENSEARCH_INDEX") == null ? "concept" : System.getenv("OPENSEARCH_INDEX");
     private List<String> statusFilter = new ArrayList<>();
     private List<String> typeFilter = new ArrayList<>();
     private List<String> schemeFilter = new ArrayList<>();

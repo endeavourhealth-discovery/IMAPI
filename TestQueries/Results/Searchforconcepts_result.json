@@ -1,0 +1,63 @@
+{
+  "entities" : [ {
+    "@id" : "http://endhealth.info/tpp#X77QU",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain rating"
+  }, {
+    "@id" : "http://snomed.info/sct#29857009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065_",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Xa35v",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Upper chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#Ryu04",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[X]Other chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#G33z4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Ischaemic chest pain"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaELT",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Central chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#3368006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Dull chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#XaBMV",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#285389008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Upper chest pain (finding)"
+  }, {
+    "@id" : "http://endhealth.info/tpp#R065C",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Retrosternal chest pain"
+  }, {
+    "@id" : "http://snomed.info/sct#426396005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiac chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#161972006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Central chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#102589003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Atypical chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#59139008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Crushing chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#371030007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Squeezing chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#10000006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Radiating chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#285385002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Left sided chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#161977000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Costal margin chest pain (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#13057000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Pleuropericardial chest pain (finding)"
+  } ]
+}

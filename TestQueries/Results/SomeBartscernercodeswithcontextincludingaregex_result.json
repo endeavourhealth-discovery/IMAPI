@@ -1,0 +1,40 @@
+{
+  "entities" : [ {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
+    "http://endhealth.info/im#code" : "PF4",
+    "http://endhealth.info/im#sourceContext" : [ {
+      "http://endhealth.info/im#sourceTable" : "CLEVE",
+      "http://endhealth.info/im#sourceSystem" : [ {
+        "@id" : "http://sys.endhealth.info/im#CM_Sys_Cerner"
+      } ],
+      "http://endhealth.info/im#sourceHeading" : "316081942",
+      "http://endhealth.info/im#sourceField" : "EVENT_CD",
+      "http://endhealth.info/im#sourceSchema" : "CDE"
+    }, {
+      "http://endhealth.info/im#sourceTable" : "CLEVE",
+      "http://endhealth.info/im#sourceSystem" : [ {
+        "@id" : "http://sys.endhealth.info/im#CM_Sys_Cerner"
+      } ],
+      "http://endhealth.info/im#sourceHeading" : "316081942",
+      "http://endhealth.info/im#sourceField" : "EVENT_CD",
+      "http://endhealth.info/im#sourceSchema" : "CDE"
+    }, {
+      "http://endhealth.info/im#sourceTable" : "CLEVE",
+      "http://endhealth.info/im#sourceSystem" : [ {
+        "@id" : "http://sys.endhealth.info/im#CM_Sys_Cerner"
+      } ],
+      "http://endhealth.info/im#sourceHeading" : "316081992",
+      "http://endhealth.info/im#sourceField" : "EVENT_CD",
+      "http://endhealth.info/im#sourceSchema" : "CDE"
+    }, {
+      "http://endhealth.info/im#sourceTable" : "CLEVE",
+      "http://endhealth.info/im#sourceSystem" : [ {
+        "@id" : "http://sys.endhealth.info/im#CM_Sys_Cerner"
+      } ],
+      "http://endhealth.info/im#sourceHeading" : "316081992",
+      "http://endhealth.info/im#sourceField" : "EVENT_CD",
+      "http://endhealth.info/im#sourceSchema" : "CDE"
+    } ]
+  } ]
+}

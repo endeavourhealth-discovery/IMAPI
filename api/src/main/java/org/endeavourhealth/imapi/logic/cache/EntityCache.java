@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.logic.cache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
-import org.endeavourhealth.imapi.logic.reasoner.Reasoner;
+import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 
@@ -60,8 +60,8 @@ public class EntityCache implements Runnable{
 				if (propertyMap.getEntities() == null)
 					return null;
 				cacheProperties(propertyMap);
-				Reasoner reasoner= new Reasoner();
-				reasoner.inheritDomRans(propertyMap.getEntity(iri),propertyMap);
+				Inferrer inferrer= new Inferrer();
+				inferrer.inheritDomRans(propertyMap.getEntity(iri),propertyMap);
 			}
 			property= properties.get(iri);
 		}
@@ -74,7 +74,7 @@ public class EntityCache implements Runnable{
 
 	/**
 	 * Returns the full shape map from IM
-	 * @return a Map of iri to shapes
+	 * @return a TransformMap of iri to shapes
 	 */
 	public static Map<String,TTEntity> getProperties(){
 		return properties;
@@ -159,7 +159,7 @@ public class EntityCache implements Runnable{
 
 	/**
 	 * Returns the full shape map from IM
-	 * @return a Map of iri to shapes
+	 * @return a TransformMap of iri to shapes
 	 */
 	public static Map<String,TTEntity> getShapes(){
 		return shapes;
@@ -167,6 +167,11 @@ public class EntityCache implements Runnable{
 
 	public static void addShape(TTEntity shape){
 		shapes.put(shape.getIri(),shape);
+	}
+
+
+	public static void addEntity(TTEntity entity){
+		entities.put(entity.getIri(),entity);
 	}
 
 

@@ -21,8 +21,7 @@ import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -126,8 +125,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
 
     private void replacePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {
-        if (!TTFilerFactory.isSkipDeletes())
-            deleteTriples(entity, graph);
+        deleteTriples(entity, graph);
         addQuads(entity, graph);
     }
 
@@ -151,7 +149,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             deleteTriples.setBinding("graph", valueFactory.createIRI(graph.getIri()));
             deleteTriples.execute();
         } catch (Exception e) {
-            throw new TTFilerException("Failed to delete triples");
+            throw new TTFilerException("Failed to delete triples : "+ e.getMessage());
         }
 
     }
@@ -196,8 +194,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     private void updatePredicates(TTEntity entity, TTIriRef graph) throws TTFilerException {
 
         //Deletes the previous predicate values and adds in the new ones
-        if (!TTFilerFactory.isSkipDeletes())
-            deletePredicates(entity, graph);
+        deletePredicates(entity, graph);
         addQuads(entity, graph);
     }
 
@@ -208,11 +205,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
-
         if (value.isLiteral()) {
-            builder.add(subject, predicate, value.asLiteral().getType() == null
-                    ? literal(value.asLiteral().getValue())
-                    : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
+            if (null != value.asLiteral().getValue())
+                builder.add(subject, predicate, value.asLiteral().getType() == null
+                        ? literal(value.asLiteral().getValue())
+                        : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
         } else if (value.isIriRef()) {
             builder.add(subject, predicate, toIri(value.asIriRef().getIri()));
         } else if (value.isNode()) {
@@ -229,22 +226,23 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
     private IRI toIri(String iri) throws TTFilerException {
         iri = expand(iri);
-        int h = iri.indexOf("#");
-        if (h == -1)
+        if(iri.startsWith("urn")){
             return iri(iri);
-
-        String prefix = iri.substring(0, h + 1);
-        String suffix = iri.substring(h + 1);
+        }
 
         try {
-            String result = prefix + URLEncoder.encode(suffix, StandardCharsets.UTF_8.toString());
+
+            String decodedURL = URLDecoder.decode(iri, StandardCharsets.UTF_8);
+            URL url = new URL(decodedURL);
+            URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+            String result = uri.toASCIIString();
 
 
             if (!iri.equals(result))
                 LOG.trace("Encoded iri [{}] => [{}]", iri, result);
 
             return iri(result);
-        } catch (UnsupportedEncodingException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new TTFilerException("Unable to encode iri", e);
         }
     }
@@ -261,7 +259,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             else
                 return path + iri.substring(colonPos + 1);
         } catch (StringIndexOutOfBoundsException e) {
-            LOG.debug("invalid iri " + iri);
+            LOG.debug("invalid iri [{}]", iri);
             return null;
         }
     }

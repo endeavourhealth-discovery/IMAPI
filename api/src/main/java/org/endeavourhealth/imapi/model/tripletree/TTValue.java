@@ -17,5 +17,6 @@ public interface TTValue extends Serializable {
     default TTLiteral asLiteral() {return null; }
     default TTIriRef asIriRef() {return null; }
     default TTNode asNode() {return null; }
+
     default Integer getOrder(){ return null;}
 }

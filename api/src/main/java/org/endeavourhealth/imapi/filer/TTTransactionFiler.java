@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.filer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -26,6 +25,7 @@ public class TTTransactionFiler {
     private static final Logger LOG = LoggerFactory.getLogger(TTTransactionFiler.class);
 
     private final String logPath;
+    private final String TTLog = "TTLog-";
     /**
      * Destination folder for transaction log files must be set.
      */
@@ -65,61 +65,74 @@ public class TTTransactionFiler {
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
                 String name = file.getName();
-                if (name.startsWith("TTLog-")) {
+                if (name.startsWith(TTLog)) {
                     int counter = Integer.parseInt(name.split("-")[1].split("\\.")[0]);
                     transactionLogs.put(counter, file.getAbsolutePath());
                 }
             }
         SortedSet<Integer> keys = new TreeSet<>(transactionLogs.keySet());
-        TTManager manager = new TTManager();
-        try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported at this point
-            for (Integer logNumber : keys) {
-                manager.loadDocument(new File(transactionLogs.get(logNumber)));
-                filer.startTransaction();
-                filer.fileInsideTraction(manager.getDocument());
-                filer.commit();
+        try (TTManager manager = new TTManager()) {
+            try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported at this point
+                for (Integer logNumber : keys) {
+                    manager.loadDocument(new File(transactionLogs.get(logNumber)));
+                    filer.startTransaction();
+                    filer.fileInsideTraction(manager.getDocument());
+                    filer.commit();
+                }
             }
         }
 
     }
 
     private void checkDeletes(TTDocument transaction) throws TTFilerException {
-        Map<String, Set<String>> toCheck = new HashMap<>();
-            for (TTEntity entity : transaction.getEntities()) {
-                if (entity.getCrud()==null) {
-                    if (transaction.getCrud() != null) {
-                        entity.setCrud(transaction.getCrud());
-                    }
-                    else
-                        entity.setCrud(IM.UPDATE_ALL);
-                }
+        Map<String, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
+        if (!toCheck.isEmpty()) {
+            checkIfEntitiesCurrentlyInUse(toCheck);
+        }
+    }
 
-                if (entity.getCrud()== IM.UPDATE_ALL) {
+    private static Map<String, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) throws TTFilerException {
+        Map<String, Set<String>> toCheck = new HashMap<>();
+        for (TTEntity entity : transaction.getEntities()) {
+            setEntityCrudOperation(transaction, entity);
+
+            if (entity.getCrud() == IM.UPDATE_ALL) {
                 if (entity.getGraph() == null && transaction.getGraph() == null)
                     throw new TTFilerException("Entity " + entity.getIri() + " must have a graph assigned, or the transaction must have a default graph");
                 String graph = entity.getGraph() != null ? entity.getGraph().getIri() : transaction.getGraph().getIri();
                 if (entity.getPredicateMap().isEmpty())
                     toCheck.computeIfAbsent(graph, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
             }
-            if (!toCheck.isEmpty()) {
-                try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-                    for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
-                        String graph = entry.getKey();
-                        Set<String> entities = entry.getValue();
-                        String sql = "select * where \n{ graph <" + graph + "> {" +
-                                "?s ?p ?o.\n" +
-                                "filter (?o in(" + String.join(",", entities) + "))" +
-                                "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
-                        TupleQuery qry = conn.prepareTupleQuery(sql);
-                        TupleQueryResult rs = qry.evaluate();
-                        if (rs.hasNext())
-                            throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
-                    }
-                }
+        }
+        return toCheck;
+    }
+
+    private static void setEntityCrudOperation(TTDocument transaction, TTEntity entity) {
+        if (entity.getCrud()==null) {
+            if (transaction.getCrud() != null) {
+                entity.setCrud(transaction.getCrud());
             }
+            else
+                entity.setCrud(IM.UPDATE_ALL);
         }
     }
 
+    private static void checkIfEntitiesCurrentlyInUse(Map<String, Set<String>> toCheck) throws TTFilerException {
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            for (Map.Entry<String, Set<String>> entry : toCheck.entrySet()) {
+                String graph = entry.getKey();
+                Set<String> entities = entry.getValue();
+                String sql = "select * where \n{ graph <" + graph + "> {" +
+                    "?s ?p ?o.\n" +
+                    "filter (?o in(" + String.join(",", entities) + "))" +
+                    "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
+                TupleQuery qry = conn.prepareTupleQuery(sql);
+                TupleQueryResult rs = qry.evaluate();
+                if (rs.hasNext())
+                    throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
+            }
+        }
+    }
 
     private void fileAsDocument(TTDocument document) throws Exception {
         try (TTDocumentFiler filer = new TTDocumentFilerRdf4j()) { //only rdf4j supported
@@ -130,31 +143,31 @@ public class TTTransactionFiler {
                    writeLog(document);
                 filer.commit();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error(e.getMessage());
                 filer.rollback();
             }
         }
     }
 
-
-    private void writeLog(TTDocument document) throws JsonProcessingException {
+    public void writeLog(TTDocument document) throws Exception {
         LOG.debug("Writing transaction to [{}]", logPath);
         File directory = new File(logPath);
         int logNumber = 0;
         for (File file : Objects.requireNonNull(directory.listFiles()))
             if (!file.isDirectory()) {
                 String name = file.getName();
-                if (name.startsWith("TTLog-")) {
+                if (name.startsWith(TTLog)) {
                     int counter = Integer.parseInt(name.split("-")[1].split("\\.")[0]);
                     if (counter > logNumber)
                         logNumber = counter;
                 }
             }
         logNumber++;
-        File logFile = new File(logPath + "TTLog-" + logNumber + ".json");
-        TTManager manager = new TTManager();
-        manager.setDocument(document);
-        manager.saveDocument(logFile);
+        File logFile = new File(logPath + TTLog + logNumber + ".json");
+        try(TTManager manager = new TTManager()) {
+            manager.setDocument(document);
+            manager.saveDocument(logFile);
+        }
     }
 
 

@@ -1,0 +1,12 @@
+{
+  "argument" : [ {
+    "parameter" : "this",
+    "valueIri" : {
+      "@id" : "http://snomed.info/sct#763158003"
+    }
+  } ],
+  "query" : {
+    "@id" : "http://endhealth.info/im#Query_AllowableProperties",
+    "name" : "Allowable Properties for a concept"
+  }
+}

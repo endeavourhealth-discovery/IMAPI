@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +48,12 @@ public class FilerController {
 
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public void fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
+    public ResponseEntity fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
         LOG.debug("fileDocument");
         String agentName = reqObjService.getRequestAgentName(request);
-        filerService.fileDocument(document, agentName);
+        filerService.fileTransactionDocument(document, agentName);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("file/entity")

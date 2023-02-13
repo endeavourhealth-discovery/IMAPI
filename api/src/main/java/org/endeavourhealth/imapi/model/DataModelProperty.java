@@ -14,6 +14,17 @@ public class DataModelProperty implements Serializable {
 	private String maxExclusive;
 	private String pattern;
 	private TTIriRef inheritedFrom;
+	private int order;
+
+
+	public int getOrder() {
+		return order;
+	}
+
+	public DataModelProperty setOrder(int order) {
+		this.order = order;
+		return this;
+	}
 
 	public TTIriRef getProperty() {
 		return property;

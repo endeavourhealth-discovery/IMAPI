@@ -15,296 +15,344 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TTBulkFiler  extends TTDocumentFiler {
-	private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
-	private static String dataPath;
-	private static String configTTl;
-	private static String preload;
-	private FileWriter codeMap;
-	private FileWriter termCoreMap;
-	private FileWriter coreTerms;
-	private FileWriter quads;
-	private FileWriter subtypes;
-	private FileWriter codeCoreMap;
-	private FileWriter descendants;
-	private FileWriter legacyCore;
-	private FileWriter allEntities;
-	private FileWriter codeIds;
-	private FileWriter coreIris;
-	private static int privacyLevel=0;
-	private static int statementCount;
-	private static final Set<String> specialChildren= new HashSet<>(Arrays.asList(SNOMED.NAMESPACE+"92381000000106"));
+    private static final Logger LOG = LoggerFactory.getLogger(TTBulkFiler.class);
+    private static String dataPath;
+    private static String configTTl;
+    private static String preload;
+    private FileWriter codeMap;
+    private FileWriter termCoreMap;
+    private FileWriter coreTerms;
+    private FileWriter quads;
+    private FileWriter subtypes;
+    private FileWriter codeCoreMap;
+    private FileWriter descendants;
+    private FileWriter legacyCore;
+    private FileWriter allEntities;
+    private FileWriter codeIds;
+    private FileWriter coreIris;
+    private static int privacyLevel=0;
+    private static int statementCount;
+    private static final Set<String> specialChildren= new HashSet<>(List.of(SNOMED.NAMESPACE + "92381000000106"));
 
-	@Override
-	protected void startTransaction() throws TTFilerException {
+    @Override
+    protected void startTransaction() {
+        // Do nothing
+    }
 
-	}
+    @Override
+    protected void commit() {
+        // Do nothing
+    }
 
-	@Override
-	protected void commit() throws TTFilerException {
+    @Override
+    protected void rollback() {
+        // Do nothing
+    }
 
-	}
+    public void fileDocument(TTDocument document) throws TTFilerException {
+        if (document.getEntities() == null)
+            return;
+        if (document.getEntities().isEmpty())
+            return;
+        writeGraph(document);
 
-	@Override
-	protected void rollback() {
-	}
-
-
-	public void fileDocument(TTDocument document) throws TTFilerException {
-		if (document.getEntities() == null)
-			return;
-		if (document.getEntities().isEmpty())
-			return;
-		writeGraph(document);
-
-	}
-
-
+    }
 
 
-	private void writeGraph(TTDocument document) throws TTFilerException {
-
-		String graph=null;
-		if (document.getGraph()!=null) {
-			graph = document.getGraph().getIri();
-		}
-		String scheme = graph.substring(graph.lastIndexOf("/") + 1);
-		String path = dataPath;
-		try {
-			try {
-				quads = new FileWriter(path + "/BulkImport" + ".nq",true);
-				//quads = new FileWriter(path + "/BulkImport-" + fileNumber + ".nq");
-				codeMap = new FileWriter(path + "/CodeMap-" + scheme + ".txt",true);
-				termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt",true);
-				subtypes = new FileWriter(path + "/SubTypes" + ".txt",true);
-				allEntities = new FileWriter(path + "/Entities" + ".txt", true);
-				codeCoreMap = new FileWriter(path + "/CodeCoreMap-" + scheme+ ".txt",true);
-				codeIds= new FileWriter(path+"/CodeIds-"+scheme+".txt",true);
-				descendants = new FileWriter(path + "/Descendants" + ".txt",true);
-				coreTerms = new FileWriter(path + "/CoreTerms" + ".txt",true);
-				legacyCore = new FileWriter(path + "/LegacyCore" + ".txt",true);
-				coreIris= new FileWriter(path+"/coreIris.txt",true);
 
 
-				int counter = 0;
-				TTToNQuad converter = new TTToNQuad();
-				LOG.info("Writing out graph data for " + graph);
-				for (TTEntity entity : document.getEntities()) {
-					counter++;
-					String entityGraph= entity.getGraph()!=null ? entity.getGraph().getIri() : graph;
-					if (entity.get(IM.PRIVACY_LEVEL)!=null)
-						if (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue()>getPrivacyLevel())
-							continue;
+    private void writeGraph(TTDocument document) throws TTFilerException {
 
-				//	if (entity.getIri().equals("http://endhealth.info/emis#_ESCTMA381305"))
-				//		System.out.println(entity.getIri());
-					allEntities.write(entity.getIri() + "\n");
-					if (graph.equals(IM.NAMESPACE))
-						coreIris.write(entity.getIri()+"\t"+ entity.getName()+"\n");
-					addToMaps(entity,entityGraph);
-					addSubtypes(entity);
-					addTerms(entity,entityGraph);
+        String graph = null;
+        if (document.getGraph() != null) {
+            graph = document.getGraph().getIri();
+        }
+        String scheme = graph.substring(graph.lastIndexOf("/") + 1);
+        String path = dataPath;
 
-					if (counter % 100000 == 0)
-						LOG.info("Written {} entities for " + document.getGraph().getIri(), counter);
-					if (entity.get(RDFS.LABEL) != null) {
-						if (entity.get(IM.HAS_STATUS) == null)
-							entity.set(IM.HAS_STATUS, IM.ACTIVE);
-						if (entity.get(IM.HAS_SCHEME)==null)
-							entity.set(IM.HAS_SCHEME, TTIriRef.iri(graph));
-					}
+        try {
+            createFileWriters(scheme, path);
 
-					List<String> quadList = converter.transformEntity(entity, entityGraph);
-					for (String quad : quadList) {
-						quads.write(quad + "\n");
-						statementCount++;
-					}
-				}
-				LOG.debug(counter + "Document written to file");
-				LOG.info("Finished - total of {} statements,  {}", statementCount,new Date());
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new TTFilerException(e.getMessage());
-			} finally {
-				quads.close();
-				codeMap.close();
-				termCoreMap.close();
-				subtypes.close();
-				codeCoreMap.close();
-				descendants.close();
-				coreTerms.close();
-				legacyCore.close();
-				allEntities.close();
-				codeIds.close();
-				coreIris.close();
-			}
-		} catch (Exception e)  {
-		e.printStackTrace();
-		throw new TTFilerException("Unable to bulk file");
-	}
+            int counter = 0;
+            TTToNQuad converter = new TTToNQuad();
+            LOG.info("Writing out graph data for " + graph);
+            for (TTEntity entity : document.getEntities()) {
+                String entityGraph = entity.getGraph() != null ? entity.getGraph().getIri() : graph;
+                if (entity.get(IM.PRIVACY_LEVEL) != null && (entity.get(IM.PRIVACY_LEVEL).asLiteral().intValue() > getPrivacyLevel()))
+                    continue;
 
-}
+                allEntities.write(entity.getIri() + "\n");
+                if (graph.equals(IM.NAMESPACE))
+                    coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
+                addToMaps(entity, entityGraph);
+                addSubtypes(entity);
+                addTerms(entity, entityGraph);
 
-	private void addTerms(TTEntity entity, String graph) throws IOException {
-		boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
-		if (isCoreGraph)
-			if (entity.getName()!=null)
-				coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
-	}
+                setStatusAndScheme(graph, entity);
 
-	private void addSubtypes(TTEntity entity) throws IOException {
-		if (entity.get(RDFS.SUBCLASSOF)!=null)
-			for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
-				subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");
-				if (specialChildren.contains(parent.asIriRef().getIri()))
-					descendants.write(parent.asIriRef().getIri()+"\t"+ entity.getIri()+"\t"+ entity.getName()+"\n");
-			}
-		if (entity.get(RDFS.SUBPROPERTYOF)!=null)
-			for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
-				subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
-		if (entity.get(SNOMED.REPLACED_BY)!=null)
-			for (TTValue parent:entity.get(SNOMED.REPLACED_BY).getElements())
-				subtypes.write(entity.getIri()+"\t"+ SNOMED.REPLACED_BY.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
-	}
+                transformAndWriteQuads(converter, entity, entityGraph);
 
-	private void addToMaps(TTEntity entity,String graph) throws IOException {
-		boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
-		if (entity.getCode()!=null){
-			codeMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
-			if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
-				codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
-		}
-		if (entity.get(IM.CODE_ID)!=null)
-			codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
-				entity.getIri()+"\n");
-		if (entity.get(IM.HAS_TERM_CODE)!=null){
-				for (TTValue tc:entity.get(IM.HAS_TERM_CODE).getElements()) {
-					if (tc.asNode().get(IM.CODE) != null) {
-						String code = tc.asNode().get(IM.CODE).asLiteral().getValue();
-						if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
-							codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
-					}
-				}
-		}
+                if (counter++ % 100000 == 0)
+                    LOG.info("Written {} entities for {}", counter, document.getGraph().getIri());
+            }
+            LOG.debug("{} entities written to file", counter);
+            LOG.info("Finished - total of {} statements,  {}", statementCount, new Date());
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+            throw new TTFilerException(e.getMessage());
+        } finally {
+            closeFileWriters();
+        }
+    }
 
+    private static void setStatusAndScheme(String graph, TTEntity entity) {
+        if (entity.get(RDFS.LABEL) != null) {
+            if (entity.get(IM.HAS_STATUS) == null)
+                entity.set(IM.HAS_STATUS, IM.ACTIVE);
+            if (entity.get(IM.HAS_SCHEME) == null)
+                entity.set(IM.HAS_SCHEME, TTIriRef.iri(graph));
+        }
+    }
 
-		if (entity.get(IM.MATCHED_TO)!=null) {
-			for (TTValue core : entity.get(IM.MATCHED_TO).getElements()) {
-				if (!isCoreGraph) {
-					legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
-					if (entity.get(IM.CODE_ID)!=null)
-						codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
-							                           core.asIriRef().getIri()+"\n");
-				}
-				codeCoreMap.write(entity.getCode()+"\t"+ core.asIriRef().getIri()+"\n");
-				writeTermCoreMap(entity.getName(),core.asIriRef().getIri());
-				if (entity.get(IM.HAS_TERM_CODE) != null) {
-					for (TTValue tc : entity.get(IM.HAS_TERM_CODE).getElements()) {
-						TTNode termCode = tc.asNode();
-						if (termCode.get(IM.CODE) != null) {
-							String code = termCode.get(IM.CODE).asLiteral().getValue();
-							codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
-						}
-						if (termCode.get(RDFS.LABEL) != null) {
-							String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
+    private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, String entityGraph) throws IOException {
+        List<String> quadList = converter.transformEntity(entity, entityGraph);
+        for (String quad : quadList) {
+            quads.write(quad + "\n");
+            statementCount++;
+        }
+    }
 
-							writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
-						}
-					}
-				}
-			}
-		}
-	}
+    private void createFileWriters(String scheme, String path) throws IOException {
+        quads = new FileWriter(path + "/BulkImport" + ".nq", true);
+        //quads = new FileWriter(path + "/BulkImport-" + fileNumber + ".nq");
+        codeMap = new FileWriter(path + "/CodeMap-" + scheme + ".txt", true);
+        termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt", true);
+        subtypes = new FileWriter(path + "/SubTypes" + ".txt", true);
+        allEntities = new FileWriter(path + "/Entities" + ".txt", true);
+        codeCoreMap = new FileWriter(path + "/CodeCoreMap-" + scheme + ".txt", true);
+        codeIds = new FileWriter(path + "/CodeIds-" + scheme + ".txt", true);
+        descendants = new FileWriter(path + "/Descendants" + ".txt", true);
+        coreTerms = new FileWriter(path + "/CoreTerms" + ".txt", true);
+        legacyCore = new FileWriter(path + "/LegacyCore" + ".txt", true);
+        coreIris = new FileWriter(path + "/coreIris.txt", true);
+    }
 
-	private void writeTermCoreMap(String term,String core) throws IOException {
-		if (term== null)
-			return;
+    private void closeFileWriters() {
+        try {
+            quads.close();
+            codeMap.close();
+            termCoreMap.close();
+            subtypes.close();
+            codeCoreMap.close();
+            descendants.close();
+            coreTerms.close();
+            legacyCore.close();
+            allEntities.close();
+            codeIds.close();
+            coreIris.close();
+        } catch (IOException e) {
+            LOG.warn("Failed to close one or more file writers");
+        }
+    }
 
-		termCoreMap.write(term+"\t"+ core+"\n");
-		byte[] arr=term.getBytes(StandardCharsets.UTF_8);
-		if (arr.length != term.length()){
-			StringBuilder newTerm= new StringBuilder();
-			for (byte b : arr) {
-				if (b > 0)
-					newTerm.append((char) b);
-			}
-			termCoreMap.write(newTerm+"\t"+ core+"\n");
-		}
-	}
+    private void addTerms(TTEntity entity, String graph) throws IOException {
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
+        if (isCoreGraph && entity.getName()!=null)
+            coreTerms.write(entity.getName()+"\t"+ entity.getIri()+"\n");
+    }
+
+    private void addSubtypes(TTEntity entity) throws IOException {
+        if (entity.get(RDFS.SUBCLASSOF)!=null)
+            for (TTValue parent:entity.get(RDFS.SUBCLASSOF).getElements()) {
+                subtypes.write(entity.getIri() + "\t" + RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri() + "\n");
+                if (specialChildren.contains(parent.asIriRef().getIri()))
+                    descendants.write(parent.asIriRef().getIri()+"\t"+ entity.getIri()+"\t"+ entity.getName()+"\n");
+            }
+        if (entity.get(RDFS.SUBPROPERTYOF)!=null)
+            for (TTValue parent:entity.get(RDFS.SUBPROPERTYOF).getElements())
+                subtypes.write(entity.getIri()+"\t"+ RDFS.SUBCLASSOF.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
+        if (entity.get(SNOMED.REPLACED_BY)!=null)
+            for (TTValue parent:entity.get(SNOMED.REPLACED_BY).getElements())
+                subtypes.write(entity.getIri()+"\t"+ SNOMED.REPLACED_BY.getIri()+"\t"+ parent.asIriRef().getIri()+"\n");
+    }
+
+    private void addToMaps(TTEntity entity,String graph) throws IOException {
+        addCodeToMaps(entity, graph);
+        addCodeIdToMaps(entity);
+        addTermCodeToMaps(entity, graph);
+        addMatchToToMaps(entity, graph);
+    }
+
+    private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
+        if (entity.getCode()!=null){
+            codeMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
+            if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
+                codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
+        }
+    }
+
+    private void addCodeIdToMaps(TTEntity entity) throws IOException {
+        if (entity.get(IM.CODE_ID)!=null) {
+            for (TTValue codeId : entity.get(IM.CODE_ID).getElements()) {
+                codeIds.write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+            }
+        }
+    }
+
+    private void addTermCodeToMaps(TTEntity entity, String graph) throws IOException {
+        if (entity.get(IM.HAS_TERM_CODE)!=null){
+                for (TTValue tc: entity.get(IM.HAS_TERM_CODE).getElements()) {
+                    if (tc.asNode().get(IM.CODE) != null) {
+                        String code = tc.asNode().get(IM.CODE).asLiteral().getValue();
+                        if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
+                            codeCoreMap.write(code + "\t" + entity.getIri() + "\n");
+                    }
+                }
+        }
+    }
+
+    private void addMatchToToMaps(TTEntity entity, String graph) throws IOException {
+        boolean isCoreGraph= graph.equals(IM.NAMESPACE)||graph.equals(SNOMED.NAMESPACE);
+
+        if (entity.get(IM.MATCHED_TO)!=null) {
+            for (TTValue core : entity.get(IM.MATCHED_TO).getElements()) {
+                if (!isCoreGraph) {
+                    legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
+                    if (entity.get(IM.CODE_ID)!=null)
+                        codeIds.write(entity.get(IM.CODE_ID).asLiteral().getValue()+"\t"+
+                                                       core.asIriRef().getIri()+"\n");
+                }
+                codeCoreMap.write(entity.getCode()+"\t"+ core.asIriRef().getIri()+"\n");
+                writeTermCoreMap(entity.getName(),core.asIriRef().getIri());
+                addMatchToHasTermCode(entity, core);
+            }
+        }
+    }
+
+    private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
+
+        if (entity.get(IM.HAS_TERM_CODE) != null) {
+            for (TTValue tc : entity.get(IM.HAS_TERM_CODE).getElements()) {
+                TTNode termCode = tc.asNode();
+                if (termCode.get(IM.CODE) != null) {
+                    String code = termCode.get(IM.CODE).asLiteral().getValue();
+                    codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
+                }
+                if (termCode.get(IM.OLD_CODE) != null) {
+                    String code = termCode.get(IM.OLD_CODE).asLiteral().getValue();
+                    codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
+                }
+                if (termCode.get(RDFS.LABEL) != null) {
+                    String term = termCode.get(RDFS.LABEL).asLiteral().getValue();
+                    writeTermCoreMap(term, core.asIriRef().getIri()+"\n");
+                }
+            }
+        }
+    }
+
+    private void writeTermCoreMap(String term,String core) throws IOException {
+        if (term== null)
+            return;
+
+        termCoreMap.write(term+"\t"+ core+"\n");
+        byte[] arr=term.getBytes(StandardCharsets.UTF_8);
+        if (arr.length != term.length()){
+            StringBuilder newTerm= new StringBuilder();
+            for (byte b : arr) {
+                if (b > 0)
+                    newTerm.append((char) b);
+            }
+            termCoreMap.write(newTerm+"\t"+ core+"\n");
+        }
+    }
 
  public static void createRepository() throws TTFilerException {
-	 LOG.info("Fast import of {} quad data", new Date());
-	 String pathDelimiter = "/";
-		try {
-				String config = configTTl;
-				String data = dataPath;
-				String preloadPath =preload;
-				Process process = Runtime.getRuntime()
-					.exec("cmd /c " + "preload --stopOnFirstError --configFile " + config + "/Config.ttl " +"--queue.folder "+data + " "+ data + "/BulkImport*.nq",
-						null, new File(preloadPath));
-				BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-				String line;
-				while (true) {
-					line = r.readLine();
-					if (line == null) {
-						break;
-					}
-					System.out.println(line);
-				}
-			File directory= new File(data + pathDelimiter);
-			for(File file: Objects.requireNonNull(directory.listFiles()))
-				if (!file.isDirectory())
-					if(!file.delete()){
-						LOG.error("File delete failed");
-					}
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new TTFilerException(e.getMessage());
-		}
+     LOG.info("Fast import of {} quad data", new Date());
+     String pathDelimiter = "/";
+     try {
+         String config = configTTl;
+         String data = dataPath;
+         String preloadPath = preload;
+         String command = "importrdf preload -c " + config + "\\config.ttl --force -q " + data + " " + data + "\\BulkImport*.nq";
+         Process process = Runtime.getRuntime()
+                 .exec("cmd /c " + command,
+                         null, new File(preloadPath));
+         BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
+         BufferedReader e = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+         String line = r.readLine();
+         while (line != null) {
+             System.out.println(line);
+             line = r.readLine();
+         }
+
+         boolean error = false;
+         line = e.readLine();
+         while (line != null) {
+             error = true;
+             System.err.println(line);
+             line = e.readLine();
+         }
+
+         if (error || process.exitValue() != 0) {
+             System.err.println("Bulk import failed");
+             throw new TTFilerException("Bulk import failed");
+         }
+
+         File directory = new File(data + pathDelimiter);
+         for (File file : Objects.requireNonNull(directory.listFiles())) {
+             if (!file.isDirectory() && !file.delete())
+                 LOG.error("File delete failed");
+         }
+     } catch (IOException e) {
+         LOG.error(e.getMessage());
+         throw new TTFilerException(e.getMessage());
+     }
  }
 
 
-	@Override
-	public void close() throws Exception {
+    @Override
+    public void close() throws Exception {
+        // No autoclosable resources
+    }
 
-	}
+    public static String getDataPath() {
+        return dataPath;
+    }
 
-	public static String getDataPath() {
-		return dataPath;
-	}
+    public static void setDataPath(String dataPath) {
+        TTBulkFiler.dataPath = dataPath;
+    }
 
-	public static void setDataPath(String dataPath) {
-		TTBulkFiler.dataPath = dataPath;
-	}
+    public static String getConfigTTl() {
+        return configTTl;
+    }
 
-	public static String getConfigTTl() {
-		return configTTl;
-	}
+    public static void setConfigTTl(String configTTl) {
+        TTBulkFiler.configTTl = configTTl;
+    }
 
-	public static void setConfigTTl(String configTTl) {
-		TTBulkFiler.configTTl = configTTl;
-	}
+    public static String getPreload() {
+        return preload;
+    }
 
-	public static String getPreload() {
-		return preload;
-	}
+    public static void setPreload(String preload) {
+        TTBulkFiler.preload = preload;
+    }
 
-	public static void setPreload(String preload) {
-		TTBulkFiler.preload = preload;
-	}
+    public static int getPrivacyLevel() {
+        return privacyLevel;
+    }
 
-	public static int getPrivacyLevel() {
-		return privacyLevel;
-	}
+    public static void setPrivacyLevel(int privacyLevel) {
+        TTBulkFiler.privacyLevel = privacyLevel;
+    }
 
-	public static void setPrivacyLevel(int privacyLevel) {
-		TTBulkFiler.privacyLevel = privacyLevel;
-	}
+    public static int getStatementCount() {
+        return statementCount;
+    }
 
-	public static int getStatementCount() {
-		return statementCount;
-	}
-
-	public static void setStatementCount(int statementCount) {
-		TTBulkFiler.statementCount = statementCount;
-	}
+    public static void setStatementCount(int statementCount) {
+        TTBulkFiler.statementCount = statementCount;
+    }
 }

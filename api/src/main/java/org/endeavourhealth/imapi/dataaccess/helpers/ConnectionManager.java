@@ -34,9 +34,6 @@ public class ConnectionManager {
         return getRepository("config").getConnection();
     }
 
-    public static RepositoryConnection getProvConnection() {
-        return getRepository("prov").getConnection();
-    }
 
     public static TupleQuery prepareSparql(RepositoryConnection conn, String sparql) {
         try {

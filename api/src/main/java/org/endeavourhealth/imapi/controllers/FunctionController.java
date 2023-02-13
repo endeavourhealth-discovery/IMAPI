@@ -1,15 +1,22 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.FunctionService;
-import org.endeavourhealth.imapi.model.function.FunctionRequest;
+import org.endeavourhealth.imapi.model.iml.FunctionRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.DataFormatException;
 
 @RestController
 @RequestMapping("api/function")
@@ -18,8 +25,6 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class FunctionController {
 	private static final Logger LOG = LoggerFactory.getLogger(FunctionController.class);
-
-
 	@PostMapping( "/public/callFunction")
 	@Operation(
 		summary = "function",
@@ -31,4 +36,3 @@ public class FunctionController {
 		return new FunctionService().callFunction(function.getFunctionIri(),function.getArguments());
 	}
 }
-

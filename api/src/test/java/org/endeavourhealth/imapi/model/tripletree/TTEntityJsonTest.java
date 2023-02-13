@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.json.TTNodeSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

@@ -4,7 +4,6 @@ package org.endeavourhealth.imapi.filer;
 import org.endeavourhealth.imapi.filer.rdf4j.*;
 
 public class TTFilerFactory {
-    private static boolean skipDeletes=false;
     private static boolean bulk = false;
     private static int privacyLevel=0;
     private static boolean transactional= false;
@@ -16,14 +15,6 @@ public class TTFilerFactory {
 
     public static void setTransactional(boolean transactional) {
         TTFilerFactory.transactional = transactional;
-    }
-
-    public static boolean isSkipDeletes() {
-        return skipDeletes;
-    }
-
-    public static void setSkipDeletes(boolean skipDeletes) {
-        TTFilerFactory.skipDeletes = skipDeletes;
     }
 
     public static TTDocumentFiler getDocumentFiler() {

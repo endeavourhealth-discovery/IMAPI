@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.parser.turtle.TurtliteParser;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
@@ -30,7 +31,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 		this.lexer = new TurtliteLexer(null);
 		this.parser = new TurtliteParser(null);
 		this.parser.removeErrorListeners();
-		this.parser.addErrorListener(new ECLErrorListener());
+		this.parser.addErrorListener(new ParserErrorListener());
 	}
 
 	/**
@@ -86,45 +87,37 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 				}
 			} else if (triples.subject().BlankNode()!=null){
 				String text= triples.subject().BlankNode().getText();
-				blankNodes.computeIfAbsent(text, t -> blankNodes.put(t, new TTNode()));
+				blankNodes.computeIfAbsent(text, t -> new TTNode());
 				convertPredicates(blankNodes.get(text),triples.predicateObjectList());
 			}
 		}
 
 	}
 
-	private void convertPredicates(TTNode node, TurtliteParser.PredicateObjectListContext po) throws DataFormatException {
-		if (po.verb()!=null){
+	private void convertPredicates(TTNode node, List<TurtliteParser.PredicateObjectListContext> poList) throws DataFormatException {
 			TTIriRef predicate;
-			for (int i=0;i<po.verb().size();i++){
-				TurtliteParser.VerbContext verb= po.verb(i);
+			for (TurtliteParser.PredicateObjectListContext po:poList){
+				TurtliteParser.VerbContext verb= po.verb();
 				if (verb.getText().equals("a"))
 					predicate= RDF.TYPE;
 				else
 					predicate= TTIriRef.iri(getIri(verb.predicate().iri().getText()));
-				convertObjects(node,predicate,po.objectList(i));
+				convertObjects(node,predicate,po.objectList());
 			}
-		}
 
 	}
 
 	private void convertObjects(TTNode node, TTIriRef predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
-		boolean functional= objectList.object().size()>1;
 		for (TurtliteParser.ObjectContext object: objectList.object()) {
-		    if (object.collection() != null) {
-                TTArray value= new TTArray();
-                convertCollection(value,object.collection());
-                node.set(predicate, value);
-            } else {
-                TTValue value = getObjectValue(object);
-                if (functional)
-                    node.set(predicate, value);
-                else {
-                    if (node.get(predicate) == null)
-                        node.set(predicate, new TTArray());
-                    node.get(predicate).add(value);
-                }
-            }
+			if (object.collection()!=null) {
+				for (TurtliteParser.ObjectContext member : object.collection().object()) {
+					node.addObject(predicate, getObjectValue(member));
+				}
+			}
+			else {
+				TTValue value = getObjectValue(object);
+				node.addObject(predicate, value);
+			}
 		}
 	}
 
@@ -141,10 +134,10 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 			 return getBlankNode(object.BlankNode().getText());
 		} else if (object.blankNodePropertyList()!=null){
 			value= new TTNode();
-			convertBlankNodePropertyList(value.asNode(),object.blankNodePropertyList());
+			convertBlankNode(value.asNode(),object.blankNodePropertyList());
 			return value;
 		} else if (object.collection()!=null){
-            throw new DataFormatException("Unhandled collection");
+				throw new DataFormatException("Unhandled collection");
 		}
 		else
 			throw new DataFormatException("Unknown object type " + object.getText());
@@ -158,9 +151,9 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 		}
 	}
 
-	private void convertBlankNodePropertyList(TTNode value, TurtliteParser.BlankNodePropertyListContext blankNodePropertyList) throws DataFormatException {
+	private void convertBlankNode(TTNode value, TurtliteParser.BlankNodePropertyListContext blankNodePropertyList) throws DataFormatException {
 		if (blankNodePropertyList.predicateObjectList()!=null){
-			TurtliteParser.PredicateObjectListContext polist= blankNodePropertyList.predicateObjectList();
+			List<TurtliteParser.PredicateObjectListContext> polist= blankNodePropertyList.predicateObjectList();
 			convertPredicates(value,polist);
 		}
 	}

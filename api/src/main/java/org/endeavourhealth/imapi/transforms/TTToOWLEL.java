@@ -92,19 +92,16 @@ public class TTToOWLEL {
          addDeclaration(entity);
          Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
          for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
-            if (entry.getKey().equals(RDFS.SUBCLASSOF))
-               addSubClassOf(iri, entry.getValue());
+            if (entry.getKey().equals(RDFS.SUBCLASSOF)) {
+               if (!entity.isType(RDF.PROPERTY))
+                  addSubClassOf(iri, entry.getValue());
+               else
+                  addSubPropertyOf(iri,OWL.OBJECTPROPERTY,entry.getValue());
+            }
             else if (entry.getKey().equals(OWL.EQUIVALENTCLASS)) {
                   addEquivalentClasses(iri, entry.getValue());
             } else if (entry.getKey().equals(RDFS.SUBPROPERTYOF)) {
-               TTIriRef propertyType;
-               if (entity.isType(RDF.PROPERTY))
-                  propertyType=OWL.DATATYPEPROPERTY;
-               else if (entity.isType(OWL.DATATYPEPROPERTY))
-                  propertyType=OWL.DATATYPEPROPERTY;
-               else
-                  propertyType= OWL.OBJECTPROPERTY;
-               addSubPropertyOf(iri, propertyType,entry.getValue());
+               addSubPropertyOf(iri, OWL.OBJECTPROPERTY,entry.getValue());
             } else if (entry.getValue().isLiteral())
                addAnnotation(iri,entry.getKey(),entry.getValue().asLiteral());
          }
@@ -123,7 +120,7 @@ public class TTToOWLEL {
             OWLEquivalentClassesAxiom equAx;
             equAx = dataFactory.getOWLEquivalentClassesAxiom(
                 dataFactory.getOWLClass(iri),
-                getOWLClassExpression(exp));
+                getOWLEquivalentClassExpression(exp));
             manager.addAxiom(ontology, equAx);
          }
       }
@@ -253,10 +250,6 @@ public class TTToOWLEL {
                     .map(this::getOWLClassExpression)
                     .collect(Collectors.toSet()));
          } else if (cex.asNode().get(OWL.ONPROPERTY) != null) {
-            TTIriRef propertyType = guessPropertyType(cex.asNode());
-            if (propertyType.equals(OWL.DATATYPEPROPERTY))
-               return getDPERestrictionAsOWLClassExpression(cex);
-            else
                return getOPERestrictionAsOWlClassExpression(cex);
          } else if (cex.asNode().get(OWL.ONEOF) != null) {
             return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONEOF));
@@ -268,17 +261,40 @@ public class TTToOWLEL {
 
 }
 
-   private TTIriRef guessPropertyType(TTNode exp) {
-      TTEntity entity= ttManager.getEntity(exp.get(OWL.ONPROPERTY).asIriRef().getIri());
-      if (entity==null)
-         return OWL.OBJECTPROPERTY;
-      if (entity.isType(OWL.DATATYPEPROPERTY))
-         return OWL.DATATYPEPROPERTY;
-      else  if (entity.isType(RDF.PROPERTY))
-         return OWL.DATATYPEPROPERTY;
-      else
-         return OWL.OBJECTPROPERTY;
+
+
+   public OWLClassExpression getOWLEquivalentClassExpression(TTValue cex) {
+      if (cex.isIriRef()) {
+         IRI iri= getIri(cex.asIriRef());
+         checkUndeclared(iri,dataFactory.getOWLEntity(EntityType.CLASS,iri));
+         return dataFactory.getOWLClass(getIri(cex.asIriRef()));
+      } else if (cex.isNode()) {
+         if (cex.asNode().get(OWL.INTERSECTIONOF) != null) {
+            return dataFactory.getOWLObjectIntersectionOf(
+              cex.asNode().get(OWL.INTERSECTIONOF)
+                .stream()
+                .map(this::getOWLEquivalentClassExpression)
+                .collect(Collectors.toSet()));
+            //
+         } else if (cex.asNode().get(OWL.UNIONOF) != null) {
+            return dataFactory.getOWLObjectUnionOf(
+              cex.asNode().get(OWL.UNIONOF)
+                .stream()
+                .map(this::getOWLClassExpression)
+                .collect(Collectors.toSet()));
+         } else if (cex.asNode().get(OWL.ONPROPERTY) != null) {
+               return getOPERestrictionAsOWlClassExpression(cex);
+         } else if (cex.asNode().get(OWL.ONEOF) != null) {
+            return getOneOfAsOWLClassExpression(cex.asNode().get(OWL.ONEOF));
+         } else if (cex.asNode().get(OWL.COMPLEMENTOF) != null) {
+            return (getComplementOfAsAOWLClassExpression(cex));
+         }
+      }
+      return dataFactory.getOWLClass("not sure of type of expression", prefixManager);
+
    }
+
+
 
 
    private OWLClassExpression getComplementOfAsAOWLClassExpression(TTValue cex) {
@@ -315,9 +331,9 @@ public class TTToOWLEL {
          else if (ttEntity.isType(OWL.OBJECTPROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
          else if (ttEntity.isType(OWL.DATATYPEPROPERTY))
-            entity = dataFactory.getOWLEntity(EntityType.DATA_PROPERTY, iri);
+            entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
       else if (ttEntity.isType(RDF.PROPERTY))
-         entity = dataFactory.getOWLEntity(EntityType.DATA_PROPERTY, iri);
+         entity = dataFactory.getOWLEntity(EntityType.OBJECT_PROPERTY, iri);
          else if (ttEntity.isType(OWL.ANNOTATIONPROPERTY))
             entity = dataFactory.getOWLEntity(EntityType.ANNOTATION_PROPERTY, iri);
          else if (ttEntity.isType(OWL.NAMEDINDIVIDUAL))

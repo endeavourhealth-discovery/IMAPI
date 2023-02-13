@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.model.tripletree.json.TTEntityDeserializer;
-import org.endeavourhealth.imapi.model.tripletree.json.TTEntitySerializer;
+import org.endeavourhealth.imapi.json.TTEntityDeserializer;
+import org.endeavourhealth.imapi.json.TTEntitySerializer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -14,7 +14,6 @@ import java.util.List;
 @JsonSerialize(using = TTEntitySerializer.class)
 @JsonDeserialize(using = TTEntityDeserializer.class)
 public class TTEntity extends TTNode implements Serializable {
-    private String iri;
     private TTContext context = new TTContext();
     private TTIriRef crud;
     private TTIriRef graph;
@@ -22,15 +21,12 @@ public class TTEntity extends TTNode implements Serializable {
     public TTEntity() {}
 
     public TTEntity(String iri) {
-        this.iri = iri;
-    }
 
-    public String getIri() {
-        return iri;
+        super.setIri(iri);
     }
 
     public TTEntity setIri(String iri) {
-        this.iri = iri;
+        super.setIri(iri);
         return this;
     }
 
@@ -56,7 +52,10 @@ public class TTEntity extends TTNode implements Serializable {
     }
 
     public TTEntity setDescription (String description) {
-        set(RDFS.COMMENT, TTLiteral.literal(description));
+        if (description==null)
+            getPredicateMap().remove(RDFS.COMMENT);
+        else
+            set(RDFS.COMMENT, TTLiteral.literal(description));
         return this;
     }
 

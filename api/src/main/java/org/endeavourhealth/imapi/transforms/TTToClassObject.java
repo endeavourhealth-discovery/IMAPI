@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.lang.reflect.*;
@@ -41,65 +41,73 @@ public class TTToClassObject {
 					field.setAccessible(true);
 					Type type = field.getGenericType();
 					if (type instanceof ParameterizedType) {
-						ParameterizedType pt = (ParameterizedType) type;
-						if (pt.getActualTypeArguments().length == 1) {
-							List<Object> list = new ArrayList<>();
-							setField(obj, fieldName, list);
-							Class<?> listClazz = null;
-							Type listType = pt.getActualTypeArguments()[0];
-							if (listType instanceof Class) {
-								listClazz = (Class<?>) listType;
-							}
-							for (TTValue value : entry.getValue().getElements()) {
-								if (value.isNode()) {
-									if (listClazz==null)
-										throw new InstantiationException("unable to converted entity due to class mismatch");
-									Object listItem = listClazz.newInstance();
-									list.add(listItem);
-									processNode(value.asNode(), listItem, listClazz);
-								} else if (value.isIriRef()) {
-									list.add(value);
-								} else {
-									if (value.asLiteral().getValue().startsWith("{")) {
-										list.add(jsonNodeFromLiteral(value.asLiteral().getValue(),listClazz));
-									}
-									else
-										addValue(list, value.asLiteral(), type);
-								}
-							}
-
-						}
-					} else {
-						Class<?> clazz = null;
-						if (type instanceof Class) {
-							clazz = (Class<?>) type;
-						}
-						TTArray value = entry.getValue();
-						if (value.isNode()) {
-							if (clazz==null)
-								throw new InstantiationException("UJnable to parse entity due to class mismatch");
-							String item = clazz.getName();
-							setField(obj, fieldName, item);
-							processNode(value.asNode(), item, clazz);
-						} else if (value.isIriRef()) {
-							setField(obj, fieldName, value.asIriRef());
-						} else {
-							if (value.asLiteral().getValue().startsWith("{")) {
-								setField(obj,fieldName,jsonNodeFromLiteral(value.asLiteral().getValue(),clazz));
-							}
-							else
-							 setValue(obj, fieldName, value.asLiteral(), type);
-						}
-					}
+                        processNodeParameterizedType(obj, entry, fieldName, (ParameterizedType) type);
+                    } else {
+                        processNodeOtherType(obj, entry, fieldName, type);
+                    }
 
 				}
 			}
 		}
 	}
 
-	private Object jsonNodeFromLiteral(String json,Class<?> classType) throws JsonProcessingException {
-		return new ObjectMapper().readValue(json,classType);
+    private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+		if (1 != pt.getActualTypeArguments().length) {
+			return;
+		}
+		List<Object> list = new ArrayList<>();
+		setField(obj, fieldName, list);
+		Class<?> listClazz = null;
+		Type listType = pt.getActualTypeArguments()[0];
+		if (listType instanceof Class) {
+			listClazz = (Class<?>) listType;
+		}
+		for (TTValue value : entry.getValue().getElements()) {
+			if (value.isNode()) {
+				if (listClazz==null)
+					throw new InstantiationException("unable to converted entity due to class mismatch");
+				Object listItem = listClazz.newInstance();
+				list.add(listItem);
+				processNode(value.asNode(), listItem, listClazz);
+			} else if (value.isIriRef()) {
+				list.add(value);
+			} else {
+				if (value.asLiteral().getValue().startsWith("{")) {
+					list.add(jsonNodeFromLiteral(value.asLiteral().getValue(),listClazz));
+				}
+				else
+					addValue(list, value.asLiteral(), pt);
+			}
+		}
+    }
 
+    private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException {
+        Class<?> clazz = null;
+        if (type instanceof Class) {
+            clazz = (Class<?>) type;
+        }
+        TTArray value = entry.getValue();
+        if (value.isNode()) {
+            if (clazz==null)
+                throw new InstantiationException("UJnable to parse entity due to class mismatch");
+            String item = clazz.getName();
+            setField(obj, fieldName, item);
+            processNode(value.asNode(), item, clazz);
+        } else if (value.isIriRef()) {
+            setField(obj, fieldName, value.asIriRef());
+        } else {
+            if (value.asLiteral().getValue().startsWith("{")) {
+                setField(obj, fieldName,jsonNodeFromLiteral(value.asLiteral().getValue(),clazz));
+            }
+            else
+             setValue(obj, fieldName, value.asLiteral(), type);
+        }
+    }
+
+    private Object jsonNodeFromLiteral(String json,Class<?> classType) throws JsonProcessingException {
+        try (CachedObjectMapper om = new CachedObjectMapper()) {
+            return om.readValue(json, classType);
+        }
 	}
 
 	private void setValue(Object object,String fieldName, TTLiteral value, Type type) {

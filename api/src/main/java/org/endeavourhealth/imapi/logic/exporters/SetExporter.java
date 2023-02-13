@@ -5,7 +5,6 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -14,7 +13,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.model.CoreLegacyCode;
+import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -24,11 +27,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.zip.DataFormatException;
 
 @Component
 public class SetExporter {
@@ -36,21 +41,22 @@ public class SetExporter {
 
     private EntityRepository2 entityRepository2 = new EntityRepository2();
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetRepository setRepository= new SetRepository();
 
-    public void publishSetToIM1(String setIri){
+    public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException {
         StringJoiner results = generateForIm1(setIri);
 
         pushToS3(results);
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) {
+    public StringJoiner generateForIm1(String setIri) throws DataFormatException, JsonProcessingException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
-        Set<CoreLegacyCode> members = getExpandedSetMembers(setIri, true);
+        Set<Concept> members = getExpandedSetMembers(setIri, true);
 
         return generateTSV(setIri, name, members);
     }
@@ -59,7 +65,7 @@ public class SetExporter {
         LOG.trace("Getting set list...");
         Set<String> setIris = new HashSet<>();
 
-        Set<String> subsets = entityRepository2.getSubsets(setIri);
+        Set<String> subsets = setRepository.getSubsets(setIri);
 
         if (subsets.isEmpty())
             setIris.add(setIri);
@@ -71,29 +77,37 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<CoreLegacyCode> getExpandedSetMembers(String setIri, boolean includeLegacy) {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
-        Set<CoreLegacyCode> result = new HashSet<>();
+        Set<Concept> result = new HashSet<>();
 
         for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
 
-            Set<CoreLegacyCode> members = entityRepository2.getSetMembers(iri, includeLegacy);
+            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
             if (members != null && !members.isEmpty()) {
                 result.addAll(members);
             } else {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
-                result.addAll(entityRepository2.getSetExpansion(entity.get(IM.DEFINITION), includeLegacy));
+                if (entity.get(IM.DEFINITION)!=null)
+                    result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
+                        includeLegacy,null));
+                else
+                  result.addAll(setRepository.getSetExpansion(new Query()
+                      .from(f->f
+                        .setIri(entity.getIri())
+                        .setIncludeSubtypes(true))
+                    ,includeLegacy,null));
             }
         }
 
         return result;
     }
 
-    private StringJoiner generateTSV(String setIri, String name, Set<CoreLegacyCode> members) {
+    private StringJoiner generateTSV(String setIri, String name, Set<Concept> members) {
         LOG.trace("Generating output...");
 
         Set<String> im1Ids = new HashSet<>();
@@ -101,28 +115,36 @@ public class SetExporter {
         StringJoiner results = new StringJoiner(System.lineSeparator());
         results.add("vsId\tvsName\tmemberDbid");
 
-        for(CoreLegacyCode member : members) {
-            if (member.getIm1Id() != null && !im1Ids.contains(member.getIm1Id())) {
-                results.add(
-                    new StringJoiner("\t")
-                        .add(setIri)
-                        .add(name)
-                        .add(member.getIm1Id())
-                        .toString()
-                );
-
-                im1Ids.add(member.getIm1Id());
+        for(Concept member : members) {
+            if (member.getIm1Id() != null) {
+                for (String im1Id : member.getIm1Id()) {
+                    if (!im1Ids.contains(im1Id)) {
+                        results.add(
+                          new StringJoiner("\t")
+                            .add(setIri)
+                            .add(name)
+                            .add(im1Id)
+                            .toString());
+                        im1Ids.add(im1Id);
+                    }
+                }
             }
-            if (member.getLegacyIm1Id() != null && !im1Ids.contains(member.getLegacyIm1Id())) {
-                results.add(
-                    new StringJoiner("\t")
-                        .add(setIri)
-                        .add(name)
-                        .add(member.getLegacyIm1Id())
-                        .toString()
-                );
-
-                im1Ids.add(member.getLegacyIm1Id());
+            if (member.getMatchedFrom() != null){
+                for (Concept legacy:member.getMatchedFrom()) {
+                    if (legacy.getIm1Id() != null) {
+                        for (String im1Id : legacy.getIm1Id()) {
+                            if (!im1Ids.contains(im1Id)) {
+                                results.add(
+                                  new StringJoiner("\t")
+                                    .add(setIri)
+                                    .add(name)
+                                    .add(im1Id)
+                                    .toString());
+                                im1Ids.add(im1Id);
+                            }
+                        }
+                    }
+                }
             }
         }
         return results;

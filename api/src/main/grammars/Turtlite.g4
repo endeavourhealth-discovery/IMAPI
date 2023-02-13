@@ -7,6 +7,7 @@ turtleDoc
 statement
    : directive
    | triples '.'
+   | comment
    ;
 
 directive
@@ -33,12 +34,12 @@ sparqlPrefix
    ;
 
 triples
-   : subject predicateObjectList
-   | blankNodePropertyList predicateObjectList?
+   : subject predicateObjectList (';' predicateObjectList)*
+   | blankNodePropertyList
    ;
 
 predicateObjectList
-   : (verb objectList) (';' (verb objectList)?)*
+   : verb objectList
    ;
 
 objectList
@@ -75,7 +76,7 @@ literal
    ;
 
 blankNodePropertyList
-   : '[' predicateObjectList ']'
+   : '[' predicateObjectList  (';' predicateObjectList)* ']'
    ;
 
 collection
@@ -90,7 +91,12 @@ NumericLiteral
 rdfLiteral
    : String (LANGTAG | '^^' iri)?
    ;
-
+comment
+    : LINE_COMMENT
+     ;
+LINE_COMMENT
+     : '#' ~[\r\n]* -> skip
+     ;
 
 BooleanLiteral
    : 'true' | 'false'

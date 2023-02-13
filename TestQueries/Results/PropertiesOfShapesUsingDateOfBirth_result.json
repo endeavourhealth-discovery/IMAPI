@@ -1,0 +1,501 @@
+{
+  "entities" : [ {
+    "@id" : "http://endhealth.info/im#Patient",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#statedGender"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://hl7.org/fhir/ValueSet/administrative-gender"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#contact"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#deathIndicator"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#ethnicity"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#title"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#callingName"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#forenames"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#familyName"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#language"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#homeAddress"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Address"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#workAddress"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Address"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#temporaryAddress"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Address"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#oldAddress"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Address"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#pdsSensitive"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#relatedPersons"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#dateOfDeath"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#nhsNumber"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#integer"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#age"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#hospitalInpatientStay"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#HospitalInpatientStay"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#medicationAuthorisation"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#MedicationAuthorisation"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#gpCurrentRegistration"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#GPCurrentRegistration"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#placeOfResidenceAtEvent"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#appointment"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Appointment"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#carePlan"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#CarePlan"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#condition"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Condition"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#accidentAndEmergencyEncounter"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#AccidentAndEmergencyEncounter"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#allergyIntoleranceAndAdverseReaction"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#familyHistory"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#FamilyHistory"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#referralRequestOrProcedureRequest"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#ReferralRequestOrProcedureRequest"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#immunisation"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Immunisation"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#hospitalOutpatientEncounter"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#HospitalOutpatientEncounter"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#consultation"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Consultation"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#administrationNote"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#AdministrationNote"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#appointmentAttendance"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#AppointmentAttendance"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#criticalCareEncounter"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#CriticalCareEncounter"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#prescription"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#MedicationRequest"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#hospitalDischarge"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#HospitalDischarge"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#appointmentSession"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#AppointmentSession"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#observation"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Observation"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#numericMeasure"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#NumericMeasure"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#flag"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Flag"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#hospitalAdmission"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#HospitalAdmission"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#procedure"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Procedure"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#diagnosticReport"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#DiagnosticReport"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#episodeOfCare"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#EpisodeOfCare"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#gPAdminRegistrationStatus"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#GPAdminRegistrationStatus"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#gPRegistration"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#GPRegistration"
+      } ]
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#PractitionerInRole",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      } ],
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#minCount" : "1"
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#comment"
+      } ],
+      "http://www.w3.org/ns/shacl#maxCount" : "1"
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+      } ],
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#minCount" : "1",
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#Resource"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#status"
+      } ],
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#minCount" : "1",
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#Status"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#scheme"
+      } ],
+      "http://www.w3.org/ns/shacl#maxCount" : "1",
+      "http://www.w3.org/ns/shacl#minCount" : "1",
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#Graph"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#isContainedIn"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Folder"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://snomed.info/sct#370124000"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://endhealth.info/im#Entity"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#active_Inactive"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#contact"
+      } ],
+      "http://www.w3.org/ns/shacl#node" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#contractPeriod"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#title"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#familyName"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#callingName"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#foreNames"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#gender"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#identifiers"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#roleType"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#serviceOrOrganisation"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#speciality"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#workAddress"
+      } ],
+      "http://www.w3.org/ns/shacl#class" : [ {
+        "@id" : "http://endhealth.info/im#VSET_Unspecified"
+      } ]
+    }, {
+      "http://www.w3.org/ns/shacl#datatype" : [ {
+        "@id" : "http://www.w3.org/2001/XMLSchema#string"
+      } ],
+      "http://www.w3.org/ns/shacl#path" : [ {
+        "@id" : "http://endhealth.info/im#dateOfBirth"
+      } ]
+    } ]
+  } ]
+}

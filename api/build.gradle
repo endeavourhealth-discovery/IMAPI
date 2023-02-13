@@ -18,9 +18,9 @@ tasks {
                 'org.endeavourhealth.imapi.model.search.SearchResponse'
         ]
         classPatterns = [
-                'org.endeavourhealth.imapi.model.sets.*'
+                'org.endeavourhealth.imapi.model.iml.*'
         ]
-        outputFile = '../../IMLibrary/src/models/modules/AutoGen.ts'
+        outputFile = '../../IMDirectory/im_library/src/models/AutoGen.ts'
         outputKind = 'module'
     }
 }
@@ -41,14 +41,19 @@ dependencies {
     implementation libs.apacheCollections4
     implementation libs.apachePoi
     implementation libs.apacheText
+    implementation libs.awsS3
     implementation libs.factPlusPlus
     implementation libs.jacksonDatabind
     implementation libs.logbackCore
     implementation libs.logbackClassic
     implementation libs.elasticsearch
+    implementation libs.jerseyClient
     implementation libs.owlApi
+    implementation libs.openLlet
     implementation libs.reactorCore
+    implementation libs.rdf4jCommon
     implementation libs.rdf4jQuery
+    implementation libs.rdf4jIterator
     implementation libs.rdf4jRepoApi
     implementation libs.rdf4jRepoHttp
     implementation libs.rdf4jRepoSail
@@ -63,7 +68,8 @@ dependencies {
     implementation libs.springdoc
     implementation libs.validation
     implementation libs.woodstox
-    implementation libs.awsS3
+    implementation libs.wsrs
+
     runtimeOnly libs.h2database
     runtimeOnly libs.springDevTools
 

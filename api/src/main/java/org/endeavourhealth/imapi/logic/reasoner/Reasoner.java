@@ -1,14 +1,17 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
+import openllet.owlapi.OpenlletReasoner;
+import openllet.owlapi.OpenlletReasonerFactory;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.transforms.TTToOWLEL;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.*;
-import org.semanticweb.owlapi.reasoner.*;
+import org.semanticweb.owlapi.reasoner.NodeSet;
+import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
+import org.semanticweb.owlapi.reasoner.SimpleConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.manchester.cs.factplusplus.owlapiv3.FaCTPlusPlusReasonerFactory;
 import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
 import java.util.*;
@@ -37,6 +40,7 @@ public class Reasoner {
       inferred= new TTDocument();
       inferred.setContext(document.getContext());
       inferred.setGraph(document.getGraph());
+      inferred.setCrud(document.getCrud());
       classify(document);
       addDocumentRoles();
       for (TTEntity c:inferred.getEntities()){
@@ -117,10 +121,11 @@ public class Reasoner {
                addExpression(entity, superClass);
             }
          }
-      } else if (entity.get(OWL.EQUIVALENTCLASS) != null) {
-         for (TTValue superClass : entity.get(OWL.EQUIVALENTCLASS).iterator()) {
-            if (!superClass.isIriRef()) {
-               addExpression(entity, superClass);
+      }
+      if (entity.get(OWL.EQUIVALENTCLASS) != null) {
+         for (TTValue equClass : entity.get(OWL.EQUIVALENTCLASS).iterator()) {
+            if (!equClass.isIriRef()) {
+               addExpressionRoles(entity, equClass);
             }
          }
       }
@@ -158,6 +163,60 @@ public class Reasoner {
                LOG.debug("Only one level of nesting supported. ");
        } else
            throw new DataFormatException("Unrecognised owl expression format");
+   }
+
+
+   private void addExpressionRoles(TTEntity entity,TTValue expression) throws DataFormatException {
+      if (expression.isNode()) {
+         if (expression.asNode().get(OWL.INTERSECTIONOF) != null) {
+            for (TTValue subExp : expression.asNode().get(OWL.INTERSECTIONOF).iterator()) {
+               if (subExp.isNode()) {
+                  if (subExp.asNode().get(OWL.ONPROPERTY) != null) {
+                     TTIriRef property = subExp.asNode().get(OWL.ONPROPERTY).asIriRef();
+                     TTArray value = subExp.asNode().get(OWL.SOMEVALUESFROM);
+                     if (entity.get(IM.ROLE_GROUP) == null) {
+                        TTNode roleGroup = new TTNode();
+                        roleGroup.set(IM.GROUP_NUMBER, TTLiteral.literal(1));
+                        entity.addObject(IM.ROLE_GROUP, roleGroup);
+                     }
+                     if (value.isIriRef()) {
+                        entity.get(IM.ROLE_GROUP).asNode().set(property, value);
+                     }
+                     else {
+                        TTNode subGroup= new TTNode();
+                        entity.get(IM.ROLE_GROUP).asNode().set(property, subGroup);
+                        addSubRole(subGroup,value.asNode());
+                     }
+
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   private void addSubRole(TTNode subGroup,TTNode subExp) {
+      if (subExp.get(OWL.INTERSECTIONOF)!=null) {
+         for (TTValue and:subExp.get(OWL.INTERSECTIONOF).getElements()){
+            if (and.isNode()){
+               addSubRole(subGroup,and.asNode());
+            }
+         }
+      }
+      else {
+
+         TTIriRef property = subExp.get(OWL.ONPROPERTY).asIriRef();
+
+         TTArray value = subExp.asNode().get(OWL.SOMEVALUESFROM);
+         if (value.isIriRef()) {
+            subGroup.set(property, value);
+         } else {
+            TTNode subSub = new TTNode();
+            subGroup.set(property, subSub);
+            addSubRole(subGroup, value.asNode());
+         }
+      }
+
    }
 
    private void addRole(TTNode node, TTNode restriction) throws DataFormatException {
@@ -210,7 +269,7 @@ public class Reasoner {
     * @throws DataFormatException for invalid owl content
     */
 
-   public TTDocument classify(TTDocument document) throws OWLOntologyCreationException, DataFormatException {
+   public TTDocument classify(TTDocument document) throws OWLOntologyCreationException, DataFormatException{
       manager= new TTManager();
       manager.setDocument(document);
       if (document.getEntities() == null)
@@ -224,10 +283,11 @@ public class Reasoner {
       OWLOntologyManager owlManager = transformer.transform(document, dmanager);
       Set<OWLOntology> owlOntologySet = owlManager.getOntologies();
       Optional<OWLOntology> owlOntology = owlOntologySet.stream().findFirst();
+
       if (owlOntology.isPresent()) {
          OWLReasonerConfiguration config = new SimpleConfiguration();
          OWLOntology o = owlOntology.get();
-         OWLReasoner owlReasoner = new FaCTPlusPlusReasonerFactory().createReasoner(o, config);
+         OpenlletReasoner owlReasoner = OpenlletReasonerFactory.getInstance().createReasoner(o,config);
          owlReasoner.precomputeInferences();
          if (!owlReasoner.isConsistent()) {
             return null;
@@ -239,20 +299,17 @@ public class Reasoner {
             c.getPredicateMap().remove(RDFS.SUBPROPERTYOF);
             if (c.get(OWL.EQUIVALENTCLASS)!=null)
                c.set(IM.DEFINITIONAL_STATUS,IM.SUFFICIENTLY_DEFINED);
-            if (c.isType(OWL.OBJECTPROPERTY)) {
+            if (c.isType(OWL.OBJECTPROPERTY)||c.isType(RDF.PROPERTY)||c.isType(OWL.DATATYPEPROPERTY)) {
                OWLObjectPropertyExpression ope = dataFactory.getOWLObjectProperty(IRI.create(c.getIri()));
                NodeSet<OWLObjectPropertyExpression> superOb = owlReasoner.getSuperObjectProperties(ope, true);
                if (superOb != null) {
                   superOb.forEach(sob -> {
                      if (!sob.getRepresentativeElement().isAnonymous()) {
-                        if (!sob.getRepresentativeElement().asOWLObjectProperty()
-                                .getIRI()
-                                .toString().equals(OWL.NAMESPACE + "topObjectProperty")) {
+                        String iriName= sob.getRepresentativeElement().asOWLObjectProperty()
+                          .getIRI().toString();
+                        if (!iriName.equals(OWL.NAMESPACE + "topObjectProperty") &&(!iriName.contains("_TOP_"))) {
                            addSubClassOf(c, TTIriRef
-                                   .iri(sob
-                                           .getRepresentativeElement().asOWLObjectProperty()
-                                           .getIRI()
-                                           .toString()));
+                                   .iri(iriName));
                         } else {
                            addSubClassOf(c, RDF.PROPERTY);
                         }
@@ -266,14 +323,10 @@ public class Reasoner {
                if (superP != null) {
                   superP.forEach(sob -> {
                      if (!sob.getRepresentativeElement().isAnonymous()) {
-                        if (!sob.getRepresentativeElement().asOWLDataProperty()
-                                .getIRI()
-                                .toString().equals(OWL.NAMESPACE + "topDataProperty")) {
-                           addSubClassOf(c, TTIriRef
-                                   .iri(sob
-                                           .getRepresentativeElement().asOWLDataProperty()
-                                           .getIRI()
-                                           .toString()));
+                        String iriName= sob.getRepresentativeElement().asOWLDataProperty()
+                          .getIRI().toString();
+                        if (!iriName.equals(OWL.NAMESPACE + "topDataProperty")&&(!iriName.contains("_TOP_"))){
+                           addSubClassOf(c, TTIriRef.iri(iriName));
                         } else {
                            addSubClassOf(c, RDF.PROPERTY);
                         }
@@ -292,12 +345,14 @@ public class Reasoner {
                         addSubClassOf(c,iri);}
                      );
                   }
+                  /*
                   Node<OWLClass> equClasses= owlReasoner.getEquivalentClasses(owlClass);
                equClasses.forEach(sup -> {if (sup.isOWLClass()){
                   TTIriRef superIri= TTIriRef.iri(sup.getIRI().toString());
                   if (!superIri.equals(TTIriRef.iri(c.getIri())))
                      addSubClassOf(c,superIri);}
                });
+               */
 
             }
 
@@ -342,8 +397,9 @@ public class Reasoner {
       done= new HashSet<>();
       manager.setDocument(document);
       for (TTEntity entity:document.getEntities()){
-         if (entity.isType(SHACL.NODESHAPE))
+         if (entity.isType(SHACL.NODESHAPE)) {
             inheritProperties(entity);
+         }
       }
       return document;
 
@@ -362,11 +418,21 @@ public class Reasoner {
                inheritProperties(superEntity);
                if (superEntity.get(SHACL.PROPERTY) != null) {
                   for (TTValue superP : superEntity.get(SHACL.PROPERTY).getElements()) {
-                     if (!hasProperty(properties,superP.asNode().get(SHACL.PATH).asIriRef())) {
+                     if (superP.asNode().get(SHACL.PATH)==null){
                         order++;
-                        superP.asNode().set(SHACL.ORDER, TTLiteral.literal(order));
-                        superP.asNode().set(RDFS.DOMAIN, superClass);
-                        mergedProperties.add(superP);
+                        TTNode inherited= copyNode(superP.asNode());
+                        inherited.set(SHACL.ORDER, TTLiteral.literal(order));
+                        inherited.set(IM.INHERITED_FROM, superClass);
+                        mergedProperties.add(inherited);
+                     }
+                     else {
+                        if (!hasProperty(properties, superP.asNode().get(SHACL.PATH).asIriRef())) {
+                           order++;
+                           TTNode inherited= copyNode(superP.asNode());
+                           inherited.set(SHACL.ORDER, TTLiteral.literal(order));
+                           inherited.set(IM.INHERITED_FROM, superClass);
+                           mergedProperties.add(inherited);
+                        }
                      }
                   }
                }
@@ -384,6 +450,16 @@ public class Reasoner {
          shape.set(SHACL.PROPERTY, newValue);
          done.add(shape.getIri());
       }
+   }
+
+   private static TTNode copyNode(TTNode node){
+      TTNode result= new TTNode();
+      if (node.getPredicateMap()!=null){
+         for (Map.Entry<TTIriRef,TTArray> entry:node.getPredicateMap().entrySet()){
+            result.set(entry.getKey(),entry.getValue());
+         }
+      }
+      return result;
    }
 
 

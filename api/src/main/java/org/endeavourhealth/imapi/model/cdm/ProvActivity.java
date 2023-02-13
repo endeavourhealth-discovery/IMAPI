@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.model.cdm;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -9,12 +11,19 @@ import java.util.List;
  * Class which sets and gets Provenance activity entry
  */
 public class ProvActivity extends Entry {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ProvActivity.class);
 	public ProvActivity(){
 		this.addType(IM.PROV_ACIVITY);
+        super.setGraph(IM.GRAPH_PROV);
 	}
 
-	@Override
+    @Override
+    public ProvActivity setGraph(TTIriRef graph) {
+        LOG.error("Attempt to set graph on provenance");
+        return this;
+    }
+
+    @Override
 	public ProvActivity setIri(String iri){
 		super.setIri(iri);
 		return this;

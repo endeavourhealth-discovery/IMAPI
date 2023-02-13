@@ -9,7 +9,7 @@ Generated on: 2021.12.22 at 03:33:29 PM GMT
 
   -->
   <bindings scd="x-schema::tns" xmlns:tns="http://www.e-mis.com/emisopen">
-    <schemaBindings map="false">
+    <schemaBindings transformMap="false">
       <package name="org.endeavourhealth.imapi.parser.eqd"/>
     </schemaBindings>
     <bindings scd="~tns:EQDOC.GPES">

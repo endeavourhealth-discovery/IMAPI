@@ -698,7 +698,7 @@ public class EntityTripleRepository {
         return null;
     }
 
-    public Pageable<TTIriRef> getPropertySupertypesByConceptPagedWithTotalCount(String conceptIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
         List<TTIriRef> properties = new ArrayList<>();
         Pageable<TTIriRef> result = new Pageable<>();
 
@@ -756,6 +756,56 @@ public class EntityTripleRepository {
                     properties.add(new TTIriRef(bs.getValue("a1").stringValue(),bs.getValue("attributeName").stringValue()));
                 }
                 result.setResult(properties);
+            }
+        }
+        return result;
+    }
+
+    public Pageable<TTIriRef> getSuperiorPropertyValuesByPropertyPagedWithTotalCount(String propertyIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+        List<TTIriRef> values = new ArrayList<>();
+        Pageable<TTIriRef> result = new Pageable<>();
+
+        StringJoiner sqlCount = new StringJoiner(System.lineSeparator())
+            .add("SELECT (COUNT(?value) as ?count)")
+            .add("WHERE {")
+            .add("?property rdfs:range ?value .");
+        if (!inactive) {
+            sqlCount.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
+        }
+        sqlCount.add("}");
+
+        StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+            .add("SELECT ?value ?valueName")
+            .add("WHERE {")
+            .add("?property rdfs:range ?value .")
+            .add("?value rdfs:label ?valueName .");
+        if (!inactive) {
+            stringQuery.add("OPTIONAL {?value im:status ?vs}").add("FILTER(?vs != im:Inactive) .");
+        }
+        stringQuery.add("}");
+        stringQuery.add("ORDER BY ?valueName");
+
+        if (rowNumber != null && pageSize != null) {
+            stringQuery.add("LIMIT " + pageSize).add("OFFSET " + rowNumber);
+        }
+
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qryCount = prepareSparql(conn, sqlCount.toString());
+            qryCount.setBinding("property", iri(propertyIri));
+            try(TupleQueryResult rsCount = qryCount.evaluate()) {
+                BindingSet bsCount = rsCount.next();
+                result.setTotalCount(((Literal) bsCount.getValue("count")).intValue());
+            }
+
+            TupleQuery qry = prepareSparql(conn,stringQuery.toString());
+            qry.setBinding("property", iri(propertyIri));
+            try(TupleQueryResult rs = qry.evaluate()) {
+                result.setPageSize(pageSize);
+                while(rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    values.add(new TTIriRef(bs.getValue("value").stringValue(),bs.getValue("valueName").stringValue()));
+                }
+                result.setResult(values);
             }
         }
         return result;

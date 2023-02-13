@@ -625,17 +625,39 @@ public class EntityController {
 		return entityService.isValidPropertyValue(property, value);
 	}
 
-	@GetMapping(value = "/public/propertySuperTypes")
-	public Pageable<EntityReferenceNode> getPropertySupertypes(
+	@GetMapping(value = "/public/superiorPropertiesPaged")
+	@Operation(
+		summary = "Get top level properties for an entity as a tree node",
+		description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree"
+	)
+	public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(
 		@RequestParam(name = "conceptIri") String iri,
 		@RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
 		@RequestParam(name = "page", required = false) Integer page,
 		@RequestParam(name = "size", required = false) Integer size,
 		@RequestParam(name = "inactive", required = false) boolean inactive
 	) {
-		LOG.debug("getPropertySupertypes");
+		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
-		return entityService.getPropertySupertypes(iri,schemeIris,page,size,inactive);
+		return entityService.getSuperiorPropertiesPaged(iri,schemeIris,page,size,inactive);
+	}
+
+	@GetMapping(value = "/public/superiorPropertyValuesPaged")
+	@Operation(
+		summary = "Get top level property values for an entity as a tree node",
+		description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree"
+	)
+	public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(
+		@RequestParam(name = "propertyIri") String iri,
+		@RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+		@RequestParam(name = "page", required = false) Integer page,
+		@RequestParam(name = "size", required = false) Integer size,
+		@RequestParam(name = "inactive", required = false) boolean inactive
+	) {
+		LOG.debug("getSuperiorPropertyValuesPaged");
+		if (null == page) page = 1;
+		if (null == size) size = EntityService.MAX_CHILDREN;
+		return entityService.getSuperiorPropertyValuesPaged(iri,schemeIris,page,size,inactive);
 	}
 }

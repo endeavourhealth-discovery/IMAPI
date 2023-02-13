@@ -29,12 +29,14 @@ public class PathRepository {
 			Integer depth = pathQuery.getDepth();
 			String source = pathQuery.getSource().getIri();
 			List<Path> pathsToShape= getAllPaths(source,targetIri,depth);
+			if (pathsToShape!=null) {
 				pathsToShape.sort(Comparator.comparing((Path p) -> p.getItems().size()));
-				for (Path path:pathsToShape){
-					Where where= new Where();
+				for (Path path : pathsToShape) {
+					Where where = new Where();
 					document.addWhere(where);
-					whereFromPath(path,where);
+					whereFromPath(path, where);
 				}
+			}
 		}
 		return document;
 	}

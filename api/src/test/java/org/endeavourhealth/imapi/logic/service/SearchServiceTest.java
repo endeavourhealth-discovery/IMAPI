@@ -51,6 +51,7 @@ class SearchServiceTest {
 
 
 		for (QueryRequest qr1: List.of(
+			TestQueries.deleteSets(),
 			TestQueries.getAllowableSubtypes(),
 			TestQueries.pathToPostCode(),
 			TestQueries.pathToCSA(),
@@ -76,7 +77,7 @@ class SearchServiceTest {
 
 
 	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		String name;
+		String name=null;
 		if (dataSet.getQuery()!=null){
 			if (dataSet.getQuery().getFrom()!=null){
 				new QuerySummariser(dataSet.getQuery()).summarise(true);
@@ -84,8 +85,10 @@ class SearchServiceTest {
 		}
 		if (dataSet.getPathQuery()!=null)
 			name= dataSet.getPathQuery().getName();
-		else
+		else if (dataSet.getQuery()!=null)
 			name= dataSet.getQuery().getName();
+		else if (dataSet.getUpdate()!=null)
+			name= dataSet.getUpdate().getName();
 		if (name!=null)
 			name= name.replaceAll(" ","").replaceAll("\\(","").replaceAll("\\)","");
 		else
@@ -97,18 +100,14 @@ class SearchServiceTest {
 		}
 		ObjectMapper om= new ObjectMapper();
 		if (dataSet.getQuery()!=null) {
-			/*
-			SparqlConverter converter = new SparqlConverter(dataSet);
-			String spq = converter.getSelectSparql(null);
-			try (FileWriter wr = new FileWriter(testSparql + "\\" + name + "_sparql.json")) {
-				wr.write(spq);
-			}
-		 */
 			TTDocument result = searchService.queryIM(dataSet);
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
 				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
 			System.out.println("Found " + result.getEntities().size() + " entities");
+		}
+		else if (dataSet.getUpdate()!=null){
+			searchService.updateIM(dataSet);
 		}
 		else {
 			PathDocument result = searchService.pathQuery(dataSet);

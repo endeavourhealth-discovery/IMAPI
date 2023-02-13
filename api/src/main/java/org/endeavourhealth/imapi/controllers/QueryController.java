@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -73,5 +75,16 @@ public class QueryController {
     )
     public Query labelQuery(@RequestBody Query query) throws DataFormatException {
         return queryService.labelQuery(query);
+    }
+
+    @PostMapping( "/public/updateIM")
+    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+    @Operation(
+      summary = "update  IM",
+      description = "Runs a query based update on IM"
+    )
+    public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+        LOG.debug("updateIM");
+        searchService.updateIM(queryRequest);
     }
 }

@@ -11,22 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
+@JsonPropertyOrder({"graph","id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
 	private Bool bool;
 	private List<From> from;
 	private TTIriRef type;
-	private TTIriRef graph;
+	private TTAlias graph;
 	private Where where;
 	private String description;
 	private With with;
 
-	public TTIriRef getGraph() {
+	public TTAlias getGraph() {
 		return graph;
 	}
 
-	public From setGraph(TTIriRef graph) {
+	public From setGraph(TTAlias graph) {
 		this.graph = graph;
 		return this;
 	}

@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 public class SparqlConverter {
-	private final Query query;
+	private Query query;
+	private Update update;
 	private final QueryRequest queryRequest;
 	private String tabs="";
 	private Set<String> aliases= new HashSet<>();
@@ -24,7 +25,10 @@ public class SparqlConverter {
 
 	public SparqlConverter(QueryRequest queryRequest) {
 		this.queryRequest= queryRequest;
-		this.query= queryRequest.getQuery();
+		if (queryRequest.getQuery()!=null)
+			this.query= queryRequest.getQuery();
+		else
+			this.update= queryRequest.getUpdate();
 	}
 
 
@@ -164,6 +168,7 @@ public class SparqlConverter {
 
 
 	private void from(StringBuilder whereQl, String subject,From from) throws DataFormatException {
+
 		if (from.getSourceType()== SourceType.type){
 			type (whereQl,from,subject);
 		}
@@ -206,6 +211,9 @@ public class SparqlConverter {
 
 
 	private void froms(StringBuilder whereQl, String subject,From from) throws DataFormatException {
+		if (from.getGraph()!=null){
+			whereQl.append(" graph ").append(iriFromAlias(from.getGraph())).append(" {");
+		}
 
 		if (from.getFrom()==null){
 			from(whereQl,subject,from);
@@ -236,6 +244,9 @@ public class SparqlConverter {
 		}
 		if (from.getWhere()!=null){
 			where(whereQl,subject,from.getWhere());
+		}
+		if (from.getGraph()!=null) {
+			whereQl.append("}");
 		}
 	}
 
@@ -287,8 +298,10 @@ public class SparqlConverter {
 			}
 		}
 		if (subject.equals("entity")) {
-			if (query.isActiveOnly()) {
-				whereQl.append("?").append(subject).append(" im:status im:Active.\n");
+			if (query != null) {
+				if (query.isActiveOnly()) {
+					whereQl.append("?").append(subject).append(" im:status im:Active.\n");
+				}
 			}
 		}
 	}
@@ -635,5 +648,50 @@ public class SparqlConverter {
 	}
 
 
+	public String getUpdateSparql() throws DataFormatException {
+
+
+		StringBuilder updateQl = new StringBuilder();
+		updateQl.append(getDefaultPrefixes());
+		StringBuilder whereQl = new StringBuilder();
+		whereQl.append("WHERE {");
+		froms(whereQl,"entity",update.getFrom());
+		if (update.getDelete()!=null){
+			updateQl.append("DELETE { ");
+			for (Delete delete:update.getDelete()){
+				delete(updateQl,whereQl,"entity",delete);
+			}
+			updateQl.append("}");
+		}
+		updateQl.append("\n");
+
+		whereQl.append("}");
+
+		updateQl.append(whereQl).append("\n");
+		return updateQl.toString();
+
+	}
+
+
+	private void delete(StringBuilder updateQl,StringBuilder whereQl,String subject,Delete delete) throws DataFormatException {
+			if (delete.getSubject()==null)
+				updateQl.append("?").append(subject);
+			if (delete.getPredicate()!=null){
+				updateQl.append(" ").append(iriFromAlias(delete.getPredicate()));
+				if (delete.getObject()!=null){
+					updateQl.append(" ").append(iriFromAlias(delete.getObject())).append(".\n");
+				}
+				else {
+					o++;
+					updateQl.append(" ").append("?object").append(o).append(".\n");
+					whereQl.append("?").append(subject).append(" ").append(iriFromAlias(delete.getPredicate())).append(" ").append(o).append("\n");
+				}
+			}
+			else {
+				o++;
+				updateQl.append(" ").append("?predicate").append(o).append(" ?object").append(o).append(".\n");
+				whereQl.append("?").append(subject).append(" ?predicate").append(o).append(" ?object").append(o).append(".\n");
+			}
+		}
 
 }

@@ -1,21 +1,24 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Update {
-	private String name;
+public class Update extends TTAlias {
 	private String description;
 	private From from;
 	private List<Delete> delete;
 
-	public String getName() {
-		return name;
-	}
 
 	public Update setName(String name) {
-		this.name = name;
+		super.setName(name);
+		return this;
+	}
+
+	public Update setIri(String iri) {
+		super.setIri(iri);
 		return this;
 	}
 

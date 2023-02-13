@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.springframework.http.ResponseEntity;
 
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -60,6 +61,37 @@ public class QueryRepository {
             return graphSelectSearch(spq, conn);
 
         }
+    }
+
+    /**
+     * Generic query of IM with the select statements determining the response
+     *
+     * @param queryRequest QueryRequest object
+     * @return A response entity
+     * @throws DataFormatException     if query syntax is invalid
+     * @throws JsonProcessingException if the json is invalid
+     */
+    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+         this.queryRequest= queryRequest;
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            if (queryRequest.getUpdate()==null)
+                throw new DataFormatException("Missing update in query request");
+            if (queryRequest.getUpdate().getIri()==null)
+                throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
+            TTEntity updateEntity= getEntity(queryRequest.getUpdate().getIri());
+            queryRequest.setUpdate(updateEntity.get(IM.UPDATE_PROCEDURE).asLiteral().objectValue(Update.class));
+
+            checkReferenceDate();
+            SparqlConverter converter = new SparqlConverter(queryRequest);
+            String spq = converter.getUpdateSparql();
+            graphUpdateSearch(spq, conn);
+
+        }
+    }
+
+    private void graphUpdateSearch(String spq, RepositoryConnection conn) {
+        org.eclipse.rdf4j.query.Update update= conn.prepareUpdate(spq);
+        update.execute();
     }
 
     private void unpackQueryRequest(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
@@ -298,7 +330,7 @@ public class QueryRepository {
 
     private TTEntity getEntity(String iri) {
         return new EntityRepository2().getBundle(iri,
-        Set.of(IM.DEFINITION.getIri(),RDF.TYPE.getIri(),IM.FUNCTION_DEFINITION.getIri(),SHACL.PARAMETER.getIri())).getEntity();
+        Set.of(IM.DEFINITION.getIri(),RDF.TYPE.getIri(),IM.FUNCTION_DEFINITION.getIri(),IM.UPDATE_PROCEDURE.getIri(),SHACL.PARAMETER.getIri())).getEntity();
 
     }
 

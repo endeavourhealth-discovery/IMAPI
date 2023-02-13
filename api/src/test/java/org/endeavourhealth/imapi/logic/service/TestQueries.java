@@ -45,16 +45,17 @@ public class TestQueries {
 		return qr;
 	}
 
-	public static QueryRequest clearCodeGroups(){
+	public static QueryRequest deleteSets(){
 		QueryRequest qr= new QueryRequest()
 		.addArgument(new Argument()
 			.setParameter("this")
-			.setValueIri(TTIriRef.iri(QR.NAMESPACE+"QProject_331")))
-			.setUpdate(TTIriRef.iri(IM.NAMESPACE+"DeleteContainsLink"));
+			.setValueIri(TTIriRef.iri(QR.NAMESPACE)))
+			.setUpdate(new Update().setIri(IM.NAMESPACE+"DeleteSets"));
 		return qr;
 
-
 	}
+
+
 
 
 

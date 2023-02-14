@@ -38,6 +38,7 @@ import org.endeavourhealth.imapi.transforms.TTToTurtle;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -640,6 +641,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertiesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertiesPaged(iri,schemeIris,page,size,inactive);
 	}
 
@@ -658,6 +660,7 @@ public class EntityController {
 		LOG.debug("getSuperiorPropertyValuesPaged");
 		if (null == page) page = 1;
 		if (null == size) size = EntityService.MAX_CHILDREN;
+		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertyValuesPaged(iri,schemeIris,page,size,inactive);
 	}
 }

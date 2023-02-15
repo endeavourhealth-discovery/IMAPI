@@ -104,24 +104,33 @@ public class TTTranslator implements SyntaxTranslator {
 				} else if (targetValue instanceof TTArray) {
 					((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTArray) targetValue);
 				} else if (targetValue instanceof TTEntity) {
-					TTNode nodeValue = (TTNode) targetValue;
-					if (((TTEntity) targetValue).getIri() != null)
-						nodeValue.setIri(((TTEntity) targetValue).getIri());
-					if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-						((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), nodeValue);
-					}
+					setPropertyValueTTEntity(rule, (TTNode) targetEntity, targetValue, predicate);
 				} else if (targetValue instanceof TTValue) {
-					if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-						((TTNode) targetEntity).addObject(TTIriRef.iri(predicate), (TTValue) targetValue);
-					} else
-						((TTNode) targetEntity).set(TTIriRef.iri(predicate), (TTValue) targetValue);
+					setPropertyValueTTValue(rule, (TTNode) targetEntity, (TTValue) targetValue, predicate);
 				} else {
 					((TTNode) targetEntity).set(TTIriRef.iri(predicate), TTLiteral.literal(targetValue));
 				}
 			}
 		} catch (JsonProcessingException e) {
-			 throw new DataFormatException("Value of property : " + property + " cannot be set as its class is invalid (" + targetValue.getClass().getSimpleName() + ")");
+			throw new DataFormatException("Value of property : " + property + " cannot be set as its class is invalid (" + targetValue.getClass().getSimpleName() + ")");
 		}
 	}
+
+	private static void setPropertyValueTTEntity(MapProperty rule, TTNode targetEntity, Object targetValue, String predicate) {
+		TTNode nodeValue = (TTNode) targetValue;
+		if (((TTEntity) targetValue).getIri() != null)
+			nodeValue.setIri(((TTEntity) targetValue).getIri());
+		if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
+			targetEntity.addObject(TTIriRef.iri(predicate), nodeValue);
+		}
+	}
+
+	private static void setPropertyValueTTValue(MapProperty rule, TTNode targetEntity, TTValue targetValue, String predicate) {
+		if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
+			targetEntity.addObject(TTIriRef.iri(predicate), targetValue);
+		} else
+			targetEntity.set(TTIriRef.iri(predicate), targetValue);
+	}
+
 
 }

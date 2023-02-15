@@ -203,23 +203,7 @@ public class EqdResources {
 		VocColumnValueInNotIn in = cv.getInNotIn();
 		boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
 		if (!cv.getValueSet().isEmpty()) {
-			for (EQDOCValueSet vs : cv.getValueSet()) {
-				if (vs.getId()!=null)
-					if (labels.get(vs.getId())!=null) {
-						String description = labels.get(vs.getId()).toString();
-						pv.setDescription(pv.getDescription() == null ? description : pv.getDescription() + " " + description);
-					}
-				if (vs.getAllValues() != null) {
-					pv.setNotIn(getExceptionSet(vs.getAllValues()));
-				} else {
-					if (!notIn) {
-						pv.setIn(getInlineValues(vs));
-					}
-					else {
-						pv.setNotIn(getInlineValues(vs));
-					}
-				}
-			}
+			setWhereValueSetSetters(cv, pv, notIn);
 		} else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
 			for (String vset : cv.getLibraryItem()) {
 				String vsetName = "Unknown code set";
@@ -237,6 +221,25 @@ public class EqdResources {
 			setRangeValue(cv.getRangeValue(), pv);
 		}
 
+	}
+
+	private void setWhereValueSetSetters(EQDOCColumnValue cv, Where pv, boolean notIn) throws DataFormatException, IOException {
+		for (EQDOCValueSet vs : cv.getValueSet()) {
+			if (vs.getId()!=null && labels.get(vs.getId())!=null) {
+					String description = labels.get(vs.getId()).toString();
+					pv.setDescription(pv.getDescription() == null ? description : pv.getDescription() + " " + description);
+			}
+			if (vs.getAllValues() != null) {
+				pv.setNotIn(getExceptionSet(vs.getAllValues()));
+			} else {
+				if (!notIn) {
+					pv.setIn(getInlineValues(vs));
+				}
+				else {
+					pv.setNotIn(getInlineValues(vs));
+				}
+			}
+		}
 	}
 
 	public String getPath(String eqdPath) throws DataFormatException {
@@ -509,16 +512,8 @@ public class EqdResources {
 			i++;
 			Set<From> concepts = getValue(scheme, ev);
 			if (concepts != null) {
-				setContent.addAll(new ArrayList<>(concepts));
-					if (i==1) {
-						if (ev.getDisplayName() != null) {
-							vsetName.append(ev.getDisplayName());
-						} else
-							vsetName.append(concepts.stream().findFirst().get().getName());
-					}
-					if (i==2)
-						vsetName.append("AndMore");
-				}
+				getValueSetAppend(setContent, vsetName, i, ev, concepts);
+			}
 			else
 				System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
 
@@ -527,6 +522,18 @@ public class EqdResources {
 		storeValueSet(vs, setContent, vsetName.toString());
 		setContent.add(new From().setIri("urn:uuid:" + vs.getId()).setName(vsetName.toString()));
 		return setContent;
+	}
+
+	private static void getValueSetAppend(List<From> setContent, StringBuilder vsetName, int i, EQDOCValueSetValue ev, Set<From> concepts) {
+		setContent.addAll(new ArrayList<>(concepts));
+		if (i ==1) {
+			if (ev.getDisplayName() != null) {
+				vsetName.append(ev.getDisplayName());
+			} else
+				vsetName.append(concepts.stream().findFirst().get().getName());
+		}
+		if (i ==2)
+			vsetName.append("AndMore");
 	}
 
 	private void storeLibraryItem(TTIriRef iri) {
@@ -578,13 +585,7 @@ public class EqdResources {
 			String key = "EMISINTERNAL/" + originalCode;
 			Object mapValue = dataMap.get(key);
 			if (mapValue != null) {
-				From iri = new From().setIri(mapValue.toString());
-				String name = importMaps.getCoreName(iri.getIri());
-				if (name != null)
-					iri.setName(name);
-				Set<From> result = new HashSet<>();
-				result.add(iri);
-				return result;
+				return getValueIriResult(mapValue);
 			} else
 				throw new DataFormatException("unmapped emis internal code : " + key);
 		} else if (scheme == VocCodeSystemEx.SNOMED_CONCEPT || scheme.value().contains("SCT")) {
@@ -593,28 +594,40 @@ public class EqdResources {
 			schemes.add(IM.CODE_SCHEME_EMIS.getIri());
 			Set<TTIriRef> snomed = valueMap.get(originalCode);
 			if (snomed == null) {
-
-				snomed = getCoreFromCode(originalCode, schemes);
-				if (snomed == null)
-					if (legacyCode != null)
-						snomed = getCoreFromCode(legacyCode, schemes);
-				if (snomed == null)
-					if (originalTerm != null)
-						snomed = getCoreFromLegacyTerm(originalTerm);
-				if (snomed == null)
-					snomed = getCoreFromCodeId(originalCode);
-				if (snomed == null)
-					snomed = getLegacyFromTermCode(originalCode);
-
+				snomed = setValueSnomedChecks(originalCode, originalTerm, legacyCode, schemes);
 				if (snomed != null)
 					valueMap.put(originalCode, snomed);
 			}
-			if (snomed!=null)
-				return snomed.stream().map(e-> new From().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
+			if (snomed != null)
+				return snomed.stream().map(e -> new From().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
 			else return null;
 		} else
 			throw new DataFormatException("code scheme not recognised : " + scheme.value());
 
+	}
+
+	private Set<From> getValueIriResult(Object mapValue) throws IOException {
+		From iri = new From().setIri(mapValue.toString());
+		String name = importMaps.getCoreName(iri.getIri());
+		if (name != null)
+			iri.setName(name);
+		Set<From> result = new HashSet<>();
+		result.add(iri);
+		return result;
+	}
+
+	private Set<TTIriRef> setValueSnomedChecks(String originalCode, String originalTerm, String legacyCode, List<String> schemes) {
+		Set<TTIriRef> snomed;
+		snomed = getCoreFromCode(originalCode, schemes);
+		if (snomed == null && legacyCode != null)
+			snomed = getCoreFromCode(legacyCode, schemes);
+		if (snomed == null && originalTerm != null)
+			snomed = getCoreFromLegacyTerm(originalTerm);
+		if (snomed == null)
+			snomed = getCoreFromCodeId(originalCode);
+		if (snomed == null)
+			snomed = getLegacyFromTermCode(originalCode);
+		return snomed;
 	}
 
 
@@ -660,35 +673,7 @@ public class EqdResources {
 	private String getLabel(EQDOCColumnValue cv) {
 
 		if (cv.getValueSet() != null) {
-			StringBuilder setIds = new StringBuilder();
-			int i = 0;
-			for (EQDOCValueSet vs : cv.getValueSet()) {
-				i++;
-				if (i > 1)
-					setIds.append(",");
-				setIds.append(vs.getId());
-			}
-			if (labels.get(setIds.toString()) != null)
-				return (String) labels.get(setIds.toString());
-			else {
-				i = 0;
-				for (EQDOCValueSet vs : cv.getValueSet()) {
-					i++;
-					if (vs.getValues() != null)
-						if (vs.getValues().size() > 0) {
-							if (vs.getValues().get(0).getDisplayName() != null) {
-								counter++;
-								return (vs.getValues().get(0).getDisplayName() + " ....");
-							}
-						}
-						else if (vs.getAllValues() != null)
-							if (vs.getAllValues().getValues() != null)
-								if (vs.getAllValues().getValues().get(0).getDisplayName() != null) {
-									counter++;
-									return (vs.getAllValues().getValues().get(0).getDisplayName() + " ....");
-								}
-				}
-			}
+			return getLabelStringBuilder(cv);
 		}
 		else if (cv.getLibraryItem() != null) {
 			StringBuilder setIds = new StringBuilder();
@@ -706,13 +691,41 @@ public class EqdResources {
 		return null;
 	}
 
+	private String getLabelStringBuilder(EQDOCColumnValue cv) {
+		StringBuilder setIds = new StringBuilder();
+		int i = 0;
+		for (EQDOCValueSet vs : cv.getValueSet()) {
+			i++;
+			if (i > 1)
+				setIds.append(",");
+			setIds.append(vs.getId());
+		}
+		if (labels.get(setIds.toString()) != null)
+			return (String) labels.get(setIds.toString());
+		else {
+			return getLabelGetString(cv);
+		}
+	}
 
-
-
-
-
-
-
+	private String getLabelGetString(EQDOCColumnValue cv) {
+		int i;
+		i = 0;
+		for (EQDOCValueSet vs : cv.getValueSet()) {
+			i++;
+			if (vs.getValues() != null)
+				if (vs.getValues().size() > 0) {
+					if (vs.getValues().get(0).getDisplayName() != null) {
+						counter++;
+						return (vs.getValues().get(0).getDisplayName() + " ....");
+					}
+				} else if (vs.getAllValues() != null && vs.getAllValues().getValues() != null
+						&& vs.getAllValues().getValues().get(0).getDisplayName() != null) {
+					counter++;
+					return (vs.getAllValues().getValues().get(0).getDisplayName() + " ....");
+				}
+		}
+		return null;
+	}
 
 
 }

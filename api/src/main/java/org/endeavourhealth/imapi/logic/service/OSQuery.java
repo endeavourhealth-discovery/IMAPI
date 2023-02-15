@@ -451,39 +451,43 @@ public class OSQuery {
                 if (query.getSelect()==null)
                     query.select(s->s.setIri(RDFS.LABEL.getIri()));
                 for (Select select : query.getSelect()) {
-                    TTAlias prop = select;
-                    if (prop.getIri() != null) {
-                        String field = prop.getIri();
-                        switch (prop.getIri()) {
-                            case (RDFS.NAMESPACE + "label"):
-                                resultNode.put(field, searchResult.getName());
-                                break;
-                            case (RDFS.NAMESPACE + comment):
-                                if (searchResult.getDescription() != null)
-                                    resultNode.put(field, searchResult.getDescription());
-                                break;
-                            case (IM.NAMESPACE + "code"):
-                                resultNode.put(field, searchResult.getCode());
-                                break;
-                            case (IM.NAMESPACE + status):
-                                resultNode.set(field, fromIri(searchResult.getStatus(), om));
-                                break;
-                            case (IM.NAMESPACE + scheme):
-                                resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                                break;
-                            case (RDF.NAMESPACE + "type"):
-                                resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
-                                break;
-                            case (IM.NAMESPACE + weighting):
-                                resultNode.put(field, searchResult.getWeighting());
-                                break;
-                            default:
-
-                        }
-                    }
+                    convertOSResultAddNode(om, searchResult, resultNode, select);
                 }
             }
             return result;
+        }
+    }
+
+    private void convertOSResultAddNode(CachedObjectMapper om, SearchResultSummary searchResult, ObjectNode resultNode, Select select) {
+        TTAlias prop = select;
+        if (prop.getIri() != null) {
+            String field = prop.getIri();
+            switch (prop.getIri()) {
+                case (RDFS.NAMESPACE + "label"):
+                    resultNode.put(field, searchResult.getName());
+                    break;
+                case (RDFS.NAMESPACE + comment):
+                    if (searchResult.getDescription() != null)
+                        resultNode.put(field, searchResult.getDescription());
+                    break;
+                case (IM.NAMESPACE + "code"):
+                    resultNode.put(field, searchResult.getCode());
+                    break;
+                case (IM.NAMESPACE + status):
+                    resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                    break;
+                case (IM.NAMESPACE + scheme):
+                    resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                    break;
+                case (RDF.NAMESPACE + "type"):
+                    resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
+                    break;
+                case (IM.NAMESPACE + weighting):
+                    resultNode.put(field, searchResult.getWeighting());
+                    break;
+                default:
+
+            }
         }
     }
 
@@ -604,36 +608,32 @@ public class OSQuery {
     }
 
     private static List<String> listFromAlias(SearchRequest request, From from, QueryRequest queryRequest) throws DataFormatException {
-        if (from.getVariable()!=null){
-            String value= from.getVariable();
-            value = value.replace("$", "");
-            if (null != queryRequest.getArgument()) {
-                for (Argument argument: queryRequest.getArgument()) {
-                    if (argument.getParameter().equals(value)) {
-                        if (null != argument.getValueData())
-                            return null;
-                        else if (null != argument.getValueIri()){
-                            List<String> iriList= new ArrayList<>();
-                            iriList.add(argument.getValueIri().getIri());
-                            return iriList;
-                        }
-                        else if (null!= argument.getValueIriList()){
-                            return
-                              argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
-                        }
-                    }
-                }
-                throw new DataFormatException("Query Variable "+ value+" has not been assigned in the request");
-            }
-            else
-                throw new DataFormatException("Query has a query variable but request has no arguments set");
-        }
-        else {
-            List<String> iriList= new ArrayList<>();
+        if (from.getVariable() == null) {
+            List<String> iriList = new ArrayList<>();
             iriList.add(from.getIri());
             return iriList;
         }
 
+        String value = from.getVariable();
+        value = value.replace("$", "");
+        if (null != queryRequest.getArgument()) {
+            for (Argument argument : queryRequest.getArgument()) {
+                if (argument.getParameter().equals(value)) {
+                    if (null != argument.getValueData())
+                        return null;
+                    else if (null != argument.getValueIri()) {
+                        List<String> iriList = new ArrayList<>();
+                        iriList.add(argument.getValueIri().getIri());
+                        return iriList;
+                    } else if (null != argument.getValueIriList()) {
+                        return
+                                argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
+                    }
+                }
+            }
+            throw new DataFormatException("Query Variable " + value + " has not been assigned in the request");
+        } else
+            throw new DataFormatException("Query has a query variable but request has no arguments set");
     }
 
 

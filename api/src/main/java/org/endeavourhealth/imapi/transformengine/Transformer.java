@@ -48,128 +48,137 @@ public class Transformer {
 	 */
 
 	public Set<Object> transformObject(Object source, MapObject objectMap, Map<String, Object> varToObject) throws Exception {
-		this.varToObject= varToObject;
-		if (this.varToObject==null)
-			this.varToObject= new HashMap<>();
+		this.varToObject = varToObject;
+		if (this.varToObject == null)
+			this.varToObject = new HashMap<>();
+
 		if (source instanceof List) {
-			for (Object sourceItem : (List<?>) source) {
-				transformObject(sourceItem, objectMap, varToObject);
-			}
-			return targetObjects;
+			transformObjectList((List<?>) source, objectMap, varToObject);
+		} else {
+			boolean hasTargetObjects = transformObjectValue(source, objectMap);
+			if (!hasTargetObjects) return null;
 		}
-		else {
-			if (objectMap.getWhere()!=null){
-				if (!where(objectMap.getWhere(), source))
-					return null;
-			}
-			Object targetObject;
-			if (objectMap.getTargetType()!=null){
-				 targetObject= targetTranslator.createEntity(objectMap.getTargetType());
-				targetObjects.add(targetObject);
-			}
-			else
-				throw new DataFormatException("Object map has no target object to create");
-			if (objectMap.getPropertyMap() != null) {
-				for (MapProperty propertyMap : objectMap.getPropertyMap())
-					transformProperty(source,targetObject,propertyMap,this.varToObject);
-			}
-			return targetObjects;
+		return targetObjects;
+	}
+
+	private void transformObjectList(List<?> source, MapObject objectMap, Map<String, Object> varToObject) throws Exception {
+		for (Object sourceItem : source) {
+			transformObject(sourceItem, objectMap, varToObject);
 		}
 	}
 
+	private boolean transformObjectValue(Object source, MapObject objectMap) throws Exception {
+		if (objectMap.getWhere() != null && !where(objectMap.getWhere(), source))
+			return false;
 
+		if (objectMap.getTargetType() == null)
+			throw new DataFormatException("Object map has no target object to create");
 
-
-
-
+		Object targetObject = targetTranslator.createEntity(objectMap.getTargetType());
+		targetObjects.add(targetObject);
+		if (objectMap.getPropertyMap() != null) {
+			for (MapProperty propertyMap : objectMap.getPropertyMap())
+				transformProperty(source, targetObject, propertyMap, this.varToObject);
+		}
+		return true;
+	}
 
 
 	public void transformProperty(Object sourceObject,Object targetObject,MapProperty rule,Map<String, Object> varToObject) throws Exception {
-		if (sourceObject instanceof List){
-			for (Object sourceItem:(List) sourceObject){
-				transformProperty(sourceItem,targetObject,rule,varToObject);
+		if (sourceObject instanceof List) {
+			for (Object sourceItem : (List) sourceObject) {
+				transformProperty(sourceItem, targetObject, rule, varToObject);
 			}
-		}
-		else {
-			this.varToObject= varToObject;
+		} else {
+			this.varToObject = varToObject;
 			if (rule.getSource() != null) {
-				if (targetObject == null)
-					throw new DataFormatException("Data map or value map has not created or retrieved a target entity to populate ");
-				Where where = rule.getWhere();
-				if (where != null) {
-					if (!where(where, sourceObject))
-						return;
-				}
-				String source = rule.getSource();
-				String variable = rule.getSourceVariable();
-				if (source != null) {
-					Object sourceValue;
-					sourceValue = sourceTranslator.getPropertyValue(sourceObject, source);
-					if (rule.getListMode() != null) {
-						if (sourceValue instanceof List) {
-							sourceValue = getListItems((List<?>) sourceValue, rule.getListMode());
-						}
-					}
-					if (variable != null)
-						this.varToObject.put(variable, sourceValue);
-					if (rule.getPropertyMap() != null) {
-						Transformer flatTransformer = new Transformer(sourceFormat, targetFormat);
-						for (MapProperty propertyMap : rule.getPropertyMap()) {
-								flatTransformer.transformProperty(sourceValue, targetObject, propertyMap, this.varToObject);
-						}
-					}
-					else if (rule.getObjectMap() != null) {
-						Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
-						if (rule.getTarget() != null) {
-							Object targetValue = targetTranslator.convertToTarget(nestedTransformer
-								.transformObject(sourceValue, rule.getObjectMap(), this.varToObject));
-							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
-						}
-						else
-							throw new DataFormatException("Map has an object map for processing property "+ source+" but no target property to assien the aobjec to. This should be a property map list instead");
-					}
-					else if (rule.getFunction() != null) {
-						Object targetValue = targetTranslator.convertToTarget(runFunction(rule.getFunction()));
-						if (rule.getTarget() != null)
-							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
-					}
-					else if (rule.getTarget() != null) {
-						if (rule.getValueData() != null) {
-							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), rule.getValueData());
-						}
-						else if (rule.getValueVariable() != null) {
-							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetTranslator.convertToTarget(varToObject.get(rule.getValueVariable())));
-						}
-						else {
-							targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetTranslator.convertToTarget(sourceValue));
-						}
-					}
-					else
-						throw new DataFormatException("no target property, property map or object map for source " + source + "property");
-				}
-			}
-			else if (rule.getTarget()!=null){
-				if (rule.getObjectMap()!=null){
-					Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
-					Object targetValue = targetTranslator.convertToTarget(nestedTransformer
-						.transformObject(sourceObject, rule.getObjectMap(), this.varToObject));
-					targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
-				}
-				else if (rule.getValueData()!=null){
-					targetTranslator.setPropertyValue(rule,targetObject,rule.getTarget(),rule.getValueData());
-				}
-				else if (rule.getValueVariable()!=null){
-					targetTranslator.setPropertyValue(rule,targetObject,rule.getTarget(),varToObject.get(rule.getValueVariable()));
-				}
-				else
-					throw new DataFormatException("Where map has a target property of "+ rule.getTarget()+" but no source property and no object map for the target property.");
-			}
-			else
+				transformPropertySource(sourceObject, targetObject, rule, varToObject);
+			} else if (rule.getTarget() != null) {
+				transformPropertyTarget(sourceObject, targetObject, rule, varToObject);
+			} else
 				throw new DataFormatException("unrecognised property map. No source property");
 		}
-
 	}
 
+	private void transformPropertySource(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws Exception {
+		if (targetObject == null)
+			throw new DataFormatException("Data map or value map has not created or retrieved a target entity to populate ");
+
+		Where where = rule.getWhere();
+		if (where != null && !where(where, sourceObject))
+			return;
+
+		String source = rule.getSource();
+		if (source == null)
+			return;
+
+		Object sourceValue = sourceTranslator.getPropertyValue(sourceObject, source);
+		if (rule.getListMode() != null && sourceValue instanceof List) {
+			sourceValue = getListItems((List<?>) sourceValue, rule.getListMode());
+		}
+
+		String variable = rule.getSourceVariable();
+		if (variable != null)
+			this.varToObject.put(variable, sourceValue);
+
+		if (rule.getPropertyMap() != null) {
+			transformPropertySourcePropertyMap(targetObject, rule, sourceValue);
+		} else if (rule.getObjectMap() != null) {
+			transformPropertySourceObjectMap(targetObject, rule, source, sourceValue);
+		} else if (rule.getFunction() != null) {
+			transformPropertySourceFunction(targetObject, rule);
+		} else if (rule.getTarget() != null) {
+			transformPropertySourceTarget(targetObject, rule, varToObject, sourceValue);
+		} else
+			throw new DataFormatException("no target property, property map or object map for source " + source + "property");
+	}
+
+	private void transformPropertySourcePropertyMap(Object targetObject, MapProperty rule, Object sourceValue) throws Exception {
+		Transformer flatTransformer = new Transformer(sourceFormat, targetFormat);
+		for (MapProperty propertyMap : rule.getPropertyMap()) {
+			flatTransformer.transformProperty(sourceValue, targetObject, propertyMap, this.varToObject);
+		}
+	}
+
+	private void transformPropertySourceObjectMap(Object targetObject, MapProperty rule, String source, Object sourceValue) throws Exception {
+		Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
+		if (rule.getTarget() != null) {
+			Object targetValue = targetTranslator.convertToTarget(nestedTransformer
+					.transformObject(sourceValue, rule.getObjectMap(), this.varToObject));
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
+		} else
+			throw new DataFormatException("Map has an object map for processing property " + source + " but no target property to assign the object to. This should be a property map list instead");
+	}
+
+	private void transformPropertySourceFunction(Object targetObject, MapProperty rule) throws DataFormatException {
+		Object targetValue = targetTranslator.convertToTarget(runFunction(rule.getFunction()));
+		if (rule.getTarget() != null)
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
+	}
+
+	private void transformPropertySourceTarget(Object targetObject, MapProperty rule, Map<String, Object> varToObject, Object sourceValue) throws DataFormatException {
+		if (rule.getValueData() != null) {
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), rule.getValueData());
+		} else if (rule.getValueVariable() != null) {
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetTranslator.convertToTarget(varToObject.get(rule.getValueVariable())));
+		} else {
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetTranslator.convertToTarget(sourceValue));
+		}
+	}
+
+	private void transformPropertyTarget(Object sourceObject, Object targetObject, MapProperty rule, Map<String, Object> varToObject) throws Exception {
+		if (rule.getObjectMap() != null) {
+			Transformer nestedTransformer = new Transformer(sourceFormat, targetFormat);
+			Object targetValue = targetTranslator.convertToTarget(nestedTransformer
+					.transformObject(sourceObject, rule.getObjectMap(), this.varToObject));
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), targetValue);
+		} else if (rule.getValueData() != null) {
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), rule.getValueData());
+		} else if (rule.getValueVariable() != null) {
+			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), varToObject.get(rule.getValueVariable()));
+		} else
+			throw new DataFormatException("Where map has a target property of " + rule.getTarget() + " but no source property and no object map for the target property.");
+	}
 
 
 	private Object runFunction(FunctionClause functionClause) throws DataFormatException {
@@ -209,8 +218,8 @@ public class Transformer {
 			return result;
 		}
 
-	private Object query(Object sourceEntity, String path,Where where) throws DataFormatException, JsonProcessingException {
-		if (where.getWhere() != null) {
+	/*private Object query(Object sourceEntity, String path,Where where) throws DataFormatException, JsonProcessingException {
+		if (where.getWhere() != null) { // should this be == null? (see else)
 			if (where(where, sourceEntity))
 				return sourceTranslator.getPropertyValue(sourceEntity,path);
 			else
@@ -225,17 +234,11 @@ public class Transformer {
 		}
 		else
 			throw new DataFormatException("Where clause for rule on path : "+path+" has clause format not yet supported");
-	}
+	}*/
 
 	private boolean where (Where where,Object sourceNode) throws DataFormatException, JsonProcessingException {
 		Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, where.getIri());
-		if (where.getValue() != null) {
-			if (where.getValue().equals(sourceValue)) {
-				return true;
-			}
-			return false;
-		}
-		return false;
+		return where.getValue() != null && where.getValue().equals(sourceValue);
 	}
 
 	public Object getListItems(List source, ListMode listMode){

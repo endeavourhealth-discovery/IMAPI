@@ -56,8 +56,7 @@ public class QuerySummariser {
 	}
 
 	public void summariseWhere(Where match) {
-		if (!override)
-			if (match.getDescription()!=null)
+		if (!override && match.getDescription()!=null)
 				return;
 		StringBuilder summary= new StringBuilder();
 		if (match.getWith()!=null){
@@ -77,8 +76,7 @@ public class QuerySummariser {
 	}
 
 	private void summariseFrom(From from) {
-		if (!override)
-			if (from.getDescription()!=null)
+		if (!override && from.getDescription()!=null)
 				return;
 		if (from.getIri() != null)
 			from.setDescription(summariseAlias(from));
@@ -92,8 +90,7 @@ public class QuerySummariser {
 	}
 
 	private void summariseWith(With with) {
-		if (!override)
-			if (with.getDescription()!=null)
+		if (!override && with.getDescription()!=null)
 				return;
 		summariseWhere(with);
 		if (with.getLatest()!=null) {
@@ -105,41 +102,16 @@ public class QuerySummariser {
 	}
 
 	public void summariseWhereProperty(StringBuilder summary,Where where) {
-		if (!override)
-			if (where.getDescription() != null)
-				return;
-		if (where.getId()!=null||where.getIri()!=null) {
-				summary.append(summariseAlias(where));
+		if (!override && where.getDescription() != null)
+			return;
+		if (where.getId() != null || where.getIri() != null) {
+			summary.append(summariseAlias(where));
 		}
 
 		if (where.getIn() != null) {
-			int i = 0;
-			summary.append(" is : ");
-			for (From in : where.getIn()) {
-				i++;
-				if (i == 1) {
-
-					summary.append(summariseAlias(in));
-				}
-				else
-					summary.append(", ");
-				if (i > 3)
-					summary.append(" .. ");
-			}
-		}
-		else if (where.getNotIn()!=null){
-			summary.append(" not in");
-			int i = 0;
-			for (From in : where.getNotIn()) {
-				i++;
-				if (i == 1) {
-						summary.append(summariseAlias(in));
-				}
-				else
-					summary.append(", ");
-				if (i > 3)
-					summary.append(" ...");
-			}
+			summariseWherePropertyAppendIn(summary, where);
+		} else if (where.getNotIn() != null) {
+			summariseWherePropertyAppendNotIn(summary, where);
 		}
 		if (where.getBool() == Bool.not)
 			summary.append("not = ");
@@ -147,11 +119,10 @@ public class QuerySummariser {
 		if (where.getRange() != null) {
 			if (where.getBool() == Bool.not)
 				summary.append("not = ");
-					summary.append(" ").append(summariseRange(where.getRange()));
-				}
+			summary.append(" ").append(summariseRange(where.getRange()));
+		}
 		if (where.getValue() != null) {
-
-					summary.append(" ").append(summariseValue(where));
+			summary.append(" ").append(summariseValue(where));
 		}
 		if (!summary.toString().equals("")) {
 			if (where.getDescription() != null)
@@ -161,6 +132,34 @@ public class QuerySummariser {
 		}
 	}
 
+	private void summariseWherePropertyAppendIn(StringBuilder summary, Where where) {
+		int i = 0;
+		summary.append(" is : ");
+		for (From in : where.getIn()) {
+			i++;
+			if (i == 1) {
+
+				summary.append(summariseAlias(in));
+			} else
+				summary.append(", ");
+			if (i > 3)
+				summary.append(" .. ");
+		}
+	}
+
+	private void summariseWherePropertyAppendNotIn(StringBuilder summary, Where where) {
+		summary.append(" not in");
+		int i = 0;
+		for (From in : where.getNotIn()) {
+			i++;
+			if (i == 1) {
+				summary.append(summariseAlias(in));
+			} else
+				summary.append(", ");
+			if (i > 3)
+				summary.append(" ...");
+		}
+	}
 
 	private String summariseRange(Range range) {
 		String unit="";
@@ -194,8 +193,7 @@ public class QuerySummariser {
 			value.getValue();
 		if (value.getUnit()!=null)
 			result=result+" "+ value.getUnit();
-		if (value.getRelativeTo()!=null)
-			if (!value.getRelativeTo().equals("$referenceDate"))
+		if (value.getRelativeTo()!=null && !value.getRelativeTo().equals("$referenceDate"))
 				result= result+ " relative to "+ resolveVariable(value.getRelativeTo());
 		return result;
 	}

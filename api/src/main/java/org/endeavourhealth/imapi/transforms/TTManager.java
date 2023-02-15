@@ -327,24 +327,7 @@ public class TTManager implements AutoCloseable {
       if (node.getPredicateMap() != null) {
          HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
          for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
-             TTArray value = entry.getValue();
-
-             List<TTValue> toRemove = new ArrayList<>();
-             for (TTValue arrayValue : value.iterator()) {
-                 if (arrayValue.isIriRef()) {
-                     if (arrayValue.asIriRef().equals(from)) {
-                         toRemove.add(arrayValue);
-                     }
-                 } else if (arrayValue.isNode()) {
-                     replaced = replaceNode(arrayValue.asNode(), from, to);
-                 }
-             }
-             if (!toRemove.isEmpty()) {
-                 for (TTValue remove : toRemove) {
-                     value.remove(remove);
-                 }
-                 value.add(to);
-             }
+             replaceNodeValueChange(from, to, entry);
          }
          if (!newPredicates.isEmpty()) {
             for (Map.Entry<TTIriRef, TTValue> entry : newPredicates.entrySet()) {
@@ -356,7 +339,29 @@ public class TTManager implements AutoCloseable {
       return false;
    }
 
-   /**
+    private void replaceNodeValueChange(TTIriRef from, TTIriRef to, Map.Entry<TTIriRef, TTArray> entry) {
+        boolean replaced;
+        TTArray value = entry.getValue();
+
+        List<TTValue> toRemove = new ArrayList<>();
+        for (TTValue arrayValue : value.iterator()) {
+            if (arrayValue.isIriRef()) {
+                if (arrayValue.asIriRef().equals(from)) {
+                    toRemove.add(arrayValue);
+                }
+            } else if (arrayValue.isNode()) {
+                replaced = replaceNode(arrayValue.asNode(), from, to);
+            }
+        }
+        if (!toRemove.isEmpty()) {
+            for (TTValue remove : toRemove) {
+                value.remove(remove);
+            }
+            value.add(to);
+        }
+    }
+
+    /**
     * Tests whether a entity is a descendant of an ancestor, entity test against iri
     * uses standard prefixes in this version
     *
@@ -396,26 +401,26 @@ public class TTManager implements AutoCloseable {
    }
 
    private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
-      if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
-         return true;
-      TTIriRef subType= descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
-      boolean isa = false;
-      if (descendant.get(subType) != null)
-         for (TTValue ref : descendant.get(subType).iterator())
-            if (ref.equals(ancestor))
-               return true;
-            else {
-               TTIriRef parent = ref.asIriRef();
-               if (!done.contains(parent)) {
-                  done.add(parent);
-                  TTEntity parentEntity = entityMap.get(parent.getIri());
-                  if (parentEntity != null)
-                     isa = isA1(parentEntity, ancestor, done);
-                  if (isa)
-                     return true;
+       if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
+           return true;
+       TTIriRef subType = descendant.isType(RDF.PROPERTY) ? RDFS.SUBPROPERTYOF : RDFS.SUBCLASSOF;
+       boolean isa = false;
+       if (descendant.get(subType) != null)
+           for (TTValue ref : descendant.get(subType).iterator())
+               if (ref.equals(ancestor))
+                   return true;
+               else {
+                   TTIriRef parent = ref.asIriRef();
+                   if (!done.contains(parent)) {
+                       done.add(parent);
+                       TTEntity parentEntity = entityMap.get(parent.getIri());
+                       if (parentEntity != null)
+                           isa = isA1(parentEntity, ancestor, done);
+                       if (isa)
+                           return true;
+                   }
                }
-            }
-      return false;
+       return false;
    }
 
 
@@ -574,23 +579,21 @@ public class TTManager implements AutoCloseable {
       return addToIrisFromNode(node,iris);
    }
 
-   private static Set<TTIriRef> addToIrisFromNode(TTValue subject,Set<TTIriRef> iris){
-      if (subject.isIriRef())
-         iris.add(subject.asIriRef());
-      else if (subject.isNode()){
-         if (subject.asNode().getPredicateMap()!=null){
-            for (Map.Entry<TTIriRef,TTArray> entry:subject.asNode().getPredicateMap().entrySet()){
+   private static Set<TTIriRef> addToIrisFromNode(TTValue subject,Set<TTIriRef> iris) {
+       if (subject.isIriRef())
+           iris.add(subject.asIriRef());
+       else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
+           for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
                iris.add(entry.getKey());
-               for (TTValue v:entry.getValue().getElements()){
-                  if (v.isIriRef())
-                     iris.add(v.asIriRef());
-                  else if (v.isNode())
-                     addToIrisFromNode(v,iris);
+               for (TTValue v : entry.getValue().getElements()) {
+                   if (v.isIriRef())
+                       iris.add(v.asIriRef());
+                   else if (v.isNode())
+                       addToIrisFromNode(v, iris);
                }
-            }
-         }
-      }
-      return iris;
+           }
+       }
+       return iris;
    }
 
    /**

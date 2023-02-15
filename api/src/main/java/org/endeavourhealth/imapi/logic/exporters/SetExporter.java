@@ -116,38 +116,30 @@ public class SetExporter {
         results.add("vsId\tvsName\tmemberDbid");
 
         for(Concept member : members) {
-            if (member.getIm1Id() != null) {
-                for (String im1Id : member.getIm1Id()) {
-                    if (!im1Ids.contains(im1Id)) {
-                        results.add(
-                          new StringJoiner("\t")
-                            .add(setIri)
-                            .add(name)
-                            .add(im1Id)
-                            .toString());
-                        im1Ids.add(im1Id);
-                    }
-                }
-            }
+            generateTSVAddResults(setIri, name, im1Ids, results, member);
             if (member.getMatchedFrom() != null){
                 for (Concept legacy:member.getMatchedFrom()) {
-                    if (legacy.getIm1Id() != null) {
-                        for (String im1Id : legacy.getIm1Id()) {
-                            if (!im1Ids.contains(im1Id)) {
-                                results.add(
-                                  new StringJoiner("\t")
-                                    .add(setIri)
-                                    .add(name)
-                                    .add(im1Id)
-                                    .toString());
-                                im1Ids.add(im1Id);
-                            }
-                        }
-                    }
+                    generateTSVAddResults(setIri, name, im1Ids, results, legacy);
                 }
             }
         }
         return results;
+    }
+
+    private void generateTSVAddResults(String setIri, String name, Set<String> im1Ids, StringJoiner results, Concept member) {
+        if (member.getIm1Id() != null) {
+            for (String im1Id : member.getIm1Id()) {
+                if (!im1Ids.contains(im1Id)) {
+                    results.add(
+                      new StringJoiner("\t")
+                        .add(setIri)
+                        .add(name)
+                        .add(im1Id)
+                        .toString());
+                    im1Ids.add(im1Id);
+                }
+            }
+        }
     }
 
     private void pushToS3(StringJoiner results) {

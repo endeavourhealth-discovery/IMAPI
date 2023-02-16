@@ -40,8 +40,6 @@ public class DataModelController {
              ZipOutputStream result = new ZipOutputStream(bos)) {
 
             codeGen.generate(result);
-            result.finish();
-            result.flush();
 
             return new HttpEntity<>(baos.toByteArray(), headers);
         }

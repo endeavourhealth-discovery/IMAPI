@@ -179,6 +179,8 @@ public class CodeGenJava {
             zs.write(java.getBytes());
             zs.closeEntry();
         }
+        zs.finish();
+        zs.flush();
     }
 
     private String generateJavaCodeForModel(DataModel model, String modelName) throws IOException {

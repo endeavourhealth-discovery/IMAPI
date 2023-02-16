@@ -179,20 +179,7 @@ public class EntityService {
             rowNumber = (page - 1) * size;
 
         Pageable<TTIriRef> childrenAndTotalCount = entityTripleRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive);
-        Pageable<EntityReferenceNode> result = new Pageable<>();
-        result.setTotalCount(childrenAndTotalCount.getTotalCount());
-        List<EntityReferenceNode> nodes = new ArrayList<>();
-        for (TTIriRef c : childrenAndTotalCount.getResult()) {
-            EntityReferenceNode node = new EntityReferenceNode();
-            node.setIri(c.getIri());
-            node.setName(c.getName());
-            node.setType(entityTypeRepository.getEntityTypes(c.getIri()));
-            node.setHasChildren(entityTripleRepository.hasChildren(c.getIri(), schemeIris, inactive));
-            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(c.getIri(), schemeIris, inactive));
-            nodes.add(node);
-        }
-        result.setResult(nodes);
-        return result;
+        return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount,schemeIris,inactive);
     }
 
     public Pageable<TTIriRef> getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
@@ -1173,6 +1160,45 @@ public class EntityService {
 
     public Boolean isValidPropertyValue(String property, String value) {
         return entityRepository.isValidPropertyValue(property, value);
+    }
+
+    public Pageable<EntityReferenceNode> getSuperiorPropertiesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (null == iri || iri.isEmpty()) return null;
+
+        int rowNumber = 0;
+        if (null != page && null != size) rowNumber = (page - 1) * size;
+
+
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri,schemeIris,rowNumber,size,inactive);
+        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
+    }
+
+    public Pageable<EntityReferenceNode> getSuperiorPropertyValuesPaged(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (null == iri || iri.isEmpty()) return null;
+
+        int rowNumber = 0;
+        if (null != page && null != size) rowNumber = (page - 1) * size;
+
+
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertyValuesByPropertyPagedWithTotalCount(iri,schemeIris,rowNumber,size,inactive);
+        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
+    }
+
+    private Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRef> iriRefPageable,List<String> schemeIris,boolean inactive) {
+        Pageable<EntityReferenceNode> result = new Pageable<>();
+        result.setTotalCount(iriRefPageable.getTotalCount());
+        List<EntityReferenceNode> nodes = new ArrayList<>();
+        for (TTIriRef p : iriRefPageable.getResult()) {
+            EntityReferenceNode node = new EntityReferenceNode();
+            node.setIri(p.getIri());
+            node.setName(p.getName());
+            node.setType(entityTypeRepository.getEntityTypes(p.getIri()));
+            node.setHasChildren(entityTripleRepository.hasChildren(p.getIri(),schemeIris,inactive));
+            node.setHasGrandChildren(entityTripleRepository.hasGrandChildren(p.getIri(),schemeIris,inactive));
+            nodes.add(node);
+        }
+        result.setResult(nodes);
+        return result;
     }
 }
 

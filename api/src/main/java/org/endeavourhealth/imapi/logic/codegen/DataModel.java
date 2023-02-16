@@ -8,7 +8,7 @@ public class DataModel {
 
     private String iri;
     private String name;
-    private String description;
+    private String comment;
 
     private List<DataModelProperty> properties = new ArrayList<>();
 
@@ -30,12 +30,12 @@ public class DataModel {
         return this;
     }
 
-    public String getDescription() {
-        return description;
+    public String getComment() {
+        return comment;
     }
 
-    public DataModel setDescription(String description) {
-        this.description = description;
+    public DataModel setComment(String comment) {
+        this.comment = comment;
         return this;
     }
 

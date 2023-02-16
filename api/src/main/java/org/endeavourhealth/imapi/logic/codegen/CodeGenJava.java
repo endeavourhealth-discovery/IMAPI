@@ -13,11 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.StringJoiner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -27,7 +30,7 @@ public class CodeGenJava {
     private final Queue<String> iris = new PriorityQueue<>();
     private final HashMap<String, DataModel> models = new HashMap<>();
 
-    public void generate(Writer os) throws IOException {
+    public void generate(ZipOutputStream os) throws IOException {
         connectToDatabase();
         getModelList();
         getDataModelRecursively();
@@ -95,18 +98,19 @@ public class CodeGenJava {
                 .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
                 .add("PREFIX shacl: <http://www.w3.org/ns/shacl#>")
                 .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
-                .add("select ?iri ?model ?name ?type ?typeName ?dm ?min ?max ?comment ?order")
+                .add("select ?iri ?model ?comment ?propname ?type ?typeName ?dm ?min ?max ?propcomment ?order")
                 .add("where { ")
                 .add("    ?iri shacl:property ?prop .")
                 .add("    ?iri rdfs:label ?model .")
+                .add("    ?iri rdfs:comment ?comment .")
                 .add("    ?prop shacl:path ?propIri .")
-                .add("    ?propIri rdfs:label ?name .")
+                .add("    ?propIri rdfs:label ?propname .")
                 .add("    optional { ?prop shacl:order ?order }")
                 .add("    optional { ?prop shacl:class ?type }")
                 .add("    optional { ?prop shacl:datatype ?type }")
                 .add("    optional { ?prop shacl:node ?type }")
                 .add("    optional { ?type rdfs:label ?typeName }")
-                .add("    optional { ?prop rdfs:comment ?comment }")
+                .add("    optional { ?prop rdfs:comment ?propcomment }")
                 .add("    optional { ?prop shacl:maxCount ?max }")
                 .add("    optional { ?prop shacl:minCount ?min }")
                 .add("    bind( exists { ?type rdf:type shacl:NodeShape } as ?dm)")
@@ -121,6 +125,9 @@ public class CodeGenJava {
 
                     BindingSet bindSet = result.next();
                     model.setName(bindSet.getValue("model").stringValue());
+                    model.setComment(bindSet.hasBinding("comment")
+                            ? bindSet.getValue("comment").stringValue()
+                            : null);
 
                     TTIriRef dataType = iri(
                             bindSet.getValue("type").stringValue(),
@@ -129,11 +136,11 @@ public class CodeGenJava {
                                     : null);
 
                     DataModelProperty property = new DataModelProperty()
-                            .setName(bindSet.getValue("name").stringValue())
+                            .setName(bindSet.getValue("propname").stringValue())
                             .setDataType(dataType)
                             .setModel(((Literal) bindSet.getValue("dm")).booleanValue())
-                            .setComment(bindSet.hasBinding("comment")
-                                    ? bindSet.getValue("comment").stringValue()
+                            .setComment(bindSet.hasBinding("propcomment")
+                                    ? bindSet.getValue("propcomment").stringValue()
                                     : null)
                             .setMaxCount(bindSet.hasBinding("max")
                                     ? ((Literal) bindSet.getValue("max")).intValue()
@@ -161,42 +168,73 @@ public class CodeGenJava {
         }
     }
 
-    private void generateJavaCode(Writer os) throws IOException {
+    private void generateJavaCode(ZipOutputStream zs) throws IOException {
         LOG.debug("generating code");
 
-        os.write("package org.endeavourhealth.informationmanager.utils.codegen;\n" +
-                "\nimport org.endeavourhealth.imapi.model.tripletree.TTIriRef;\n" +
-                "\nimport java.time.LocalDateTime;");
-
         for (DataModel model : models.values()) {
+
             String modelName = capitalise(model.getName());
-            os.write("\npublic class " + modelName + " extends IMDMBase<" + modelName + "> {\n" +
-                    "\n\tpublic " + modelName + "() {\n" +
+            zs.putNextEntry(new ZipEntry(modelName + ".java"));
+            String java = generateJavaCodeForModel(model, modelName);
+            zs.write(java.getBytes());
+            zs.closeEntry();
+        }
+    }
+
+    private String generateJavaCodeForModel(DataModel model, String modelName) throws IOException {
+        try (StringWriter os = new StringWriter()) {
+
+            String modelNameSeparated = separate(modelName);
+            String modelComment = model.getComment();
+
+            os.write("package org.endeavourhealth.informationmanager.utils.codegen;\n" +
+                    "\nimport org.endeavourhealth.imapi.model.tripletree.TTIriRef;\n" +
+                    "\nimport java.time.LocalDateTime;");
+
+            os.write("\n\n/**\n" +
+                    "* Represents " + modelNameSeparated + "\n" +
+                    "* " + modelComment + "\n" +
+                    "*/\n");
+            os.write("public class " + modelName + " extends IMDMBase<" + modelName + "> {\n");
+            os.write("\n\n\t/**\n" +
+                    "\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor \n" +
+                    "\t*/");
+            os.write("\n\tpublic " + modelName + "() {\n" +
                     "\t\tsuper(\"" + modelName + "\");\n" +
                     "\t}");
             for (DataModelProperty property : model.getProperties()) {
-                String propertyName = capitalise(property.getName());
-                String propertyNameCamelCase = (null == propertyName) ? null : propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
+                String propertyName = property.getName();
+                String propertyNameCapitalised = capitalise(property.getName());
+                String propertyNameCamelCase = (null == propertyNameCapitalised) ? null : propertyNameCapitalised.substring(0, 1).toLowerCase() + propertyNameCapitalised.substring(1);
                 String propertyType = getDataType(property.getDataType(), property.isModel());
 
-                os.write("\n\tpublic " + propertyType + " get" + propertyName + "() {\n" +
-                            "\t\treturn getProperty" + "(\"" + propertyNameCamelCase + "\");\n" +
-                        "\t}\n" +
-                        "\n\tpublic " + modelName + " set" + propertyName + "(" + propertyType + " " + propertyNameCamelCase + ") {\n" +
-                            "\t\tsetProperty(\"" + propertyNameCamelCase + "\", " + propertyNameCamelCase + ");\n" +
-                            "\t\treturn this;\n" +
+                os.write("\n\n\t/**\n" +
+                        "\t* Gets the " +  propertyName + " of this " + modelNameSeparated +"\n" +
+                        "\t* " + property.getComment() + "\n" +
+                        "\t* @return "+ propertyNameCamelCase +"\n" +
+                        "\t*/\n");
+                os.write("\tpublic " + propertyType + " get" + propertyNameCapitalised + "() {\n" +
+                        "\t\treturn getProperty" + "(\"" + propertyNameCamelCase + "\");\n" +
+                        "\t}\n");
+                os.write("\n\n\t/**\n" +
+                        "\t* Changes the " + propertyName + " of this " + modelName + "\n" +
+                        "\t* @param " + propertyNameCamelCase + " The new " + propertyName + " to set\n" +
+                        "\t* @return "+ modelName +"\n" +
+                        "\t*/\n");
+                os.write("\tpublic " + modelName + " set" + propertyNameCapitalised + "(" + propertyType + " " + propertyNameCamelCase + ") {\n" +
+                        "\t\tsetProperty(\"" + propertyNameCamelCase + "\", " + propertyNameCamelCase + ");\n" +
+                        "\t\treturn this;\n" +
                         "\t}\n");
             }
             os.write("}\n\n");
+            return os.toString();
         }
-        os.close();
     }
 
     String capitalise(String name) {
         if (null == name) {
             return null;
         }
-
         //name as name
         StringBuilder output = new StringBuilder();
 
@@ -207,6 +245,26 @@ public class CodeGenJava {
             String camelCase = Character.toUpperCase(word.charAt(0)) + word.substring(1);
             output.append(camelCase);
         }
+        return output.toString();
+    }
+
+    String separate(String name) {
+        if (null == name) {
+            return null;
+        }
+        //name as name
+        StringBuilder output = new StringBuilder();
+
+        String[] words = name.split("(?=\\p{Upper})");
+
+        for (String word : words) {
+            String separate = word.toLowerCase();
+            output.append(separate);
+            output.append(" ");
+        }
+
+        output.deleteCharAt(output.length() - 1);
+
         return output.toString();
     }
 

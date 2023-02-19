@@ -1,0 +1,6 @@
+query : {name: 'asthma sub types'
+ from : { @id : sn:195967001
+           includeSubtypes}
+ select : [
+            {@id : rdfs:label},
+             {@id : im:code} ]}

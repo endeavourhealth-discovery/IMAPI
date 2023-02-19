@@ -1,19 +1,34 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.antlr.v4.runtime.atn.ATNType;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 public class TestQueries {
 
 
-
+	public static String subsetIMQ(){
+		String str=
+			" PREFIX sn: http://snomed.info/sct#\n" +
+				"  PREFIX rdfs: http://www.w3.org/2000/01/rdf-schema#\n" +
+				"  PREFIX rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#\n" +
+				"  PREFIX im: http://endhealth.info/im#\n" +
+				"  argument [this : [http://snomed.info/sct#195967001, http://snomed.info/sct#17097001]\n" +
+				"           ]\n" +
+				"  query  {\n" +
+				"    'all sub types of a concept (or list of concepts)'\n" +
+				"     from  { << $this }\n" +
+				"     select  [\n" +
+				"            {rdfs:label},\n" +
+				"             {im:code} ]\n" +
+				"}\n" +
+				"}";
+		return str;
+	}
 	public static QueryRequest getAllowableSubtypes() throws IOException {
 		QueryRequest qr= new QueryRequest();
 		qr.addArgument(new Argument()
@@ -50,17 +65,12 @@ public class TestQueries {
 		.addArgument(new Argument()
 			.setParameter("this")
 			.setValueIri(TTIriRef.iri(QR.NAMESPACE)))
-			.setUpdate(new Update().setIri(IM.NAMESPACE+"DeleteSets"));
+			.setUpdate(new Update()
+				.setIri(IM.NAMESPACE+"DeleteSets")
+				.setName("delete sets"));
 		return qr;
 
 	}
-
-
-
-
-
-
-
 
 
 	public static QueryRequest subtypesParameterised(){
@@ -74,7 +84,7 @@ public class TestQueries {
 				.select(s->s.setIri(RDFS.LABEL.getIri()))
 				.from(f->f
 					.setVariable("$this")
-					.setIncludeSubtypes(true)));
+					.setDescendantsOrSelfOf(true)));
 	}
 
 
@@ -92,7 +102,7 @@ public class TestQueries {
 				.select(s->s.setIri(RDFS.LABEL.getIri()))
 				.from(f->f
 					.setVariable("this")
-					.setIncludeSubtypes(true)));
+					.setDescendantsOrSelfOf(true)));
 	}
 
 	public static QueryRequest substanceTextSearch(){
@@ -178,8 +188,7 @@ public class TestQueries {
 			.setUsePrefixes(true);
 		query
 			.from(f->f
-				.setIri(SHACL.NODESHAPE.getIri())
-				.setSourceType(SourceType.type)
+				.setType(SHACL.NODESHAPE.getIri())
 			.where(w->w
 				.setIri(SHACL.PROPERTY.getIri())
 				.where(w1->w1
@@ -201,8 +210,8 @@ public class TestQueries {
 			.setName("Status subset")
 			.from(s->s
 				.setIri(IM.NAMESPACE+"Status")
-				.setIncludeSubtypes(true)
-				.setExcludeSelf(true));
+				.setDescendantsOrSelfOf(true)
+				.setDescendantsOf(true));
 		return new QueryRequest().setQuery(query);
 	}
 
@@ -224,7 +233,7 @@ public class TestQueries {
 		query
 			.setUsePrefixes(true)
 			.from(f ->f
-				.setIri(SNOMED.NAMESPACE+"195967001").setIncludeSubtypes(true))
+				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true))
 			.select(s->s.setIri(RDFS.LABEL.getIri()))
 			.select(s->s.setIri(IM.CODE.getIri()));
 		return new QueryRequest().setQuery(query);
@@ -256,8 +265,7 @@ public class TestQueries {
 				.setActiveOnly(true)
 				.setName("Search for concepts")
 				.from(f->f
-					.setIri(IM.CONCEPT.getIri())
-					.setSourceType(SourceType.type))
+					.setType(IM.CONCEPT.getIri()))
 				.select(s->s
 					.setIri(RDFS.LABEL.getIri())))
 			.setTextSearch("chest pain");
@@ -269,7 +277,7 @@ public class TestQueries {
 			.query(q-> q
 				.setName("All subtypes of an entity, active only")
 				.setActiveOnly(true)
-				.from(f->f.setVariable("$this").setIncludeSubtypes(true))
+				.from(f->f.setVariable("$this").setDescendantsOrSelfOf(true))
 				.select(s->s.setIri(RDFS.LABEL.getIri())));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
@@ -285,13 +293,12 @@ public class TestQueries {
 				.setUsePrefixes(true);
 			query
 				.from(f ->f
-					.setSourceType(SourceType.type)
-					.setIri(IM.CONCEPT.getIri())
+					.setType(IM.CONCEPT.getIri())
 				.where(w->w
 					.setIri(IM.IS_A.getIri())
 					.where(w1-> w1
 						.setIri(RDFS.DOMAIN.getIri())
-						.addIn(new From().setIri(SNOMED.NAMESPACE+"674814021000119106").setIncludeSupertypes(true))
+						.addIn(new From().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					)))
 						.select(s->s.setIri(IM.CODE.getIri()))
 						.select(s->s.setIri(RDFS.LABEL.getIri()));
@@ -331,17 +338,17 @@ public class TestQueries {
 			.from(rf->rf
 				.setBool(Bool.and)
 				.from(f->f
-						.setIri(SNOMED.NAMESPACE+"763158003").setIncludeSubtypes(true)
+						.setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true)
 				.where(a->a
 					.setIri(IM.ROLE_GROUP.getIri())
 					.setBool(Bool.and)
 					.where(a1->a1
 						.setIri(SNOMED.NAMESPACE+"127489000")
-						.setIncludeSubtypes(true)
-						.addIn(From.iri(SNOMED.NAMESPACE+"372665008").setIncludeSubtypes(true)))
+						.setDescendantsOrSelfOf(true)
+						.addIn(From.iri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
 					.where(a2->a2
-						.setIri(SNOMED.NAMESPACE+"411116001").setIncludeSubtypes(true)
-						.addIn(From.iri(SNOMED.NAMESPACE+"385268001").setIncludeSubtypes(true))))));
+						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
+						.addIn(From.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true))))));
 
 		return new QueryRequest().setQuery(query);
 

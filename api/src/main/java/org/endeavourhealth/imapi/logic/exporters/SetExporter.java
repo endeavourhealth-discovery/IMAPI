@@ -16,8 +16,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -99,7 +97,7 @@ public class SetExporter {
                   result.addAll(setRepository.getSetExpansion(new Query()
                       .from(f->f
                         .setIri(entity.getIri())
-                        .setIncludeSubtypes(true))
+                        .setDescendantsOrSelfOf(true))
                     ,includeLegacy,null));
             }
         }

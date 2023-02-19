@@ -3,9 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +14,6 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
-	private TTIriRef type;
 	private Range range;
 	private List<From> in;
 	private List<From> notIn;
@@ -28,14 +25,20 @@ public class Where extends TTAlias implements Assignable{
 	private String relativeTo;
 	private String value;
 	private String unit;
+	private String valueLabel;
 	private boolean anyRoleGroup;
 
-	public TTIriRef getType() {
-		return type;
+	public String getValueLabel() {
+		return valueLabel;
 	}
 
-	public Where setType(TTIriRef type) {
-		this.type = type;
+	public Where setValueLabel(String valueLabel) {
+		this.valueLabel = valueLabel;
+		return this;
+	}
+
+	public Where setType(String type) {
+		super.setType(type);
 		return this;
 	}
 
@@ -140,8 +143,8 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public Where setIncludeSubtypes(boolean subtypes){
-		super.setIncludeSubtypes(subtypes);
+	public Where setDescendantsOrSelfOf(boolean subtypes){
+		super.setDescendantsOrSelfOf(subtypes);
 		return this;
 	}
 

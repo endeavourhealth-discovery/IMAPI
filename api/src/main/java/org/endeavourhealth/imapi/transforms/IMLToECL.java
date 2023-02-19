@@ -159,9 +159,9 @@ public class IMLToECL {
 			ecl.append("* ");
 		else {
 			String subsumption="";
-			if (exp.isIncludeSubtypes())
+			if (exp.isDescendantsOrSelfOf())
 				subsumption="<<";
-			if (exp.isExcludeSelf())
+			if (exp.isDescendantsOf())
 				subsumption="<";
 			String iri = checkMember(exp.asIriRef().getIri());
 			String pipe = " | ";

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -189,14 +188,15 @@ public class CodeGenJava {
             String modelNameSeparated = separate(modelName);
             String modelComment = model.getComment();
 
-            os.write("package org.endeavourhealth.informationmanager.utils.codegen;\n" +
+            os.write("package org.endeavourhealth.imapi.logic.codegen;\n" +
                     "\nimport org.endeavourhealth.imapi.model.tripletree.TTIriRef;\n" +
                     "\nimport java.time.LocalDateTime;");
 
             os.write("\n\n/**\n" +
-                    "* Represents " + modelNameSeparated + "\n" +
-                    "* " + modelComment + "\n" +
-                    "*/\n");
+                    "* Represents " + modelNameSeparated + "\n");
+            if(modelComment != null)
+                os.write("* " + modelComment + "\n");
+            os.write("*/\n");
             os.write("public class " + modelName + " extends IMDMBase<" + modelName + "> {\n");
             os.write("\n\n\t/**\n" +
                     "\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor \n" +
@@ -211,9 +211,10 @@ public class CodeGenJava {
                 String propertyType = getDataType(property.getDataType(), property.isModel());
 
                 os.write("\n\n\t/**\n" +
-                        "\t* Gets the " +  propertyName + " of this " + modelNameSeparated +"\n" +
-                        "\t* " + property.getComment() + "\n" +
-                        "\t* @return "+ propertyNameCamelCase +"\n" +
+                        "\t* Gets the " +  propertyName + " of this " + modelNameSeparated +"\n");
+                if(property.getComment() != null)
+                    os.write("\t* " + property.getComment() + "\n");
+                os.write("\t* @return "+ propertyNameCamelCase +"\n" +
                         "\t*/\n");
                 os.write("\tpublic " + propertyType + " get" + propertyNameCapitalised + "() {\n" +
                         "\t\treturn getProperty" + "(\"" + propertyNameCamelCase + "\");\n" +

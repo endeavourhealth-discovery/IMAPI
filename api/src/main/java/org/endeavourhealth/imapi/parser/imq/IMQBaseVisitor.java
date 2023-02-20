@@ -39,13 +39,6 @@ public class IMQBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements IM
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArgumentList(IMQParser.ArgumentListContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
 	@Override public T visitLabel(IMQParser.LabelContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -235,6 +228,13 @@ public class IMQBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements IM
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitSubWhere(IMQParser.SubWhereContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitWhereWith(IMQParser.WhereWithContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -250,13 +250,6 @@ public class IMQBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements IM
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitWhereWhere(IMQParser.WhereWhereContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitNestedWhere(IMQParser.NestedWhereContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -340,21 +333,7 @@ public class IMQBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements IM
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFromList(IMQParser.FromListContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
 	@Override public T visitNotin(IMQParser.NotinContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitReferenceList(IMQParser.ReferenceListContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

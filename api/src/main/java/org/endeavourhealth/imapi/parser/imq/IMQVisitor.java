@@ -29,12 +29,6 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArguments(IMQParser.ArgumentsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#argumentList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArgumentList(IMQParser.ArgumentListContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link IMQParser#label}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -197,6 +191,12 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhereClause(IMQParser.WhereClauseContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link IMQParser#subWhere}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubWhere(IMQParser.SubWhereContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link IMQParser#whereWith}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -214,12 +214,6 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitWhereWhere(IMQParser.WhereWhereContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMQParser#nestedWhere}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNestedWhere(IMQParser.NestedWhereContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#notExist}.
 	 * @param ctx the parse tree
@@ -287,23 +281,11 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIn(IMQParser.InContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#fromList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFromList(IMQParser.FromListContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link IMQParser#notin}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNotin(IMQParser.NotinContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMQParser#referenceList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReferenceList(IMQParser.ReferenceListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#reference}.
 	 * @param ctx the parse tree

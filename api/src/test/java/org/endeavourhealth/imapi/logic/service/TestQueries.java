@@ -29,12 +29,19 @@ public class TestQueries {
 				"}";
 		return str;
 	}
+	public static TTContext getDefaultContext(){
+		TTContext context= new TTContext();
+		context.add(IM.NAMESPACE,"im");
+		context.add(RDFS.NAMESPACE,"rdfs");
+		context.add(SNOMED.NAMESPACE,"sn");
+		return context;
+	}
 	public static QueryRequest getAllowableSubtypes() throws IOException {
 		QueryRequest qr= new QueryRequest();
+		qr.setContext(getDefaultContext());
 		qr.addArgument(new Argument()
 			.setParameter("this")
 			.setValueIri(IM.FOLDER));
-
 		Query query= new Query();
 		query.setName("Allowable child types for editor");
 		query

@@ -11,13 +11,15 @@ import java.util.stream.Collectors;
 
 public class IMQJToG {
 	QueryRequest jrequest;
+	TTContext context;
 	private StringBuilder request;
 	private int tab=0;
 
 	public String convert(QueryRequest jRequest){
 		this.jrequest= jRequest;
+		this.context= jRequest.getContext();
 		request= new StringBuilder();
-		request.append("{\n");
+		request.append("{");
 		if (jRequest.getContext()!=null)
 			convertPrefixes(jRequest.getContext());
 		if (jRequest.getArgument()!=null)
@@ -25,19 +27,29 @@ public class IMQJToG {
 		if (jRequest.getQuery()!=null)
 			convertQuery(jRequest.getQuery());
 		request.append("}");
-		return request.toString();
+		return beautify(request.toString());
+	}
+
+	private String getText(String text){
+		return "\""+ text.replaceAll("\"","\\\"")+"\"";
 	}
 
 	private void convertQuery(Query query) {
 		request
-			.append("query {\n");
-		convertIriRef(query);
+			.append("query {");
+		if (query.getIri()!=null) {
+			request.append("@id ").append(query.getIri());
+			if (query.getName()!=null)
+				request.append("|").append(getText(query.getName()+"|"));
+		}
+		else if (query.getName()!=null)
+			request.append("\nname ").append(getText(query.getName()));
 		convertFrom(query.getFrom());
 		if (query.getSelect()!=null){
-			request.append("\n").append("select [");
+			request.append("select [");
 			for (int i=0; i<query.getSelect().size(); i++){
 				if (i>0)
-					request.append(",\n");
+					request.append(", ");
 				convertSelect(query.getSelect().get(i));
 			}
 			request.append("]");
@@ -49,7 +61,7 @@ public class IMQJToG {
 		request.append("{");
 		convertTTAlias(select);
 		if (select.getWhere()!=null){
-			request.append("\n").append("where {");
+			request.append("where {");
 			convertWhere(select.getWhere());
 			request.append("}");
 		}
@@ -58,53 +70,36 @@ public class IMQJToG {
 
 	private void convertFrom(From from){
 		request.append("\nfrom {");
-		convertTTAlias(from);
+		if (from.getBool()!=null)
+			convertFromBool(from);
+		else if (from.getIri()!=null||from.getId()!=null)
+			convertTTAlias(from);
 		if (from.getWhere()!=null){
-			request.append("\n").append("where {");
+			request.append("\nwhere {");
 			convertWhere(from.getWhere());
-			request.append("\n").append("}");
+			request.append("}");
 		}
 		request.append("}");
 	}
 
-	private void convertTTAlias(TTAlias jAlias) {
-		if (jAlias.isDescendantsOrSelfOf())
-			request.append("<< ");
-		if (jAlias.isDescendantsOf())
-			request.append("< ");
-		if (jAlias.isAncestorsOf())
-			request.append(">");
-		String iri=null;
-		if (jAlias.getIri()!=null)
-			iri= jAlias.getIri();
-		else if (jAlias.getType()!=null) {
-			request.append("type ");
-			iri = jAlias.getType();
+	private void convertFromBool(From from) {
+		boolean first=true;
+		for (From subFrom:from.getFrom()){
+			if (!first)
+				request.append(" ").append(from.getBool().toString()).append(" ");
+			first= false;
+			convertFrom(subFrom);
 		}
-		else if (jAlias.getSet()!=null) {
-			request.append("set ");
-			iri = jAlias.getSet();
-		}
-		if (iri!=null){
-			request.append(iri);
-			if (jAlias.getName()!= null)
-				request.append("|").append(jAlias.getName()).append("|");
-			request.append(" ");
-		}
-		else if (jAlias.getVariable()!=null){
-			String variable= jAlias.getVariable();
-			if (!variable.startsWith("$"))
-				request.append("$").append(variable).append(" ");
-			else
-				request.append(variable).append(" ");
-		}
-			if (jAlias.getAlias()!=null)
-				request.append(" alias ").append(jAlias.getAlias());
-			request.append(" \n");
 	}
 
+
 	private void convertWhere(Where where) {
-		convertTTAlias(where);
+		if (where.getWith()!=null)
+			convertWith(where.getWith());
+		if (where.getIri()!=null||where.getId()!=null)
+			convertTTAlias(where);
+		if (where.getBool()!=null)
+			convertBoolWhere(where);
 		if (where.getIn()!=null){
 			request.append(" in ");
 			convertWhereIn(where.getIn());
@@ -113,7 +108,36 @@ public class IMQJToG {
 			request.append(" notIn ");
 			convertWhereIn(where.getNotIn());
 		}
+	}
 
+	private void convertWith(With with){
+		request.append(" with {");
+		convertWhere(with);
+		convertSortable(with);
+		request.append("}");
+	}
+
+	private void convertSortable(With with) {
+		if (with.getLatest()!=null)
+			request.append(" ").append(with.getLatest());
+		if (with.getEarliest()!=null)
+			request.append(" ").append(with.getEarliest());
+		if (with.getMaximum()!=null)
+			request.append(" ").append(with.getMaximum());
+		if (with.getMinimum()!=null)
+			request.append(" ").append(with.getMinimum());
+		if (with.getCount()!=null)
+			request.append(" count").append(with.getCount());
+	}
+
+	private void convertBoolWhere(Where where) {
+		boolean first=true;
+		for (Where subWhere:where.getWhere()){
+			if (!first)
+				request.append(" ").append(where.getBool().toString()).append(" ");
+			first= false;
+			convertWhere(subWhere);
+		}
 	}
 
 	private void convertWhereIn(List<From> in) {
@@ -131,10 +155,17 @@ public class IMQJToG {
 		}
 	}
 
+	private String getIri(String iri){
+			if (this.context!=null){
+			 return context.prefix(iri);
+		}
+		return iri;
+	}
+
 
 	private void convertIriRef(TTIriRef iriRef) {
 		if (iriRef.getIri()!=null) {
-			request.append(iriRef.getIri());
+			request.append("@id ").append(getIri(iriRef.getIri()));
 			if (iriRef.getName() != null)
 				request.append("|").append(iriRef.getName()).append("|");
 		}
@@ -142,15 +173,35 @@ public class IMQJToG {
 			request.append("name \"").append(iriRef.getName())
 				.append("\"");
 	}
-
+	private void convertTTAlias(TTAlias ttAlias) {
+		if (ttAlias.getType()!=null)
+			request.append("@type ");
+		else if (ttAlias.getSet()!=null)
+			request.append("@set ");
+		else
+			request.append("@id ");
+		if (ttAlias.isDescendantsOf())
+			request.append("<");
+		if (ttAlias.isDescendantsOrSelfOf())
+			request.append("<<");
+		if (ttAlias.isAncestorsOf())
+			request.append(">>");
+		if (ttAlias.getIri()!=null)
+			request.append(getIri(ttAlias.getIri()));
+		else if (ttAlias.getId()!=null)
+			request.append(ttAlias.getId());
+		if (ttAlias.getName()!=null)
+			request.append("name \"").append(ttAlias.getName())
+				.append("\"");
+	}
 
 
 	private void convertArguments(List<Argument> arguments) {
-		request.append(tabs()).append("argument [");
+		request.append(tabs()).append("arguments {");
 		boolean first= true;
 		for (Argument argument:arguments) {
 			if (!first)
-				request.append(",\n");
+				request.append(", ");
 			first = false;
 			request.append(argument.getParameter())
 				.append(" : ");
@@ -160,19 +211,19 @@ public class IMQJToG {
 					.append("\"");
 			}
 			else if (argument.getValueIri()!=null)
-				request.append(argument.getValueIri().getIri());
+				convertIriRef(argument.getValueIri());
 			else if (argument.getValueIriList()!=null){
+				boolean iriFirst= true;
 				request.append("[");
-				request.append(String.join(", ",argument.getValueIriList()
-					.stream()
-					.map(iri-> iri.getIri())
-					.collect(Collectors.toList())));
-				request.append("]");
+				for (TTIriRef iri: argument.getValueIriList()){
+					if (!iriFirst)
+						request.append(", ");
+					iriFirst= false;
+					convertIriRef(iri);
+				}
 			}
 		}
-		request.append("\n").append(tabs());
-		request.append("]\n");
-		tab=tab-9;
+		request.append("} ");
 	}
 
 	private void convertPrefixes(TTContext context) {
@@ -194,6 +245,48 @@ public class IMQJToG {
 				indent= indent+" ";
 		return indent;
 	}
+
+public	static String beautify(String input) {
+		int tabCount = 0;
+
+		StringBuilder inputBuilder = new StringBuilder();
+		char[] inputChar = input.toCharArray();
+
+		for (int i = 0; i < inputChar.length; i++) {
+			String charI = String.valueOf(inputChar[i]);
+			if (charI.equals("}") || charI.equals("]")) {
+				tabCount--;
+				if (!String.valueOf(inputChar[i - 1]).equals("[") && !String.valueOf(inputChar[i - 1]).equals("{"))
+					inputBuilder.append(newLine(tabCount));
+			}
+			inputBuilder.append(charI);
+
+			if (charI.equals("{") || charI.equals("[")) {
+				tabCount++;
+				if (String.valueOf(inputChar[i + 1]).equals("]") || String.valueOf(inputChar[i + 1]).equals("}"))
+					continue;
+
+				inputBuilder.append(newLine(tabCount));
+			}
+
+			if (charI.equals(",")) {
+				inputBuilder.append(newLine(tabCount));
+			}
+		}
+
+		return inputBuilder.toString();
+	}
+
+	private static String newLine(int tabCount) {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("\n");
+		for (int j = 0; j < tabCount; j++)
+			builder.append("  ");
+
+		return builder.toString();
+	}
+
 
 
 

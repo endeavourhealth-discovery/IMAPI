@@ -6,12 +6,11 @@ searchText
     : SEARCH_TEXT (STRING_LITERAL1 | STRING_LITERAL2)
     ;
 arguments
-        :ARGUMENT
-      (argument | argumentList)
+        :ARGUMENTS
+        OC
+      argument (',' argument)*
+      CC
        ;
-argumentList
-    : OB argument (',' argument)*  CB
-    ;
 label
     :STRING_LITERAL1
     |
@@ -39,15 +38,18 @@ value : string;
 
 iriRef
     :
+    '@id'
     (IRI_REF | PN_PREFIXED | PN_PROPERTY)
     name?
+
     ;
+
 
 
 query
     : QUERY
     OC
-    reference?
+    iriRef?
     properName?
     description?
     activeOnly?
@@ -72,12 +74,13 @@ selection
     ;
 
 selectionList
-    : OB select (',' select)* CB
+    : OSB select (',' select)* CSB
     ;
 select
     : OC
-    iriRef
+    (iriRef|PN_PROPERTY)
     whereClause?
+    OC
     selectClause?
     CC
     ;
@@ -107,9 +110,11 @@ fromClause
     ;
 
 fromWhere
-    : (from
+    :( (from
     |
     bracketFrom)
+    whereClause)
+    |
     whereClause
     ;
 bracketFrom
@@ -157,6 +162,11 @@ from
 
 whereClause
     : WHERE
+    subWhere
+    ;
+
+ subWhere
+    :
     OC
     (where
     |
@@ -167,6 +177,8 @@ whereClause
     whereBoolean
     |
     whereWhere
+    |
+    bracketWhere
     )
     CC
     ;
@@ -183,13 +195,9 @@ where
     ;
 whereWhere
     : where
-    nestedWhere
+    subWhere
     ;
-nestedWhere
-    :OC
-    (where| whereWith| whereValue| whereBoolean| whereWhere)
-    CC
-    ;
+
 
 notExist
     :NOTEXIST
@@ -216,20 +224,20 @@ whereBoolean
 notWhere
     :
     (NOT
-    (where | bracketWhere|whereValue))+
+    (where | bracketWhere|whereValue|whereWhere))+
     ;
 
 orWhere
-    : (where | bracketWhere| whereValue)
+    : (where | bracketWhere| whereValue|whereWhere)
     (OR
-    (where| bracketWhere| whereValue))+
+    (where| bracketWhere| whereValue|whereWhere))+
     ;
 
 andWhere
     :
-    (where | bracketWhere|whereValue)
+    (where | bracketWhere|whereValue|whereWhere)
     (AND
-    (where| bracketWhere|whereValue))+
+    (where| bracketWhere|whereValue|whereWhere))+
     ;
 bracketWhere
     :OB
@@ -242,10 +250,11 @@ bracketWhere
     ;
 
 with
-    : WITH OB
+    : WITH
+    OC
     (where | whereBoolean| whereValue|whereWhere)
     sortable
-    CB
+    CC
     ;
 whereValueTest
     :(in | notin)
@@ -255,38 +264,22 @@ whereValueTest
 
 in
     : 'in'
-   (fromList
-
-    |
-   ( from| fromWhere| fromBoolean|bracketFrom))
-    ;
-fromList
-    :
-    OSB
     ( from| fromWhere| fromBoolean|bracketFrom)
-    (','  ( from| fromWhere| fromBoolean|bracketFrom))*
-    CSB
+
     ;
 
 notin
     : 'notIn'
-    (fromList
-    |
-    ( from| fromWhere| fromBoolean|bracketFrom))
+    ( from| fromWhere| fromBoolean|bracketFrom)
     ;
-    
-referenceList
-    : OB reference (',' reference)* CB
-    ;
+
 reference
     :
-     OC
      sourceType
-     ((subsumption? iriRef)
+     ((subsumption?  (IRI_REF | PN_PREFIXED | PN_PROPERTY) name?)
      |
      (subsumption? variable))
      alias?
-     CC
      ;
 
 range
@@ -329,16 +322,16 @@ sortable
     count
     ;
 latest
-    : LATEST COLON PN_PROPERTY
+    : LATEST PN_PROPERTY
     ;
 earliest
-    : EARLIEST COLON PN_PROPERTY
+    : EARLIEST PN_PROPERTY
     ;
 maximum
-    : MAXIMUM COLON PN_PROPERTY
+    : MAXIMUM PN_PROPERTY
     ;
 minimum
-    : MINIMUM COLON PN_PROPERTY
+    : MINIMUM PN_PROPERTY
     ;
 count
     : COUNT DIGIT
@@ -383,8 +376,8 @@ alias
 SEARCH_TEXT
     :'searchText'
     ;
-ARGUMENT
-    : 'argument'
+ARGUMENTS
+    : 'arguments'
     ;
 ID
     : 'id'

@@ -52,7 +52,7 @@ class SearchServiceTest {
 		testResults= System.getenv("folder")+"\\Results";
 		testSparql = System.getenv("folder")+"\\Sparql";
 		succinctDefinitions= System.getenv("folder")+"\\SuccinctSyntax";
-		/*QueryRequest qr= TestQueries.getAllowableSubtypes();
+		QueryRequest qr= TestQueries.getAllowableSubtypes();
 		IMQJToG fromJToG= new IMQJToG();
 		String imq=fromJToG.convert(qr);
 
@@ -61,7 +61,7 @@ class SearchServiceTest {
 		outputSuccinct(imq,qrn.getQuery().getName());
 		output(qrn);
 
-		 */
+
 
 
 		for (QueryRequest qr1: List.of(

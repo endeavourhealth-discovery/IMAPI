@@ -4,30 +4,37 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
-@JsonPropertyOrder ({"inverse","iri","name","alias","inverse","sourceType","entity","set"})
+@JsonPropertyOrder ({"inverse","iri","name","alias","inverse","type","set"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTAlias extends TTIriRef {
 	private String alias;
 	private String id;
 	private String variable;
-	private SourceType sourceType;
-	private boolean includeSupertypes;
-	private boolean includeSubtypes;
-	private boolean excludeSelf;
+	private String type;
+	private String set;
+	private boolean ancestorsOf;
+	private boolean descendantsOrSelfOf;
+	private boolean descendantsOf;
 	private boolean inverse;
 
-	public SourceType getSourceType() {
-		return sourceType;
+	@JsonProperty("@type")
+	public String getType() {
+		return type;
 	}
 
-	public TTAlias setSourceType(SourceType sourceType) {
-		this.sourceType = sourceType;
+	public TTAlias setType(String type) {
+		this.type = type;
+		return this;
+	}
+
+	@JsonProperty("@set")
+	public String getSet() {
+		return set;
+	}
+
+	public TTAlias setSet(String set) {
+		this.set = set;
 		return this;
 	}
 
@@ -59,32 +66,32 @@ public class TTAlias extends TTIriRef {
 		return this;
 	}
 
-	public boolean isExcludeSelf() {
-		return excludeSelf;
+	public boolean isDescendantsOf() {
+		return descendantsOf;
 	}
 
-	public TTAlias setExcludeSelf(boolean excludeSelf) {
-		this.excludeSelf = excludeSelf;
+	public TTAlias setDescendantsOf(boolean descendantsOf) {
+		this.descendantsOf = descendantsOf;
 		return this;
 	}
 
 
 
-	public boolean isIncludeSupertypes() {
-		return includeSupertypes;
+	public boolean isAncestorsOf() {
+		return ancestorsOf;
 	}
 
-	public TTAlias setIncludeSupertypes(boolean includeSupertypes) {
-		this.includeSupertypes = includeSupertypes;
+	public TTAlias setAncestorsOf(boolean ancestorsOf) {
+		this.ancestorsOf = ancestorsOf;
 		return this;
 	}
 
-	public boolean isIncludeSubtypes() {
-		return includeSubtypes;
+	public boolean isDescendantsOrSelfOf() {
+		return descendantsOrSelfOf;
 	}
 
-	public TTAlias setIncludeSubtypes(boolean includeSubtypes) {
-		this.includeSubtypes = includeSubtypes;
+	public TTAlias setDescendantsOrSelfOf(boolean descendantsOrSelfOf) {
+		this.descendantsOrSelfOf = descendantsOrSelfOf;
 		return this;
 	}
 

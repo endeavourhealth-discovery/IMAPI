@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.*;
@@ -108,8 +107,7 @@ public class EqdResources {
 		if ((eqCriteria.getPopulationCriterion() != null)) {
 			EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
 			match.in(f->f
-				.setIri("urn:uuid:" + srch.getReportGuid())
-				.setSourceType(SourceType.set)
+				.setSet("urn:uuid:" + srch.getReportGuid())
 				.setName(reportNames.get(srch.getReportGuid())));
 		} else {
 			convertCriterion(eqCriteria.getCriterion(),match);
@@ -208,7 +206,7 @@ public class EqdResources {
 			for (String vset : cv.getLibraryItem()) {
 				String vsetName = "Unknown code set";
 				if (labels.get(vset) != null)
-					vsetName = (String) labels.get(vset);
+					pv.setValueLabel((String) labels.get(vset));
 				From iri = new From().setIri("urn:uuid:" + vset).setName(vsetName);
 				if (!notIn)
 					pv.addIn(iri);
@@ -220,27 +218,27 @@ public class EqdResources {
 		} else if (cv.getRangeValue() != null) {
 			setRangeValue(cv.getRangeValue(), pv);
 		}
-
 	}
 
 	private void setWhereValueSetSetters(EQDOCColumnValue cv, Where pv, boolean notIn) throws DataFormatException, IOException {
 		for (EQDOCValueSet vs : cv.getValueSet()) {
-			if (vs.getId()!=null && labels.get(vs.getId())!=null) {
-					String description = labels.get(vs.getId()).toString();
-					pv.setDescription(pv.getDescription() == null ? description : pv.getDescription() + " " + description);
-			}
+			if (vs.getId()!=null)
+				if (labels.get(vs.getId())!=null) {
+					pv.setValueLabel(labels.get(vs.getId()).toString());
+				}
 			if (vs.getAllValues() != null) {
 				pv.setNotIn(getExceptionSet(vs.getAllValues()));
 			} else {
 				if (!notIn) {
-					pv.setIn(getInlineValues(vs));
+					pv.setIn(getInlineValues(vs,pv));
 				}
 				else {
-					pv.setNotIn(getInlineValues(vs));
+					pv.setNotIn(getInlineValues(vs,pv));
 				}
 			}
 		}
 	}
+
 
 	public String getPath(String eqdPath) throws DataFormatException {
 		Object target = dataMap.get(eqdPath);
@@ -480,7 +478,7 @@ public class EqdResources {
 
 
 
-	private List<From> getInlineValues(EQDOCValueSet vs) throws DataFormatException, IOException {
+	private List<From> getInlineValues(EQDOCValueSet vs,Where pv) throws DataFormatException, IOException {
 		List<From> setContent = new ArrayList<>();
 		VocCodeSystemEx scheme = vs.getCodeSystem();
 		for (EQDOCValueSetValue ev : vs.getValues()) {
@@ -498,43 +496,6 @@ public class EqdResources {
 	}
 
 
-	private List<From> getValueSet(EQDOCValueSet vs) throws DataFormatException, IOException {
-		List<From> setContent = new ArrayList<>();
-		StringBuilder vsetName = new StringBuilder();
-		VocCodeSystemEx scheme = vs.getCodeSystem();
-		if (labels.get(vs.getId())!=null){
-			vsetName.append((String) labels.get(vs.getId()));
-		}
-		if (vs.getDescription() != null)
-			vsetName = new StringBuilder(vs.getDescription());
-		int i = 0;
-		for (EQDOCValueSetValue ev : vs.getValues()) {
-			i++;
-			Set<From> concepts = getValue(scheme, ev);
-			if (concepts != null) {
-				getValueSetAppend(setContent, vsetName, i, ev, concepts);
-			}
-			else
-				System.err.println("Missing \t" + ev.getValue() + "\t " + ev.getDisplayName());
-
-		}
-
-		storeValueSet(vs, setContent, vsetName.toString());
-		setContent.add(new From().setIri("urn:uuid:" + vs.getId()).setName(vsetName.toString()));
-		return setContent;
-	}
-
-	private static void getValueSetAppend(List<From> setContent, StringBuilder vsetName, int i, EQDOCValueSetValue ev, Set<From> concepts) {
-		setContent.addAll(new ArrayList<>(concepts));
-		if (i ==1) {
-			if (ev.getDisplayName() != null) {
-				vsetName.append(ev.getDisplayName());
-			} else
-				vsetName.append(concepts.stream().findFirst().get().getName());
-		}
-		if (i ==2)
-			vsetName.append("AndMore");
-	}
 
 	private void storeLibraryItem(TTIriRef iri) {
 		if (!valueSets.containsKey(iri)) {
@@ -566,7 +527,7 @@ public class EqdResources {
 						.from(f -> f
 							.setIri(concept.getIri())
 						.setName(concept.getName())
-						.setIncludeSubtypes(true));
+						.setDescendantsOrSelfOf(true));
 				}
 				conceptSet.setDefinition(definition);
 				valueSets.put(iri, conceptSet);

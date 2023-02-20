@@ -274,7 +274,13 @@ public class TTBulkFiler  extends TTDocumentFiler {
          String config = configTTl;
          String data = dataPath;
          String preloadPath = preload;
-         String command = "importrdf preload -c " + config + "/config.ttl --force -q " + data + " " + data + "/BulkImport*.nq";
+         String command;
+         if (!SystemUtils.OS_NAME.contains("Windows"))
+             command = "importrdf preload -c " + config + "/config.ttl --force -q "
+               + data + " " + data + "/BulkImport*.nq";
+         else
+             command = "importrdf preload -c " + config + "\\config.ttl --force -q "
+                + data + " " + data + "\\BulkImport*.nq";
          String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
          Process process = Runtime.getRuntime()
                  .exec(startCommand + command,

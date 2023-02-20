@@ -11,12 +11,10 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -571,15 +569,15 @@ public class OSQuery {
     }
 
     private static boolean addFromTypes(SearchRequest request, From from,QueryRequest imRequest) throws DataFormatException {
-        if (from.getSourceType()== SourceType.type){
-                request.addType(from.getIri());
+        if (from.getType()!= null){
+                request.addType(from.getType());
                 if (from.getFrom()!=null)
                     return false;
                 if (from.getWhere()!=null)
                     return false;
                 return true;
         }
-        else if (from.isIncludeSubtypes()) {
+        else if (from.isDescendantsOrSelfOf()) {
                 return processSubTypes(request, from, imRequest);
         }
         else if (from.getIri()!=null)

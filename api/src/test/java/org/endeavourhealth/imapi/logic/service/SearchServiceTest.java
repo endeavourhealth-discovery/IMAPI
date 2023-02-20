@@ -10,6 +10,8 @@ import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.transforms.IMQGToJ;
+import org.endeavourhealth.imapi.transforms.IMQJToG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,7 @@ class SearchServiceTest {
 	private String testDefinitions;
 	private String testResults;
 	private String testSparql;
+	private String succinctDefinitions;
 
 
 	//@Test
@@ -48,31 +51,49 @@ class SearchServiceTest {
 		testDefinitions= System.getenv("folder")+"\\Definitions";
 		testResults= System.getenv("folder")+"\\Results";
 		testSparql = System.getenv("folder")+"\\Sparql";
+		succinctDefinitions= System.getenv("folder")+"\\SuccinctSyntax";
+		QueryRequest qr= TestQueries.getAllowableSubtypes();
+		IMQJToG fromJToG= new IMQJToG();
+		String imq=fromJToG.convert(qr);
+
+		IMQGToJ converter= new IMQGToJ();
+		QueryRequest qrn= converter.convert(imq);
+		outputSuccinct(imq,qrn.getQuery().getName());
+		output(qrn);
+
+
 
 
 		for (QueryRequest qr1: List.of(
+			TestQueries.pathDobQuery(),
+			TestQueries.pathToPostCode(),
 			TestQueries.deleteSets(),
 			TestQueries.getAllowableSubtypes(),
-			TestQueries.pathToPostCode(),
 			TestQueries.pathToCSA(),
 			TestQueries.pathToAtenolol()
-		,TestQueries.pathDobQuery())){
+		)){
 			output(qr1);
 		}
-		/*
+
 		for (QueryRequest qr1:List.of(
 			TestQueries.getAllowableProperties(),
 			TestQueries.subtypesParameterised(),TestQueries.substanceTextSearch(),
 			TestQueries.rangeTextSearch(),TestQueries.getAllowableRanges(),TestQueries.oralNsaids(),
-			TestQueries.getAllowableProperties(),TestQueries.getIsas(),TestQueries.complexECL(),TestQueries.getLegPain(),
+			TestQueries.getAllowableProperties(),TestQueries.getIsas(),
 			TestQueries.getConcepts(),TestQueries.query2(),TestQueries.query1(),
 			TestQueries.query4(),TestQueries.query5(),TestQueries.query6())){
 			output(qr1);
 		}
 
-		 */
 
 
+
+	}
+
+	private void outputSuccinct(String imq,String name) throws IOException {
+		try (FileWriter wr = new FileWriter(succinctDefinitions+ "\\"  + name+ ".txt")) {
+			wr.write(imq);
+		}
 	}
 
 

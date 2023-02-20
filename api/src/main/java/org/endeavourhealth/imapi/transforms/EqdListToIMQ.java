@@ -4,8 +4,6 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Select;
 import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 
 import java.io.IOException;
@@ -18,8 +16,7 @@ public class EqdListToIMQ {
 		this.resources= resources;
 		String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 		query.from(f->f
-			.setIri("urn:uuid:" + id)
-			.setSourceType(SourceType.set)
+			.setSet("urn:uuid:" + id)
 			.setName(resources.reportNames.get(id)));
 		for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
 			EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();

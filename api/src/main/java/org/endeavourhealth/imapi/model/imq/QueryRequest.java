@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class QueryRequest {
 
 	private String name;
 	private Page page;
-
+	private TTContext context;
 	private String textSearch;
 	private List<Argument> argument;
 	private Query query;
@@ -23,6 +24,15 @@ public class QueryRequest {
 	private Update update;
 	private String referenceDate;
 
+
+	public TTContext getContext() {
+		return context;
+	}
+
+	public QueryRequest setContext(TTContext context) {
+		this.context = context;
+		return this;
+	}
 	public Update getUpdate() {
 		return update;
 	}

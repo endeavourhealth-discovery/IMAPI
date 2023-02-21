@@ -147,6 +147,7 @@ public class CodeGenJava {
                             .setMinCount(bindSet.hasBinding("min")
                                     ? ((Literal) bindSet.getValue("min")).intValue()
                                     : null);
+
                     model.addProperty(property);
                     LOG.trace("iri [{}]", iri);
                 }

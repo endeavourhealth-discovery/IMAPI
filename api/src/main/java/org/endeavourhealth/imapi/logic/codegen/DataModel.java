@@ -2,7 +2,9 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DataModel {
 
@@ -48,8 +50,16 @@ public class DataModel {
         return this;
     }
 
+    public Set<String> getPropertyNames() {
+        Set<String> propertyNames = new HashSet<>();
+        for (DataModelProperty p : properties)
+            propertyNames.add(p.getName());
+        return propertyNames;
+    }
+
     public DataModel addProperty(DataModelProperty property) {
-        this.properties.add(property);
+        if (!this.getPropertyNames().contains(property.getName()))
+            this.properties.add(property);
         return this;
     }
 }

@@ -147,12 +147,25 @@ public class CodeGenJava {
                             .setMinCount(bindSet.hasBinding("min")
                                     ? ((Literal) bindSet.getValue("min")).intValue()
                                     : null);
-                    model.addProperty(property);
+
+                    getDataModelAddProperty(model, property);
                     LOG.trace("iri [{}]", iri);
                 }
             }
         }
         return model;
+    }
+
+    private static void getDataModelAddProperty(DataModel model, DataModelProperty property) {
+        boolean duplicateProperty = false;
+        for (DataModelProperty p : model.getProperties()) {
+            if (property.getName().equals(p.getName())) {
+                duplicateProperty = true;
+                break;
+            }
+        }
+        if (!duplicateProperty)
+            model.addProperty(property);
     }
 
     private void addMissingModelToQueue(DataModel model) {

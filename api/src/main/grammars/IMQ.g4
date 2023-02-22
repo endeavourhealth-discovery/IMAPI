@@ -22,16 +22,16 @@ string
     |
     STRING_LITERAL2
     ;
-argument: parameter  COLON (value | iriRef |valueDataList | valueIriList);
+argument: parameter  COLON (value | valueDataList | valueIriList);
 
 parameter : PN_PROPERTY ;
 
 valueDataList
-    : OB value (',' value)* CB
+    : value (',' value)*
     ;
 
 valueIriList
-    : OB iriRef (',' iriRef)* CB
+    : iriRef (',' iriRef)*
     ;
 
 value : string;
@@ -39,7 +39,7 @@ value : string;
 iriRef
     :
     '@id'
-    (IRI_REF | PN_PREFIXED | PN_PROPERTY)
+    (IRI_REF | PN_PREFIXED)
     name?
 
     ;
@@ -67,20 +67,16 @@ prefixDecl
     ;
 
 selectClause
-    : SELECT selection
+    : SELECT
+    selectList
     ;
-selection
-    : (selectionList| select)
-    ;
-
-selectionList
-    : OSB select (',' select)* CSB
+ selectList
+    :select (',' select)*
     ;
 select
     : OC
     (iriRef|PN_PROPERTY)
     whereClause?
-    OC
     selectClause?
     CC
     ;
@@ -90,7 +86,8 @@ name
     : NAME
     ;
 description
-    : string
+    : DESCRIPTION
+    string
     ;
 activeOnly
     : ACTIVE_ONLY
@@ -98,33 +95,21 @@ activeOnly
 
 fromClause
     : FROM
-    OC
     (from
-    |
-    fromWhere
     |
     fromBoolean
     |
     bracketFrom)
-    CC
+
     ;
 
-fromWhere
-    :( (from
-    |
-    bracketFrom)
-    whereClause)
-    |
-    whereClause
-    ;
 bracketFrom
-    :OB
-    (fromWhere
-    |
+    :OC
+    (
     fromBoolean
     |
     from)
-    CB
+    OC
     ;
  fromBoolean
     :(andFrom
@@ -135,29 +120,32 @@ bracketFrom
     ;
 
 notFrom
-    :(from | bracketFrom| fromWhere)
+    :(from | bracketFrom)
     (NOT
-    (from | bracketFrom|fromWhere))+
+    (from | bracketFrom))+
     ;
 
 orFrom
-    : (from | bracketFrom| fromWhere)
+    : (from | bracketFrom)
     (OR
-    (from| bracketFrom|fromWhere))+
+    (from| bracketFrom))+
     ;
 
 andFrom
     :
-    (from | bracketFrom| fromWhere)
+    (from | bracketFrom)
     (AND
-    (from| bracketFrom|fromWhere))+
+    (from| bracketFrom))+
     ;
 
 from
     :
+    OC
     description?
     graph?
-    reference
+    reference?
+    whereClause?
+    CC
     ;
 
 whereClause
@@ -167,46 +155,32 @@ whereClause
 
  subWhere
     :
-    OC
     (where
-    |
-    whereWith
-    |
-    whereValue
     |
     whereBoolean
     |
-    whereWhere
-    |
     bracketWhere
     )
+    ;
+
+where
+    :
+     OC
+    with?
+     description?
+    notExist?
+    reference
+    whereValueTest?
+    (whereClause)?
     CC
     ;
 
-whereWith
-    :
-    with
-    (where | whereValue | whereBoolean)
-    ;
-where
-    : description?
-    notExist?
-    reference
-    ;
-whereWhere
-    : where
-    subWhere
-    ;
 
 
 notExist
     :NOTEXIST
     ;
-whereValue
-    : where
-    valueLabel?
-    whereValueTest
-    ;
+
 
 valueLabel
     : VALUE_LABEL
@@ -214,7 +188,6 @@ valueLabel
     ;
 whereBoolean
     :
-    where?
     (andWhere
     |
     orWhere
@@ -224,63 +197,71 @@ whereBoolean
 notWhere
     :
     (NOT
-    (where | bracketWhere|whereValue|whereWhere))+
+    (where | bracketWhere))+
     ;
 
 orWhere
-    : (where | bracketWhere| whereValue|whereWhere)
+    : (where | bracketWhere)
     (OR
-    (where| bracketWhere| whereValue|whereWhere))+
+    (where| bracketWhere))+
     ;
 
 andWhere
     :
-    (where | bracketWhere|whereValue|whereWhere)
+    (where | bracketWhere)
     (AND
-    (where| bracketWhere|whereValue|whereWhere))+
+    (where| bracketWhere))+
     ;
 bracketWhere
-    :OB
-    (whereValue
-    |
+    :OC
+    (
     whereBoolean
     |
     where)
-    CB
+    CC
     ;
 
 with
     : WITH
     OC
-    (where | whereBoolean| whereValue|whereWhere)
+    (where | whereBoolean)
     sortable
     CC
     ;
 whereValueTest
-    :(in | notin)
+    :(inClause | notInClause)
     | range
     | whereMeasure
     ;
 
-in
-    : 'in'
-    ( from| fromWhere| fromBoolean|bracketFrom)
-
+inClause
+    :'in'
+    conceptSet
     ;
 
-notin
+notInClause
     : 'notIn'
-    ( from| fromWhere| fromBoolean|bracketFrom)
+    conceptSet
+    ;
+
+conceptSet
+    :
+    ( from| bracketFrom|fromBoolean)
     ;
 
 reference
     :
+    inverseOf?
      sourceType
-     ((subsumption?  (IRI_REF | PN_PREFIXED | PN_PROPERTY) name?)
+     ((subsumption?  (IRI_REF | PN_PREFIXED) name?)
      |
      (subsumption? variable))
      alias?
      ;
+
+inverseOf
+    : 'inverseOf'
+    ;
 
 range
     : (fromRange toRange)
@@ -315,8 +296,6 @@ units
     : PN_CHARS
     ;
 
-
-
 sortable
     : latest| earliest| maximum| minimum
     count
@@ -344,16 +323,18 @@ graph
 
 
 sourceType :
-    (TYPE | SET | INSTANCE)
+    (TYPE | SET | INSTANCE| VAR)
     ;
-
 
 
 subsumption
     : descendantorselfof
     | descendantof
     | ancestorOf
+    |ancestorAndDescendantOf
     ;
+
+ancestorAndDescendantOf: '>><<';
 
 ancestorOf: '>>';
 
@@ -362,11 +343,12 @@ descendantof: '<';
 descendantorselfof: '<<';
 
 variable
-    : PN_VARIABLE
+    :
+    PN_VARIABLE
     ;
 
 alias
-    : ALIAS COLON string
+    : ALIAS COLON PN_PROPERTY
     ;
 
 
@@ -379,9 +361,7 @@ SEARCH_TEXT
 ARGUMENTS
     : 'arguments'
     ;
-ID
-    : 'id'
-    ;
+
 QUERY
     :'query'
     ;
@@ -426,9 +406,13 @@ PREFIX
     :'prefix' |'PREFIX'
     ;
 
-DESCRIPTION
+COMMENT
     :  '/*'  ( ~('\u0022' | '\u005C' | '\u000A' | '\u000D'))* '*/'
     ;
+DESCRIPTION
+    : 'description'
+    ;
+
 NAME
     : '|'  ( ~('\u0022' | '\u005C' | '\u000A' | '\u000D'))* '|'
     ;
@@ -528,7 +512,7 @@ COMMA
     : ','
     ;
 WS
-   : ([\t\r\n\u000C] | ' ') + -> skip
+   : ([\t\r\n\u000C] | ' '| COMMENT) + -> skip
    ;
 
 PN_PROPERTY
@@ -543,7 +527,7 @@ PN_VARIABLE
     ;
 
 PN_PREFIXED
-    : PN_PROPERTY? COLON PN_PROPERTY
+    : PN_PROPERTY? COLON ((DIGIT)+ | PN_PROPERTY)
     ;
 
 PN_CHARS_BASE
@@ -584,3 +568,6 @@ NUMBER
 
 NOTIN : 'notIn';
 VALUE_LABEL : 'valueLabel';
+
+VAR : '@var'
+    ;

@@ -1,0 +1,22 @@
+{  
+  prefix im: http://endhealth.info/im#  
+  prefix sh: http://www.w3.org/ns/shacl#  
+  prefix rdfs: http://www.w3.org/2000/01/rdf-schema#  
+  prefix sn: http://snomed.info/sct#  
+  prefix xsd: http://www.w3.org/2001/XMLSchema#
+  arguments {
+    this : @id im:Concept
+    } 
+  query {
+    name "Search for all main types"
+    activeOnly
+    from {@type im:Concept}
+         or {@type im:ConceptSet}
+         or {@type im:Folder}
+         or {@type im:ValueSet}
+         or {@id im:dataModelProperty}
+    select {@id rdfs:label},
+      {@id rdfs:comment},
+      {@id im:status},
+      {@id im:weighting},
+      {@id im:scheme}}}

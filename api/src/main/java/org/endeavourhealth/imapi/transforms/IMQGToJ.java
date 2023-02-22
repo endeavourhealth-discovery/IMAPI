@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.parser.imq.IMQLexer;
 import org.endeavourhealth.imapi.parser.imq.IMQParser;
@@ -37,7 +38,7 @@ public class IMQGToJ {
 		IMQParser.QueryRequestContext qr= parser.queryRequest();
 		QueryRequest jqr= new QueryRequest();
 		if (qr.prefixDecl()!=null){
-			convertPrefixes(qr.prefixDecl());
+			convertPrefixes(qr.prefixDecl(),jqr);
 		}
 		if (qr.arguments()!=null){
 			convertArguments(qr.arguments(),jqr);
@@ -48,21 +49,23 @@ public class IMQGToJ {
 		return jqr;
 	}
 
-	private void convertPrefixes(List<IMQParser.PrefixDeclContext> prefixDecl) {
+	private void convertPrefixes(List<IMQParser.PrefixDeclContext> prefixDecl,QueryRequest jqr) {
+		TTContext context= new TTContext();
 		for (IMQParser.PrefixDeclContext prefix:prefixDecl){
 			String iri= prefix.IRI_REF().getText();
 			prefixes.put(prefix.PN_PROPERTY().getText(),iri);
+			context.add(iri,prefix.PN_PROPERTY().getText());
 		}
+		jqr.setContext(context);
 	}
 
 
 
 
 	private String resolvePrefixed(String prefixed) throws DataFormatException {
-		String resolved= prefixes.get(prefixed.split(":")[0]);
-		if (resolved==null)
-			throw new DataFormatException("Unresolved prefixed iri in IM text : "+ prefixed);
-		return resolved;
+		String []parts= prefixed.split(":");
+		String prefix= prefixes.get(parts[0]);
+		return (prefix+ prefixed.substring(prefixed.indexOf(":")+1));
 	}
 
 	private void convertQuery(IMQParser.QueryContext qry, QueryRequest jqr) throws DataFormatException {
@@ -72,23 +75,52 @@ public class IMQGToJ {
 			convertIriRef(qry.iriRef(), jq);
 		}
 		if (qry.properName()!=null)
-			jq.setName(qry.properName().string().getText());
+			jq.setName(getString(qry.properName().string().getText()));
 		if (qry.description()!=null)
-			jq.setDescription(qry.description().string().getText());
-
+			jq.setDescription(getString(qry.description().string().getText()));
+		if (qry.activeOnly()!=null)
+			jq.setActiveOnly(true);
 		if (qry.fromClause()!=null){
 			convertMainFromClause(qry.fromClause(),jq);
 		}
+		if (qry.selectClause()!=null)
+			convertSelectClause(qry.selectClause(),jq);
 	}
+
+	private String getString(String g4String){
+		return g4String.substring(1,g4String.length()-1);
+	}
+
+	private void convertSelectClause(IMQParser.SelectClauseContext selectClause, Query jq) throws DataFormatException {
+		for (IMQParser.SelectContext select:selectClause.selectList().select()){
+			Select jSelect= new Select();
+			jq.addSelect(jSelect);
+			convertSelect(select,jSelect);
+		}
+	}
+
+	private void convertSelect(IMQParser.SelectContext select, Select jSelect) throws DataFormatException {
+		if (select.iriRef()!=null)
+			convertIriRef(select.iriRef(),jSelect);
+		else if (select.PN_PROPERTY()!=null)
+			jSelect.setId(select.PN_PROPERTY().getText());
+		if (select.whereClause()!=null)
+			convertWhereClause(select.whereClause(),jSelect);
+		if (select.selectClause()!=null){
+			for (IMQParser.SelectContext subSelect:select.selectClause().selectList().select()){
+				Select jSubSelect= new Select();
+				jSelect.addSelect(jSubSelect);
+				convertSelect(subSelect,jSubSelect);
+			}
+		}
+	}
+
 
 	private void convertMainFromClause(IMQParser.FromClauseContext fromClause,Query jquery) throws DataFormatException {
 		From jfrom = new From();
 		jquery.setFrom(jfrom);
 		if (fromClause.from() != null) {
 			convertFrom(fromClause.from(), jfrom);
-		}
-		else if (fromClause.fromWhere()!=null){
-			convertFromWhere(fromClause.fromWhere(),jfrom);
 		}
 		else if(fromClause.fromBoolean()!=null) {
 			convertFromBoolean(fromClause.fromBoolean(), jfrom);
@@ -113,11 +145,6 @@ public class IMQGToJ {
 				addFrom(from,jfrom);
 			}
 		}
-		if (andFrom.fromWhere().size()>0) {
-			for (IMQParser.FromWhereContext fromWhere : andFrom.fromWhere()) {
-				addFromWhere(fromWhere,jfrom);
-			}
-		}
 		if (andFrom.bracketFrom().size()>0) {
 			for (IMQParser.BracketFromContext bracketFrom : andFrom.bracketFrom()) {
 				addBracketFrom(bracketFrom,jfrom);
@@ -132,11 +159,7 @@ public class IMQGToJ {
 		convertBracketFrom(bracketFrom, subFrom);
 	}
 
-	private void addFromWhere(IMQParser.FromWhereContext fromWhere, From jfrom) throws DataFormatException {
-		From subFrom = new From();
-		jfrom.addFrom(subFrom);
-		convertFromWhere(fromWhere, subFrom);
-	}
+
 
 	private void addFrom(IMQParser.FromContext from, From jFrom) throws DataFormatException {
 		From subFrom = new From();
@@ -149,11 +172,6 @@ public class IMQGToJ {
 		if (notFrom.from().size()>0) {
 			for (IMQParser.FromContext from : notFrom.from()) {
 				addFrom(from,jfrom);
-			}
-		}
-		if (notFrom.fromWhere().size()>0) {
-			for (IMQParser.FromWhereContext fromWhere :notFrom.fromWhere()) {
-				addFromWhere(fromWhere,jfrom);
 			}
 		}
 		if (notFrom.bracketFrom().size()>0) {
@@ -170,11 +188,6 @@ public class IMQGToJ {
 				addFrom(from,jfrom);
 			}
 		}
-		if (orFrom.fromWhere().size()>0) {
-			for (IMQParser.FromWhereContext fromWhere :orFrom.fromWhere()) {
-				addFromWhere(fromWhere,jfrom);
-			}
-		}
 		if (orFrom.bracketFrom().size()>0) {
 			for (IMQParser.BracketFromContext bracketFrom : orFrom.bracketFrom()) {
 				addBracketFrom(bracketFrom,jfrom);
@@ -182,56 +195,44 @@ public class IMQGToJ {
 		}
 	}
 
-	private void convertFromWhere(IMQParser.FromWhereContext fromWhere,From jfrom) throws DataFormatException {
-		if (fromWhere.from()!=null)
-			convertFrom(fromWhere.from(),jfrom);
-		else if (fromWhere.bracketFrom()!=null) {
-			convertBracketFrom(fromWhere.bracketFrom(),jfrom);
-		}
-		if (fromWhere.whereClause()!=null) {
-			convertWhereClause(fromWhere.whereClause(), jfrom);
-		}
+
+	private void convertWhereClause(IMQParser.WhereClauseContext whereClause, From jFrom) throws DataFormatException {
+		Where jWhere = new Where();
+		jFrom.setWhere(jWhere);
+		convertSubWhere(whereClause.subWhere(), jWhere);
+	}
+	private void convertWhereClause(IMQParser.WhereClauseContext whereClause, Select jSelect) throws DataFormatException {
+		Where jWhere = new Where();
+		jSelect.setWhere(jWhere);
+		convertSubWhere(whereClause.subWhere(), jWhere);
 	}
 
-	private void convertWhereClause(IMQParser.WhereClauseContext whereClause, From jfrom) throws DataFormatException {
-		Where jWhere = new Where();
-		jfrom.setWhere(jWhere);
-		convertSubWhere(whereClause.subWhere(), jWhere);
+	private void convertWhereClause(IMQParser.WhereClauseContext whereClause, Where jWhere) throws DataFormatException {
+		Where jSubWhere = new Where();
+		jWhere.addWhere(jSubWhere);
+		convertSubWhere(whereClause.subWhere(), jSubWhere);
 	}
 
 	private void convertSubWhere(IMQParser.SubWhereContext subWhere, Where jWhere) throws DataFormatException {
 		if (subWhere.where()!=null){
 			convertWhere(subWhere.where(),jWhere);
 		}
-		if (subWhere.whereValue()!=null){
-			convertWhereValue(subWhere.whereValue(),jWhere);
-		}
-		if (subWhere.whereWith()!=null){
-			convertWhereWith(subWhere.whereWith(),jWhere);
-		}
 		if (subWhere.whereBoolean()!=null){
 			convertWhereBoolean(subWhere.whereBoolean(),jWhere);
-		}
-		if (subWhere.whereWhere()!=null){
-			convertWhereWhere(subWhere.whereWhere(),jWhere);
 		}
 		if (subWhere.bracketWhere()!=null)
 			convertBracketWhere(subWhere.bracketWhere(),jWhere);
 	}
 
-	private void convertBracketWhere(IMQParser.BracketWhereContext bracketWhere, Where jWhere) {
+	private void convertBracketWhere(IMQParser.BracketWhereContext bracketWhere, Where jWhere) throws DataFormatException {
+		if (bracketWhere.where()!=null)
+			convertWhere(bracketWhere.where(),jWhere);
+		if (bracketWhere.whereBoolean()!=null)
+			convertWhereBoolean(bracketWhere.whereBoolean(),jWhere);
 	}
 
-	private void convertWhereWhere(IMQParser.WhereWhereContext whereWhere, Where jWhere) throws DataFormatException {
-		convertWhere(whereWhere.where(),jWhere);
-		Where jnestedWhere= new Where();
-		jWhere.addWhere(jnestedWhere);
-		convertSubWhere(whereWhere.subWhere(),jnestedWhere);
-	}
 
 	private void convertWhereBoolean(IMQParser.WhereBooleanContext whereBoolean, Where jWhere) throws DataFormatException {
-		if (whereBoolean.where()!=null)
-			convertWhere(whereBoolean.where(),jWhere);
 		if (whereBoolean.orWhere()!=null) {
 			convertOrWhere(whereBoolean.orWhere(),jWhere);
 		}
@@ -249,11 +250,6 @@ public class IMQGToJ {
 				addWhere(where,jWhere);
 			}
 		}
-		if (orWhere.whereValue().size()>0) {
-			for (IMQParser.WhereValueContext whereValue:orWhere.whereValue()) {
-				addWhereValue(whereValue,jWhere);
-			}
-		}
 		if (orWhere.bracketWhere().size()>0) {
 			for (IMQParser.BracketWhereContext bracketWhere : orWhere.bracketWhere()) {
 				addBracketWhere(bracketWhere,jWhere);
@@ -261,17 +257,12 @@ public class IMQGToJ {
 		}
 	}
 
-	private void addBracketWhere(IMQParser.BracketWhereContext bracketWhere, Where jWhere) {
+	private void addBracketWhere(IMQParser.BracketWhereContext bracketWhere, Where jWhere) throws DataFormatException {
 		Where jsubWhere= new Where();
 		jWhere.addWhere(jsubWhere);
 		convertBracketWhere(bracketWhere,jsubWhere);
 	}
 
-	private void addWhereValue(IMQParser.WhereValueContext whereValue, Where jWhere) throws DataFormatException {
-		Where jsubWhere= new Where();
-		jWhere.addWhere(jsubWhere);
-		convertWhereValue(whereValue,jsubWhere);
-	}
 
 	private void convertAndWhere(IMQParser.AndWhereContext andWhere, Where jWhere) throws DataFormatException {
 		jWhere.setBool(Bool.and);
@@ -280,11 +271,7 @@ public class IMQGToJ {
 				addWhere(where,jWhere);
 			}
 		}
-		if (andWhere.whereValue().size()>0) {
-			for (IMQParser.WhereValueContext whereValue:andWhere.whereValue()) {
-				addWhereValue(whereValue,jWhere);
-			}
-		}
+
 		if (andWhere.bracketWhere().size()>0) {
 			for (IMQParser.BracketWhereContext bracketWhere : andWhere.bracketWhere()) {
 				addBracketWhere(bracketWhere,jWhere);
@@ -297,11 +284,6 @@ public class IMQGToJ {
 		if (notWhere.where().size()>0) {
 			for (IMQParser.WhereContext where : notWhere.where()) {
 				addWhere(where,jWhere);
-			}
-		}
-		if (notWhere.whereValue().size()>0) {
-			for (IMQParser.WhereValueContext whereValue:notWhere.whereValue()) {
-				addWhereValue(whereValue,jWhere);
 			}
 		}
 		if (notWhere.bracketWhere().size()>0) {
@@ -317,33 +299,18 @@ public class IMQGToJ {
 		convertWhere(where,jSubWhere);
 	}
 
-	private void convertWhereWith(IMQParser.WhereWithContext whereWith, Where jWhere) throws DataFormatException {
-				With jWith=new With();
-				jWhere.setWith(jWith);
-				convertWith(whereWith.with(),jWith);
-				if (whereWith.where()!=null)
-					convertWhere(whereWith.where(),jWhere);
-				if (whereWith.whereValue()!=null)
-					convertWhereValue(whereWith.whereValue(),jWhere);
-				if (whereWith.whereBoolean()!=null)
-					convertWhereBoolean(whereWith.whereBoolean(),jWhere);
-	}
 
-	private void convertWhereValue(IMQParser.WhereValueContext whereValue, Where jWhere) throws DataFormatException {
-		convertWhere(whereValue.where(),jWhere);
-		convertWhereValueTest(whereValue.whereValueTest(),jWhere);
-	}
 
 	private void convertWhereValueTest(IMQParser.WhereValueTestContext whereValue, Where jWhere) throws DataFormatException {
-		if (whereValue.in()!=null){
+		if (whereValue.inClause()!=null){
 			List<From> inList= new ArrayList<>();
 			jWhere.setIn(inList);
-			convertIn(whereValue.in(),inList);
+			convertConceptSet(whereValue.inClause().conceptSet(),inList);
 		}
-		if (whereValue.notin()!=null){
+		if (whereValue.notInClause()!=null){
 			List<From> notList= new ArrayList<>();
 			jWhere.setNotIn(notList);
-			convertNotIn(whereValue.notin(),notList);
+			convertConceptSet(whereValue.notInClause().conceptSet(),notList);
 		}
 		if (whereValue.whereMeasure()!=null) {
 			convertAssignable(whereValue.whereMeasure(),jWhere);
@@ -392,36 +359,24 @@ public class IMQGToJ {
 		convertFrom(from,inFrom);
 	}
 
-	private void convertIn(IMQParser.InContext in, List<From> fromList) throws DataFormatException {
-		if (in.from()!=null) {
-			addToFrom(in.from(),fromList);
-		}
-		if (in.fromBoolean()!=null){
-			addToFromBoolean(in.fromBoolean(),fromList);
-		}
-		if (in.fromWhere()!=null){
-			addToFromWhere(in.fromWhere(),fromList);
-		}
-		if (in.bracketFrom()!=null){
-			addToBracketFrom(in.bracketFrom(),fromList);
-		}
-	}
 
-	private void convertNotIn(IMQParser.NotinContext notIn, List<From> fromList) throws DataFormatException {
-		if (notIn.from()!=null) {
-			addToFrom(notIn.from(),fromList);
+
+	private void convertConceptSet(IMQParser.ConceptSetContext conceptSet, List<From> fromList) throws DataFormatException {
+		if (conceptSet.from()!=null) {
+				addToFrom(conceptSet.from(), fromList);
+			}
+		if (conceptSet.fromBoolean()!=null){
+			for (IMQParser.FromContext from:conceptSet.fromBoolean().orFrom().from()) {
+				addToFrom(from, fromList);
+			}
 		}
-		if (notIn.fromBoolean()!=null){
-			addToFromBoolean(notIn.fromBoolean(),fromList);
-		}
-		if (notIn.fromWhere()!=null){
-			addToFromWhere(notIn.fromWhere(),fromList);
-		}
-		if (notIn.bracketFrom()!=null){
-			addToBracketFrom(notIn.bracketFrom(),fromList);
-		}
+		if (conceptSet.bracketFrom()!=null){
+				addToBracketFrom(conceptSet.bracketFrom(), fromList);
+			}
 
 	}
+
+
 
 	private void addToBracketFrom(IMQParser.BracketFromContext bracketFrom, List<From> fromList) throws DataFormatException {
 		From inFrom= new From();
@@ -429,23 +384,12 @@ public class IMQGToJ {
 		convertBracketFrom(bracketFrom,inFrom);
 	}
 
-	private void addToFromWhere(IMQParser.FromWhereContext fromWhere, List<From> fromList) throws DataFormatException {
-		From inFrom= new From();
-		fromList.add(inFrom);
-		convertFromWhere(fromWhere,inFrom);
-	}
 
-	private void addToFromBoolean(IMQParser.FromBooleanContext fromBoolean, List<From> fromList) throws DataFormatException {
-		From inFrom= new From();
-		fromList.add(inFrom);
-		convertFromBoolean(fromBoolean,inFrom);
-	}
+
 
 	private void convertBracketFrom(IMQParser.BracketFromContext bracketFrom, From jFrom) throws DataFormatException {
 		if (bracketFrom.from()!=null)
 			convertFrom(bracketFrom.from(),jFrom);
-		if (bracketFrom.fromWhere()!=null)
-			convertFromWhere(bracketFrom.fromWhere(),jFrom);
 		if (bracketFrom.fromBoolean()!=null){
 			convertFromBoolean(bracketFrom.fromBoolean(),jFrom);
 		}
@@ -460,25 +404,34 @@ public class IMQGToJ {
 		if (from.reference() != null) {
 			convertReference(from.reference(), jfrom);
 		}
+		if (from.whereClause()!=null)
+			convertWhereClause(from.whereClause(),jfrom);
 	}
 
 	private void convertWhere(IMQParser.WhereContext where, Where jWhere) throws DataFormatException {
+		if (where.with()!=null){
+			With jWith= new With();
+			jWhere.setWith(jWith);
+			convertWith(where.with(),jWith);
+		}
 		if (where.description()!=null)
 			jWhere.setDescription(where.description().string().getText());
 		if (where.reference()!=null){
 			convertReference(where.reference(),jWhere);
+		}
+		if (where.whereValueTest()!=null){
+			convertWhereValueTest(where.whereValueTest(),jWhere);
+		}
+		if (where.whereClause()!=null){
+			convertWhereClause(where.whereClause(),jWhere);
 		}
 	}
 
 	private void convertWith(IMQParser.WithContext with,With jWith) throws DataFormatException {
 		if (with.where()!=null)
 			convertWhere(with.where(),jWith);
-		if (with.whereWhere()!=null)
-			convertWhereWhere(with.whereWhere(),jWith);
 		if (with.whereBoolean()!=null)
 			convertWhereBoolean(with.whereBoolean(),jWith);
-		if (with.whereValue()!=null)
-			convertWhereValue(with.whereValue(),jWith);
 		if (with.sortable()!=null)
 			convertSortable(with.sortable(),jWith);
 	}
@@ -502,7 +455,7 @@ public class IMQGToJ {
 				jIriRef.setIri(iriRef.IRI_REF().getText());
 			}
 			else if (iriRef.PN_PREFIXED()!=null)
-				jIriRef.setIri(iriRef.PN_PREFIXED().getText());
+				jIriRef.setIri(resolvePrefixed(iriRef.PN_PREFIXED().getText()));
 			else
 				throw new DataFormatException("Error in iri translation");
 			if (iriRef.name()!=null){
@@ -512,37 +465,38 @@ public class IMQGToJ {
 	}
 
 	private void convertReference(IMQParser.ReferenceContext al, TTAlias jfrom) throws DataFormatException {
-		if (al.IRI_REF()!=null){
-			if (al.IRI_REF()!=null) {
-
-				if (al.sourceType().TYPE() != null)
-					jfrom.setType(al.IRI_REF().getText());
-				else if (al.sourceType().SET()!=null)
-					jfrom.setSet(al.IRI_REF().getText());
-				else
-					jfrom.setIri(al.IRI_REF().getText());
-			}
-			else if (al.PN_PREFIXED()!=null)
-				jfrom.setIri(resolvePrefixed(al.PN_PREFIXED().getText()));
-		}
-		else if (al.PN_PROPERTY()!=null){
-			jfrom.setId(al.PN_PROPERTY().getText());
-		}
+		if (al.inverseOf()!=null)
+			jfrom.setInverse(true);
+		String iri=null;
+		if (al.IRI_REF()!=null)
+			iri = al.IRI_REF().getText();
+		else if (al.PN_PREFIXED()!=null)
+			iri = resolvePrefixed(al.PN_PREFIXED().getText());
+		 if (al.sourceType().TYPE() != null)
+			 jfrom.setType(iri);
+		 else if (al.sourceType().SET()!=null)
+					jfrom.setSet(iri);
+		 else
+			 jfrom.setIri(iri);
 		if (al.alias()!=null){
-			jfrom.setAlias(al.alias().string().getText());
+			jfrom.setAlias(al.alias().PN_PROPERTY().getText());
 		}
 		if (al.variable()!=null){
 			jfrom.setVariable(al.variable().getText());
 		}
 		if (al.name()!=null){
-			jfrom.setName(al.name().getText().replaceAll("\\|",""));
+			jfrom.setName(getString(al.name().getText()).replaceAll("\\|",""));
 		}
 		if (al.subsumption()!=null) {
 			IMQParser.SubsumptionContext sub = al.subsumption();
-			if (sub.descendantorselfof() != null) {
+			if (sub.ancestorAndDescendantOf()!=null){
+				jfrom.setDescendantsOrSelfOf(true);
+				jfrom.setAncestorsOf(true);
+			}
+			else if (sub.descendantorselfof() != null) {
 				jfrom.setDescendantsOrSelfOf(true);
 			}
-			if (sub.ancestorOf() != null) {
+			else if (sub.ancestorOf() != null) {
 				jfrom.setAncestorsOf(true);
 			}
 			if (sub.descendantof() != null)
@@ -552,14 +506,14 @@ public class IMQGToJ {
 
 
 
-	private void convertArguments(IMQParser.ArgumentsContext args, QueryRequest jqr){
+	private void convertArguments(IMQParser.ArgumentsContext args, QueryRequest jqr) throws DataFormatException {
 		if (args.argument().size()>0){
 		for (IMQParser.ArgumentContext arg:args.argument())
 			addArgument(arg,jqr);
 		}
 	}
 
-	private void addArgument(IMQParser.ArgumentContext arg, QueryRequest jqr){
+	private void addArgument(IMQParser.ArgumentContext arg, QueryRequest jqr) throws DataFormatException {
 		Argument jarg= new Argument();
 		jqr.addArgument(jarg);
 		jarg.setParameter(arg.parameter().getText());
@@ -571,9 +525,17 @@ public class IMQGToJ {
 			}
 		}
 		else if (arg.valueIriList()!=null){
-
-			for (IMQParser.IriRefContext iri:arg.valueIriList().iriRef()){
-				jarg.addToValueIriList(TTIriRef.iri(iri.IRI_REF().getText()));
+			if (arg.valueIriList().iriRef().size()==1){
+				TTIriRef valueIri= new TTIriRef();
+				jarg.setValueIri(valueIri);
+				convertIriRef(arg.valueIriList().iriRef(0),valueIri);
+			}
+			else {
+				for (IMQParser.IriRefContext iri : arg.valueIriList().iriRef()) {
+					TTIriRef valueIri = new TTIriRef();
+					jarg.addToValueIriList(valueIri);
+					convertIriRef(iri, valueIri);
+				}
 			}
 		}
 	}

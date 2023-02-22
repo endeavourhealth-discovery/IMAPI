@@ -3,37 +3,22 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 public class TestQueries {
 
 
-	public static String subsetIMQ(){
-		String str=
-			" PREFIX sn: http://snomed.info/sct#\n" +
-				"  PREFIX rdfs: http://www.w3.org/2000/01/rdf-schema#\n" +
-				"  PREFIX rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#\n" +
-				"  PREFIX im: http://endhealth.info/im#\n" +
-				"  argument [this : [http://snomed.info/sct#195967001, http://snomed.info/sct#17097001]\n" +
-				"           ]\n" +
-				"  query  {\n" +
-				"    'all sub types of a concept (or list of concepts)'\n" +
-				"     from  { << $this }\n" +
-				"     select  [\n" +
-				"            {rdfs:label},\n" +
-				"             {im:code} ]\n" +
-				"}\n" +
-				"}";
-		return str;
-	}
 	public static TTContext getDefaultContext(){
 		TTContext context= new TTContext();
 		context.add(IM.NAMESPACE,"im");
 		context.add(RDFS.NAMESPACE,"rdfs");
 		context.add(SNOMED.NAMESPACE,"sn");
+		context.add(SHACL.NAMESPACE,"sh");
 		return context;
 	}
 	public static QueryRequest getAllowableSubtypes() throws IOException {
@@ -56,7 +41,7 @@ public class TestQueries {
 					.setBool(Bool.and)
 					.where(a2->a2
 						.setIri(SHACL.NODE.getIri())
-						.addIn(new From().setVariable("this")))
+						.addIn(new From().setVariable("$this")))
 					.where(a2->a2
 						.setIri(SHACL.PATH.getIri())
 						.setIn(List.of(From.iri(IM.IS_CONTAINED_IN.getIri())
@@ -66,6 +51,8 @@ public class TestQueries {
 		qr.setQuery(query);
 		return qr;
 	}
+
+
 
 	public static QueryRequest deleteSets(){
 		QueryRequest qr= new QueryRequest()
@@ -359,6 +346,13 @@ public class TestQueries {
 
 		return new QueryRequest().setQuery(query);
 
+	}
+
+	public static TTManager loadForms() throws IOException {
+		String coreFile="C:\\Users\\david\\CloudStation\\EhealthTrust\\DiscoveryDataService\\ImportData\\DiscoveryCore\\FormQueries.json";
+		TTManager manager= new TTManager();
+		manager.loadDocument(new File(coreFile));
+		return manager;
 	}
 
 

@@ -197,25 +197,13 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSelection(IMQParser.SelectionContext ctx) { }
+	@Override public void enterSelectList(IMQParser.SelectListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSelection(IMQParser.SelectionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelectionList(IMQParser.SelectionListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelectionList(IMQParser.SelectionListContext ctx) { }
+	@Override public void exitSelectList(IMQParser.SelectListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -276,18 +264,6 @@ public class IMQBaseListener implements IMQListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFromClause(IMQParser.FromClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFromWhere(IMQParser.FromWhereContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFromWhere(IMQParser.FromWhereContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -389,18 +365,6 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhereWith(IMQParser.WhereWithContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWhereWith(IMQParser.WhereWithContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterWhere(IMQParser.WhereContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -413,18 +377,6 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterWhereWhere(IMQParser.WhereWhereContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWhereWhere(IMQParser.WhereWhereContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterNotExist(IMQParser.NotExistContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -432,18 +384,6 @@ public class IMQBaseListener implements IMQListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNotExist(IMQParser.NotExistContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWhereValue(IMQParser.WhereValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWhereValue(IMQParser.WhereValueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -545,25 +485,37 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIn(IMQParser.InContext ctx) { }
+	@Override public void enterInClause(IMQParser.InClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIn(IMQParser.InContext ctx) { }
+	@Override public void exitInClause(IMQParser.InClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNotin(IMQParser.NotinContext ctx) { }
+	@Override public void enterNotInClause(IMQParser.NotInClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNotin(IMQParser.NotinContext ctx) { }
+	@Override public void exitNotInClause(IMQParser.NotInClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConceptSet(IMQParser.ConceptSetContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConceptSet(IMQParser.ConceptSetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -576,6 +528,18 @@ public class IMQBaseListener implements IMQListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReference(IMQParser.ReferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInverseOf(IMQParser.InverseOfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInverseOf(IMQParser.InverseOfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -768,6 +732,18 @@ public class IMQBaseListener implements IMQListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSubsumption(IMQParser.SubsumptionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAncestorAndDescendantOf(IMQParser.AncestorAndDescendantOfContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAncestorAndDescendantOf(IMQParser.AncestorAndDescendantOfContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

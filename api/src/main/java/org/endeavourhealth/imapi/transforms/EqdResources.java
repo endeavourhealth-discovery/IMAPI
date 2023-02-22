@@ -293,11 +293,11 @@ public class EqdResources {
 		EQDOCFilterRestriction restrict = eqCriterion.getFilterAttribute().getRestriction();
 		if (restrict.getColumnOrder().getColumns().get(0).getDirection() == VocOrderDirection.ASC) {
 			with.setEarliest(orderBy);
-			with.setDescription("Earliest "+ with.getDescription());
+			with.setDescription("Earliest "+ with.getValueLabel());
 		}
 		else {
 			with.setLatest(orderBy);
-			with.setDescription("Latest " + with.getDescription());
+			with.setDescription("Latest "+ with.getValueLabel());
 		}
 	}
 

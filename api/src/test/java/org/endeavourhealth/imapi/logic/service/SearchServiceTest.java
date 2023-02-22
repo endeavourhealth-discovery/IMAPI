@@ -4,14 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.IMQGToJ;
 import org.endeavourhealth.imapi.transforms.IMQJToG;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
@@ -23,6 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SearchServiceTest {
 
@@ -47,21 +53,49 @@ class SearchServiceTest {
 	}
 
 	//@Test
-	void queryIM() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
-		testDefinitions= System.getenv("folder")+"\\Definitions";
-		testResults= System.getenv("folder")+"\\Results";
-		testSparql = System.getenv("folder")+"\\Sparql";
-		succinctDefinitions= System.getenv("folder")+"\\SuccinctSyntax";
-		QueryRequest qr= TestQueries.getAllowableSubtypes();
-		IMQJToG fromJToG= new IMQJToG();
-		String imq=fromJToG.convert(qr);
+	void imqTextJson() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+		testDefinitions = System.getenv("folder") + "\\Definitions";
+		testResults = System.getenv("folder") + "\\Results";
+		testSparql = System.getenv("folder") + "\\Sparql";
+		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
+		for (QueryRequest qr : List.of(
+			TestQueries.subtypesParameterised(), TestQueries.getAllowableSubtypes())) {
+			compareGrammars(qr);
+		}
+		TTManager manager=TestQueries.loadForms();
+		for (TTEntity entity:manager.getDocument().getEntities()) {
+			if (entity.isType(IM.QUERY)) {
+				Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+				QueryRequest qr= new QueryRequest();
+				qr.addArgument(new Argument().setParameter("this").setValueIri(IM.CONCEPT));
+				qr.setQuery(query);
+				compareGrammars(qr);
+			}
+		}
 
-		IMQGToJ converter= new IMQGToJ();
-		QueryRequest qrn= converter.convert(imq);
-		outputSuccinct(imq,qrn.getQuery().getName());
-		output(qrn);
+	}
+	private void compareGrammars(QueryRequest qr) throws DataFormatException, IOException {
+		String name= qr.getQuery().getName();
+		ObjectMapper om = new ObjectMapper();
+			if (qr.getContext()==null)
+				qr.setContext(IMQJToG.getDefaultContext());
+			String imj= om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(qr);
+			IMQJToG fromJToG = new IMQJToG();
+			String imq = fromJToG.convert(qr);
+			IMQGToJ converter = new IMQGToJ();
+			System.out.println(name);
+			QueryRequest qrn = converter.convert(imq);
+			String imq2 = fromJToG.convert(qrn);
+			assertEquals(imq, imq2);
+			String imj2= om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(qrn);
+			assertEquals(imj,imj2);
+		  outputSuccinct(imq,qrn.getQuery().getName());
+		}
 
 
+
+		//output(qrn);
+/*
 
 
 		for (QueryRequest qr1: List.of(
@@ -85,10 +119,9 @@ class SearchServiceTest {
 			output(qr1);
 		}
 
+*/
 
 
-
-	}
 
 	private void outputSuccinct(String imq,String name) throws IOException {
 		try (FileWriter wr = new FileWriter(succinctDefinitions+ "\\"  + name+ ".txt")) {

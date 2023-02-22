@@ -101,17 +101,11 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSelectClause(IMQParser.SelectClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#selection}.
+	 * Visit a parse tree produced by {@link IMQParser#selectList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSelection(IMQParser.SelectionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMQParser#selectionList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelectionList(IMQParser.SelectionListContext ctx);
+	T visitSelectList(IMQParser.SelectListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#select}.
 	 * @param ctx the parse tree
@@ -142,12 +136,6 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFromClause(IMQParser.FromClauseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMQParser#fromWhere}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFromWhere(IMQParser.FromWhereContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#bracketFrom}.
 	 * @param ctx the parse tree
@@ -197,35 +185,17 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSubWhere(IMQParser.SubWhereContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#whereWith}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWhereWith(IMQParser.WhereWithContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link IMQParser#where}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitWhere(IMQParser.WhereContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#whereWhere}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWhereWhere(IMQParser.WhereWhereContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link IMQParser#notExist}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNotExist(IMQParser.NotExistContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMQParser#whereValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWhereValue(IMQParser.WhereValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#valueLabel}.
 	 * @param ctx the parse tree
@@ -275,23 +245,35 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhereValueTest(IMQParser.WhereValueTestContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#in}.
+	 * Visit a parse tree produced by {@link IMQParser#inClause}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIn(IMQParser.InContext ctx);
+	T visitInClause(IMQParser.InClauseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#notin}.
+	 * Visit a parse tree produced by {@link IMQParser#notInClause}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNotin(IMQParser.NotinContext ctx);
+	T visitNotInClause(IMQParser.NotInClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMQParser#conceptSet}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConceptSet(IMQParser.ConceptSetContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#reference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitReference(IMQParser.ReferenceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMQParser#inverseOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInverseOf(IMQParser.InverseOfContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#range}.
 	 * @param ctx the parse tree
@@ -388,6 +370,12 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSubsumption(IMQParser.SubsumptionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMQParser#ancestorAndDescendantOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAncestorAndDescendantOf(IMQParser.AncestorAndDescendantOfContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#ancestorOf}.
 	 * @param ctx the parse tree

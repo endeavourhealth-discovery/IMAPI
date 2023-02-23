@@ -3,10 +3,7 @@
     "id" : "homeAddress",
     "name" : "home address",
     "where" : [ {
-      "type" : {
-        "name" : "Address",
-        "@id" : "http://endhealth.info/im#Address"
-      },
+      "@type" : "http://endhealth.info/im#Address",
       "id" : "postCode",
       "name" : "Post Code"
     } ]
@@ -14,10 +11,7 @@
     "id" : "workAddress",
     "name" : "work address",
     "where" : [ {
-      "type" : {
-        "name" : "Address",
-        "@id" : "http://endhealth.info/im#Address"
-      },
+      "@type" : "http://endhealth.info/im#Address",
       "id" : "postCode",
       "name" : "Post Code"
     } ]
@@ -25,10 +19,7 @@
     "id" : "temporaryAddress",
     "name" : "temporary address",
     "where" : [ {
-      "type" : {
-        "name" : "Address",
-        "@id" : "http://endhealth.info/im#Address"
-      },
+      "@type" : "http://endhealth.info/im#Address",
       "id" : "postCode",
       "name" : "Post Code"
     } ]
@@ -36,10 +27,7 @@
     "id" : "oldAddress",
     "name" : "old home address",
     "where" : [ {
-      "type" : {
-        "name" : "Address",
-        "@id" : "http://endhealth.info/im#Address"
-      },
+      "@type" : "http://endhealth.info/im#Address",
       "id" : "postCode",
       "name" : "Post Code"
     } ]
@@ -47,10 +35,7 @@
     "id" : "placeOfResidenceAtEvent",
     "name" : "place of residence at event",
     "where" : [ {
-      "type" : {
-        "name" : "Place of residence at event",
-        "@id" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
-      },
+      "@type" : "http://endhealth.info/im#PlaceOfResidenceAtEvent",
       "id" : "postCode",
       "name" : "Post Code"
     } ]

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -11,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"graph","id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
+@JsonPropertyOrder({"graph","id","iri","set","type","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
 	private Bool bool;
 	private List<From> from;
-	private TTIriRef type;
+
 	private TTAlias graph;
 	private Where where;
 	private String description;
@@ -31,21 +30,15 @@ public class From extends TTAlias {
 		return this;
 	}
 
-	public TTIriRef getType() {
-		return type;
-	}
-
-	public From setType(TTIriRef type) {
-		this.type = type;
+	public From setType(String type){
+		super.setType(type);
 		return this;
 	}
 
-
-	public From setSourceType(SourceType type){
-		super.setSourceType(type);
+	public From setSet(String set){
+		super.setSet(set);
 		return this;
 	}
-
 
 
 	public Bool getBool() {
@@ -111,13 +104,13 @@ public class From extends TTAlias {
 		return this;
 	}
 
-	public From setIncludeSubtypes(boolean include){
-		super.setIncludeSubtypes(include);
+	public From setDescendantsOrSelfOf(boolean include){
+		super.setDescendantsOrSelfOf(include);
 		return this;
 	}
 
-	public From setIncludeSupertypes(boolean include){
-		super.setIncludeSupertypes(include);
+	public From setAncestorsOf(boolean include){
+		super.setAncestorsOf(include);
 		return this;
 	}
 

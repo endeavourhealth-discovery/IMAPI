@@ -10,8 +10,8 @@
   "query" : {
     "name" : "Subtypes of concepts as a parameterised query",
     "from" : {
-      "includeSubtypes" : true,
-      "variable" : "$this"
+      "variable" : "$this",
+      "descendantsOrSelfOf" : true
     },
     "select" : [ {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label"

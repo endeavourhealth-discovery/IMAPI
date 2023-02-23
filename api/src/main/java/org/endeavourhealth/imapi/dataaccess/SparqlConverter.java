@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -19,8 +18,8 @@ public class SparqlConverter {
 	private Query query;
 	private Update update;
 	private final QueryRequest queryRequest;
-	private String tabs="";
-	private Set<String> aliases= new HashSet<>();
+	private final String tabs="";
+	private final Set<String> aliases= new HashSet<>();
 	int o=0;
 
 	public SparqlConverter(QueryRequest queryRequest) {
@@ -46,7 +45,7 @@ public class SparqlConverter {
 				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
 		}
 		if (query.isUsePrefixes())
-			query.setContext(TTManager.getDefaultContext());
+			queryRequest.setContext(TTManager.getDefaultContext());
 
 		selectQl.append("SELECT ");
 		selectQl.append("distinct ");
@@ -73,7 +72,7 @@ public class SparqlConverter {
 				for (TTIriRef status : statusFilter) {
 					statusStrings.add("<" + status.getIri() + ">");
 				}
-				whereQl.append("Filter (?status in(" + String.join(",", statusStrings) + "))\n");
+				whereQl.append("Filter (?status in(").append(String.join(",", statusStrings)).append("))\n");
 			}
 
 
@@ -160,22 +159,18 @@ public class SparqlConverter {
 		whereQl.append("       con:entities ?entity.\n");
 	}
 
-	private void excludeSelf(StringBuilder whereQl,TTAlias alias) throws DataFormatException {
-			if (alias.isExcludeSelf())
-				whereQl.append("Filter (?entity!= "+ iriFromAlias(alias)+")\n");
-	}
 
 
 
 	private void from(StringBuilder whereQl, String subject,From from) throws DataFormatException {
 
-		if (from.getSourceType()== SourceType.type){
+		if (from.getType()!=null){
 			type (whereQl,from,subject);
 		}
 		else {
 			if (from.getIri() != null || from.getVariable() != null) {
 				String inList= iriFromAlias((from));
-				if (from.isIncludeSubtypes()) {
+				if (from.isDescendantsOrSelfOf()) {
 					o++;
 					whereQl.append("?").append(subject).append(" im:isA ?").append("supertype").append(o).append(".\n");
 					whereQl.append("Filter (?supertype").append(o);
@@ -183,7 +178,18 @@ public class SparqlConverter {
 						whereQl.append(" =").append(inList).append(")\n");
 					else
 						whereQl.append(" in (").append(inList).append("))\n");
-					excludeSelf(whereQl, from);
+
+				}
+				else if (from.isDescendantsOf()) {
+					o++;
+					whereQl.append("?").append(subject).append(" im:isA ?").append("supertype").append(o).append(".\n");
+					whereQl.append("Filter (?supertype").append(o);
+					if (!inList.contains(","))
+						whereQl.append(" =").append(inList).append(")\n");
+					else
+						whereQl.append(" in (").append(inList).append("))\n");
+					whereQl.append("Filter (?").append(subject).append("!= ").append(iriFromAlias(from)).append(")\n");
+
 				}
 				else {
 					whereQl.append("?").append(subject).append(" rdf:type ").append("?type").append(".\n");
@@ -199,12 +205,18 @@ public class SparqlConverter {
 	}
 
 	private void type(StringBuilder whereQl, TTAlias type,String subject) throws DataFormatException {
-		if (type.isIncludeSubtypes()) {
+		if (type.isDescendantsOrSelfOf()) {
 			o++;
 			whereQl.append("?").append(subject).append(" im:isA ?").append("supertype").append(o).append(".\n");
 			whereQl.append("?supertype").append(o).append(" rdf:type").append(String.join(",", iriFromAlias(type))).append(".\n");
-			excludeSelf(whereQl, type);
-		} else {
+		}
+		else if(type.isDescendantsOf()){
+			o++;
+			whereQl.append("?").append(subject).append(" im:isA ?").append("supertype").append(o).append(".\n");
+			whereQl.append("?supertype").append(o).append(" rdf:type").append(String.join(",", iriFromAlias(type))).append(".\n");
+			whereQl.append("Filter (?").append(subject).append("!= ").append(iriFromAlias(type)).append(")\n");
+		}
+		else {
 			whereQl.append("?").append(subject).append(" rdf:type ").append(iriFromAlias(type)).append(".\n");
 		}
 	}
@@ -262,7 +274,7 @@ public class SparqlConverter {
 	 * @param match the match clause of the query
 	 */
 	private void where(StringBuilder whereQl, String subject,Where match) throws DataFormatException {
-		if (match.getSourceType()==SourceType.type) {
+		if (match.getType()!=null) {
 			type(whereQl, match, subject);
 		}
 
@@ -334,26 +346,22 @@ public class SparqlConverter {
 					subject= "roleGroup"+o;
 					o++;
 				}
-				TTAlias property = where;
-				String inverse = property.isInverse() ? "^" : "";
+				String inverse = where.isInverse() ? "^" : "";
 				if (where.getWhere() != null) {
-					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromAlias(property))
+					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromAlias(where))
 						.append("?").append(object).append(".\n");
 					subWhere(whereQl, object, where);
 				}
 				else {
-					List<From> propertyIn = where.getIn();
-
-
-					if (!property.isIncludeSubtypes()) {
-						whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromAlias(property))
+					if (!where.isDescendantsOrSelfOf()) {
+						whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromAlias(where))
 							.append(" ?").append(object).append(".\n");
 					}
 					else {
 						o++;
 						whereQl.append("?").append(subject).append(" ").append(inverse).append("?p").append(o)
 							.append(" ?").append(object).append(".\n");
-						whereQl.append("?p").append(o).append(" im:isA ").append(iriFromAlias(property)).append(".\n");
+						whereQl.append("?p").append(o).append(" im:isA ").append(iriFromAlias(where)).append(".\n");
 					}
 					if (where.getIn() != null) {
 						whereIn(whereQl, object, where.getIn(), where.getBool() == Bool.not);
@@ -395,13 +403,15 @@ public class SparqlConverter {
 		boolean subTypes= false;
 		boolean superTypes= false;
 		for (TTAlias item:in){
-			if (item.isIncludeSubtypes()) {
-				subTypes= true;
+			if (item.isDescendantsOrSelfOf()) {
+				subTypes = true;
+				break;
 			}
 		}
 		for (TTAlias item:in){
-			if (item.isIncludeSupertypes()) {
-				superTypes= true;
+			if (item.isAncestorsOf()) {
+				superTypes = true;
+				break;
 			}
 		}
 		if (subTypes){
@@ -417,12 +427,11 @@ public class SparqlConverter {
 		else {
 			whereQl.append("Filter (?").append(object).append(not).append(" in (");
 		}
-		if (in.size()==1&& in.get(0).getSourceType()==SourceType.set) {
+		if (in.size()==1&& in.get(0).getSet()!=null) {
 				String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getIri());
 				if (!expansion.equals("")) {
 					whereQl.append(expansion);
 					whereQl.append("))\n");
-					return;
 				}
 		}
 		else {
@@ -487,8 +496,7 @@ public class SparqlConverter {
 							else if (null != argument.getValueIri())
 								return argument.getValueIri().getIri();
 							else if (null!= argument.getValueIriList()){
-								return String.join(",",
-								argument.getValueIriList().stream().map(iri-> iri.getIri()).collect(Collectors.toList()));
+								return argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.joining(","));
 							}
 						}
 					}
@@ -511,16 +519,15 @@ public class SparqlConverter {
 		String subject) throws DataFormatException {
 			String object;
 			if (null != select.getIri()) {
-				TTAlias property= select;
-				object= property.getAlias();
+				object= select.getAlias();
 				if (null == object) {
 					o++;
 					object = "p" + o;
-					property.setAlias(object);
+					((TTAlias) select).setAlias(object);
 				}
 				String inverse= select.isInverse() ?"^" : "";
 				selectQl.append(" ?").append(object);
-				whereQl.append(" OPTIONAL { ?").append(subject).append(" ").append(inverse).append(iriFromString(property.getIri()))
+				whereQl.append(" OPTIONAL { ?").append(subject).append(" ").append(inverse).append(iriFromString(select.getIri()))
 						.append(" ?").append(object).append(".");
 				if (null != select.getWhere()) {
 					whereQl.append("\n");
@@ -600,25 +607,21 @@ public class SparqlConverter {
 
 
 
-	private void indent(){
-		tabs=tabs+"\t";
-	}
-	private void lessIndent(){
-		if (!tabs.equals(""))
-			tabs=tabs.substring(0,tabs.length()-1);
-	}
 
 
 	public String iriFromAlias(TTAlias alias) throws DataFormatException {
-		if (null == alias.getIri()) {
-			if (null != alias.getVariable()) {
-				if (aliases.contains(alias.getVariable()))
-					return "?"+alias.getVariable();
-				else
-					return iriFromString(resolveReference(alias.getVariable(), queryRequest));
+			if (null!=alias.getType()){
+				return iriFromString(alias.getType());
 			}
-			else
-				throw new DataFormatException("Type has no iri or variable");
+			if (null == alias.getIri()) {
+				if (null != alias.getVariable()) {
+					if (aliases.contains(alias.getVariable()))
+					return "?"+alias.getVariable();
+					else
+						return iriFromString(resolveReference(alias.getVariable(), queryRequest));
+				}
+				else
+					throw new DataFormatException("Type has no iri or variable");
 		}
 			else
 				return (iriFromString(alias.getIri()));
@@ -635,17 +638,6 @@ public class SparqlConverter {
 		else return iri;
 	}
 
-
-
-	private String localName(String iri){
-			String del=":";
-			if (iri.contains("#"))
-				del="#";
-			else if (iri.startsWith("http"))
-				del="/";
-		String[] iriSplit= iri.split(del);
-		return iriSplit[iriSplit.length-1];
-	}
 
 
 	public String getUpdateSparql() throws DataFormatException {

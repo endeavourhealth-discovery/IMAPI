@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -22,23 +21,22 @@ public class EqdPopToIMQ {
 		query.setFrom(rootFrom);
 
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-			rootFrom
-					.setIri(IM.NAMESPACE + "Q_RegisteredGMS")
-					.setSourceType(SourceType.set)
-					.setName("Registered with GP for GMS services on the reference date");
-		} else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
-			String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-			rootFrom
-					.setIri("urn:uuid:" + id)
-					.setSourceType(SourceType.set)
-					.setName(resources.reportNames.get(id));
-		} else {
-			rootFrom
-					.setIri(IM.NAMESPACE + "Patient")
-					.setSourceType(SourceType.type)
-					.setName("Patient");
+				rootFrom
+				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
+				.setName("Registered with GP for GMS services on the reference date");
 		}
-		Where rootWhere = new Where();
+		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
+				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+				rootFrom
+					.setSet("urn:uuid:" + id)
+					.setName(resources.reportNames.get(id));
+			}
+			else {
+				rootFrom
+				.setType(IM.NAMESPACE + "Patient")
+				.setName("Patient");
+			}
+		Where rootWhere= new Where();
 		rootFrom.setWhere(rootWhere);
 		rootWhere.setBool(Bool.and);
 

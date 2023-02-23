@@ -94,10 +94,10 @@ public class QuerySummariser {
 				return;
 		summariseWhere(with);
 		if (with.getLatest()!=null) {
-			with.setDescription("latest of "+ with.getDescription());
+			with.setDescription("latest of "+ with.getValueLabel());
 		}
 		else if (with.getEarliest()!=null) {
-			with.setDescription("earliest from "+ with.getDescription());
+			with.setDescription("earliest from "+ with.getValueLabel());
 		}
 	}
 

@@ -49,14 +49,14 @@ public class FilerController {
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
     public ResponseEntity fileDocument(@RequestBody TTDocument document,
-                                       @RequestParam(name = "withTransaction") boolean withTransaction,
+                                       @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction,
                                        HttpServletRequest request) throws Exception {
         LOG.debug("fileDocument");
         String agentName = reqObjService.getRequestAgentName(request);
-        if(withTransaction) {
-            filerService.fileTransactionDocument(document, agentName);
-        } else {
+        if(withoutTransaction) {
             filerService.fileDocument(document, agentName);
+        } else {
+            filerService.fileTransactionDocument(document, agentName);
         }
         return ResponseEntity.ok().build();
     }

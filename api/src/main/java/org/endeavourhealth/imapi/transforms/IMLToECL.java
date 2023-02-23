@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
+import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -100,7 +101,7 @@ public class IMLToECL {
 	}
 
 	private static void addRefinements(Where where,StringBuilder ecl,boolean includeName) throws DataFormatException {
-		ecl.append(":");
+		ecl.append(": ");
 		addRefinedGroup(where, ecl, includeName);
 	}
 
@@ -160,15 +161,17 @@ public class IMLToECL {
 		else {
 			String subsumption="";
 			if (exp.isDescendantsOrSelfOf())
-				subsumption="<<";
+				subsumption="<< ";
 			if (exp.isDescendantsOf())
-				subsumption="<";
+				subsumption="< ";
 			String iri = checkMember(exp.asIriRef().getIri());
 			String pipe = " | ";
 			if (includeName && null!=exp.asIriRef().getName()) {
 				ecl.append(subsumption).append(iri).append(pipe).append(exp.asIriRef().getName()).append(pipe);
 			} else {
-				ecl.append(subsumption).append(iri);
+				EntityRepository entityRepository = new EntityRepository();
+				String name = entityRepository.getEntityReferenceByIri(exp.getIri()).getName();
+				ecl.append(subsumption).append(iri).append(pipe).append(name).append(pipe);
 			}
 		}
 	}

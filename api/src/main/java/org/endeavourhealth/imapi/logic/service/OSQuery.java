@@ -314,7 +314,7 @@ public class OSQuery {
 
         if (299 < response.statusCode()) {
             LOG.debug("Open search request failed with code: {}", response.statusCode());
-            throw new OpenSearchException("Search request failed. Error connecting to opensearch.");
+            throw new OpenSearchException("Search request failed. Error connecting to opensearch. ");
         }
 
         try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -592,7 +592,7 @@ public class OSQuery {
                     return false;
             }
             return true;
-            
+
         }
         return false;
     }

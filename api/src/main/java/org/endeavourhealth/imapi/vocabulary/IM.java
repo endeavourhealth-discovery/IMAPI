@@ -27,6 +27,8 @@ public class IM {
     public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
     public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
 
+    //Specialised data model predicates
+    public static final TTIriRef INVERSE_PATH = iri(NAMESPACE + "inversePath");
     //Core model types
     public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");

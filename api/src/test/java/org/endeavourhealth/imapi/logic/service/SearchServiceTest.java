@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.transforms.IMQGToJ;
 import org.endeavourhealth.imapi.transforms.IMQJToG;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
 
@@ -41,10 +42,10 @@ class SearchServiceTest {
 	//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
 		SearchRequest request= new SearchRequest();
-		request.setIndex("david");
-		request.setTermFilter("hospital admission");
-		List<String> schemes= Arrays.asList(SNOMED.NAMESPACE,IM.NAMESPACE);
-		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
+		request.setIndex("conceptdev");
+		request.setTermFilter("scheme");
+		List<String> schemes= Arrays.asList(IM.NAMESPACE);
+		List<String> types= Arrays.asList(RDF.PROPERTY.getIri());
 		request.setSchemeFilter(schemes);
 		request.setStatusFilter(Arrays.asList(IM.ACTIVE.getIri()));
 		request.setTypeFilter(types);

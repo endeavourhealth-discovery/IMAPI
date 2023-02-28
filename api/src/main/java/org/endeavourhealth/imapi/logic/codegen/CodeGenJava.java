@@ -14,10 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -113,6 +110,7 @@ public class CodeGenJava {
                 .add("    optional { ?prop shacl:maxCount ?max }")
                 .add("    optional { ?prop shacl:minCount ?min }")
                 .add("    bind( exists { ?type rdf:type shacl:NodeShape } as ?dm)")
+                .add("    filter not exists { ?prop im:inversePath ?inverse }")
                 .add("} order by ?order ")
                 .toString();
 
@@ -172,7 +170,6 @@ public class CodeGenJava {
         LOG.debug("generating code");
 
         for (DataModel model : models.values()) {
-
             String modelName = capitalise(model.getName());
             zs.putNextEntry(new ZipEntry(modelName + ".java"));
             String java = generateJavaCodeForModel(model, modelName);
@@ -209,13 +206,16 @@ public class CodeGenJava {
                 String propertyName = property.getName();
                 String propertyNameCapitalised = capitalise(property.getName());
                 String propertyNameCamelCase = (null == propertyNameCapitalised) ? null : propertyNameCapitalised.substring(0, 1).toLowerCase() + propertyNameCapitalised.substring(1);
-                String propertyType = getDataType(property.getDataType(), property.isModel());
+
+                boolean isArray = property.getMaxCount() != null && property.getMaxCount() > 1;
+                String propertyType = getDataType(property.getDataType(), property.isModel(), isArray);
+                String propertyTypeName = getDataType(property.getDataType(), property.isModel(), false);
 
                 os.write("\n\n\t/**\n" +
-                        "\t* Gets the " +  propertyName + " of this " + modelNameSeparated +"\n");
-                if(property.getComment() != null)
+                        "\t* Gets the " + propertyName + " of this " + modelNameSeparated + "\n");
+                if (property.getComment() != null)
                     os.write("\t* " + property.getComment() + "\n");
-                os.write("\t* @return "+ propertyNameCamelCase +"\n" +
+                os.write("\t* @return " + propertyNameCamelCase + "\n" +
                         "\t*/\n");
                 os.write("\tpublic " + propertyType + " get" + propertyNameCapitalised + "() {\n" +
                         "\t\treturn getProperty" + "(\"" + propertyNameCamelCase + "\");\n" +
@@ -223,12 +223,27 @@ public class CodeGenJava {
                 os.write("\n\n\t/**\n" +
                         "\t* Changes the " + propertyName + " of this " + modelName + "\n" +
                         "\t* @param " + propertyNameCamelCase + " The new " + propertyName + " to set\n" +
-                        "\t* @return "+ modelName +"\n" +
+                        "\t* @return " + modelName + "\n" +
                         "\t*/\n");
                 os.write("\tpublic " + modelName + " set" + propertyNameCapitalised + "(" + propertyType + " " + propertyNameCamelCase + ") {\n" +
                         "\t\tsetProperty(\"" + propertyNameCamelCase + "\", " + propertyNameCamelCase + ");\n" +
                         "\t\treturn this;\n" +
                         "\t}\n");
+                if (isArray) {
+                    os.write("\n\n\t/**\n" +
+                            "\t* Adds the given " + propertyName + " to this " + modelName + "\n" +
+                            "\t* @param " + propertyNameCamelCase.substring(0,1) + " The " + propertyName + " to add\n" +
+                            "\t* @return " + modelName + "\n" +
+                            "\t*/\n");
+                    os.write("\tpublic " + modelName + " add" + propertyNameCapitalised + "(" + propertyTypeName + " " + propertyNameCamelCase.substring(0,1) + ") {\n" +
+                            "\t\t" + propertyType + " " + propertyNameCamelCase + " = this.get" + propertyNameCapitalised + "();\n" +
+                            "\t\tif (" + propertyNameCamelCase + " == null) {\n" +
+                            "\t\t\t" + propertyNameCamelCase + " = new ArrayList();\n" +
+                            "\t\t\tthis.set" + propertyNameCapitalised + "(" + propertyNameCamelCase + "); \n\t\t}\n" +
+                            "\t\t" + propertyNameCamelCase+ ".add(" + propertyNameCamelCase.substring(0,1) + ");\n" +
+                            "\t\treturn this;\n" +
+                            "\t}\n");
+                }
             }
             os.write("}\n\n");
             return os.toString();
@@ -272,13 +287,14 @@ public class CodeGenJava {
         return output.toString();
     }
 
-    private String getDataType(TTIriRef dataType, boolean dataModel) {
+    private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
+        String dataTypeName = null;
         if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
-            return capitalise(getSuffix(dataType.getIri()));
+            dataTypeName = capitalise(getSuffix(dataType.getIri()));
         } else if (dataModel) {
-            return capitalise(dataType.getName());
+            dataTypeName = capitalise(dataType.getName());
         } else if ("http://endhealth.info/im#DateTime".equals(dataType.getIri())) {
-            return "LocalDateTime";
+            dataTypeName = "LocalDateTime";
         } else if (dataType.getIri().startsWith("http://endhealth.info/im#VSET_")
                 || "http://endhealth.info/im#Status".equals(dataType.getIri())
                 || "http://endhealth.info/im#Graph".equals(dataType.getIri())
@@ -287,11 +303,15 @@ public class CodeGenJava {
                 || "http://snomed.info/sct#999002981000000107".equals(dataType.getIri())
                 || "http://hl7.org/fhir/ValueSet/administrative-gender".equals(dataType.getIri())
                 || "http://endhealth.info/im#1731000252106".equals(dataType.getIri())) {
-            return "TTIriRef";
+            dataTypeName = "String";
         } else {
             LOG.error("Unknown data type [{} - {}]", dataType.getIri(), dataType.getName());
-            return "UNK " + capitalise(dataType.getName());
+            dataTypeName = "UNK " + capitalise(dataType.getName());
         }
+        if (isArray)
+            dataTypeName = "List<" + dataTypeName + ">";
+
+        return dataTypeName;
     }
 
     String getSuffix(String iri) {

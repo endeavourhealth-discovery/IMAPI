@@ -1,8 +1,15 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.time.*;
 import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.Objects;
 
+@JsonSerialize(using = PartialDateTimeSerializer.class)
+@JsonDeserialize(using = PartialDateTimeDeserializer.class)
 public class PartialDateTime {
 
     public enum Precision {
@@ -19,6 +26,25 @@ public class PartialDateTime {
 
     public OffsetDateTime getDateTime() {
         return dateTime;
+    }
+
+    public Precision getPrecision() {
+        return precision;
+    }
+
+    public PartialDateTime(Date date, Precision precision) {
+        this.dateTime = OffsetDateTime.of(LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC")), ZoneOffset.UTC);
+        this.precision = precision;
+    }
+
+    public PartialDateTime(LocalDateTime date, Precision precision) {
+        this.dateTime = OffsetDateTime.of(date, ZoneOffset.UTC);
+        this.precision = precision;
+    }
+
+    public PartialDateTime(OffsetDateTime date, Precision precision) {
+        this.dateTime = date;
+        this.precision = precision;
     }
 
     public PartialDateTime(int year) {
@@ -101,6 +127,7 @@ public class PartialDateTime {
         return partialDateTime;
     }
 
+
     @Override
     public String toString() {
         String formattedDate = null;
@@ -140,5 +167,18 @@ public class PartialDateTime {
             throw new DateTimeException("PartialDateTime String formatting error");
 
         return formattedDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PartialDateTime that = (PartialDateTime) o;
+        return this.toString().equals(that.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dateTime, precision);
     }
 }

@@ -13,4 +13,13 @@ public class IMDMPatient extends IMDMBase<IMDMPatient> {
         properties.put("name", name);
         return this;
     }
+
+    public PartialDateTime getDateOfBirth() {
+        return (PartialDateTime) properties.get("dob");
+    }
+
+    public IMDMPatient setDateOfBirth(PartialDateTime dateOfBirth) {
+        properties.put("dob", dateOfBirth);
+        return this;
+    }
 }

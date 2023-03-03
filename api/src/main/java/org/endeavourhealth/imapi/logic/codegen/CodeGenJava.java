@@ -294,7 +294,7 @@ public class CodeGenJava {
         } else if (dataModel) {
             dataTypeName = capitalise(dataType.getName());
         } else if ("http://endhealth.info/im#DateTime".equals(dataType.getIri())) {
-            dataTypeName = "LocalDateTime";
+            dataTypeName = "PartialDateTime";
         } else if (dataType.getIri().startsWith("http://endhealth.info/im#VSET_")
                 || "http://endhealth.info/im#Status".equals(dataType.getIri())
                 || "http://endhealth.info/im#Graph".equals(dataType.getIri())

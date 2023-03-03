@@ -90,15 +90,22 @@ class CodeGenTest {
         list.add(home);
         list.add(work);
 
-        IMDMPatient patient = new IMDMPatient().setName("Fred Bloggs").setProperty("age", 21)
-                .setProperty("address", list).setProperty("date", date);
+        IMDMPatient patient = new IMDMPatient()
+            .setName("Fred Bloggs")
+            .setDateOfBirth(PartialDateTime.parse("1973-09-26"))
+            .setProperty("age", 21)
+            .setProperty("address", list);
+
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new JavaTimeModule());
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(patient);
 
+        System.out.println(json);
+
         IMDMPatient actual = om.readValue(json, IMDMPatient.class);
 
         assertEquals(patient.getName(), actual.getName(), "Deserialized name not equal");
+        assertEquals(patient.getDateOfBirth(), actual.getDateOfBirth(), "Deserialized DOB not equal");
         assertEquals(patient.getProperty("age").toString(), actual.getProperty("age").toString(), "Deserialized age not equal");
 
         List<IMDMAddress> outputList = actual.getProperty("address");
@@ -136,4 +143,12 @@ class CodeGenTest {
         assertEquals(testNanoLength.getDateTime(), PartialDateTime.parse(testNanoLengthString).getDateTime(), "YYYY-MM-DDTHH:MM:SS.NNN+ZZ:ZZ parsing incorrectly");
     }
 
+
+    @Test
+    void testPartialDateTimeEquality() {
+        PartialDateTime pdt1 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 9, 0), PartialDateTime.Precision.YYYY_MM_DD);
+        PartialDateTime pdt2 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 10, 0), PartialDateTime.Precision.YYYY_MM_DD);
+
+        assertTrue(pdt1.equals(pdt2));
+    }
 }

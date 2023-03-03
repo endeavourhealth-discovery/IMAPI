@@ -663,4 +663,9 @@ public class EntityController {
 		if (null == schemeIris) schemeIris = new ArrayList<>(Arrays.asList(IM.NAMESPACE, SNOMED.NAMESPACE));
 		return entityService.getSuperiorPropertyValuesPaged(iri,schemeIris,page,size,inactive);
 	}
+	@GetMapping(value = "/public/hasPredicates")
+	public Boolean hasPredicates(@RequestParam(name = "subjectIri") String subjectIri, @RequestParam(name = "predicateIris") Set<String> predicateIris) {
+		LOG.debug("hasPredicates");
+		return entityService.hasPredicates(subjectIri, predicateIris);
+	}
 }

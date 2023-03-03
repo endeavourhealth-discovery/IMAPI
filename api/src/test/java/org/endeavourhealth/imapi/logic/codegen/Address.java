@@ -1,16 +1,19 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
-public class IMDMAddress extends IMDMBase<IMDMAddress> {
+public class Address extends IMDMBase<Address> {
 
-    IMDMAddress() {
-        super("IMDMAddress");
+    Address() {
+        super("Address");
+    }
+    Address(String id) {
+        super("Address", id);
     }
 
     public String getPostcode() {
         return (String) properties.get("postcode");
     }
 
-    public IMDMAddress setPostcode(String postcode) {
+    public Address setPostcode(String postcode) {
         properties.put("postcode", postcode);
         return this;
     }

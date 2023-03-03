@@ -8,40 +8,30 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.SneakyThrows;
 
-import javax.activation.UnsupportedDataTypeException;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
+public class PartialDateTimeDeserializer extends StdDeserializer<PartialDateTime> {
 
-    protected IMDMDeserializer() {
+    protected PartialDateTimeDeserializer() {
         this(null);
     }
 
-    protected IMDMDeserializer(Class<?> vc) {
+    protected PartialDateTimeDeserializer(Class<?> vc) {
         super(vc);
     }
 
     @SneakyThrows
     @Override
-    public IMDMBase deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+    public PartialDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 
         JsonNode node = p.getCodec().readTree(p);
-        String type = node.get("_type").textValue();
+        String isoDateTime = node.get("dateTime").textValue();
+        String precision = node.get("precision").textValue();
 
-        IMDMBase result = (IMDMBase) Class.forName("org.endeavourhealth.imapi.logic.codegen."+type).getDeclaredConstructor().newInstance();
-
-        for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
-            String n = it.next();
-            if(!"_type".equals(n)) {
-                JsonNode value = node.get(n);
-                result.setProperty(n, getNodeValue(value, p, ctxt));
-            }
-        }
-
-        return result;
+        return new PartialDateTime(OffsetDateTime.parse(isoDateTime), PartialDateTime.Precision.valueOf(precision));
     }
 
     private Object getNodeValue(JsonNode value, JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -60,12 +50,7 @@ public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
             case NUMBER:
                return getNumberNode(value);
             case OBJECT:
-                List<String> fields = new ArrayList<>();
-                value.fieldNames().forEachRemaining(fields::add);
-                if (fields.size() == 2 && fields.contains("dateTime") && fields.contains("precision"))
-                    return ctxt.readValue(value.traverse(p.getCodec()), PartialDateTime.class);
-                else
-                    return ctxt.readValue(value.traverse(p.getCodec()), IMDMBase.class);
+                return ctxt.readValue(value.traverse(p.getCodec()), IMDMBase.class);
             case POJO:
                 throw new UnsupportedOperationException("POJO nodes unsupported");
             case STRING:

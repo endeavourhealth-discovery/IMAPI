@@ -1,15 +1,18 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
-public class IMDMPatient extends IMDMBase<IMDMPatient> {
-    IMDMPatient() {
-        super("IMDMPatient");
+public class Patient extends IMDMBase<Patient> {
+    Patient() {
+        super("Patient");
+    }
+    Patient(String id) {
+        super("Patient", id);
     }
 
     public String getName() {
         return (String) properties.get("name");
     }
 
-    public IMDMPatient setName(String name) {
+    public Patient setName(String name) {
         properties.put("name", name);
         return this;
     }
@@ -18,7 +21,7 @@ public class IMDMPatient extends IMDMBase<IMDMPatient> {
         return (PartialDateTime) properties.get("dob");
     }
 
-    public IMDMPatient setDateOfBirth(PartialDateTime dateOfBirth) {
+    public Patient setDateOfBirth(PartialDateTime dateOfBirth) {
         properties.put("dob", dateOfBirth);
         return this;
     }

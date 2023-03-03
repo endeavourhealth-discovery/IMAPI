@@ -1,23 +1,15 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.jsonldjava.utils.Obj;
-import io.cucumber.java.sl.In;
-import org.joda.time.Partial;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.constraints.AssertTrue;
-
 import java.time.*;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,37 +73,43 @@ class CodeGenTest {
     @Test
     void testSerialise() throws JsonProcessingException {
 
-        IMDMAddress home = new IMDMAddress().setPostcode("NE1").setProperty("city", "London");
-        IMDMAddress work = new IMDMAddress().setPostcode("LS1").setProperty("city", "Leeds");
+        Address home = new Address("a8039ce3-46da-4756-8a61-da26f8e8af21").setPostcode("NE1").setProperty("city", "London");
+        Address work = new Address("ca948dc1-80df-41fd-9911-bde9dcfce65c").setPostcode("LS1").setProperty("city", "Leeds");
 
-        LocalDateTime date = LocalDateTime.of(2019, 3, 28, 14, 33, 48, 640000);
-
-        List<IMDMAddress> list = new ArrayList<>();
-        list.add(home);
-        list.add(work);
-
-        IMDMPatient patient = new IMDMPatient()
+        Patient patient = new Patient("964fa5a1-aca8-4fd7-b2de-2aa4bbd005b1")
             .setName("Fred Bloggs")
             .setDateOfBirth(PartialDateTime.parse("1973-09-26"))
             .setProperty("age", 21)
-            .setProperty("address", list);
+            .setProperty("address", Arrays.asList(
+                new Address("a8039ce3-46da-4756-8a61-da26f8e8af21"),
+                new Address("ca948dc1-80df-41fd-9911-bde9dcfce65c")
+            ));
+
+        List<IMDMBase> resources = Arrays.asList(
+            patient,
+            home,
+            work
+        );
 
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new JavaTimeModule());
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(patient);
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(resources);
 
         System.out.println(json);
 
-        IMDMPatient actual = om.readValue(json, IMDMPatient.class);
+        List<IMDMBase> actualResources = om.readValue(json, new TypeReference<>() {});
+        assertEquals(resources.size(), actualResources.size());
 
+        Patient actual = (Patient) actualResources.get(0);
         assertEquals(patient.getName(), actual.getName(), "Deserialized name not equal");
         assertEquals(patient.getDateOfBirth(), actual.getDateOfBirth(), "Deserialized DOB not equal");
         assertEquals(patient.getProperty("age").toString(), actual.getProperty("age").toString(), "Deserialized age not equal");
 
-        List<IMDMAddress> outputList = actual.getProperty("address");
+        Address actualHome = (Address) resources.get(1);
+        assertEquals(home.getPostcode(), actualHome.getPostcode(), "Deserialized postcode not equal");
 
-        assertEquals(list.get(0).getPostcode(), outputList.get(0).getPostcode(), "Deserialized postcode not equal");
-        assertNotEquals(list.get(0).getPostcode(), outputList.get(1).getPostcode(), "Deserialized postcode not equal");
+        Address actualWork = (Address) resources.get(2);
+        assertEquals(work.getPostcode(), actualWork.getPostcode(), "Deserialized postcode not equal");
 
     }
 

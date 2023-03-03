@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -809,5 +810,20 @@ public class EntityTripleRepository {
             }
         }
         return result;
+    }
+
+    public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
+        try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            StringJoiner stringQuery = new StringJoiner(System.lineSeparator())
+                    .add("ASK {");
+            for (String predicateIri: predicateIris) {
+                stringQuery.add("?subjectIri <" + iri(predicateIri) + "> ?o .");
+            }
+            stringQuery.add("}");
+
+            BooleanQuery sparql = conn.prepareBooleanQuery(String.valueOf(stringQuery));
+            sparql.setBinding("subjectIri", iri(subjectIri));
+            return sparql.evaluate();
+        }
     }
 }

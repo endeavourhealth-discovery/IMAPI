@@ -1200,5 +1200,9 @@ public class EntityService {
         result.setResult(nodes);
         return result;
     }
+
+    public Boolean hasPredicates(String subjectIri, Set<String> predicateIris) {
+        return entityTripleRepository.hasPredicates(subjectIri, predicateIris);
+    }
 }
 

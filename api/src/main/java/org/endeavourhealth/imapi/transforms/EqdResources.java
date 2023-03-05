@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
+import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -29,6 +30,7 @@ public class EqdResources {
 	private final Map<String,Set<TTIriRef>> valueMap= new HashMap<>();
 	private int counter=0;
 	public Map<String, ConceptSet> valueSets = new HashMap<>();
+
 
 
 	public Map<String, ConceptSet> getValueSets() {
@@ -191,7 +193,6 @@ public class EqdResources {
 		}
 		match.setIri(IM.NAMESPACE+subPaths[subPaths.length-1]);
 		setWhere(cv,match);
-		match.setDescription(getLabel(cv));
 	}
 
 
@@ -250,8 +251,6 @@ public class EqdResources {
 	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
 		With with= new With();
 		match.setWith(with);
-		if (eqCriterion.getDescription() != null)
-			with.setDescription(eqCriterion.getDescription());
 		convertColumns(eqCriterion, with);
 		setRestriction(eqCriterion, with);
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null)

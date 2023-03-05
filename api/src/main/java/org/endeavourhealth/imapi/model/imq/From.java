@@ -30,6 +30,8 @@ public class From extends TTAlias {
 		return this;
 	}
 
+
+
 	public From setType(String type){
 		super.setType(type);
 		return this;

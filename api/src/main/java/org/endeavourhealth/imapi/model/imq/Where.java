@@ -15,9 +15,8 @@ import java.util.function.Consumer;
 public class Where extends TTAlias implements Assignable{
 	private String description;
 	private Range range;
-	private List<From> in;
-	private List<From> notIn;
-	private boolean notExist;
+	private List<TTAlias> in;
+	private List<TTAlias> notIn;
 	private Bool bool;
 	private List<Where> where;
 	private With with;
@@ -44,30 +43,22 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public List<From> getNotIn() {
+	public List<TTAlias> getNotIn() {
 		return notIn;
 	}
 
-	public Where setNotIn(List<From> notIn) {
+	public Where setNotIn(List<TTAlias> notIn) {
 		this.notIn = notIn;
 		return this;
 	}
 
-	public Where addNotIn(From notIn) {
+	public Where addNotIn(TTAlias notIn) {
 		if (this.notIn==null)
 			this.notIn = new ArrayList<>();
 		this.notIn.add(notIn);
 		return this;
 	}
 
-	public boolean isNotExist() {
-		return notExist;
-	}
-
-	public Where setNotExist(boolean notExist) {
-		this.notExist = notExist;
-		return this;
-	}
 
 	public boolean isAnyRoleGroup() {
 		return anyRoleGroup;
@@ -77,8 +68,6 @@ public class Where extends TTAlias implements Assignable{
 		this.anyRoleGroup = anyRoleGroup;
 		return this;
 	}
-
-
 
 
 	public List<Where> getWhere() {
@@ -148,10 +137,6 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public Where setId(String id){
-		super.setId(id);
-		return this;
-	}
 
 	public Where setName(String name) {
 		super.setName(name);
@@ -170,12 +155,12 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public List<From> getIn() {
+	public List<TTAlias> getIn() {
 		return in;
 	}
 
 	@JsonSetter
-	public Where setIn(List<From> in) {
+	public Where setIn(List<TTAlias> in) {
 		this.in = in;
 		return this;
 	}
@@ -183,16 +168,23 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public Where addIn(From in){
+	public Where addIn(TTAlias in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
 		this.in.add(in);
 		return this;
 	}
 
-	public Where in(Consumer<From> builder){
-		From in = new From();
+	public Where in(Consumer<TTAlias> builder){
+		TTAlias in = new TTAlias();
 		addIn(in);
+		builder.accept(in);
+		return this;
+	}
+
+	public Where notIn(Consumer<TTAlias> builder){
+		TTAlias in = new TTAlias();
+		addNotIn(in);
 		builder.accept(in);
 		return this;
 	}
@@ -200,7 +192,7 @@ public class Where extends TTAlias implements Assignable{
 	public Where addIn(String in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
-		this.in.add(new From().setIri(in));
+		this.in.add(new TTAlias().setIri(in));
 		return this;
 	}
 
@@ -258,8 +250,16 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
+	public Where range(Consumer<Range> builder){
+		this.range= new Range();
+		builder.accept(this.range);
+		return this;
+	}
 
-
+	public Where setAlias(String alias){
+		super.setAlias(alias);
+		return this;
+	}
 
 
 }

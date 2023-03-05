@@ -118,9 +118,8 @@ public class SparqlConverter {
 				validateWhere(subWhere);
 		}
 		else {
-			if (null == where.getIn()&& null== where.getValue()&&null== where.getId()
-			&&null== where.getIri())
-				throw new DataFormatException("Where clause must have a type,id, from ,or nested wheres");
+			if (null == where.getIn()&& null== where.getValue()&&null== where.getIri())
+				throw new DataFormatException("Where clause must have a type,iri, from ,or nested wheres");
 		}
 	}
 
@@ -241,7 +240,7 @@ public class SparqlConverter {
 					whereQl.append("}\n");
 				}
 			}
-			else if (from.getBool() == Bool.not) {
+			else if (from.getBool()==Bool.not) {
 				for (From not : from.getFrom()) {
 					whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 					froms(whereQl, subject,not);
@@ -297,7 +296,7 @@ public class SparqlConverter {
 				whereQl.append("}\n");
 			}
 		}
-		else if (match.getBool() == Bool.not) {
+		else if (match.getBool()==Bool.not) {
 			for (Where not : match.getWhere()) {
 				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 				where(whereQl, subject, not);
@@ -364,41 +363,33 @@ public class SparqlConverter {
 						whereQl.append("?p").append(o).append(" im:isA ").append(iriFromAlias(where)).append(".\n");
 					}
 					if (where.getIn() != null) {
-						whereIn(whereQl, object, where.getIn(), where.getBool() == Bool.not);
+						whereIn(whereQl, object, where.getIn(), false);
+					}
+					if (where.getNotIn()!=null){
+						whereIn(whereQl, object, where.getNotIn(), true);
 					}
 					else if (where.getValue()!=null){
-						whereValue(whereQl,subject,where,where.getBool()==Bool.not);
+						whereValue(whereQl,subject,where);
 					}
 				}
 			}
 	}
 
 
-	private void whereIsa(StringBuilder whereQl, String object, Where where){
-		boolean isNot= (where.getBool()==Bool.not);
-		String not = isNot ? "!" : "";
+	private void whereIsa(StringBuilder whereQl, String object, Where where) throws DataFormatException {
 		if (null != where.getIn()){
-			List<From> in= where.getIn();
-			whereQl.append("Filter (?").append(object).append(not).append(" in (");
-			if (in.size()==1) {
-				String expansion = new SetToSparql().getExpansionSparql(object, in.get(0).getIri());
-				if (!expansion.equals("")) {
-					whereQl.append(expansion);
-				} else {
-					List<String> inList =
+			List<TTAlias> in= where.getIn();
+			whereQl.append("Filter (?").append(object).append(" in (");
+			List<String> inList =
 						in.stream().map(iri -> iriFromString(iri.getIri())).collect(Collectors.toList());
 					String inString = String.join(",", inList);
 					whereQl.append(inString);
-				}
-			}
 			whereQl.append("))\n");
 		}
-
-
 	}
 
 
-	private void whereIn(StringBuilder whereQl, String object, List<From> in, boolean isNot) throws DataFormatException {
+	private void whereIn(StringBuilder whereQl, String object, List<TTAlias> in, boolean isNot) throws DataFormatException {
 		String not= isNot ?" not " : "";
 		boolean subTypes= false;
 		boolean superTypes= false;
@@ -445,11 +436,10 @@ public class SparqlConverter {
 		}
 	}
 
-	private void whereValue(StringBuilder whereQl, String object, Where where, boolean isNot) throws DataFormatException {
-		String not= isNot ?"!" : "";
+	private void whereValue(StringBuilder whereQl, String object, Where where) throws DataFormatException {
 		String comp= where.getOperator().getValue();
 		String value= where.getValue();
-		whereQl.append("Filter (?").append(object).append(not).append(comp).append(" ");
+		whereQl.append("Filter (?").append(object).append(comp).append(" ");
 		whereQl.append(convertValue(value));
 		whereQl.append(")\n");
 	}

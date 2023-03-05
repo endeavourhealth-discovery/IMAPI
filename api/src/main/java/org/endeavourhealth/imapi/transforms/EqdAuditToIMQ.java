@@ -46,7 +46,7 @@ public class EqdAuditToIMQ {
 			EQDOCAggregateGroup group : agg.getGroup()) {
 			for (String eqColum : group.getGroupingColumn()) {
 				String predicate = resources.getPath(eqTable + "/" + eqColum);
-				select.addGroupBy(new TTAlias().setId(predicate));
+				select.addGroupBy(new TTAlias().setIri(IM.NAMESPACE+predicate));
 			}
 		}
 	}

@@ -1,13 +1,13 @@
 grammar IMQ;
 
-queryRequest : OC prefixDecl* searchText? arguments? query CC EOF;
+queryRequest : prefixes? searchText? arguments? query EOF;
 
 searchText
     : SEARCH_TEXT (STRING_LITERAL1 | STRING_LITERAL2)
     ;
 arguments
-        :ARGUMENTS
-        OC
+      :ARGUMENTS
+      OC
       argument (',' argument)*
       CC
        ;
@@ -38,7 +38,6 @@ value : string;
 
 iriRef
     :
-    '@id'
     (IRI_REF | PN_PREFIXED)
     name?
 
@@ -62,23 +61,31 @@ query
 properName
     : 'name ' string
     ;
-prefixDecl
-    : PREFIX PN_PROPERTY COLON IRI_REF
+prefixes
+    : PREFIXES
+     OC
+     prefixed
+     (',' prefixed)*
+     CC
+     ;
+prefixed
+    :
+     PN_PROPERTY COLON IRI_REF
+    ;
+selectClause
+    :SELECT
+    OC
+    (select (',' select)*)
+    CC
     ;
 
-selectClause
-    : SELECT
-    selectList
-    ;
- selectList
-    :select (',' select)*
-    ;
 select
-    : OC
+    :
     (iriRef|PN_PROPERTY)
-    whereClause?
-    selectClause?
-    CC
+    (whereClause)?
+    (OC
+    (select (',' select)*)
+    CC)?
     ;
 
 
@@ -92,101 +99,78 @@ description
 activeOnly
     : ACTIVE_ONLY
     ;
-
 fromClause
-    : FROM
-    (from
-    |
-    fromBoolean
-    |
-    bracketFrom)
-
+    :FROM
+    (from|booleanFrom)
     ;
 
-bracketFrom
-    :OC
-    (
-    fromBoolean
-    |
-    from)
-    OC
-    ;
- fromBoolean
-    :(andFrom
+
+ booleanFrom
+    :
+    (andFrom
     |
     orFrom
     |
-    notFrom)
+    notFrom
+    )
     ;
 
 notFrom
-    :(from | bracketFrom)
-    (NOT
-    (from | bracketFrom))+
+    :
+    NOT
+    (from)
     ;
 
 orFrom
-    : (from | bracketFrom)
+    : (from)
     (OR
-    (from| bracketFrom))+
+    (from))+
     ;
 
 andFrom
     :
-    (from | bracketFrom)
+    (from)
     (AND
-    (from| bracketFrom))+
+    (from))+
     ;
 
 from
-    :
-    OC
+    :OC
     description?
     graph?
-    reference?
+    (reference
+    |
+    (booleanFrom)
+    )?
     whereClause?
     CC
     ;
 
+
+
 whereClause
     : WHERE
-    subWhere
+    (where|booleanWhere)
     ;
 
- subWhere
-    :
-    (where
-    |
-    whereBoolean
-    |
-    bracketWhere
-    )
-    ;
 
 where
-    :
-     OC
-    with?
-     description?
-    notExist?
-    reference
-    whereValueTest?
-    (whereClause)?
+    :OC
+    description?
+    (
+    (reference whereClause)
+    |
+    (reference with whereClause)
+    |
+    (reference whereValueTest)
+    |
+    (booleanWhere)
+    )
     CC
     ;
 
 
-
-notExist
-    :NOTEXIST
-    ;
-
-
-valueLabel
-    : VALUE_LABEL
-    string
-    ;
-whereBoolean
+booleanWhere
     :
     (andWhere
     |
@@ -196,66 +180,68 @@ whereBoolean
     ;
 notWhere
     :
-    (NOT
-    (where | bracketWhere))+
+    NOT
+    where
     ;
 
 orWhere
-    : (where | bracketWhere)
+    : (where)
     (OR
-    (where| bracketWhere))+
+    (where))+
     ;
 
 andWhere
     :
-    (where | bracketWhere)
+    (where)
     (AND
-    (where| bracketWhere))+
-    ;
-bracketWhere
-    :OC
-    (
-    whereBoolean
-    |
-    where)
-    CC
+    (where))+
     ;
 
 with
-    : WITH
+    :
+    WITH
     OC
-    (where | whereBoolean)
-    sortable
+    whereClause
+    sortable?
     CC
     ;
 whereValueTest
-    :(inClause | notInClause)
-    | range
-    | whereMeasure
+    :
+    (
+    (inClause | notInClause)
+    |
+    range
+    |
+    whereMeasure
+    )
+    valueLabel?
+    ;
+
+ valueLabel
+    : ('valueLabel'
+      string)
     ;
 
 inClause
     :'in'
-    conceptSet
+    (reference (',' reference)*)
     ;
 
 notInClause
     : 'notIn'
-    conceptSet
+      (reference (',' reference)*)
     ;
 
-conceptSet
-    :
-    ( from| bracketFrom|fromBoolean)
-    ;
 
 reference
     :
     inverseOf?
-     sourceType
-     ((subsumption?  (IRI_REF | PN_PREFIXED) name?)
+     sourceType?
+     (
+     ((IRI_REF | PN_PREFIXED) name?)
      |
-     (subsumption? variable))
+     (variable)
+     )
      alias?
      ;
 
@@ -264,74 +250,87 @@ inverseOf
     ;
 
 range
-    : (fromRange toRange)
+    :RANGE
+    OC
+    (fromRange toRange)
     |
-    fromRange
+    (fromRange)
     |
-    toRange
+    (toRange)
+    CC
     ;
 
 fromRange
-    : FROM OC whereMeasure CC
+    : FROM whereMeasure
     ;
 toRange
-    : TO OC whereMeasure CC
+    : TO whereMeasure
     ;
 
 whereMeasure
-    : operator
-    ((string | NUMBER)
-    units?)
+    :
+    operator
+    (string | number)
+    units?
     relativeTo?
+    ;
+number
+    : SIGNED
+    |
+    INTEGER
+    |
+    FLOAT
     ;
 relativeTo
     : 'relativeTo'
-    PN_VARIABLE | PN_PROPERTY
+    (PN_VARIABLE | PN_PROPERTY)
     ;
 
 operator
     : EQ | GT | LT | LTE | GTE | STARTS_WITH
     ;
 units
-    : PN_CHARS
+    : PN_PROPERTY
     ;
 
 sortable
-    : latest| earliest| maximum| minimum
+    :
+    (iriRef| PN_PROPERTY)
+    direction
     count
     ;
-latest
-    : LATEST PN_PROPERTY
-    ;
-earliest
-    : EARLIEST PN_PROPERTY
-    ;
-maximum
-    : MAXIMUM PN_PROPERTY
-    ;
-minimum
-    : MINIMUM PN_PROPERTY
+
+direction
+    : ASCENDING|DESCENDING
     ;
 count
-    : COUNT DIGIT
+    : (COUNT INTEGER)
     ;
 
 graph
     : GRAPH IRI_REF
     ;
 
-
-
-sourceType :
-    (TYPE | SET | INSTANCE| VAR)
-    ;
-
-
-subsumption
-    : descendantorselfof
+sourceType
+    : type
+    |
+    set
+    |
+    var
+    |
+    descendantorselfof
     | descendantof
     | ancestorOf
     |ancestorAndDescendantOf
+    ;
+type
+    :'@'
+    ;
+set
+    :'^'
+    ;
+var
+    : '$'
     ;
 
 ancestorAndDescendantOf: '>><<';
@@ -355,11 +354,34 @@ alias
 
 // LEXER
 
+SIGNED
+    : ('-' | '+')
+    (INTEGER | FLOAT)
+    ;
+
+
+FLOAT
+    :
+    (DIGIT+ '.' DIGIT+)
+    ;
+INTEGER
+    : DIGIT+
+    ;
+
+DIGIT
+    : '0'..'9'
+    ;
+
+
 SEARCH_TEXT
     :'searchText'
     ;
 ARGUMENTS
     : 'arguments'
+    ;
+
+RANGE
+    : 'range'
     ;
 
 QUERY
@@ -383,17 +405,11 @@ WITH
 SELECT
     : 'select'
     ;
-EARLIEST
-    :'earliest'
+ASCENDING
+    :'ascending'
     ;
-LATEST
-    :'latest'
-    ;
-MAXIMUM
-    :'maximum'
-    ;
-MINIMUM
-    :'minimum'
+DESCENDING
+    :'descending'
     ;
 COUNT
     :'count'
@@ -402,8 +418,8 @@ COUNT
 SOURCE_TYPE
     :'sourceType'
     ;
-PREFIX
-    :'prefix' |'PREFIX'
+PREFIXES
+    :'prefixes' |'PREFIXES'
     ;
 
 COMMENT
@@ -483,16 +499,10 @@ COLON
 
 
 
-UCHAR
-   : '\\u' HEX HEX HEX HEX | '\\U' HEX HEX HEX HEX HEX HEX HEX HEX
-   ;
 
-HEX
-   : [0-9] | [A-F] | [a-f]
-   ;
 
 IRI_REF
-   : ('http:'|'https:') (PN_CHARS | '.' | ':' | '/' | '\\' | '#' | '@' | '%' | '&' | UCHAR)*
+   : ('http:'|'https:'|'urn:') (PN_CHARS | '.' | ':' | '/' | '\\' | '#' | '@' | '%' | '&' | DIGIT)*
    ;
 
 STRING_LITERAL1
@@ -505,7 +515,7 @@ STRING_LITERAL2
 
 
 PN_CHARS_U
-    : PN_CHARS_BASE | '_'
+    : PN_CHARS_BASE | '_'|'-'
     ;
 
 COMMA
@@ -514,21 +524,24 @@ COMMA
 WS
    : ([\t\r\n\u000C] | ' '| COMMENT) + -> skip
    ;
-
+DELIM
+    :([\t\r\n\u000C] | ' ')
+    ;
+PN_PREFIXED
+    :
+    PN_PROPERTY? COLON ((DIGIT)+ | PN_PROPERTY)
+    ;
 PN_PROPERTY
     :
-    ('a'..'z' | 'A'.. 'Z')
-    (PN_CHARS | DIGIT)*
+    ('a'..'z'|'A'..'Z')
+    (PN_CHARS|DIGIT)*
     ;
 
 PN_VARIABLE
     :'$'
-    (PN_CHARS| DIGIT)+
+    PN_PROPERTY
     ;
 
-PN_PREFIXED
-    : PN_PROPERTY? COLON ((DIGIT)+ | PN_PROPERTY)
-    ;
 
 PN_CHARS_BASE
     : 'A'..'Z'
@@ -548,26 +561,17 @@ PN_CHARS_BASE
 
 PN_CHARS
     : PN_CHARS_U
-    | '-'
-    | DIGIT
-    /*| '\u00B7'
-    | '\u0300'..'\u036F'
-    | '\u203F'..'\u2040'*/
+    |
+    DIGIT
     ;
 
-
-DIGIT
-    : '0'..'9'
-    ;
-
-NUMBER
-    : '-'? DIGIT+ '.'? DIGIT+
-    ;
 
 
 
 NOTIN : 'notIn';
-VALUE_LABEL : 'valueLabel';
+
 
 VAR : '@var'
     ;
+
+

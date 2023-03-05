@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTAlias extends TTIriRef {
 	private String alias;
-	private String id;
 	private String variable;
 	private String type;
 	private String set;
@@ -56,15 +55,6 @@ public class TTAlias extends TTIriRef {
 		return this;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	@JsonSetter
-	public TTAlias setId(String id) {
-		this.id = id;
-		return this;
-	}
 
 	public boolean isDescendantsOf() {
 		return descendantsOf;

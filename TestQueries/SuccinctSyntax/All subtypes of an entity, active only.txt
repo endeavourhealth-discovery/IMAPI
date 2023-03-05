@@ -1,0 +1,15 @@
+prefixes {
+  im: http://endhealth.info/im#,
+  sh: http://www.w3.org/ns/shacl#,
+  rdfs: http://www.w3.org/2000/01/rdf-schema#,
+  sn: http://snomed.info/sct#,
+  xsd: http://www.w3.org/2001/XMLSchema#}
+arguments {
+  this : im:Concept
+  } 
+query {
+  name "All subtypes of an entity, active only"
+  activeOnly
+  from {<<$this}
+  select {
+    rdfs:label}}

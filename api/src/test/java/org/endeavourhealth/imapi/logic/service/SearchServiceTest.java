@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Argument;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryRequest;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
@@ -39,9 +36,10 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
-	//@Test
+//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-		SearchRequest request= new SearchRequest();
+
+		/*SearchRequest request= new SearchRequest();
 		request.setIndex("conceptdev");
 		request.setTermFilter("scheme");
 		List<String> schemes= Arrays.asList(IM.NAMESPACE);
@@ -51,9 +49,11 @@ class SearchServiceTest {
 		request.setTypeFilter(types);
 		SearchService ss= new SearchService();
 		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
+
+		 */
 	}
 
-	//@Test
+  //@Test
 	void imqTextJson() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
@@ -86,10 +86,9 @@ class SearchServiceTest {
 			IMQGToJ converter = new IMQGToJ();
 			System.out.println(name);
 			QueryRequest qrn = converter.convert(imq);
-			String imq2 = fromJToG.convert(qrn);
-			assertEquals(imq, imq2);
 			String imj2= om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(qrn);
 			assertEquals(imj,imj2);
+
 		  outputSuccinct(imq,qrn.getQuery().getName());
 		}
 

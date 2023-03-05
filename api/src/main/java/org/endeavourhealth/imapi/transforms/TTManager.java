@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
@@ -27,6 +28,7 @@ public class TTManager implements AutoCloseable {
    private Map<String, TTEntity> entityMap;
    private Map<String, TTEntity> nameMap;
    private TTDocument document;
+  private ModelDocument modelDocument;
    private TTContext context;
    private static final TTIriRef[] jsonPredicates= {IM.HAS_MAP};
 
@@ -34,7 +36,16 @@ public class TTManager implements AutoCloseable {
 
    public enum Grammar {JSON,TURTLE}
 
-   public TTManager() {
+  public ModelDocument getModelDocument() {
+    return modelDocument;
+  }
+
+  public TTManager setModelDocument(ModelDocument modelDocument) {
+    this.modelDocument = modelDocument;
+    return this;
+  }
+
+  public TTManager() {
       createDefaultContext();
    }
 
@@ -138,8 +149,17 @@ public class TTManager implements AutoCloseable {
        }
    }
 
+  public ModelDocument loadModelDocument(File inputFile) throws IOException {
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      modelDocument= om.readValue(inputFile, ModelDocument.class);
+      return modelDocument;
 
-   /**
+    }
+  }
+
+
+
+  /**
     * Saves an OWL ontology in functional syntax format
     *
     * @param manager    OWL ontology manager with at least one ontology

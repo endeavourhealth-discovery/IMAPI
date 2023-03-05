@@ -23,9 +23,9 @@ import java.util.zip.DataFormatException;
 public class EqdToIMQ {
 	private final EqdResources resources = new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
-	public Map<TTIriRef, ConceptSet> valueSets;
+	public Map<String, ConceptSet> valueSets;
 
-	public Map<TTIriRef, ConceptSet> getValueSets() {
+	public Map<String, ConceptSet> getValueSets() {
 		return valueSets;
 	}
 
@@ -130,7 +130,7 @@ public class EqdToIMQ {
 				flatWhere.setBool(oldWhere.getWhere().get(0).getBool());
 				flatWhere.setWhere(oldWhere.getWhere());
 				if (oldWhere.getWhere().get(0).getWhere()!=null&&
-				oldWhere.getWhere().get(0).getId()==null) {
+				oldWhere.getWhere().get(0).getIri()==null) {
 					flatWhere.setBool(oldWhere.getWhere().get(0).getBool());
 					flatWhere.setWhere(oldWhere.getWhere().get(0).getWhere());
 				}
@@ -138,7 +138,7 @@ public class EqdToIMQ {
 			else {
 				flatWhere.setBool(oldWhere.getBool());
 				for (Where oldAnd : oldWhere.getWhere()) {
-					if (oldAnd.getId() == null) {
+					if (oldAnd.getIri() == null) {
 						if (oldAnd.getBool() == Bool.and) {
 							for (Where oldSubWhere : oldAnd.getWhere()) {
 								flatWhere.addWhere(oldSubWhere);

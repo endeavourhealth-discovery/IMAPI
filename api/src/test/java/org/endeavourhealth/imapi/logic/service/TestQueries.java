@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class TestQueries {
+	public static String ex="http://example.org/qry#";
 
 
 	public static TTContext getDefaultContext(){
@@ -21,6 +22,8 @@ public class TestQueries {
 		context.add(SHACL.NAMESPACE,"sh");
 		return context;
 	}
+
+
 	public static QueryRequest getAllowableSubtypes() throws IOException {
 		QueryRequest qr= new QueryRequest();
 		qr.setContext(getDefaultContext());

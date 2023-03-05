@@ -8,13 +8,14 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.DataFormatException;
 
 public class SetToSparql {
 	private EntityTripleRepository entityRepo = new EntityTripleRepository();
 	private String tabs="   ";
 
 
-	public String getExpansionSparql(String entityVar, String iri) {
+	public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
 		Set<String> predicates = Set.of(RDFS.LABEL.getIri(), IM.DEFINITION.getIri());
 		TTEntity entity = entityRepo.getEntityPredicates(iri, predicates).getEntity();
@@ -26,15 +27,8 @@ public class SetToSparql {
 				.append(IM.HAS_MEMBER.getIri()).append("> <").append(iri).append(">.\n");
 			return subQuery.toString();
 		}
-		if (entity.get(IM.DEFINITION)!=null) {
-			subQuery.append(tabs).append("\n{ SELECT ?"+entityVar+"\n");
-			subQuery.append(tabs).append("WHERE {");
-			getExpansionWhere(entity.get(IM.DEFINITION), subQuery);
-			subQuery.append(tabs + "}}");
-			return subQuery.toString();
-		}
-		else
-		 return "";
+		throw new DataFormatException("Set queries in IM must be pre-expanded ("+iri+")");
+
 
 	}
 

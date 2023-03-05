@@ -138,15 +138,25 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitProperName(IMQParser.ProperNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#prefixDecl}.
+	 * Enter a parse tree produced by {@link IMQParser#prefixes}.
 	 * @param ctx the parse tree
 	 */
-	void enterPrefixDecl(IMQParser.PrefixDeclContext ctx);
+	void enterPrefixes(IMQParser.PrefixesContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMQParser#prefixDecl}.
+	 * Exit a parse tree produced by {@link IMQParser#prefixes}.
 	 * @param ctx the parse tree
 	 */
-	void exitPrefixDecl(IMQParser.PrefixDeclContext ctx);
+	void exitPrefixes(IMQParser.PrefixesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMQParser#prefixed}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrefixed(IMQParser.PrefixedContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMQParser#prefixed}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrefixed(IMQParser.PrefixedContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#selectClause}.
 	 * @param ctx the parse tree
@@ -157,16 +167,6 @@ public interface IMQListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSelectClause(IMQParser.SelectClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#selectList}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelectList(IMQParser.SelectListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#selectList}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelectList(IMQParser.SelectListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#select}.
 	 * @param ctx the parse tree
@@ -218,25 +218,15 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitFromClause(IMQParser.FromClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#bracketFrom}.
+	 * Enter a parse tree produced by {@link IMQParser#booleanFrom}.
 	 * @param ctx the parse tree
 	 */
-	void enterBracketFrom(IMQParser.BracketFromContext ctx);
+	void enterBooleanFrom(IMQParser.BooleanFromContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMQParser#bracketFrom}.
+	 * Exit a parse tree produced by {@link IMQParser#booleanFrom}.
 	 * @param ctx the parse tree
 	 */
-	void exitBracketFrom(IMQParser.BracketFromContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#fromBoolean}.
-	 * @param ctx the parse tree
-	 */
-	void enterFromBoolean(IMQParser.FromBooleanContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#fromBoolean}.
-	 * @param ctx the parse tree
-	 */
-	void exitFromBoolean(IMQParser.FromBooleanContext ctx);
+	void exitBooleanFrom(IMQParser.BooleanFromContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#notFrom}.
 	 * @param ctx the parse tree
@@ -288,16 +278,6 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitWhereClause(IMQParser.WhereClauseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#subWhere}.
-	 * @param ctx the parse tree
-	 */
-	void enterSubWhere(IMQParser.SubWhereContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#subWhere}.
-	 * @param ctx the parse tree
-	 */
-	void exitSubWhere(IMQParser.SubWhereContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link IMQParser#where}.
 	 * @param ctx the parse tree
 	 */
@@ -308,35 +288,15 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitWhere(IMQParser.WhereContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#notExist}.
+	 * Enter a parse tree produced by {@link IMQParser#booleanWhere}.
 	 * @param ctx the parse tree
 	 */
-	void enterNotExist(IMQParser.NotExistContext ctx);
+	void enterBooleanWhere(IMQParser.BooleanWhereContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMQParser#notExist}.
+	 * Exit a parse tree produced by {@link IMQParser#booleanWhere}.
 	 * @param ctx the parse tree
 	 */
-	void exitNotExist(IMQParser.NotExistContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#valueLabel}.
-	 * @param ctx the parse tree
-	 */
-	void enterValueLabel(IMQParser.ValueLabelContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#valueLabel}.
-	 * @param ctx the parse tree
-	 */
-	void exitValueLabel(IMQParser.ValueLabelContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#whereBoolean}.
-	 * @param ctx the parse tree
-	 */
-	void enterWhereBoolean(IMQParser.WhereBooleanContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#whereBoolean}.
-	 * @param ctx the parse tree
-	 */
-	void exitWhereBoolean(IMQParser.WhereBooleanContext ctx);
+	void exitBooleanWhere(IMQParser.BooleanWhereContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#notWhere}.
 	 * @param ctx the parse tree
@@ -368,16 +328,6 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitAndWhere(IMQParser.AndWhereContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#bracketWhere}.
-	 * @param ctx the parse tree
-	 */
-	void enterBracketWhere(IMQParser.BracketWhereContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#bracketWhere}.
-	 * @param ctx the parse tree
-	 */
-	void exitBracketWhere(IMQParser.BracketWhereContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link IMQParser#with}.
 	 * @param ctx the parse tree
 	 */
@@ -398,6 +348,16 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitWhereValueTest(IMQParser.WhereValueTestContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link IMQParser#valueLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterValueLabel(IMQParser.ValueLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMQParser#valueLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitValueLabel(IMQParser.ValueLabelContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link IMQParser#inClause}.
 	 * @param ctx the parse tree
 	 */
@@ -417,16 +377,6 @@ public interface IMQListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNotInClause(IMQParser.NotInClauseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#conceptSet}.
-	 * @param ctx the parse tree
-	 */
-	void enterConceptSet(IMQParser.ConceptSetContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#conceptSet}.
-	 * @param ctx the parse tree
-	 */
-	void exitConceptSet(IMQParser.ConceptSetContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#reference}.
 	 * @param ctx the parse tree
@@ -488,6 +438,16 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitWhereMeasure(IMQParser.WhereMeasureContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link IMQParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void enterNumber(IMQParser.NumberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMQParser#number}.
+	 * @param ctx the parse tree
+	 */
+	void exitNumber(IMQParser.NumberContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link IMQParser#relativeTo}.
 	 * @param ctx the parse tree
 	 */
@@ -528,45 +488,15 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitSortable(IMQParser.SortableContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#latest}.
+	 * Enter a parse tree produced by {@link IMQParser#direction}.
 	 * @param ctx the parse tree
 	 */
-	void enterLatest(IMQParser.LatestContext ctx);
+	void enterDirection(IMQParser.DirectionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMQParser#latest}.
+	 * Exit a parse tree produced by {@link IMQParser#direction}.
 	 * @param ctx the parse tree
 	 */
-	void exitLatest(IMQParser.LatestContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#earliest}.
-	 * @param ctx the parse tree
-	 */
-	void enterEarliest(IMQParser.EarliestContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#earliest}.
-	 * @param ctx the parse tree
-	 */
-	void exitEarliest(IMQParser.EarliestContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#maximum}.
-	 * @param ctx the parse tree
-	 */
-	void enterMaximum(IMQParser.MaximumContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#maximum}.
-	 * @param ctx the parse tree
-	 */
-	void exitMaximum(IMQParser.MaximumContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMQParser#minimum}.
-	 * @param ctx the parse tree
-	 */
-	void enterMinimum(IMQParser.MinimumContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMQParser#minimum}.
-	 * @param ctx the parse tree
-	 */
-	void exitMinimum(IMQParser.MinimumContext ctx);
+	void exitDirection(IMQParser.DirectionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#count}.
 	 * @param ctx the parse tree
@@ -598,15 +528,35 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitSourceType(IMQParser.SourceTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMQParser#subsumption}.
+	 * Enter a parse tree produced by {@link IMQParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterSubsumption(IMQParser.SubsumptionContext ctx);
+	void enterType(IMQParser.TypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMQParser#subsumption}.
+	 * Exit a parse tree produced by {@link IMQParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitSubsumption(IMQParser.SubsumptionContext ctx);
+	void exitType(IMQParser.TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMQParser#set}.
+	 * @param ctx the parse tree
+	 */
+	void enterSet(IMQParser.SetContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMQParser#set}.
+	 * @param ctx the parse tree
+	 */
+	void exitSet(IMQParser.SetContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMQParser#var}.
+	 * @param ctx the parse tree
+	 */
+	void enterVar(IMQParser.VarContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMQParser#var}.
+	 * @param ctx the parse tree
+	 */
+	void exitVar(IMQParser.VarContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMQParser#ancestorAndDescendantOf}.
 	 * @param ctx the parse tree

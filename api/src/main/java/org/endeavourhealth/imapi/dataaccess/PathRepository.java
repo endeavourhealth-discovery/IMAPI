@@ -96,7 +96,7 @@ public class PathRepository {
 	private void whereFromPath(Path path, Where where) {
 		for (TTTypedRef link:path.getItems()){
 			if (link.getType().equals(RDF.PROPERTY)){
-				where.setId(getLocalName(link.getIri()));
+				where.setIri(link.getIri());
 				where.setName(link.getName());
 			}
 			else if (link.getType().equals(SHACL.NODESHAPE)){
@@ -118,7 +118,7 @@ public class PathRepository {
 			}
 		}
 		if (path.getTarget().getType().equals(RDF.PROPERTY)) {
-				where.setId(getLocalName(path.getTarget().getIri()));
+				where.setIri(path.getTarget().getIri());
 				where.setName(path.getTarget().getName());
 		}
 	}

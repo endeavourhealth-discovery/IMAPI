@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Select;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.transforms.eqd.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.io.IOException;
 import java.util.zip.DataFormatException;
@@ -44,7 +45,7 @@ public class EqdListToIMQ {
 			subQuery.addSelect(select);
 			String eqColumn= String.join("/",eqCol.getColumn());
 			String property = resources.getPath(eqTable + "/" + eqColumn);
-			select.setId(property);
+			select.setIri(IM.NAMESPACE+property);
 		}
 
 	}
@@ -55,8 +56,7 @@ public class EqdListToIMQ {
 		Where match = new Where();
 		select.setWhere(match);
 		resources.convertCriteria(eqColGroup.getCriteria(), match);
-		String mainPath= resources.getPath(eqTable);
-		select.setId(resources.getPath(eqTable));
+		select.setIri(IM.NAMESPACE+resources.getPath(eqTable));
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
 			String eqColumn = String.join("/", eqCol.getColumn());
@@ -64,13 +64,13 @@ public class EqdListToIMQ {
 			String[] subPaths= subPath.split(" ");
 			if (subPath.contains(" ")) {
 				for (int i = 0; i < subPaths.length - 1; i++) {
-					select.setId(subPaths[i]);
+					select.setIri(IM.NAMESPACE+subPaths[i]);
 					Select subSelect= new Select();
 					select.addSelect(subSelect);
 					select= subSelect;
 				}
 			}
-			select.setId(subPaths[subPaths.length-1]);
+			select.setIri(IM.NAMESPACE+subPaths[subPaths.length-1]);
 		}
 	}
 

@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 
 @JsonPropertyOrder({"iri","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends TTAlias {
+public class OrderLimit extends TTAlias{
 	private String direction;
 	private int count=1;
 

@@ -34,11 +34,12 @@ public class QuerySummariser {
 		if (iri.getName()!=null) {
 			return iri.getName();
 		}
-		if (iri.getId()!=null) {
-			return iri.getId();
-		}
-		else if (iri.getIri()!=null)
+		if (iri.getIri()!=null)
 				return localName(iri.getIri());
+		else if (iri.getSet()!=null)
+			return localName(iri.getSet());
+		else if (iri.getType()!=null)
+			return localName(iri.getType());
 		else
 			if (iri.getVariable()!=null)
 				return " {"+ iri.getVariable()+"} ";
@@ -89,22 +90,57 @@ public class QuerySummariser {
 			summariseWhere(from.getWhere());
 	}
 
+
+	private boolean isDate(TTAlias reference){
+		if (reference.getIri()!=null) {
+			if (reference.getIri().contains("date")) {
+				return true;
+			}
+			else return false;
+		}
+		else if (reference.getAlias()!=null)
+			if (reference.getAlias().contains("date"))
+				return true;
+			else return false;
+		else return false;
+	}
+
 	private void summariseWith(With with) {
 		if (!override && with.getDescription()!=null)
 				return;
 		summariseWhere(with);
-		if (with.getLatest()!=null) {
-			with.setDescription("latest of "+ with.getValueLabel());
+		if (with.getOrderBy()!=null){
+			if (isDate(with)) {
+				if (with.getDirection() == Order.descending) {
+					with.setDescription("Latest ");
+				}
+				else with.setDescription("earliest ");
+			}
+			else {
+				if (with.getDirection()==Order.descending){
+					with.setDescription("Maximum ");
+				}
+				else
+					with.setDescription("Minimum ");
+			}
+			if (with.getValueLabel()!=null){
+				with.setDescription("Latest of "+with.getValueLabel());
+			}
+			if (with.getCount()>1)
+				with.setDescription(with.getDescription()+" "+ with.getCount()+" ");
+			if (with.getValueLabel()!=null) {
+				with.setDescription(with.getDescription() + with.getValueLabel());
+			}
 		}
-		else if (with.getEarliest()!=null) {
-			with.setDescription("earliest from "+ with.getValueLabel());
-		}
+		else if (with.getValueLabel()!=null) {
+				with.setDescription(with.getValueLabel());
+			}
 	}
 
 	public void summariseWhereProperty(StringBuilder summary,Where where) {
 		if (!override && where.getDescription() != null)
 			return;
-		if (where.getId() != null || where.getIri() != null) {
+		if (where.getIri() != null) {
 			summary.append(summariseAlias(where));
 		}
 
@@ -113,8 +149,6 @@ public class QuerySummariser {
 		} else if (where.getNotIn() != null) {
 			summariseWherePropertyAppendNotIn(summary, where);
 		}
-		if (where.getBool() == Bool.not)
-			summary.append("not = ");
 
 		if (where.getRange() != null) {
 			if (where.getBool() == Bool.not)
@@ -135,22 +169,28 @@ public class QuerySummariser {
 	private void summariseWherePropertyAppendIn(StringBuilder summary, Where where) {
 		int i = 0;
 		summary.append(" is : ");
-		for (From in : where.getIn()) {
-			i++;
-			if (i == 1) {
+		if (where.getValueLabel()!=null){
+			summary.append(where.getValueLabel());
+		}
+		else {
+			for (TTAlias in : where.getIn()) {
+				i++;
+				if (i == 1) {
 
-				summary.append(summariseAlias(in));
-			} else
-				summary.append(", ");
-			if (i > 3)
-				summary.append(" .. ");
+					summary.append(summariseAlias(in));
+				}
+				else
+					summary.append(", ");
+				if (i > 3)
+					summary.append(" .. ");
+			}
 		}
 	}
 
 	private void summariseWherePropertyAppendNotIn(StringBuilder summary, Where where) {
 		summary.append(" not in");
 		int i = 0;
-		for (From in : where.getNotIn()) {
+		for (TTAlias in : where.getNotIn()) {
 			i++;
 			if (i == 1) {
 				summary.append(summariseAlias(in));

@@ -1155,10 +1155,14 @@ public class EntityService {
     }
 
     public Boolean isValidProperty(String entity, String property) {
+        if (null == entity || entity.isEmpty()) throw new IllegalArgumentException("Missing 'entity' for isValidProperty check");
+        if (null == property || property.isEmpty()) throw new IllegalArgumentException("Missing 'property' for isValidProperty check");
         return entityRepository.isValidProperty(entity, property);
     }
 
     public Boolean isValidPropertyValue(String property, String value) {
+        if (null == property || property.isEmpty()) throw new IllegalArgumentException("Missing 'property' for isValidPropertyValue check");
+        if (null == value || value.isEmpty()) throw new IllegalArgumentException("Missing 'value' for isValidPropertyValue check");
         return entityRepository.isValidPropertyValue(property, value);
     }
 

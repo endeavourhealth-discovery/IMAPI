@@ -22,7 +22,7 @@ tasks {
                 'org.endeavourhealth.imapi.model.search.*',
                 'org.endeavourhealth.imapi.model.imq.*'
         ]
-        outputFile = '../../IMDirectory/im_library/src/models/AutoGen.ts'
+        outputFile = '../../IMDirectory/im_library/src/interfaces/AutoGen.ts'
         outputKind = 'module'
     }
 }

@@ -40,7 +40,7 @@ public class IMQJToG {
 	}
 
 	private String getText(String text){
-		return "\""+ text.replaceAll("\"","\\\"")+"\"";
+		return "\""+ text.replace("\"","\\\"")+"\"";
 	}
 
 	private void convertQuery(Query query) {
@@ -162,57 +162,56 @@ public class IMQJToG {
 
 	private void convertWhere(Where where) {
 		request.append("{");
-		if (where.getDescription()!=null) {
+		if (where.getDescription() != null) {
 			request.append("description ").append(getText(where.getDescription()));
 			request.append(nl());
 		}
-		if (where.getIri()!=null||where.getVariable()!=null) {
+		if (where.getIri() != null || where.getVariable() != null) {
 			convertTTAlias(where);
 		}
 		if (where.getWith() != null)
 			convertWith(where.getWith());
 
-		if (where.getWhere()!=null) {
+		if (where.getWhere() != null) {
 			tab++;
-			if (where.getIri()!=null) {
+			if (where.getIri() != null) {
 				request.append(nl());
 				tab++;
-				if (where.getWhere().size()==1){
+				if (where.getWhere().size() == 1) {
 					convertWhereClause(where.getWhere().get(0));
-				}
-				else {
+				} else {
 					request.append("where {");
 					convertBoolWhere(where);
 					request.append("}");
 				}
 				tab--;
-			}
-			else
+			} else
 				convertBoolWhere(where);
 			tab--;
-		}
-		else if (where.getIn()!=null){
+		} else if (where.getIn() != null) {
 			request.append(" in ");
 			convertWhereIn(where.getIn());
-		}
-		else if (where.getNotIn()!=null){
+		} else if (where.getNotIn() != null) {
 			request.append(" notIn ");
 			convertWhereIn(where.getNotIn());
 		}
+		convertWhereAppendProperties(where);
+		request.append("}");
+	}
 
-		if (where.getOperator()!=null)
+	private void convertWhereAppendProperties(Where where) {
+		if (where.getOperator() != null)
 			request.append(" ").append(where.getOperator().getValue());
-		if (where.getValue()!=null)
+		if (where.getValue() != null)
 			request.append(" ").append(where.getValue());
-		if (where.getUnit()!=null)
+		if (where.getUnit() != null)
 			request.append(" ").append(where.getUnit());
-		if (where.getRange()!=null)
+		if (where.getRange() != null)
 			convertRange(where.getRange());
-		if (where.getValueLabel()!=null) {
+		if (where.getValueLabel() != null) {
 			request.append(nl()).append("valueLabel ").append(getText(where.getValueLabel()));
 			request.append(nl());
 		}
-		request.append("}");
 	}
 
 

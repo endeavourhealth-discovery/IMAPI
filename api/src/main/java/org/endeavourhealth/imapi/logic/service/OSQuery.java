@@ -416,7 +416,10 @@ public class OSQuery {
 
     private boolean validateFrom(From from) {
         if (from.getWhere()!=null)
-            return validateWhere(from.getWhere());
+            for (Where where : from.getWhere()){
+                if (!validateWhere(where))
+                    return false;
+            }
         if (from.getFrom()!=null)
             for (From subFrom:from.getFrom())
                 if (!validateFrom(subFrom))
@@ -584,7 +587,7 @@ public class OSQuery {
                 throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (from.sourceType= type, or subtypes from.isIncludeSubtypes(true");
 
         else if (from.getFrom() != null) {
-            if (from.getBool()!=Bool.or){
+            if (from.getBoolFrom()!=Bool.or){
                 return false;
             }
             for (From subFrom : from.getFrom()) {

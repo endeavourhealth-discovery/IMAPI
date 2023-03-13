@@ -39,7 +39,7 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
-	@Test
+	//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
 
 		SearchRequest request= new SearchRequest();

@@ -16,9 +16,7 @@ import org.endeavourhealth.imapi.transforms.IMQGToJ;
 import org.endeavourhealth.imapi.transforms.IMQJToG;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
-import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;

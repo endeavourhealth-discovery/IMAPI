@@ -21,3 +21,5 @@ pluginManagement {
 
 rootProject.name = 'IMAPI'
 include(':api')
+include(':FHIRMapper')
+

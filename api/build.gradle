@@ -90,6 +90,10 @@ dependencies {
 
     annotationProcessor libs.jacksonAnnotations
     annotationProcessor libs.lombok
+
+
+    implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu2:6.0.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4'
 }
 
 publishing {

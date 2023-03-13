@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+group 'org.endeavourhealth.imapi'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api project(':api')
+    implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu2:6.0.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+jar {
+    archiveBaseName = 'ZFhirMapper'
+    archiveVersion =  '0.1.0'
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'org.endeavourhealth.fhirmapper.ZFhirMapper'
+    }
+    zip64 = true
+    baseName = 'all-in-one-jar'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+test {
+    useJUnitPlatform()
+}

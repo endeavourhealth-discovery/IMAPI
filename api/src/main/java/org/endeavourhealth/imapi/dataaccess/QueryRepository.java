@@ -405,7 +405,9 @@ public class QueryRepository {
         if (from.getIri()!=null)
             addToIriList(from,ttIris,iris);
         if (from.getWhere()!=null){
-            gatherWhereLabels(from.getWhere(),ttIris,iris);
+            for (Where where:from.getWhere()) {
+                gatherWhereLabels(where, ttIris, iris);
+            }
         }
         if (from.getFrom()!=null){
             from.getFrom().forEach(f-> gatherFromLabels(f,ttIris,iris));

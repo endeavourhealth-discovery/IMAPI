@@ -11,9 +11,7 @@ import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
-import javax.persistence.OrderBy;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class IMQJToG {
 	QueryRequest jrequest;
@@ -132,16 +130,26 @@ public class IMQJToG {
 	}
 	private void convertFrom(From from){
 		request.append("{");
-		if (from.getBool()!=null)
+		if (from.getBoolFrom()!=null)
 			convertFromBool(from);
 		else {
-			if (from.getDescription()!=null) {
+			if (from.getDescription() != null) {
 				request.append(nl()).append("description ").append(getText(from.getDescription()));
 				request.append(nl());
 			}
 			convertTTAlias(from);
 			if (from.getWhere() != null) {
-				convertWhereClause(from.getWhere());
+				boolean first = true;
+				tab++;
+				request.append(nl())
+					.append("where ");
+				for (Where where : from.getWhere()) {
+					if (!first)
+						request.append(nl()).append("      and");
+					first = false;
+					convertWhere(where);
+				}
+				tab--;
 			}
 		}
 		request.append("}");
@@ -152,7 +160,7 @@ public class IMQJToG {
 		tab++;
 		for (From subFrom:from.getFrom()){
 			if (!first)
-				request.append(nl()).append("  ").append(from.getBool().toString()).append(" ");
+				request.append(nl()).append("  ").append(from.getBoolFrom().toString()).append(" ");
 			first= false;
 			convertFrom(subFrom);
 		}
@@ -218,12 +226,10 @@ public class IMQJToG {
 
 	private void convertRange(Range range) {
 		request.append(nl());
-		request.append("from {");
+		request.append("range ");
 		convertAssignable(range.getFrom());
-		request.append("}");
-		request.append("to {");
+		request.append(" to ");
 		convertAssignable(range.getTo());
-		request.append("}");
 	}
 
 	private void convertAssignable(Assignable measure) {
@@ -232,7 +238,7 @@ public class IMQJToG {
 		if (measure.getValue()!=null)
 			request.append(" ").append(measure.getValue());
 		if (measure.getUnit()!=null)
-			request.append(" ").append(measure.getUnit());
+			request.append("units ").append(measure.getUnit());
 	}
 
 	private void convertWith(With with){
@@ -243,14 +249,22 @@ public class IMQJToG {
 		convertWhereClause(with);
 		tab--;
 		convertSortable(with);
+		if (with.getThen()!=null){
+			tab++;
+			request.append(nl());
+			request.append("then ");
+			convertWhere(with.getThen());
+			tab--;
+		}
 		request.append("}");
 		tab--;
 	}
 
 	private void convertSortable(With with) {
 		if (with.getOrderBy()!=null) {
-			convertTTAlias(with);
-			String iri = with.getOrderBy().getIri();
+			request.append(nl());
+			request.append("orderBy ");
+			convertTTAlias(with.getOrderBy());
 			if (with.getDirection()== Order.descending) {
 				request.append( "descending ");
 			}

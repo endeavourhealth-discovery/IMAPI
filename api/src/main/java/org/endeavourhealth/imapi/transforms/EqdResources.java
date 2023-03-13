@@ -202,18 +202,29 @@ public class EqdResources {
 		boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
 		if (!cv.getValueSet().isEmpty()) {
 			setWhereValueSetSetters(cv, pv, notIn);
-		} else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
+		}
+		else if (!CollectionUtils.isEmpty(cv.getLibraryItem())) {
+			String valueLabel="";
 			for (String vset : cv.getLibraryItem()) {
-				String vsetName = "Unknown code set";
-				if (labels.get(vset) != null)
-					pv.setValueLabel((String) labels.get(vset));
-				From iri = new From().setSet("urn:uuid:" + vset).setName(vsetName);
+				String vsetName=null;
+				if (labels.get(vset) != null){
+					vsetName= (String) labels.get(vset);
+					valueLabel= valueLabel+ (valueLabel.equals("") ?"": ",")+ vsetName;
+				}
+				TTAlias iri = new From().setSet("urn:uuid:" + vset);
+				if (vsetName!=null)
+					iri.setName(vsetName);
+				else
+					iri.setName("Unknown value set");
 				if (!notIn)
 					pv.addIn(iri);
 				else {
 					pv.addNotIn(iri);
 				}
 				storeLibraryItem(iri.getSet(),vsetName);
+				if (valueLabel.equals(""))
+					valueLabel="Unknown value set";
+				pv.setValueLabel(valueLabel);
 			}
 		} else if (cv.getRangeValue() != null) {
 			setRangeValue(cv.getRangeValue(), pv);

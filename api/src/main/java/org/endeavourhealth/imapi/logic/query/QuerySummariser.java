@@ -30,12 +30,12 @@ public class QuerySummariser {
 	}
 
 	public String summariseAlias(TTAlias iri){
-
 		if (iri.getName()!=null) {
 			return iri.getName();
 		}
-		if (iri.getIri()!=null)
-				return localName(iri.getIri());
+		if (iri.getIri()!=null){
+			return localName(iri.getIri());
+		}
 		else if (iri.getSet()!=null)
 			return localName(iri.getSet());
 		else if (iri.getType()!=null)
@@ -62,16 +62,19 @@ public class QuerySummariser {
 		StringBuilder summary= new StringBuilder();
 		if (match.getWith()!=null){
 			summariseWith(match.getWith());
+			match.setDescription(match.getWith().getDescription());
 		}
-		if (match.getWhere() != null) {
-			summariseWhereProperty(summary,match);
+		else {
+			if (match.getWhere() != null) {
+				summariseWhereProperty(summary, match);
 				for (Where subWhere : match.getWhere()) {
 					summariseWhere(subWhere);
 				}
 			}
 
-		if (match.getWhere()==null)
-		   summariseWhereProperty(summary,match);
+			if (match.getWhere() == null)
+				summariseWhereProperty(summary, match);
+		}
 
 
 	}
@@ -86,14 +89,19 @@ public class QuerySummariser {
 				summariseFrom(subFrom);
 			}
 		}
-		if (from.getWhere() != null)
-			summariseWhere(from.getWhere());
+		if (from.getWhere() != null) {
+			for (Where where : from.getWhere())
+				summariseWhere(where);
+		}
 	}
 
 
 	private boolean isDate(TTAlias reference){
 		if (reference.getIri()!=null) {
 			if (reference.getIri().contains("date")) {
+				return true;
+			}
+			else if (reference.getIri().contains("Date")) {
 				return true;
 			}
 			else return false;
@@ -109,32 +117,33 @@ public class QuerySummariser {
 		if (!override && with.getDescription()!=null)
 				return;
 		summariseWhere(with);
-		if (with.getOrderBy()!=null){
-			if (isDate(with)) {
+		String whereLabel= with.getDescription();
+		String orderLabel="";
+		if (with.getOrderBy()!=null) {
+			if (isDate(with.getOrderBy())) {
 				if (with.getDirection() == Order.descending) {
-					with.setDescription("Latest ");
-				}
-				else with.setDescription("earliest ");
-			}
-			else {
-				if (with.getDirection()==Order.descending){
-					with.setDescription("Maximum ");
+					orderLabel = ", get latest ";
 				}
 				else
-					with.setDescription("Minimum ");
+					orderLabel = ", get earliest ";
 			}
-			if (with.getValueLabel()!=null){
-				with.setDescription("Latest of "+with.getValueLabel());
+			else {
+				if (with.getDirection() == Order.descending) {
+					orderLabel = ", get Maximum ";
+				}
+				else
+					orderLabel = ", get Minimum ";
 			}
-			if (with.getCount()>1)
-				with.setDescription(with.getDescription()+" "+ with.getCount()+" ");
-			if (with.getValueLabel()!=null) {
-				with.setDescription(with.getDescription() + with.getValueLabel());
+			if (with.getCount() > 1) {
+				orderLabel= orderLabel + with.getCount() + " ";
 			}
 		}
-		else if (with.getValueLabel()!=null) {
-				with.setDescription(with.getValueLabel());
-			}
+		String thenLabel="";
+		if (with.getThen()!=null){
+			summariseWhere(with.getThen());
+			thenLabel= ", then test : "+with.getThen().getDescription();
+		}
+		with.setDescription(whereLabel+orderLabel+thenLabel);
 	}
 
 	public void summariseWhereProperty(StringBuilder summary,Where where) {

@@ -333,7 +333,7 @@ public class TestQueries {
 			.setUsePrefixes(true)
 			.select(s->s.setIri(RDFS.LABEL.getIri()))
 			.from(rf->rf
-				.setBool(Bool.and)
+				.setBoolFrom(Bool.and)
 				.from(f->f
 						.setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true)
 				.where(a->a

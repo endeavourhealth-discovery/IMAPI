@@ -413,6 +413,18 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterThen(IMQParser.ThenContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitThen(IMQParser.ThenContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterWhereValueTest(IMQParser.WhereValueTestContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -16,7 +16,7 @@ query {
     sh:property
         where 
           {sh:node in $this}
-          and
+            and
           {sh:path in im:isContainedIn,
                       rdfs:subClassOf,
                       im:isSubsetOf}

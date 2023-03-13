@@ -100,8 +100,10 @@ public class SparqlConverter {
 	}
 
 	private void validateFrom(From from) throws DataFormatException {
-		if (from.getWhere()!=null)
-			validateWhere(from.getWhere());
+		if (from.getWhere()!=null) {
+			for (Where where : from.getWhere())
+				validateWhere(where);
+		}
 	}
 
 
@@ -230,7 +232,7 @@ public class SparqlConverter {
 			from(whereQl,subject,from);
 		}
 		else {
-			if (from.getBool() == Bool.or) {
+			if (from.getBoolFrom() == Bool.or) {
 				for (int i = 0; i < from.getFrom().size(); i++) {
 					if (i == 0)
 						whereQl.append("{ \n");
@@ -240,7 +242,7 @@ public class SparqlConverter {
 					whereQl.append("}\n");
 				}
 			}
-			else if (from.getBool()==Bool.not) {
+			else if (from.getBoolFrom()==Bool.not) {
 				for (From not : from.getFrom()) {
 					whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 					froms(whereQl, subject,not);
@@ -254,7 +256,9 @@ public class SparqlConverter {
 			}
 		}
 		if (from.getWhere()!=null){
-			where(whereQl,subject,from.getWhere());
+			for (Where where:from.getWhere()) {
+				where(whereQl, subject, where);
+			}
 		}
 		if (from.getGraph()!=null) {
 			whereQl.append("}");

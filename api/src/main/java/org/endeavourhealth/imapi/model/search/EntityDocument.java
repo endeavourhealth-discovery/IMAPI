@@ -12,7 +12,10 @@ public class EntityDocument {
 	Integer id;
 	String iri;
 	String name;
+	Integer length;
+	String preferredName;
 	String code;
+	Set<String> matchTerm;
 	Set<String> key= new HashSet<>();
 	TTIriRef scheme;
 	Set<TTIriRef> entityType = new HashSet<>();
@@ -21,6 +24,40 @@ public class EntityDocument {
 	Integer weighting;
 	String match;
 	Set<TTIriRef> isA= new HashSet<>();
+
+	public Set<String> getMatchTerm() {
+		return matchTerm;
+	}
+
+	public EntityDocument setMatchTerm(Set<String> matchTerm) {
+		this.matchTerm = matchTerm;
+		return this;
+	}
+
+	public EntityDocument addMatchTerm(String term){
+		if (this.matchTerm==null)
+			this.matchTerm= new HashSet<>();
+		this.matchTerm.add(term);
+		return this;
+	}
+
+	public Integer getLength() {
+		return length;
+	}
+
+	public EntityDocument setLength(Integer length) {
+		this.length = length;
+		return this;
+	}
+
+	public String getPreferredName() {
+		return preferredName;
+	}
+
+	public EntityDocument setPreferredName(String preferredName) {
+		this.preferredName = preferredName;
+		return this;
+	}
 
 	public Set<TTIriRef> getIsA() {
 		return isA;

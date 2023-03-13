@@ -164,7 +164,7 @@ public class IMQGToJ {
 	}
 
 	private void convertAndFrom(IMQParser.AndFromContext andFrom, From jfrom) throws DataFormatException {
-		jfrom.setBool(Bool.and);
+		jfrom.setBoolFrom(Bool.and);
 		if (andFrom.from().size()>0) {
 			for (IMQParser.FromContext from : andFrom.from()) {
 				addFrom(from,jfrom);
@@ -181,7 +181,7 @@ public class IMQGToJ {
 	}
 
 	private void convertNotFrom(IMQParser.NotFromContext notFrom, From jfrom) throws DataFormatException {
-		jfrom.setBool(Bool.not);
+		jfrom.setBoolFrom(Bool.not);
 		if (notFrom.from()!=null) {
 				addFrom(notFrom.from(),jfrom);
 		}
@@ -189,7 +189,7 @@ public class IMQGToJ {
 	}
 
 	private void convertOrFrom(IMQParser.OrFromContext orFrom, From jfrom) throws DataFormatException {
-		jfrom.setBool(Bool.or);
+		jfrom.setBoolFrom(Bool.or);
 		if (orFrom.from().size()>0) {
 			for (IMQParser.FromContext from : orFrom.from()) {
 				addFrom(from,jfrom);
@@ -199,13 +199,14 @@ public class IMQGToJ {
 
 
 	private void convertWhereClause(IMQParser.WhereClauseContext whereClause, From jFrom) throws DataFormatException {
-		Where jWhere = new Where();
-		jFrom.setWhere(jWhere);
-		if (whereClause.booleanWhere()!=null){
-			convertBooleanWhere(whereClause.booleanWhere(),jWhere);
-		}
-		else
+		if (whereClause.where()!=null){
+			Where jWhere= new Where();
+			jFrom.addWhere(jWhere);
 			convertWhere(whereClause.where(),jWhere);
+		}
+		else {
+			convertBooleanWhere(whereClause.booleanWhere(),jFrom);
+		}
 	}
 	private void convertWhereClause(IMQParser.WhereClauseContext whereClause, Select jSelect) throws DataFormatException {
 		Where jWhere = new Where();
@@ -227,6 +228,26 @@ public class IMQGToJ {
 			convertWhere(whereClause.where(), jWhere);
 	}
 
+
+	private void convertBooleanWhere(IMQParser.BooleanWhereContext whereBoolean, From jFrom) throws DataFormatException {
+		if (whereBoolean.orWhere()!=null) {
+			Where orJWhere= new Where();
+			jFrom.addWhere(orJWhere);
+			convertOrWhere(whereBoolean.orWhere(),orJWhere);
+		}
+		else if (whereBoolean.andWhere()!=null) {
+			for (IMQParser.WhereContext where:whereBoolean.andWhere().where()){
+				Where jWhere = new Where();
+				jFrom.addWhere(jWhere);
+				convertWhere(where,jWhere);
+			}
+		}
+		else if (whereBoolean.notWhere()!=null){
+			Where jNot= new Where();
+			jFrom.addWhere(jNot);
+			convertNotWhere(whereBoolean.notWhere(),jNot);
+		}
+	}
 
 
 

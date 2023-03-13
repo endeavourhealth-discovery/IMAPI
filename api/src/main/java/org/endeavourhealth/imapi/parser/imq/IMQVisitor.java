@@ -209,6 +209,12 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWith(IMQParser.WithContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link IMQParser#then}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThen(IMQParser.ThenContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link IMQParser#whereValueTest}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

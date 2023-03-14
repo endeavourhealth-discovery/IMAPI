@@ -8,18 +8,42 @@ import ca.uhn.fhir.model.dstu2.resource.Practitioner;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.endeavourhealth.imapi.logic.codegen.Organisation;
 import org.endeavourhealth.imapi.logic.codegen.PractitionerInRole;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 
+import java.io.File;
+import java.io.FileWriter;
+
 public class ZFhirMapperPractitioner {
     public static void main(String[] argv) throws Exception {
-        System.out.println("test");
-        String str = "{\"active\":true,\"id\":468,\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-practitioner\"]},\"name\":{\"family\":[\"Rumayor\"],\"given\":[\"Alfred\"],\"text\":\"Rumayor, Alfred\",\"use\":\"official\"},\"practitionerRole\":[{\"managingOrganization\":{\"reference\":\"Organization\\/156\"},\"role\":{\"coding\":[{\"code\":\"R0260\",\"display\":\"General Medical Practitioner\",\"system\":\"http:\\/\\/fhir.nhs.net\\/ValueSet\\/sds-job-role-name-1-0\"}]}}],\"resourceType\":\"Practitioner\"}";
 
         FhirContext ctx = FhirContext.forDstu2();
-
         IParser parser = ctx.newJsonParser();
+
+        String pathToCsv = "/media/sf_in/practitioner.txt";
+        String outFile = "/media/sf_in/practitioner_out.txt";
+
+        FileWriter csvWriter = new FileWriter(outFile);
+
+        int c = 1;
+
+        File file = new File(pathToCsv);
+        LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+        while (it.hasNext()) {
+            String line = it.nextLine();
+            String pojo = RunMapper(line, parser);
+            csvWriter.append(c + "\t" + pojo + "\n");
+            if (c%100 == 0) csvWriter.flush();
+            System.out.println(c);
+            c++;
+        }
+
+        csvWriter.close();
+    }
+    public static String RunMapper(String str, IParser parser) throws Exception {
         ca.uhn.fhir.model.dstu2.resource.Practitioner parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Practitioner.class, str);
 
         System.out.println(parsed.getId().getValue().toString());
@@ -87,7 +111,7 @@ public class ZFhirMapperPractitioner {
         ObjectMapper om = new ObjectMapper();
 
         // Serialization test
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(pract);
-        System.out.println(json);
+        String json = om.writeValueAsString(pract);
+        return json;
     }
 }

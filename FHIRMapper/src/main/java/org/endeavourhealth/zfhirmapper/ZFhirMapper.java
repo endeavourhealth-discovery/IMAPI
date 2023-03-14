@@ -25,59 +25,26 @@ public class ZFhirMapper {
         //str = "{\"active\":true,\"address\":[{\"city\":\"BEVERLEY\",\"district\":\"\",\"line\":[\"\",\"\",\"\"],\"postalCode\":\"HU17 8GW\",\"text\":\",,,,BEVERLEY,HU17 8GW\",\"use\":\"home\"}],\"birthDate\":\"1999-11-30\",\"careProvider\":[{\"reference\":\"Organization\\/203\"},{\"reference\":\"Practitioner\\/2026\"}],\"extension\":[{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-ethnic-category-extension\",\"valueCodeableConcept\":{\"coding\":[{\"code\":\"\",\"display\":\"\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-ethnic-category-extension\"}]}}],\"gender\":\"female\",\"id\":1998,\"identifier\":[{\"system\":\"http:\\/\\/fhir.nhs.net\\/Id\\/nhs-number\",\"use\":\"official\",\"value\":8456666211},{\"system\":\"http:\\/\\/endeavourhealth.org\\/identifier\\/patient-number\",\"use\":\"secondary\",\"value\":1998}],\"managingOrganization\":{\"reference\":\"Organization\\/203\"},\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-patient\"]},\"name\":[{\"family\":[\"Zavorohin\"],\"given\":[\"Bridget\"],\"prefix\":[\"Mrs\"],\"text\":\"Zavorohin, Bridget (Mrs)\",\"use\":\"official\"}],\"resourceType\":\"Patient\",\"telecom\":[{\"system\":\"phone\",\"use\":\"work\",\"value\":\"0657-322-6430\"},{\"system\":\"email\",\"use\":\"\",\"value\":\"x9erhfytv@yahoo.com\"}]}";
         //String test = RunMapper(str);
 
-        String pathToCsv = "Z:\\pojo\\in\\patient.txt";
-        String outFile = "Z:\\pojo\\out\\patient.txt";
+        String pathToCsv = "/media/sf_in/patient.txt";
+        String outFile = "/media/sf_in/patient_out.txt";
         FileWriter csvWriter = new FileWriter(outFile);
-        // BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
+
         int c = 1;
 
         FhirContext ctx = FhirContext.forDstu2();
         IParser parser = ctx.newJsonParser();
-
-        /*
-        while ((str = csvReader.readLine()) != null) {
-            //String str = "{\"active\":true,\"id\":21,\"identifier\":[{\"system\":\"http:\\/\\/fhir.nhs.net\\/Id\\/ods-organization-code\",\"use\":\"official\",\"value\":\"X5124\"}],\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-organization\"]},\"name\":\"PRACTICE 21\",\"partOf\":{\"reference\":\"Organization\\/5\"},\"resourceType\":\"Organization\",\"type\":{\"coding\":[{\"code\":\"PR\",\"display\":\"GP PRACTICE\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/ValueSet\\/primarycare-organization-type\"}]}}";
-            String pojo = RunMapper(str, parser);
-            //String pojo = RunMapper(str);
-            csvWriter.append(pojo + "\n");
-            csvWriter.flush();
-            System.out.println(c); c++;
-            //System.out.println(pojo);
-        }
-         */
-
-        /*
-        FileInputStream inputStream = null;
-        Scanner sc = null;
-        inputStream = new FileInputStream(pathToCsv);
-        sc = new Scanner(inputStream, "UTF-8");
-        while (sc.hasNextLine()) {
-            str = sc.nextLine();
-            String pojo = RunMapper(str, parser);
-            // System.out.println(line);
-            System.out.println(c); c++;
-        }
-        */
 
         File file = new File(pathToCsv);
         LineIterator it = FileUtils.lineIterator(file, "UTF-8");
         while (it.hasNext()) {
             String line = it.nextLine();
             String pojo = RunMapper(line, parser);
+            csvWriter.append(c + "\t" + pojo + "\n");
+            if (c>2000000) break;
+            if (c%100 == 0) csvWriter.flush();
             System.out.println(c);
             c++;
         }
-
-        /*
-        Scanner scan = new Scanner(new File(pathToCsv));
-        while(scan.hasNextLine()){
-            str = scan.nextLine();
-            String pojo = RunMapper(str, parser);
-            csvWriter.append(pojo + "\n");
-            csvWriter.flush();
-            System.out.println(c); c++;
-        }
-         */
 
         csvWriter.close();
     }
@@ -108,13 +75,8 @@ public class ZFhirMapper {
          */
 
         ResourceReferenceDt organizationReference = parsed.getManagingOrganization();
-        //System.out.println(organizationReference.getReference().getIdPart());
         String zOrgId = organizationReference.getReference().getIdPart();
         Organisation zOrganisation = new Organisation(zOrgId);
-
-        //System.out.println(parsed.getAddress().get(0).getLine().get(0));
-        //System.out.println(parsed.getAddress().get(0).getLine().get(1));
-        //System.out.println(parsed.getAddress().get(0).getLine().get(2));
 
         String fhirPostalCode = parsed.getAddress().get(0).getPostalCode();
         String fhirCity = parsed.getAddress().get(0).getCity();
@@ -137,7 +99,6 @@ public class ZFhirMapper {
         for ( int i=0 ; i<=s; i++) {
             String system = fhirIdentifiers.get(i).getSystem();
             if (system.contains("nhs-number")) {
-                //System.out.println(fhirIdentifiers.get(i).getValue());
                 fhirNhsNumber = fhirIdentifiers.get(i).getValue();
             }
         }
@@ -150,7 +111,6 @@ public class ZFhirMapper {
             CodeableConceptDt codeableConcept = (CodeableConceptDt) fhirExtension.get(i).getValue();
             fhirEthnicCode = codeableConcept.getCoding().get(0).getCode();
             fhirEthnicDisplay = codeableConcept.getCoding().get(0).getDisplay();
-            //System.out.println(fhirEthnicCode);
         }
 
         List<ResourceReferenceDt> fhirProvider = parsed.getCareProvider();
@@ -158,15 +118,11 @@ public class ZFhirMapper {
         String fhirGp = "";
         for ( int i=0 ; i<=s; i++) {
             IdDt ref = fhirProvider.get(i).getReference();
-            //System.out.println(ref.getIdPart());
-            //System.out.println(ref.getBaseUrl());
-            //System.out.println(ref.getResourceType());
             if (ref.getResourceType().equals("Practitioner")) {
                 fhirGp = ref.getIdPart();
             }
         }
 
-        //System.out.println("size = " + parsed.getAddress().get(0).getLine().size());
         s = parsed.getAddress().get(0).getLine().size();
         String fhirLines = "";
         s--;
@@ -175,14 +131,11 @@ public class ZFhirMapper {
             if (!line.isEmpty()) {
                 fhirLines = fhirLines + line + " ";
             }
-            // fhirLines = fhirLines + parsed.getAddress().get(0).getLine().get(i) + ", ";
         }
 
         int l = fhirLines.length();
         if (l>0) fhirLines = fhirLines.substring(0, l - 1);
 
-
-        //System.out.println(fhirLines);
 
         //List<ca.uhn.fhir.model.dstu2.resource.Patient.Contact> contacts = parsed.getContact();
         //s = contacts.size();
@@ -195,28 +148,17 @@ public class ZFhirMapper {
             // java.util.List<ContactPointDt> conList = con.get(i).;
             ContactPointDt z = con.get(i);
 
-            //System.out.println(z.getSystem());
-            //System.out.println(z.getUse());
-            //System.out.println(z.getValue());
             PeriodDt period = z.getPeriod();
 
 
             String telend = "";
             String telstart = "";
             if (!period.isEmpty()) {
-                if (period.getStart() == null) {
-                    //System.out.println("null");
-                }
-                if (period.getEnd() == null) {
-                    //System.out.println("eh");
-                }
                 if (period.getEnd() != null) {
                     telend = ZMapperCommon.FormatDate(period.getEnd());
                 }
                 if (period.getStart()!=null) {telstart = ZMapperCommon.FormatDate(period.getStart());}
             }
-
-            // String use = ""; String sys = ""; String value = "";
 
             String use = z.getUse(); String sys = z.getSystem(); String value = z.getValue();
 
@@ -279,9 +221,7 @@ public class ZFhirMapper {
 
         if (fhirLines != null)  { address.setAddressLine(fhirLines); }
 
-        //.setAddressUse(fhirAddUse);
-
-        if (fhirLocality != null) {address.setLocality(fhirLocality);}
+        if (fhirLocality != null) { address.setLocality(fhirLocality); }
 
         Date fhirDateOfBirth = null;
         fhirDateOfBirth = parsed.getBirthDate();
@@ -317,20 +257,11 @@ public class ZFhirMapper {
         }
          */
 
-        //TTIriRef omGender = TTIriRef.iri(imGender, fhirGender);
-        //TTIriRef omGender = TTIriRef.iri(imGender);
-        //omGender.setDescription(fhirGender);
-
-        //TTIriRef omEthnicity = TTIriRef.iri("http://endhealth.info/im#ethnicity", fhirEthnicCode);
-        //omEthnicity.setDescription(fhirEthnicDisplay);
-
         patient .setDateOfBirth(formatedDOB)
                 .setFamilyName(fhirFamily.toString())
                 .setForenames(fhirGiven.toString())
                 .setStatedGender(fhirGender)
                 .setNhsNumber(fhirNhsNumber);
-
-                //.setEthnicity(fhirEthnicCode);
 
         if (fhirEthnicCode != null) {
             patient.setEthnicity(fhirEthnicCode);
@@ -340,10 +271,6 @@ public class ZFhirMapper {
         if (!formatedDOD.isEmpty()) patient.setDateOfDeath(formatedDOD);
 
         patient.setProperty("text", fhirAddTxt);
-
-        //
-
-        // patient.setHomeTelephoneNumber("01132666248");
 
         if (fhirAddUse.equals("home")) {
             patient.setHomeAddress(address);
@@ -368,36 +295,11 @@ public class ZFhirMapper {
 
         patient.setTitle(fhirPrefix.toString());
 
-        //if (fhirAddUse.equals("temp")) {patient.setTemporaryAddress(address);}
-        //if (fhirAddUse.equals("work")) {patient.setWorkAddress(address);}
-        //if (fhirAddUse.equals("old")) {patient.setWorkAddress(address);}
-
-        //.setGpCurrentRegistration(GpCurrentRegistration.class);
-
-        /*
-        patient = new Patient()
-                .setCallingName("Richard")
-                .setFamilyName("Collier")
-                .setAge(49)
-                .setHomeAddress(address)
-                .setProperty("middleName", "Leigh")
-                .setContact("01132666248")
-                .setContact("07807243515")
-
-         */
-
-        // parsed.getCareProvider();
-        //patient.setGpCurrentRegistration();
-
         ObjectMapper om = new ObjectMapper();
 
         // Serialization test
         //String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(patient);
         String json = om.writeValueAsString(patient);
-
-        //System.out.println(json);
-
-        // json = json.replaceAll("@","");
 
         // Deserialization test
         /*

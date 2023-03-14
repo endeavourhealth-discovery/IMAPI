@@ -20,23 +20,25 @@ import java.util.List;
 
 public class ZFhirMapperOrganization {
     public static void main(String[] argv) throws Exception {
-        String str = ""; String pathToCsv = "C:\\Users\\Paul\\Desktop\\pojo\\in\\organizations.txt";
-        String outFile = "C:\\Users\\Paul\\Desktop\\pojo\\out\\organizations.txt";
+
+        FhirContext ctx = FhirContext.forDstu2();
+        IParser parser = ctx.newJsonParser();
+
+        String str = ""; String pathToCsv = "d:\\pojo\\in\\organizations.txt";
+        String outFile = "d:\\pojo\\out\\organizations.txt";
+
         FileWriter csvWriter = new FileWriter(outFile);
         BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
         while ((str = csvReader.readLine()) != null) {
             //String str = "{\"active\":true,\"id\":21,\"identifier\":[{\"system\":\"http:\\/\\/fhir.nhs.net\\/Id\\/ods-organization-code\",\"use\":\"official\",\"value\":\"X5124\"}],\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-organization\"]},\"name\":\"PRACTICE 21\",\"partOf\":{\"reference\":\"Organization\\/5\"},\"resourceType\":\"Organization\",\"type\":{\"coding\":[{\"code\":\"PR\",\"display\":\"GP PRACTICE\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/ValueSet\\/primarycare-organization-type\"}]}}";
-            String pojo = RunMapper(str);
+            String pojo = RunMapper(str, parser);
             csvWriter.append(pojo + "\n");
             System.out.println(pojo);
         }
         csvWriter.close();
     }
 
-    public static String RunMapper(String str) throws Exception {
-        FhirContext ctx = FhirContext.forDstu2();
-
-        IParser parser = ctx.newJsonParser();
+    public static String RunMapper(String str, IParser parser) throws Exception {
 
         //String str = "{\"active\":true,\"id\":12,\"identifier\":[{\"system\":\"http:\\/\\/fhir.nhs.net\\/Id\\/ods-organization-code\",\"use\":\"official\",\"value\":\"U0300\"}],\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-organization\"]},\"name\":\"PRACTICE 12\",\"partOf\":{\"reference\":\"Organization\\/4\"},\"resourceType\":\"Organization\",\"type\":{\"coding\":[{\"code\":\"PR\",\"display\":\"GP PRACTICE\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/ValueSet\\/primarycare-organization-type\"}]}}";
         //str = "{\"active\":true,\"id\":21,\"identifier\":[{\"system\":\"http:\\/\\/fhir.nhs.net\\/Id\\/ods-organization-code\",\"use\":\"official\",\"value\":\"X5124\"}],\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-organization\"]},\"name\":\"PRACTICE 21\",\"partOf\":{\"reference\":\"Organization\\/5\"},\"resourceType\":\"Organization\",\"type\":{\"coding\":[{\"code\":\"PR\",\"display\":\"GP PRACTICE\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/ValueSet\\/primarycare-organization-type\"}]}}";

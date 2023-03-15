@@ -338,6 +338,16 @@ public interface IMQListener extends ParseTreeListener {
 	 */
 	void exitWith(IMQParser.WithContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link IMQParser#then}.
+	 * @param ctx the parse tree
+	 */
+	void enterThen(IMQParser.ThenContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMQParser#then}.
+	 * @param ctx the parse tree
+	 */
+	void exitThen(IMQParser.ThenContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link IMQParser#whereValueTest}.
 	 * @param ctx the parse tree
 	 */

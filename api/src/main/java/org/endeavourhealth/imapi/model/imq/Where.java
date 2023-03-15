@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"notExist","description","type","id","iri","name","alias","bool","with","where","range"
-	,"operator","value","unit","in","notIn","relativeTo","anyRoleGroup"})
+@JsonPropertyOrder({"exclude","description","type","iri","name","alias","bool","with","where","range"
+	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
@@ -26,6 +26,26 @@ public class Where extends TTAlias implements Assignable{
 	private String unit;
 	private String valueLabel;
 	private boolean anyRoleGroup;
+	private boolean exclude;
+	private boolean isNull;
+
+	public boolean getIsNull() {
+		return isNull;
+	}
+
+	public Where setIsNull(boolean aNull) {
+		isNull = aNull;
+		return this;
+	}
+
+	public boolean isExclude() {
+		return exclude;
+	}
+
+	public Where setExclude(boolean exclude) {
+		this.exclude = exclude;
+		return this;
+	}
 
 	public String getValueLabel() {
 		return valueLabel;

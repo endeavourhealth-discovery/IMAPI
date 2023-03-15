@@ -61,14 +61,15 @@ public class IMLToECL {
 		if (null != from.getWhere()) {
 			if (null == from.getIri() && null == from.getFrom())
 				ecl.append("*");
-			addRefinements(from.getWhere(), ecl, includeName);
+			addFromRefinements(from, ecl, includeName);
 		}
 	}
 
 	private static void fromAppendBracket(From from, StringBuilder ecl, boolean includeName, boolean first, From subFrom) throws DataFormatException {
-		if (subFrom.getBool() == Bool.not) {
+		if (subFrom.isExclude()) {
 			ecl.append(" MINUS ");
-		} else {
+		}
+		else {
 			fromAppendBool(from, ecl, first);
 		}
 		boolean bracket = false;
@@ -78,7 +79,7 @@ public class IMLToECL {
 		if (null != subFrom.getFrom() && subFrom.getFrom().size() > 1) {
 			bracket = true;
 		}
-		if (subFrom.getBool() == Bool.not && null != subFrom.getFrom() && subFrom.getFrom().size() > 1)
+		if (subFrom.isExclude() && null != subFrom.getFrom() && subFrom.getFrom().size() > 1)
 			bracket = true;
 
 		if (bracket)
@@ -91,19 +92,27 @@ public class IMLToECL {
 
 	private static void fromAppendBool(From from, StringBuilder ecl, boolean first) {
 		if (!first) {
-			if (from.getBool() == Bool.and) {
+			if (from.getBoolFrom() == Bool.and) {
 				ecl.append(" AND ");
-			} else if (from.getBool() == Bool.or) {
+			} else if (from.getBoolFrom() == Bool.or) {
 				ecl.append("  OR ");
 			} else
 				ecl.append(" OR ");
 		}
 	}
 
-	private static void addRefinements(Where where,StringBuilder ecl,boolean includeName) throws DataFormatException {
+	private static void addFromRefinements(From from,StringBuilder ecl, boolean includeNames) throws DataFormatException {
 		ecl.append(": ");
-		addRefinedGroup(where, ecl, includeName);
+		boolean first = true;
+		for (Where where : from.getWhere()) {
+			if (!first)
+				ecl.append(" , ");
+			first = false;
+			addRefinedGroup(where,ecl,includeNames);
+		}
 	}
+
+
 
 	private static void addRefinedGroup(Where where,StringBuilder ecl,Boolean includeName) throws DataFormatException {
 		if (null == where.getWhere()) {
@@ -128,12 +137,12 @@ public class IMLToECL {
 				ecl.append(" OR ");
 			else if (where.getBool() == Bool.and)
 				ecl.append(" , ");
-			else if (where.getBool() == Bool.not) {
+			else if (where.isExclude()) {
 				ecl.append(" MINUS (");
 			}
 		}
 		addRefinedGroup(where.getWhere().get(i), ecl, includeName);
-		if (where.getBool() == Bool.not)
+		if (where.isExclude())
 			ecl.append(")");
 	}
 

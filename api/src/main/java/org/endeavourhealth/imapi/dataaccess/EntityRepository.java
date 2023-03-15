@@ -448,6 +448,7 @@ public class EntityRepository {
                     String termCode = null;
                     String synonym = null;
                     TTIriRef status = null;
+                    String oldCode;
                     if (rs.hasBinding("synonym"))
                         synonym = rs.getValue("synonym").stringValue().toLowerCase();
                     if (rs.hasBinding("termCode"))
@@ -470,6 +471,7 @@ public class EntityRepository {
                         if (tc == null)
                             entityDocument.addTermCode(null, termCode, status);
                     }
+
                 }
             }
         }

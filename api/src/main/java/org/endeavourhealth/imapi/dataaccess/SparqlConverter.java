@@ -100,8 +100,10 @@ public class SparqlConverter {
 	}
 
 	private void validateFrom(From from) throws DataFormatException {
-		if (from.getWhere()!=null)
-			validateWhere(from.getWhere());
+		if (from.getWhere()!=null) {
+			for (Where where : from.getWhere())
+				validateWhere(where);
+		}
 	}
 
 
@@ -222,43 +224,41 @@ public class SparqlConverter {
 
 
 	private void froms(StringBuilder whereQl, String subject,From from) throws DataFormatException {
-		if (from.getGraph()!=null){
+		if (from.isExclude()) {
+			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
+		}
+		if (from.getGraph() != null) {
 			whereQl.append(" graph ").append(iriFromAlias(from.getGraph())).append(" {");
 		}
-
-		if (from.getFrom()==null){
-			from(whereQl,subject,from);
+		if (from.getFrom() == null) {
+			from(whereQl, subject, from);
 		}
-		else {
-			if (from.getBool() == Bool.or) {
+		else if (from.getBoolFrom() == Bool.or) {
 				for (int i = 0; i < from.getFrom().size(); i++) {
 					if (i == 0)
 						whereQl.append("{ \n");
 					else
 						whereQl.append("UNION {\n");
-					froms(whereQl, subject,from.getFrom().get(i));
-					whereQl.append("}\n");
-				}
-			}
-			else if (from.getBool()==Bool.not) {
-				for (From not : from.getFrom()) {
-					whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
-					froms(whereQl, subject,not);
+					froms(whereQl, subject, from.getFrom().get(i));
 					whereQl.append("}\n");
 				}
 			}
 			else {
 				for (From subFrom : from.getFrom()) {
-					froms(whereQl, subject,subFrom);
+					froms(whereQl, subject, subFrom);
 				}
 			}
-		}
+
 		if (from.getWhere()!=null){
-			where(whereQl,subject,from.getWhere());
+			for (Where where:from.getWhere()) {
+				where(whereQl, subject, where);
+			}
 		}
 		if (from.getGraph()!=null) {
 			whereQl.append("}");
 		}
+		if (from.isExclude())
+			whereQl.append("}\n");
 	}
 
 
@@ -286,6 +286,9 @@ public class SparqlConverter {
 	}
 
 	private void subWhere(StringBuilder whereQl, String subject, Where match) throws DataFormatException {
+		if (match.isExclude()){
+			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
+		}
 		if (match.getBool() == Bool.or) {
 			for (int i = 0; i < match.getWhere().size(); i++) {
 				if (i == 0)
@@ -293,13 +296,6 @@ public class SparqlConverter {
 				else
 					whereQl.append("UNION {\n");
 				where(whereQl, subject, match.getWhere().get(i));
-				whereQl.append("}\n");
-			}
-		}
-		else if (match.getBool()==Bool.not) {
-			for (Where not : match.getWhere()) {
-				whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
-				where(whereQl, subject, not);
 				whereQl.append("}\n");
 			}
 		}
@@ -314,6 +310,9 @@ public class SparqlConverter {
 					whereQl.append("?").append(subject).append(" im:status im:Active.\n");
 				}
 			}
+		}
+		if (match.isExclude()){
+			whereQl.append("}\n");
 		}
 	}
 

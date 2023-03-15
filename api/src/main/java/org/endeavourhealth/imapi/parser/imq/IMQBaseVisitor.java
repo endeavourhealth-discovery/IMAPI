@@ -249,6 +249,13 @@ public class IMQBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements IM
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitThen(IMQParser.ThenContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitWhereValueTest(IMQParser.WhereValueTestContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

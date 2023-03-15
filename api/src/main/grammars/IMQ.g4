@@ -164,6 +164,8 @@ where
     |
     (reference whereValueTest)
     |
+    (reference with)
+    |
     (booleanWhere)
     )
     CC
@@ -203,7 +205,12 @@ with
     OC
     whereClause
     sortable?
+    then?
     CC
+    ;
+then
+    :THEN
+    (where|booleanWhere)
     ;
 whereValueTest
     :
@@ -251,20 +258,19 @@ inverseOf
 
 range
     :RANGE
-    OC
     (fromRange toRange)
-    |
-    (fromRange)
-    |
-    (toRange)
-    CC
     ;
 
 fromRange
-    : FROM whereMeasure
+    :
+    whereMeasure
+
     ;
 toRange
-    : TO whereMeasure
+    : TO
+
+    whereMeasure
+
     ;
 
 whereMeasure
@@ -290,11 +296,13 @@ operator
     : EQ | GT | LT | LTE | GTE | STARTS_WITH
     ;
 units
-    : PN_PROPERTY
+    : UNITS
+    COLON
+    PN_PROPERTY
     ;
 
 sortable
-    :
+    :ORDERBY
     (iriRef| PN_PROPERTY)
     direction
     count
@@ -429,9 +437,7 @@ DESCRIPTION
     : 'description'
     ;
 
-NAME
-    : '|'  ( ~('\u0022' | '\u005C' | '\u000A' | '\u000D'))* '|'
-    ;
+
 ALIAS
     :'alias'
     ;
@@ -468,6 +474,9 @@ LTE
     ;
 STARTS_WITH
     :'startsWith'
+    ;
+UNITS
+    :'units'
     ;
 AND
     :'and' | 'AND'
@@ -512,7 +521,9 @@ STRING_LITERAL1
 STRING_LITERAL2
     : '"'  ( ~('\u0022' | '\u005C' | '\u000A' | '\u000D'))* '"'
     ;
-
+NAME
+    : '|'  ( ~('\u0022' | '\u005C' | '\u000A' | '\u000D'| '|'))* '|'
+    ;
 
 PN_CHARS_U
     : PN_CHARS_BASE | '_'|'-'
@@ -575,3 +586,7 @@ VAR : '@var'
     ;
 
 
+
+THEN : 'then';
+
+ORDERBY : 'orderBy';

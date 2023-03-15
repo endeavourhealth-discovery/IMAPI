@@ -29,13 +29,8 @@ public class Where extends TTAlias implements Assignable{
 	private boolean exclude;
 	private boolean isNull;
 
-	public boolean isNull() {
+	public boolean getIsNull() {
 		return isNull;
-	}
-
-	public Where setNull(boolean aNull) {
-		isNull = aNull;
-		return this;
 	}
 
 	public Where setIsNull(boolean aNull) {

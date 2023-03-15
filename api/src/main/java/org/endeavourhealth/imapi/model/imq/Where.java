@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"exclude","description","type","iri","name","alias","bool","with","where","range"
-	,"operator","value","unit","in","notIn","relativeTo","anyRoleGroup"})
+	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
@@ -27,6 +27,21 @@ public class Where extends TTAlias implements Assignable{
 	private String valueLabel;
 	private boolean anyRoleGroup;
 	private boolean exclude;
+	private boolean isNull;
+
+	public boolean isNull() {
+		return isNull;
+	}
+
+	public Where setNull(boolean aNull) {
+		isNull = aNull;
+		return this;
+	}
+
+	public Where setIsNull(boolean aNull) {
+		isNull = aNull;
+		return this;
+	}
 
 	public boolean isExclude() {
 		return exclude;

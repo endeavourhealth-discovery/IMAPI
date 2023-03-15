@@ -236,6 +236,8 @@ public class OSQuery {
         boolQuery.should(pqb);
         MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(termCodeTerm, request.getTermFilter()).boost(1.5F);
         boolQuery.should(mpq);
+        MatchPhraseQueryBuilder mpc = new MatchPhraseQueryBuilder("termCode.code", request.getTermFilter()).boost(2.5F);
+        boolQuery.should(mpc);
         MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(matchTerm, request.getTermFilter()).boost(0.5F);
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);

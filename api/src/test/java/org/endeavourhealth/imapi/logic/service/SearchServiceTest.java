@@ -38,12 +38,12 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
-	//@Test
+//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
 
 		SearchRequest request= new SearchRequest();
-		request.setIndex("conceptdev");
-		request.setTermFilter("pec ang");
+		request.setIndex("david");
+		request.setTermFilter("^ESCTVE439120");
 		List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
 		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
 		request.setSchemeFilter(schemes);

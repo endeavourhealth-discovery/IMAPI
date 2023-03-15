@@ -181,7 +181,7 @@ public class IMQGToJ {
 	}
 
 	private void convertNotFrom(IMQParser.NotFromContext notFrom, From jfrom) throws DataFormatException {
-		jfrom.setBoolFrom(Bool.not);
+		jfrom.setExclude(true);
 		if (notFrom.from()!=null) {
 				addFrom(notFrom.from(),jfrom);
 		}
@@ -286,7 +286,7 @@ public class IMQGToJ {
 	}
 
 	private void convertNotWhere(IMQParser.NotWhereContext notWhere, Where jWhere) throws DataFormatException {
-		jWhere.setBool(Bool.not);
+		jWhere.setExclude(true);
 		if (notWhere.where()!=null) {
 				addWhere(notWhere.where(),jWhere);
 		}

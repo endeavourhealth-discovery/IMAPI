@@ -160,8 +160,6 @@ public class QuerySummariser {
 		}
 
 		if (where.getRange() != null) {
-			if (where.getBool() == Bool.not)
-				summary.append("not = ");
 			summary.append(" ").append(summariseRange(where.getRange()));
 		}
 		if (where.getValue() != null) {

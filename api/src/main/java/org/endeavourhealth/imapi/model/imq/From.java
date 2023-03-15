@@ -9,16 +9,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"graph","id","iri","set","type","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
+@JsonPropertyOrder({"exclude","description","graph","iri","set","type","name","alias","descendantOrSelfOf","descendantOf",
+	"ancestorOf","description","boolFrom","boolWhere","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
 	private Bool boolFrom;
 	private List<From> from;
 	private Bool boolWhere;
+	private boolean exclude;
 
 	private TTAlias graph;
 	private List<Where> where;
 	private String description;
+
+	public boolean isExclude() {
+		return exclude;
+	}
+
+	public From setExclude(boolean exclude) {
+		this.exclude = exclude;
+		return this;
+	}
 
 	public Bool getBoolWhere() {
 		return boolWhere;

@@ -40,6 +40,7 @@ public class OSQuery {
     private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
     private final Set<String> resultCache = new HashSet<>();
     private final String termCodeTerm = "termCode.term";
+    private final String matchTerm = "matchTerm";
     private final String scheme = "scheme";
     private final String weighting = "weighting";
     private final String status = "status";
@@ -56,29 +57,42 @@ public class OSQuery {
     }
 
 
-    public List<SearchResultSummary> codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private List<SearchResultSummary> codeIriQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildCodeIriQuery(request);
-        return wrapandRun(qry, request);
+        bld.query(qry);
+        return wrapandRun(bld, request);
     }
 
-    public List<SearchResultSummary> termQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
-        QueryBuilder qry = buildTermQuery(request);
-        return wrapandRun(qry, request);
+
+    private List<SearchResultSummary> autoCompleteQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
+        QueryBuilder qry = buildAutoCompleteQuery(request);
+        bld.query(qry);
+        bld.sort("length");
+        return wrapandRun(bld, request);
     }
 
-    public List<SearchResultSummary> boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private List<SearchResultSummary> boolQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildBoolQuery(request);
-        return wrapandRun(qry, request);
+        bld.query(qry);
+        return wrapandRun(bld, request);
     }
 
-    public List<SearchResultSummary> iriTermQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private List<SearchResultSummary> iriTermQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildIriTermQuery(request);
-        return wrapandRun(qry, request);
+        bld.query(qry);
+        bld.sort("length");
+        return wrapandRun(bld, request);
     }
 
-    public List<SearchResultSummary> multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private List<SearchResultSummary> multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        SearchSourceBuilder bld= new SearchSourceBuilder();
         QueryBuilder qry = buildMultiWordQuery(request);
-        return wrapandRun(qry, request);
+        bld.query(qry);
+        return wrapandRun(bld, request);
     }
 
     /**
@@ -120,11 +134,19 @@ public class OSQuery {
             return boolQuery(request);
         }
 
-        results = termQuery(request);
+        results = autoCompleteQuery(request);
         if (!results.isEmpty()) {
             return results;
         }
         return multiWordQuery(request);
+    }
+
+    private String getMatchTerm(String term){
+        term=term.replaceAll(" ","");
+        if (term.length()<25)
+            return term;
+        else
+            return term.substring(0,24);
     }
 
     private QueryBuilder buildCodeIriQuery(SearchRequest request) {
@@ -142,6 +164,9 @@ public class OSQuery {
         TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
         tqiri.boost(2F);
         boolBuilder.should(tqiri);
+        TermQueryBuilder tciri = new TermQueryBuilder("termCode.code", request.getTermFilter());
+        tqiri.boost(1F);
+        boolBuilder.should(tciri);
         tqb = new TermQueryBuilder("key", request.getTermFilter().toLowerCase());
         boolBuilder.should(tqb).minimumShouldMatch(1);
         addFilters(boolBuilder, request);
@@ -182,12 +207,17 @@ public class OSQuery {
         return boolQuery;
     }
 
-    private QueryBuilder buildTermQuery(SearchRequest request) {
+
+
+
+    private QueryBuilder buildAutoCompleteQuery(SearchRequest request) {
+        String requestTerm=getMatchTerm(request.getTermFilter());
+
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(termCodeTerm, request.getTermFilter()).boost(1.5F);
+        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(matchTerm, requestTerm).boost(1.5F);
         boolQuery.should(mpq);
-        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(termCodeTerm, request.getTermFilter()).boost(0.5F);
-        boolQuery.should(mfs).minimumShouldMatch(1);
+        MatchPhrasePrefixQueryBuilder mpp = new MatchPhrasePrefixQueryBuilder(matchTerm, requestTerm).boost(1.5F);
+        boolQuery.should(mpp).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
 
@@ -206,7 +236,7 @@ public class OSQuery {
         boolQuery.should(pqb);
         MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(termCodeTerm, request.getTermFilter()).boost(1.5F);
         boolQuery.should(mpq);
-        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(termCodeTerm, request.getTermFilter()).boost(0.5F);
+        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(matchTerm, request.getTermFilter()).boost(0.5F);
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -232,7 +262,7 @@ public class OSQuery {
 
     }
 
-    private List<SearchResultSummary> wrapandRun(QueryBuilder qry, SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+    private List<SearchResultSummary> wrapandRun(SearchSourceBuilder bld,SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
         if (request.getIndex() == null)
             request.setIndex("concept");
 
@@ -241,34 +271,22 @@ public class OSQuery {
         String sortField = request.getSortField();
         String sortDirection = request.getSortDirection();
 
-        SearchSourceBuilder bld = new SearchSourceBuilder()
-                .size(size)
-                .from(from)
-                .query(qry);
-
+        bld.size(size).from(from);
         if (null != sortField) {
             bld.sort(sortField, null != sortDirection ? SortOrder.fromString(sortDirection) : SortOrder.DESC);
         }
+
         String termCode = "termCode";
+
+        Set<String> fields = Set.of("iri", "name", "code", termCode, "entityType", status, scheme, weighting,"preferredName");
         if (!request.getSelect().isEmpty()) {
-            int extraFields = 0;
-            if (!request.getSelect().contains(termCode))
-                extraFields++;
-            if (!request.getSelect().contains("name"))
-                extraFields++;
-            String[] fields = new String[request.getSelect().size() + extraFields];
-            request.getSelect().toArray(fields);
-            if (extraFields > 0)
-                fields[fields.length - extraFields] = "name";
-            if (extraFields == 2)
-                fields[fields.length - 1] = termCode;
-            bld.fetchSource(fields, null);
-
-        } else {
-            String[] fields = {"iri", "name", "code", termCode, "entityType", status, scheme, weighting};
-            bld.fetchSource(fields, null);
+            for (String select : request.getSelect()) {
+                if (!fields.contains(select))
+                    fields.add(select);
+            }
         }
-
+        String[] sources= fields.toArray(String[]::new);
+        bld.fetchSource(sources, null);
 
         try {
             return runQuery(request, bld);
@@ -331,6 +349,10 @@ public class OSQuery {
             SearchResultSummary source = resultMapper.treeToValue(hit.get("_source"), SearchResultSummary.class);
             searchResults.add(source);
             source.setMatch(source.getName());
+            if (source.getPreferredName()!=null) {
+                source.setName(source.getPreferredName());
+                source.setMatch(source.getName());
+            }
             if (resultNumber < 6 && null != request.getTermFilter()) {
                 fetchMatchTerm(source, request.getTermFilter());
             }

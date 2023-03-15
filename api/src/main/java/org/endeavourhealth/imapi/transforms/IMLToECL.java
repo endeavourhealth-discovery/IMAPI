@@ -66,9 +66,10 @@ public class IMLToECL {
 	}
 
 	private static void fromAppendBracket(From from, StringBuilder ecl, boolean includeName, boolean first, From subFrom) throws DataFormatException {
-		if (subFrom.getBoolFrom() == Bool.not) {
+		if (subFrom.isExclude()) {
 			ecl.append(" MINUS ");
-		} else {
+		}
+		else {
 			fromAppendBool(from, ecl, first);
 		}
 		boolean bracket = false;
@@ -78,7 +79,7 @@ public class IMLToECL {
 		if (null != subFrom.getFrom() && subFrom.getFrom().size() > 1) {
 			bracket = true;
 		}
-		if (subFrom.getBoolFrom() == Bool.not && null != subFrom.getFrom() && subFrom.getFrom().size() > 1)
+		if (subFrom.isExclude() && null != subFrom.getFrom() && subFrom.getFrom().size() > 1)
 			bracket = true;
 
 		if (bracket)
@@ -136,12 +137,12 @@ public class IMLToECL {
 				ecl.append(" OR ");
 			else if (where.getBool() == Bool.and)
 				ecl.append(" , ");
-			else if (where.getBool() == Bool.not) {
+			else if (where.isExclude()) {
 				ecl.append(" MINUS (");
 			}
 		}
 		addRefinedGroup(where.getWhere().get(i), ecl, includeName);
-		if (where.getBool() == Bool.not)
+		if (where.isExclude())
 			ecl.append(")");
 	}
 

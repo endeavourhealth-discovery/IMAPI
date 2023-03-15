@@ -65,21 +65,32 @@ public class EqdPopToIMQ {
 		if (eqGroup.getDefinition().getCriteria().size()==1){
 			Where not= new Where();
 			rootFrom.addWhere(not);
+			not.setExclude(true);
 			resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0),not);
 		}
 		else {
-			if (memberOp== VocMemberOperator.AND){
-				Where not= new Where();
+			if (memberOp == VocMemberOperator.AND) {
+				Where not = new Where();
 				rootFrom.addWhere(not);
-				not.setBool(Bool.not);
-				Where and= new Where();
-				and.addWhere(and);
-				and.setBool(Bool.and);
+				not.setExclude(true);
+				not.setBool(Bool.and);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					resources.convertCriteria(eqCriteria,and);
+					Where and = new Where();
+					not.addWhere(and);
+					resources.convertCriteria(eqCriteria, and);
 				}
 			}
-
+			else if (memberOp == VocMemberOperator.OR) {
+				Where not = new Where();
+				rootFrom.addWhere(not);
+				not.setExclude(true);
+				not.setBool(Bool.or);
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Where or = new Where();
+					not.addWhere(or);
+					resources.convertCriteria(eqCriteria, or);
+				}
+			}
 		}
 	}
 

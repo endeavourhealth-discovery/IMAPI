@@ -384,43 +384,48 @@ public class EntityRepository {
             tupleQuery.setBinding("iri", iri(entityDocument.getIri()));
             try (TupleQueryResult qr = tupleQuery.evaluate()) {
                 if (qr.hasNext()) {
-                    BindingSet rs = qr.next();
-                    entityDocument.setName(rs.getValue("name").stringValue());
-                    entityDocument.addTermCode(entityDocument.getName(), null, null);
-
-                    if (rs.hasBinding("code"))
-                        entityDocument.setCode(rs.getValue("code").stringValue());
-
-                    if (rs.hasBinding("schemeName"))
-                        entityDocument.setScheme(new TTIriRef(rs.getValue("schemeName").stringValue()));
-
-                    if (rs.hasBinding("status")) {
-                        TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
-                        if (rs.hasBinding("statusName"))
-                            status.setName(rs.getValue("statusName").stringValue());
-                        entityDocument.setStatus(status);
-                    }
-
-                    TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
-                    if (rs.hasBinding("typeName"))
-                        type.setName(rs.getValue("typeName").stringValue());
-                    entityDocument.addType(type);
-
-                    if (rs.hasBinding("extraType")) {
-                        TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
-                        entityDocument.addType(extraType);
-                        if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
-                            int weighting = 2000000;
-                            entityDocument.setWeighting(weighting);
-                        }
-                    }
-                    if (rs.hasBinding("weighting")) {
-                        entityDocument.setWeighting(((Literal)rs.getValue("weighting")).intValue());
-                    }
+                    hydrateCorePropertiesSetEntityDocumentProperties(entityDocument, qr);
                 }
             }
         }
     }
+
+    private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
+        BindingSet rs = qr.next();
+        entityDocument.setName(rs.getValue("name").stringValue());
+        entityDocument.addTermCode(entityDocument.getName(), null, null);
+
+        if (rs.hasBinding("code"))
+            entityDocument.setCode(rs.getValue("code").stringValue());
+
+        if (rs.hasBinding("schemeName"))
+            entityDocument.setScheme(new TTIriRef(rs.getValue("schemeName").stringValue()));
+
+        if (rs.hasBinding("status")) {
+            TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());
+            if (rs.hasBinding("statusName"))
+                status.setName(rs.getValue("statusName").stringValue());
+            entityDocument.setStatus(status);
+        }
+
+        TTIriRef type = TTIriRef.iri(rs.getValue("type").stringValue());
+        if (rs.hasBinding("typeName"))
+            type.setName(rs.getValue("typeName").stringValue());
+        entityDocument.addType(type);
+
+        if (rs.hasBinding("extraType")) {
+            TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
+            entityDocument.addType(extraType);
+            if (extraType.equals(TTIriRef.iri(IM.NAMESPACE + "DataModelEntity"))) {
+                int weighting = 2000000;
+                entityDocument.setWeighting(weighting);
+            }
+        }
+        if (rs.hasBinding("weighting")) {
+            entityDocument.setWeighting(((Literal)rs.getValue("weighting")).intValue());
+        }
+    }
+
     private void hydrateTerms(EntityDocument entityDocument) {
         String spql = new StringJoiner(System.lineSeparator())
             .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -491,10 +496,7 @@ public class EntityRepository {
             boolean skip = false;
             if (blob.getKey() != null) {
                 for (String already : blob.getKey()) {
-                    if (key.startsWith(already))
-                        deletes.add(already);
-                    if (already.startsWith(key))
-                        skip = true;
+                    skip = addKeyStartsWith(key, deletes, skip, already);
                 }
                 if (!deletes.isEmpty())
                     deletes.forEach(d -> blob.getKey().remove(d));
@@ -502,6 +504,14 @@ public class EntityRepository {
             if (!skip)
                 blob.addKey(key);
         }
+    }
+
+    private static boolean addKeyStartsWith(String key, List<String> deletes, boolean skip, String already) {
+        if (key.startsWith(already))
+            deletes.add(already);
+        if (already.startsWith(key))
+            skip = true;
+        return skip;
     }
 
     private SearchTermCode getTermCodeFromCode(EntityDocument blob,String code){

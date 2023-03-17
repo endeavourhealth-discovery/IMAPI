@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 public class From extends TTAlias {
 	private Bool boolFrom;
 	private List<From> from;
-	private Bool boolWhere;
+	private Bool bool;
 	private boolean exclude;
 
 	private TTAlias graph;
@@ -31,12 +31,12 @@ public class From extends TTAlias {
 		return this;
 	}
 
-	public Bool getBoolWhere() {
-		return boolWhere;
+	public Bool getBool() {
+		return bool;
 	}
 
-	public From setBoolWhere(Bool boolWhere) {
-		this.boolWhere = boolWhere;
+	public From setBool(Bool bool) {
+		this.bool = bool;
 		return this;
 	}
 

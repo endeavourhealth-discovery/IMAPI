@@ -249,10 +249,22 @@ public class SparqlConverter {
 				}
 			}
 
-		if (from.getWhere()!=null){
-			for (Where where:from.getWhere()) {
-				where(whereQl, subject, where);
+		if (from.getWhere()!=null) {
+			if (from.getBool() == Bool.or) {
+				for (int i = 0; i < from.getWhere().size(); i++) {
+					if (i == 0)
+						whereQl.append("{ \n");
+					else
+						whereQl.append("UNION {\n");
+					where(whereQl, subject, from.getWhere().get(i));
+					whereQl.append("}\n");
+				}
 			}
+				else{
+					for (Where where : from.getWhere()) {
+						where(whereQl, subject, where);
+					}
+				}
 		}
 		if (from.getGraph()!=null) {
 			whereQl.append("}");

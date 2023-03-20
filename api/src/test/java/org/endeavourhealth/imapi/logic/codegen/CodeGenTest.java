@@ -79,7 +79,7 @@ class CodeGenTest {
 
         Patient patient = new Patient(UUID.fromString("964fa5a1-aca8-4fd7-b2de-2aa4bbd005b1"))
             .setForenames("Fred Bloggs")
-            .setDateOfBirth(PartialDateTime.parse("1973-09-26"))
+            .setDateOfBirth("1973-09-26")
             .setProperty("age", 21)
             .setProperty("address", Arrays.asList(
                 new Address(UUID.fromString("a8039ce3-46da-4756-8a61-da26f8e8af21")),
@@ -102,15 +102,15 @@ class CodeGenTest {
         assertEquals(resources.size(), actualResources.size());
 
         Patient actual = (Patient) actualResources.get(0);
-        assertEquals(patient.getName(), actual.getName(), "Deserialized name not equal");
+        assertEquals(patient.getForenames(), actual.getForenames(), "Deserialized name not equal");
         assertEquals(patient.getDateOfBirth(), actual.getDateOfBirth(), "Deserialized DOB not equal");
         assertEquals(patient.getProperty("age").toString(), actual.getProperty("age").toString(), "Deserialized age not equal");
 
         Address actualHome = (Address) resources.get(1);
-        assertEquals(home.getPostcode(), actualHome.getPostcode(), "Deserialized postcode not equal");
+        assertEquals(home.getPostCode(), actualHome.getPostCode(), "Deserialized postcode not equal");
 
         Address actualWork = (Address) resources.get(2);
-        assertEquals(work.getPostcode(), actualWork.getPostcode(), "Deserialized postcode not equal");
+        assertEquals(work.getPostCode(), actualWork.getPostCode(), "Deserialized postcode not equal");
 
     }
 

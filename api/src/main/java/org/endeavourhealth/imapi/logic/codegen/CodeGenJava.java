@@ -299,7 +299,9 @@ public class CodeGenJava {
         String dataTypeName = null;
         if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
             dataTypeName = capitalise(getSuffix(dataType.getIri()));
-        } else if (dataModel || dataType.getIri().startsWith("http://endhealth.info/im#VSET_")
+        } else if (dataModel) {
+            dataTypeName = "UUID";
+        } else if (dataType.getIri().startsWith("http://endhealth.info/im#VSET_")
             || "http://endhealth.info/im#Status".equals(dataType.getIri())
             || "http://endhealth.info/im#Graph".equals(dataType.getIri())
             || "http://www.w3.org/2000/01/rdf-schema#Resource".equals(dataType.getIri())
@@ -311,8 +313,8 @@ public class CodeGenJava {
         } else if ("http://endhealth.info/im#DateTime".equals(dataType.getIri())) {
             dataTypeName = "PartialDateTime";
         } else {
-            LOG.error("Unknown data type [{} - {}]", dataType.getIri(), dataType.getName());
-            dataTypeName = "UNK " + capitalise(dataType.getName());
+            LOG.error("Unknown data type [{} - {}], defaulting to String", dataType.getIri(), dataType.getName());
+            dataTypeName = "String /* UNKNOWN " + capitalise(dataType.getName()) + "*/";
         }
         if (isArray)
             dataTypeName = "List<" + dataTypeName + ">";

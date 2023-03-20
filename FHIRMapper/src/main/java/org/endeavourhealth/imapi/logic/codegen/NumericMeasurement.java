@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents numeric measurement
+* Represents numeric measurement.
 * A point in time event that holds a value qualified by units and normal ranges
 */
 public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 
 
 	/**
-	* Numeric measurement constructor 
-	*/
-	public NumericMeasurement() {
-		super("NumericMeasurement");
-	}
-
-	/**
 	* Numeric measurement constructor with identifier
 	*/
-	public NumericMeasurement(String id) {
+	public NumericMeasurement(UUID id) {
 		super("NumericMeasurement", id);
 	}
 
@@ -49,7 +42,7 @@ public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 	* Gets the record owner of this numeric measurement
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 	* @param recordOwner The new record owner to set
 	* @return NumericMeasurement
 	*/
-	public NumericMeasurement setRecordOwner(Organisation recordOwner) {
+	public NumericMeasurement setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 	* Gets the patient of this numeric measurement
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -99,7 +92,7 @@ public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 	* @param patient The new patient to set
 	* @return NumericMeasurement
 	*/
-	public NumericMeasurement setPatient(Patient patient) {
+	public NumericMeasurement setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 	* Gets the original concept of this numeric measurement
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -119,7 +112,7 @@ public class NumericMeasurement extends IMDMBase<NumericMeasurement> {
 	* @param originalConcept The new original concept to set
 	* @return NumericMeasurement
 	*/
-	public NumericMeasurement setOriginalConcept(TerminologyConcept originalConcept) {
+	public NumericMeasurement setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

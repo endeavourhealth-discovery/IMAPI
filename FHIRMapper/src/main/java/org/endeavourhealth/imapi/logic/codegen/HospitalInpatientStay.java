@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents hospital inpatient stay
+* Represents hospital inpatient stay.
 * An entry describing the stay of a patient in hospital. As well as spcialised properties it has sub component encounters of admission and discharge.<p>common data model attributes for Hospital inpatient stay
 */
 public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 
 
 	/**
-	* Hospital inpatient stay constructor 
-	*/
-	public HospitalInpatientStay() {
-		super("HospitalInpatientStay");
-	}
-
-	/**
 	* Hospital inpatient stay constructor with identifier
 	*/
-	public HospitalInpatientStay(String id) {
+	public HospitalInpatientStay(UUID id) {
 		super("HospitalInpatientStay", id);
 	}
 
@@ -49,7 +42,7 @@ public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 	* Gets the record owner of this hospital inpatient stay
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 	* @param recordOwner The new record owner to set
 	* @return HospitalInpatientStay
 	*/
-	public HospitalInpatientStay setRecordOwner(Organisation recordOwner) {
+	public HospitalInpatientStay setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 	* Gets the patient of this hospital inpatient stay
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 	* @param patient The new patient to set
 	* @return HospitalInpatientStay
 	*/
-	public HospitalInpatientStay setPatient(Patient patient) {
+	public HospitalInpatientStay setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -149,7 +142,7 @@ public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 	* Gets the original concept of this hospital inpatient stay
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -159,7 +152,7 @@ public class HospitalInpatientStay extends IMDMBase<HospitalInpatientStay> {
 	* @param originalConcept The new original concept to set
 	* @return HospitalInpatientStay
 	*/
-	public HospitalInpatientStay setOriginalConcept(TerminologyConcept originalConcept) {
+	public HospitalInpatientStay setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

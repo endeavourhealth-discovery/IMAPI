@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents gp registration administration status history
+* Represents gp registration administration status history.
 * The set of gp registration statuses associated with a registration period with general practices
 */
 public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegistrationAdministrationStatusHistory> {
 
 
 	/**
-	* Gp registration administration status history constructor 
-	*/
-	public GpRegistrationAdministrationStatusHistory() {
-		super("GpRegistrationAdministrationStatusHistory");
-	}
-
-	/**
 	* Gp registration administration status history constructor with identifier
 	*/
-	public GpRegistrationAdministrationStatusHistory(String id) {
+	public GpRegistrationAdministrationStatusHistory(UUID id) {
 		super("GpRegistrationAdministrationStatusHistory", id);
 	}
 
@@ -49,7 +42,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* Gets the record owner of this gp registration administration status history
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* @param recordOwner The new record owner to set
 	* @return GpRegistrationAdministrationStatusHistory
 	*/
-	public GpRegistrationAdministrationStatusHistory setRecordOwner(Organisation recordOwner) {
+	public GpRegistrationAdministrationStatusHistory setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -69,7 +62,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* Gets the gp registration of this gp registration administration status history
 	* @return gpRegistration
 	*/
-	public GpRegistrationEpisode getGpRegistration() {
+	public UUID getGpRegistration() {
 		return getProperty("gpRegistration");
 	}
 
@@ -79,7 +72,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* @param gpRegistration The new gp registration to set
 	* @return GpRegistrationAdministrationStatusHistory
 	*/
-	public GpRegistrationAdministrationStatusHistory setGpRegistration(GpRegistrationEpisode gpRegistration) {
+	public GpRegistrationAdministrationStatusHistory setGpRegistration(UUID gpRegistration) {
 		setProperty("gpRegistration", gpRegistration);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* Gets the patient of this gp registration administration status history
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -119,7 +112,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* @param patient The new patient to set
 	* @return GpRegistrationAdministrationStatusHistory
 	*/
-	public GpRegistrationAdministrationStatusHistory setPatient(Patient patient) {
+	public GpRegistrationAdministrationStatusHistory setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* Gets the concept of this gp registration administration status history
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -139,7 +132,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* @param concept The new concept to set
 	* @return GpRegistrationAdministrationStatusHistory
 	*/
-	public GpRegistrationAdministrationStatusHistory setConcept(TerminologyConcept concept) {
+	public GpRegistrationAdministrationStatusHistory setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -149,7 +142,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* Gets the original concept of this gp registration administration status history
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -159,7 +152,7 @@ public class GpRegistrationAdministrationStatusHistory extends IMDMBase<GpRegist
 	* @param originalConcept The new original concept to set
 	* @return GpRegistrationAdministrationStatusHistory
 	*/
-	public GpRegistrationAdministrationStatusHistory setOriginalConcept(TerminologyConcept originalConcept) {
+	public GpRegistrationAdministrationStatusHistory setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

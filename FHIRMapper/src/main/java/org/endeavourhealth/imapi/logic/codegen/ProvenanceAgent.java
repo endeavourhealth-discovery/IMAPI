@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents provenance agent
+* Represents provenance agent.
 * The agent associated with a provenance activity
 */
 public class ProvenanceAgent extends IMDMBase<ProvenanceAgent> {
 
 
 	/**
-	* Provenance agent constructor 
-	*/
-	public ProvenanceAgent() {
-		super("ProvenanceAgent");
-	}
-
-	/**
 	* Provenance agent constructor with identifier
 	*/
-	public ProvenanceAgent(String id) {
+	public ProvenanceAgent(UUID id) {
 		super("ProvenanceAgent", id);
 	}
 
@@ -49,7 +42,7 @@ public class ProvenanceAgent extends IMDMBase<ProvenanceAgent> {
 	* Gets the is person in role of this provenance agent
 	* @return isPersonInRole
 	*/
-	public PractitionerInRole getIsPersonInRole() {
+	public UUID getIsPersonInRole() {
 		return getProperty("isPersonInRole");
 	}
 
@@ -59,7 +52,7 @@ public class ProvenanceAgent extends IMDMBase<ProvenanceAgent> {
 	* @param isPersonInRole The new is person in role to set
 	* @return ProvenanceAgent
 	*/
-	public ProvenanceAgent setIsPersonInRole(PractitionerInRole isPersonInRole) {
+	public ProvenanceAgent setIsPersonInRole(UUID isPersonInRole) {
 		setProperty("isPersonInRole", isPersonInRole);
 		return this;
 	}

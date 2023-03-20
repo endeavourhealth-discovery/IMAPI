@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents entity
+* Represents entity.
 * The abstract super class and data model for all named entities in the model i.e. the data model of the entities that are labelled with iri label and status
 */
 public class Entity extends IMDMBase<Entity> {
 
 
 	/**
-	* Entity constructor 
-	*/
-	public Entity() {
-		super("Entity");
-	}
-
-	/**
 	* Entity constructor with identifier
 	*/
-	public Entity(String id) {
+	public Entity(UUID id) {
 		super("Entity", id);
 	}
 
@@ -135,7 +128,7 @@ public class Entity extends IMDMBase<Entity> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -145,7 +138,7 @@ public class Entity extends IMDMBase<Entity> {
 	* @param isContainedIn The new is contained in to set
 	* @return Entity
 	*/
-	public Entity setIsContainedIn(Folder isContainedIn) {
+	public Entity setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -156,7 +149,7 @@ public class Entity extends IMDMBase<Entity> {
 	* When a status is inactive, the entity that replaces this entity (if any)
 	* @return replacedByAttribute
 	*/
-	public Entity getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -166,7 +159,7 @@ public class Entity extends IMDMBase<Entity> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return Entity
 	*/
-	public Entity setReplacedByAttribute(Entity replacedByAttribute) {
+	public Entity setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}

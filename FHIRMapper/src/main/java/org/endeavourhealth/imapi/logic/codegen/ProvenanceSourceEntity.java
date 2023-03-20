@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents provenance source entity
+* Represents provenance source entity.
 * Information about the source entity used in a provenance activity
 */
 public class ProvenanceSourceEntity extends IMDMBase<ProvenanceSourceEntity> {
 
 
 	/**
-	* Provenance source entity constructor 
-	*/
-	public ProvenanceSourceEntity() {
-		super("ProvenanceSourceEntity");
-	}
-
-	/**
 	* Provenance source entity constructor with identifier
 	*/
-	public ProvenanceSourceEntity(String id) {
+	public ProvenanceSourceEntity(UUID id) {
 		super("ProvenanceSourceEntity", id);
 	}
 

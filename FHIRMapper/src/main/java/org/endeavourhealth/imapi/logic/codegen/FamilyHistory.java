@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents family history
+* Represents family history.
 * Observations relating to family history of conditions
 */
 public class FamilyHistory extends IMDMBase<FamilyHistory> {
 
 
 	/**
-	* Family history constructor 
-	*/
-	public FamilyHistory() {
-		super("FamilyHistory");
-	}
-
-	/**
 	* Family history constructor with identifier
 	*/
-	public FamilyHistory(String id) {
+	public FamilyHistory(UUID id) {
 		super("FamilyHistory", id);
 	}
 
@@ -49,7 +42,7 @@ public class FamilyHistory extends IMDMBase<FamilyHistory> {
 	* Gets the record owner of this family history
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class FamilyHistory extends IMDMBase<FamilyHistory> {
 	* @param recordOwner The new record owner to set
 	* @return FamilyHistory
 	*/
-	public FamilyHistory setRecordOwner(Organisation recordOwner) {
+	public FamilyHistory setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class FamilyHistory extends IMDMBase<FamilyHistory> {
 	* Gets the patient of this family history
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -99,7 +92,7 @@ public class FamilyHistory extends IMDMBase<FamilyHistory> {
 	* @param patient The new patient to set
 	* @return FamilyHistory
 	*/
-	public FamilyHistory setPatient(Patient patient) {
+	public FamilyHistory setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class FamilyHistory extends IMDMBase<FamilyHistory> {
 	* Gets the original concept of this family history
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -119,7 +112,7 @@ public class FamilyHistory extends IMDMBase<FamilyHistory> {
 	* @param originalConcept The new original concept to set
 	* @return FamilyHistory
 	*/
-	public FamilyHistory setOriginalConcept(TerminologyConcept originalConcept) {
+	public FamilyHistory setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents address
+* Represents address.
 * A standard mailing/postal address
 */
 public class Address extends IMDMBase<Address> {
 
 
 	/**
-	* Address constructor 
-	*/
-	public Address() {
-		super("Address");
-	}
-
-	/**
 	* Address constructor with identifier
 	*/
-	public Address(String id) {
+	public Address(UUID id) {
 		super("Address", id);
 	}
 
@@ -149,7 +142,7 @@ public class Address extends IMDMBase<Address> {
 	* Gets the location of this address
 	* @return location
 	*/
-	public Location getLocation() {
+	public UUID getLocation() {
 		return getProperty("location");
 	}
 
@@ -159,7 +152,7 @@ public class Address extends IMDMBase<Address> {
 	* @param location The new location to set
 	* @return Address
 	*/
-	public Address setLocation(Location location) {
+	public Address setLocation(UUID location) {
 		setProperty("location", location);
 		return this;
 	}

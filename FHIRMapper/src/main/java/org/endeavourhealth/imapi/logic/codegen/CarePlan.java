@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents care plan
+* Represents care plan.
 * A dynamic document that notes the plan regarding the care of a patient. As in the document structure they tend to specialise and thus this highlights only the generic sections.
 */
 public class CarePlan extends IMDMBase<CarePlan> {
 
 
 	/**
-	* Care plan constructor 
-	*/
-	public CarePlan() {
-		super("CarePlan");
-	}
-
-	/**
 	* Care plan constructor with identifier
 	*/
-	public CarePlan(String id) {
+	public CarePlan(UUID id) {
 		super("CarePlan", id);
 	}
 
@@ -49,7 +42,7 @@ public class CarePlan extends IMDMBase<CarePlan> {
 	* Gets the record owner of this care plan
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class CarePlan extends IMDMBase<CarePlan> {
 	* @param recordOwner The new record owner to set
 	* @return CarePlan
 	*/
-	public CarePlan setRecordOwner(Organisation recordOwner) {
+	public CarePlan setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class CarePlan extends IMDMBase<CarePlan> {
 	* Gets the patient of this care plan
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class CarePlan extends IMDMBase<CarePlan> {
 	* @param patient The new patient to set
 	* @return CarePlan
 	*/
-	public CarePlan setPatient(Patient patient) {
+	public CarePlan setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class CarePlan extends IMDMBase<CarePlan> {
 	* Gets the original concept of this care plan
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class CarePlan extends IMDMBase<CarePlan> {
 	* @param originalConcept The new original concept to set
 	* @return CarePlan
 	*/
-	public CarePlan setOriginalConcept(TerminologyConcept originalConcept) {
+	public CarePlan setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

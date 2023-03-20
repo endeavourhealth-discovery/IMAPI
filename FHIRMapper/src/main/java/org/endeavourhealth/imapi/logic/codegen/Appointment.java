@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents appointment
+* Represents appointment.
 * This is information about a particular appointment. Does not include the processes involved in slot booking itself
 */
 public class Appointment extends IMDMBase<Appointment> {
 
 
 	/**
-	* Appointment constructor 
-	*/
-	public Appointment() {
-		super("Appointment");
-	}
-
-	/**
 	* Appointment constructor with identifier
 	*/
-	public Appointment(String id) {
+	public Appointment(UUID id) {
 		super("Appointment", id);
 	}
 
@@ -49,7 +42,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* Gets the record owner of this appointment
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* @param recordOwner The new record owner to set
 	* @return Appointment
 	*/
-	public Appointment setRecordOwner(Organisation recordOwner) {
+	public Appointment setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* Gets the patient of this appointment
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* @param patient The new patient to set
 	* @return Appointment
 	*/
-	public Appointment setPatient(Patient patient) {
+	public Appointment setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* Gets the concept of this appointment
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -179,7 +172,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* @param concept The new concept to set
 	* @return Appointment
 	*/
-	public Appointment setConcept(TerminologyConcept concept) {
+	public Appointment setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -209,7 +202,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* Gets the original concept of this appointment
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -219,7 +212,7 @@ public class Appointment extends IMDMBase<Appointment> {
 	* @param originalConcept The new original concept to set
 	* @return Appointment
 	*/
-	public Appointment setOriginalConcept(TerminologyConcept originalConcept) {
+	public Appointment setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

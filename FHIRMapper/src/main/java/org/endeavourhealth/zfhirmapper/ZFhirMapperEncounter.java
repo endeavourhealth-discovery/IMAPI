@@ -36,17 +36,17 @@ public class ZFhirMapperEncounter {
 
         // patient_id
         ResourceReferenceDt ref = parsed.getPatient();
-        String fhirNor = ref.getReference().getIdPart();
+        UUID fhirNor = UUID.fromString(ref.getReference().getIdPart());
         System.out.println(fhirNor);
 
         ref = parsed.getServiceProvider();
         //String org = ref.getReference().getValue();
-        String fhirOrg = ref.getReference().getIdPart();
+        UUID fhirOrg = UUID.fromString(ref.getReference().getIdPart());
         System.out.println(fhirOrg);
 
         List<ExtensionDt> fhirExtension = parsed.getUndeclaredExtensions();
         Integer s = fhirExtension.size()-1;
-        String fhirClinDate = ""; String fhirPractitioner = "";
+        String fhirClinDate = ""; UUID fhirPractitioner = UUID.randomUUID();
         String fhirOrginialCode = ""; String fhirOrginalTerm = ""; String fhirOriginalScheme = "";
 
         String fhirText = "";
@@ -59,7 +59,7 @@ public class ZFhirMapperEncounter {
             if (refBase instanceof DateTimeDt == false && url.contains("primarycare-recorded-by-extension")) {
                 ResourceReferenceDt z = (ResourceReferenceDt) refBase;
                 System.out.println(z.getReference().getValue());
-                fhirPractitioner = z.getReference().getIdPart();
+                fhirPractitioner = UUID.fromString(z.getReference().getIdPart());
             }
 
             if (refBase instanceof DateTimeDt == true && url.contains("primarycare-recorded-date-extension")) {
@@ -118,13 +118,14 @@ public class ZFhirMapperEncounter {
 
             System.out.println(next.getId());
 
-            /*
+/*
             Set<String> containedIds = new HashSet<String>();
 
             for (IResource nextContained : next.getContained().getContainedResources()) {
                 System.out.println("here");
             }
             */
+
 
             java.util.List<Encounter.Participant> partIndividualList = parsed.getParticipant();
             s = partIndividualList.size() - 1;
@@ -145,7 +146,7 @@ public class ZFhirMapperEncounter {
             //LocalDateTime omClinDate = LocalDateTime.parse(fhirClinDate);
             // LocalDate omClinDate = LocalDate.parse(fhirClinDate);
 
-            TerminologyConcept omConcept = new TerminologyConcept()
+            TerminologyConcept omConcept = new TerminologyConcept(UUID.randomUUID())
                     .setCode(fhirOrginialCode)
                     .setScheme(fhirOriginalScheme)
                     .setProperty("concept-term", fhirOrginalTerm);
@@ -153,7 +154,7 @@ public class ZFhirMapperEncounter {
             // omConcept.setComment("test comment");
             // omConcept.setHasTermCode()
 
-            String fhirId = parsed.getId().getIdPart();
+            UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
             Consultation encounter = new Consultation(fhirId)
                     .setEffectiveDate(PartialDateTime.parse(fhirClinDate))
                     .setProperty("concepts", Arrays.asList(omConcept));
@@ -161,10 +162,10 @@ public class ZFhirMapperEncounter {
             // ArrayList
 
             Organisation zorg = new Organisation(fhirOrg);
-            encounter.setProvider(zorg);
+            encounter.setProvider(zorg.getId());
 
             Patient znor = new Patient(fhirNor);
-            encounter.setPatient(znor);
+            encounter.setPatient(znor.getId());
 
             PractitionerInRole zpract = new PractitionerInRole(fhirPractitioner);
             // om missing setter for practitioner

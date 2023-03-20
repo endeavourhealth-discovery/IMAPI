@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents medication authorisation
+* Represents medication authorisation.
 * Also referred as Medication statement entries, this entry is  for describing and authorising a course of medication or an intention to prescribe. Medication entries are precursors to the prescribing of a drug (medication order), dispensing of a drug (e.g.... chemist) or the administration of a drug (e.g.... medicine administration by nurse)</span><p>In General practice, acute prescriptions are based on medication entries with a single authorisation and repeat medications are based on medication entries with multiple authorisations. In hospital, the drug chart contains the medications.
 */
 public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 
 
 	/**
-	* Medication authorisation constructor 
-	*/
-	public MedicationAuthorisation() {
-		super("MedicationAuthorisation");
-	}
-
-	/**
 	* Medication authorisation constructor with identifier
 	*/
-	public MedicationAuthorisation(String id) {
+	public MedicationAuthorisation(UUID id) {
 		super("MedicationAuthorisation", id);
 	}
 
@@ -49,7 +42,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* Gets the record owner of this medication authorisation
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* @param recordOwner The new record owner to set
 	* @return MedicationAuthorisation
 	*/
-	public MedicationAuthorisation setRecordOwner(Organisation recordOwner) {
+	public MedicationAuthorisation setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* Gets the patient of this medication authorisation
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* @param patient The new patient to set
 	* @return MedicationAuthorisation
 	*/
-	public MedicationAuthorisation setPatient(Patient patient) {
+	public MedicationAuthorisation setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* Gets the original concept of this medication authorisation
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* @param originalConcept The new original concept to set
 	* @return MedicationAuthorisation
 	*/
-	public MedicationAuthorisation setOriginalConcept(TerminologyConcept originalConcept) {
+	public MedicationAuthorisation setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}
@@ -209,7 +202,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* Gets the originated by of this medication authorisation
 	* @return originatedBy
 	*/
-	public Organisation getOriginatedBy() {
+	public UUID getOriginatedBy() {
 		return getProperty("originatedBy");
 	}
 
@@ -219,7 +212,7 @@ public class MedicationAuthorisation extends IMDMBase<MedicationAuthorisation> {
 	* @param originatedBy The new originated by to set
 	* @return MedicationAuthorisation
 	*/
-	public MedicationAuthorisation setOriginatedBy(Organisation originatedBy) {
+	public MedicationAuthorisation setOriginatedBy(UUID originatedBy) {
 		setProperty("originatedBy", originatedBy);
 		return this;
 	}

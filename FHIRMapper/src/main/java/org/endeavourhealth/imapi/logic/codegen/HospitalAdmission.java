@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents hospital admission
+* Represents hospital admission.
 * An entry recording the event of a hospital admission. Has specialised properties.<p>common data model attributes for Hospital admission
 */
 public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 
 
 	/**
-	* Hospital admission constructor 
-	*/
-	public HospitalAdmission() {
-		super("HospitalAdmission");
-	}
-
-	/**
 	* Hospital admission constructor with identifier
 	*/
-	public HospitalAdmission(String id) {
+	public HospitalAdmission(UUID id) {
 		super("HospitalAdmission", id);
 	}
 
@@ -49,7 +42,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* Gets the record owner of this hospital admission
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* @param recordOwner The new record owner to set
 	* @return HospitalAdmission
 	*/
-	public HospitalAdmission setRecordOwner(Organisation recordOwner) {
+	public HospitalAdmission setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* Gets the patient of this hospital admission
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* @param patient The new patient to set
 	* @return HospitalAdmission
 	*/
-	public HospitalAdmission setPatient(Patient patient) {
+	public HospitalAdmission setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* Gets the original concept of this hospital admission
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* @param originalConcept The new original concept to set
 	* @return HospitalAdmission
 	*/
-	public HospitalAdmission setOriginalConcept(TerminologyConcept originalConcept) {
+	public HospitalAdmission setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}
@@ -189,7 +182,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* Gets the is component of of this hospital admission
 	* @return isComponentOf
 	*/
-	public HospitalInpatientStay getIsComponentOf() {
+	public UUID getIsComponentOf() {
 		return getProperty("isComponentOf");
 	}
 
@@ -199,7 +192,7 @@ public class HospitalAdmission extends IMDMBase<HospitalAdmission> {
 	* @param isComponentOf The new is component of to set
 	* @return HospitalAdmission
 	*/
-	public HospitalAdmission setIsComponentOf(HospitalInpatientStay isComponentOf) {
+	public HospitalAdmission setIsComponentOf(UUID isComponentOf) {
 		setProperty("isComponentOf", isComponentOf);
 		return this;
 	}

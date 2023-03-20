@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents consultation
+* Represents consultation.
 * An consultation whereby a health professional consults with the patient or person or persons representing the patient such as a third party or team
 */
 public class Consultation extends IMDMBase<Consultation> {
 
 
 	/**
-	* Consultation constructor 
-	*/
-	public Consultation() {
-		super("Consultation");
-	}
-
-	/**
 	* Consultation constructor with identifier
 	*/
-	public Consultation(String id) {
+	public Consultation(UUID id) {
 		super("Consultation", id);
 	}
 
@@ -29,7 +22,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* Gets the record owner of this consultation
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -39,7 +32,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* @param recordOwner The new record owner to set
 	* @return Consultation
 	*/
-	public Consultation setRecordOwner(Organisation recordOwner) {
+	public Consultation setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -49,7 +42,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* Gets the provider of this consultation
 	* @return provider
 	*/
-	public Organisation getProvider() {
+	public UUID getProvider() {
 		return getProperty("provider");
 	}
 
@@ -59,7 +52,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* @param provider The new provider to set
 	* @return Consultation
 	*/
-	public Consultation setProvider(Organisation provider) {
+	public Consultation setProvider(UUID provider) {
 		setProperty("provider", provider);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* Gets the location of this consultation
 	* @return location
 	*/
-	public Location getLocation() {
+	public UUID getLocation() {
 		return getProperty("location");
 	}
 
@@ -99,7 +92,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* @param location The new location to set
 	* @return Consultation
 	*/
-	public Consultation setLocation(Location location) {
+	public Consultation setLocation(UUID location) {
 		setProperty("location", location);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* Gets the patient of this consultation
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -119,7 +112,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* @param patient The new patient to set
 	* @return Consultation
 	*/
-	public Consultation setPatient(Patient patient) {
+	public Consultation setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* Gets the concept of this consultation
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -139,7 +132,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* @param concept The new concept to set
 	* @return Consultation
 	*/
-	public Consultation setConcept(TerminologyConcept concept) {
+	public Consultation setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -149,7 +142,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* Gets the original concept of this consultation
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -159,7 +152,7 @@ public class Consultation extends IMDMBase<Consultation> {
 	* @param originalConcept The new original concept to set
 	* @return Consultation
 	*/
-	public Consultation setOriginalConcept(TerminologyConcept originalConcept) {
+	public Consultation setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

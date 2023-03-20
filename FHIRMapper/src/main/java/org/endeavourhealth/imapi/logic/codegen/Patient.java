@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents patient
+* Represents patient.
 * A person in the role of a patient in the context of a single provider organisation. A person may therefore be a patient of several providers. each patient having a different provider level identifier
 */
 public class Patient extends IMDMBase<Patient> {
 
 
 	/**
-	* Patient constructor 
-	*/
-	public Patient() {
-		super("Patient");
-	}
-
-	/**
 	* Patient constructor with identifier
 	*/
-	public Patient(String id) {
+	public Patient(UUID id) {
 		super("Patient", id);
 	}
 
@@ -209,7 +202,7 @@ public class Patient extends IMDMBase<Patient> {
 	* Gets the home address of this patient
 	* @return homeAddress
 	*/
-	public Address getHomeAddress() {
+	public UUID getHomeAddress() {
 		return getProperty("homeAddress");
 	}
 
@@ -219,7 +212,7 @@ public class Patient extends IMDMBase<Patient> {
 	* @param homeAddress The new home address to set
 	* @return Patient
 	*/
-	public Patient setHomeAddress(Address homeAddress) {
+	public Patient setHomeAddress(UUID homeAddress) {
 		setProperty("homeAddress", homeAddress);
 		return this;
 	}
@@ -229,7 +222,7 @@ public class Patient extends IMDMBase<Patient> {
 	* Gets the work address of this patient
 	* @return workAddress
 	*/
-	public Address getWorkAddress() {
+	public UUID getWorkAddress() {
 		return getProperty("workAddress");
 	}
 
@@ -239,7 +232,7 @@ public class Patient extends IMDMBase<Patient> {
 	* @param workAddress The new work address to set
 	* @return Patient
 	*/
-	public Patient setWorkAddress(Address workAddress) {
+	public Patient setWorkAddress(UUID workAddress) {
 		setProperty("workAddress", workAddress);
 		return this;
 	}
@@ -249,7 +242,7 @@ public class Patient extends IMDMBase<Patient> {
 	* Gets the temporary address of this patient
 	* @return temporaryAddress
 	*/
-	public Address getTemporaryAddress() {
+	public UUID getTemporaryAddress() {
 		return getProperty("temporaryAddress");
 	}
 
@@ -259,7 +252,7 @@ public class Patient extends IMDMBase<Patient> {
 	* @param temporaryAddress The new temporary address to set
 	* @return Patient
 	*/
-	public Patient setTemporaryAddress(Address temporaryAddress) {
+	public Patient setTemporaryAddress(UUID temporaryAddress) {
 		setProperty("temporaryAddress", temporaryAddress);
 		return this;
 	}
@@ -366,7 +359,7 @@ public class Patient extends IMDMBase<Patient> {
 
 
 	/**
-	* Gets the Age of this patient
+	* Gets the age of this patient
 	* @return age
 	*/
 	public Integer getAge() {
@@ -375,8 +368,8 @@ public class Patient extends IMDMBase<Patient> {
 
 
 	/**
-	* Changes the Age of this Patient
-	* @param age The new Age to set
+	* Changes the age of this Patient
+	* @param age The new age to set
 	* @return Patient
 	*/
 	public Patient setAge(Integer age) {
@@ -489,7 +482,7 @@ public class Patient extends IMDMBase<Patient> {
 	* Gets the gp current registration of this patient
 	* @return gpCurrentRegistration
 	*/
-	public GpCurrentRegistration getGpCurrentRegistration() {
+	public UUID getGpCurrentRegistration() {
 		return getProperty("gpCurrentRegistration");
 	}
 
@@ -499,7 +492,7 @@ public class Patient extends IMDMBase<Patient> {
 	* @param gpCurrentRegistration The new gp current registration to set
 	* @return Patient
 	*/
-	public Patient setGpCurrentRegistration(GpCurrentRegistration gpCurrentRegistration) {
+	public Patient setGpCurrentRegistration(UUID gpCurrentRegistration) {
 		setProperty("gpCurrentRegistration", gpCurrentRegistration);
 		return this;
 	}
@@ -509,7 +502,7 @@ public class Patient extends IMDMBase<Patient> {
 	* Gets the condition of this patient
 	* @return condition
 	*/
-	public Condition getCondition() {
+	public UUID getCondition() {
 		return getProperty("condition");
 	}
 
@@ -519,7 +512,7 @@ public class Patient extends IMDMBase<Patient> {
 	* @param condition The new condition to set
 	* @return Patient
 	*/
-	public Patient setCondition(Condition condition) {
+	public Patient setCondition(UUID condition) {
 		setProperty("condition", condition);
 		return this;
 	}

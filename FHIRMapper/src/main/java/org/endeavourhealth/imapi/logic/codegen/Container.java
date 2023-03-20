@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents container
+* Represents container.
 * Information about a container usually used by specimens that holds a specimen
 */
 public class Container extends IMDMBase<Container> {
 
 
 	/**
-	* Container constructor 
-	*/
-	public Container() {
-		super("Container");
-	}
-
-	/**
 	* Container constructor with identifier
 	*/
-	public Container(String id) {
+	public Container(UUID id) {
 		super("Container", id);
 	}
 

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents condition
+* Represents condition.
 * An issue , problem or diagnosis. The main purposes of problem structures are to highlight significant issues and to group entries in the record to enable a narrative view categorised by a focus of care. In different care domains different terms are used such as "problem", "issue" or "need" but from a structural perspective they are the same
 */
 public class Condition extends IMDMBase<Condition> {
 
 
 	/**
-	* Condition constructor 
-	*/
-	public Condition() {
-		super("Condition");
-	}
-
-	/**
 	* Condition constructor with identifier
 	*/
-	public Condition(String id) {
+	public Condition(UUID id) {
 		super("Condition", id);
 	}
 
@@ -49,7 +42,7 @@ public class Condition extends IMDMBase<Condition> {
 	* Gets the record owner of this condition
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Condition extends IMDMBase<Condition> {
 	* @param recordOwner The new record owner to set
 	* @return Condition
 	*/
-	public Condition setRecordOwner(Organisation recordOwner) {
+	public Condition setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class Condition extends IMDMBase<Condition> {
 	* Gets the patient of this condition
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -119,7 +112,7 @@ public class Condition extends IMDMBase<Condition> {
 	* @param patient The new patient to set
 	* @return Condition
 	*/
-	public Condition setPatient(Patient patient) {
+	public Condition setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class Condition extends IMDMBase<Condition> {
 	* Gets the parent of this condition
 	* @return parent
 	*/
-	public Condition getParent() {
+	public UUID getParent() {
 		return getProperty("parent");
 	}
 
@@ -139,7 +132,7 @@ public class Condition extends IMDMBase<Condition> {
 	* @param parent The new parent to set
 	* @return Condition
 	*/
-	public Condition setParent(Condition parent) {
+	public Condition setParent(UUID parent) {
 		setProperty("parent", parent);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class Condition extends IMDMBase<Condition> {
 	* Gets the original concept of this condition
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class Condition extends IMDMBase<Condition> {
 	* @param originalConcept The new original concept to set
 	* @return Condition
 	*/
-	public Condition setOriginalConcept(TerminologyConcept originalConcept) {
+	public Condition setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

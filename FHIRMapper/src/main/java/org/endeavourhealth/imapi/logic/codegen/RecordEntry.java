@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents record entry
+* Represents record entry.
 * A abstract class or something whose subject is an entity
 */
 public class RecordEntry extends IMDMBase<RecordEntry> {
 
 
 	/**
-	* Record entry constructor 
-	*/
-	public RecordEntry() {
-		super("RecordEntry");
-	}
-
-	/**
 	* Record entry constructor with identifier
 	*/
-	public RecordEntry(String id) {
+	public RecordEntry(UUID id) {
 		super("RecordEntry", id);
 	}
 
@@ -29,7 +22,7 @@ public class RecordEntry extends IMDMBase<RecordEntry> {
 	* Gets the record owner of this record entry
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -39,7 +32,7 @@ public class RecordEntry extends IMDMBase<RecordEntry> {
 	* @param recordOwner The new record owner to set
 	* @return RecordEntry
 	*/
-	public RecordEntry setRecordOwner(Organisation recordOwner) {
+	public RecordEntry setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}

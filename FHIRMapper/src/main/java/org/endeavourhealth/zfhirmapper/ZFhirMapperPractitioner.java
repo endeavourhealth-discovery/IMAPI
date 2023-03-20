@@ -16,6 +16,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.UUID;
 
 public class ZFhirMapperPractitioner {
     public static void main(String[] argv) throws Exception {
@@ -77,13 +78,14 @@ public class ZFhirMapperPractitioner {
 
         java.util.List<Practitioner.PractitionerRole> fhirRolesList = parsed.getPractitionerRole();
         s= fhirRolesList.size()-1;
-        String fhirOrganizationId = ""; String roleTypeCode = ""; String roleTypeTerm = "";
+        UUID fhirOrganizationId = null;
+        String roleTypeCode = ""; String roleTypeTerm = "";
         for ( int i=0 ; i<=s; i++) {
 
             if (fhirRolesList.get(i).getManagingOrganization() !=null) {
                 ResourceReferenceDt managingOrg = parsed.getPractitionerRole().get(i).getManagingOrganization();
                 System.out.println(managingOrg.getReference().getIdPart());
-                fhirOrganizationId = managingOrg.getReference().getIdPart();
+                fhirOrganizationId = UUID.fromString(managingOrg.getReference().getIdPart());
             }
 
             java.util.List<CodingDt> roles = fhirRolesList.get(i).getRole().getCoding();
@@ -100,11 +102,11 @@ public class ZFhirMapperPractitioner {
 
         Organisation organisation = new Organisation(fhirOrganizationId);
 
-        String fhirId = parsed.getId().getIdPart();
+        UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
         PractitionerInRole pract = new PractitionerInRole(fhirId)
                 .setFamilyName(fhirFamily)
                 .setCallingName(fhirGiven)
-                .setServiceOrOrganisation(fhirOrganizationId)
+                .setServiceOrOrganisation(fhirOrganizationId.toString())
                 .setRoleType(roleTypeCode)
                 .setProperty("role-type-term", roleTypeTerm);
 

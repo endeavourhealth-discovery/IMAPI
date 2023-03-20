@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents computer system
+* Represents computer system.
 * A named computer system considered a type of device
 */
 public class ComputerSystem extends IMDMBase<ComputerSystem> {
 
 
 	/**
-	* Computer system constructor 
-	*/
-	public ComputerSystem() {
-		super("ComputerSystem");
-	}
-
-	/**
 	* Computer system constructor with identifier
 	*/
-	public ComputerSystem(String id) {
+	public ComputerSystem(UUID id) {
 		super("ComputerSystem", id);
 	}
 
@@ -109,7 +102,7 @@ public class ComputerSystem extends IMDMBase<ComputerSystem> {
 	* Gets the manufacturer of this computer system
 	* @return manufacturer
 	*/
-	public Organisation getManufacturer() {
+	public UUID getManufacturer() {
 		return getProperty("manufacturer");
 	}
 
@@ -119,7 +112,7 @@ public class ComputerSystem extends IMDMBase<ComputerSystem> {
 	* @param manufacturer The new manufacturer to set
 	* @return ComputerSystem
 	*/
-	public ComputerSystem setManufacturer(Organisation manufacturer) {
+	public ComputerSystem setManufacturer(UUID manufacturer) {
 		setProperty("manufacturer", manufacturer);
 		return this;
 	}

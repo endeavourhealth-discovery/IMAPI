@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents gp registration episode
+* Represents gp registration episode.
 * A period of registration with a general practice
 */
 public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 
 
 	/**
-	* Gp registration episode constructor 
-	*/
-	public GpRegistrationEpisode() {
-		super("GpRegistrationEpisode");
-	}
-
-	/**
 	* Gp registration episode constructor with identifier
 	*/
-	public GpRegistrationEpisode(String id) {
+	public GpRegistrationEpisode(UUID id) {
 		super("GpRegistrationEpisode", id);
 	}
 
@@ -49,7 +42,7 @@ public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 	* Gets the record owner of this gp registration episode
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 	* @param recordOwner The new record owner to set
 	* @return GpRegistrationEpisode
 	*/
-	public GpRegistrationEpisode setRecordOwner(Organisation recordOwner) {
+	public GpRegistrationEpisode setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 	* Gets the patient of this gp registration episode
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -99,7 +92,7 @@ public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 	* @param patient The new patient to set
 	* @return GpRegistrationEpisode
 	*/
-	public GpRegistrationEpisode setPatient(Patient patient) {
+	public GpRegistrationEpisode setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 	* Gets the usual GP of this gp registration episode
 	* @return usualGp
 	*/
-	public PractitionerInRole getUsualGp() {
+	public UUID getUsualGp() {
 		return getProperty("usualGp");
 	}
 
@@ -139,7 +132,7 @@ public class GpRegistrationEpisode extends IMDMBase<GpRegistrationEpisode> {
 	* @param usualGp The new usual GP to set
 	* @return GpRegistrationEpisode
 	*/
-	public GpRegistrationEpisode setUsualGp(PractitionerInRole usualGp) {
+	public GpRegistrationEpisode setUsualGp(UUID usualGp) {
 		setProperty("usualGp", usualGp);
 		return this;
 	}

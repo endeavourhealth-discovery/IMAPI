@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents appointment attendance
+* Represents appointment attendance.
 * Information about an actual attendance for a patient for an appointment i.e.. after the patient has arrived for appointment
 */
 public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 
 
 	/**
-	* Appointment attendance constructor 
-	*/
-	public AppointmentAttendance() {
-		super("AppointmentAttendance");
-	}
-
-	/**
 	* Appointment attendance constructor with identifier
 	*/
-	public AppointmentAttendance(String id) {
+	public AppointmentAttendance(UUID id) {
 		super("AppointmentAttendance", id);
 	}
 
@@ -49,7 +42,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* Gets the record owner of this appointment attendance
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* @param recordOwner The new record owner to set
 	* @return AppointmentAttendance
 	*/
-	public AppointmentAttendance setRecordOwner(Organisation recordOwner) {
+	public AppointmentAttendance setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* Gets the patient of this appointment attendance
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* @param patient The new patient to set
 	* @return AppointmentAttendance
 	*/
-	public AppointmentAttendance setPatient(Patient patient) {
+	public AppointmentAttendance setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* Gets the concept of this appointment attendance
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -179,7 +172,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* @param concept The new concept to set
 	* @return AppointmentAttendance
 	*/
-	public AppointmentAttendance setConcept(TerminologyConcept concept) {
+	public AppointmentAttendance setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -189,7 +182,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* Gets the original concept of this appointment attendance
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -199,7 +192,7 @@ public class AppointmentAttendance extends IMDMBase<AppointmentAttendance> {
 	* @param originalConcept The new original concept to set
 	* @return AppointmentAttendance
 	*/
-	public AppointmentAttendance setOriginalConcept(TerminologyConcept originalConcept) {
+	public AppointmentAttendance setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

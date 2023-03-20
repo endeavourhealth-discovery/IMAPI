@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents hospital discharge
+* Represents hospital discharge.
 * An entry describing the event of a hospital discharge. Has specialised encounter properties.<p>common data model attributes for Hospital discharge (entry)
 */
 public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 
 
 	/**
-	* Hospital discharge constructor 
-	*/
-	public HospitalDischarge() {
-		super("HospitalDischarge");
-	}
-
-	/**
 	* Hospital discharge constructor with identifier
 	*/
-	public HospitalDischarge(String id) {
+	public HospitalDischarge(UUID id) {
 		super("HospitalDischarge", id);
 	}
 
@@ -49,7 +42,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* Gets the record owner of this hospital discharge
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* @param recordOwner The new record owner to set
 	* @return HospitalDischarge
 	*/
-	public HospitalDischarge setRecordOwner(Organisation recordOwner) {
+	public HospitalDischarge setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* Gets the is component of of this hospital discharge
 	* @return isComponentOf
 	*/
-	public HospitalInpatientStay getIsComponentOf() {
+	public UUID getIsComponentOf() {
 		return getProperty("isComponentOf");
 	}
 
@@ -119,7 +112,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* @param isComponentOf The new is component of to set
 	* @return HospitalDischarge
 	*/
-	public HospitalDischarge setIsComponentOf(HospitalInpatientStay isComponentOf) {
+	public HospitalDischarge setIsComponentOf(UUID isComponentOf) {
 		setProperty("isComponentOf", isComponentOf);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* Gets the patient of this hospital discharge
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* @param patient The new patient to set
 	* @return HospitalDischarge
 	*/
-	public HospitalDischarge setPatient(Patient patient) {
+	public HospitalDischarge setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* Gets the original concept of this hospital discharge
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class HospitalDischarge extends IMDMBase<HospitalDischarge> {
 	* @param originalConcept The new original concept to set
 	* @return HospitalDischarge
 	*/
-	public HospitalDischarge setOriginalConcept(TerminologyConcept originalConcept) {
+	public HospitalDischarge setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

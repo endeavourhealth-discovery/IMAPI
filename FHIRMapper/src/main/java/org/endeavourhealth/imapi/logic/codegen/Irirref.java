@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents irirref
+* Represents irirref.
 * A reference to resource with an iri and optional name to enable readability
 */
 public class Irirref extends IMDMBase<Irirref> {
 
 
 	/**
-	* Irirref constructor 
-	*/
-	public Irirref() {
-		super("Irirref");
-	}
-
-	/**
 	* Irirref constructor with identifier
 	*/
-	public Irirref(String id) {
+	public Irirref(UUID id) {
 		super("Irirref", id);
 	}
 
@@ -156,7 +149,7 @@ public class Irirref extends IMDMBase<Irirref> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -166,7 +159,7 @@ public class Irirref extends IMDMBase<Irirref> {
 	* @param isContainedIn The new is contained in to set
 	* @return Irirref
 	*/
-	public Irirref setIsContainedIn(Folder isContainedIn) {
+	public Irirref setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -177,7 +170,7 @@ public class Irirref extends IMDMBase<Irirref> {
 	* When a status is inactive, the entity that replaces this entity (if any)
 	* @return replacedByAttribute
 	*/
-	public Entity getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -187,7 +180,7 @@ public class Irirref extends IMDMBase<Irirref> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return Irirref
 	*/
-	public Irirref setReplacedByAttribute(Entity replacedByAttribute) {
+	public Irirref setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}

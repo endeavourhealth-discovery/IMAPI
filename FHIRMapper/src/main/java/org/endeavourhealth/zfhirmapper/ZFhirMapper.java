@@ -13,6 +13,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 // import org.eclipse.rdf4j.query.algebra.Add;
 import org.endeavourhealth.imapi.logic.codegen.*;
+import org.endeavourhealth.persistence.IMPFiler;
+import org.endeavourhealth.persistence.IMPFilerCSV;
 
 import java.io.*;
 import java.util.*;
@@ -20,63 +22,54 @@ import java.util.*;
 public class ZFhirMapper {
     public static void main(String[] argv) throws Exception {
 
-        String str = "";
 
-        //str = "{\"active\":true,\"address\":[{\"city\":\"BEVERLEY\",\"district\":\"\",\"line\":[\"\",\"\",\"\"],\"postalCode\":\"HU17 8GW\",\"text\":\",,,,BEVERLEY,HU17 8GW\",\"use\":\"home\"}],\"birthDate\":\"1999-11-30\",\"careProvider\":[{\"reference\":\"Organization\\/203\"},{\"reference\":\"Practitioner\\/2026\"}],\"extension\":[{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-ethnic-category-extension\",\"valueCodeableConcept\":{\"coding\":[{\"code\":\"\",\"display\":\"\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-ethnic-category-extension\"}]}}],\"gender\":\"female\",\"id\":1998,\"identifier\":[{\"system\":\"http:\\/\\/fhir.nhs.net\\/Id\\/nhs-number\",\"use\":\"official\",\"value\":8456666211},{\"system\":\"http:\\/\\/endeavourhealth.org\\/identifier\\/patient-number\",\"use\":\"secondary\",\"value\":1998}],\"managingOrganization\":{\"reference\":\"Organization\\/203\"},\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-patient\"]},\"name\":[{\"family\":[\"Zavorohin\"],\"given\":[\"Bridget\"],\"prefix\":[\"Mrs\"],\"text\":\"Zavorohin, Bridget (Mrs)\",\"use\":\"official\"}],\"resourceType\":\"Patient\",\"telecom\":[{\"system\":\"phone\",\"use\":\"work\",\"value\":\"0657-322-6430\"},{\"system\":\"email\",\"use\":\"\",\"value\":\"x9erhfytv@yahoo.com\"}]}";
-        //String test = RunMapper(str);
-
-        String pathToCsv = "/media/sf_in/patient.txt";
-        String outFile = "/media/sf_in/patient_out.txt";
-        FileWriter csvWriter = new FileWriter(outFile);
+        String pathToCsv = "Z:\\pojo\\in\\patient.txt";
 
         int c = 1;
 
         FhirContext ctx = FhirContext.forDstu2();
         IParser parser = ctx.newJsonParser();
 
-        File file = new File(pathToCsv);
-        LineIterator it = FileUtils.lineIterator(file, "UTF-8");
-        while (it.hasNext()) {
-            String line = it.nextLine();
-            String pojo = RunMapper(line, parser);
-            csvWriter.append(c + "\t" + pojo + "\n");
-            if (c>2000000) break;
-            if (c%100 == 0) csvWriter.flush();
-            System.out.println(c);
-            c++;
-        }
+        try (IMPFiler filer = new IMPFilerCSV("Z:\\pojo\\out\\")) {
 
-        csvWriter.close();
+            File file = new File(pathToCsv);
+            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+            while (it.hasNext()) {
+                String line = it.nextLine();
+                Collection<IMDMBase> pojos = RunMapper(line, parser);
+                filer.fileIMPs(pojos);
+
+                if (c > 2000000) break;
+
+                if (c % 100 == 0)
+                    System.out.println(c);
+                c++;
+            }
+        }
     }
 
-    public static String RunMapper(String str, IParser parser) throws Exception {
-
-        //FhirContext ctx = FhirContext.forDstu2();
-        //Parser parser = ctx.newJsonParser();
-
-        //String str = "{\"active\":true,\"address\":[{\"city\":\"BEVERLEY\",\"district\":\"\",\"line\":[19,\"\",\"BRAMBLE HILL\"],\"postalCode\":\"HU17 8UZ\",\"text\":\"19,,BRAMBLE HILL,,BEVERLEY,HU17 8UZ\",\"use\":\"home\"}],\"birthDate\":\"1935-04-17\",\"deceasedDateTime\":\"2013-02-25T00:00:00+00:00\",\"careProvider\":[{\"reference\":\"Organization/28\"},{\"reference\":\"Practitioner/4655\"}],\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\",\"valueCodeableConcept\":{\"coding\":[{\"code\":\"H\",\"display\":\"Indian\",\"system\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\"}]}}],\"gender\":\"female\",\"id\":1,\"identifier\":[{\"system\":\"http://fhir.nhs.net/Id/nhs-number\",\"use\":\"official\",\"value\":7858951564},{\"system\":\"http://endeavourhealth.org/identifier/patient-number\",\"use\":\"secondary\",\"value\":1}],\"managingOrganization\":{\"reference\":\"Organization/28\"},\"meta\":{\"profile\":[\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient\"]},\"name\":[{\"family\":[\"Zelinka\"],\"given\":[\"Josephine\"],\"text\":\"Zelinka, Josephine (Mrs)\",\"use\":\"official\"}],\"resourceType\":\"Patient\",\"telecom\":[{\"system\":\"phone\",\"use\":\"temp\",\"value\":\"0442-590-6506\"},{\"system\":\"phone\",\"use\":\"work\",\"value\":\"1224-352-6280\"},{\"system\":\"phone\",\"use\":\"old\",\"value\":\"0675-260-6652\"}]}";
-        //str = "{\"active\":true,\"address\":[{\"city\":\"HULL\",\"district\":\"\",\"line\":[26,\"\",\"DRESSAY GROVE\"],\"postalCode\":\"HU8 9JJ\",\"text\":\"26,,DRESSAY GROVE,,HULL,HU8 9JJ\",\"use\":\"home\"}],\"birthDate\":\"1996-11-14\",\"careProvider\":[{\"reference\":\"Organization/155\"},{\"reference\":\"Practitioner/41\"}],\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\",\"valueCodeableConcept\":{\"coding\":[{\"code\":\"M\",\"display\":\"Caribbean\",\"system\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\"}]}}],\"gender\":\"male\",\"id\":8143,\"identifier\":[{\"system\":\"http://fhir.nhs.net/Id/nhs-number\",\"use\":\"official\",\"value\":7255204155},{\"system\":\"http://endeavourhealth.org/identifier/patient-number\",\"use\":\"secondary\",\"value\":8143}],\"managingOrganization\":{\"reference\":\"Organization/155\"},\"meta\":{\"profile\":[\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient\"]},\"name\":[{\"family\":[\"Franceschetti\"],\"given\":[\"Boyd\"],\"text\":\"Franceschetti, Boyd (Mr)\",\"use\":\"official\"}],\"resourceType\":\"Patient\",\"telecom\":[{\"system\":\"phone\",\"use\":\"home\",\"value\":\"0440-604-3637\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"a05346ghp@yahoo.com\"},{\"system\":\"phone\",\"use\":\"work\",\"value\":\"0542-643-5883\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"qqe7o2fmh@gmail.com\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"xhvauoex6@yahoo.com\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"1105-139-4203\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"1273-641-9437\"},{\"system\":\"email\",\"use\":\"\",\"value\":\"e7kxgnueu@gmail.com\"},{\"system\":\"phone\",\"use\":\"mobile\",\"value\":\"1012-643-7388\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"lg1ypfo84@supanet.com\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"0777-513-5491\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"ta1krw6zu@supanet.com\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"1177-235-1529\"}]}";
-        //str = "{\"active\":true,\"address\":[{\"city\":\"HULL\",\"district\":\"\",\"line\":[26,\"\",\"DRESSAY GROVE\"],\"postalCode\":\"HU8 9JJ\",\"text\":\"26,,DRESSAY GROVE,,HULL,HU8 9JJ\",\"use\":\"home\"}],\"birthDate\":\"1996-11-14\",\"careProvider\":[{\"reference\":\"Organization/155\"},{\"reference\":\"Practitioner/41\"}],\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\",\"valueCodeableConcept\":{\"coding\":[{\"code\":\"M\",\"display\":\"Caribbean\",\"system\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\"}]}}],\"gender\":\"male\",\"id\":8143,\"identifier\":[{\"system\":\"http://fhir.nhs.net/Id/nhs-number\",\"use\":\"official\",\"value\":7255204155},{\"system\":\"http://endeavourhealth.org/identifier/patient-number\",\"use\":\"secondary\",\"value\":8143}],\"managingOrganization\":{\"reference\":\"Organization/155\"},\"meta\":{\"profile\":[\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient\"]},\"name\":[{\"family\":[\"Franceschetti\"],\"given\":[\"Boyd\"],\"text\":\"Franceschetti, Boyd (Mr)\",\"use\":\"official\"}],\"resourceType\":\"Patient\",\"telecom\":[{\"system\":\"phone\",\"use\":\"home\",\"value\":\"0440-604-3637\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"a05346ghp@yahoo.com\"},{\"system\":\"phone\",\"use\":\"work\",\"value\":\"0542-643-5883\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"qqe7o2fmh@gmail.com\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"xhvauoex6@yahoo.com\",\"period\":{\"end\":\"2021-11-27T00:18:34+00:00\"}},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"1105-139-4203\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"1273-641-9437\"},{\"system\":\"email\",\"use\":\"\",\"value\":\"e7kxgnueu@gmail.com\"},{\"system\":\"phone\",\"use\":\"mobile\",\"value\":\"1012-643-7388\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"lg1ypfo84@supanet.com\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"0777-513-5491\"},{\"system\":\"email\",\"use\":\"home\",\"value\":\"ta1krw6zu@supanet.com\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"1177-235-1529\"}]}";
-
-        //str = "{\"active\":true,\"address\":[{\"city\":\"HULL\",\"district\":\"\",\"line\":[2,\"CLOVELLY AVENUE\",\"EDGECUMBE STREET\"],\"postalCode\":\"HU5 2EZ\",\"text\":\"2,CLOVELLY AVENUE,EDGECUMBE STREET,,HULL,HU5 2EZ\",\"use\":\"home\"}],\"birthDate\":\"1935-08-13\",\"careProvider\":[{\"reference\":\"Organization/316\"},{\"reference\":\"Practitioner/1642\"}],\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\",\"valueCodeableConcept\":{\"coding\":[{\"code\":\"G\",\"display\":\"Any other mixed background\",\"system\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-ethnic-category-extension\"}]}}],\"gender\":\"female\",\"id\":1,\"identifier\":[{\"system\":\"http://fhir.nhs.net/Id/nhs-number\",\"use\":\"official\",\"value\":2821126119},{\"system\":\"http://endeavourhealth.org/identifier/patient-number\",\"use\":\"secondary\",\"value\":1}],\"managingOrganization\":{\"reference\":\"Organization/316\"},\"meta\":{\"profile\":[\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-patient\"]},\"name\":[{\"family\":[\"Heinig\"],\"given\":[\"Liesl\"],\"prefix\":[\"Mrs\"],\"text\":\"Heinig, Liesl (Mrs)\",\"use\":\"official\"}],\"resourceType\":\"Patient\",\"telecom\":[{\"system\":\"phone\",\"use\":\"mobile\",\"value\":\"0774-683-1583\"},{\"system\":\"phone\",\"use\":\"home\",\"value\":\"0330-395-1380\"},{\"system\":\"phone\",\"use\":\"mobile\",\"value\":\"0525-702-3739\"},{\"system\":\"phone\",\"use\":\"work\",\"value\":\"0604-256-9727\"}]}";
+    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+        List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.Patient parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Patient.class, str);
 
         String fhirId = parsed.getId().getIdPart();
-        Patient patient = new Patient(fhirId);
+        Patient patient = new Patient(UUID.randomUUID()); // UUID.fromString(fhirId));
+        result.add(patient);
 
-        /*
         System.out.println(parsed.getAddress().get(0).getLine().get(0));
         List<AddressDt> fhirAddresses = parsed.getAddress();
         Integer s = fhirAddresses.size()-1;
         for ( int i=0 ; i<=s; i++) {
             System.out.println(fhirAddresses.get(i).getLine());
         }
-         */
+
+
 
         ResourceReferenceDt organizationReference = parsed.getManagingOrganization();
         String zOrgId = organizationReference.getReference().getIdPart();
-        Organisation zOrganisation = new Organisation(zOrgId);
+        Organisation zOrganisation = new Organisation(UUID.randomUUID()); // UUID.fromString(zOrgId));
+        result.add(zOrganisation);
 
         String fhirPostalCode = parsed.getAddress().get(0).getPostalCode();
         String fhirCity = parsed.getAddress().get(0).getCity();
@@ -95,7 +88,7 @@ public class ZFhirMapper {
 
         String fhirNhsNumber = "";
         List<IdentifierDt> fhirIdentifiers = parsed.getIdentifier();
-        Integer s = fhirIdentifiers.size()-1;
+        s = fhirIdentifiers.size()-1;
         for ( int i=0 ; i<=s; i++) {
             String system = fhirIdentifiers.get(i).getSystem();
             if (system.contains("nhs-number")) {
@@ -115,13 +108,13 @@ public class ZFhirMapper {
 
         List<ResourceReferenceDt> fhirProvider = parsed.getCareProvider();
         s = fhirProvider.size()-1;
-        String fhirGp = "";
-        for ( int i=0 ; i<=s; i++) {
-            IdDt ref = fhirProvider.get(i).getReference();
-            if (ref.getResourceType().equals("Practitioner")) {
-                fhirGp = ref.getIdPart();
-            }
-        }
+        UUID fhirGp = UUID.randomUUID();
+//        for ( int i=0 ; i<=s; i++) {
+//            IdDt ref = fhirProvider.get(i).getReference();
+//            if (ref.getResourceType().equals("Practitioner")) {
+//                fhirGp = UUID.fromString(ref.getIdPart());
+//            }
+//        }
 
         s = parsed.getAddress().get(0).getLine().size();
         String fhirLines = "";
@@ -184,19 +177,8 @@ public class ZFhirMapper {
             }
         }
 
-        /*
-        Address address = new Address()
-                .setAddressLine("21 Bank Top")
-                .setLocality("Slaithwaite")
-                .setCity("Huddersfield")
-                .setPostCode("HD7 5EF")
-                .setCountry("United Kingdom")
-                .setProperty("planet", "Earth");
-         */
-
         String fhirAddUse = parsed.getAddress().get(0).getUse();
 
-        /*
         String imAddUse = "";
         switch (fhirAddUse) {
             case "home":
@@ -212,12 +194,15 @@ public class ZFhirMapper {
                 imAddUse = "http://endhealth.info/im#oldAddress";
                 break;
         }
-         */
 
-        Address address = new Address()
+
+
+        Address address = new Address(UUID.randomUUID())
                 //.setAddressLine(fhirLines)
                 .setPostCode(fhirPostalCode)
                 .setCity(fhirCity);
+
+        result.add(address);
 
         if (fhirLines != null)  { address.setAddressLine(fhirLines); }
 
@@ -245,7 +230,6 @@ public class ZFhirMapper {
 
         String fhirGender = parsed.getGender();
 
-        /*
         String imGender = "http://hl7.org/fhir/administrative-gender/other";
         switch (fhirGender) {
             case "female":
@@ -255,7 +239,8 @@ public class ZFhirMapper {
                 imGender = "http://hl7.org/fhir/administrative-gender/male";
                 break;
         }
-         */
+
+
 
         patient .setDateOfBirth(formatedDOB)
                 .setFamilyName(fhirFamily.toString())
@@ -273,47 +258,30 @@ public class ZFhirMapper {
         patient.setProperty("text", fhirAddTxt);
 
         if (fhirAddUse.equals("home")) {
-            patient.setHomeAddress(address);
+            patient.setHomeAddress(address.getId());
         }
 
         if (fhirAddUse.equals("temp")) {
-            patient.setTemporaryAddress(address);
+            patient.setTemporaryAddress(address.getId());
         }
 
         if (fhirAddUse.equals("work")) {
-            patient.setWorkAddress(address);
+            patient.setWorkAddress(address.getId());
         }
 
-        GpCurrentRegistration gpCurrReg = new GpCurrentRegistration();
-        gpCurrReg.setRecordOwner(zOrganisation);
+        GpCurrentRegistration gpCurrReg = new GpCurrentRegistration(UUID.randomUUID());
+        result.add(gpCurrReg);
+        gpCurrReg.setRecordOwner(zOrganisation.getId());
         //patient.setGpCurrentRegistration(gpCurrReg);
 
         PractitionerInRole gpInRole = new PractitionerInRole(fhirGp);
-        gpCurrReg.setUsualGp(gpInRole);
+        result.add(gpInRole);
+        gpCurrReg.setUsualGp(gpInRole.getId());
 
-        patient.setGpCurrentRegistration(gpCurrReg);
+        patient.setGpCurrentRegistration(gpCurrReg.getId());
 
         patient.setTitle(fhirPrefix.toString());
 
-        ObjectMapper om = new ObjectMapper();
-
-        // Serialization test
-        //String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(patient);
-        String json = om.writeValueAsString(patient);
-
-        // Deserialization test
-        /*
-        Patient des = om.readValue(json, Patient.class);
-        System.out.println("First name: " + des.getCallingName());
-        System.out.println("Age: " + des.getAge());
-        if (des.getProperty("middleName") != null) System.out.println("Middle name: " + des.getProperty("middleName"));
-        System.out.println("Post code: " + des.getHomeAddress().getPostCode());
-        System.out.println("Planet: " + des.getHomeAddress().getProperty("planet"));
-        System.out.println("text: " + des.getProperty("text"));
-
-        System.out.println("Gender: " + des.getStatedGender());
-         */
-
-        return json;
+        return result;
     }
 }

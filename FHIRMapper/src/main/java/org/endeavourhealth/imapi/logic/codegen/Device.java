@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents device
+* Represents device.
 * In the context of the health data model a device is normally used to relate to the entry of a record or in relation to its use in a procedure or operation<p>Devices are categorised and full defined via the information model relationships. Thus each device represents an instance of a kind of device defined in the information model
 */
 public class Device extends IMDMBase<Device> {
 
 
 	/**
-	* Device constructor 
-	*/
-	public Device() {
-		super("Device");
-	}
-
-	/**
 	* Device constructor with identifier
 	*/
-	public Device(String id) {
+	public Device(UUID id) {
 		super("Device", id);
 	}
 
@@ -69,7 +62,7 @@ public class Device extends IMDMBase<Device> {
 	* Gets the manufacturer of this device
 	* @return manufacturer
 	*/
-	public Organisation getManufacturer() {
+	public UUID getManufacturer() {
 		return getProperty("manufacturer");
 	}
 
@@ -79,7 +72,7 @@ public class Device extends IMDMBase<Device> {
 	* @param manufacturer The new manufacturer to set
 	* @return Device
 	*/
-	public Device setManufacturer(Organisation manufacturer) {
+	public Device setManufacturer(UUID manufacturer) {
 		setProperty("manufacturer", manufacturer);
 		return this;
 	}

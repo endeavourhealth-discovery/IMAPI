@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents codeable concept
+* Represents codeable concept.
 * A coded concept used in a health record system that may or may not be a defined concept in the ontology. It represents the local definition of a code and is of the form used in HL7 messaging
 */
 public class CodeableConcept extends IMDMBase<CodeableConcept> {
 
 
 	/**
-	* Codeable concept constructor 
-	*/
-	public CodeableConcept() {
-		super("CodeableConcept");
-	}
-
-	/**
 	* Codeable concept constructor with identifier
 	*/
-	public CodeableConcept(String id) {
+	public CodeableConcept(UUID id) {
 		super("CodeableConcept", id);
 	}
 
@@ -51,7 +44,7 @@ public class CodeableConcept extends IMDMBase<CodeableConcept> {
 	* The core concept iri that this codeable concept has been matched to in this instance
 	* @return matchedConcept
 	*/
-	public Irirref getMatchedConcept() {
+	public UUID getMatchedConcept() {
 		return getProperty("matchedConcept");
 	}
 
@@ -61,7 +54,7 @@ public class CodeableConcept extends IMDMBase<CodeableConcept> {
 	* @param matchedConcept The new matched concept to set
 	* @return CodeableConcept
 	*/
-	public CodeableConcept setMatchedConcept(Irirref matchedConcept) {
+	public CodeableConcept setMatchedConcept(UUID matchedConcept) {
 		setProperty("matchedConcept", matchedConcept);
 		return this;
 	}
@@ -240,7 +233,7 @@ public class CodeableConcept extends IMDMBase<CodeableConcept> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -250,7 +243,7 @@ public class CodeableConcept extends IMDMBase<CodeableConcept> {
 	* @param isContainedIn The new is contained in to set
 	* @return CodeableConcept
 	*/
-	public CodeableConcept setIsContainedIn(Folder isContainedIn) {
+	public CodeableConcept setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -261,7 +254,7 @@ public class CodeableConcept extends IMDMBase<CodeableConcept> {
 	* When a status is inactive, the entity that replaces this entity (if any)
 	* @return replacedByAttribute
 	*/
-	public Entity getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -271,7 +264,7 @@ public class CodeableConcept extends IMDMBase<CodeableConcept> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return CodeableConcept
 	*/
-	public CodeableConcept setReplacedByAttribute(Entity replacedByAttribute) {
+	public CodeableConcept setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}

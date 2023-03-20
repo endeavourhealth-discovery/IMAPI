@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents document
+* Represents document.
 * A structure of a document. This is a light weight definition as documents tend to specialise very quickly to many types, even in the context of a single provider.
 */
 public class Document extends IMDMBase<Document> {
 
 
 	/**
-	* Document constructor 
-	*/
-	public Document() {
-		super("Document");
-	}
-
-	/**
 	* Document constructor with identifier
 	*/
-	public Document(String id) {
+	public Document(UUID id) {
 		super("Document", id);
 	}
 

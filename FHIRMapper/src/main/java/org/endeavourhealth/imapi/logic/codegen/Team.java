@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents team
+* Represents team.
 * Teams are named groups of individuals that are linked to one or more services
 */
 public class Team extends IMDMBase<Team> {
 
 
 	/**
-	* Team constructor 
-	*/
-	public Team() {
-		super("Team");
-	}
-
-	/**
 	* Team constructor with identifier
 	*/
-	public Team(String id) {
+	public Team(UUID id) {
 		super("Team", id);
 	}
 
@@ -29,7 +22,7 @@ public class Team extends IMDMBase<Team> {
 	* Gets the organisation or services of this team
 	* @return organisationOrServices
 	*/
-	public Organisation getOrganisationOrServices() {
+	public UUID getOrganisationOrServices() {
 		return getProperty("organisationOrServices");
 	}
 
@@ -39,7 +32,7 @@ public class Team extends IMDMBase<Team> {
 	* @param organisationOrServices The new organisation or services to set
 	* @return Team
 	*/
-	public Team setOrganisationOrServices(Organisation organisationOrServices) {
+	public Team setOrganisationOrServices(UUID organisationOrServices) {
 		setProperty("organisationOrServices", organisationOrServices);
 		return this;
 	}
@@ -49,7 +42,7 @@ public class Team extends IMDMBase<Team> {
 	* Gets the team members of this team
 	* @return teamMembers
 	*/
-	public PractitionerInRole getTeamMembers() {
+	public UUID getTeamMembers() {
 		return getProperty("teamMembers");
 	}
 
@@ -59,7 +52,7 @@ public class Team extends IMDMBase<Team> {
 	* @param teamMembers The new team members to set
 	* @return Team
 	*/
-	public Team setTeamMembers(PractitionerInRole teamMembers) {
+	public Team setTeamMembers(UUID teamMembers) {
 		setProperty("teamMembers", teamMembers);
 		return this;
 	}

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents episode of care
+* Represents episode of care.
 * A care episode is an association between a patient and a healthcare provider during which time care is provided. The association implies that the provider has some responsibility for the provision of care during the period of time covered by the episode.<p>A care episode may be a concept that is explicitly stated. For example, GP registration is an explicit process by which the patient registers for care and in due course may be de-registered when they move elsewhere.<p>A care episode may otherwise be deduced from the data provided , usually relating to encounters. For example the acceptance of a referral or the attendance at accident and emergency provide episode of care start points. Discharge from an outpatient clinical may be used to deduce the end of a care episode.
 */
 public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 
 
 	/**
-	* Episode of care constructor 
-	*/
-	public EpisodeOfCare() {
-		super("EpisodeOfCare");
-	}
-
-	/**
 	* Episode of care constructor with identifier
 	*/
-	public EpisodeOfCare(String id) {
+	public EpisodeOfCare(UUID id) {
 		super("EpisodeOfCare", id);
 	}
 
@@ -49,7 +42,7 @@ public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 	* Gets the record owner of this episode of care
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 	* @param recordOwner The new record owner to set
 	* @return EpisodeOfCare
 	*/
-	public EpisodeOfCare setRecordOwner(Organisation recordOwner) {
+	public EpisodeOfCare setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 	* Gets the patient of this episode of care
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 	* @param patient The new patient to set
 	* @return EpisodeOfCare
 	*/
-	public EpisodeOfCare setPatient(Patient patient) {
+	public EpisodeOfCare setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 	* Gets the original concept of this episode of care
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class EpisodeOfCare extends IMDMBase<EpisodeOfCare> {
 	* @param originalConcept The new original concept to set
 	* @return EpisodeOfCare
 	*/
-	public EpisodeOfCare setOriginalConcept(TerminologyConcept originalConcept) {
+	public EpisodeOfCare setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

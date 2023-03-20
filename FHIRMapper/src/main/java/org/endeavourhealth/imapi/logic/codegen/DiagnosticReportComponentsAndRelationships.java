@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents diagnostic report components and relationships
+* Represents diagnostic report components and relationships.
 * Below are the list of common components of a diagnostic report
 */
 public class DiagnosticReportComponentsAndRelationships extends IMDMBase<DiagnosticReportComponentsAndRelationships> {
 
 
 	/**
-	* Diagnostic report components and relationships constructor 
-	*/
-	public DiagnosticReportComponentsAndRelationships() {
-		super("DiagnosticReportComponentsAndRelationships");
-	}
-
-	/**
 	* Diagnostic report components and relationships constructor with identifier
 	*/
-	public DiagnosticReportComponentsAndRelationships(String id) {
+	public DiagnosticReportComponentsAndRelationships(UUID id) {
 		super("DiagnosticReportComponentsAndRelationships", id);
 	}
 
@@ -49,7 +42,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* Gets the record owner of this diagnostic report components and relationships
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* @param recordOwner The new record owner to set
 	* @return DiagnosticReportComponentsAndRelationships
 	*/
-	public DiagnosticReportComponentsAndRelationships setRecordOwner(Organisation recordOwner) {
+	public DiagnosticReportComponentsAndRelationships setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* Gets the patient of this diagnostic report components and relationships
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* @param patient The new patient to set
 	* @return DiagnosticReportComponentsAndRelationships
 	*/
-	public DiagnosticReportComponentsAndRelationships setPatient(Patient patient) {
+	public DiagnosticReportComponentsAndRelationships setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* Gets the concept of this diagnostic report components and relationships
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -179,7 +172,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* @param concept The new concept to set
 	* @return DiagnosticReportComponentsAndRelationships
 	*/
-	public DiagnosticReportComponentsAndRelationships setConcept(TerminologyConcept concept) {
+	public DiagnosticReportComponentsAndRelationships setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -209,7 +202,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* Gets the original concept of this diagnostic report components and relationships
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -219,7 +212,7 @@ public class DiagnosticReportComponentsAndRelationships extends IMDMBase<Diagnos
 	* @param originalConcept The new original concept to set
 	* @return DiagnosticReportComponentsAndRelationships
 	*/
-	public DiagnosticReportComponentsAndRelationships setOriginalConcept(TerminologyConcept originalConcept) {
+	public DiagnosticReportComponentsAndRelationships setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

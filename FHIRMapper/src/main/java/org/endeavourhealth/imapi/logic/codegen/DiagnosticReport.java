@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents diagnostic report
+* Represents diagnostic report.
 * A diagnostic report is the set of information that is typically provided by a diagnostic service when investigations are complete. It includes a mix of component events often arranged hierarchically, some structured, some unstructured.<p>A diagnostic report has a header and set of components
 */
 public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 
 
 	/**
-	* Diagnostic report constructor 
-	*/
-	public DiagnosticReport() {
-		super("DiagnosticReport");
-	}
-
-	/**
 	* Diagnostic report constructor with identifier
 	*/
-	public DiagnosticReport(String id) {
+	public DiagnosticReport(UUID id) {
 		super("DiagnosticReport", id);
 	}
 
@@ -49,7 +42,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* Gets the record owner of this diagnostic report
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* @param recordOwner The new record owner to set
 	* @return DiagnosticReport
 	*/
-	public DiagnosticReport setRecordOwner(Organisation recordOwner) {
+	public DiagnosticReport setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* Gets the patient of this diagnostic report
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* @param patient The new patient to set
 	* @return DiagnosticReport
 	*/
-	public DiagnosticReport setPatient(Patient patient) {
+	public DiagnosticReport setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* Gets the concept of this diagnostic report
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -179,7 +172,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* @param concept The new concept to set
 	* @return DiagnosticReport
 	*/
-	public DiagnosticReport setConcept(TerminologyConcept concept) {
+	public DiagnosticReport setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -209,7 +202,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* Gets the original concept of this diagnostic report
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -219,7 +212,7 @@ public class DiagnosticReport extends IMDMBase<DiagnosticReport> {
 	* @param originalConcept The new original concept to set
 	* @return DiagnosticReport
 	*/
-	public DiagnosticReport setOriginalConcept(TerminologyConcept originalConcept) {
+	public DiagnosticReport setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

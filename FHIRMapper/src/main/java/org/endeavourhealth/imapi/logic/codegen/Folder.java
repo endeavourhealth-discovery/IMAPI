@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents folder
+* Represents folder.
 * Folder containing subfolders or entities
 */
 public class Folder extends IMDMBase<Folder> {
 
 
 	/**
-	* Folder constructor 
-	*/
-	public Folder() {
-		super("Folder");
-	}
-
-	/**
 	* Folder constructor with identifier
 	*/
-	public Folder(String id) {
+	public Folder(UUID id) {
 		super("Folder", id);
 	}
 
@@ -135,7 +128,7 @@ public class Folder extends IMDMBase<Folder> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -145,7 +138,7 @@ public class Folder extends IMDMBase<Folder> {
 	* @param isContainedIn The new is contained in to set
 	* @return Folder
 	*/
-	public Folder setIsContainedIn(Folder isContainedIn) {
+	public Folder setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -156,7 +149,7 @@ public class Folder extends IMDMBase<Folder> {
 	* When a status is inactive, the entity that replaces this entity (if any)
 	* @return replacedByAttribute
 	*/
-	public Entity getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -166,7 +159,7 @@ public class Folder extends IMDMBase<Folder> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return Folder
 	*/
-	public Folder setReplacedByAttribute(Entity replacedByAttribute) {
+	public Folder setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents specimen
+* Represents specimen.
 * A specimen definition that is part of a diagnostic report
 */
 public class Specimen extends IMDMBase<Specimen> {
 
 
 	/**
-	* Specimen constructor 
-	*/
-	public Specimen() {
-		super("Specimen");
-	}
-
-	/**
 	* Specimen constructor with identifier
 	*/
-	public Specimen(String id) {
+	public Specimen(UUID id) {
 		super("Specimen", id);
 	}
 
@@ -89,7 +82,7 @@ public class Specimen extends IMDMBase<Specimen> {
 	* Gets the request of this specimen
 	* @return request
 	*/
-	public ReferralRequestOrProcedureRequest getRequest() {
+	public UUID getRequest() {
 		return getProperty("request");
 	}
 
@@ -99,7 +92,7 @@ public class Specimen extends IMDMBase<Specimen> {
 	* @param request The new request to set
 	* @return Specimen
 	*/
-	public Specimen setRequest(ReferralRequestOrProcedureRequest request) {
+	public Specimen setRequest(UUID request) {
 		setProperty("request", request);
 		return this;
 	}

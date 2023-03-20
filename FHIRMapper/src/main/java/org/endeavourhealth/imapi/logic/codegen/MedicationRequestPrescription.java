@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents medication request prescription
+* Represents medication request prescription.
 * The actual prescription for, or issue of a medication item. Seperate from the authorisation process
 */
 public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPrescription> {
 
 
 	/**
-	* Medication request prescription constructor 
-	*/
-	public MedicationRequestPrescription() {
-		super("MedicationRequestPrescription");
-	}
-
-	/**
 	* Medication request prescription constructor with identifier
 	*/
-	public MedicationRequestPrescription(String id) {
+	public MedicationRequestPrescription(UUID id) {
 		super("MedicationRequestPrescription", id);
 	}
 
@@ -29,7 +22,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* Gets the record owner of this medication request prescription
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -39,7 +32,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* @param recordOwner The new record owner to set
 	* @return MedicationRequestPrescription
 	*/
-	public MedicationRequestPrescription setRecordOwner(Organisation recordOwner) {
+	public MedicationRequestPrescription setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -49,7 +42,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* Gets the authorisation of this medication request prescription
 	* @return authorisation
 	*/
-	public MedicationAuthorisation getAuthorisation() {
+	public UUID getAuthorisation() {
 		return getProperty("authorisation");
 	}
 
@@ -59,7 +52,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* @param authorisation The new authorisation to set
 	* @return MedicationRequestPrescription
 	*/
-	public MedicationRequestPrescription setAuthorisation(MedicationAuthorisation authorisation) {
+	public MedicationRequestPrescription setAuthorisation(UUID authorisation) {
 		setProperty("authorisation", authorisation);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* Gets the patient of this medication request prescription
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* @param patient The new patient to set
 	* @return MedicationRequestPrescription
 	*/
-	public MedicationRequestPrescription setPatient(Patient patient) {
+	public MedicationRequestPrescription setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* Gets the original concept of this medication request prescription
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class MedicationRequestPrescription extends IMDMBase<MedicationRequestPre
 	* @param originalConcept The new original concept to set
 	* @return MedicationRequestPrescription
 	*/
-	public MedicationRequestPrescription setOriginalConcept(TerminologyConcept originalConcept) {
+	public MedicationRequestPrescription setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

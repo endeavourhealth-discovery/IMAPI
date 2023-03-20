@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents immunisation
+* Represents immunisation.
 * Immunisation extends a simple observation by providing more information about the immunisation procedure and vaccine used.<p>This is a summary of immunisation, (expected to be extended)
 */
 public class Immunisation extends IMDMBase<Immunisation> {
 
 
 	/**
-	* Immunisation constructor 
-	*/
-	public Immunisation() {
-		super("Immunisation");
-	}
-
-	/**
 	* Immunisation constructor with identifier
 	*/
-	public Immunisation(String id) {
+	public Immunisation(UUID id) {
 		super("Immunisation", id);
 	}
 
@@ -49,7 +42,7 @@ public class Immunisation extends IMDMBase<Immunisation> {
 	* Gets the record owner of this immunisation
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Immunisation extends IMDMBase<Immunisation> {
 	* @param recordOwner The new record owner to set
 	* @return Immunisation
 	*/
-	public Immunisation setRecordOwner(Organisation recordOwner) {
+	public Immunisation setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class Immunisation extends IMDMBase<Immunisation> {
 	* Gets the patient of this immunisation
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class Immunisation extends IMDMBase<Immunisation> {
 	* @param patient The new patient to set
 	* @return Immunisation
 	*/
-	public Immunisation setPatient(Patient patient) {
+	public Immunisation setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class Immunisation extends IMDMBase<Immunisation> {
 	* Gets the original concept of this immunisation
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class Immunisation extends IMDMBase<Immunisation> {
 	* @param originalConcept The new original concept to set
 	* @return Immunisation
 	*/
-	public Immunisation setOriginalConcept(TerminologyConcept originalConcept) {
+	public Immunisation setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

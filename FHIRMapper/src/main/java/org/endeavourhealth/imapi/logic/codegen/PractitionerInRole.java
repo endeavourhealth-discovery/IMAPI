@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents practitioner in role
+* Represents practitioner in role.
 * This term refers to any person who provides care or is part of the health care process, excluding personally engaged or family carers.<p>A practitioner in role means a person providing care in the context of an organisation or service. The same person may have a number of roles across a number of organisations in which case it is expected that several entries may be created.
 */
 public class PractitionerInRole extends IMDMBase<PractitionerInRole> {
 
 
 	/**
-	* Practitioner in role constructor 
-	*/
-	public PractitionerInRole() {
-		super("PractitionerInRole");
-	}
-
-	/**
 	* Practitioner in role constructor with identifier
 	*/
-	public PractitionerInRole(String id) {
+	public PractitionerInRole(UUID id) {
 		super("PractitionerInRole", id);
 	}
 

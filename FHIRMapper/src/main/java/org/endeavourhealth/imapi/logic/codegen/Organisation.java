@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents organisation
+* Represents organisation.
 * A record of an organisation and its relationships. Named collections of people that have come together to achieve an objective
 */
 public class Organisation extends IMDMBase<Organisation> {
 
 
 	/**
-	* Organisation constructor 
-	*/
-	public Organisation() {
-		super("Organisation");
-	}
-
-	/**
 	* Organisation constructor with identifier
 	*/
-	public Organisation(String id) {
+	public Organisation(UUID id) {
 		super("Organisation", id);
 	}
 
@@ -29,7 +22,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the address of this organisation
 	* @return address
 	*/
-	public Address getAddress() {
+	public UUID getAddress() {
 		return getProperty("address");
 	}
 
@@ -39,7 +32,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param address The new address to set
 	* @return Organisation
 	*/
-	public Organisation setAddress(Address address) {
+	public Organisation setAddress(UUID address) {
 		setProperty("address", address);
 		return this;
 	}
@@ -249,7 +242,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the main location of this organisation
 	* @return mainLocation
 	*/
-	public Location getMainLocation() {
+	public UUID getMainLocation() {
 		return getProperty("mainLocation");
 	}
 
@@ -259,7 +252,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param mainLocation The new main location to set
 	* @return Organisation
 	*/
-	public Organisation setMainLocation(Location mainLocation) {
+	public Organisation setMainLocation(UUID mainLocation) {
 		setProperty("mainLocation", mainLocation);
 		return this;
 	}
@@ -269,7 +262,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is operated by of this organisation
 	* @return isOperatedBy
 	*/
-	public Organisation getIsOperatedBy() {
+	public UUID getIsOperatedBy() {
 		return getProperty("isOperatedBy");
 	}
 
@@ -279,7 +272,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isOperatedBy The new is operated by to set
 	* @return Organisation
 	*/
-	public Organisation setIsOperatedBy(Organisation isOperatedBy) {
+	public Organisation setIsOperatedBy(UUID isOperatedBy) {
 		setProperty("isOperatedBy", isOperatedBy);
 		return this;
 	}
@@ -289,7 +282,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is located in the geography of of this organisation
 	* @return isLocatedInTheGeographyOf
 	*/
-	public Organisation getIsLocatedInTheGeographyOf() {
+	public UUID getIsLocatedInTheGeographyOf() {
 		return getProperty("isLocatedInTheGeographyOf");
 	}
 
@@ -299,7 +292,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isLocatedInTheGeographyOf The new is located in the geography of to set
 	* @return Organisation
 	*/
-	public Organisation setIsLocatedInTheGeographyOf(Organisation isLocatedInTheGeographyOf) {
+	public Organisation setIsLocatedInTheGeographyOf(UUID isLocatedInTheGeographyOf) {
 		setProperty("isLocatedInTheGeographyOf", isLocatedInTheGeographyOf);
 		return this;
 	}
@@ -309,7 +302,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is commissioned by of this organisation
 	* @return isCommissionedBy
 	*/
-	public Organisation getIsCommissionedBy() {
+	public UUID getIsCommissionedBy() {
 		return getProperty("isCommissionedBy");
 	}
 
@@ -319,7 +312,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isCommissionedBy The new is commissioned by to set
 	* @return Organisation
 	*/
-	public Organisation setIsCommissionedBy(Organisation isCommissionedBy) {
+	public Organisation setIsCommissionedBy(UUID isCommissionedBy) {
 		setProperty("isCommissionedBy", isCommissionedBy);
 		return this;
 	}
@@ -329,7 +322,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is directed by of this organisation
 	* @return isDirectedBy
 	*/
-	public Organisation getIsDirectedBy() {
+	public UUID getIsDirectedBy() {
 		return getProperty("isDirectedBy");
 	}
 
@@ -339,7 +332,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isDirectedBy The new is directed by to set
 	* @return Organisation
 	*/
-	public Organisation setIsDirectedBy(Organisation isDirectedBy) {
+	public Organisation setIsDirectedBy(UUID isDirectedBy) {
 		setProperty("isDirectedBy", isDirectedBy);
 		return this;
 	}
@@ -349,7 +342,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is partner to of this organisation
 	* @return isPartnerTo
 	*/
-	public Organisation getIsPartnerTo() {
+	public UUID getIsPartnerTo() {
 		return getProperty("isPartnerTo");
 	}
 
@@ -359,7 +352,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isPartnerTo The new is partner to to set
 	* @return Organisation
 	*/
-	public Organisation setIsPartnerTo(Organisation isPartnerTo) {
+	public Organisation setIsPartnerTo(UUID isPartnerTo) {
 		setProperty("isPartnerTo", isPartnerTo);
 		return this;
 	}
@@ -369,7 +362,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is nominated payee for of this organisation
 	* @return isNominatedPayeeFor
 	*/
-	public Organisation getIsNominatedPayeeFor() {
+	public UUID getIsNominatedPayeeFor() {
 		return getProperty("isNominatedPayeeFor");
 	}
 
@@ -379,7 +372,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isNominatedPayeeFor The new is nominated payee for to set
 	* @return Organisation
 	*/
-	public Organisation setIsNominatedPayeeFor(Organisation isNominatedPayeeFor) {
+	public Organisation setIsNominatedPayeeFor(UUID isNominatedPayeeFor) {
 		setProperty("isNominatedPayeeFor", isNominatedPayeeFor);
 		return this;
 	}
@@ -389,7 +382,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is covid nominated payee for of this organisation
 	* @return isCovidNominatedPayeeFor
 	*/
-	public Organisation getIsCovidNominatedPayeeFor() {
+	public UUID getIsCovidNominatedPayeeFor() {
 		return getProperty("isCovidNominatedPayeeFor");
 	}
 
@@ -399,7 +392,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isCovidNominatedPayeeFor The new is covid nominated payee for to set
 	* @return Organisation
 	*/
-	public Organisation setIsCovidNominatedPayeeFor(Organisation isCovidNominatedPayeeFor) {
+	public Organisation setIsCovidNominatedPayeeFor(UUID isCovidNominatedPayeeFor) {
 		setProperty("isCovidNominatedPayeeFor", isCovidNominatedPayeeFor);
 		return this;
 	}
@@ -409,7 +402,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* Gets the is a subdivision of of this organisation
 	* @return isASubdivisionOf
 	*/
-	public Organisation getIsASubdivisionOf() {
+	public UUID getIsASubdivisionOf() {
 		return getProperty("isASubdivisionOf");
 	}
 
@@ -419,7 +412,7 @@ public class Organisation extends IMDMBase<Organisation> {
 	* @param isASubdivisionOf The new is a subdivision of to set
 	* @return Organisation
 	*/
-	public Organisation setIsASubdivisionOf(Organisation isASubdivisionOf) {
+	public Organisation setIsASubdivisionOf(UUID isASubdivisionOf) {
 		setProperty("isASubdivisionOf", isASubdivisionOf);
 		return this;
 	}

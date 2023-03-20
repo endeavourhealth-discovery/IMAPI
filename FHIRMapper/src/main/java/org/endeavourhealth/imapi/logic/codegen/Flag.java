@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents flag
+* Represents flag.
 * A flag is a warning or notification of some sort presented to the user - who may be a clinician or some other person involve in patient care. It usually represents something of sufficient significance to be warrant a special display of some sort - rather than just a note in an entry
 */
 public class Flag extends IMDMBase<Flag> {
 
 
 	/**
-	* Flag constructor 
-	*/
-	public Flag() {
-		super("Flag");
-	}
-
-	/**
 	* Flag constructor with identifier
 	*/
-	public Flag(String id) {
+	public Flag(UUID id) {
 		super("Flag", id);
 	}
 
@@ -49,7 +42,7 @@ public class Flag extends IMDMBase<Flag> {
 	* Gets the record owner of this flag
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Flag extends IMDMBase<Flag> {
 	* @param recordOwner The new record owner to set
 	* @return Flag
 	*/
-	public Flag setRecordOwner(Organisation recordOwner) {
+	public Flag setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class Flag extends IMDMBase<Flag> {
 	* Gets the patient of this flag
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class Flag extends IMDMBase<Flag> {
 	* @param patient The new patient to set
 	* @return Flag
 	*/
-	public Flag setPatient(Patient patient) {
+	public Flag setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -149,7 +142,7 @@ public class Flag extends IMDMBase<Flag> {
 	* Gets the concept of this flag
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -159,7 +152,7 @@ public class Flag extends IMDMBase<Flag> {
 	* @param concept The new concept to set
 	* @return Flag
 	*/
-	public Flag setConcept(TerminologyConcept concept) {
+	public Flag setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class Flag extends IMDMBase<Flag> {
 	* Gets the original concept of this flag
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class Flag extends IMDMBase<Flag> {
 	* @param originalConcept The new original concept to set
 	* @return Flag
 	*/
-	public Flag setOriginalConcept(TerminologyConcept originalConcept) {
+	public Flag setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

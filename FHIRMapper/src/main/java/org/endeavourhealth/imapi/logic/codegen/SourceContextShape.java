@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents source context shape
+* Represents source context shape.
 * Data model for source context for a concept e.g. source system, field etc
 */
 public class SourceContextShape extends IMDMBase<SourceContextShape> {
 
 
 	/**
-	* Source context shape constructor 
-	*/
-	public SourceContextShape() {
-		super("SourceContextShape");
-	}
-
-	/**
 	* Source context shape constructor with identifier
 	*/
-	public SourceContextShape(String id) {
+	public SourceContextShape(UUID id) {
 		super("SourceContextShape", id);
 	}
 
@@ -51,7 +44,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* the name of the system that was responsible for sending the message or extract, usually referring to the health care record system
 	* @return sourceSystem
 	*/
-	public ComputerSystem getSourceSystem() {
+	public UUID getSourceSystem() {
 		return getProperty("sourceSystem");
 	}
 
@@ -61,7 +54,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* @param sourceSystem The new source system to set
 	* @return SourceContextShape
 	*/
-	public SourceContextShape setSourceSystem(ComputerSystem sourceSystem) {
+	public SourceContextShape setSourceSystem(UUID sourceSystem) {
 		setProperty("sourceSystem", sourceSystem);
 		return this;
 	}
@@ -93,7 +86,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* The organisation (usually a provider) that was the source of this message or extract
 	* @return sourcePublisher
 	*/
-	public Organisation getSourcePublisher() {
+	public UUID getSourcePublisher() {
 		return getProperty("sourcePublisher");
 	}
 
@@ -103,7 +96,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* @param sourcePublisher The new source publisher to set
 	* @return SourceContextShape
 	*/
-	public SourceContextShape setSourcePublisher(Organisation sourcePublisher) {
+	public SourceContextShape setSourcePublisher(UUID sourcePublisher) {
 		setProperty("sourcePublisher", sourcePublisher);
 		return this;
 	}
@@ -240,7 +233,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -250,7 +243,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* @param isContainedIn The new is contained in to set
 	* @return SourceContextShape
 	*/
-	public SourceContextShape setIsContainedIn(Folder isContainedIn) {
+	public SourceContextShape setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -282,7 +275,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* When a status is inactive, the entity that replaces this entity (if any)
 	* @return replacedByAttribute
 	*/
-	public Entity getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -292,7 +285,7 @@ public class SourceContextShape extends IMDMBase<SourceContextShape> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return SourceContextShape
 	*/
-	public SourceContextShape setReplacedByAttribute(Entity replacedByAttribute) {
+	public SourceContextShape setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}

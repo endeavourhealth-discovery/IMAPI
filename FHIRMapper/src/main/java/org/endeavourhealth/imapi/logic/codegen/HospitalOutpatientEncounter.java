@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents hospital outpatient encounter
+* Represents hospital outpatient encounter.
 * An entry describing a hospital outpatient attendance.<p>common data model attributes for Hospital outpatient encounter
 */
 public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEncounter> {
 
 
 	/**
-	* Hospital outpatient encounter constructor 
-	*/
-	public HospitalOutpatientEncounter() {
-		super("HospitalOutpatientEncounter");
-	}
-
-	/**
 	* Hospital outpatient encounter constructor with identifier
 	*/
-	public HospitalOutpatientEncounter(String id) {
+	public HospitalOutpatientEncounter(UUID id) {
 		super("HospitalOutpatientEncounter", id);
 	}
 
@@ -49,7 +42,7 @@ public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEnco
 	* Gets the record owner of this hospital outpatient encounter
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEnco
 	* @param recordOwner The new record owner to set
 	* @return HospitalOutpatientEncounter
 	*/
-	public HospitalOutpatientEncounter setRecordOwner(Organisation recordOwner) {
+	public HospitalOutpatientEncounter setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEnco
 	* Gets the patient of this hospital outpatient encounter
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEnco
 	* @param patient The new patient to set
 	* @return HospitalOutpatientEncounter
 	*/
-	public HospitalOutpatientEncounter setPatient(Patient patient) {
+	public HospitalOutpatientEncounter setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEnco
 	* Gets the original concept of this hospital outpatient encounter
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class HospitalOutpatientEncounter extends IMDMBase<HospitalOutpatientEnco
 	* @param originalConcept The new original concept to set
 	* @return HospitalOutpatientEncounter
 	*/
-	public HospitalOutpatientEncounter setOriginalConcept(TerminologyConcept originalConcept) {
+	public HospitalOutpatientEncounter setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents event
+* Represents event.
 * An entry for something that is deemed to be valid at a point in time and may or may not be valid over time. In other words an entry with an effective date/time that does not have a property of end date/time defined
 */
 public class Event extends IMDMBase<Event> {
 
 
 	/**
-	* Event constructor 
-	*/
-	public Event() {
-		super("Event");
-	}
-
-	/**
 	* Event constructor with identifier
 	*/
-	public Event(String id) {
+	public Event(UUID id) {
 		super("Event", id);
 	}
 
@@ -49,7 +42,7 @@ public class Event extends IMDMBase<Event> {
 	* Gets the record owner of this event
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Event extends IMDMBase<Event> {
 	* @param recordOwner The new record owner to set
 	* @return Event
 	*/
-	public Event setRecordOwner(Organisation recordOwner) {
+	public Event setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -69,7 +62,7 @@ public class Event extends IMDMBase<Event> {
 	* Gets the patient of this event
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -79,7 +72,7 @@ public class Event extends IMDMBase<Event> {
 	* @param patient The new patient to set
 	* @return Event
 	*/
-	public Event setPatient(Patient patient) {
+	public Event setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class Event extends IMDMBase<Event> {
 	* Gets the concept of this event
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -99,7 +92,7 @@ public class Event extends IMDMBase<Event> {
 	* @param concept The new concept to set
 	* @return Event
 	*/
-	public Event setConcept(TerminologyConcept concept) {
+	public Event setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class Event extends IMDMBase<Event> {
 	* Gets the original concept of this event
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -119,7 +112,7 @@ public class Event extends IMDMBase<Event> {
 	* @param originalConcept The new original concept to set
 	* @return Event
 	*/
-	public Event setOriginalConcept(TerminologyConcept originalConcept) {
+	public Event setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

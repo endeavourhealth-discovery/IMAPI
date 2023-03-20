@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents section structural
+* Represents section structural.
 * Section of a document or encounter with a heading
 */
 public class SectionStructural extends IMDMBase<SectionStructural> {
 
 
 	/**
-	* Section structural constructor 
-	*/
-	public SectionStructural() {
-		super("SectionStructural");
-	}
-
-	/**
 	* Section structural constructor with identifier
 	*/
-	public SectionStructural(String id) {
+	public SectionStructural(UUID id) {
 		super("SectionStructural", id);
 	}
 
@@ -29,7 +22,7 @@ public class SectionStructural extends IMDMBase<SectionStructural> {
 	* Gets the is subsection of of this section structural
 	* @return isSubsectionOf
 	*/
-	public SectionStructural getIsSubsectionOf() {
+	public UUID getIsSubsectionOf() {
 		return getProperty("isSubsectionOf");
 	}
 
@@ -39,7 +32,7 @@ public class SectionStructural extends IMDMBase<SectionStructural> {
 	* @param isSubsectionOf The new is subsection of to set
 	* @return SectionStructural
 	*/
-	public SectionStructural setIsSubsectionOf(SectionStructural isSubsectionOf) {
+	public SectionStructural setIsSubsectionOf(UUID isSubsectionOf) {
 		setProperty("isSubsectionOf", isSubsectionOf);
 		return this;
 	}

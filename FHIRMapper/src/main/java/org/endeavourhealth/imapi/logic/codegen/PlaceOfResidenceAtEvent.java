@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents place of residence at event
+* Represents place of residence at event.
 * Data model for the place of residence at a point in time based on their home address at that time, if they are registered with a GP, including address and location information
 */
 public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 
 
 	/**
-	* Place of residence at event constructor 
-	*/
-	public PlaceOfResidenceAtEvent() {
-		super("PlaceOfResidenceAtEvent");
-	}
-
-	/**
 	* Place of residence at event constructor with identifier
 	*/
-	public PlaceOfResidenceAtEvent(String id) {
+	public PlaceOfResidenceAtEvent(UUID id) {
 		super("PlaceOfResidenceAtEvent", id);
 	}
 
@@ -49,7 +42,7 @@ public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 	* Gets the record owner of this place of residence at event
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 	* @param recordOwner The new record owner to set
 	* @return PlaceOfResidenceAtEvent
 	*/
-	public PlaceOfResidenceAtEvent setRecordOwner(Organisation recordOwner) {
+	public PlaceOfResidenceAtEvent setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -69,7 +62,7 @@ public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 	* Gets the patient of this place of residence at event
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -79,7 +72,7 @@ public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 	* @param patient The new patient to set
 	* @return PlaceOfResidenceAtEvent
 	*/
-	public PlaceOfResidenceAtEvent setPatient(Patient patient) {
+	public PlaceOfResidenceAtEvent setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -189,7 +182,7 @@ public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 	* Gets the location of this place of residence at event
 	* @return location
 	*/
-	public Location getLocation() {
+	public UUID getLocation() {
 		return getProperty("location");
 	}
 
@@ -199,7 +192,7 @@ public class PlaceOfResidenceAtEvent extends IMDMBase<PlaceOfResidenceAtEvent> {
 	* @param location The new location to set
 	* @return PlaceOfResidenceAtEvent
 	*/
-	public PlaceOfResidenceAtEvent setLocation(Location location) {
+	public PlaceOfResidenceAtEvent setLocation(UUID location) {
 		setProperty("location", location);
 		return this;
 	}

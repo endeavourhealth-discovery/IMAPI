@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents location
+* Represents location.
 * Information about a geographical location, building or entity that is related to the organisation that operates from it. This may include a region such as a postcode area or a single property
 */
 public class Location extends IMDMBase<Location> {
 
 
 	/**
-	* Location constructor 
-	*/
-	public Location() {
-		super("Location");
-	}
-
-	/**
 	* Location constructor with identifier
 	*/
-	public Location(String id) {
+	public Location(UUID id) {
 		super("Location", id);
 	}
 
@@ -29,7 +22,7 @@ public class Location extends IMDMBase<Location> {
 	* Gets the address of this location
 	* @return address
 	*/
-	public Address getAddress() {
+	public UUID getAddress() {
 		return getProperty("address");
 	}
 
@@ -39,7 +32,7 @@ public class Location extends IMDMBase<Location> {
 	* @param address The new address to set
 	* @return Location
 	*/
-	public Location setAddress(Address address) {
+	public Location setAddress(UUID address) {
 		setProperty("address", address);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class Location extends IMDMBase<Location> {
 	* Gets the organisation of this location
 	* @return organisation
 	*/
-	public Organisation getOrganisation() {
+	public UUID getOrganisation() {
 		return getProperty("organisation");
 	}
 
@@ -99,7 +92,7 @@ public class Location extends IMDMBase<Location> {
 	* @param organisation The new organisation to set
 	* @return Location
 	*/
-	public Location setOrganisation(Organisation organisation) {
+	public Location setOrganisation(UUID organisation) {
 		setProperty("organisation", organisation);
 		return this;
 	}

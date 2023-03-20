@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class ZFhirMedicationStatement {
     public static void main(String[] argv) throws Exception {
@@ -60,11 +61,11 @@ public class ZFhirMedicationStatement {
 
         ca.uhn.fhir.model.dstu2.resource.MedicationStatement parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.MedicationStatement.class, str);
 
-        String id = parsed.getId().getIdPart();
+        UUID id = UUID.fromString(parsed.getId().getIdPart());
 
         // Patient
         ResourceReferenceDt patientRef = parsed.getPatient();
-        String fhirNor = patientRef.getReference().getIdPart();
+        UUID fhirNor = UUID.fromString(patientRef.getReference().getIdPart());
 
         ResourceReferenceDt practRef = parsed.getInformationSource();
         String fhirPract = practRef.getReference().getIdPart();
@@ -139,12 +140,12 @@ public class ZFhirMedicationStatement {
 
         MedicationAuthorisation rx = new MedicationAuthorisation(id);
 
-        TerminologyConcept omConcept = new TerminologyConcept()
+        TerminologyConcept omConcept = new TerminologyConcept(UUID.randomUUID())
                 .setCode(dcde)
                 .setScheme(system)
                 .setProperty("custom-term", fhirDisplay);
 
-        rx.setOriginalConcept(omConcept);
+        rx.setOriginalConcept(omConcept.getId());
         rx.setDosage(dosageText);
         rx.setEffectiveDate(PartialDateTime.parse(dateAsserted));
 
@@ -159,7 +160,7 @@ public class ZFhirMedicationStatement {
         rx.setProperty("number-of-repeats-issued",numberOfRepeatIssues);
 
         Patient patient = new Patient(fhirNor);
-        rx.setPatient(patient);
+        rx.setPatient(patient.getId());
 
         // Serialization
         String json = om.writeValueAsString(rx);

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents provenance activity
+* Represents provenance activity.
 * In order to have generated some data, or changed some data, or deleted some data, some form of activity has taken place. This entity holds the nature of the activity that took place, points to the resulting entity and any used entities  and the date and time it took place. Provenance can be illustrated by providing a timeline of all linked activities, operating as a chain going back in time.<p>Activities would normally be implemented using activity subtypes
 */
 public class ProvenanceActivity extends IMDMBase<ProvenanceActivity> {
 
 
 	/**
-	* Provenance activity constructor 
-	*/
-	public ProvenanceActivity() {
-		super("ProvenanceActivity");
-	}
-
-	/**
 	* Provenance activity constructor with identifier
 	*/
-	public ProvenanceActivity(String id) {
+	public ProvenanceActivity(UUID id) {
 		super("ProvenanceActivity", id);
 	}
 
@@ -29,7 +22,7 @@ public class ProvenanceActivity extends IMDMBase<ProvenanceActivity> {
 	* Gets the used entity of this provenance activity
 	* @return usedEntity
 	*/
-	public ProvenanceSourceEntity getUsedEntity() {
+	public UUID getUsedEntity() {
 		return getProperty("usedEntity");
 	}
 
@@ -39,7 +32,7 @@ public class ProvenanceActivity extends IMDMBase<ProvenanceActivity> {
 	* @param usedEntity The new used entity to set
 	* @return ProvenanceActivity
 	*/
-	public ProvenanceActivity setUsedEntity(ProvenanceSourceEntity usedEntity) {
+	public ProvenanceActivity setUsedEntity(UUID usedEntity) {
 		setProperty("usedEntity", usedEntity);
 		return this;
 	}
@@ -49,7 +42,7 @@ public class ProvenanceActivity extends IMDMBase<ProvenanceActivity> {
 	* Gets the provenance agent of this provenance activity
 	* @return provenanceAgent
 	*/
-	public ProvenanceAgent getProvenanceAgent() {
+	public UUID getProvenanceAgent() {
 		return getProperty("provenanceAgent");
 	}
 
@@ -59,7 +52,7 @@ public class ProvenanceActivity extends IMDMBase<ProvenanceActivity> {
 	* @param provenanceAgent The new provenance agent to set
 	* @return ProvenanceActivity
 	*/
-	public ProvenanceActivity setProvenanceAgent(ProvenanceAgent provenanceAgent) {
+	public ProvenanceActivity setProvenanceAgent(UUID provenanceAgent) {
 		setProperty("provenanceAgent", provenanceAgent);
 		return this;
 	}

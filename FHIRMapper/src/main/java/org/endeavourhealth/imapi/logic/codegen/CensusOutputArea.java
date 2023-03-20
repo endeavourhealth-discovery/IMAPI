@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents census output area
+* Represents census output area.
 * A geopgraphical area used in a census
 */
 public class CensusOutputArea extends IMDMBase<CensusOutputArea> {
 
 
 	/**
-	* Census output area constructor 
-	*/
-	public CensusOutputArea() {
-		super("CensusOutputArea");
-	}
-
-	/**
 	* Census output area constructor with identifier
 	*/
-	public CensusOutputArea(String id) {
+	public CensusOutputArea(UUID id) {
 		super("CensusOutputArea", id);
 	}
 

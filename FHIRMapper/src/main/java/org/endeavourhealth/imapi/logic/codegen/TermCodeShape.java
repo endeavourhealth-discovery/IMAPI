@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents term code shape
+* Represents term code shape.
 * data model for a term code
 */
 public class TermCodeShape extends IMDMBase<TermCodeShape> {
 
 
 	/**
-	* Term code shape constructor 
-	*/
-	public TermCodeShape() {
-		super("TermCodeShape");
-	}
-
-	/**
 	* Term code shape constructor with identifier
 	*/
-	public TermCodeShape(String id) {
+	public TermCodeShape(UUID id) {
 		super("TermCodeShape", id);
 	}
 
@@ -156,7 +149,7 @@ public class TermCodeShape extends IMDMBase<TermCodeShape> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -166,7 +159,7 @@ public class TermCodeShape extends IMDMBase<TermCodeShape> {
 	* @param isContainedIn The new is contained in to set
 	* @return TermCodeShape
 	*/
-	public TermCodeShape setIsContainedIn(Folder isContainedIn) {
+	public TermCodeShape setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -177,7 +170,7 @@ public class TermCodeShape extends IMDMBase<TermCodeShape> {
 	* When a status is inactive, the entity that replaces this entity (if any)
 	* @return replacedByAttribute
 	*/
-	public Entity getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -187,7 +180,7 @@ public class TermCodeShape extends IMDMBase<TermCodeShape> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return TermCodeShape
 	*/
-	public TermCodeShape setReplacedByAttribute(Entity replacedByAttribute) {
+	public TermCodeShape setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}

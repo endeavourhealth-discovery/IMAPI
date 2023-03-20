@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents patient address
+* Represents patient address.
 * A standard mailing/postal address for a patient
 */
 public class PatientAddress extends IMDMBase<PatientAddress> {
 
 
 	/**
-	* Patient address constructor 
-	*/
-	public PatientAddress() {
-		super("PatientAddress");
-	}
-
-	/**
 	* Patient address constructor with identifier
 	*/
-	public PatientAddress(String id) {
+	public PatientAddress(UUID id) {
 		super("PatientAddress", id);
 	}
 
@@ -89,7 +82,7 @@ public class PatientAddress extends IMDMBase<PatientAddress> {
 	* Gets the patient of this patient address
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -99,7 +92,7 @@ public class PatientAddress extends IMDMBase<PatientAddress> {
 	* @param patient The new patient to set
 	* @return PatientAddress
 	*/
-	public PatientAddress setPatient(Patient patient) {
+	public PatientAddress setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -229,7 +222,7 @@ public class PatientAddress extends IMDMBase<PatientAddress> {
 	* Gets the location of this patient address
 	* @return location
 	*/
-	public Location getLocation() {
+	public UUID getLocation() {
 		return getProperty("location");
 	}
 
@@ -239,7 +232,7 @@ public class PatientAddress extends IMDMBase<PatientAddress> {
 	* @param location The new location to set
 	* @return PatientAddress
 	*/
-	public PatientAddress setLocation(Location location) {
+	public PatientAddress setLocation(UUID location) {
 		setProperty("location", location);
 		return this;
 	}

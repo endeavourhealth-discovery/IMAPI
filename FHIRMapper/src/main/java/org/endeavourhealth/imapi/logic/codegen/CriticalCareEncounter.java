@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents critical care encounter
+* Represents critical care encounter.
 * An entry recording information about a criticial care encounter.<p>common data model attributes for Critical care encounter
 */
 public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 
 
 	/**
-	* Critical care encounter constructor 
-	*/
-	public CriticalCareEncounter() {
-		super("CriticalCareEncounter");
-	}
-
-	/**
 	* Critical care encounter constructor with identifier
 	*/
-	public CriticalCareEncounter(String id) {
+	public CriticalCareEncounter(UUID id) {
 		super("CriticalCareEncounter", id);
 	}
 
@@ -49,7 +42,7 @@ public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 	* Gets the record owner of this critical care encounter
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 	* @param recordOwner The new record owner to set
 	* @return CriticalCareEncounter
 	*/
-	public CriticalCareEncounter setRecordOwner(Organisation recordOwner) {
+	public CriticalCareEncounter setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 	* Gets the patient of this critical care encounter
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 	* @param patient The new patient to set
 	* @return CriticalCareEncounter
 	*/
-	public CriticalCareEncounter setPatient(Patient patient) {
+	public CriticalCareEncounter setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -149,7 +142,7 @@ public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 	* Gets the original concept of this critical care encounter
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -159,7 +152,7 @@ public class CriticalCareEncounter extends IMDMBase<CriticalCareEncounter> {
 	* @param originalConcept The new original concept to set
 	* @return CriticalCareEncounter
 	*/
-	public CriticalCareEncounter setOriginalConcept(TerminologyConcept originalConcept) {
+	public CriticalCareEncounter setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

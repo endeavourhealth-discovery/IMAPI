@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.ref.Reference;
 import java.util.List;
+import java.util.UUID;
 
 public class ZFhirMapperOrganization {
     public static void main(String[] argv) throws Exception {
@@ -49,8 +50,8 @@ public class ZFhirMapperOrganization {
         ResourceReferenceDt partOfReference = parsed.getPartOf();
 
         System.out.println(partOfReference.getReference().toString());
-        String partOf = partOfReference.getReferenceElement().getIdPart();
-        String id = parsed.getId().getIdPart();
+        UUID partOf = UUID.fromString(partOfReference.getReferenceElement().getIdPart());
+        UUID id = UUID.fromString(parsed.getId().getIdPart());
         Boolean active = parsed.getActive();
 
         // change this to a helper class
@@ -80,7 +81,7 @@ public class ZFhirMapperOrganization {
 
         Organisation organization = new Organisation(id)
                 .setName(name)
-                .setIsCommissionedBy(ccg)
+                .setIsCommissionedBy(ccg.getId())
                 .setOdsCode(ods_code)
                 .setSpeciality(orgtype)
                 .setProperty("speciality-term", orgTerm);

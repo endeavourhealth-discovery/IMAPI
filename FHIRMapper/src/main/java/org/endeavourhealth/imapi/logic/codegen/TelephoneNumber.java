@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents telephone number
+* Represents telephone number.
 * A structural definition of a telephone number
 */
 public class TelephoneNumber extends IMDMBase<TelephoneNumber> {
 
 
 	/**
-	* Telephone number constructor 
-	*/
-	public TelephoneNumber() {
-		super("TelephoneNumber");
-	}
-
-	/**
 	* Telephone number constructor with identifier
 	*/
-	public TelephoneNumber(String id) {
+	public TelephoneNumber(UUID id) {
 		super("TelephoneNumber", id);
 	}
 

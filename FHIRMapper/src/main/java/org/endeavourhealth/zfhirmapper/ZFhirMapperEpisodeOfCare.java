@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.logic.codegen.*;
 import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ZFhirMapperEpisodeOfCare {
     public static void main(String[] argv) throws Exception {
@@ -52,7 +53,7 @@ public class ZFhirMapperEpisodeOfCare {
             }
         }
 
-        String fhirId = parsed.getId().getIdPart();
+        UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
 
         EpisodeOfCare eoc = new EpisodeOfCare(fhirId);
         eoc.setPatientType(fhirPatientType);
@@ -73,23 +74,23 @@ public class ZFhirMapperEpisodeOfCare {
         // Patient
         ResourceReferenceDt patientRef = parsed.getPatient();
         System.out.println(patientRef.getReference().getIdPart());
-        String fhirNor = patientRef.getReference().getIdPart();
+        UUID fhirNor = UUID.fromString(patientRef.getReference().getIdPart());
         Patient patient = new Patient(fhirNor);
-        eoc.setPatient(patient);
+        eoc.setPatient(patient.getId());
 
         // Practitioner
         ResourceReferenceDt careRef = parsed.getCareManager();
         System.out.println(careRef.getReference().getIdPart());
-        String fhirPractitionerId = careRef.getReference().getIdPart();
+        UUID fhirPractitionerId = UUID.fromString(careRef.getReference().getIdPart());
         PractitionerInRole pract = new PractitionerInRole(fhirPractitionerId);
         // no om setter?
 
         // Organization
         ResourceReferenceDt orgRef = parsed.getManagingOrganization();
         System.out.println(orgRef.getReference().getIdPart());
-        String fhirOragisationId = orgRef.getReference().getIdPart();
+        UUID fhirOragisationId = UUID.fromString(orgRef.getReference().getIdPart());
         Organisation organisation = new Organisation(fhirOragisationId);
-        eoc.setRecordOwner(organisation);
+        eoc.setRecordOwner(organisation.getId());
 
         ObjectMapper om = new ObjectMapper();
         //om.registerModule(new JavaTimeModule());

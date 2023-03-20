@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents procedure
+* Represents procedure.
 * Procedure provides more information beyond a simple observation about an operation or observation relating to the outcome of the procedure.<p>Within the health data model, unlike FHIR a complex procedure description (that includes body site, laterality, method and nature of device) is represented by a Snomed expression in the observation concept.
 */
 public class Procedure extends IMDMBase<Procedure> {
 
 
 	/**
-	* Procedure constructor 
-	*/
-	public Procedure() {
-		super("Procedure");
-	}
-
-	/**
 	* Procedure constructor with identifier
 	*/
-	public Procedure(String id) {
+	public Procedure(UUID id) {
 		super("Procedure", id);
 	}
 
@@ -49,7 +42,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* Gets the record owner of this procedure
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* @param recordOwner The new record owner to set
 	* @return Procedure
 	*/
-	public Procedure setRecordOwner(Organisation recordOwner) {
+	public Procedure setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* Gets the patient of this procedure
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* @param patient The new patient to set
 	* @return Procedure
 	*/
-	public Procedure setPatient(Patient patient) {
+	public Procedure setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -149,7 +142,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* Gets the original concept of this procedure
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -159,7 +152,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* @param originalConcept The new original concept to set
 	* @return Procedure
 	*/
-	public Procedure setOriginalConcept(TerminologyConcept originalConcept) {
+	public Procedure setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* Gets the linked problems of this procedure
 	* @return linkedProblems
 	*/
-	public Condition getLinkedProblems() {
+	public UUID getLinkedProblems() {
 		return getProperty("linkedProblems");
 	}
 
@@ -179,7 +172,7 @@ public class Procedure extends IMDMBase<Procedure> {
 	* @param linkedProblems The new linked problems to set
 	* @return Procedure
 	*/
-	public Procedure setLinkedProblems(Condition linkedProblems) {
+	public Procedure setLinkedProblems(UUID linkedProblems) {
 		setProperty("linkedProblems", linkedProblems);
 		return this;
 	}

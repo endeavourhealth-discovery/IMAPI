@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents referral request or procedure request
+* Represents referral request or procedure request.
 * A referral request or (procedure request) includes request for advice or invitation to participate in care and is not limited to conventional referrals. A referral request often precedes the encounter or care transfer that occurs subsequently. Furthermore a referral request may accompany a care transfer e.g.... a request for input from a community health professional during the discharge process. The referral type is considered as the core observation concept<p>Referral inherits attribution
 */
 public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestOrProcedureRequest> {
 
 
 	/**
-	* Referral request or procedure request constructor 
-	*/
-	public ReferralRequestOrProcedureRequest() {
-		super("ReferralRequestOrProcedureRequest");
-	}
-
-	/**
 	* Referral request or procedure request constructor with identifier
 	*/
-	public ReferralRequestOrProcedureRequest(String id) {
+	public ReferralRequestOrProcedureRequest(UUID id) {
 		super("ReferralRequestOrProcedureRequest", id);
 	}
 
@@ -49,7 +42,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* Gets the record owner of this referral request or procedure request
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* @param recordOwner The new record owner to set
 	* @return ReferralRequestOrProcedureRequest
 	*/
-	public ReferralRequestOrProcedureRequest setRecordOwner(Organisation recordOwner) {
+	public ReferralRequestOrProcedureRequest setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* Gets the patient of this referral request or procedure request
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* @param patient The new patient to set
 	* @return ReferralRequestOrProcedureRequest
 	*/
-	public ReferralRequestOrProcedureRequest setPatient(Patient patient) {
+	public ReferralRequestOrProcedureRequest setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* Gets the concept of this referral request or procedure request
 	* @return concept
 	*/
-	public TerminologyConcept getConcept() {
+	public UUID getConcept() {
 		return getProperty("concept");
 	}
 
@@ -179,7 +172,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* @param concept The new concept to set
 	* @return ReferralRequestOrProcedureRequest
 	*/
-	public ReferralRequestOrProcedureRequest setConcept(TerminologyConcept concept) {
+	public ReferralRequestOrProcedureRequest setConcept(UUID concept) {
 		setProperty("concept", concept);
 		return this;
 	}
@@ -209,7 +202,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* Gets the original concept of this referral request or procedure request
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -219,7 +212,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* @param originalConcept The new original concept to set
 	* @return ReferralRequestOrProcedureRequest
 	*/
-	public ReferralRequestOrProcedureRequest setOriginalConcept(TerminologyConcept originalConcept) {
+	public ReferralRequestOrProcedureRequest setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}
@@ -349,7 +342,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* Gets the source organisation of this referral request or procedure request
 	* @return sourceOrganisation
 	*/
-	public Organisation getSourceOrganisation() {
+	public UUID getSourceOrganisation() {
 		return getProperty("sourceOrganisation");
 	}
 
@@ -359,7 +352,7 @@ public class ReferralRequestOrProcedureRequest extends IMDMBase<ReferralRequestO
 	* @param sourceOrganisation The new source organisation to set
 	* @return ReferralRequestOrProcedureRequest
 	*/
-	public ReferralRequestOrProcedureRequest setSourceOrganisation(Organisation sourceOrganisation) {
+	public ReferralRequestOrProcedureRequest setSourceOrganisation(UUID sourceOrganisation) {
 		setProperty("sourceOrganisation", sourceOrganisation);
 		return this;
 	}

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents allergy intolerance or adverse reaction
+* Represents allergy intolerance or adverse reaction.
 * Allergies, intolerance and adverse substance reactions are grouped together and are extensions of simple observations whereby the simple observation code includes the full concept of the allergy e.g.... "allergy to penicillin"<p>The additional data relates to more specific information about the substance and reaction.
 */
 public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoleranceOrAdverseReaction> {
 
 
 	/**
-	* Allergy intolerance or adverse reaction constructor 
-	*/
-	public AllergyIntoleranceOrAdverseReaction() {
-		super("AllergyIntoleranceOrAdverseReaction");
-	}
-
-	/**
 	* Allergy intolerance or adverse reaction constructor with identifier
 	*/
-	public AllergyIntoleranceOrAdverseReaction(String id) {
+	public AllergyIntoleranceOrAdverseReaction(UUID id) {
 		super("AllergyIntoleranceOrAdverseReaction", id);
 	}
 
@@ -49,7 +42,7 @@ public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoler
 	* Gets the record owner of this allergy intolerance or adverse reaction
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoler
 	* @param recordOwner The new record owner to set
 	* @return AllergyIntoleranceOrAdverseReaction
 	*/
-	public AllergyIntoleranceOrAdverseReaction setRecordOwner(Organisation recordOwner) {
+	public AllergyIntoleranceOrAdverseReaction setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoler
 	* Gets the patient of this allergy intolerance or adverse reaction
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoler
 	* @param patient The new patient to set
 	* @return AllergyIntoleranceOrAdverseReaction
 	*/
-	public AllergyIntoleranceOrAdverseReaction setPatient(Patient patient) {
+	public AllergyIntoleranceOrAdverseReaction setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoler
 	* Gets the original concept of this allergy intolerance or adverse reaction
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class AllergyIntoleranceOrAdverseReaction extends IMDMBase<AllergyIntoler
 	* @param originalConcept The new original concept to set
 	* @return AllergyIntoleranceOrAdverseReaction
 	*/
-	public AllergyIntoleranceOrAdverseReaction setOriginalConcept(TerminologyConcept originalConcept) {
+	public AllergyIntoleranceOrAdverseReaction setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

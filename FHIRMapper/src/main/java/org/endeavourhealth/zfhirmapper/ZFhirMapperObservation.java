@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.logic.codegen.TerminologyConcept;
 import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ZFhirMapperObservation {
     public static void main(String[] argv) throws Exception {
@@ -123,7 +124,7 @@ public class ZFhirMapperObservation {
         System.out.println(fhirPractitioner);
 
         // id
-        String fhirId = parsed.getId().getIdPart();
+        UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
 
         //String x = "" + fhirId;
         //System.out.println(x);
@@ -132,22 +133,22 @@ public class ZFhirMapperObservation {
         // patient reference (subject)
         ResourceReferenceDt subject = parsed.getSubject();
         //String nor = subject.getReference().getValue();
-        String nor = subject.getReference().getIdPart();
+        UUID nor = UUID.fromString(subject.getReference().getIdPart());
         Patient patient = new Patient(nor);
 
         Observation observation = new Observation(fhirId)
                 .setEffectiveDate(PartialDateTime.parse(fhirClinDate));
 
-        observation.setPatient(patient);
+        observation.setPatient(patient.getId());
 
         if (!fhirParentObs.isEmpty())  observation.setProperty("custom-parent-observation", fhirParentObs);
 
-        TerminologyConcept omConcept = new TerminologyConcept()
+        TerminologyConcept omConcept = new TerminologyConcept(UUID.randomUUID())
                 .setCode(fhirOriginalCode)
                 .setScheme(fhirOriginalSystem)
                 .setProperty("concept-term", fhirOriginalDisplay);
 
-        observation.setOriginalConcept(omConcept);
+        observation.setOriginalConcept(omConcept.getId());
 
         if (!fhirValue.isEmpty()) {
             observation.setProperty("custom-value-value", fhirValue);

@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents terminology concept
+* Represents terminology concept.
 * data model for terminology concepts
 */
 public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 
 
 	/**
-	* Terminology concept constructor 
-	*/
-	public TerminologyConcept() {
-		super("TerminologyConcept");
-	}
-
-	/**
 	* Terminology concept constructor with identifier
 	*/
-	public TerminologyConcept(String id) {
+	public TerminologyConcept(UUID id) {
 		super("TerminologyConcept", id);
 	}
 
@@ -51,7 +44,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* The concept this concept is a sub type of
 	* @return subclassof
 	*/
-	public TerminologyConcept getSubclassof() {
+	public UUID getSubclassof() {
 		return getProperty("subclassof");
 	}
 
@@ -61,7 +54,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* @param subclassof The new subClassOf to set
 	* @return TerminologyConcept
 	*/
-	public TerminologyConcept setSubclassof(TerminologyConcept subclassof) {
+	public TerminologyConcept setSubclassof(UUID subclassof) {
 		setProperty("subclassof", subclassof);
 		return this;
 	}
@@ -135,7 +128,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* Alternative terms or synonyms for this concept. A term may also have a description id.
 	* @return hasTermCode
 	*/
-	public TermCodeShape getHasTermCode() {
+	public UUID getHasTermCode() {
 		return getProperty("hasTermCode");
 	}
 
@@ -145,7 +138,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* @param hasTermCode The new has term code to set
 	* @return TerminologyConcept
 	*/
-	public TerminologyConcept setHasTermCode(TermCodeShape hasTermCode) {
+	public TerminologyConcept setHasTermCode(UUID hasTermCode) {
 		setProperty("hasTermCode", hasTermCode);
 		return this;
 	}
@@ -261,7 +254,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties
 	* @return isContainedIn
 	*/
-	public Folder getIsContainedIn() {
+	public UUID getIsContainedIn() {
 		return getProperty("isContainedIn");
 	}
 
@@ -271,7 +264,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* @param isContainedIn The new is contained in to set
 	* @return TerminologyConcept
 	*/
-	public TerminologyConcept setIsContainedIn(Folder isContainedIn) {
+	public TerminologyConcept setIsContainedIn(UUID isContainedIn) {
 		setProperty("isContainedIn", isContainedIn);
 		return this;
 	}
@@ -345,7 +338,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* The source context object for this concept indicating the system, table, field and organisation that published this legacy concept
 	* @return sourceContext
 	*/
-	public SourceContextShape getSourceContext() {
+	public UUID getSourceContext() {
 		return getProperty("sourceContext");
 	}
 
@@ -355,7 +348,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* @param sourceContext The new source context to set
 	* @return TerminologyConcept
 	*/
-	public TerminologyConcept setSourceContext(SourceContextShape sourceContext) {
+	public TerminologyConcept setSourceContext(UUID sourceContext) {
 		setProperty("sourceContext", sourceContext);
 		return this;
 	}
@@ -366,7 +359,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* Indicates the concepts that this concept has been replaced by
 	* @return replacedByAttribute
 	*/
-	public TerminologyConcept getReplacedByAttribute() {
+	public UUID getReplacedByAttribute() {
 		return getProperty("replacedByAttribute");
 	}
 
@@ -376,7 +369,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* @param replacedByAttribute The new REPLACED BY (attribute) to set
 	* @return TerminologyConcept
 	*/
-	public TerminologyConcept setReplacedByAttribute(TerminologyConcept replacedByAttribute) {
+	public TerminologyConcept setReplacedByAttribute(UUID replacedByAttribute) {
 		setProperty("replacedByAttribute", replacedByAttribute);
 		return this;
 	}
@@ -387,7 +380,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* points to the parent legacy concept that this concept is in. Note that it may or may not be a true subtype. Reflects the original taxonomy
 	* @return isChildOf
 	*/
-	public TerminologyConcept getIsChildOf() {
+	public UUID getIsChildOf() {
 		return getProperty("isChildOf");
 	}
 
@@ -397,7 +390,7 @@ public class TerminologyConcept extends IMDMBase<TerminologyConcept> {
 	* @param isChildOf The new is Child Of to set
 	* @return TerminologyConcept
 	*/
-	public TerminologyConcept setIsChildOf(TerminologyConcept isChildOf) {
+	public TerminologyConcept setIsChildOf(UUID isChildOf) {
 		setProperty("isChildOf", isChildOf);
 		return this;
 	}

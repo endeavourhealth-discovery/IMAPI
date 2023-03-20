@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents administration note
+* Represents administration note.
 * An record of a note or report or document involved in health care. Examples would be the filing of a lab report or discharge letter
 */
 public class AdministrationNote extends IMDMBase<AdministrationNote> {
 
 
 	/**
-	* Administration note constructor 
-	*/
-	public AdministrationNote() {
-		super("AdministrationNote");
-	}
-
-	/**
 	* Administration note constructor with identifier
 	*/
-	public AdministrationNote(String id) {
+	public AdministrationNote(UUID id) {
 		super("AdministrationNote", id);
 	}
 
@@ -49,7 +42,7 @@ public class AdministrationNote extends IMDMBase<AdministrationNote> {
 	* Gets the record owner of this administration note
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class AdministrationNote extends IMDMBase<AdministrationNote> {
 	* @param recordOwner The new record owner to set
 	* @return AdministrationNote
 	*/
-	public AdministrationNote setRecordOwner(Organisation recordOwner) {
+	public AdministrationNote setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class AdministrationNote extends IMDMBase<AdministrationNote> {
 	* Gets the patient of this administration note
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -99,7 +92,7 @@ public class AdministrationNote extends IMDMBase<AdministrationNote> {
 	* @param patient The new patient to set
 	* @return AdministrationNote
 	*/
-	public AdministrationNote setPatient(Patient patient) {
+	public AdministrationNote setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class AdministrationNote extends IMDMBase<AdministrationNote> {
 	* Gets the original concept of this administration note
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -119,7 +112,7 @@ public class AdministrationNote extends IMDMBase<AdministrationNote> {
 	* @param originalConcept The new original concept to set
 	* @return AdministrationNote
 	*/
-	public AdministrationNote setOriginalConcept(TerminologyConcept originalConcept) {
+	public AdministrationNote setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

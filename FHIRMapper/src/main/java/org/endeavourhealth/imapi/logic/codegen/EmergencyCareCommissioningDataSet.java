@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents emergency care commissioning data set
+* Represents emergency care commissioning data set.
 * An entry recording an accident ans emergency attendance
 */
 public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCommissioningDataSet> {
 
 
 	/**
-	* Emergency care commissioning data set constructor 
-	*/
-	public EmergencyCareCommissioningDataSet() {
-		super("EmergencyCareCommissioningDataSet");
-	}
-
-	/**
 	* Emergency care commissioning data set constructor with identifier
 	*/
-	public EmergencyCareCommissioningDataSet(String id) {
+	public EmergencyCareCommissioningDataSet(UUID id) {
 		super("EmergencyCareCommissioningDataSet", id);
 	}
 
@@ -49,7 +42,7 @@ public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCom
 	* Gets the record owner of this emergency care commissioning data set
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCom
 	* @param recordOwner The new record owner to set
 	* @return EmergencyCareCommissioningDataSet
 	*/
-	public EmergencyCareCommissioningDataSet setRecordOwner(Organisation recordOwner) {
+	public EmergencyCareCommissioningDataSet setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -129,7 +122,7 @@ public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCom
 	* Gets the patient of this emergency care commissioning data set
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -139,7 +132,7 @@ public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCom
 	* @param patient The new patient to set
 	* @return EmergencyCareCommissioningDataSet
 	*/
-	public EmergencyCareCommissioningDataSet setPatient(Patient patient) {
+	public EmergencyCareCommissioningDataSet setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -169,7 +162,7 @@ public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCom
 	* Gets the original concept of this emergency care commissioning data set
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -179,7 +172,7 @@ public class EmergencyCareCommissioningDataSet extends IMDMBase<EmergencyCareCom
 	* @param originalConcept The new original concept to set
 	* @return EmergencyCareCommissioningDataSet
 	*/
-	public EmergencyCareCommissioningDataSet setOriginalConcept(TerminologyConcept originalConcept) {
+	public EmergencyCareCommissioningDataSet setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

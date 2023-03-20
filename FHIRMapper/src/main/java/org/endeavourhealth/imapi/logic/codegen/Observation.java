@@ -2,26 +2,19 @@ package org.endeavourhealth.imapi.logic.codegen;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
-* Represents observation
+* Represents observation.
 * A point in time event entry or note in a record of some characteristic
 */
 public class Observation extends IMDMBase<Observation> {
 
 
 	/**
-	* Observation constructor 
-	*/
-	public Observation() {
-		super("Observation");
-	}
-
-	/**
 	* Observation constructor with identifier
 	*/
-	public Observation(String id) {
+	public Observation(UUID id) {
 		super("Observation", id);
 	}
 
@@ -49,7 +42,7 @@ public class Observation extends IMDMBase<Observation> {
 	* Gets the record owner of this observation
 	* @return recordOwner
 	*/
-	public Organisation getRecordOwner() {
+	public UUID getRecordOwner() {
 		return getProperty("recordOwner");
 	}
 
@@ -59,7 +52,7 @@ public class Observation extends IMDMBase<Observation> {
 	* @param recordOwner The new record owner to set
 	* @return Observation
 	*/
-	public Observation setRecordOwner(Organisation recordOwner) {
+	public Observation setRecordOwner(UUID recordOwner) {
 		setProperty("recordOwner", recordOwner);
 		return this;
 	}
@@ -89,7 +82,7 @@ public class Observation extends IMDMBase<Observation> {
 	* Gets the patient of this observation
 	* @return patient
 	*/
-	public Patient getPatient() {
+	public UUID getPatient() {
 		return getProperty("patient");
 	}
 
@@ -99,7 +92,7 @@ public class Observation extends IMDMBase<Observation> {
 	* @param patient The new patient to set
 	* @return Observation
 	*/
-	public Observation setPatient(Patient patient) {
+	public Observation setPatient(UUID patient) {
 		setProperty("patient", patient);
 		return this;
 	}
@@ -109,7 +102,7 @@ public class Observation extends IMDMBase<Observation> {
 	* Gets the original concept of this observation
 	* @return originalConcept
 	*/
-	public TerminologyConcept getOriginalConcept() {
+	public UUID getOriginalConcept() {
 		return getProperty("originalConcept");
 	}
 
@@ -119,7 +112,7 @@ public class Observation extends IMDMBase<Observation> {
 	* @param originalConcept The new original concept to set
 	* @return Observation
 	*/
-	public Observation setOriginalConcept(TerminologyConcept originalConcept) {
+	public Observation setOriginalConcept(UUID originalConcept) {
 		setProperty("originalConcept", originalConcept);
 		return this;
 	}

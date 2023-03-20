@@ -189,25 +189,24 @@ public class CodeGenJava {
 
             os.write("package org.endeavourhealth.imapi.logic.codegen;\n" +
                 "\nimport org.endeavourhealth.imapi.model.tripletree.TTIriRef;\n" +
-                "\nimport java.time.LocalDateTime;");
+                "\nimport java.util.UUID;");
 
             os.write("\n\n/**\n" +
-                "* Represents " + modelNameSeparated + "\n");
+                "* Represents " + modelNameSeparated + ".\n");
             if (modelComment != null)
                 os.write("* " + modelComment + "\n");
             os.write("*/\n");
             os.write("public class " + modelName + " extends IMDMBase<" + modelName + "> {\n");
-            os.write("\n\n\t/**\n" +
-                "\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor \n" +
-                "\t*/");
-            os.write("\n\tpublic " + modelName + "() {\n" +
-                "\t\tsuper(\"" + modelName + "\");\n" +
-                "\t}");
-
+            //os.write("\n\n\t/**\n" +
+                //"\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor \n" +
+                //"\t*/");
+            //os.write("\n\tpublic " + modelName + "() {\n" +
+                //"\t\tsuper(\"" + modelName + "\");\n" +
+                //"\t}");
             os.write("\n\n\t/**\n" +
                 "\t* " + modelName.substring(0, 1).toUpperCase() + modelNameSeparated.substring(1) + " constructor with identifier\n" +
                 "\t*/");
-            os.write("\n\tpublic " + modelName + "(String id) {\n" +
+            os.write("\n\tpublic " + modelName + "(UUID id) {\n" +
                 "\t\tsuper(\"" + modelName + "\", id);\n" +
                 "\t}");
 
@@ -300,8 +299,6 @@ public class CodeGenJava {
         String dataTypeName = null;
         if (dataType.getIri().startsWith(XSD.NAMESPACE)) {
             dataTypeName = capitalise(getSuffix(dataType.getIri()));
-        } else if ("http://endhealth.info/im#DateTime".equals(dataType.getIri())) {
-            dataTypeName = "PartialDateTime";
         } else if (dataModel || dataType.getIri().startsWith("http://endhealth.info/im#VSET_")
             || "http://endhealth.info/im#Status".equals(dataType.getIri())
             || "http://endhealth.info/im#Graph".equals(dataType.getIri())
@@ -311,6 +308,8 @@ public class CodeGenJava {
             || "http://hl7.org/fhir/ValueSet/administrative-gender".equals(dataType.getIri())
             || "http://endhealth.info/im#1731000252106".equals(dataType.getIri())) {
             dataTypeName = "String";
+        } else if ("http://endhealth.info/im#DateTime".equals(dataType.getIri())) {
+            dataTypeName = "PartialDateTime";
         } else {
             LOG.error("Unknown data type [{} - {}]", dataType.getIri(), dataType.getName());
             dataTypeName = "UNK " + capitalise(dataType.getName());

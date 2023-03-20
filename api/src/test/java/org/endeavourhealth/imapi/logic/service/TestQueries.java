@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class TestQueries {
@@ -21,6 +22,95 @@ public class TestQueries {
 		context.add(SNOMED.NAMESPACE,"sn");
 		context.add(SHACL.NAMESPACE,"sh");
 		return context;
+	}
+
+	public static QueryRequest testQuery()  {
+		Query prof = new Query()
+			.setIri(IM.NAMESPACE + "Q_TestQuery")
+			.setName("Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150"+
+				"not followed by a screening invite, excluding hypertensives")
+		  .from(f->f
+			.setIri(IM.NAMESPACE+"Patient")
+			.where(w->w
+				.setDescription("Registered for gms")
+				.setIri(IM.IS_SUBSET_OF.getIri())
+				.in(t->t.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
+					.setName("Registered for GMS services on reference date"))
+				.setValueLabel("Registered for GMS on reference date"))
+			.where(w->w
+				.setDescription("aged 65 to 70 or diabetic")
+				.setBool(Bool.or)
+				.where (or->or
+					.setDescription("aged between 65 and 70")
+					.setIri(IM.NAMESPACE+"age")
+					.range(r->r
+						.from(from->from
+							.setOperator(Operator.gte)
+							.setValue("65"))
+						.to(to->to
+							.setOperator(Operator.lt)
+							.setValue("70"))))
+				.where(or->or
+					.setDescription("Diabetic")
+					.setIri(IM.NAMESPACE+"observation")
+					.where(ob->ob
+						.setIri(IM.NAMESPACE+"concept")
+						.addIn(new TTAlias().setSet(ex+"Q_Diabetics"))
+						.addIn(new TTAlias().setIri(SNOMED.NAMESPACE+"714628002").setDescendantsOf(true)))))
+			.where(w->w
+				.setDescription("latest BP in last 6 months is >150")
+				.setIri(IM.NAMESPACE+"observation")
+					.setBool(Bool.and)
+					.where(ww->ww
+						.setDescription("Home or office based Systolic")
+						.setIri(IM.NAMESPACE+"concept")
+						.setName("concept")
+						.addIn(new TTAlias()
+							.setIri(SNOMED.NAMESPACE+"271649006")
+							.setName("Systolic blood pressure"))
+						.addIn(new TTAlias()
+							.setIri(IM.CODE_SCHEME_EMIS.getIri()+"1994021000006104")
+							.setName("Home systolic blood pressure"))
+						.setValueLabel("Office or home systolic blood pressure"))
+					.where(ww->ww
+						.setDescription("Last 6 months")
+						.setIri(IM.NAMESPACE+"effectiveDate")
+						.setAlias("LastBP")
+						.setOperator(Operator.gte)
+						.setValue("-6")
+						.setUnit("MONTHS")
+						.setRelativeTo("$referenceDate")
+						.setValueLabel("last 6 months"))
+					.setOrderBy(new TTAlias().setIri(IM.NAMESPACE+"effectiveDate"))
+					.setCount(1)
+					.then(ww->ww
+						.setIri(IM.NAMESPACE+"numericValue")
+						.setDescription(">150")
+						.setOperator(Operator.gt)
+						.setValue("150")))
+			.where(w->w
+				.setExclude(true)
+				.setDescription("High BP not followed by screening invite")
+				.setIri(IM.NAMESPACE+"observation")
+				.setBool(Bool.and)
+				.where(inv->inv
+					.setDescription("Invited for Screening after BP")
+					.setIri(IM.NAMESPACE+"concept")
+					.addIn(new TTAlias().setSet(IM.NAMESPACE+"InvitedForScreening")))
+				.where(after->after
+					.setDescription("after high BP")
+					.setIri(IM.NAMESPACE+"effectiveDate")
+					.setOperator(Operator.gte)
+					.setRelativeTo("LastBP")))
+			.where(w->w
+				.setExclude(true)
+				.setDescription("not hypertensive")
+				.setIri(IM.NAMESPACE+"observation")
+				.where(ob1->ob1
+					.setIri(IM.NAMESPACE+"concept")
+					.addIn(new TTAlias().setSet(IM.NAMESPACE+"Hypertensives")
+						.setName("Hypertensives")))));
+		return new QueryRequest().setQuery(prof);
 	}
 
 

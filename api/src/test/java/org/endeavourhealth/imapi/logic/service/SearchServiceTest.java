@@ -64,7 +64,7 @@ class SearchServiceTest {
 		testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 		for (QueryRequest qr : List.of(
-			TestQueries.subtypesParameterised(), TestQueries.getAllowableSubtypes())) {
+			TestQueries.testQuery())) {
 			compareGrammars(qr);
 		}
 		TTManager manager = TestQueries.loadForms();

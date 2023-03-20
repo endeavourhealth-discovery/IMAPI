@@ -60,23 +60,18 @@ public class QuerySummariser {
 		if (!override && match.getDescription()!=null)
 				return;
 		StringBuilder summary= new StringBuilder();
-		if (match.getWith()!=null){
-			summariseWith(match.getWith());
-			match.setDescription(match.getWith().getDescription());
-		}
-		else {
-			if (match.getWhere() != null) {
+		if (match.getWhere() != null) {
 				summariseWhereProperty(summary, match);
 				for (Where subWhere : match.getWhere()) {
 					summariseWhere(subWhere);
 				}
 			}
-
-			if (match.getWhere() == null)
+			if (match.getWhere() == null){
 				summariseWhereProperty(summary, match);
+			}
+		if (match.getOrderBy()!=null||match.getThen()!=null){
+			summariseWith(match);
 		}
-
-
 	}
 
 	private void summariseFrom(From from) {
@@ -113,10 +108,9 @@ public class QuerySummariser {
 		else return false;
 	}
 
-	private void summariseWith(With with) {
+	private void summariseWith(Where with) {
 		if (!override && with.getDescription()!=null)
 				return;
-		summariseWhere(with);
 		String whereLabel= with.getDescription();
 		String orderLabel="";
 		if (with.getOrderBy()!=null) {

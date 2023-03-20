@@ -281,18 +281,6 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNotFrom(IMQParser.NotFromContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNotFrom(IMQParser.NotFromContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterOrFrom(IMQParser.OrFromContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -324,6 +312,18 @@ public class IMQBaseListener implements IMQListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFrom(IMQParser.FromContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExclude(IMQParser.ExcludeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExclude(IMQParser.ExcludeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -365,18 +365,6 @@ public class IMQBaseListener implements IMQListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNotWhere(IMQParser.NotWhereContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNotWhere(IMQParser.NotWhereContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterOrWhere(IMQParser.OrWhereContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -396,18 +384,6 @@ public class IMQBaseListener implements IMQListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAndWhere(IMQParser.AndWhereContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWith(IMQParser.WithContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWith(IMQParser.WithContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

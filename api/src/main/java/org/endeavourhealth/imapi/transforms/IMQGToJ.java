@@ -134,6 +134,8 @@ public class IMQGToJ {
 
 
 	private void convertFrom(IMQParser.FromContext from,From jfrom) throws DataFormatException {
+		if (from.exclude()!=null)
+			jfrom.setExclude(true);
 		if (from.graph() != null) {
 			jfrom.setGraph(TTAlias.iri(from.graph().IRI_REF().getText()));
 		}
@@ -158,9 +160,6 @@ public class IMQGToJ {
 		else if (fromBoolean.andFrom()!=null) {
 			convertAndFrom(fromBoolean.andFrom(), jfrom);
 		}
-		else if (fromBoolean.notFrom()!=null){
-			convertNotFrom(fromBoolean.notFrom(),jfrom);
-		}
 	}
 
 	private void convertAndFrom(IMQParser.AndFromContext andFrom, From jfrom) throws DataFormatException {
@@ -180,13 +179,6 @@ public class IMQGToJ {
 		convertFrom(from, subFrom);
 	}
 
-	private void convertNotFrom(IMQParser.NotFromContext notFrom, From jfrom) throws DataFormatException {
-		jfrom.setExclude(true);
-		if (notFrom.from()!=null) {
-				addFrom(notFrom.from(),jfrom);
-		}
-
-	}
 
 	private void convertOrFrom(IMQParser.OrFromContext orFrom, From jfrom) throws DataFormatException {
 		jfrom.setBoolFrom(Bool.or);
@@ -242,11 +234,6 @@ public class IMQGToJ {
 				convertWhere(where,jWhere);
 			}
 		}
-		else if (whereBoolean.notWhere()!=null){
-			Where jNot= new Where();
-			jFrom.addWhere(jNot);
-			convertNotWhere(whereBoolean.notWhere(),jNot);
-		}
 	}
 
 
@@ -257,9 +244,6 @@ public class IMQGToJ {
 		}
 		else if (whereBoolean.andWhere()!=null) {
 			convertAndWhere(whereBoolean.andWhere(), jWhere);
-		}
-		else if (whereBoolean.notWhere()!=null){
-			convertNotWhere(whereBoolean.notWhere(),jWhere);
 		}
 	}
 
@@ -285,13 +269,6 @@ public class IMQGToJ {
 
 	}
 
-	private void convertNotWhere(IMQParser.NotWhereContext notWhere, Where jWhere) throws DataFormatException {
-		jWhere.setExclude(true);
-		if (notWhere.where()!=null) {
-				addWhere(notWhere.where(),jWhere);
-		}
-
-	}
 
 	private void addWhere(IMQParser.WhereContext where, Where jWhere) throws DataFormatException {
 		Where jSubWhere= new Where();
@@ -366,11 +343,10 @@ public class IMQGToJ {
 			}
 	}
 	private void convertWhere(IMQParser.WhereContext where, Where jWhere) throws DataFormatException {
-		if (where.with()!=null){
-			With jWith= new With();
-			jWhere.setWith(jWith);
-			convertWith(where.with(),jWith);
-		}
+		if (where.exclude()!=null)
+			jWhere.setExclude(true);
+		if (where.sortable()!=null)
+			convertSortable(where.sortable(),jWhere);
 		if (where.description()!=null)
 			jWhere.setDescription(getString(where.description().string().getText()));
 		if (where.reference()!=null){
@@ -384,9 +360,12 @@ public class IMQGToJ {
 			jWhere.addWhere(subWhere);
 			convertWhereClause(where.whereClause(),subWhere);
 		}
-		if (where.booleanWhere()!=null){
-			convertBooleanWhere(where.booleanWhere(),jWhere);
+		if (where.then()!=null){
+			Where then= new Where();
+			jWhere.setThen(then);
+			convertWhere(where.then().where(),then);
 		}
+
 
 
 		if (where.whereClause()!=null){
@@ -395,13 +374,8 @@ public class IMQGToJ {
 
 	}
 
-	private void convertWith(IMQParser.WithContext with,With jWith) throws DataFormatException {
-		convertWhereClause(with.whereClause(),jWith);
-		if (with.sortable()!=null)
-			convertSortable(with.sortable(),jWith);
-	}
 
-	private void convertSortable(IMQParser.SortableContext sortable, With jWith) {
+	private void convertSortable(IMQParser.SortableContext sortable, Where jWith) {
 		String column=null;
 		if (sortable.PN_PROPERTY()!=null)
 			column= sortable.PN_PROPERTY().getText();

@@ -1168,8 +1168,17 @@ public class EntityService {
         int rowNumber = 0;
         if (null != page && null != size) rowNumber = (page - 1) * size;
 
-
         Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptPagedWithTotalCount(iri,schemeIris,rowNumber,size,inactive);
+        return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
+    }
+
+    public Pageable<EntityReferenceNode> getSuperiorPropertiesBoolFocusPaged(List<String> conceptIris, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+        if (null == conceptIris || conceptIris.isEmpty()) return null;
+
+        int rowNumber = 0;
+        if (null != page && null != size) rowNumber = (page - 1) * size;
+
+        Pageable<TTIriRef> propertiesAndCount = entityTripleRepository.getSuperiorPropertiesByConceptBoolFocusPagedWithTotalCount(conceptIris,schemeIris,rowNumber,size,inactive);
         return iriRefPageableToEntityReferenceNodePageable(propertiesAndCount,schemeIris,inactive);
     }
 

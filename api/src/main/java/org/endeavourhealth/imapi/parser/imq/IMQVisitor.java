@@ -143,12 +143,6 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBooleanFrom(IMQParser.BooleanFromContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#notFrom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNotFrom(IMQParser.NotFromContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link IMQParser#orFrom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -166,6 +160,12 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFrom(IMQParser.FromContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMQParser#exclude}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExclude(IMQParser.ExcludeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#whereClause}.
 	 * @param ctx the parse tree
@@ -185,12 +185,6 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBooleanWhere(IMQParser.BooleanWhereContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMQParser#notWhere}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNotWhere(IMQParser.NotWhereContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link IMQParser#orWhere}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -202,12 +196,6 @@ public interface IMQVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAndWhere(IMQParser.AndWhereContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMQParser#with}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWith(IMQParser.WithContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMQParser#then}.
 	 * @param ctx the parse tree

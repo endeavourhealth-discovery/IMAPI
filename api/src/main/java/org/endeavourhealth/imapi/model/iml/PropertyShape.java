@@ -41,6 +41,8 @@ public class PropertyShape {
 	private NodeShape expression;
 	private Boolean forceIsValue;
 
+    private List<PropertyShape> subProperty;
+
 	public Boolean getForceIsValue() {
 		return forceIsValue;
 	}
@@ -277,4 +279,13 @@ public class PropertyShape {
 		this.search = search;
 		return this;
 	}
+
+    public List<PropertyShape> getSubProperty() {
+        return subProperty;
+    }
+
+    public PropertyShape setSubProperty(List<PropertyShape> subProperty) {
+        this.subProperty = subProperty;
+        return this;
+    }
 }

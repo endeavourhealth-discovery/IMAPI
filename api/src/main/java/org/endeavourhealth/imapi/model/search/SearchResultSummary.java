@@ -20,11 +20,19 @@ public class SearchResultSummary {
     private Set<TTIriRef> entityType= new HashSet<>();
     private Integer weighting;
     private String match;
+    private String preferredName;
     private Set<String> key;
     private Set<TTIriRef> isA= new HashSet<>();
     Set<SearchTermCode> termCode = new HashSet<>();
 
+    public String getPreferredName() {
+        return preferredName;
+    }
 
+    public SearchResultSummary setPreferredName(String preferredName) {
+        this.preferredName = preferredName;
+        return this;
+    }
 
     public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer weighting, String match) {
         this.name = name;

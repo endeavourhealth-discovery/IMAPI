@@ -19,7 +19,7 @@ public class IMDMSerializer extends StdSerializer<IMDMBase> {
 
     @Override
     public void serialize(IMDMBase value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        if ((value._id == null || value._id.isEmpty()) && (value.properties == null || value.properties.isEmpty())) {
+        if ((value._id == null || String.valueOf(value._id).isEmpty()) && (value.properties == null || value.properties.isEmpty())) {
             return;
         }
 
@@ -27,9 +27,9 @@ public class IMDMSerializer extends StdSerializer<IMDMBase> {
 
         gen.writeStartObject();
 
-        gen.writeStringField("_type", value._type);
+        gen.writeStringField("_type", String.valueOf(value._type));
         if (value._id != null)
-            gen.writeStringField("_id", value._id);
+            gen.writeStringField("_id", String.valueOf(value._id));
 
         for (Map.Entry<String, Object> kvp : props.entrySet()) {
             gen.writeObjectField(kvp.getKey(), kvp.getValue());

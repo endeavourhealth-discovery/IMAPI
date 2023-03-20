@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
-import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -120,8 +119,8 @@ public class EqdResources {
 
 	private void convertCriterion(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
 		if (eqCriterion.isNegation()){
+			match.setExclude(true);
 			Where notWhere= new Where();
-			match.setBool(Bool.not);
 			match.addWhere(notWhere);
 			match= notWhere;
 		}
@@ -259,9 +258,7 @@ public class EqdResources {
 	}
 
 
-	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Where match) throws DataFormatException, IOException {
-		With with= new With();
-		match.setWith(with);
+	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Where with) throws DataFormatException, IOException {
 		convertColumns(eqCriterion, with);
 		setRestriction(eqCriterion, with);
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null)
@@ -270,7 +267,7 @@ public class EqdResources {
 	}
 
 
-	private void restrictionTest(EQDOCCriterion eqCriterion, With with) throws IOException, DataFormatException {
+	private void restrictionTest(EQDOCCriterion eqCriterion, Where with) throws IOException, DataFormatException {
 		EQDOCTestAttribute testAtt= eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
 		if (testAtt != null) {
 			Where then= new Where();
@@ -291,7 +288,7 @@ public class EqdResources {
 		}
 	}
 
-	private void setRestriction(EQDOCCriterion eqCriterion, With with) throws DataFormatException {
+	private void setRestriction(EQDOCCriterion eqCriterion, Where with) throws DataFormatException {
 		String eqTable = eqCriterion.getTable();
 		String linkColumn = eqCriterion.getFilterAttribute().getRestriction()
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);
@@ -308,18 +305,12 @@ public class EqdResources {
 	}
 
 	private String checkForProperty(Where match,String property){
-		boolean found=false;
 		if (match.getIri()!=null){
 			if (match.getIri().equals(property)){
 				counter++;
 				match.setAlias(property+"_"+counter);
 				return property+"_"+counter;
 			}
-		}
-		if (match.getWith()!=null){
-			String matchedProperty= checkForProperty(match.getWith(),property);
-			if (matchedProperty!=null)
-				return matchedProperty;
 		}
 		if (match.getWhere()!=null) {
 			for (Where where : match.getWhere()) {

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"notExist","description","type","id","iri","name","alias","bool","with","where","range"
-	,"operator","value","unit","in","notIn","relativeTo","anyRoleGroup"})
+@JsonPropertyOrder({"exclude","description","type","iri","name","alias","bool","with","where","range"
+	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends TTAlias implements Assignable{
 	private String description;
@@ -19,13 +19,77 @@ public class Where extends TTAlias implements Assignable{
 	private List<TTAlias> notIn;
 	private Bool bool;
 	private List<Where> where;
-	private With with;
 	private Operator operator;
 	private String relativeTo;
 	private String value;
 	private String unit;
 	private String valueLabel;
 	private boolean anyRoleGroup;
+	private boolean exclude;
+	private boolean isNull;
+	private TTAlias orderBy;
+	private Order direction;
+	private Integer count=1;
+	private Where then;
+	public Where getThen() {
+		return then;
+	}
+
+	public Where setThen(Where then) {
+		this.then = then;
+		return this;
+	}
+
+	public Where then(Consumer<Where> builder){
+		this.then= new Where();
+		builder.accept(this.then);
+		return this;
+	}
+
+	public TTAlias getOrderBy() {
+		return orderBy;
+	}
+
+	public Where setOrderBy(TTAlias orderBy) {
+		this.orderBy = orderBy;
+		return this;
+	}
+
+	public Order getDirection() {
+		return direction;
+	}
+
+	public Where setDirection(Order direction) {
+		this.direction = direction;
+		return this;
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public Where setCount(Integer count) {
+		this.count = count;
+		return this;
+	}
+
+	public boolean getIsNull() {
+		return isNull;
+	}
+
+	public Where setIsNull(boolean aNull) {
+		isNull = aNull;
+		return this;
+	}
+
+	public boolean isExclude() {
+		return exclude;
+	}
+
+	public Where setExclude(boolean exclude) {
+		this.exclude = exclude;
+		return this;
+	}
 
 	public String getValueLabel() {
 		return valueLabel;
@@ -102,22 +166,6 @@ public class Where extends TTAlias implements Assignable{
 
 	public Where setBool(Bool bool) {
 		this.bool = bool;
-		return this;
-	}
-
-
-	public With getWith() {
-		return with;
-	}
-
-	public Where setWith(With with) {
-		this.with = with;
-		return this;
-	}
-
-	public Where with(Consumer<With> builder){
-		this.with= new With();
-		builder.accept(this.with);
 		return this;
 	}
 

@@ -47,18 +47,22 @@ public class TTCompare {
 			return false;
 		if (from != null && from.size()!=to.size())
 			return false;
+		return !equalsIfFound(from, to);
+	}
+
+	private static boolean equalsIfFound(TTArray from, TTArray to) {
 		if (from != null) {
-			for (TTValue fromVal:from.getElements()){
+			for (TTValue fromVal: from.getElements()){
 				boolean found=false;
-				for (TTValue toVal:to.getElements()){
+				for (TTValue toVal: to.getElements()){
 					if (equals(fromVal,toVal))
 						found=true;
 				}
 				if (!found)
-					return false;
+					return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	public static boolean equals(TTValue from, TTValue to) {

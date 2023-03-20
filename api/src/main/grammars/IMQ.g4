@@ -110,32 +110,27 @@ fromClause
     (andFrom
     |
     orFrom
-    |
-    notFrom
     )
     ;
 
-notFrom
-    :
-    NOT
-    (from)
-    ;
+
 
 orFrom
     : (from)
-    (OR
+    (OR FROM
     (from))+
     ;
 
 andFrom
     :
     (from)
-    (AND
+    (AND FROM
     (from))+
     ;
 
 from
     :OC
+    exclude?
     description?
     graph?
     (reference
@@ -145,7 +140,9 @@ from
     whereClause?
     CC
     ;
-
+ exclude
+    : NOT
+    ;
 
 
 whereClause
@@ -156,18 +153,13 @@ whereClause
 
 where
     :OC
+    exclude?
     description?
-    (
-    (reference whereClause)
-    |
-    (reference with whereClause)
-    |
-    (reference whereValueTest)
-    |
-    (reference with)
-    |
-    (booleanWhere)
-    )
+    reference?
+    (whereClause| whereValueTest)?
+   sortable?
+   then?
+
     CC
     ;
 
@@ -176,14 +168,7 @@ booleanWhere
     :
     (andWhere
     |
-    orWhere
-    |
-    notWhere)
-    ;
-notWhere
-    :
-    NOT
-    where
+    orWhere)
     ;
 
 orWhere
@@ -199,15 +184,6 @@ andWhere
     (where))+
     ;
 
-with
-    :
-    WITH
-    OC
-    whereClause
-    sortable?
-    then?
-    CC
-    ;
 then
     :THEN
     (where|booleanWhere)
@@ -219,7 +195,7 @@ whereValueTest
     |
     range
     |
-    whereMeasure
+    (whereMeasure relativeTo?)
     )
     valueLabel?
     ;
@@ -268,17 +244,21 @@ fromRange
     ;
 toRange
     : TO
-
     whereMeasure
+     relativeTo?
 
     ;
 
 whereMeasure
     :
+    compare
+    ;
+compare
+    :
     operator
-    (string | number)
+    (string | number)?
     units?
-    relativeTo?
+
     ;
 number
     : SIGNED
@@ -296,15 +276,16 @@ operator
     : EQ | GT | LT | LTE | GTE | STARTS_WITH
     ;
 units
-    : UNITS
-    COLON
+    :
+   OB
     PN_PROPERTY
+    CB
     ;
 
 sortable
     :ORDERBY
     (iriRef| PN_PROPERTY)
-    direction
+    direction?
     count
     ;
 
@@ -361,6 +342,12 @@ alias
 
 
 // LEXER
+
+
+
+THEN : 'then';
+
+ORDERBY : 'orderBy';
 
 SIGNED
     : ('-' | '+')
@@ -475,9 +462,6 @@ LTE
 STARTS_WITH
     :'startsWith'
     ;
-UNITS
-    :'units'
-    ;
 AND
     :'and' | 'AND'
     ;
@@ -505,6 +489,7 @@ CB  : ')'
 COLON
     :':'
     ;
+
 
 
 
@@ -585,8 +570,3 @@ NOTIN : 'notIn';
 VAR : '@var'
     ;
 
-
-
-THEN : 'then';
-
-ORDERBY : 'orderBy';

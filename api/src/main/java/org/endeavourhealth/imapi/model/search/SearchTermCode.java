@@ -2,6 +2,9 @@ package org.endeavourhealth.imapi.model.search;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SearchTermCode {
 	String term;
 	String code;

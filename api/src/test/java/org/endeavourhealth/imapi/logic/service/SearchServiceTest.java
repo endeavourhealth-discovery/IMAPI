@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.transforms.IMQJToG;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,12 +38,12 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
-	//@Test
+//@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
 
 		SearchRequest request= new SearchRequest();
 		request.setIndex("david");
-		request.setTermFilter("medicinal product");
+		request.setTermFilter("^ESCTVE439120");
 		List<String> schemes= Arrays.asList(IM.NAMESPACE,SNOMED.NAMESPACE);
 		List<String> types= Arrays.asList(IM.CONCEPT.getIri());
 		request.setSchemeFilter(schemes);
@@ -50,6 +51,9 @@ class SearchServiceTest {
 		request.setTypeFilter(types);
 		SearchService ss= new SearchService();
 		List<SearchResultSummary> results= ss.getEntitiesByTerm(request);
+		for (SearchResultSummary result:results) {
+			System.out.println(result.getMatch()+" :"+ result.getCode());
+		}
 
 	}
 
@@ -60,7 +64,7 @@ class SearchServiceTest {
 		testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 		for (QueryRequest qr : List.of(
-			TestQueries.subtypesParameterised(), TestQueries.getAllowableSubtypes())) {
+			TestQueries.testQuery())) {
 			compareGrammars(qr);
 		}
 		TTManager manager = TestQueries.loadForms();

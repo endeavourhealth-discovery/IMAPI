@@ -14,50 +14,44 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
-import org.endeavourhealth.imapi.logic.codegen.MedicationAuthorisation;
-import org.endeavourhealth.imapi.logic.codegen.PartialDateTime;
-import org.endeavourhealth.imapi.logic.codegen.Patient;
-import org.endeavourhealth.imapi.logic.codegen.TerminologyConcept;
+import org.endeavourhealth.imapi.logic.codegen.*;
+import org.endeavourhealth.persistence.IMPFiler;
+import org.endeavourhealth.persistence.IMPFilerCSV;
 import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ZFhirMedicationStatement {
     public static void main(String[] argv) throws Exception {
         FhirContext ctx = FhirContext.forDstu2();
         IParser parser = ctx.newJsonParser();
 
-        //String str = "{\"dateAsserted\":\"1990-10-23\",\"dosage\":[{\"text\":\"3 times\\/day\"}],\"extension\":[{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-quantity-extension\",\"valueQuantity\":{\"unit\":\"capsule(s)\",\"value\":\"\"}},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-type-extension\",\"valueCoding\":{\"code\":\"acute\",\"display\":\"Acute\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/ValueSet\\/primarycare-medication-authorisation-type\"}},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-recorded-by-extension\",\"valueReference\":{\"reference\":\"Practitioner\\/1547\"}},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-recorded-date-extension\",\"valueDateTime\":\"1990-10-23\"},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-firstissuedate-extension\",\"valueDate\":\"2011-03-17\"},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-mostrecentissuedate-extension\",\"valueDate\":\"2019-03-25\"},{\"extension\":[{\"url\":\"date\",\"valueDate\":\"2008-06-12\"}],\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-cancellation-extension\"}],\"id\":116625,\"informationSource\":{\"reference\":\"Practitioner\\/1547\"},\"medicationCodeableConcept\":{\"coding\":[{\"code\":317148009,\"display\":\"Alverine 60mg capsules\",\"system\":\"sct\"}]},\"patient\":{\"reference\":\"Patient\\/2633\"},\"resourceType\":\"MedicationStatement\"}";
-        //String thingy = RunMapper(str, parser);
+        //String pathToCsv = "/media/sf_in/rx_statement.txt";
+        //String outFile = "/media/sf_in/rx_statement_out.txt";
 
-        String pathToCsv = "/media/sf_in/rx_statement.txt";
-        String outFile = "/media/sf_in/rx_statement_out.txt";
-
-        FileWriter csvWriter = new FileWriter(outFile);
+        String pathToCsv = "D:\\pojo\\in\\Ten_rows\\rx_statement.txt";
 
         int c = 1;
 
-        File file = new File(pathToCsv);
-        LineIterator it = FileUtils.lineIterator(file, "UTF-8");
-        while (it.hasNext()) {
-            String line = it.nextLine();
-            String pojo = RunMapper(line, parser);
-            csvWriter.append(c + "\t" + pojo + "\n");
-            if (c%100 == 0) csvWriter.flush();
-            System.out.println(c);
-            c++;
-        }
+        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\rx_statement_")) {
 
-        csvWriter.close();
+            File file = new File(pathToCsv);
+            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+            while (it.hasNext()) {
+                String line = it.nextLine();
+                Collection<IMDMBase> pojos = RunMapper(line, parser);
+                filer.fileIMPs(pojos);
+
+                if (c % 100 == 0) System.out.println(c);
+                c++;
+            }
+        }
     }
 
-    public static String RunMapper(String str, IParser parser) throws Exception {
-        //str = "{\"resourceType\":\"MedicationStatement\",\"id\":\"084b71c2-baff-4291-bd34-f1e8a7b0b631\",\"meta\":{\"profile\":[\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-medication-authorisation\"]},\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-medication-authorisation-quantity-extension\",\"valueQuantity\":{\"value\":10,\"unit\":\"ml\"}},{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-medication-authorisation-numberofrepeatsissued-extension\",\"valueInteger\":1},{\"extension\":[{\"url\":\"date\",\"valueDate\":\"2023-03-04\"}],\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-medication-authorisation-cancellation-extension\"},{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-recorded-by-extension\",\"valueReference\":{\"reference\":\"Practitioner/b6e55044-9531-4bb2-bfd7-3db84b4b0b00\"}},{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-recorded-date-extension\",\"valueDateTime\":\"2023-01-20T08:14:58+00:00\"},{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-medication-authorisation-type-extension\",\"valueCoding\":{\"system\":\"http://endeavourhealth.org/fhir/ValueSet/primarycare-medication-authorisation-type\",\"code\":\"acute\",\"display\":\"Acute\"}}],\"patient\":{\"reference\":\"Patient/9eaa8a53-6f83-4c41-9327-ba74ef80bfd4\"},\"informationSource\":{\"reference\":\"Practitioner/b6e55044-9531-4bb2-bfd7-3db84b4b0b00\"},\"dateAsserted\":\"2023-01-20\",\"status\":\"completed\",\"reasonForUseReference\":{\"reference\":\"Condition/fe770b45-445f-4375-b755-1a8ac4361397\"},\"medicationCodeableConcept\":{\"coding\":[{\"system\":\"http://snomed.info/sct\",\"code\":\"330286001\",\"display\":\"Chloramphenicol 0.5% eye drops\"}],\"text\":\"Chloramphenicol 0.5% eye drops\"},\"dosage\":[{\"text\":\"One Drop To Be Used In The Affected Eye(s) Four Times A Day\"}]}";
-        //str = "{\"dateAsserted\":\"1994-07-15\",\"dosage\":[{\"text\":\"As Directed\"}],\"extension\":[{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-quantity-extension\",\"valueQuantity\":{\"unit\":\"pre-filled disposable injection\",\"value\":1}},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-type-extension\",\"valueCoding\":{\"code\":\"repeat\",\"display\":\"Repeat\",\"system\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/ValueSet\\/primarycare-medication-authorisation-type\"}},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-recorded-by-extension\",\"valueReference\":{\"reference\":\"Practitioner\\/655\"}},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-recorded-date-extension\",\"valueDateTime\":\"1994-07-15\"},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-numberofrepeatsissued-extension\",\"valueInteger\":1},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-firstissuedate-extension\",\"valueDate\":\"2015-03-28\"},{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-mostrecentissuedate-extension\",\"valueDate\":\"2015-03-28\"},{\"extension\":[{\"url\":\"date\",\"valueDate\":\"2002-09-07\"}],\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-medication-authorisation-cancellation-extension\"}],\"id\":17071,\"informationSource\":{\"reference\":\"Practitioner\\/655\"},\"medicationCodeableConcept\":{\"coding\":[{\"code\":40085311000001103,\"display\":\"Adjuvanted quadrivalent influenza vaccine (surface antigen, inactivated) suspension for injection 0.5ml pre-filled syringes (Seqirus UK Ltd) (product)\",\"system\":\"sct\"}]},\"patient\":{\"reference\":\"Patient\\/203\"},\"resourceType\":\"MedicationStatement\"}";
+    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+        List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.MedicationStatement parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.MedicationStatement.class, str);
 
@@ -145,7 +139,9 @@ public class ZFhirMedicationStatement {
                 .setScheme(system)
                 .setProperty("custom-term", fhirDisplay);
 
-        rx.setOriginalConcept(omConcept.getId());
+        rx.setOriginalConcept(omConcept.getId())
+                .setProperty("concepts", Arrays.asList(omConcept));
+
         rx.setDosage(dosageText);
         rx.setEffectiveDate(PartialDateTime.parse(dateAsserted));
 
@@ -162,8 +158,8 @@ public class ZFhirMedicationStatement {
         Patient patient = new Patient(fhirNor);
         rx.setPatient(patient.getId());
 
-        // Serialization
-        String json = om.writeValueAsString(rx);
-        return json;
+        result.add(rx);
+
+        return result;
     }
 }

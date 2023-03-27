@@ -8,33 +8,45 @@ import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.logic.codegen.Observation;
-import org.endeavourhealth.imapi.logic.codegen.PartialDateTime;
-import org.endeavourhealth.imapi.logic.codegen.Patient;
-import org.endeavourhealth.imapi.logic.codegen.TerminologyConcept;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
+import org.endeavourhealth.imapi.logic.codegen.*;
+import org.endeavourhealth.persistence.IMPFiler;
+import org.endeavourhealth.persistence.IMPFilerCSV;
 import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
-import java.util.List;
-import java.util.UUID;
+import java.io.File;
+import java.util.*;
 
 public class ZFhirMapperObservation {
     public static void main(String[] argv) throws Exception {
-        System.out.println("test");
         FhirContext ctx = FhirContext.forDstu2();
 
         IParser parser = ctx.newJsonParser();
 
-        // blood pressure (includes sys and diastolic readings)
-        //String str = "{\"code\":{\"coding\":[{\"code\":\"246..\",\"display\":\"O/E - blood pressure reading\",\"system\":\"http://read.info/readv2\"},{\"code\":163020007,\"display\":\"On examination - blood pressure reading (finding)\"},{\"code\":254063019,\"system\":\"http://www.endeavourhealth.org/fhir/snomed-description\"}],\"text\":\"O/E - blood pressure reading\"},\"component\":[{\"code\":{\"coding\":[{\"code\":\"2469.\",\"display\":\"O/E - Systolic BP reading\",\"system\":\"http://read.info/readv2\"},{\"code\":72313002,\"display\":\"Systolic arterial pressure (observable entity)\",\"system\":\"http://snomed.info/sct\"}]},\"valueQuantity\":{\"unit\":\"mmHg\",\"value\":120}},{\"code\":{\"coding\":[{\"code\":\"246A.\",\"display\":\"O/E - Diastolic BP reading\",\"system\":\"http://read.info/readv2\"},{\"code\":1091811000000102,\"display\":\"Diastolic arterial pressure (observable entity)\",\"system\":\"http://snomed.info/sct\"}]},\"valueQuantity\":{\"unit\":\"mmHg\",\"value\":70}}],\"effectiveDateTime\":\"2021-12-28\",\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-recorded-by-extension\",\"valueReference\":{\"reference\":\"Practitioner/2996\"}}],\"id\":515736,\"related\":[{\"target\":{\"reference\":\"Observation/515737\"},\"type\":\"has-member\"},{\"target\":{\"reference\":\"Observation/515738\"},\"type\":\"has-member\"}],\"resourceType\":\"Observation\",\"subject\":{\"reference\":\"Patient/321\"}}";
+        String pathToCsv = "d:\\pojo\\in\\Ten_rows\\observation.txt";
+        pathToCsv = "d:\\pojo\\in\\Ten_rows\\individual_bp.txt";
+        pathToCsv = "d:\\pojo\\in\\Ten_rows\\full_bp.txt";
+        int c = 1;
 
-        // bp reading with reference to parent observation
-        //String str = "{\"code\":{\"coding\":[{\"code\":\"2469.\",\"display\":\"O/E - Systolic BP reading\",\"system\":\"http://read.info/readv2\"},{\"code\":72313002,\"display\":\"Systolic arterial pressure (observable entity)\"}]},\"effectiveDateTime\":\"2021-12-28\",\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-recorded-by-extension\",\"valueReference\":{\"reference\":\"Practitioner/2996\"}},{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/parent-resource\",\"valueReference\":{\"reference\":\"Observation/515736\"}}],\"id\":515737,\"resourceType\":\"Observation\",\"subject\":{\"reference\":\"Patient/321\"},\"valueQuantity\":{\"unit\":\"mmHg\",\"value\":120}}";
+        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\observation_full_bp_")) {
 
-        //String str = "{\"code\":{\"coding\":[{\"code\":\"1Y...\",\"display\":\"Patient feels well\",\"system\":\"READ 3\"},{\"code\":267112005,\"display\":\"Patient feels well (finding)\",\"system\":\"SNOMED\"}]},\"effectiveDateTime\":\"2006-06-10\",\"encounter\":{\"reference\":\"Encounter/1\"},\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-recorded-by-extension\",\"valueDateTime\":\"2006-06-10\"}],\"id\":1,\"meta\":{\"profile\":[\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-observation\"]},\"performer\":[{\"reference\":\"Practitioner/4089\"}],\"resourceType\":\"Observation\",\"subject\":{\"reference\":\"Patient/1\"}}";
-        // Systolic
-        //String str = "{\"code\":{\"coding\":[{\"code\":\"2469.\",\"display\":\"O/E - Systolic BP reading\",\"system\":\"http://read.info/readv2\"},{\"code\":72313002,\"display\":\"Systolic arterial pressure (observable entity)\"}]},\"effectiveDateTime\":\"2021-12-28\",\"extension\":[{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/primarycare-recorded-by-extension\",\"valueReference\":{\"reference\":\"Practitioner/2996\"}},{\"url\":\"http://endeavourhealth.org/fhir/StructureDefinition/parent-resource\",\"valueReference\":{\"reference\":\"Observation/515736\"}}],\"id\":515737,\"resourceType\":\"Observation\",\"subject\":{\"reference\":\"Patient/321\"},\"valueQuantity\":{\"unit\":\"mmHg\",\"value\":120}}";
-        // text
-        String str = "{\"code\":{\"coding\":[{\"code\":\"136..\",\"display\":\"Alcohol consumption\",\"system\":\"READ 3\"},{\"code\":160573003,\"display\":\"Alcohol intake (observable entity)\",\"system\":\"SNOMED\"}],\"text\":\"Alcohol consumption\"},\"effectiveDateTime\":\"1995-09-20\",\"encounter\":{\"reference\":\"Encounter\\/17\"},\"extension\":[{\"url\":\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-recorded-by-extension\",\"valueDateTime\":\"1995-09-20\"}],\"id\":30,\"meta\":{\"profile\":[\"http:\\/\\/endeavourhealth.org\\/fhir\\/StructureDefinition\\/primarycare-observation\"]},\"performer\":[{\"reference\":\"Practitioner\\/4089\"}],\"resourceType\":\"Observation\",\"subject\":{\"reference\":\"Patient\\/1\"},\"valueQuantity\":{\"unit\":\"U\\/week\",\"value\":0}}";
+            File file = new File(pathToCsv);
+            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+            while (it.hasNext()) {
+                String line = it.nextLine();
+                Collection<IMDMBase> pojos = RunMapper(line, parser);
+                filer.fileIMPs(pojos);
+
+                if (c % 100 == 0) System.out.println(c);
+                c++;
+            }
+        }
+
+    }
+
+    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+        List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.Observation parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Observation.class, str);
 
@@ -58,9 +70,6 @@ public class ZFhirMapperObservation {
             fhirOriginalDisplay = parsed.getCode().getCoding().get(i).getDisplay();
             fhirOriginalCode= parsed.getCode().getCoding().get(i).getCode();
             fhirOriginalSystem = parsed.getCode().getCoding().get(i).getSystem();
-            //System.out.println(fhirCodeDisplay);
-            //System.out.println(fhirCode);
-            //System.out.println(fhirSystem);
         }
 
         // go for the first orginal term in the array
@@ -90,11 +99,8 @@ public class ZFhirMapperObservation {
         // clinical effective date
         IDatatype clinicalEffectDate = parsed.getEffective();
         DateTimeDt clinDate = (DateTimeDt)clinicalEffectDate;
-        System.out.println(clinDate.getValue().toString());
 
         String fhirClinDate = ZMapperCommon.FormatDate(clinDate.getValue());
-
-        System.out.println(fhirClinDate);
 
         // parent observation (extension)
         String fhirParentObs = ""; String fhirPractitioner = "";
@@ -120,19 +126,10 @@ public class ZFhirMapperObservation {
             }
         }
 
-        System.out.println(fhirParentObs);
-        System.out.println(fhirPractitioner);
-
-        // id
         UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
-
-        //String x = "" + fhirId;
-        //System.out.println(x);
-        //System.out.println(fhirId);
 
         // patient reference (subject)
         ResourceReferenceDt subject = parsed.getSubject();
-        //String nor = subject.getReference().getValue();
         UUID nor = UUID.fromString(subject.getReference().getIdPart());
         Patient patient = new Patient(nor);
 
@@ -148,7 +145,8 @@ public class ZFhirMapperObservation {
                 .setScheme(fhirOriginalSystem)
                 .setProperty("concept-term", fhirOriginalDisplay);
 
-        observation.setOriginalConcept(omConcept.getId());
+        observation.setOriginalConcept(omConcept.getId())
+                .setProperty("concepts", Arrays.asList(omConcept));
 
         if (!fhirValue.isEmpty()) {
             observation.setProperty("custom-value-value", fhirValue);
@@ -165,9 +163,8 @@ public class ZFhirMapperObservation {
             observation.setText(fhirText);
         }
 
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(observation);
+        result.add(observation);
 
-        System.out.println(json);
+        return result;
     }
 }

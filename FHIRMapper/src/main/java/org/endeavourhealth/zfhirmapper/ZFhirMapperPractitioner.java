@@ -10,12 +10,18 @@ import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
+import org.endeavourhealth.imapi.logic.codegen.IMDMBase;
 import org.endeavourhealth.imapi.logic.codegen.Organisation;
 import org.endeavourhealth.imapi.logic.codegen.PractitionerInRole;
+import org.endeavourhealth.persistence.IMPFiler;
+import org.endeavourhealth.persistence.IMPFilerCSV;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public class ZFhirMapperPractitioner {
@@ -24,27 +30,30 @@ public class ZFhirMapperPractitioner {
         FhirContext ctx = FhirContext.forDstu2();
         IParser parser = ctx.newJsonParser();
 
-        String pathToCsv = "/media/sf_in/practitioner.txt";
-        String outFile = "/media/sf_in/practitioner_out.txt";
-
-        FileWriter csvWriter = new FileWriter(outFile);
+        //String pathToCsv = "/media/sf_in/practitioner.txt";
+        //String outFile = "/media/sf_in/practitioner_out.txt";
 
         int c = 1;
 
+        String pathToCsv = "d:\\pojo\\in\\Ten_rows\\practitioner.txt";
         File file = new File(pathToCsv);
-        LineIterator it = FileUtils.lineIterator(file, "UTF-8");
-        while (it.hasNext()) {
-            String line = it.nextLine();
-            String pojo = RunMapper(line, parser);
-            csvWriter.append(c + "\t" + pojo + "\n");
-            if (c%100 == 0) csvWriter.flush();
-            System.out.println(c);
-            c++;
-        }
+        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\practitioner_")) {
+            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
+            while (it.hasNext()) {
 
-        csvWriter.close();
+                String line = it.nextLine();
+                Collection<IMDMBase>  pojos = RunMapper(line, parser);
+                filer.fileIMPs(pojos);
+
+                System.out.println(c);
+                c++;
+            }
+        }
     }
-    public static String RunMapper(String str, IParser parser) throws Exception {
+    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+
+        List<IMDMBase> result = new ArrayList<>();
+
         ca.uhn.fhir.model.dstu2.resource.Practitioner parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Practitioner.class, str);
 
         System.out.println(parsed.getId().getValue().toString());
@@ -63,7 +72,6 @@ public class ZFhirMapperPractitioner {
         String fhirFamily = ""; String fhirGiven = "";
         int s = fhirFamilyList.size(); s--;
         for (int i=0 ; i<=s; i++) {
-            System.out.println(fhirFamilyList.get(i));
             fhirFamily = fhirFamilyList.get(i).toString();
         }
 
@@ -100,20 +108,22 @@ public class ZFhirMapperPractitioner {
             }
         }
 
-        Organisation organisation = new Organisation(fhirOrganizationId);
+        Organisation serviceOrganisation = new Organisation(fhirOrganizationId);
 
         UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
         PractitionerInRole pract = new PractitionerInRole(fhirId)
                 .setFamilyName(fhirFamily)
                 .setCallingName(fhirGiven)
-                .setServiceOrOrganisation(fhirOrganizationId.toString())
                 .setRoleType(roleTypeCode)
                 .setProperty("role-type-term", roleTypeTerm);
 
-        ObjectMapper om = new ObjectMapper();
+        pract.setServiceOrOrganisation(serviceOrganisation.getId().toString());
 
-        // Serialization test
-        String json = om.writeValueAsString(pract);
-        return json;
+        result.add(pract);
+
+        //serviceOrganisation.setIsCommissionedBy(serviceOrganisation.getId());
+        //result.add(serviceOrganisation);
+
+        return result;
     }
 }

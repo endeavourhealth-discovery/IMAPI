@@ -23,14 +23,14 @@ public class ZFhirMapper {
     public static void main(String[] argv) throws Exception {
 
 
-        String pathToCsv = "Z:\\pojo\\in\\patient.txt";
+        String pathToCsv = "d:\\pojo\\in\\Ten_rows\\patient.txt";
 
         int c = 1;
 
         FhirContext ctx = FhirContext.forDstu2();
         IParser parser = ctx.newJsonParser();
 
-        try (IMPFiler filer = new IMPFilerCSV("Z:\\pojo\\out\\")) {
+        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\patient_")) {
 
             File file = new File(pathToCsv);
             LineIterator it = FileUtils.lineIterator(file, "UTF-8");
@@ -41,8 +41,7 @@ public class ZFhirMapper {
 
                 if (c > 2000000) break;
 
-                if (c % 100 == 0)
-                    System.out.println(c);
+                if (c % 100 == 0) System.out.println(c);
                 c++;
             }
         }
@@ -54,7 +53,7 @@ public class ZFhirMapper {
         ca.uhn.fhir.model.dstu2.resource.Patient parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Patient.class, str);
 
         String fhirId = parsed.getId().getIdPart();
-        Patient patient = new Patient(UUID.randomUUID()); // UUID.fromString(fhirId));
+        Patient patient = new Patient(UUID.fromString(fhirId));
         result.add(patient);
 
         System.out.println(parsed.getAddress().get(0).getLine().get(0));
@@ -64,11 +63,9 @@ public class ZFhirMapper {
             System.out.println(fhirAddresses.get(i).getLine());
         }
 
-
-
         ResourceReferenceDt organizationReference = parsed.getManagingOrganization();
         String zOrgId = organizationReference.getReference().getIdPart();
-        Organisation zOrganisation = new Organisation(UUID.randomUUID()); // UUID.fromString(zOrgId));
+        Organisation zOrganisation = new Organisation(UUID.fromString(zOrgId));
         result.add(zOrganisation);
 
         String fhirPostalCode = parsed.getAddress().get(0).getPostalCode();
@@ -108,13 +105,14 @@ public class ZFhirMapper {
 
         List<ResourceReferenceDt> fhirProvider = parsed.getCareProvider();
         s = fhirProvider.size()-1;
-        UUID fhirGp = UUID.randomUUID();
-//        for ( int i=0 ; i<=s; i++) {
-//            IdDt ref = fhirProvider.get(i).getReference();
-//            if (ref.getResourceType().equals("Practitioner")) {
-//                fhirGp = UUID.fromString(ref.getIdPart());
-//            }
-//        }
+
+        UUID fhirGp = null;
+        for ( int i=0 ; i<=s; i++) {
+            IdDt ref = fhirProvider.get(i).getReference();
+            if (ref.getResourceType().equals("Practitioner")) {
+                fhirGp = UUID.fromString(ref.getIdPart());
+            }
+        }
 
         s = parsed.getAddress().get(0).getLine().size();
         String fhirLines = "";
@@ -128,11 +126,6 @@ public class ZFhirMapper {
 
         int l = fhirLines.length();
         if (l>0) fhirLines = fhirLines.substring(0, l - 1);
-
-
-        //List<ca.uhn.fhir.model.dstu2.resource.Patient.Contact> contacts = parsed.getContact();
-        //s = contacts.size();
-        //s--;
 
         java.util.List<ContactPointDt> con = parsed.getTelecom();
         s = con.size();
@@ -179,26 +172,7 @@ public class ZFhirMapper {
 
         String fhirAddUse = parsed.getAddress().get(0).getUse();
 
-        String imAddUse = "";
-        switch (fhirAddUse) {
-            case "home":
-                imAddUse = "http://endhealth.info/im#homeAddress";
-                break;
-            case "temp":
-                imAddUse = "http://endhealth.info/im#temporaryAddress";
-                break;
-            case "work":
-                imAddUse = "http://endhealth.info/im#workAddress";
-                break;
-            case "old":
-                imAddUse = "http://endhealth.info/im#oldAddress";
-                break;
-        }
-
-
-
         Address address = new Address(UUID.randomUUID())
-                //.setAddressLine(fhirLines)
                 .setPostCode(fhirPostalCode)
                 .setCity(fhirCity);
 
@@ -221,26 +195,7 @@ public class ZFhirMapper {
             formatedDOD = ZMapperCommon.FormatDate(fhirDateOfDeath);
         }
 
-        //GpCurrentRegistration currentGP = new GpCurrentRegistration()
-        //        .setRecordOwner(Organisation)
-
-        // http://hl7.org/fhir/administrative-gender/female
-        // http://hl7.org/fhir/administrative-gender/male
-        // http://hl7.org/fhir/administrative-gender/other
-
         String fhirGender = parsed.getGender();
-
-        String imGender = "http://hl7.org/fhir/administrative-gender/other";
-        switch (fhirGender) {
-            case "female":
-                imGender = "http://hl7.org/fhir/administrative-gender/female";
-                break;
-            case "male":
-                imGender = "http://hl7.org/fhir/administrative-gender/male";
-                break;
-        }
-
-
 
         patient .setDateOfBirth(formatedDOB)
                 .setFamilyName(fhirFamily.toString())
@@ -272,7 +227,6 @@ public class ZFhirMapper {
         GpCurrentRegistration gpCurrReg = new GpCurrentRegistration(UUID.randomUUID());
         result.add(gpCurrReg);
         gpCurrReg.setRecordOwner(zOrganisation.getId());
-        //patient.setGpCurrentRegistration(gpCurrReg);
 
         PractitionerInRole gpInRole = new PractitionerInRole(fhirGp);
         result.add(gpInRole);

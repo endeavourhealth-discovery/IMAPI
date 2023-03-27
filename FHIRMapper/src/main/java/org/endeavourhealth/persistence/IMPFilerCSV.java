@@ -30,6 +30,7 @@ public class IMPFilerCSV extends IMPFiler {
             String json = om.writeValueAsString(root);
             LOG.trace("JSON: {}", json);
             dataCsv.write(id + "\t" + json + System.lineSeparator());
+            dataCsv.flush();
         } catch (JsonProcessingException e) {
             LOG.error("Could not serialize {}", id);
             throw new RuntimeException(e);
@@ -42,6 +43,7 @@ public class IMPFilerCSV extends IMPFiler {
     void writeRelationship(String id, String rp, String target) {
         try {
             rltnCsv.write(id + "\t" + rp + "\t" + target + System.lineSeparator());
+            rltnCsv.flush();
         } catch (IOException e) {
             LOG.error("Could not write relationship {}", id);
             throw new RuntimeException(e);

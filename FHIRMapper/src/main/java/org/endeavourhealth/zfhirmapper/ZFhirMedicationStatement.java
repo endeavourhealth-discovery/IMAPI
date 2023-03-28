@@ -32,11 +32,12 @@ public class ZFhirMedicationStatement {
         //String outFile = "/media/sf_in/rx_statement_out.txt";
 
         String pathToCsv = "D:\\pojo\\in\\Ten_rows\\rx_statement.txt";
+        pathToCsv = "/media/sf_in/Ten_rows/rx_statement.txt";
 
         int c = 1;
 
-        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\rx_statement_")) {
-
+        //try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\rx_statement_")) {
+        try (IMPFiler filer = new IMPFilerCSV("/tmp/rx_statement_")) {
             File file = new File(pathToCsv);
             LineIterator it = FileUtils.lineIterator(file, "UTF-8");
             while (it.hasNext()) {
@@ -130,10 +131,9 @@ public class ZFhirMedicationStatement {
             fhirText = codeable.getText();
         }
 
-        ObjectMapper om = new ObjectMapper();
-
         MedicationAuthorisation rx = new MedicationAuthorisation(id);
 
+        /*
         TerminologyConcept omConcept = new TerminologyConcept(UUID.randomUUID())
                 .setCode(dcde)
                 .setScheme(system)
@@ -141,11 +141,16 @@ public class ZFhirMedicationStatement {
 
         rx.setOriginalConcept(omConcept.getId())
                 .setProperty("concepts", Arrays.asList(omConcept));
+         */
+
+        rx.setProperty("custom_code", dcde);
+        rx.setProperty("custom_term", fhirDisplay);
+        rx.setProperty("custom_scheme", system);
 
         rx.setDosage(dosageText);
         rx.setEffectiveDate(PartialDateTime.parse(dateAsserted));
 
-        rx.setProperty("PractitionerInRole", fhirPractitioner);
+        rx.setProperty("custom_PractitionerInRole", fhirPractitioner);
 
         rx.setOrderQuantityUnits(fhirUnit);
         if (fhirQty.matches("\\\\d+")) {
@@ -153,7 +158,11 @@ public class ZFhirMedicationStatement {
         }
 
         rx.setCourseType(fhirRxTypeCode);
-        rx.setProperty("number-of-repeats-issued",numberOfRepeatIssues);
+        rx.setProperty("custom_number_of_repeats_issued",numberOfRepeatIssues);
+
+        if (!fhirCancelDate.isEmpty()) {
+            rx.setProperty("custom_cancelled_date", fhirCancelDate);
+        }
 
         Patient patient = new Patient(fhirNor);
         rx.setPatient(patient.getId());

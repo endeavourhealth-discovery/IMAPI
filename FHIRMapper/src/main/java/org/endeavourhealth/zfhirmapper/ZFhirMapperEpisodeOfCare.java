@@ -78,7 +78,7 @@ public class ZFhirMapperEpisodeOfCare {
 
         EpisodeOfCare eoc = new EpisodeOfCare(fhirId);
         eoc.setPatientType(fhirPatientType);
-        eoc.setProperty("patient-type-term", fhirPatientTypeTerm);
+        eoc.setProperty("custom_patient_type_term", fhirPatientTypeTerm);
 
         if (!startDate.isEmpty()) {
             eoc.setEffectiveDate(PartialDateTime.parse(startDate));

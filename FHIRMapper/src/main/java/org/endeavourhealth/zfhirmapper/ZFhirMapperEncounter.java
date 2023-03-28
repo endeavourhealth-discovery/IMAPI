@@ -150,6 +150,7 @@ public class ZFhirMapperEncounter {
 
             fhirClinDate = ZMapperCommon.Piece(fhirClinDate, "T", 1, 1);
 
+            /*
             TerminologyConcept omConcept = new TerminologyConcept(UUID.randomUUID())
                     .setCode(fhirOrginialCode)
                     .setScheme(fhirOriginalScheme)
@@ -159,6 +160,15 @@ public class ZFhirMapperEncounter {
             Consultation encounter = new Consultation(fhirId)
                     .setEffectiveDate(PartialDateTime.parse(fhirClinDate))
                     .setProperty("concepts", Arrays.asList(omConcept));
+             */
+
+            UUID fhirId = UUID.fromString(parsed.getId().getIdPart());
+            Consultation encounter = new Consultation(fhirId)
+                    .setEffectiveDate(PartialDateTime.parse(fhirClinDate));
+
+            encounter.setProperty("custom_legacy_code", fhirOrginialCode);
+            encounter.setProperty("custom_legacy_scheme", fhirOriginalScheme);
+            encounter.setProperty("custom_legacy_term", fhirOrginalTerm);
 
             Organisation zorg = new Organisation(fhirOrg);
             encounter.setProvider(zorg.getId());

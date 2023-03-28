@@ -85,7 +85,7 @@ public class ZFhirMapperOrganization {
                 .setName(name)
                 .setOdsCode(ods_code)
                 .setSpeciality(orgtype)
-                .setProperty("speciality-term", orgTerm);
+                .setProperty("custom_speciality_term", orgTerm);
         result.add(organization);
 
         if (partOf != null) {

@@ -115,7 +115,7 @@ public class ZFhirMapperPractitioner {
                 .setFamilyName(fhirFamily)
                 .setCallingName(fhirGiven)
                 .setRoleType(roleTypeCode)
-                .setProperty("role-type-term", roleTypeTerm);
+                .setProperty("custom_role_type_term", roleTypeTerm);
 
         pract.setServiceOrOrganisation(serviceOrganisation.getId().toString());
 

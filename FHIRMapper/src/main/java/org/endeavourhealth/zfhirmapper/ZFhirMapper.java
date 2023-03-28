@@ -205,12 +205,12 @@ public class ZFhirMapper {
 
         if (fhirEthnicCode != null) {
             patient.setEthnicity(fhirEthnicCode);
-            patient.setProperty("custom-ethnic-term", fhirEthnicDisplay);
+            patient.setProperty("custom_ethnic_term", fhirEthnicDisplay);
         }
         if (fhirTitle != null) patient.setTitle(fhirTitle.toString());
         if (!formatedDOD.isEmpty()) patient.setDateOfDeath(formatedDOD);
 
-        patient.setProperty("text", fhirAddTxt);
+        patient.setProperty("custom_text", fhirAddTxt);
 
         if (fhirAddUse.equals("home")) {
             patient.setHomeAddress(address.getId());

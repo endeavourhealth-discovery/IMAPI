@@ -26,10 +26,13 @@ public class ZFhirMapperObservation {
 
         String pathToCsv = "d:\\pojo\\in\\Ten_rows\\observation.txt";
         pathToCsv = "d:\\pojo\\in\\Ten_rows\\individual_bp.txt";
-        pathToCsv = "d:\\pojo\\in\\Ten_rows\\full_bp.txt";
+        //pathToCsv = "d:\\pojo\\in\\Ten_rows\\full_bp.txt";
         int c = 1;
 
-        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\observation_full_bp_")) {
+        // observation_
+        // observation_individual_bp_
+        // observation_full_bp_
+        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\observation_individual_bp_")) {
 
             File file = new File(pathToCsv);
             LineIterator it = FileUtils.lineIterator(file, "UTF-8");
@@ -57,19 +60,33 @@ public class ZFhirMapperObservation {
         System.out.println(EncounterReference.getReference().toString());
         String fhirEncounterRef = EncounterReference.getReference().getIdPart();
 
+        String fhirPractitioner = "";
+
         // practitioner reference
         List<ResourceReferenceDt> PractitionerReference = parsed.getPerformer();
         if (PractitionerReference.size() > 0) {
             System.out.println(PractitionerReference.get(0).getReference().getValue());
+            fhirPractitioner = PractitionerReference.get(0).getReference().getIdPart();
         }
 
         // codes & terms
         Integer s = parsed.getCode().getCoding().size();
         s--; String fhirOriginalDisplay = ""; String fhirOriginalCode = ""; String fhirOriginalSystem = "";
+        String snomedDisplay = ""; String snomedCode = "";
+        String otherDisplay = ""; String otherCode = ""; String otherScheme = "";
         for (int i = 0; i <= s; i++) {
             fhirOriginalDisplay = parsed.getCode().getCoding().get(i).getDisplay();
             fhirOriginalCode= parsed.getCode().getCoding().get(i).getCode();
             fhirOriginalSystem = parsed.getCode().getCoding().get(i).getSystem();
+            if (fhirOriginalSystem.toLowerCase().contains("snomed") && (snomedCode.isEmpty())) {
+                snomedDisplay = fhirOriginalDisplay;
+                snomedCode = fhirOriginalCode;
+            }
+            if (fhirOriginalSystem.toLowerCase().contains("read")) {
+                otherDisplay = fhirOriginalDisplay;
+                otherCode = fhirOriginalCode;
+                otherScheme = fhirOriginalSystem;
+            }
         }
 
         // go for the first orginal term in the array
@@ -103,7 +120,7 @@ public class ZFhirMapperObservation {
         String fhirClinDate = ZMapperCommon.FormatDate(clinDate.getValue());
 
         // parent observation (extension)
-        String fhirParentObs = ""; String fhirPractitioner = "";
+        String fhirParentObs = "";
 
         List<ExtensionDt> fhirExtension = parsed.getUndeclaredExtensions();
         if (fhirExtension.size() > 0) {
@@ -138,8 +155,9 @@ public class ZFhirMapperObservation {
 
         observation.setPatient(patient.getId());
 
-        if (!fhirParentObs.isEmpty())  observation.setProperty("custom-parent-observation", fhirParentObs);
+        if (!fhirParentObs.isEmpty())  observation.setProperty("custom_parent_observation", fhirParentObs);
 
+        /*
         TerminologyConcept omConcept = new TerminologyConcept(UUID.randomUUID())
                 .setCode(fhirOriginalCode)
                 .setScheme(fhirOriginalSystem)
@@ -147,20 +165,30 @@ public class ZFhirMapperObservation {
 
         observation.setOriginalConcept(omConcept.getId())
                 .setProperty("concepts", Arrays.asList(omConcept));
+         */
 
-        if (!fhirValue.isEmpty()) {
-            observation.setProperty("custom-value-value", fhirValue);
-            observation.setProperty("custom-value-units", fhirUnits);
+        if (snomedCode != null) observation.setConcept("http://snomed.info/sct#"+snomedCode);
+
+        if (otherCode != null) {
+            observation.setProperty("custom_legacy_code", otherCode);
+            observation.setProperty("custom_legacy_scheme", otherScheme);
+            observation.setProperty("custom_legacy_term", otherDisplay);
         }
 
-        if (fhirEncounterRef != null)  observation.setProperty("custom-encounter-reference", fhirEncounterRef);
+        if (!fhirValue.isEmpty()) {
+            observation.setProperty("custom_value_value", fhirValue);
+            observation.setProperty("custom_value_units", fhirUnits);
+        }
+
+        if (fhirEncounterRef != null)  observation.setProperty("custom_encounter_reference", fhirEncounterRef);
 
         // no setter for Practitioner
         if (fhirPractitioner != null) {
+            observation.setProperty("custom_practitioner", fhirPractitioner);
         }
 
-        if (fhirText !=null) {
-            observation.setText(fhirText);
+        if (snomedDisplay !=null) {
+            observation.setText(snomedDisplay);
         }
 
         result.add(observation);

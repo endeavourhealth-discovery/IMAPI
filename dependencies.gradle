@@ -51,6 +51,7 @@ ext {
             jacksonAnnotations  : "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson",
             jacksonDatabind     : "com.fasterxml.jackson.core:jackson-databind:$versions.jackson",
             jerseyClient        : "org.glassfish.jersey.core:jersey-client:$versions.jersey",
+            jerseyInject        : "org.glassfish.jersey.inject:jersey-hk2:$versions.jersey",
             junit               : "org.junit.jupiter:junit-jupiter-api:$versions.junit",
             junitRunner         : "org.junit.platform:junit-platform-runner:$versions.junitRunner",
             junitVintage        : "org.junit.vintage:junit-vintage-engine:$versions.junit",

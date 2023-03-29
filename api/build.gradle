@@ -50,6 +50,7 @@ dependencies {
     implementation libs.logbackClassic
     implementation libs.elasticsearch
     implementation libs.jerseyClient
+    implementation libs.jerseyInject
     implementation libs.owlApi
     implementation libs.openLlet
     implementation libs.reactorCore

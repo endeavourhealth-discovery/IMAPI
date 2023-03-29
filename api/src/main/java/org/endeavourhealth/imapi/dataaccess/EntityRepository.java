@@ -398,8 +398,8 @@ public class EntityRepository {
         if (rs.hasBinding("code"))
             entityDocument.setCode(rs.getValue("code").stringValue());
 
-        if (rs.hasBinding("schemeName"))
-            entityDocument.setScheme(new TTIriRef(rs.getValue("schemeName").stringValue()));
+        if (rs.hasBinding("scheme"))
+            entityDocument.setScheme(new TTIriRef(rs.getValue("scheme").stringValue()));
 
         if (rs.hasBinding("status")) {
             TTIriRef status = TTIriRef.iri(rs.getValue("status").stringValue());

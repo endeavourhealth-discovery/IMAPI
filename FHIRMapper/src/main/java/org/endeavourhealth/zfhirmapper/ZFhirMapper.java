@@ -24,13 +24,15 @@ public class ZFhirMapper {
 
 
         String pathToCsv = "d:\\pojo\\in\\Ten_rows\\patient.txt";
+        pathToCsv = "/media/sf_in/mill/patient.txt";
 
         int c = 1;
 
         FhirContext ctx = FhirContext.forDstu2();
         IParser parser = ctx.newJsonParser();
 
-        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\patient_")) {
+        //try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\patient_")) {
+        try (IMPFiler filer = new IMPFilerCSV("/media/sf_in/mill/patient_")) {
 
             File file = new File(pathToCsv);
             LineIterator it = FileUtils.lineIterator(file, "UTF-8");
@@ -39,9 +41,9 @@ public class ZFhirMapper {
                 Collection<IMDMBase> pojos = RunMapper(line, parser);
                 filer.fileIMPs(pojos);
 
-                if (c > 2000000) break;
+                //if (c > 2000000) break;
 
-                if (c % 100 == 0) System.out.println(c);
+                if (c % 100 == 0) System.out.println(">> "+c);
                 c++;
             }
         }
@@ -56,17 +58,20 @@ public class ZFhirMapper {
         Patient patient = new Patient(UUID.fromString(fhirId));
         result.add(patient);
 
+        /*
         System.out.println(parsed.getAddress().get(0).getLine().get(0));
         List<AddressDt> fhirAddresses = parsed.getAddress();
         Integer s = fhirAddresses.size()-1;
         for ( int i=0 ; i<=s; i++) {
             System.out.println(fhirAddresses.get(i).getLine());
         }
+        */
 
         ResourceReferenceDt organizationReference = parsed.getManagingOrganization();
         String zOrgId = organizationReference.getReference().getIdPart();
         Organisation zOrganisation = new Organisation(UUID.fromString(zOrgId));
-        result.add(zOrganisation);
+        // duplicate key value violates unique constraint "main_pkey"
+        //result.add(zOrganisation);
 
         String fhirPostalCode = parsed.getAddress().get(0).getPostalCode();
         String fhirCity = parsed.getAddress().get(0).getCity();
@@ -85,7 +90,7 @@ public class ZFhirMapper {
 
         String fhirNhsNumber = "";
         List<IdentifierDt> fhirIdentifiers = parsed.getIdentifier();
-        s = fhirIdentifiers.size()-1;
+        Integer s = fhirIdentifiers.size()-1;
         for ( int i=0 ; i<=s; i++) {
             String system = fhirIdentifiers.get(i).getSystem();
             if (system.contains("nhs-number")) {
@@ -225,11 +230,11 @@ public class ZFhirMapper {
         }
 
         GpCurrentRegistration gpCurrReg = new GpCurrentRegistration(UUID.randomUUID());
-        result.add(gpCurrReg);
+        //result.add(gpCurrReg);
         gpCurrReg.setRecordOwner(zOrganisation.getId());
 
         PractitionerInRole gpInRole = new PractitionerInRole(fhirGp);
-        result.add(gpInRole);
+        //result.add(gpInRole);
         gpCurrReg.setUsualGp(gpInRole.getId());
 
         patient.setGpCurrentRegistration(gpCurrReg.getId());

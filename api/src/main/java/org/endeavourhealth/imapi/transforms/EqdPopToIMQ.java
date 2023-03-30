@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -16,103 +15,137 @@ public class EqdPopToIMQ {
 
 
 	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException {
-		this.activeReport= eqReport.getId();
-		this.resources= resources;
-		From rootFrom= new From();
-		query.setFrom(rootFrom);;
+		this.activeReport = eqReport.getId();
+		this.resources = resources;
+		From rootFrom = new From();
+		query.setFrom(rootFrom);
+
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
 				rootFrom
-				.setIri(IM.NAMESPACE+"Q_RegisteredGMS")
-					.setSourceType(SourceType.set)
+				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 				rootFrom
-					.setIri("urn:uuid:" + id)
-					.setSourceType(SourceType.set)
+					.setSet("urn:uuid:" + id)
 					.setName(resources.reportNames.get(id));
 			}
 			else {
 				rootFrom
-				.setIri(IM.NAMESPACE + "Patient")
-				.setSourceType(SourceType.type)
+				.setType(IM.NAMESPACE + "Patient")
 				.setName("Patient");
 			}
-		Where rootWhere= new Where();
-		rootFrom.setWhere(rootWhere);
-		rootWhere.setBool(Bool.and);
-
-		Where lastOr= null;
 
 
+		Where lastOr = null;
 		for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
 			VocRuleAction ifTrue = eqGroup.getActionIfTrue();
 			VocRuleAction ifFalse = eqGroup.getActionIfFalse();
-			VocMemberOperator memberOp= eqGroup.getDefinition().getMemberOperator();
-
+			if (eqGroup.getDefinition().getParentPopulationGuid() != null)
+				throw new DataFormatException("parent population at definition level");
 			if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
-				if (lastOr==null){
-					lastOr= new Where();
-					rootWhere.addWhere(lastOr);
-					lastOr.setBool(Bool.or);
-				}
-					convertGroup(eqGroup, lastOr);
+				lastOr = convertOrGroup(eqGroup, lastOr, rootFrom);
 			}
-			else if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT||
-				(ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT))
-			 {
-				if (lastOr!=null) {
-					convertGroup(eqGroup, lastOr);
-					lastOr = null;
-				}
-				else {
-					Where where= new Where();
-					rootWhere.addWhere(where);
-					convertGroup(eqGroup, where);
-				}
+			else if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT ||
+				(ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT)) {
+				convertAndGroup(rootFrom, eqGroup);
 			}
-			else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT||
-				ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT){
-					Where not= new Where();
-					lastOr=null;
-					not.setBool(Bool.not);
-					rootWhere.addWhere(not);
-					convertGroup(eqGroup, not);
+			else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT ||
+				ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT) {
+				convertNotGroup(eqGroup, rootFrom);
 			}
 			else
 				throw new DataFormatException("unrecognised action rule combination : " + activeReport);
 		}
 	}
 
-	private void convertGroup(EQDOCCriteriaGroup eqGroup, Where topMatch) throws DataFormatException, IOException {
+	private void convertNotGroup(EQDOCCriteriaGroup eqGroup, From rootFrom) throws DataFormatException, IOException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
-		if (eqGroup.getDefinition().getCriteria().size()>1) {
-			if (memberOp == VocMemberOperator.OR) {
-				if (topMatch.getBool() != Bool.or) {
-					Where or = new Where();
-					or.setBool(Bool.or);
-					topMatch.addWhere(or);
-					topMatch = or;
-				}
-			}
-			if (memberOp == VocMemberOperator.AND) {
-				if (topMatch.getBool() != Bool.and) {
-					Where and = new Where();
-					and.setBool(Bool.and);
-					topMatch.addWhere(and);
-					topMatch = and;
-				}
-			}
-		}
 		if (eqGroup.getDefinition().getCriteria().size()==1){
-			resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0),topMatch);
+			Where not= new Where();
+			rootFrom.addWhere(not);
+			not.setExclude(true);
+			resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0),not);
 		}
 		else {
+			if (memberOp == VocMemberOperator.AND) {
+				Where not = new Where();
+				rootFrom.addWhere(not);
+				not.setExclude(true);
+				not.setBool(Bool.and);
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Where and = new Where();
+					not.addWhere(and);
+					resources.convertCriteria(eqCriteria, and);
+				}
+			}
+			else if (memberOp == VocMemberOperator.OR) {
+				Where not = new Where();
+				rootFrom.addWhere(not);
+				not.setExclude(true);
+				not.setBool(Bool.or);
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Where or = new Where();
+					not.addWhere(or);
+					resources.convertCriteria(eqCriteria, or);
+				}
+			}
+		}
+	}
+
+	private Where convertOrGroup(EQDOCCriteriaGroup eqGroup, Where lastOr, From rootFrom) throws DataFormatException, IOException {
+		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
+			if (lastOr == null) {
+				lastOr = new Where();
+				rootFrom.addWhere(lastOr);
+				lastOr.setBool(Bool.or);
+			}
+			if (memberOp == VocMemberOperator.AND) {
+				Where and = new Where();
+				lastOr.addWhere(and);
+				and.setBool(Bool.and);
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Where match = new Where();
+					and.addWhere(match);
+					resources.convertCriteria(eqCriteria, match);
+				}
+			}
+			else {
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Where match = new Where();
+					lastOr.addWhere(match);
+					resources.convertCriteria(eqCriteria, match);
+				}
+
+			}
+		return lastOr;
+	}
+
+	private void convertAndGroup(From rootFrom, EQDOCCriteriaGroup eqGroup) throws DataFormatException, IOException {
+		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
+		if (memberOp == VocMemberOperator.AND) {
 			for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
 				Where match = new Where();
-				topMatch.addWhere(match);
+				rootFrom.addWhere(match);
 				resources.convertCriteria(eqCriteria, match);
+			}
+		}
+		else {
+			if (eqGroup.getDefinition().getCriteria().size() == 1) {
+				Where match = new Where();
+				rootFrom.addWhere(match);
+				resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0), match);
+			}
+			else {
+				Where or = new Where();
+				rootFrom.addWhere(or);
+				or.setBool(Bool.or);
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Where match = new Where();
+					or.addWhere(match);
+					resources.convertCriteria(eqCriteria, match);
+				}
 			}
 		}
 	}

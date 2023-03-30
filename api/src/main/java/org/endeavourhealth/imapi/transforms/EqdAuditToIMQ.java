@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Select;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
@@ -23,14 +22,12 @@ public class EqdAuditToIMQ {
 			String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 			query
 				.from(f->f
-				.setIri("urn:uuid:" + id)
-					.setSourceType(SourceType.set)
+				.setSet("urn:uuid:" + id)
 				.setName(resources.reportNames.get(id)));
 		}
 		else
 			query.from(f->f
-				.setIri(IM.NAMESPACE+"Patient")
-				.setSourceType(SourceType.type)
+				.setType(IM.NAMESPACE+"Patient")
 				.setName("Patient"));
 		for (String popId : eqReport.getAuditReport().getPopulation()) {
 			Query subQuery = new Query();
@@ -49,7 +46,7 @@ public class EqdAuditToIMQ {
 			EQDOCAggregateGroup group : agg.getGroup()) {
 			for (String eqColum : group.getGroupingColumn()) {
 				String predicate = resources.getPath(eqTable + "/" + eqColum);
-				select.addGroupBy(new TTAlias().setId(predicate));
+				select.addGroupBy(new TTAlias().setIri(IM.NAMESPACE+predicate));
 			}
 		}
 	}

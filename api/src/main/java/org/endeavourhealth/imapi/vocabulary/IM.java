@@ -15,10 +15,11 @@ public class IM {
     //Entity top level predicates
     public static final TTIriRef id = iri(NAMESPACE + "id");
     public static final TTIriRef CODE = iri(NAMESPACE + "code");
+    public static final TTIriRef PREFERRED_NAME = iri(NAMESPACE + "preferredName");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
     //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
-    public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
+   // public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
     public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");
     //public static final TTIriRef USAGE_TOTAL = iri(NAMESPACE + "usageTotal");
     public static final TTIriRef IN_TASK = iri(NAMESPACE + "inTask");
@@ -27,6 +28,8 @@ public class IM {
     public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
     public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
 
+    //Specialised data model predicates
+    public static final TTIriRef INVERSE_PATH = iri(NAMESPACE + "inversePath");
     //Core model types
     public static final TTIriRef CONCEPT = iri(NAMESPACE + "Concept");
     public static final TTIriRef CONCEPT_SET = iri(NAMESPACE + "ConceptSet");

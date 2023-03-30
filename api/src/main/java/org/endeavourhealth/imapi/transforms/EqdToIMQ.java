@@ -4,10 +4,7 @@ import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryEntity;
-import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
@@ -23,9 +20,9 @@ import java.util.zip.DataFormatException;
 public class EqdToIMQ {
 	private final EqdResources resources = new EqdResources();
 	private static final Set<String> roles = new HashSet<>();
-	public Map<TTIriRef, ConceptSet> valueSets;
+	public Map<String, ConceptSet> valueSets;
 
-	public Map<TTIriRef, ConceptSet> getValueSets() {
+	public Map<String, ConceptSet> getValueSets() {
 		return valueSets;
 	}
 
@@ -104,7 +101,7 @@ public class EqdToIMQ {
 		}
 		else
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
-		flatten(qry);
+		flattenQuery(qry);
 
 		QuerySummariser summariser = new QuerySummariser(qry);
 		summariser.summarise(false);
@@ -112,48 +109,25 @@ public class EqdToIMQ {
 		return queryEntity;
 	}
 
-	private void flatten(Query query) throws DataFormatException {
-		if (query.getFrom() != null) {
-			if (query.getFrom().getWhere() != null) {
-				query.getFrom().setWhere(flattenRoot(query.getFrom().getWhere()));
-			}
-		}
-	}
-
-	private Where flattenRoot(Where oldWhere) throws DataFormatException {
-		if (oldWhere.getWhere()==null){
-			return oldWhere;
-		}
-		Where flatWhere = new Where();
-		if (oldWhere.getBool() == Bool.and) {
-			if (oldWhere.getWhere().size()==1){
-				flatWhere.setBool(oldWhere.getWhere().get(0).getBool());
-				flatWhere.setWhere(oldWhere.getWhere());
-				if (oldWhere.getWhere().get(0).getWhere()!=null&&
-				oldWhere.getWhere().get(0).getId()==null) {
-					flatWhere.setBool(oldWhere.getWhere().get(0).getBool());
-					flatWhere.setWhere(oldWhere.getWhere().get(0).getWhere());
-				}
-			}
-			else {
-				flatWhere.setBool(oldWhere.getBool());
-				for (Where oldAnd : oldWhere.getWhere()) {
-					if (oldAnd.getId() == null) {
-						if (oldAnd.getBool() == Bool.and) {
-							for (Where oldSubWhere : oldAnd.getWhere()) {
-								flatWhere.addWhere(oldSubWhere);
-							}
-						}
-						else
-							flatWhere.addWhere(oldAnd);
+	private void flattenQuery(Query qry) {
+		From from= qry.getFrom();
+		List<Where> oldWhereList= from.getWhere();
+		if (oldWhereList!=null) {
+			List<Where> newWhereList = new ArrayList<>();
+			for (Where where : oldWhereList) {
+				if (where.getIri() == null) {
+					if (where.getBool() == Bool.and) {
+						for (Where and : where.getWhere())
+							newWhereList.add(and);
 					}
 					else
-						flatWhere.addWhere(oldAnd);
+						newWhereList.add(where);
 				}
+				else
+					newWhereList.add(where);
 			}
+			from.setWhere(newWhereList);
 		}
-		else throw new DataFormatException("unsupported where pattern");
-		return flatWhere;
-
 	}
+
 }

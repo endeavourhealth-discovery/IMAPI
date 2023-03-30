@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
 
@@ -29,13 +30,14 @@ public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
     public IMDMBase deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 
         JsonNode node = p.getCodec().readTree(p);
+        String id = node.get("_id").textValue();
         String type = node.get("_type").textValue();
 
-        IMDMBase result = (IMDMBase) Class.forName("org.endeavourhealth.imapi.logic.codegen."+type).getDeclaredConstructor().newInstance();
+        IMDMBase result = (IMDMBase) Class.forName("org.endeavourhealth.imapi.logic.codegen."+type).getConstructor(UUID.class).newInstance(UUID.fromString(id));
 
         for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
             String n = it.next();
-            if(!"_type".equals(n)) {
+            if(!"_type".equals(n) && !"_id".equals(n)) {
                 JsonNode value = node.get(n);
                 result.setProperty(n, getNodeValue(value, p, ctxt));
             }
@@ -60,7 +62,12 @@ public class IMDMDeserializer extends StdDeserializer<IMDMBase> {
             case NUMBER:
                return getNumberNode(value);
             case OBJECT:
-                return ctxt.readValue(value.traverse(p.getCodec()), IMDMBase.class);
+                List<String> fields = new ArrayList<>();
+                value.fieldNames().forEachRemaining(fields::add);
+                if (fields.size() == 2 && fields.contains("dateTime") && fields.contains("precision"))
+                    return ctxt.readValue(value.traverse(p.getCodec()), PartialDateTime.class);
+                else
+                    return ctxt.readValue(value.traverse(p.getCodec()), IMDMBase.class);
             case POJO:
                 throw new UnsupportedOperationException("POJO nodes unsupported");
             case STRING:

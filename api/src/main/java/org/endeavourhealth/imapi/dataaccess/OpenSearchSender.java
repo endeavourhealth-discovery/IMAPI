@@ -171,7 +171,7 @@ public class OpenSearchSender {
           .add("PREFIX im: <http://endhealth.info/im#>")
           .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
           .add("select ?iri ?name ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?weighting")
-          .add("?extraType ?extraTypeName")
+          .add("?extraType ?extraTypeName ?preferredName")
           .add("where {")
           .add("  graph ?scheme {")
           .add("    ?iri rdf:type ?type.")
@@ -181,6 +181,7 @@ public class OpenSearchSender {
           .add("                         ?extraType rdfs:label ?extraTypeName.")
           .add("            filter (?extraType in (im:dataModelProperty, im:DataModelEntity))}")
           .add("    Optional {?type rdfs:label ?typeName}")
+          .add("    Optional {?iri im:preferredName ?preferredName.}")
           .add("    Optional {?iri im:status ?status.")
           .add("    Optional {?status rdfs:label ?statusName} }")
           .add("    Optional {?scheme rdfs:label ?schemeName }")
@@ -193,11 +194,12 @@ public class OpenSearchSender {
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
           .add("PREFIX im: <http://endhealth.info/im#>")
           .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-          .add("select ?iri ?termCode ?synonym ?termCodeStatus")
+          .add("select ?iri ?termCode ?oldCode ?synonym ?termCodeStatus")
           .add("where {")
           .add("?iri im:hasTermCode ?tc.")
           .add("      filter (?iri in ("+ inList+") )")
           .add("       Optional {?tc im:code ?termCode}")
+          .add("       Optional {?tc im:oldCode ?oldCode}")
           .add("       Optional  {?tc rdfs:label ?synonym}")
           .add("       Optional  {?tc im:status ?termCodeStatus}")
           .add("}").toString();
@@ -249,26 +251,39 @@ public class OpenSearchSender {
                     String termCode = null;
                     String synonym = null;
                     TTIriRef status = null;
+                    String oldCode=null;
                     if (rs.getValue("synonym") != null)
                         synonym = rs.getValue("synonym").stringValue().toLowerCase();
                     if (rs.getValue("termCode") != null)
                         termCode = rs.getValue("termCode").stringValue();
+                    if (rs.getValue("oldCode") != null)
+                        oldCode = rs.getValue("oldCode").stringValue();
                     if (rs.getValue("termCodeStatus") != null)
                         status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
                     if (synonym != null) {
+                       addMatchTerm(blob,synonym);
                         SearchTermCode tc = getTermCode(blob, synonym);
                         if (tc == null) {
                             blob.addTermCode(synonym, termCode, status);
                             addKey(blob,synonym);
                         }
-                        else if (termCode != null) {
-                            tc.setCode(termCode);
+                        else {
+                            if (termCode != null) {
+                                tc.setCode(termCode);
+                            }
                         }
                     }
                     else if (termCode != null) {
-                        SearchTermCode tc = getTermCodeFromCode(blob, termCode);
-                        if (tc == null)
-                            blob.addTermCode(null, termCode, status);
+                            SearchTermCode tc = getTermCodeFromCode(blob, termCode);
+                            if (tc == null) {
+                                blob.addTermCode(null, termCode, status);
+                            }
+                        }
+                    if (oldCode!=null){
+                        SearchTermCode tc = getTermCodeFromCode(blob, oldCode);
+                        if (tc == null) {
+                            blob.addTermCode(null, oldCode, status);
+                        }
                     }
 
                 }
@@ -291,6 +306,7 @@ public class OpenSearchSender {
                     batch.add(blob);
                     String name = rs.getValue("name").stringValue();
                     blob.setName(name);
+
                    // if (name.contains(" "))
                        // if (name.split(" ")[0].length() < 3)
                          //   blob.addKey(name.substring(0, name.indexOf(" ")).toLowerCase());
@@ -298,6 +314,10 @@ public class OpenSearchSender {
                     if (rs.getValue("code") != null) {
                         code = rs.getValue("code").stringValue();
                         blob.setCode(code);
+                    }
+                    if (rs.getValue("preferredName")!=null){
+                        String preferred= rs.getValue("preferredName").stringValue();
+                        blob.setPreferredName(preferred);
                     }
 
                     TTIriRef scheme = TTIriRef.iri(rs.getValue("scheme").stringValue());
@@ -329,8 +349,12 @@ public class OpenSearchSender {
                     if (rs.getValue("weighting") != null) {
                         blob.setWeighting(Integer.parseInt(rs.getValue("weighting").stringValue()));
                     }
-
+                    Integer length= blob.getName().length();
+                    if (blob.getPreferredName()!=null)
+                        length= blob.getPreferredName().length();
+                    blob.setLength(length);
                     blob.addTermCode(name, null, null);
+                    addMatchTerm(blob,name);
                     addKey(blob,name);
                 }
 
@@ -338,6 +362,13 @@ public class OpenSearchSender {
                 System.err.println("Bad Query \n"+sql);
             }
         }
+    }
+
+    private void addMatchTerm(EntityDocument blob, String term){
+        term= term.replace(" ","");
+        if (term.length()>25)
+            term=term.substring(0,25);
+        blob.addMatchTerm(term);
     }
 
     private void  addKey(EntityDocument blob, String key) {
@@ -384,7 +415,7 @@ public class OpenSearchSender {
     private SearchTermCode getTermCodeFromCode(EntityDocument blob,String code){
         for (SearchTermCode tc:blob.getTermCode()){
             if (tc.getCode()!=null)
-                if (tc.getCode().equals(code))
+                if (tc.getCode().contains(code))
                     return tc;
         }
         return null;

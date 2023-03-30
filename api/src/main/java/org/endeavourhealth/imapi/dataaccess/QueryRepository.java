@@ -98,8 +98,8 @@ public class QueryRepository {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
-        if (null != query.getContext())
-            result.setContext(query.getContext());
+        if (null != queryRequest.getContext())
+            result.setContext(queryRequest.getContext());
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
@@ -405,7 +405,9 @@ public class QueryRepository {
         if (from.getIri()!=null)
             addToIriList(from,ttIris,iris);
         if (from.getWhere()!=null){
-            gatherWhereLabels(from.getWhere(),ttIris,iris);
+            for (Where where:from.getWhere()) {
+                gatherWhereLabels(where, ttIris, iris);
+            }
         }
         if (from.getFrom()!=null){
             from.getFrom().forEach(f-> gatherFromLabels(f,ttIris,iris));

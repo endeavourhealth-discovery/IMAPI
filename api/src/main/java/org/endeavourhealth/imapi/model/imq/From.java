@@ -3,24 +3,42 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"graph","id","iri","name","alias","includeSubtypes","includeSupertypes","sourceType","description","type","with","bool","from","where"})
+@JsonPropertyOrder({"exclude","description","graph","iri","set","type","name","alias","descendantOrSelfOf","descendantOf",
+	"ancestorOf","description","boolFrom","boolWhere","from","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class From extends TTAlias {
-	private Bool bool;
+	private Bool boolFrom;
 	private List<From> from;
-	private TTIriRef type;
+	private Bool bool;
+	private boolean exclude;
+
 	private TTAlias graph;
-	private Where where;
+	private List<Where> where;
 	private String description;
-	private With with;
+
+	public boolean isExclude() {
+		return exclude;
+	}
+
+	public From setExclude(boolean exclude) {
+		this.exclude = exclude;
+		return this;
+	}
+
+	public Bool getBool() {
+		return bool;
+	}
+
+	public From setBool(Bool bool) {
+		this.bool = bool;
+		return this;
+	}
 
 	public TTAlias getGraph() {
 		return graph;
@@ -31,29 +49,25 @@ public class From extends TTAlias {
 		return this;
 	}
 
-	public TTIriRef getType() {
-		return type;
+
+
+	public From setType(String type){
+		super.setType(type);
+		return this;
 	}
 
-	public From setType(TTIriRef type) {
-		this.type = type;
+	public From setSet(String set){
+		super.setSet(set);
 		return this;
 	}
 
 
-	public From setSourceType(SourceType type){
-		super.setSourceType(type);
-		return this;
+	public Bool getBoolFrom() {
+		return boolFrom;
 	}
 
-
-
-	public Bool getBool() {
-		return bool;
-	}
-
-	public From setBool(Bool bool) {
-		this.bool = bool;
+	public From setBoolFrom(Bool boolFrom) {
+		this.boolFrom = boolFrom;
 		return this;
 	}
 
@@ -82,14 +96,6 @@ public class From extends TTAlias {
 	}
 
 
-	public With getWith() {
-		return with;
-	}
-
-	public From setWith(With with) {
-		this.with = with;
-		return this;
-	}
 
 
 	public From setIri(String iri) {
@@ -111,13 +117,13 @@ public class From extends TTAlias {
 		return this;
 	}
 
-	public From setIncludeSubtypes(boolean include){
-		super.setIncludeSubtypes(include);
+	public From setDescendantsOrSelfOf(boolean include){
+		super.setDescendantsOrSelfOf(include);
 		return this;
 	}
 
-	public From setIncludeSupertypes(boolean include){
-		super.setIncludeSupertypes(include);
+	public From setAncestorsOf(boolean include){
+		super.setAncestorsOf(include);
 		return this;
 	}
 
@@ -138,20 +144,26 @@ public class From extends TTAlias {
 		return description;
 	}
 
-
-
-	public Where getWhere() {
+	public List<Where> getWhere() {
 		return where;
 	}
 
-	@JsonSetter
-	public From setWhere(Where where) {
+ @JsonSetter
+	public From setWhere(List<Where> where) {
 		this.where = where;
 		return this;
 	}
 
+	public From addWhere(Where where){
+		if (this.where==null)
+			this.where= new ArrayList<>();
+		this.where.add(where);
+		return this;
+	}
+
 	public From where(Consumer<Where> builder){
-		this.where= new Where();
+		Where where= new Where();
+		addWhere(where);
 		builder.accept(where);
 		return this;
 	}

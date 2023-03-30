@@ -76,20 +76,20 @@ public class ExcelSetExporterTest {
 
         definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
             .from(w->w
-              .setBool(Bool.or)
+              .setBoolFrom(Bool.or)
                 .from(f->f
-                .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setIncludeSubtypes(true)))
+                .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .from(f->f
-                    .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setIncludeSubtypes(true)
+                    .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true)
                   .where(p->p
                     .setIri(IM.ROLE_GROUP.getIri())
                     .where(p1->p1
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
-                      .setIncludeSubtypes(true)
+                      .setDescendantsOrSelfOf(true)
                     .addIn(new From().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
-                      .setIncludeSubtypes(true)))))));
+                      .setDescendantsOrSelfOf(true)))))));
         return definition;
     }
 

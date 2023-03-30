@@ -1,20 +1,17 @@
 package org.endeavourhealth.imapi.logic.codegen;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.jsonldjava.utils.Obj;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.validation.constraints.AssertTrue;
-
-import java.util.ArrayList;
+import java.time.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,31 +74,80 @@ class CodeGenTest {
     @Test
     void testSerialise() throws JsonProcessingException {
 
-        IMDMAddress home = new IMDMAddress().setPostcode("NE1").setProperty("city", "London");
+        Address home = new Address(UUID.fromString("a8039ce3-46da-4756-8a61-da26f8e8af21")).setPostCode("NE1").setProperty("city", "London");
+        Address work = new Address(UUID.fromString("ca948dc1-80df-41fd-9911-bde9dcfce65c")).setPostCode("LS1").setProperty("city", "Leeds");
 
-        IMDMAddress work = new IMDMAddress().setPostcode("LS1").setProperty("city", "Leeds");
+        Patient patient = new Patient(UUID.fromString("964fa5a1-aca8-4fd7-b2de-2aa4bbd005b1"))
+            .setForenames("Fred Bloggs")
+            .setDateOfBirth("1973-09-26")
+            .setProperty("age", 21)
+            .setProperty("address", Arrays.asList(
+                new Address(UUID.fromString("a8039ce3-46da-4756-8a61-da26f8e8af21")),
+                new Address(UUID.fromString("ca948dc1-80df-41fd-9911-bde9dcfce65c"))
+            ));
 
-        List<IMDMAddress> list = new ArrayList<>();
-
-        list.add(home);
-        list.add(work);
-
-        IMDMPatient patient = new IMDMPatient().setName("Fred Bloggs").setProperty("age", 21)
-                .setProperty("address", list);
+        List<IMDMBase> resources = Arrays.asList(
+            patient,
+            home,
+            work
+        );
 
         ObjectMapper om = new ObjectMapper();
+        om.registerModule(new JavaTimeModule());
+        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(resources);
 
-        String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(patient);
+        System.out.println(json);
 
-        IMDMPatient actual = om.readValue(json, IMDMPatient.class);
+        List<IMDMBase> actualResources = om.readValue(json, new TypeReference<>() {});
+        assertEquals(resources.size(), actualResources.size());
 
-        assertEquals(patient.getName(), actual.getName(), "Deserialized name not equal");
+        Patient actual = (Patient) actualResources.get(0);
+        assertEquals(patient.getForenames(), actual.getForenames(), "Deserialized name not equal");
+        assertEquals(patient.getDateOfBirth(), actual.getDateOfBirth(), "Deserialized DOB not equal");
         assertEquals(patient.getProperty("age").toString(), actual.getProperty("age").toString(), "Deserialized age not equal");
 
-        List<IMDMAddress> outputList = actual.getProperty("address");
+        Address actualHome = (Address) resources.get(1);
+        assertEquals(home.getPostCode(), actualHome.getPostCode(), "Deserialized postcode not equal");
 
-        assertEquals(list.get(0).getPostcode(), outputList.get(0).getPostcode(), "Deserialized postcode not equal");
-        assertNotEquals(list.get(0).getPostcode(), outputList.get(1).getPostcode(), "Deserialized postcode not equal");
+        Address actualWork = (Address) resources.get(2);
+        assertEquals(work.getPostCode(), actualWork.getPostCode(), "Deserialized postcode not equal");
 
+    }
+
+
+    @Test
+    void testPartialDateTime() {
+
+        PartialDateTime testYear = new PartialDateTime(1980);
+        String testYearString = "1980";
+        PartialDateTime testMonth = new PartialDateTime(1980, 1);
+        String testMonthString = "1980-01";
+        PartialDateTime testDay = new PartialDateTime(1980, 1,5);
+        String testDayString = "1980-01-05";
+        PartialDateTime testTime = new PartialDateTime(1980, 1,5,2,3,24);
+        String testTimeString = "1980-01-05T02:03:24Z";
+        PartialDateTime testNano = new PartialDateTime(1980, 1,5,2,3,24, 55);
+        String testNanoString = "1980-01-05T02:03:24.55Z";
+        PartialDateTime testOffset = new PartialDateTime(1980, 1,5,2,3,24, 535, "+02:00");
+        String testOffsetString = "1980-01-05T02:03:24.535+02:00";
+        PartialDateTime testNanoLength = new PartialDateTime(1980, 1,5,23,30,4, 5, "+02:00");
+        String testNanoLengthString = "1980-01-05T23:30:04.5+02:00";
+
+        assertEquals(testYear.getDateTime(), PartialDateTime.parse(testYearString).getDateTime(), "YYYY parsing incorrectly");
+        assertEquals(testMonth.getDateTime(), PartialDateTime.parse(testMonthString).getDateTime(), "YYYY-MM parsing incorrectly");
+        assertEquals(testDay.getDateTime(), PartialDateTime.parse(testDayString).getDateTime(), "YYYY-MM-DD parsing incorrectly");
+        assertEquals(testTime.getDateTime(), PartialDateTime.parse(testTimeString).getDateTime(), "YYYY-MM-DDTHH:MM:SSZ parsing incorrectly");
+        assertEquals(testNano.getDateTime(), PartialDateTime.parse(testNanoString).getDateTime(), "YYYY-MM-DDTHH:MM:SS.NNNZ parsing incorrectly");
+        assertEquals(testOffset.getDateTime(), PartialDateTime.parse(testOffsetString).getDateTime(), "YYYY-MM-DDTHH:MM:SS.NNN+ZZ:ZZ parsing incorrectly");
+        assertEquals(testNanoLength.getDateTime(), PartialDateTime.parse(testNanoLengthString).getDateTime(), "YYYY-MM-DDTHH:MM:SS.NNN+ZZ:ZZ parsing incorrectly");
+    }
+
+
+    @Test
+    void testPartialDateTimeEquality() {
+        PartialDateTime pdt1 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 9, 0), PartialDateTime.Precision.YYYY_MM_DD);
+        PartialDateTime pdt2 = new PartialDateTime(LocalDateTime.of(2000, 1, 1, 10, 0), PartialDateTime.Precision.YYYY_MM_DD);
+
+        assertTrue(pdt1.equals(pdt2));
     }
 }

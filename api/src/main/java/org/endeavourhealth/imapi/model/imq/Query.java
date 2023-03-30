@@ -23,7 +23,7 @@ public class Query extends TTAlias{
 	private boolean usePrefixes;
 	private From from;
 	private List<Query> query;
-	private TTContext context;
+
 	private List<OrderLimit> orderBy;
 	private Integer limit;
 	private String direction;
@@ -166,14 +166,6 @@ public class Query extends TTAlias{
 
 
 
-	public TTContext getContext() {
-		return context;
-	}
-
-	public Query setContext(TTContext context) {
-		this.context = context;
-		return this;
-	}
 
 	public List<Query> getQuery() {
 		return query;

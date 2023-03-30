@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -273,12 +274,19 @@ public class TTBulkFiler  extends TTDocumentFiler {
          String config = configTTl;
          String data = dataPath;
          String preloadPath = preload;
-         String command = "importrdf preload -c " + config + "\\config.ttl --force -q " + data + " " + data + "\\BulkImport*.nq";
+         String command;
+         if (!SystemUtils.OS_NAME.contains("Windows"))
+             command = "importrdf preload -c " + config + "/config.ttl --force -q "
+               + data + " " + data + "/BulkImport*.nq";
+         else
+             command = "importrdf preload -c " + config + "\\config.ttl --force -q "
+                + data + " " + data + "\\BulkImport*.nq";
+         String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
          Process process = Runtime.getRuntime()
-                 .exec("cmd /c " + command,
+                 .exec(startCommand + command,
                          null, new File(preloadPath));
          BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-         BufferedReader e = new BufferedReader(new InputStreamReader(process.getInputStream()));
+         BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
          String line = r.readLine();
          while (line != null) {
@@ -294,6 +302,8 @@ public class TTBulkFiler  extends TTDocumentFiler {
              line = e.readLine();
          }
 
+         process.waitFor();
+
          if (error || process.exitValue() != 0) {
              System.err.println("Bulk import failed");
              throw new TTFilerException("Bulk import failed");
@@ -304,7 +314,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
              if (!file.isDirectory() && !file.delete())
                  LOG.error("File delete failed");
          }
-     } catch (IOException e) {
+     } catch (IOException | InterruptedException e) {
          LOG.error(e.getMessage());
          throw new TTFilerException(e.getMessage());
      }

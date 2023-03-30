@@ -2,6 +2,8 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.function.Consumer;
+
 
 @JsonPropertyOrder({"from","to","relativeTo"})
 public class Range {
@@ -24,6 +26,17 @@ public class Range {
 
 	public Range setTo(Value to) {
 		this.to = to;
+		return this;
+	}
+
+	public Range from(Consumer<Assignable> builder){
+		this.from= new Value();
+		builder.accept(this.from);
+		return this;
+	}
+	public Range to(Consumer<Assignable> builder){
+		this.to= new Value();
+		builder.accept(this.to);
 		return this;
 	}
 }

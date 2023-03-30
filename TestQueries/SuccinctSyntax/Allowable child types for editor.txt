@@ -1,0 +1,24 @@
+prefixes {
+  im: http://endhealth.info/im#,
+  sh: http://www.w3.org/ns/shacl#,
+  rdfs: http://www.w3.org/2000/01/rdf-schema#,
+  sn: http://snomed.info/sct#}
+arguments {
+  this : im:Folder
+  } 
+query {
+  name "Allowable child types for editor"
+  from {
+      where {im:isContainedIn in im:EntityTypes}}
+  select {
+    rdfs:label,
+    
+    sh:property
+        where 
+          {sh:node in $this}
+            and
+          {sh:path in im:isContainedIn,
+                      rdfs:subClassOf,
+                      im:isSubsetOf}
+                {
+                sh:path}}}

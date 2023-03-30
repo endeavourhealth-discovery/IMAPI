@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.endeavourhealth.imapi.model.imq.QueryEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,10 @@ public class ModelDocument {
 	private List<ConceptSet> conceptSet;
 	private List<FunctionClause> functionClause;
 	private List<QueryEntity> query;
+
+	public ModelDocument(){
+		this.context= TTManager.getDefaultContext();
+	}
 
 	@JsonProperty("@context")
 	public TTContext getContext() {

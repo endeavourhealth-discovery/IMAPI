@@ -9,7 +9,6 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Path;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.SourceType;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTTypedRef;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -97,19 +96,18 @@ public class PathRepository {
 	private void whereFromPath(Path path, Where where) {
 		for (TTTypedRef link:path.getItems()){
 			if (link.getType().equals(RDF.PROPERTY)){
-				where.setId(getLocalName(link.getIri()));
+				where.setIri(link.getIri());
 				where.setName(link.getName());
 			}
 			else if (link.getType().equals(SHACL.NODESHAPE)){
 				Where subWhere= new Where();
-				subWhere.setType(TTIriRef.iri(link.getIri()).setName(link.getName()));
+				subWhere.setType(link.getIri()).setName(link.getName());
 				where.addWhere(subWhere);
 				where= subWhere;
 			}
 			else {
 				where.addIn(new From()
-					.setIri(IM.CONCEPT.getIri())
-					.setSourceType(SourceType.type)
+					.setType(IM.CONCEPT.getIri())
 					.where(w->w
 						.setIri(link.getIri())
 						.setName(link.getName())
@@ -120,7 +118,7 @@ public class PathRepository {
 			}
 		}
 		if (path.getTarget().getType().equals(RDF.PROPERTY)) {
-				where.setId(getLocalName(path.getTarget().getIri()));
+				where.setIri(path.getTarget().getIri());
 				where.setName(path.getTarget().getName());
 		}
 	}

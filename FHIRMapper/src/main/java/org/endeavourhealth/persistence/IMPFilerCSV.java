@@ -7,18 +7,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IMPFilerCSV extends IMPFiler {
     private static Logger LOG = LoggerFactory.getLogger(IMPFilerCSV.class);
-    private FileWriter dataCsv;
+    private Map<String, FileWriter> dataCsv = new HashMap<>();
     private FileWriter rltnCsv;
+    private String folder;
     public IMPFilerCSV(String folder) {
+        this.folder = folder;
         try {
-            dataCsv = new FileWriter(folder + "data.csv");
             rltnCsv = new FileWriter(folder + "rltn.csv");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -29,8 +28,9 @@ public class IMPFilerCSV extends IMPFiler {
         try {
             String json = om.writeValueAsString(root);
             LOG.trace("JSON: {}", json);
-            dataCsv.write(id + "\t" + json + System.lineSeparator());
-            dataCsv.flush();
+            FileWriter fw = getWriter(type);
+            fw.write(id + "\t" + json + System.lineSeparator());
+            fw.flush();
         } catch (JsonProcessingException e) {
             LOG.error("Could not serialize {}", id);
             throw new RuntimeException(e);
@@ -50,9 +50,20 @@ public class IMPFilerCSV extends IMPFiler {
         }
     }
 
+    private FileWriter getWriter(String type) throws IOException {
+        FileWriter result = dataCsv.get(type);
+        if (result == null) {
+            result = new FileWriter(folder + type + ".csv");
+            dataCsv.put(type, result);
+        }
+        return result;
+    }
+
     @Override
     public void close() throws Exception {
-        dataCsv.close();
+        for (FileWriter v : dataCsv.values()) {
+            v.close();
+        }
         rltnCsv.close();
     }
 }

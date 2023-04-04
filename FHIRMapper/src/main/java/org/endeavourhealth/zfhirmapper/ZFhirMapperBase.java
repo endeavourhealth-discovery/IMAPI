@@ -11,8 +11,8 @@ import org.endeavourhealth.persistence.IMPFilerCSV;
 import java.io.File;
 import java.util.Collection;
 
-public abstract class ZFhirMapperBase {
-    public void execute(String infile, String outpath) throws Exception {
+public abstract class ZFhirMapperBase<T> {
+    public T execute(String infile, String outpath) throws Exception {
         int c = 1;
 
         FhirContext ctx = FhirContext.forDstu2();
@@ -31,6 +31,8 @@ public abstract class ZFhirMapperBase {
                 c++;
             }
         }
+
+        return (T) this;
     }
 
     public abstract Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception;

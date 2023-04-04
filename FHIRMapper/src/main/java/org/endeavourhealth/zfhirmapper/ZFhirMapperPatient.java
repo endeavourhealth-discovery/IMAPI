@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.logic.codegen.*;
 
 import java.util.*;
 
-public class ZFhirMapperPatient extends ZFhirMapperBase {
+public class ZFhirMapperPatient extends ZFhirMapperBase<ZFhirMapperPatient> {
     public static void main(String[] argv) throws Exception {
         if (argv.length != 2) {
             System.err.println("Usage: ZFhirMapperPatient <in folder> <out folder>");

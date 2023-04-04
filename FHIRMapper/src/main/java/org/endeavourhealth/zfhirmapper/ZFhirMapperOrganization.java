@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class ZFhirMapperOrganization extends ZFhirMapperBase {
+public class ZFhirMapperOrganization extends ZFhirMapperBase<ZFhirMapperOrganization> {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 2)
             new ZFhirMapperOrganization().execute(argv[0], argv[1]);

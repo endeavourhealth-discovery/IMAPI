@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class ZFhirMapperPractitioner extends ZFhirMapperBase {
+public class ZFhirMapperPractitioner extends ZFhirMapperBase<ZFhirMapperPractitioner> {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 2)
             new ZFhirMapperPractitioner().execute(argv[0], argv[1]);

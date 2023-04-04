@@ -17,7 +17,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 
 import java.util.*;
 
-public class ZFhirMapperEncounter extends ZFhirMapperBase {
+public class ZFhirMapperEncounter extends ZFhirMapperBase<ZFhirMapperEncounter> {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 2)
             new ZFhirMapperEncounter().execute(argv[0], argv[1]);

@@ -14,7 +14,7 @@ import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
 import java.util.*;
 
-public class ZFhirMapperMedicationStatement extends ZFhirMapperBase {
+public class ZFhirMapperMedicationStatement extends ZFhirMapperBase<ZFhirMapperMedicationStatement> {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 2)
             new ZFhirMapperMedicationStatement().execute(argv[0], argv[1]);

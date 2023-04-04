@@ -11,7 +11,7 @@ import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
 import java.util.*;
 
-public class ZFhirMapperObservation extends ZFhirMapperBase {
+public class ZFhirMapperObservation extends ZFhirMapperBase<ZFhirMapperObservation> {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 2)
             new ZFhirMapperObservation().execute(argv[0], argv[1]);

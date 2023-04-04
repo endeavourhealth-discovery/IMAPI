@@ -165,8 +165,10 @@ public class IMLToECL {
 	}
 
 	private static void addClass(Element exp, StringBuilder ecl, boolean includeName) {
-		if (exp.getType().equals(IM.CONCEPT.getIri()))
-			ecl.append("* ");
+		if (exp.getType()!=null) {
+			if (exp.getType().equals(IM.CONCEPT.getIri()))
+				ecl.append("* ");
+		}
 		else {
 			String subsumption = getSubsumption(exp);
 			String iri = checkMember(exp.getId());

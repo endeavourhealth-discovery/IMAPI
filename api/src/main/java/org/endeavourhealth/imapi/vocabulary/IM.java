@@ -143,6 +143,7 @@ public class IM {
     public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN + "kpax#");
     public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN + "kwp#");
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN + "vis#");
+    public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(DOMAIN + "read2#");
     public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN + "bc#");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001 = TTIriRef.iri(DOMAIN + "nhsethnic2001#");
     public static final TTIriRef GRAPH_IM1 = TTIriRef.iri(DOMAIN + "im1#");
@@ -166,6 +167,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_TPP = IM.GRAPH_TPP;
     public static final TTIriRef CODE_SCHEME_ODS = IM.GRAPH_ODS;
     public static final TTIriRef CODE_SCHEME_VISION = IM.GRAPH_VISION;
+    public static final TTIriRef CODE_SCHEME_READ2 = IM.GRAPH_READ2;
     public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001 = IM.GRAPH_NHSDD_ETHNIC_2001;
     public static final TTIriRef CODE_SCHEME_KINGS_APEX = IM.GRAPH_KINGS_APEX;
     public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = IM.GRAPH_KINGS_WINPATH;

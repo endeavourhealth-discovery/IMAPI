@@ -1,6 +1,5 @@
 package org.endeavourhealth.zfhirmapper;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
@@ -10,48 +9,20 @@ import ca.uhn.fhir.model.dstu2.resource.MedicationStatement;
 import ca.uhn.fhir.model.primitive.DateDt;
 import ca.uhn.fhir.model.primitive.IntegerDt;
 import ca.uhn.fhir.parser.IParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.logic.codegen.*;
-import org.endeavourhealth.persistence.IMPFiler;
-import org.endeavourhealth.persistence.IMPFilerCSV;
 import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.util.*;
 
-public class ZFhirMedicationStatement {
+public class ZFhirMapperMedicationStatement extends ZFhirMapperBase {
     public static void main(String[] argv) throws Exception {
-        FhirContext ctx = FhirContext.forDstu2();
-        IParser parser = ctx.newJsonParser();
-
-        //String pathToCsv = "/media/sf_in/rx_statement.txt";
-        //String outFile = "/media/sf_in/rx_statement_out.txt";
-
-        String pathToCsv = "D:\\pojo\\in\\Ten_rows\\rx_statement.txt";
-        pathToCsv = "/media/sf_in/Ten_rows/rx_statement.txt";
-
-        int c = 1;
-
-        //try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\rx_statement_")) {
-        try (IMPFiler filer = new IMPFilerCSV("/tmp/rx_statement_")) {
-            File file = new File(pathToCsv);
-            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
-            while (it.hasNext()) {
-                String line = it.nextLine();
-                Collection<IMDMBase> pojos = RunMapper(line, parser);
-                filer.fileIMPs(pojos);
-
-                if (c % 100 == 0) System.out.println(c);
-                c++;
-            }
-        }
+        if (argv.length == 2)
+            new ZFhirMapperMedicationStatement().execute(argv[0], argv[1]);
+        else
+            new ZFhirMapperMedicationStatement().execute("/media/sf_in/Ten_rows/rx_statement.txt", "/tmp/rx_statement_");
     }
 
-    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+    public Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
         List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.MedicationStatement parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.MedicationStatement.class, str);

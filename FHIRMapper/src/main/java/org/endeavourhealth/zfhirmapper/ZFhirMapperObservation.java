@@ -1,54 +1,25 @@
 package org.endeavourhealth.zfhirmapper;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.ExtensionDt;
 import ca.uhn.fhir.model.api.IDatatype;
 import ca.uhn.fhir.model.dstu2.composite.QuantityDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
 import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.parser.IParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
 import org.endeavourhealth.imapi.logic.codegen.*;
-import org.endeavourhealth.persistence.IMPFiler;
-import org.endeavourhealth.persistence.IMPFilerCSV;
 import org.hl7.fhir.instance.model.api.IBaseDatatype;
 
-import java.io.File;
 import java.util.*;
 
-public class ZFhirMapperObservation {
+public class ZFhirMapperObservation extends ZFhirMapperBase {
     public static void main(String[] argv) throws Exception {
-        FhirContext ctx = FhirContext.forDstu2();
-
-        IParser parser = ctx.newJsonParser();
-
-        String pathToCsv = "d:\\pojo\\in\\Ten_rows\\observation.txt";
-        pathToCsv = "d:\\pojo\\in\\Ten_rows\\individual_bp.txt";
-        //pathToCsv = "d:\\pojo\\in\\Ten_rows\\full_bp.txt";
-        int c = 1;
-
-        // observation_
-        // observation_individual_bp_
-        // observation_full_bp_
-        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\observation_individual_bp_")) {
-
-            File file = new File(pathToCsv);
-            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
-            while (it.hasNext()) {
-                String line = it.nextLine();
-                Collection<IMDMBase> pojos = RunMapper(line, parser);
-                filer.fileIMPs(pojos);
-
-                if (c % 100 == 0) System.out.println(c);
-                c++;
-            }
-        }
-
+        if (argv.length == 2)
+            new ZFhirMapperObservation().execute(argv[0], argv[1]);
+        else
+            new ZFhirMapperObservation().execute("d:\\pojo\\in\\Ten_rows\\individual_bp.txt", "d:\\pojo\\out\\Ten_rows\\observation_individual_bp_");
     }
 
-    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+    public Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
         List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.Observation parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Observation.class, str);

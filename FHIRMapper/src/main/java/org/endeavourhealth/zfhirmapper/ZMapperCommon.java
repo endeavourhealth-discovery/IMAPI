@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class ZMapperCommon {
     public static void main(String[] argv) throws Exception {
@@ -139,8 +140,8 @@ public class ZMapperCommon {
 
         String formatedDate = pDate.toString();
 
-        DateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-        Date date = (Date)formatter.parse(formatedDate);
+        DateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US);
+        Date date = formatter.parse(formatedDate);
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);

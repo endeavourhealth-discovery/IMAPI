@@ -7,49 +7,19 @@ import ca.uhn.fhir.model.primitive.DateTimeDt;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.model.primitive.StringDt;
 import ca.uhn.fhir.parser.IParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import ca.uhn.fhir.context.FhirContext;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.LineIterator;
-// import org.eclipse.rdf4j.query.algebra.Add;
 import org.endeavourhealth.imapi.logic.codegen.*;
-import org.endeavourhealth.persistence.IMPFiler;
-import org.endeavourhealth.persistence.IMPFilerCSV;
 
-import java.io.*;
 import java.util.*;
 
-public class ZFhirMapper {
+public class ZFhirMapperPatient extends ZFhirMapperBase {
     public static void main(String[] argv) throws Exception {
-
-
-        String pathToCsv = "d:\\pojo\\in\\Ten_rows\\patient.txt";
-        pathToCsv = "/media/sf_in/mill/patient.txt";
-
-        int c = 1;
-
-        FhirContext ctx = FhirContext.forDstu2();
-        IParser parser = ctx.newJsonParser();
-
-        //try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\patient_")) {
-        try (IMPFiler filer = new IMPFilerCSV("/media/sf_in/mill/patient_")) {
-
-            File file = new File(pathToCsv);
-            LineIterator it = FileUtils.lineIterator(file, "UTF-8");
-            while (it.hasNext()) {
-                String line = it.nextLine();
-                Collection<IMDMBase> pojos = RunMapper(line, parser);
-                filer.fileIMPs(pojos);
-
-                //if (c > 2000000) break;
-
-                if (c % 100 == 0) System.out.println(">> "+c);
-                c++;
-            }
-        }
+        if (argv.length != 2) {
+            System.err.println("Usage: ZFhirMapperPatient <in folder> <out folder>");
+            System.exit(-1);
+        } else
+            new ZFhirMapperPatient().execute(argv[0], argv[1]);
     }
-
-    public static Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
+    public Collection<IMDMBase> RunMapper(String str, IParser parser) throws Exception {
         List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.Patient parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Patient.class, str);

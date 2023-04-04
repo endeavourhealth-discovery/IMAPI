@@ -1,47 +1,27 @@
 package org.endeavourhealth.zfhirmapper;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.dstu2.composite.CodeableConceptDt;
 import ca.uhn.fhir.model.dstu2.composite.CodingDt;
 import ca.uhn.fhir.model.dstu2.composite.IdentifierDt;
 import ca.uhn.fhir.model.dstu2.composite.ResourceReferenceDt;
-import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.codegen.IMDMBase;
 import org.endeavourhealth.imapi.logic.codegen.Organisation;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.persistence.IMPFiler;
-import org.endeavourhealth.persistence.IMPFilerCSV;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.lang.ref.Reference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class ZFhirMapperOrganization {
+public class ZFhirMapperOrganization extends ZFhirMapperBase {
     public static void main(String[] argv) throws Exception {
-
-        FhirContext ctx = FhirContext.forDstu2();
-        IParser parser = ctx.newJsonParser();
-
-        String str = ""; String pathToCsv = "d:\\pojo\\in\\Ten_rows\\organization.txt";
-
-        try (IMPFiler filer = new IMPFilerCSV("d:\\pojo\\out\\Ten_rows\\organization")) {
-            BufferedReader csvReader = new BufferedReader(new FileReader(pathToCsv));
-            while ((str = csvReader.readLine()) != null) {
-                Collection<IMDMBase> pojos = RunMapper(str, parser);
-                filer.fileIMPs(pojos);
-            }
-        }
+        if (argv.length == 2)
+            new ZFhirMapperOrganization().execute(argv[0], argv[1]);
+        else
+            new ZFhirMapperOrganization().execute("d:\\pojo\\in\\Ten_rows\\organization.txt", "d:\\pojo\\out\\Ten_rows\\organization");
     }
 
-    public static Collection<IMDMBase>  RunMapper(String str, IParser parser) throws Exception {
+    public Collection<IMDMBase>  RunMapper(String str, IParser parser) {
         List<IMDMBase> result = new ArrayList<>();
 
         ca.uhn.fhir.model.dstu2.resource.Organization parsed = parser.parseResource(ca.uhn.fhir.model.dstu2.resource.Organization.class, str);

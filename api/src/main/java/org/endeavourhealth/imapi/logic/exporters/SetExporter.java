@@ -95,8 +95,8 @@ public class SetExporter {
                         includeLegacy,null));
                 else
                   result.addAll(setRepository.getSetExpansion(new Query()
-                      .from(f->f
-                        .setIri(entity.getIri())
+                      .match(f->f
+                        .setId(entity.getIri())
                         .setDescendantsOrSelfOf(true))
                     ,includeLegacy,null));
             }

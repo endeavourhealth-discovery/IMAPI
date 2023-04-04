@@ -11,7 +11,6 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -20,7 +19,6 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.springframework.http.ResponseEntity;
 
 import java.net.URISyntaxException;
 import java.time.LocalDate;
@@ -67,7 +65,6 @@ public class QueryRepository {
      * Generic query of IM with the select statements determining the response
      *
      * @param queryRequest QueryRequest object
-     * @return A response entity
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
@@ -103,7 +100,7 @@ public class QueryRepository {
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
-        if (query.getIri()!=null&&query.getSelect()==null&&query.getFrom()==null){
+        if (query.getIri()!=null&&query.getSelect()==null&&query.getMatch()==null){
                         TTEntity entity = getEntity(query.getIri());
                         if (entity.get(SHACL.PARAMETER)!=null){
                             for (TTValue param:entity.get(SHACL.PARAMETER).getElements()){
@@ -196,8 +193,8 @@ public class QueryRepository {
     }
 
     private void bindObject(BindingSet bs, Map<String, TTNode> valueMap, TTNode node, Select select, String path) {
-        String alias = select.getAlias();
-        TTIriRef predicate= TTIriRef.iri(select.getIri());
+        String alias = select.getVariable();
+        TTIriRef predicate= TTIriRef.iri(select.getId());
         Value value = bs.getValue(alias);
         if (value == null)
             return;
@@ -365,8 +362,11 @@ public class QueryRepository {
         }
     }
     private void gatherQueryLabels(Query query,List<TTIriRef> ttIris, Map<String,String> iris ){
-        if (query.getFrom()!=null)
-                gatherFromLabels(query.getFrom(), ttIris, iris);
+        if (query.getMatch()!=null) {
+            for (Match match : query.getMatch()) {
+                gatherFromLabels(match, ttIris, iris);
+            }
+        }
         if (query.getSelect()!=null)
             for (Select select:query.getSelect())
                 gatherSelectLabels(select,ttIris,iris);
@@ -376,48 +376,45 @@ public class QueryRepository {
     }
 
     private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String,String> iris) {
-        if (select.getIri()!=null)
-            addToIriList(select,ttIris,iris);
+        if (select.getId()!=null)
+            addToIriList(select.getId(),ttIris,iris);
         if (select.getSelect()!=null)
             for (Select sub:select.getSelect())
                 gatherSelectLabels(sub,ttIris,iris);
     }
 
     private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String,String> iris) {
-        if (where.getIri()!=null)
-            addToIriList(where,ttIris,iris);
-        if (where.getIri()!=null){
-                addToIriList(where,ttIris,iris);
-        }
+        if (where.getId()!=null)
+            addToIriList(where.getId(),ttIris,iris);
         if (where.getWhere()!=null){
             for (Where subWhere: where.getWhere()){
                 gatherWhereLabels(subWhere,ttIris,iris);
             }
         }
         if (where.getIn()!=null)
-            for (TTAlias in:where.getIn())
-                addToIriList(in,ttIris,iris);
+            for (Element in:where.getIn())
+                addToIriList(in.getId(),ttIris,iris);
 
 
     }
 
-    private void gatherFromLabels(From from, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if (from.getIri()!=null)
-            addToIriList(from,ttIris,iris);
-        if (from.getWhere()!=null){
-            for (Where where:from.getWhere()) {
+    private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (match.getId()!=null)
+            addToIriList(match.getId(),ttIris,iris);
+        else if (match.getType()!=null)
+            addToIriList(match.getType(),ttIris,iris);
+        if (match.getWhere()!=null){
+            for (Where where: match.getWhere()) {
                 gatherWhereLabels(where, ttIris, iris);
             }
         }
-        if (from.getFrom()!=null){
-            from.getFrom().forEach(f-> gatherFromLabels(f,ttIris,iris));
+        if (match.getMatch()!=null){
+            match.getMatch().forEach(f-> gatherFromLabels(f,ttIris,iris));
         }
     }
 
-    private void addToIriList(TTIriRef ttIriRef,List<TTIriRef> ttIris, Map<String,String> iris){
-        if (ttIriRef.getIri()!=null) {
-            ttIris.add(ttIriRef);
-            iris.put(ttIriRef.getIri(),null);
+    private void addToIriList(String iri,List<TTIriRef> ttIris, Map<String,String> iris){
+            ttIris.add(TTIriRef.iri(iri));
+            iris.put(iri,null);
         }
-    }
 }

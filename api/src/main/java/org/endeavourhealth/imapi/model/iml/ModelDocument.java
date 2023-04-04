@@ -17,7 +17,7 @@ public class ModelDocument {
 	private TTContext context;
 	private List<Entity> folder;
 	private List<ConceptSet> conceptSet;
-	private List<FunctionClause> functionClause;
+	private List<MapFunction> functionClause;
 	private List<QueryEntity> query;
 
 	public ModelDocument(){
@@ -82,16 +82,16 @@ public class ModelDocument {
 		return this;
 	}
 
-	public List<FunctionClause> getFunction() {
+	public List<MapFunction> getFunction() {
 		return functionClause;
 	}
 
-	public ModelDocument setFunction(List<FunctionClause> functionClause) {
+	public ModelDocument setFunction(List<MapFunction> functionClause) {
 		this.functionClause = functionClause;
 		return this;
 	}
 
-	public ModelDocument addFunction(FunctionClause functionClause){
+	public ModelDocument addFunction(MapFunction functionClause){
 		if (this.functionClause ==null)
 			this.functionClause = new ArrayList<>();
 		this.functionClause.add(functionClause);

@@ -2,21 +2,18 @@
   "textSearch" : "causative",
   "query" : {
     "name" : "AllowablePropertiesForCovidStarting with causative",
-    "description" : "'using property domains get the allowable properties from the supertypes of this concept",
-    "from" : {
-      "@id" : "http://endhealth.info/im#Concept",
-      "sourceType" : "type",
-      "where" : {
-        "@id" : "http://endhealth.info/im#isA",
-        "where" : [ {
-          "@id" : "http://www.w3.org/2000/01/rdf-schema#domain",
-          "in" : [ {
-            "@id" : "http://snomed.info/sct#674814021000119106",
-            "includeSupertypes" : true
-          } ]
+    "description" : "'using property domains get the allowable properties match the supertypes of this concept",
+    "match" : [ {
+      "@type" : "http://endhealth.info/im#Concept",
+      "where" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain",
+        "in" : [ {
+          "ancestorsOf" : true,
+          "@id" : "http://snomed.info/sct#674814021000119106"
         } ]
-      }
-    },
+      } ],
+      "descendantsOrSelfOf" : true
+    } ],
     "select" : [ {
       "@id" : "http://endhealth.info/im#code"
     }, {

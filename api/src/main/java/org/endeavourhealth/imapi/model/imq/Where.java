@@ -3,93 +3,50 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","description","type","iri","name","alias","bool","with","where","range"
+@JsonPropertyOrder({"exclude","description","nodeVariable","id","name","bool","where","range"
 	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Where extends TTAlias implements Assignable{
+public class Where extends Property implements Assignable,Whereable{
 	private String description;
 	private Range range;
-	private List<TTAlias> in;
-	private List<TTAlias> notIn;
+	private List<Element> in;
+	private List<Element> notIn;
 	private Bool bool;
 	private List<Where> where;
 	private Operator operator;
-	private String relativeTo;
 	private String value;
 	private String unit;
 	private String valueLabel;
 	private boolean anyRoleGroup;
-	private boolean exclude;
 	private boolean isNull;
-	private TTAlias orderBy;
-	private Order direction;
-	private Integer count=1;
-	private Where then;
-	public Where getThen() {
-		return then;
-	}
+	private Property relativeTo;
 
-	public Where setThen(Where then) {
-		this.then = then;
-		return this;
-	}
-
-	public Where then(Consumer<Where> builder){
-		this.then= new Where();
-		builder.accept(this.then);
-		return this;
-	}
-
-	public TTAlias getOrderBy() {
-		return orderBy;
-	}
-
-	public Where setOrderBy(TTAlias orderBy) {
-		this.orderBy = orderBy;
-		return this;
-	}
-
-	public Order getDirection() {
-		return direction;
-	}
-
-	public Where setDirection(Order direction) {
-		this.direction = direction;
-		return this;
-	}
-
-	public Integer getCount() {
-		return count;
-	}
-
-	public Where setCount(Integer count) {
-		this.count = count;
-		return this;
-	}
-
-	public boolean getIsNull() {
+	public boolean isNull() {
 		return isNull;
 	}
 
-	public Where setIsNull(boolean aNull) {
+	public Where setNull(boolean aNull) {
 		isNull = aNull;
 		return this;
 	}
 
-	public boolean isExclude() {
-		return exclude;
-	}
 
-	public Where setExclude(boolean exclude) {
-		this.exclude = exclude;
+	public Where setId(String id){
+		super.setId(id);
 		return this;
 	}
+
+	public Where setNode(String node){
+		super.setNode(node);
+		return this;
+	}
+
+
 
 	public String getValueLabel() {
 		return valueLabel;
@@ -100,23 +57,24 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public Where setType(String type) {
-		super.setType(type);
+	public Where setIri(String id){
+		super.setId(id);
 		return this;
 	}
 
 
 
-	public List<TTAlias> getNotIn() {
+
+	public List<Element> getNotIn() {
 		return notIn;
 	}
 
-	public Where setNotIn(List<TTAlias> notIn) {
+	public Where setNotIn(List<Element> notIn) {
 		this.notIn = notIn;
 		return this;
 	}
 
-	public Where addNotIn(TTAlias notIn) {
+	public Where addNotIn(Element notIn) {
 		if (this.notIn==null)
 			this.notIn = new ArrayList<>();
 		this.notIn.add(notIn);
@@ -170,10 +128,6 @@ public class Where extends TTAlias implements Assignable{
 	}
 
 
-	public Where setIri(String iri) {
-		super.setIri(iri);
-		return this;
-	}
 
 	public Where setInverse(boolean inverse){
 		super.setInverse(inverse);
@@ -203,12 +157,12 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public List<TTAlias> getIn() {
+	public List<Element> getIn() {
 		return in;
 	}
 
 	@JsonSetter
-	public Where setIn(List<TTAlias> in) {
+	public Where setIn(List<Element> in) {
 		this.in = in;
 		return this;
 	}
@@ -216,22 +170,22 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public Where addIn(TTAlias in){
+	public Where addIn(Element in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
 		this.in.add(in);
 		return this;
 	}
 
-	public Where in(Consumer<TTAlias> builder){
-		TTAlias in = new TTAlias();
+	public Where in(Consumer<Element> builder){
+		Element in = new Element();
 		addIn(in);
 		builder.accept(in);
 		return this;
 	}
 
-	public Where notIn(Consumer<TTAlias> builder){
-		TTAlias in = new TTAlias();
+	public Where notIn(Consumer<Element> builder){
+		Element in = new Element();
 		addNotIn(in);
 		builder.accept(in);
 		return this;
@@ -240,7 +194,7 @@ public class Where extends TTAlias implements Assignable{
 	public Where addIn(String in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
-		this.in.add(new TTAlias().setIri(in));
+		this.in.add(new Element().setId(in));
 		return this;
 	}
 
@@ -255,14 +209,17 @@ public class Where extends TTAlias implements Assignable{
 		return this.operator;
 	}
 
-	@Override
-	public String getRelativeTo() {
+
+   public Property getRelativeTo(){
 		return this.relativeTo;
+	 }
+	public Where setRelativeTo(Property relativeTo) {
+		this.relativeTo= relativeTo;
+		return this;
 	}
 
-	@Override
-	public Where setRelativeTo(String relativeTo) {
-		this.relativeTo= relativeTo;
+	public Where relativeTo(Consumer<Property> builder){
+		builder.accept(setRelativeTo(new Property()).getRelativeTo());
 		return this;
 	}
 
@@ -304,10 +261,6 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public Where setAlias(String alias){
-		super.setAlias(alias);
-		return this;
-	}
 
 
 }

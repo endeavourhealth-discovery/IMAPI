@@ -1,63 +1,63 @@
 {
   "entities" : [ {
-    "@id" : "http://snomed.info/sct#55822004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipidemia (disorder)"
+    "@id" : "http://snomed.info/sct#75722007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Volubility (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#64654004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycinemia (disorder)"
+    "@id" : "http://snomed.info/sct#49184003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphonia (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#44548000",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive behavior (finding)"
+    "@id" : "http://snomed.info/sct#22006008",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertelorism (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#3744001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperlipoproteinemia (disorder)"
+    "@id" : "http://snomed.info/sct#66931009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypercalcemia (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#2359002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper-beta-alaninemia (disorder)"
+    "@id" : "http://snomed.info/sct#201164001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#237598005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglycemic disorder (disorder)"
+    "@id" : "http://snomed.info/sct#20637002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#273700000",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper-beta-carnosinemia (disorder)"
+    "@id" : "http://snomed.info/sct#396228006",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#82286005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperimmunoglobulin M syndrome (disorder)"
+    "@id" : "http://snomed.info/sct#48311000000108",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension annual review"
   }, {
-    "@id" : "http://snomed.info/sct#1231552009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper extension internal rotation test (procedure)"
+    "@id" : "http://snomed.info/sct#190735009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolinemia (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#403834003",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper-immunoglobulin D periodic fever syndrome (disorder)"
+    "@id" : "http://snomed.info/sct#59655002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolinemia (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#249552001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Abdomen hyper-resonant (finding)"
+    "@id" : "http://snomed.info/sct#37064009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperproteinemia (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#37695001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Neonatal hypermethioninemia (disorder)"
+    "@id" : "http://snomed.info/sct#710160002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive tongue (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#247059006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Lens nuclear hyper-refringence (finding)"
+    "@id" : "http://snomed.info/sct#1046041000000105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglobulinaemia (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#276634002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Idiopathic hyperphosphatasemia (disorder)"
+    "@id" : "http://snomed.info/sct#238624009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis NOS (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#238040008",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial combined hyperlipidemia (disorder)"
+    "@id" : "http://snomed.info/sct#110277001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplastic thrush (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#275598004",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Familial lipoprotein lipase deficiency (disorder)"
+    "@id" : "http://snomed.info/sct#201116005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nail (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#403835002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "X-linked hyper-immunoglobulin M syndrome (disorder)"
+    "@id" : "http://snomed.info/sct#735429002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperplasia of bone (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#403836001",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Autosomal recessive hyperimmunoglobulin M syndrome (disorder)"
+    "@id" : "http://snomed.info/sct#42077005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Increased flexion (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#266301006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiomyopathy (& [congest. obst.] or [hyper. obst.]) or endomyocardial fibrosis (disorder)"
+    "@id" : "http://snomed.info/sct#158174002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Hyperhidrosis (situation)"
   }, {
-    "@id" : "http://snomed.info/sct#155351008",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Cardiomyopathy (& [congest. obst.] or [hyper. obst.]) or endomyocardial fibrosis (disorder)"
+    "@id" : "http://snomed.info/sct#496391000000104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Hyperaesthesia (situation)"
   } ]
 }

@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class TestQueries {
@@ -29,87 +28,90 @@ public class TestQueries {
 			.setIri(IM.NAMESPACE + "Q_TestQuery")
 			.setName("Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150"+
 				"not followed by a screening invite, excluding hypertensives")
-		  .from(f->f
-			.setIri(IM.NAMESPACE+"Patient")
-			.where(w->w
+		  .match(f->f
+			.setType("Patient"))
+			.match(w->w
 				.setDescription("Registered for gms")
-				.setIri(IM.IS_SUBSET_OF.getIri())
-				.in(t->t.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
+				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
 					.setName("Registered for GMS services on reference date"))
-				.setValueLabel("Registered for GMS on reference date"))
-			.where(w->w
-				.setDescription("aged 65 to 70 or diabetic")
-				.setBool(Bool.or)
-				.where (or->or
+			.match(m->m
+				.setBoolMatch(Bool.or)
+				.match(or->or
 					.setDescription("aged between 65 and 70")
-					.setIri(IM.NAMESPACE+"age")
+					.where(w->w
+					.setId("age")
 					.range(r->r
 						.from(from->from
 							.setOperator(Operator.gte)
 							.setValue("65"))
 						.to(to->to
 							.setOperator(Operator.lt)
-							.setValue("70"))))
-				.where(or->or
+							.setValue("70")))))
+				.match(or->or
 					.setDescription("Diabetic")
-					.setIri(IM.NAMESPACE+"observation")
+					.setSet(ex+"Q_Diabetics"))
+				.match(or->or
+					.path(p->p.setId("observation"))
+					.path(p->p.setType("Observation"))
 					.where(ob->ob
-						.setIri(IM.NAMESPACE+"concept")
-						.addIn(new TTAlias().setSet(ex+"Q_Diabetics"))
-						.addIn(new TTAlias().setIri(SNOMED.NAMESPACE+"714628002").setDescendantsOf(true)))))
-			.where(w->w
-				.setDescription("latest BP in last 6 months is >150")
-				.setIri(IM.NAMESPACE+"observation")
-					.setBool(Bool.and)
-					.where(ww->ww
+						.setId("concept")
+						.addIn(new Element().setId(SNOMED.NAMESPACE+"714628002").setDescendantsOf(true)))))
+			.match(w->w
+				.path(p->p.setId("observation"))
+				.path(p->p.setType("Observation")
+					.setVariable("latestBP"))
+				.setBool(Bool.and)
+				.where(ww->ww
 						.setDescription("Home or office based Systolic")
-						.setIri(IM.NAMESPACE+"concept")
+						.setId("concept")
 						.setName("concept")
-						.addIn(new TTAlias()
-							.setIri(SNOMED.NAMESPACE+"271649006")
+						.addIn(new Element()
+							.setId(SNOMED.NAMESPACE+"271649006")
 							.setName("Systolic blood pressure"))
-						.addIn(new TTAlias()
-							.setIri(IM.CODE_SCHEME_EMIS.getIri()+"1994021000006104")
+						.addIn(new Element()
+							.setId(IM.CODE_SCHEME_EMIS.getIri()+"1994021000006104")
 							.setName("Home systolic blood pressure"))
 						.setValueLabel("Office or home systolic blood pressure"))
 					.where(ww->ww
 						.setDescription("Last 6 months")
-						.setIri(IM.NAMESPACE+"effectiveDate")
-						.setAlias("LastBP")
+						.setId("effectiveDate")
 						.setOperator(Operator.gte)
 						.setValue("-6")
 						.setUnit("MONTHS")
-						.setRelativeTo("$referenceDate")
+						.relativeTo(r->r.setParameter("$referenceDate"))
 						.setValueLabel("last 6 months"))
-					.setOrderBy(new TTAlias().setIri(IM.NAMESPACE+"effectiveDate"))
-					.setCount(1)
-					.then(ww->ww
-						.setIri(IM.NAMESPACE+"numericValue")
+					.addOrderBy(new OrderLimit()
+						.setId("effectiveDate")
+						.setNode("latestBP")
+						.setLimit(1)
+						.setDirection(Order.descending)))
+					.match(m->m
+						.where(w->w
+							.setNode("latestBP")
+						.setId(IM.NAMESPACE+"numericValue")
 						.setDescription(">150")
 						.setOperator(Operator.gt)
 						.setValue("150")))
-			.where(w->w
+			.match(w->w
 				.setExclude(true)
 				.setDescription("High BP not followed by screening invite")
-				.setIri(IM.NAMESPACE+"observation")
+				.path(p->p.setId(IM.NAMESPACE+"observation"))
+				.path(p->p.setType("Observation"))
 				.setBool(Bool.and)
 				.where(inv->inv
 					.setDescription("Invited for Screening after BP")
-					.setIri(IM.NAMESPACE+"concept")
-					.addIn(new TTAlias().setSet(IM.NAMESPACE+"InvitedForScreening")))
+					.setId(IM.NAMESPACE+"concept")
+					.addIn(new Element().setSet(IM.NAMESPACE+"InvitedForScreening")))
 				.where(after->after
 					.setDescription("after high BP")
-					.setIri(IM.NAMESPACE+"effectiveDate")
+					.setId(IM.NAMESPACE+"effectiveDate")
 					.setOperator(Operator.gte)
-					.setRelativeTo("LastBP")))
-			.where(w->w
+					.relativeTo(r->r.setNode("latestBP").setId("effectiveDate"))))
+			.match(w->w
 				.setExclude(true)
 				.setDescription("not hypertensive")
-				.setIri(IM.NAMESPACE+"observation")
-				.where(ob1->ob1
-					.setIri(IM.NAMESPACE+"concept")
-					.addIn(new TTAlias().setSet(IM.NAMESPACE+"Hypertensives")
-						.setName("Hypertensives")))));
+					.setSet(IM.NAMESPACE+"Q_Hypertensives")
+						.setName("Hypertensives"));
 		return new QueryRequest().setQuery(prof);
 	}
 
@@ -120,27 +122,9 @@ public class TestQueries {
 		qr.addArgument(new Argument()
 			.setParameter("this")
 			.setValueIri(IM.FOLDER));
-		Query query= new Query();
-		query.setName("Allowable child types for editor");
-		query
-			.from(f->f
-				.where(w1->w1.setIri(IM.IS_CONTAINED_IN.getIri())
-					.addIn(IM.NAMESPACE+"EntityTypes")))
-			.select(s->s
-				.setIri(RDFS.LABEL.getIri()))
-			.select(s->s
-				.setIri(SHACL.PROPERTY.getIri())
-				.where(w1->w1
-					.setBool(Bool.and)
-					.where(a2->a2
-						.setIri(SHACL.NODE.getIri())
-						.addIn(new From().setVariable("$this")))
-					.where(a2->a2
-						.setIri(SHACL.PATH.getIri())
-						.setIn(List.of(From.iri(IM.IS_CONTAINED_IN.getIri())
-							,From.iri(RDFS.SUBCLASSOF.getIri()),From.iri(IM.IS_SUBSET_OF.getIri())))))
-				.select(s1->s1
-					.setIri(SHACL.PATH.getIri())));
+		Query query= new Query()
+			.setName("Allowable child types for a folder")
+			.setIri(IM.NAMESPACE+"Query_AllowableChildTypes");
 		qr.setQuery(query);
 		return qr;
 	}
@@ -169,8 +153,8 @@ public class TestQueries {
 			.setQuery(new Query()
 				.setName("Subtypes of concepts as a parameterised query")
 				.select(s->s.setIri(RDFS.LABEL.getIri()))
-				.from(f->f
-					.setVariable("$this")
+				.match(f->f
+					.setParameter("this")
 					.setDescendantsOrSelfOf(true)));
 	}
 
@@ -187,8 +171,8 @@ public class TestQueries {
 			.setQuery(new Query()
 				.setName("Get allowable property values with text filter")
 				.select(s->s.setIri(RDFS.LABEL.getIri()))
-				.from(f->f
-					.setVariable("this")
+				.match(f->f
+					.setParameter("this")
 					.setDescendantsOrSelfOf(true)));
 	}
 
@@ -205,7 +189,7 @@ public class TestQueries {
 	public static QueryRequest pathDobQuery(){
 		return new QueryRequest()
 			.setPathQuery(new PathQuery()
-				.setName("paths from patient to date of birth")
+				.setName("paths match patient to date of birth")
 				.setDepth(3)
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget(IM.NAMESPACE+"dateOfBirth"));
@@ -215,7 +199,7 @@ public class TestQueries {
 	public static QueryRequest pathToAtenolol(){
 		return new QueryRequest()
 			.setPathQuery(new PathQuery()
-				.setName("paths from patient to Atenolol")
+				.setName("paths match patient to Atenolol")
 				.setDepth(3)
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget(SNOMED.NAMESPACE+"387506000"));
@@ -224,7 +208,7 @@ public class TestQueries {
 	public static QueryRequest pathToCSA(){
 		return new QueryRequest()
 			.setPathQuery(new PathQuery()
-				.setName("paths from patient to common service agency")
+				.setName("paths match patient to common service agency")
 				.setDepth(3)
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget("http://endhealth.info/im#1000161000252107"));
@@ -234,7 +218,7 @@ public class TestQueries {
 	public static QueryRequest pathToPostCode(){
 		return new QueryRequest()
 			.setPathQuery(new PathQuery()
-				.setName("paths from patient to post code")
+				.setName("paths match patient to post code")
 				.setDepth(3)
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget("http://endhealth.info/im#postCode"));
@@ -248,11 +232,11 @@ public class TestQueries {
 			.setName("FamilyHistoryExpansionObjectFormat")
 			.setUsePrefixes(true);
 		query
-			.from(f->f
+			.match(f->f
 			.where(w->w
 				.setIri(IM.HAS_MEMBER.getIri())
 				.setInverse(true)
-				.addIn(new From().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
+				.addIn(new Match().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
 			.select(s->s
 				.setIri(RDFS.LABEL.getIri()))
 			.select(s->s
@@ -274,13 +258,16 @@ public class TestQueries {
 			.setDescription("all of the data model properties for entities that have a property df a data of birth")
 			.setUsePrefixes(true);
 		query
-			.from(f->f
+			.match(f->f
 				.setType(SHACL.NODESHAPE.getIri())
-			.where(w->w
-				.setIri(SHACL.PROPERTY.getIri())
+			.path(p->p
+				.setIri(SHACL.PROPERTY.getIri()))
 				.where(w1->w1
 					.setIri(SHACL.PATH.getIri())
-					.addIn(IM.NAMESPACE+"dateOfBirth"))))
+					.addIn(IM.NAMESPACE+"dateOfBirth")))
+			.match(m->m
+				.path(p->p
+					.setIri(SHACL.PROPERTY.getIri())))
 			.select(s->s
 				.setIri(SHACL.PROPERTY.getIri())
 				.select(s1->s1.setIri(SHACL.PATH.getIri()))
@@ -295,7 +282,7 @@ public class TestQueries {
 	public static  QueryRequest statuses(){
 		Query query= new Query()
 			.setName("Status subset")
-			.from(s->s
+			.match(s->s
 				.setIri(IM.NAMESPACE+"Status")
 				.setDescendantsOrSelfOf(true)
 				.setDescendantsOf(true));
@@ -319,7 +306,7 @@ public class TestQueries {
 			.setName("AsthmaSubTypesCore");
 		query
 			.setUsePrefixes(true)
-			.from(f ->f
+			.match(f ->f
 				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true))
 			.select(s->s.setIri(RDFS.LABEL.getIri()))
 			.select(s->s.setIri(IM.CODE.getIri()));
@@ -340,7 +327,7 @@ public class TestQueries {
 				.setParameter("this")
 				.setValueIri(TTIriRef.iri("http://snomed.info/sct#763158003")))
 			.setQuery(new Query()
-				.setName("Allowable Properties for a concept")
+				.setName("Allowable Properties for medications")
 				.setIri(IM.NAMESPACE+"Query_AllowableProperties")
 				);
 		return qr;
@@ -351,7 +338,7 @@ public class TestQueries {
 			.query(q ->q
 				.setActiveOnly(true)
 				.setName("Search for concepts")
-				.from(f->f
+				.match(f->f
 					.setType(IM.CONCEPT.getIri()))
 				.select(s->s
 					.setIri(RDFS.LABEL.getIri())))
@@ -364,7 +351,7 @@ public class TestQueries {
 			.query(q-> q
 				.setName("All subtypes of an entity, active only")
 				.setActiveOnly(true)
-				.from(f->f.setVariable("$this").setDescendantsOrSelfOf(true))
+				.match(f->f.setParameter("this").setDescendantsOrSelfOf(true))
 				.select(s->s.setIri(RDFS.LABEL.getIri())));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
@@ -375,18 +362,17 @@ public class TestQueries {
 			.setTextSearch("causative");
 		Query query= new Query()
 				.setName("AllowablePropertiesForCovidStarting with causative")
-				.setDescription("'using property domains get the allowable properties from the supertypes of this concept")
+				.setDescription("'using property domains get the allowable properties match the supertypes of this concept")
 				.setActiveOnly(true)
 				.setUsePrefixes(true);
 			query
-				.from(f ->f
+				.match(f ->f
 					.setType(IM.CONCEPT.getIri())
-				.where(w->w
-					.setIri(IM.IS_A.getIri())
+					.setDescendantsOrSelfOf(true)
 					.where(w1-> w1
 						.setIri(RDFS.DOMAIN.getIri())
-						.addIn(new From().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
-					)))
+						.addIn(new Match().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
+					))
 						.select(s->s.setIri(IM.CODE.getIri()))
 						.select(s->s.setIri(RDFS.LABEL.getIri()));
 				qr.setQuery(query);
@@ -409,11 +395,11 @@ public class TestQueries {
 				.select(s1->s1.setIri(IM.SOURCE_TABLE.getIri()))
 				.select(s1->s1.setIri(IM.SOURCE_FIELD.getIri()))
 				.select(s1->s1.setIri(IM.SOURCE_SCHEMA.getIri())))
-			.from(f->f
-			.where(w->w
-					.setIri(IM.SOURCE_CONTEXT.getIri())
-						.where(w1->w1.
-							setIri(IM.SOURCE_REGEX.getIri()))));
+			.match(f->f
+			.path(p->p
+					.setIri(IM.SOURCE_CONTEXT.getIri()))
+				.where(w1->w1
+					.setIri(IM.SOURCE_REGEX.getIri())));
 		return new QueryRequest().setQuery(query);
 	}
 
@@ -422,20 +408,19 @@ public class TestQueries {
 			.setName("oral none steroidals")
 			.setUsePrefixes(true)
 			.select(s->s.setIri(RDFS.LABEL.getIri()))
-			.from(rf->rf
-				.setBoolFrom(Bool.and)
-				.from(f->f
+			.match(rf->rf
+				.setBoolMatch(Bool.and)
+				.match(f->f
 						.setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true)
-				.where(a->a
-					.setIri(IM.ROLE_GROUP.getIri())
-					.setBool(Bool.and)
 					.where(a1->a1
 						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setDescendantsOrSelfOf(true)
-						.addIn(From.iri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
+						.setAnyRoleGroup(true)
+						.addIn(Match.iri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
 					.where(a2->a2
 						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
-						.addIn(From.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true))))));
+						.setAnyRoleGroup(true)
+						.addIn(Match.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));
 
 		return new QueryRequest().setQuery(query);
 

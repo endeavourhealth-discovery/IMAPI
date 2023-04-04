@@ -6,53 +6,34 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import org.endeavourhealth.imapi.model.iml.FunctionClause;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"id","iri","@id","alias","case","aggregate",
-	"where","orderBy","direction","limit","groupBy","having","select"})
+@JsonPropertyOrder({"nodeVariable","id","variable","case","aggregate", "caze","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Select extends TTAlias{
-	private Where where;
+public class Select extends Property{
 	private FunctionClause function;
 	private List<Select> select;
-	private List<OrderLimit> orderBy;
-
-	private List<TTAlias> groupBy;
-	private Having having;
 	private List<Case> caze;
 
 
-	public Select setIri(String iri){
-		super.setIri(iri);
-		return this;
-	}
 
 	public Select setInverse(boolean inverse){
 		super.setInverse(inverse);
 		return this;
 	}
 
-	public Where getWhere() {
-		return where;
-	}
-
-	@JsonSetter
-	public Select setWhere(Where match) {
-		this.where = match;
+	public Select setId(String id){
+		super.setId(id);
 		return this;
 	}
 
-
-	public Select where(Consumer<Where> builder){
-		this.where= new Where();
-		builder.accept(this.where);
+	public Select setIri(String id){
+		super.setId(id);
 		return this;
 	}
+
 
 
 	@JsonProperty("case")
@@ -78,48 +59,6 @@ public class Select extends TTAlias{
 		return this;
 	}
 
-	@JsonSetter
-	public Select setAlias(String alias) {
-		super.setAlias(alias);
-		return this;
-	}
-
-
-	public Having getHaving() {
-		return having;
-	}
-
-	@JsonSetter
-	public Select setHaving(Having having) {
-		this.having = having;
-		return this;
-	}
-
-
-	public Select having(Consumer<Having> builder) {
-		this.having = new Having();
-		builder.accept(this.having);
-		return this;
-	}
-
-
-
-	public List<TTAlias> getGroupBy() {
-		return groupBy;
-	}
-
-	@JsonSetter
-	public Select setGroupBy(List<TTAlias> groupBy) {
-		this.groupBy = groupBy;
-		return this;
-	}
-
-	public Select addGroupBy(TTAlias groupBy) {
-		if (this.groupBy == null)
-			this.groupBy = new ArrayList<>();
-		this.groupBy.add(groupBy);
-		return this;
-	}
 
 
 	public List<Select> getSelect() {
@@ -153,39 +92,9 @@ public class Select extends TTAlias{
 	public Select addSelect(String property) {
 		if (this.select == null)
 			this.select = new ArrayList<>();
-		this.select.add(new Select().setIri(property));
+		this.select.add(new Select().setId(property));
 		return this;
 	}
-
-	public List<OrderLimit> getOrderBy() {
-		return orderBy;
-	}
-
-	@JsonSetter
-	public Select setOrderBy(List<OrderLimit> orderBy) {
-		this.orderBy = orderBy;
-		return this;
-	}
-
-	public Select addOrderBy(OrderLimit orderBy) {
-		if (this.orderBy == null)
-			this.orderBy = new ArrayList<>();
-		this.orderBy.add(orderBy);
-		return this;
-	}
-
-	public Select orderBy(Consumer<OrderLimit> builder) {
-		OrderLimit orderBy = new OrderLimit();
-		addOrderBy(orderBy);
-		builder.accept(orderBy);
-		return this;
-	}
-
-
-
-
-
-
 
 	public Select function(Consumer<FunctionClause> builder) {
 		this.function = new FunctionClause();

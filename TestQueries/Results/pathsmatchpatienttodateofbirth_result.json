@@ -1,0 +1,44 @@
+{
+  "match" : [ {
+    "where" : [ {
+      "@id" : "http://endhealth.info/im#dateOfBirth",
+      "name" : "date of birth"
+    } ]
+  }, {
+    "path" : [ {
+      "@id" : "http://endhealth.info/im#gpCurrentRegistration",
+      "name" : "gp current registration"
+    }, {
+      "@type" : "http://endhealth.info/im#GPCurrentRegistration",
+      "name" : "GP Current registration"
+    }, {
+      "@id" : "http://endhealth.info/im#usualGP",
+      "name" : "usual GP"
+    }, {
+      "@type" : "http://endhealth.info/im#PractitionerInRole",
+      "name" : "Practitioner in role"
+    } ],
+    "where" : [ {
+      "@id" : "http://endhealth.info/im#dateOfBirth",
+      "name" : "date of birth"
+    } ]
+  }, {
+    "path" : [ {
+      "@id" : "http://endhealth.info/im#gPRegistration",
+      "name" : "gp registration episode"
+    }, {
+      "@type" : "http://endhealth.info/im#GPRegistration",
+      "name" : "GP Registration Episode"
+    }, {
+      "@id" : "http://endhealth.info/im#usualGP",
+      "name" : "usual GP"
+    }, {
+      "@type" : "http://endhealth.info/im#PractitionerInRole",
+      "name" : "Practitioner in role"
+    } ],
+    "where" : [ {
+      "@id" : "http://endhealth.info/im#dateOfBirth",
+      "name" : "date of birth"
+    } ]
+  } ]
+}

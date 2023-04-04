@@ -1,6 +1,6 @@
 {
   "pathQuery" : {
-    "name" : "paths from patient to common service agency",
+    "name" : "paths match patient to common service agency",
     "source" : {
       "@id" : "http://endhealth.info/im#Patient"
     },

@@ -2,20 +2,24 @@
   "query" : {
     "name" : "PropertiesOfShapesUsingDateOfBirth",
     "description" : "all of the data model properties for entities that have a property df a data of birth",
-    "from" : {
-      "@id" : "http://www.w3.org/ns/shacl#NodeShape",
-      "sourceType" : "type",
-      "where" : {
-        "@id" : "http://www.w3.org/ns/shacl#property",
-        "where" : [ {
-          "@id" : "http://www.w3.org/ns/shacl#path",
-          "in" : [ {
-            "@id" : "http://endhealth.info/im#dateOfBirth"
-          } ]
+    "match" : [ {
+      "@type" : "http://www.w3.org/ns/shacl#NodeShape",
+      "path" : [ {
+        "@id" : "http://www.w3.org/ns/shacl#property"
+      } ],
+      "where" : [ {
+        "@id" : "http://www.w3.org/ns/shacl#path",
+        "in" : [ {
+          "@id" : "http://endhealth.info/im#dateOfBirth"
         } ]
-      }
-    },
+      } ]
+    }, {
+      "path" : [ {
+        "@id" : "http://www.w3.org/ns/shacl#property"
+      } ]
+    } ],
     "select" : [ {
+      "@id" : "http://www.w3.org/ns/shacl#property",
       "select" : [ {
         "@id" : "http://www.w3.org/ns/shacl#path"
       }, {
@@ -28,8 +32,7 @@
         "@id" : "http://www.w3.org/ns/shacl#class"
       }, {
         "@id" : "http://www.w3.org/ns/shacl#datatype"
-      } ],
-      "@id" : "http://www.w3.org/ns/shacl#property"
+      } ]
     } ],
     "usePrefixes" : true
   }

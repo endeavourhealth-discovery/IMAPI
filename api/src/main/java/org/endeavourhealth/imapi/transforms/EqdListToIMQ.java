@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 
+import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Select;
 import org.endeavourhealth.imapi.model.imq.Where;
@@ -16,7 +17,7 @@ public class EqdListToIMQ {
 	public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException {
 		this.resources= resources;
 		String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-		query.from(f->f
+		query.match(f->f
 			.setSet("urn:uuid:" + id)
 			.setName(resources.reportNames.get(id)));
 		for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
@@ -53,8 +54,8 @@ public class EqdListToIMQ {
 	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException {
 		Select select = new Select();
 		subQuery.addSelect(select);
-		Where match = new Where();
-		select.setWhere(match);
+		Match match = new Match();
+		subQuery.addMatch(match);
 		resources.convertCriteria(eqColGroup.getCriteria(), match);
 		select.setIri(IM.NAMESPACE+resources.getPath(eqTable));
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();

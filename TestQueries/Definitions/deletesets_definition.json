@@ -6,7 +6,7 @@
     }
   } ],
   "update" : {
-    "@id" : "http://endhealth.info/im#DeleteSets",
-    "name" : "delete sets"
+    "name" : "delete sets",
+    "@id" : "http://endhealth.info/im#DeleteSets"
   }
 }

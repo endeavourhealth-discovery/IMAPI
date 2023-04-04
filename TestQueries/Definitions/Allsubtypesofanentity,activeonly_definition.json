@@ -5,10 +5,10 @@
   } ],
   "query" : {
     "name" : "All subtypes of an entity, active only",
-    "from" : {
-      "includeSubtypes" : true,
-      "variable" : "$this"
-    },
+    "match" : [ {
+      "parameter" : "this",
+      "descendantsOrSelfOf" : true
+    } ],
     "select" : [ {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     } ],

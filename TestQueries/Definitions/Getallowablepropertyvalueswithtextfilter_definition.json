@@ -10,10 +10,10 @@
   } ],
   "query" : {
     "name" : "Get allowable property values with text filter",
-    "from" : {
-      "includeSubtypes" : true,
-      "variable" : "this"
-    },
+    "match" : [ {
+      "parameter" : "this",
+      "descendantsOrSelfOf" : true
+    } ],
     "select" : [ {
       "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
     } ]

@@ -1,6 +1,6 @@
 {
   "pathQuery" : {
-    "name" : "paths from patient to Atenolol",
+    "name" : "paths match patient to Atenolol",
     "source" : {
       "@id" : "http://endhealth.info/im#Patient"
     },

@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
@@ -103,31 +101,53 @@ public class EqdToIMQ {
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
 		flattenQuery(qry);
 
-		QuerySummariser summariser = new QuerySummariser(qry);
-		summariser.summarise(false);
 		queryEntity.setDefinition(qry);
 		return queryEntity;
 	}
 
 	private void flattenQuery(Query qry) {
-		From from= qry.getFrom();
-		List<Where> oldWhereList= from.getWhere();
-		if (oldWhereList!=null) {
-			List<Where> newWhereList = new ArrayList<>();
-			for (Where where : oldWhereList) {
-				if (where.getIri() == null) {
-					if (where.getBool() == Bool.and) {
-						for (Where and : where.getWhere())
-							newWhereList.add(and);
-					}
-					else
-						newWhereList.add(where);
-				}
-				else
-					newWhereList.add(where);
+		List<Match> newMatches = new ArrayList<>();
+		for (Match oldMatch : qry.getMatch()) {
+			if (oldMatch.getMatch() == null) {
+				newMatches.add(oldMatch);
 			}
-			from.setWhere(newWhereList);
+			else if (oldMatch.getBoolMatch() != Bool.or) {
+				flattenSubMatches(newMatches, oldMatch);
+			}
+			else {
+				newMatches.add(oldMatch);
+				flattenOrMatch(oldMatch);
+				}
+			}
+		qry.setMatch(newMatches);
+	}
+
+	private void flattenOrMatch(Match orMatch) {
+		List<Match> newOrMatches = new ArrayList<>();
+		for (Match subMatch : orMatch.getMatch()) {
+			if (subMatch.getMatch()==null){
+				newOrMatches.add(subMatch);
+			}
+			else
+			 flattenSubMatches(newOrMatches, subMatch);
+		}
+		orMatch.setMatch(newOrMatches);
+
+	}
+
+	private void flattenSubMatches(List<Match> newMatches,Match oldMatch) {
+		for (Match subMatch:oldMatch.getMatch()){
+			if (subMatch.getMatch()==null) {
+				newMatches.add(subMatch);
+			}
+			else if (subMatch.getBoolMatch()!=Bool.or){
+				flattenSubMatches(newMatches,subMatch);
+			}
+			else {
+				newMatches.add(subMatch);
+			}
 		}
 	}
+
 
 }

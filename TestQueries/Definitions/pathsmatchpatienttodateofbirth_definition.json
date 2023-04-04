@@ -1,6 +1,6 @@
 {
   "pathQuery" : {
-    "name" : "paths from patient to date of birth",
+    "name" : "paths match patient to date of birth",
     "source" : {
       "@id" : "http://endhealth.info/im#Patient"
     },

@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -31,9 +30,9 @@ public class PathRepository {
 			if (pathsToShape!=null) {
 				pathsToShape.sort(Comparator.comparing((Path p) -> p.getItems().size()));
 				for (Path path : pathsToShape) {
-					Where where = new Where();
-					document.addWhere(where);
-					whereFromPath(path, where);
+					Match match= new Match();
+					document.addMatch(match);
+					whereFromPath(path, match);
 				}
 			}
 		}
@@ -93,33 +92,34 @@ public class PathRepository {
 			return iri.substring(iri.lastIndexOf(":")+1);
 	}
 
-	private void whereFromPath(Path path, Where where) {
+	private void whereFromPath(Path path, Match match) {
 		for (TTTypedRef link:path.getItems()){
 			if (link.getType().equals(RDF.PROPERTY)){
-				where.setIri(link.getIri());
-				where.setName(link.getName());
+				match.path(p->p
+					.setId(link.getIri())
+				.setName(link.getName()));
 			}
 			else if (link.getType().equals(SHACL.NODESHAPE)){
-				Where subWhere= new Where();
-				subWhere.setType(link.getIri()).setName(link.getName());
-				where.addWhere(subWhere);
-				where= subWhere;
+				match.path(p->p
+				.setType(link.getIri()).setName(link.getName()));
 			}
 			else {
-				where.addIn(new From()
-					.setType(IM.CONCEPT.getIri())
+				match.path(p->p
+					.setType(IM.CONCEPT.getIri()));
+				match
 					.where(w->w
-						.setIri(link.getIri())
+						.setId(link.getIri())
 						.setName(link.getName())
 						.setAnyRoleGroup(true)
-						.addIn(new From()
-							.setIri(path.getTarget().getIri())
-							.setName(path.getTarget().getName()))));
+						.addIn(new Element()
+							.setId(path.getTarget().getIri())
+							.setName(path.getTarget().getName())));
 			}
 		}
 		if (path.getTarget().getType().equals(RDF.PROPERTY)) {
-				where.setIri(path.getTarget().getIri());
-				where.setName(path.getTarget().getName());
+			match.
+				where(w->w.setId(path.getTarget().getIri())
+				.setName(path.getTarget().getName()));
 		}
 	}
 

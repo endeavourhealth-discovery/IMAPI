@@ -35,7 +35,7 @@ public class SetRepository {
     private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
 
     /**
-     * Returns an expanded set members from an iml set definition. If already expanded then returns members
+     * Returns an expanded set members match an iml set definition. If already expanded then returns members
      * otherwise expands and retuens members
      * @param imQuery im query conforming to ecl language constraints
      * @param includeLegacy  to include legacy concepts linked by matchedTo to core concept
@@ -46,46 +46,46 @@ public class SetRepository {
     public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException {
         imQuery
           .select(s->s
-              .setIri(RDFS.LABEL.getIri()).setAlias("term"))
+              .setIri(RDFS.LABEL.getIri()).setVariable("term"))
           .select(s->s
-              .setIri(IM.CODE.getIri()).setAlias("code"))
+              .setIri(IM.CODE.getIri()).setVariable("code"))
           .select(s->s
-           
-              .setIri(IM.HAS_SCHEME.getIri()).setAlias("scheme")
+
+              .setIri(IM.HAS_SCHEME.getIri()).setVariable("scheme")
             .select(s2->s2
-                .setIri(RDFS.LABEL.getIri()).setAlias("schemeName")))
+                .setIri(RDFS.LABEL.getIri()).setVariable("schemeName")))
           .select(s->s
-              .setIri(IM.NAMESPACE+"usageTotal").setAlias("use"))
+              .setIri(IM.NAMESPACE+"usageTotal").setVariable("use"))
             .select(s->s
-                .setIri(IM.IM1ID.getIri()).setAlias("im1Id"))
+                .setIri(IM.IM1ID.getIri()).setVariable("im1Id"))
             .select(s->s
-                    .setIri(IM.HAS_STATUS.getIri()).setAlias("status")
+                    .setIri(IM.HAS_STATUS.getIri()).setVariable("status")
                 .select(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).setAlias("statusName")))
+                        .setIri(RDFS.LABEL.getIri()).setVariable("statusName")))
             .select(s->s
-                    .setIri(RDF.TYPE.getIri()).setAlias("type")
+                    .setIri(RDF.TYPE.getIri()).setVariable("type")
                 .select(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).setAlias("typeName")));
+                        .setIri(RDFS.LABEL.getIri()).setVariable("typeName")));
 
         if (includeLegacy) {
             Select legacy= new Select();
               legacy
                   .setIri(IM.MATCHED_TO.getIri())
                 .setInverse(true)
-                .setAlias("legacy")
+                .setVariable("legacy")
                 .select(s -> s
-                    .setIri(RDFS.LABEL.getIri()).setAlias("legacyTerm"))
+                    .setIri(RDFS.LABEL.getIri()).setVariable("legacyTerm"))
                 .select(s -> s
-                    .setIri(IM.CODE.getIri()).setAlias("legacyCode"))
+                    .setIri(IM.CODE.getIri()).setVariable("legacyCode"))
                 .select(s -> s
-                    .setIri(IM.HAS_SCHEME.getIri()).setAlias("legacyScheme")
+                    .setIri(IM.HAS_SCHEME.getIri()).setVariable("legacyScheme")
                   .select(s1->s1
-                      .setIri(RDFS.LABEL.getIri()).setAlias("legacySchemeName")))
+                      .setIri(RDFS.LABEL.getIri()).setVariable("legacySchemeName")))
                 .select(s->s
-                    .setIri(IM.NAMESPACE+"usageTotal").setAlias("legacyUse"))
+                    .setIri(IM.NAMESPACE+"usageTotal").setVariable("legacyUse"))
                 .select(s->s
-                 
-                    .setIri(IM.IM1ID.getIri()).setAlias("legacyIm1Id"));
+
+                    .setIri(IM.IM1ID.getIri()).setVariable("legacyIm1Id"));
               imQuery.addSelect(legacy);
         }
         String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);

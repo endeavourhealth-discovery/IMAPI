@@ -5,49 +5,50 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"@context","iri","name","description","from","select","subQuery","groupBy","orderBy","direction","limit","having"})
+@JsonPropertyOrder({"@context","iri","name","description","match","select","subQuery","groupBy","orderBy","direction","limit","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Query extends TTAlias{
+public class Query extends TTIriRef {
 
 	private String description;
 	private List<Select> select;
 	private boolean activeOnly;
 	private boolean usePrefixes;
-	private From from;
 	private List<Query> query;
-
+	private List<Match> match;
 	private List<OrderLimit> orderBy;
-	private Integer limit;
-	private String direction;
-	private List<TTAlias> groupBy;
-	private Having having;
-	private List<Case> caze;
+	private List<Element> groupBy;
 
 
-
-	public From getFrom() {
-		return from;
+	public List<Match> getMatch() {
+		return match;
 	}
 
-	public Query setFrom(From from) {
-		this.from=from;
+	public Query setMatch(List<Match> from) {
+		this.match = from;
 		return this;
 	}
 
-
-	public Query from(Consumer<From> builder){
-		this.from= new From();
-		builder.accept(this.from);
+	public Query addMatch(Match match){
+		if (this.match ==null)
+			this.match = new ArrayList<>();
+		this.match.add(match);
 		return this;
 	}
+
+	public Query match(Consumer<Match> builder){
+		Match match= new Match();
+		addMatch(match);
+		builder.accept(match);
+		return this;
+	}
+
 
 
 
@@ -60,14 +61,7 @@ public class Query extends TTAlias{
 		return this;
 	}
 
-	public List<Case> getCaze() {
-		return caze;
-	}
 
-	public Query setCaze(List<Case> caze) {
-		this.caze = caze;
-		return this;
-	}
 
 	@Override
 	public Query setIri(String iri) {
@@ -84,46 +78,7 @@ public class Query extends TTAlias{
 	}
 
 
-	@Override
-	public Query setAlias(String alias) {
-		super.setAlias(alias);
-		return this;
-	}
 
-
-	@JsonProperty("case")
-	public List<Case> getCase() {
-		return caze;
-	}
-
-	public Query setCase(List<Case> caze) {
-		this.caze = caze;
-		return this;
-	}
-
-	public Query addCase(Case caze) {
-		if (this.caze == null)
-			this.caze = new ArrayList<>();
-		this.caze.add(caze);
-		return this;
-	}
-
-	public Having getHaving() {
-		return having;
-	}
-
-	@JsonSetter
-	public Query setHaving(Having having) {
-		this.having = having;
-		return this;
-	}
-
-
-	public Query having(Consumer<Having> builder) {
-		this.having = new Having();
-		builder.accept(this.having);
-		return this;
-	}
 
 
 
@@ -136,30 +91,27 @@ public class Query extends TTAlias{
 		return this;
 	}
 
-	public Integer getLimit() {
-		return limit;
-	}
 
-	public Query setLimit(Integer limit) {
-		this.limit = limit;
-		return this;
-	}
-
-	public String getDirection() {
-		return direction;
-	}
-
-	public Query setDirection(String direction) {
-		this.direction = direction;
-		return this;
-	}
-
-	public List<TTAlias> getGroupBy() {
+	public List<Element> getGroupBy() {
 		return groupBy;
 	}
 
-	public Query setGroupBy(List<TTAlias> groupBy) {
+	public Query setGroupBy(List<Element> groupBy) {
 		this.groupBy = groupBy;
+		return this;
+	}
+
+	public Query addGroupBy(Element group){
+		if (this.groupBy==null)
+			this.groupBy= new ArrayList<>();
+		this.groupBy.add(group);
+		return this;
+	}
+
+	public Query groupBy(Consumer<Element> builder){
+		Element group= new Element();
+		addGroupBy(group);
+		builder.accept(group);
 		return this;
 	}
 

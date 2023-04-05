@@ -32,7 +32,7 @@ import java.util.zip.DataFormatException;
  */
 public class QueryRepository {
     private Query query;
-    private final TTDocument result= new TTDocument();
+    private final TTDocument result = new TTDocument();
     private final Set<String> predicates = new HashSet<>();
     private QueryRequest queryRequest;
 
@@ -69,13 +69,13 @@ public class QueryRepository {
      * @throws JsonProcessingException if the json is invalid
      */
     public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-         this.queryRequest= queryRequest;
+        this.queryRequest = queryRequest;
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            if (queryRequest.getUpdate()==null)
+            if (queryRequest.getUpdate() == null)
                 throw new DataFormatException("Missing update in query request");
-            if (queryRequest.getUpdate().getIri()==null)
+            if (queryRequest.getUpdate().getIri() == null)
                 throw new DataFormatException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
-            TTEntity updateEntity= getEntity(queryRequest.getUpdate().getIri());
+            TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
             queryRequest.setUpdate(updateEntity.get(IM.UPDATE_PROCEDURE).asLiteral().objectValue(Update.class));
 
             checkReferenceDate();
@@ -87,7 +87,7 @@ public class QueryRepository {
     }
 
     private void graphUpdateSearch(String spq, RepositoryConnection conn) {
-        org.eclipse.rdf4j.query.Update update= conn.prepareUpdate(spq);
+        org.eclipse.rdf4j.query.Update update = conn.prepareUpdate(spq);
         update.execute();
     }
 
@@ -100,68 +100,67 @@ public class QueryRepository {
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
-        if (query.getIri()!=null&&query.getSelect()==null&&query.getMatch()==null){
-                        TTEntity entity = getEntity(query.getIri());
-                        if (entity.get(SHACL.PARAMETER)!=null){
-                            for (TTValue param:entity.get(SHACL.PARAMETER).getElements()){
-                                if (param.asNode().get(SHACL.MINCOUNT)!=null) {
-                                    String parameterName = param.asNode().get(RDFS.LABEL).asLiteral().getValue();
-                                    TTIriRef parameterType;
-                                    if (param.asNode().get(SHACL.DATATYPE)!=null)
-                                        parameterType= param.asNode().get(SHACL.DATATYPE).asIriRef();
-                                    else
-                                        parameterType= param.asNode().get(SHACL.CLASS).asIriRef();
-                                    boolean found = false;
-                                    for (Argument arg : queryRequest.getArgument())
-                                        if (arg.getParameter().equals(parameterName)) {
-                                            found = true;
-                                            String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-                                            if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE+"IriRef"))) {
-                                                if (arg.getValueIri() == null)
-                                                    throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
-                                            }
-                                            else if (arg.getValueData()==null) {
-                                                throw new DataFormatException(error + " to have valueData property with string value");
-                                            }
-                                        }
-                                    if (!found) {
-                                        String error = "Query request expects parameter name '" + parameterName + "' which is not present in the query request";
-                                        throw new DataFormatException(error);
-                                    }
+        if (query.getIri() != null && query.getSelect() == null && query.getMatch() == null) {
+            TTEntity entity = getEntity(query.getIri());
+            if (entity.get(SHACL.PARAMETER) != null) {
+                for (TTValue param : entity.get(SHACL.PARAMETER).getElements()) {
+                    if (param.asNode().get(SHACL.MINCOUNT) != null) {
+                        String parameterName = param.asNode().get(RDFS.LABEL).asLiteral().getValue();
+                        TTIriRef parameterType;
+                        if (param.asNode().get(SHACL.DATATYPE) != null)
+                            parameterType = param.asNode().get(SHACL.DATATYPE).asIriRef();
+                        else
+                            parameterType = param.asNode().get(SHACL.CLASS).asIriRef();
+                        boolean found = false;
+                        for (Argument arg : queryRequest.getArgument())
+                            if (arg.getParameter().equals(parameterName)) {
+                                found = true;
+                                String error = "Query request arguments require parameter name :'" + parameterName + "' ";
+                                if (parameterType.equals(TTIriRef.iri(IM.NAMESPACE + "IriRef"))) {
+                                    if (arg.getValueIri() == null)
+                                        throw new DataFormatException(error + " to have a valueIri :{@id : htttp....}");
+                                } else if (arg.getValueData() == null) {
+                                    throw new DataFormatException(error + " to have valueData property with string value");
                                 }
-
                             }
+                        if (!found) {
+                            String error = "Query request expects parameter name '" + parameterName + "' which is not present in the query request";
+                            throw new DataFormatException(error);
                         }
-                        return entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
                     }
+
+                }
+            }
+            return entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+        }
         return query;
     }
 
     private TTDocument graphSelectSearch(String spq, RepositoryConnection conn) {
 
-        TupleQueryResult rs= sparqlQuery(spq,conn);
+        TupleQueryResult rs = sparqlQuery(spq, conn);
         Map<Value, TTEntity> entityMap = new HashMap<>();
-            while (rs.hasNext()) {
-                BindingSet bs = rs.next();
-                bindObjects(bs, result, entityMap);
-            }
+        while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            bindObjects(bs, result, entityMap);
+        }
 
         if (!predicates.isEmpty()) {
             Set<String> sparqlPredicates = new HashSet<>();
             predicates.forEach(p -> sparqlPredicates.add(SparqlConverter.iriFromString(p)));
             String predlist = Strings.join(sparqlPredicates, ",");
             String predLookup = SparqlConverter.getDefaultPrefixes() +
-                "select ?predicate ?label \nwhere {" +
-                "?predicate <" + RDFS.LABEL.getIri() + "> ?label.\n" +
-                "filter (?predicate in (" + predlist + "))}";
-            rs= sparqlQuery(predLookup,conn);
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    Value predicate = bs.getValue("predicate");
-                    Value label = bs.getValue("label");
-                    if (label != null)
-                        result.getPredicates().put(predicate.stringValue(), label.stringValue());
-                }
+                    "select ?predicate ?label \nwhere {" +
+                    "?predicate <" + RDFS.LABEL.getIri() + "> ?label.\n" +
+                    "filter (?predicate in (" + predlist + "))}";
+            rs = sparqlQuery(predLookup, conn);
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+                Value predicate = bs.getValue("predicate");
+                Value label = bs.getValue("label");
+                if (label != null)
+                    result.getPredicates().put(predicate.stringValue(), label.stringValue());
+            }
 
         }
         return result;
@@ -172,7 +171,6 @@ public class QueryRepository {
         TupleQuery qry = conn.prepareTupleQuery(spq);
         return qry.evaluate();
     }
-
 
 
     private void bindObjects(BindingSet bs, TTDocument result, Map<Value, TTEntity> entityMap) {
@@ -194,7 +192,7 @@ public class QueryRepository {
 
     private void bindObject(BindingSet bs, Map<String, TTNode> valueMap, TTNode node, Select select, String path) {
         String alias = select.getVariable();
-        TTIriRef predicate= TTIriRef.iri(select.getId());
+        TTIriRef predicate = TTIriRef.iri(select.getId());
         Value value = bs.getValue(alias);
         if (value == null)
             return;
@@ -240,7 +238,6 @@ public class QueryRepository {
             return result.getContext().prefix(iri);
         return iri;
     }
-
 
 
     public Set<String> getPredicates() {
@@ -315,8 +312,6 @@ public class QueryRepository {
     }
 
 
-
-
     private void checkReferenceDate() {
         if (queryRequest.getReferenceDate() == null) {
             String now = LocalDate.now().toString();
@@ -327,26 +322,26 @@ public class QueryRepository {
 
     private TTEntity getEntity(String iri) {
         return new EntityRepository2().getBundle(iri,
-        Set.of(IM.DEFINITION.getIri(),RDF.TYPE.getIri(),IM.FUNCTION_DEFINITION.getIri(),IM.UPDATE_PROCEDURE.getIri(),SHACL.PARAMETER.getIri())).getEntity();
+                Set.of(IM.DEFINITION.getIri(), RDF.TYPE.getIri(), IM.FUNCTION_DEFINITION.getIri(), IM.UPDATE_PROCEDURE.getIri(), SHACL.PARAMETER.getIri())).getEntity();
 
     }
 
 
-
-
     /**
      * Method to populate the iris in a query with their  names
+     *
      * @param query the query object in iml Query form
      */
     public void labelQuery(Query query) {
         List<TTIriRef> ttIris = new ArrayList<>();
-        Map<String,String> iriLabels = new HashMap<>();
-        gatherQueryLabels(query,ttIris,iriLabels);
-        List<String> iriList= iriLabels.keySet().stream().map(iri-> "<"+ iri+">").collect(Collectors.toList());
-        String iris= String.join(",",iriList);
+        Map<String, String> iriLabels = new HashMap<>();
+        gatherQueryLabels(query, ttIris, iriLabels);
+        List<String> iriList = resolveIris(iriLabels.keySet());
+        String iris = String.join(",", iriList);
+
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             String sql = "Select ?entity ?label where { ?entity <" + RDFS.LABEL.getIri() + "> ?label.\n" +
-              "filter (?entity in (" + iris + "))\n}";
+                    "filter (?entity in (" + iris + "))\n}";
             TupleQuery qry = conn.prepareTupleQuery(sql);
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
@@ -357,64 +352,70 @@ public class QueryRepository {
                 }
             }
         }
-        for (TTIriRef ttIri:ttIris){
+        for (TTIriRef ttIri : ttIris) {
             ttIri.setName(iriLabels.get(ttIri.getIri()));
         }
     }
-    private void gatherQueryLabels(Query query,List<TTIriRef> ttIris, Map<String,String> iris ){
-        if (query.getMatch()!=null) {
+
+    public List<String> resolveIris(Set<String> iriLabels) {
+        List<String> iriList = iriLabels.stream().filter(iri -> iri != null && iri.contains("#")).collect(Collectors.toList());
+        return iriList.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());
+    }
+
+    private void gatherQueryLabels(Query query, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (query.getMatch() != null) {
             for (Match match : query.getMatch()) {
                 gatherFromLabels(match, ttIris, iris);
             }
         }
-        if (query.getSelect()!=null)
-            for (Select select:query.getSelect())
-                gatherSelectLabels(select,ttIris,iris);
-        if (query.getQuery()!=null)
-            for (Query subQuery: query.getQuery())
-                gatherQueryLabels(subQuery,ttIris,iris);
+        if (query.getSelect() != null)
+            for (Select select : query.getSelect())
+                gatherSelectLabels(select, ttIris, iris);
+        if (query.getQuery() != null)
+            for (Query subQuery : query.getQuery())
+                gatherQueryLabels(subQuery, ttIris, iris);
     }
 
-    private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String,String> iris) {
-        if (select.getId()!=null)
-            addToIriList(select.getId(),ttIris,iris);
-        if (select.getSelect()!=null)
-            for (Select sub:select.getSelect())
-                gatherSelectLabels(sub,ttIris,iris);
+    private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (select.getId() != null)
+            addToIriList(select.getId(), ttIris, iris);
+        if (select.getSelect() != null)
+            for (Select sub : select.getSelect())
+                gatherSelectLabels(sub, ttIris, iris);
     }
 
-    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String,String> iris) {
-        if (where.getId()!=null)
-            addToIriList(where.getId(),ttIris,iris);
-        if (where.getWhere()!=null){
-            for (Where subWhere: where.getWhere()){
-                gatherWhereLabels(subWhere,ttIris,iris);
+    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (where.getId() != null)
+            addToIriList(where.getId(), ttIris, iris);
+        if (where.getWhere() != null) {
+            for (Where subWhere : where.getWhere()) {
+                gatherWhereLabels(subWhere, ttIris, iris);
             }
         }
-        if (where.getIn()!=null)
-            for (Element in:where.getIn())
-                addToIriList(in.getId(),ttIris,iris);
+        if (where.getIn() != null)
+            for (Element in : where.getIn())
+                addToIriList(in.getId(), ttIris, iris);
 
 
     }
 
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if (match.getId()!=null)
-            addToIriList(match.getId(),ttIris,iris);
-        else if (match.getType()!=null)
-            addToIriList(match.getType(),ttIris,iris);
-        if (match.getWhere()!=null){
-            for (Where where: match.getWhere()) {
+        if (match.getId() != null)
+            addToIriList(match.getId(), ttIris, iris);
+        else if (match.getType() != null)
+            addToIriList(match.getType(), ttIris, iris);
+        if (match.getWhere() != null) {
+            for (Where where : match.getWhere()) {
                 gatherWhereLabels(where, ttIris, iris);
             }
         }
-        if (match.getMatch()!=null){
-            match.getMatch().forEach(f-> gatherFromLabels(f,ttIris,iris));
+        if (match.getMatch() != null) {
+            match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
     }
 
-    private void addToIriList(String iri,List<TTIriRef> ttIris, Map<String,String> iris){
-            ttIris.add(TTIriRef.iri(iri));
-            iris.put(iri,null);
-        }
+    private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {
+        ttIris.add(TTIriRef.iri(iri));
+        iris.put(iri, null);
+    }
 }

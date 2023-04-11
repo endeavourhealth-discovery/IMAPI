@@ -60,7 +60,7 @@ ext {
             lombok              : "org.projectlombok:lombok:$versions.lombok",
             mockito             : "org.mockito:mockito-junit-jupiter:$versions.mockito",
             openLlet            :"com.github.galigator.openllet:openllet-owlapi:$versions.openLlet",
-            opensearchClient    : "org.opensearch.client:opensearch-rest-client:2.3.0",
+            opensearchClient    : "org.opensearch.client:opensearch-rest-client:2.6.0",
             opensearchJava      : "org.opensearch.client:opensearch-java:2.1.0",
             owlApi              : "net.sourceforge.owlapi:owlapi-distribution:$versions.owlApi",
             rdf4jQuery          : "org.eclipse.rdf4j:rdf4j-query:$versions.rdf4j",

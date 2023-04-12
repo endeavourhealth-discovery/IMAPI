@@ -11,6 +11,7 @@ repositories {
 }
 
 apply from: "dependencies.gradle"
+sourceCompatibility = '17'
 
 def sonarLogin= System.getenv('SONAR_LOGIN')
 

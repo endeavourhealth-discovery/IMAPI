@@ -155,6 +155,7 @@ public class IM {
     public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
     public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
     public static final TTIriRef GRAPH_PROV = TTIriRef.iri(DOMAIN + "prov#");
+    public static final TTIriRef GRAPH_QUERY = TTIriRef.iri(DOMAIN + "query#");
 
 
 

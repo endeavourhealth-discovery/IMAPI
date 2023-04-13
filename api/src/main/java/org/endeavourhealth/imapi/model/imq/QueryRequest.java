@@ -1,22 +1,26 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
+@JsonPropertyOrder({"context","textSearch","argument","referenceDate","query","pathQuery","update"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class QueryRequest {
+public class QueryRequest implements ContextMap {
 
 	private String name;
 	private Page page;
-	private TTContext context;
+	private Map<String,String> context;
 	private String textSearch;
 	private List<Argument> argument;
 	private Query query;
@@ -25,14 +29,32 @@ public class QueryRequest {
 	private String referenceDate;
 
 
-	public TTContext getContext() {
-		return context;
+
+	@JsonIgnore
+	public TTContext getAsContext() {
+		if (this.context==null)
+			return null;
+		TTContext ttContext= new TTContext();
+		for (Map.Entry<String,String> prefix:this.context.entrySet()){
+			ttContext.add(prefix.getValue(),prefix.getKey());
+		}
+		return ttContext;
 	}
 
+
+	@JsonIgnore
 	public QueryRequest setContext(TTContext context) {
-		this.context = context;
+		if (context==null)
+			this.context= null;
+		this.context= new HashMap<>();
+		for (TTPrefix prefix:context.getPrefixes()){
+			this.context.put(prefix.getPrefix(),prefix.getIri());
+		}
 		return this;
 	}
+
+
+
 	public Update getUpdate() {
 		return update;
 	}
@@ -148,7 +170,6 @@ public class QueryRequest {
 	}
 
 
-
 	public Query getQuery() {
 		return query;
 	}
@@ -162,6 +183,31 @@ public class QueryRequest {
 	public QueryRequest query(Consumer<Query> builder) {
 		this.query= new Query();
 		builder.accept(this.query);
+		return this;
+	}
+
+
+	@Override
+	public Map<String, String> getContext() {
+		return this.context;
+	}
+
+	@Override
+	@JsonSetter
+	public ContextMap setContext(Map<String, String> prefixMap) {
+		this.context = prefixMap;
+		return this;
+	}
+
+	public QueryRequest setDefaultPrefixMap() {
+		this.context = new HashMap<>();
+		context.put(IM.NAMESPACE, "im");
+		context.put(SNOMED.NAMESPACE, "sn");
+		context.put(OWL.NAMESPACE, "owl");
+		context.put(RDF.NAMESPACE, "rdf");
+		context.put(RDFS.NAMESPACE, "rdfs");
+		context.put(XSD.NAMESPACE, "xsd");
+		context.put(SHACL.NAMESPACE, "sh");
 		return this;
 	}
 

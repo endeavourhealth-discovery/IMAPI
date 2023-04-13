@@ -13,8 +13,7 @@
     }
   },
   "entities" : [ {
-    "@id" : "sn:105590001",
-    "rdfs:label" : "105590001",
-    "im:code" : "105590001"
+    "@id" : "im:Organisation",
+    "rdfs:label" : "Organisation"
   } ]
 }

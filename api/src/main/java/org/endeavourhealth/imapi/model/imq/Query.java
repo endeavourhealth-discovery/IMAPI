@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -23,7 +22,7 @@ public class Query extends TTIriRef {
 	private List<Query> query;
 	private List<Match> match;
 	private List<OrderLimit> orderBy;
-	private List<Element> groupBy;
+	private List<TripleVar> groupBy;
 
 
 	public List<Match> getMatch() {
@@ -92,24 +91,24 @@ public class Query extends TTIriRef {
 	}
 
 
-	public List<Element> getGroupBy() {
+	public List<TripleVar> getGroupBy() {
 		return groupBy;
 	}
 
-	public Query setGroupBy(List<Element> groupBy) {
+	public Query setGroupBy(List<TripleVar> groupBy) {
 		this.groupBy = groupBy;
 		return this;
 	}
 
-	public Query addGroupBy(Element group){
+	public Query addGroupBy(TripleVar group){
 		if (this.groupBy==null)
 			this.groupBy= new ArrayList<>();
 		this.groupBy.add(group);
 		return this;
 	}
 
-	public Query groupBy(Consumer<Element> builder){
-		Element group= new Element();
+	public Query groupBy(Consumer<TripleVar> builder){
+		TripleVar group= new TripleVar();
 		addGroupBy(group);
 		builder.accept(group);
 		return this;

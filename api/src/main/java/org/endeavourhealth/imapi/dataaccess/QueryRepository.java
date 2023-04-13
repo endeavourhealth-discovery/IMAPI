@@ -57,7 +57,6 @@ public class QueryRepository {
             SparqlConverter converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql(null);
             return graphSelectSearch(spq, conn);
-
         }
     }
 
@@ -89,6 +88,7 @@ public class QueryRepository {
     private void graphUpdateSearch(String spq, RepositoryConnection conn) {
         org.eclipse.rdf4j.query.Update update = conn.prepareUpdate(spq);
         update.execute();
+
     }
 
     private void unpackQueryRequest(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
@@ -96,7 +96,7 @@ public class QueryRepository {
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
         if (null != queryRequest.getContext())
-            result.setContext(queryRequest.getContext());
+            result.setContext(queryRequest.getAsContext());
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
@@ -137,12 +137,12 @@ public class QueryRepository {
     }
 
     private TTDocument graphSelectSearch(String spq, RepositoryConnection conn) {
-
-        TupleQueryResult rs = sparqlQuery(spq, conn);
-        Map<Value, TTEntity> entityMap = new HashMap<>();
-        while (rs.hasNext()) {
-            BindingSet bs = rs.next();
-            bindObjects(bs, result, entityMap);
+        try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
+            Map<Value, TTEntity> entityMap = new HashMap<>();
+            while (rs.hasNext()) {
+                BindingSet bs = rs.next();
+                bindObjects(bs, result, entityMap);
+            }
         }
 
         if (!predicates.isEmpty()) {
@@ -153,13 +153,14 @@ public class QueryRepository {
                     "select ?predicate ?label \nwhere {" +
                     "?predicate <" + RDFS.LABEL.getIri() + "> ?label.\n" +
                     "filter (?predicate in (" + predlist + "))}";
-            rs = sparqlQuery(predLookup, conn);
-            while (rs.hasNext()) {
-                BindingSet bs = rs.next();
-                Value predicate = bs.getValue("predicate");
-                Value label = bs.getValue("label");
-                if (label != null)
-                    result.getPredicates().put(predicate.stringValue(), label.stringValue());
+            try (TupleQueryResult rs = sparqlQuery(predLookup, conn)) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    Value predicate = bs.getValue("predicate");
+                    Value label = bs.getValue("label");
+                    if (label != null)
+                        result.getPredicates().put(predicate.stringValue(), label.stringValue());
+                }
             }
 
         }
@@ -174,61 +175,57 @@ public class QueryRepository {
 
 
     private void bindObjects(BindingSet bs, TTDocument result, Map<Value, TTEntity> entityMap) {
-        Value entityValue = bs.getValue("entity");
-        TTEntity root = entityMap.get(entityValue);
-        if (root == null) {
-            root = new TTEntity();
-            root.setIri(entityValue.stringValue());
-            entityMap.put(entityValue, root);
-            result.addEntity(root);
+        Map<String, TTNode> nodeMap = new HashMap<>();
+        TTEntity entity= new TTEntity();
+        result.addEntity(entity);
+        for (Select select : query.getSelect()) {
+                bindObject(bs, nodeMap, entity, select);
         }
-        Map<String, TTNode> valueMap = new HashMap<>();
-        if (query.getSelect() != null) {
-            for (Select select : query.getSelect()) {
-                bindObject(bs, valueMap, root, select, entityValue.stringValue());
-            }
-        }
+
     }
 
-    private void bindObject(BindingSet bs, Map<String, TTNode> valueMap, TTNode node, Select select, String path) {
-        String alias = select.getVariable();
-        TTIriRef predicate = TTIriRef.iri(select.getId());
-        Value value = bs.getValue(alias);
-        if (value == null)
-            return;
-        if (value.isIRI()) {
-            if (select.getSelect() == null) {
-                node.addObject(predicate, TTIriRef.iri(resultIri(value.stringValue())));
-            } else {
-                TTNode subNode = valueMap.get(path + (value.stringValue()));
-                if (subNode == null) {
-                    subNode = new TTNode();
-                    subNode.setIri(resultIri(value.stringValue()));
-                    valueMap.put(path + value.stringValue(), subNode);
-                    node.addObject(predicate, subNode);
+    private void bindObject(BindingSet bs, Map<String, TTNode> nodeMap, TTNode node, Select select) {
+        String alias = select.getNodeVar();
+        if (alias!=null) {
+            Value value = bs.getValue(alias);
+            if (value == null)
+                return;
+            nodeMap.put(value.stringValue(),node);
+            if (value.isIRI())
+                node.setIri(value.stringValue());
+        }
+        TTIriRef predicate= null;
+       if (select.getPathVar()!=null){
+           predicate= TTIriRef.iri(bs.getValue(select.getPathVar()).stringValue());
+        }
+        if (select.getIri()!=null) {
+            predicate = TTIriRef.iri(select.getIri());
+        }
+        if (select.getVariable()!=null) {
+            Value objectValue= bs.getValue(select.getVariable());
+            if (objectValue!=null){
+                if (select.getSelect()!=null) {
+                    TTNode subObject = nodeMap.get(predicate.getIri());
+                    if (subObject == null) {
+                        subObject = new TTNode();
+                        node.addObject(predicate, subObject);
+                    }
+                    for (Select subSelect : select.getSelect()) {
+                        bindObject(bs, nodeMap, subObject, subSelect);
+                    }
                 }
-                for (Select subSelect : select.getSelect()) {
-                    bindObject(bs, valueMap, subNode, subSelect, path + "/" + predicate.getIri());
+                else if (objectValue.isIRI()) {
+                    node.addObject(predicate,TTIriRef.iri(objectValue.stringValue()));
                 }
-            }
-        } else if (value.isBNode()) {
-            TTNode subNode = valueMap.get(path + (value.stringValue()));
-            if (subNode == null) {
-                subNode = new TTNode();
-                valueMap.put(path + value.stringValue(), subNode);
-                node.addObject(predicate, subNode);
-            }
-            if (select.getSelect() != null) {
-                for (Select subSelect : select.getSelect()) {
-                    bindObject(bs, valueMap, subNode, subSelect, path + "/" + predicate.getIri());
+                else if (objectValue.isLiteral()) {
+                    node.addObject(predicate, TTLiteral.literal(objectValue.stringValue()));
                 }
-            }
-        } else {
-            if (value.isLiteral()) {
-                node.addObject(predicate, TTLiteral.literal(value.stringValue()));
             }
         }
-        predicates.add(predicate.getIri());
+
+        if (predicate!=null) {
+            predicates.add(predicate.getIri());
+        }
     }
 
     private String resultIri(String iri) {
@@ -377,8 +374,8 @@ public class QueryRepository {
     }
 
     private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if (select.getId() != null)
-            addToIriList(select.getId(), ttIris, iris);
+        if (select.getIri() != null)
+            addToIriList(select.getIri(), ttIris, iris);
         if (select.getSelect() != null)
             for (Select sub : select.getSelect())
                 gatherSelectLabels(sub, ttIris, iris);
@@ -394,14 +391,14 @@ public class QueryRepository {
         }
         if (where.getIn() != null)
             for (Element in : where.getIn())
-                addToIriList(in.getId(), ttIris, iris);
+                addToIriList(in.getIri(), ttIris, iris);
 
 
     }
 
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if (match.getId() != null)
-            addToIriList(match.getId(), ttIris, iris);
+        if (match.getIri() != null)
+            addToIriList(match.getIri(), ttIris, iris);
         else if (match.getType() != null)
             addToIriList(match.getType(), ttIris, iris);
         if (match.getWhere() != null) {

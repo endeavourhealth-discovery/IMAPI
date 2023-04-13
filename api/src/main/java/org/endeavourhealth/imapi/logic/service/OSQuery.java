@@ -429,7 +429,7 @@ public class OSQuery {
 
     private static boolean validateSelects(Query query) {
         for (Select select : query.getSelect()) {
-            if (select.getId() != null && !propIsSupported(select.getId()))
+            if (select.getIri() != null && !propIsSupported(select.getIri()))
                 return false;
             if (select.getSelect() != null)
                 return false;
@@ -453,7 +453,7 @@ public class OSQuery {
     }
 
     private boolean validateWhere(Where where){
-        if (where.getWhere()!=null && !propIsSupported(where.getId())){
+        if (where.getWhere()!=null && !propIsSupported(where.getIri())){
             return false;
         }
         if (where.getWhere()!=null){
@@ -485,9 +485,9 @@ public class OSQuery {
     }
 
     private void convertOSResultAddNode(CachedObjectMapper om, SearchResultSummary searchResult, ObjectNode resultNode, Select select) {
-        Element prop = select;
-        if (prop.getId() != null) {
-            String field = prop.getId();
+        TripleVar prop = select;
+        if (prop.getIri() != null) {
+            String field = prop.getIri();
             switch (field) {
                 case (RDFS.NAMESPACE + "label"):
                     resultNode.put(field, searchResult.getName());
@@ -562,9 +562,9 @@ public class OSQuery {
     private void processSelects(SearchRequest request, Query query) {
         if (query.getSelect() != null) {
             for (Select select : query.getSelect()) {
-                Element prop = select;
-                if (prop.getId() != null) {
-                    switch (prop.getId()) {
+                TripleVar prop = select;
+                if (prop.getIri() != null) {
+                    switch (prop.getIri()) {
                         case (RDFS.NAMESPACE + comment):
                             request.addSelect("description");
 
@@ -611,7 +611,7 @@ public class OSQuery {
         else if (match.isDescendantsOrSelfOf()) {
                 return processSubTypes(request, match, imRequest);
         }
-        else if (match.getId()!=null)
+        else if (match.getIri()!=null)
                 throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (match.sourceType= type, or subtypes match.isIncludeSubtypes(true");
 
         else if (match.getMatch() != null) {
@@ -639,7 +639,7 @@ public class OSQuery {
     private static List<String> listFromAlias(Match match, QueryRequest queryRequest) throws DataFormatException {
         if (match.getParameter() == null) {
             List<String> iriList = new ArrayList<>();
-            iriList.add(match.getId());
+            iriList.add(match.getIri());
             return iriList;
         }
 

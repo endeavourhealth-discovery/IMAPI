@@ -13,8 +13,17 @@
     }
   },
   "entities" : [ {
-    "@id" : "sn:105590001",
-    "rdfs:label" : "105590001",
-    "im:code" : "105590001"
+    "@id" : "im:Patient",
+    "sh:property" : [ {
+      "sh:datatype" : [ {
+        "@id" : "xsd:integer",
+        "rdfs:label" : "integer"
+      } ],
+      "sh:path" : [ {
+        "@id" : "im:age",
+        "rdfs:label" : "age"
+      } ],
+      "sh:maxCount" : "1"
+    } ]
   } ]
 }

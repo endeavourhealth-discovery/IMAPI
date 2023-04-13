@@ -6,10 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.imapi.model.imq.Element;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
@@ -88,7 +85,7 @@ public class ExcelSetExporterTest {
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)
-                    .addIn(new Element().setIri("http://snomed.info/sct#39330711000001103")
+                    .addIn(new Node().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
                       .setDescendantsOrSelfOf(true)))))));
         return definition;

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public class Update extends TTIriRef {
 	private String description;
-	private Match match;
+	private List<Match> match;
 	private List<Delete> delete;
 
 
@@ -22,18 +22,25 @@ public class Update extends TTIriRef {
 		return this;
 	}
 
-	public Match getMatch() {
+	public List<Match> getMatch() {
 		return match;
 	}
 
-	public Update setMatch(Match match) {
+	public Update setMatch(List<Match> match) {
 		this.match = match;
+		return this;
+	}
+	public Update addMatch(Match match){
+		if (this.match==null)
+			this.match= new ArrayList<>();
+		this.match.add(match);
 		return this;
 	}
 
 	public Update match(Consumer<Match> builder){
-		this.match = new Match();
-		builder.accept(this.match);
+		Match match = new Match();
+		addMatch(match);
+		builder.accept(match);
 		return this;
 	}
 

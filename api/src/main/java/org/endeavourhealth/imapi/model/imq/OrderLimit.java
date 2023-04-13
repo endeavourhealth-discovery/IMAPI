@@ -2,18 +2,39 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 
 @JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends Property {
+public class OrderLimit extends TripleVar {
 	private Order direction;
 	private int limit;
 
 	public OrderLimit setId(String id){
-		super.setId(id);
+		super.setIri(id);
 		return this;
 	}
+
+
+	@JsonSetter
+	public OrderLimit setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
+	public OrderLimit setNodeVar(String variable){
+		super.setNodeVar(variable);
+		return this;
+	}
+
+
+	public OrderLimit setVariable(String variable){
+		super.setVariable(variable);
+		return this;
+	}
+
+
 
 	public int getLimit() {
 		return limit;
@@ -24,15 +45,7 @@ public class OrderLimit extends Property {
 		return this;
 	}
 
-	public OrderLimit setProperty(String iri){
-		super.setId(iri);
-		return this;
-	}
 
-	public OrderLimit setNode(String node){
-		super.setNode(node);
-		return this;
-	}
 
 
 	public OrderLimit setName(String name){

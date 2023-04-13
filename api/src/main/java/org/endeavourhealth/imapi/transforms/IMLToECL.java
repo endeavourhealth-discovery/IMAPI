@@ -48,7 +48,7 @@ public class IMLToECL {
 		}
 	}
 	private static void from(Match match, StringBuilder ecl, boolean includeName, boolean isRefined) throws DataFormatException {
-		if (null != match.getId()) {
+		if (null != match.getIri()) {
 			addClass(match, ecl, includeName);
 		} else if (null != match.getMatch()) {
 			boolean bracketFrom = isRefined;
@@ -65,7 +65,7 @@ public class IMLToECL {
 			}
 		}
 		if (null != match.getWhere()) {
-			if (null == match.getId() && null == match.getMatch())
+			if (null == match.getIri() && null == match.getMatch())
 				ecl.append("*");
 			addFromRefinements(match, ecl, includeName);
 		}
@@ -152,8 +152,8 @@ public class IMLToECL {
 	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		try {
 			try {
-				Element value = where.getIn().get(0);
-				addClass(where, ecl, includeName);
+				Node value = where.getIn().get(0);
+				addProperty(where, ecl, includeName);
 				ecl.append(" = ");
 				addClass(value, ecl, includeName);
 			} catch (Exception e) {
@@ -164,25 +164,34 @@ public class IMLToECL {
 		}
 	}
 
-	private static void addClass(Element exp, StringBuilder ecl, boolean includeName) {
+
+	private static void addProperty(Property exp, StringBuilder ecl, boolean includeName) {
+		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
+	}
+
+	private static void addConcept(StringBuilder ecl, boolean includeName, String subsumption2, String id, String name2) {
+		String subsumption = subsumption2;
+		String iri = checkMember(id);
+		String pipe = " | ";
+		if (includeName && null!= name2) {
+			ecl.append(subsumption).append(iri).append(pipe).append(name2).append(pipe);
+		}
+		else if (includeName){
+			EntityRepository entityRepository = new EntityRepository();
+			String name = entityRepository.getEntityReferenceByIri(id).getName();
+			ecl.append(subsumption).append(iri).append(pipe).append(name).append(pipe);
+		}
+		else
+			ecl.append(subsumption).append(iri).append(" ");
+	}
+
+	private static void addClass(Node exp, StringBuilder ecl, boolean includeName) {
 		if (exp.getType()!=null) {
 			if (exp.getType().equals(IM.CONCEPT.getIri()))
 				ecl.append("* ");
 		}
 		else {
-			String subsumption = getSubsumption(exp);
-			String iri = checkMember(exp.getId());
-			String pipe = " | ";
-			if (includeName && null!=exp.getName()) {
-				ecl.append(subsumption).append(iri).append(pipe).append(exp.getName()).append(pipe);
-			}
-			else if (includeName){
-				EntityRepository entityRepository = new EntityRepository();
-				String name = entityRepository.getEntityReferenceByIri(exp.getId()).getName();
-				ecl.append(subsumption).append(iri).append(pipe).append(name).append(pipe);
-			}
-			else
-				ecl.append(subsumption).append(iri).append(" ");
+			addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
 		}
 	}
 
@@ -218,7 +227,7 @@ public class IMLToECL {
 		for (TTValue iriRef : members.getElements()) {
 			if (!first)
 				ecl.append(or).append("\n");
-			addClass(new Element().setId(iriRef.asIriRef().getIri()), ecl, true);
+			addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true);
 			first = false;
 		}
 		return ecl.toString();

@@ -1,63 +1,53 @@
 {
   "match" : [ {
-    "path" : [ {
+    "@type" : "http://endhealth.info/im#Patient",
+    "name" : "Patient",
+    "path" : {
       "@id" : "http://endhealth.info/im#homeAddress",
-      "name" : "home address"
-    }, {
-      "@type" : "http://endhealth.info/im#Address",
-      "name" : "Address"
-    } ],
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#postCode",
-      "name" : "Post Code"
-    } ]
+      "name" : "home address",
+      "node" : {
+        "@type" : "http://endhealth.info/im#Address"
+      }
+    }
   }, {
-    "path" : [ {
+    "@type" : "http://endhealth.info/im#Patient",
+    "name" : "Patient",
+    "path" : {
       "@id" : "http://endhealth.info/im#workAddress",
-      "name" : "work address"
-    }, {
-      "@type" : "http://endhealth.info/im#Address",
-      "name" : "Address"
-    } ],
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#postCode",
-      "name" : "Post Code"
-    } ]
+      "name" : "work address",
+      "node" : {
+        "@type" : "http://endhealth.info/im#Address"
+      }
+    }
   }, {
-    "path" : [ {
+    "@type" : "http://endhealth.info/im#Patient",
+    "name" : "Patient",
+    "path" : {
       "@id" : "http://endhealth.info/im#temporaryAddress",
-      "name" : "temporary address"
-    }, {
-      "@type" : "http://endhealth.info/im#Address",
-      "name" : "Address"
-    } ],
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#postCode",
-      "name" : "Post Code"
-    } ]
+      "name" : "temporary address",
+      "node" : {
+        "@type" : "http://endhealth.info/im#Address"
+      }
+    }
   }, {
-    "path" : [ {
+    "@type" : "http://endhealth.info/im#Patient",
+    "name" : "Patient",
+    "path" : {
       "@id" : "http://endhealth.info/im#patientAddress",
-      "name" : "patient address history"
-    }, {
-      "@type" : "http://endhealth.info/im#PatientAddress",
-      "name" : "Patient Address"
-    } ],
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#postCode",
-      "name" : "Post Code"
-    } ]
+      "name" : "patient address history",
+      "node" : {
+        "@type" : "http://endhealth.info/im#PatientAddress"
+      }
+    }
   }, {
-    "path" : [ {
+    "@type" : "http://endhealth.info/im#Patient",
+    "name" : "Patient",
+    "path" : {
       "@id" : "http://endhealth.info/im#placeOfResidenceAtEvent",
-      "name" : "place of residence at event"
-    }, {
-      "@type" : "http://endhealth.info/im#PlaceOfResidenceAtEvent",
-      "name" : "Place of residence at event"
-    } ],
-    "where" : [ {
-      "@id" : "http://endhealth.info/im#postCode",
-      "name" : "Post Code"
-    } ]
+      "name" : "place of residence at event",
+      "node" : {
+        "@type" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
+      }
+    }
   } ]
 }

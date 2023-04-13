@@ -1,6 +1,7 @@
 {
   "entities" : [ {
     "@id" : "http://snomed.info/sct#421149006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazine (substance)"
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Thiazine (substance)",
+    "http://endhealth.info/im#code" : "421149006"
   } ]
 }

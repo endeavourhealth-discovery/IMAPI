@@ -1,0 +1,69 @@
+{
+  "context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "argument" : [ {
+    "parameter" : "dataModel",
+    "valueIri" : {
+      "@id" : "http://endhealth.info/im#Patient"
+    }
+  }, {
+    "parameter" : "property",
+    "valueIri" : {
+      "@id" : "http://endhealth.info/im#age"
+    }
+  } ],
+  "query" : {
+    "name" : "Query - shacl property predicates for a property in a data model",
+    "description" : "Select the predicates and values and labels of the values for a given data mode and property",
+    "match" : [ {
+      "path" : {
+        "@id" : "http://www.w3.org/ns/shacl#property",
+        "node" : {
+          "variable" : "shaclProperty"
+        }
+      },
+      "where" : [ {
+        "in" : [ {
+          "parameter" : "$property"
+        } ],
+        "@id" : "http://www.w3.org/ns/shacl#path"
+      } ],
+      "parameter" : "$dataModel"
+    } ],
+    "select" : [ {
+      "@id" : "http://www.w3.org/ns/shacl#class",
+      "select" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      } ],
+      "nodeVar" : "shaclProperty"
+    }, {
+      "@id" : "http://www.w3.org/ns/shacl#node",
+      "select" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      } ],
+      "nodeVar" : "shaclProperty"
+    }, {
+      "@id" : "http://www.w3.org/ns/shacl#datatype",
+      "select" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      } ],
+      "nodeVar" : "shaclProperty"
+    }, {
+      "@id" : "http://www.w3.org/ns/shacl#maxCount",
+      "nodeVar" : "shaclProperty"
+    }, {
+      "@id" : "http://www.w3.org/ns/shacl#minCount",
+      "select" : [ {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+      } ],
+      "nodeVar" : "shaclProperty"
+    } ]
+  }
+}

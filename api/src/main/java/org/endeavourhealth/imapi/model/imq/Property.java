@@ -1,14 +1,17 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class Property extends Element{
-	private String node;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-	public String getNode() {
-		return node;
+public class Property extends Element {
+	private boolean inverse;
+
+
+	public boolean isInverse() {
+		return inverse;
 	}
 
-	public Property setNode(String node) {
-		this.node = node;
+	public Property setInverse(boolean inverse) {
+		this.inverse = inverse;
 		return this;
 	}
 
@@ -16,4 +19,11 @@ public class Property extends Element{
 		super.setParameter(parameter);
 		return this;
 	}
+
+
+	public Property setVariable(String variable) {
+		super.setVariable(variable);
+		return this;
+	}
+
 }

@@ -45,19 +45,27 @@ public class EqdAuditToIMQ {
 				groupMatch.setVariable(table);
 				for (String eqColum : group.getGroupingColumn()) {
 					String pathString = resources.getPath(eqTable + "/" + eqColum);
-					String[] path = pathString.split(" ");
-					String nodeVariable = "";
-					for (int i = 0; i < path.length - 1; i++) {
-						String element = path[i];
+					String[] pathMap = pathString.split(" ");
+					Relationship path= new Relationship();
+					groupMatch.setPath(path);
+					for (int i = 0; i < pathMap.length - 1; i=i+2) {
+						String element = pathMap[i];
 						aliasCount++;
-						groupMatch.path(p -> p.setId(element).setVariable("alias" + aliasCount));
+						path.setIri(element).setVariable("alias" + aliasCount);
+						if (i<pathMap.length-2){
+							Node node= new Node();
+							path.setNode(node);
+							path= new Relationship();
+							node.setPath(path);
+						}
 						groupAlias= "alias"+aliasCount;
 					}
 				}
 			}
 			for (Match group : subQuery.getMatch()) {
 				if (group.getPath()!=null) {
-					subQuery.select(s -> s.setId(group.getPath().get(group.getPath().size() - 1).getVariable()));
+					addSelects(group.getPath(),subQuery);
+
 				}
 			}
 			subQuery.select(s -> s
@@ -68,6 +76,13 @@ public class EqdAuditToIMQ {
 		query.addSelect(new Select().setVariable(groupAlias));
 		query.addSelect(new Select()
 			.setVariable("counts"));
+	}
+
+	private void addSelects(Relationship path,Query subQuery) {
+		subQuery.select(s -> s.setId(path.getVariable()));
+		if (path.getNode()!=null)
+			if (path.getNode().getPath()!=null)
+				addSelects(path.getNode().getPath(),subQuery);
 	}
 
 }

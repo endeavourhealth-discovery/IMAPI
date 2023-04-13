@@ -69,23 +69,24 @@ public class SetExpander {
 			upd.execute();
 			spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE.getIri()+"> ?type }}";
 			TupleQuery qry= conn.prepareTupleQuery(spq);
-			TupleQueryResult rs= qry.evaluate();
-			BindingSet bs= rs.next();
-			String graph= bs.getValue("g").stringValue();
-			StringJoiner sj = new StringJoiner("\n");
-			sj.add("INSERT DATA { graph <"+ graph+"> {");
-			int batch = 0;
-			for (Concept member : members) {
-				batch++;
-				if (batch == 1000) {
-					sendUp(sj, conn);
-					sj = new StringJoiner("\n");
-					sj.add("INSERT DATA { graph <" + graph + "> {");
-					batch = 0;
+			try (TupleQueryResult rs= qry.evaluate()) {
+				BindingSet bs = rs.next();
+				String graph = bs.getValue("g").stringValue();
+				StringJoiner sj = new StringJoiner("\n");
+				sj.add("INSERT DATA { graph <" + graph + "> {");
+				int batch = 0;
+				for (Concept member : members) {
+					batch++;
+					if (batch == 1000) {
+						sendUp(sj, conn);
+						sj = new StringJoiner("\n");
+						sj.add("INSERT DATA { graph <" + graph + "> {");
+						batch = 0;
+					}
+					sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
 				}
-				sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
-				}
-			sendUp(sj,conn);
+				sendUp(sj, conn);
+			}
 		}
 	}
 

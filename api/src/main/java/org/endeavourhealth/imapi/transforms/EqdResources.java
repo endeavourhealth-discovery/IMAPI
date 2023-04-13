@@ -129,14 +129,27 @@ public class EqdResources {
 
 	}
 
-	private void setPath(String eqKey,Match match) throws DataFormatException {
-		String path= getPath(eqKey);
-		if (!path.equals("")) {
-			for (String part:path.split(" ")){
-				match.path(p->p.setType(part));
-			}
+	private void setTablePath(String eqKey,Match match) throws DataFormatException {
+		String pathMap = getPath(eqKey);
+		if (!pathMap.equals("")) {
+			String[] elements =pathMap.split(" ");
+			Relationship path = new Relationship();
+			match.setPath(path);
+			path.setIri(elements[0]);
+			path.setNode(new Node().setIri(elements[1]));
 		}
+	}
 
+	private void setPaths(Node node, String pathMap) {
+		String[] paths= pathMap.split(" ");
+			for (int i=0; i<paths.length-2; i=i+2){
+					Relationship path= new Relationship();
+					node.setPath(path);
+					path.setIri(paths[i]);
+					node= new Node();
+					path.setNode(node);
+					node.setIri(paths[i+1]);
+				}
 	}
 
 	private void convertStandardCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
@@ -145,7 +158,7 @@ public class EqdResources {
 
 		}
 		else {
-			setPath(eqCriterion.getTable(),match);
+			setTablePath(eqCriterion.getTable(),match);
 			convertColumns(eqCriterion, match);
 			if (eqCriterion.getId() != null)
 				if (labels.get(eqCriterion.getId()) != null) {
@@ -176,20 +189,16 @@ public class EqdResources {
 
 	private void setColumnWhere(EQDOCColumnValue cv, String eqTable,Match match,Where where) throws DataFormatException, IOException {
 		String eqColumn= String.join("/",cv.getColumn());
-		String subPath= getPath(eqTable+"/"+ eqColumn);
-		String[] subPaths= subPath.split(" ");
-		if (subPath.contains(" ")) {
-			for (int i = 0; i < subPaths.length - 1; i++) {
-				String element= subPaths[i];
-				if (Character.isLowerCase(element.charAt(0))) {
-					match.path(p -> p.setId(element));
-				}
-				else {
-					match.path(p -> p.setType(element));
-				}
+		String pathMap= getPath(eqTable+"/"+ eqColumn);
+		if (pathMap.contains(" ")) {
+			if (match.getPath()!=null) {
+				Node node = getLastNode(match.getPath());
+				setPaths(node,pathMap);
 			}
+			else
+				setPaths(match,pathMap);
 		}
-		where.setId(subPaths[subPaths.length-1]);
+		where.setIri(pathMap.substring(pathMap.lastIndexOf(" ")+1));;
 		setWhere(cv,where);
 	}
 
@@ -209,7 +218,7 @@ public class EqdResources {
 					vsetName= (String) labels.get(vset);
 					valueLabel= valueLabel+ (valueLabel.equals("") ?"": ",")+ vsetName;
 				}
-				Element iri = new Match().setSet("urn:uuid:" + vset);
+				Node iri = new Match().setSet("urn:uuid:" + vset);
 				if (vsetName!=null)
 					iri.setName(vsetName);
 				else
@@ -260,11 +269,11 @@ public class EqdResources {
 	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
 		Match restricted= new Match();
 		match.addMatch(restricted);
-		setPath(eqCriterion.getTable(),restricted);
+		setTablePath(eqCriterion.getTable(),restricted);
 		counter++;
-		List<Element> path= restricted.getPath();
+		Relationship path= restricted.getPath();
 		String nodeVariable= "with"+counter;
-		path.get(path.size()-1).setVariable(nodeVariable);
+		getLastNode(path).setVariable(nodeVariable);
 		convertColumns(eqCriterion, restricted);
 		setRestriction(eqCriterion, restricted);
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null) {
@@ -272,6 +281,17 @@ public class EqdResources {
 			match.addMatch(testMatch);
 			restrictionTest(eqCriterion, testMatch,nodeVariable);
 		}
+	}
+
+	private Node getLastNode(Relationship path) throws DataFormatException {
+		if (path.getNode()!=null) {
+			if (path.getNode().getPath() == null) {
+				return path.getNode();
+			}
+			else
+				return getLastNode(path.getNode().getPath());
+		}
+		throw new DataFormatException("Match path appears ccorrupted");
 	}
 
 
@@ -282,7 +302,7 @@ public class EqdResources {
 				for (EQDOCColumnValue cv : testAtt.getColumnValue()) {
 					Where columnWhere= new Where();
 					testMatch.addWhere(columnWhere);
-					columnWhere.setNode(nodeVariable);
+					columnWhere.setVariable(nodeVariable);
 					setColumnWhere(cv,eqCriterion.getTable(),testMatch,columnWhere);
 				}
 			}
@@ -302,16 +322,16 @@ public class EqdResources {
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
-		String linkElement= restricted.getPath().get(restricted.getPath().size()-1).getVariable();
-		restricted.orderBy(o->o.setId(orderBy).setNode(linkElement).setLimit(1).setDirection(direction));
+		String linkElement= getLastNode(restricted.getPath()).getVariable();
+		restricted.orderBy(o->o.setIri(orderBy).setVariable(linkElement).setLimit(1).setDirection(direction));
 		return linkElement;
 	}
 
 	private String checkForProperty(Match match,String property){
 		if (match.getWhere()!=null) {
 		 for (Where where : match.getWhere()) {
-		 		if (where.getId() != null) {
-					if (where.getId().equals(property)) {
+		 		if (where.getIri() != null) {
+					if (where.getIri().equals(property)) {
 						counter++;
 						match.setVariable(property + "_" + counter);
 						return property + "_" + counter;
@@ -339,11 +359,11 @@ public class EqdResources {
 				EQDOCRelationship eqRel = eqLinked.getRelationship();
 				if (eqRel.getParentColumn().contains("DATE")){
 					relationWhere
-						.setId("effectiveDate")
+						.setIri("effectiveDate")
 						.setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
 						.setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
 						.setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-						.relativeTo(r->r.setNode(linkAlias).setId("effectiveDate"));
+						.relativeTo(r->r.setVariable(linkAlias).setIri("effectiveDate"));
 				}
 				else
 					throw new DataFormatException("Only date link fields supported at the moment");
@@ -449,11 +469,11 @@ public class EqdResources {
 			}
 
 
-			private List<Element> getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
-				List<Element> valueSet = new ArrayList<>();
+			private List<Node> getExceptionSet(EQDOCException set) throws DataFormatException, IOException {
+				List<Node> valueSet = new ArrayList<>();
 				VocCodeSystemEx scheme = set.getCodeSystem();
 				for (EQDOCExceptionValue ev : set.getValues()) {
-					Set<Element> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
+					Set<Node> values = getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
 					if (values != null) {
 						valueSet.addAll(new ArrayList<>(values));
 					} else
@@ -465,14 +485,14 @@ public class EqdResources {
 
 
 
-			private List<Element> getInlineValues(EQDOCValueSet vs, Where pv) throws DataFormatException, IOException {
-				List<Element> setContent = new ArrayList<>();
+			private List<Node> getInlineValues(EQDOCValueSet vs, Where pv) throws DataFormatException, IOException {
+				List<Node> setContent = new ArrayList<>();
 				VocCodeSystemEx scheme = vs.getCodeSystem();
 				for (EQDOCValueSetValue ev : vs.getValues()) {
-					Set<Element> concepts = getValue(scheme, ev);
+					Set<Node> concepts = getValue(scheme, ev);
 					if (concepts != null) {
-						for (Element iri : concepts) {
-							Element conRef = new Element().setId(iri.getId()).setName(iri.getName())
+						for (Node iri : concepts) {
+							Node conRef = new Node().setIri(iri.getIri()).setName(iri.getName())
 								.setDescendantsOrSelfOf(true);
 							setContent.add(conRef);
 						}
@@ -498,11 +518,11 @@ public class EqdResources {
 				}
 			}
 
-			private Set<Element> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws DataFormatException, IOException {
+			private Set<Node> getValue(VocCodeSystemEx scheme, EQDOCValueSetValue ev) throws DataFormatException, IOException {
 				return getValue(scheme, ev.getValue(), ev.getDisplayName(), ev.getLegacyValue());
 			}
 
-			private Set<Element> getValue(VocCodeSystemEx scheme, String originalCode,
+			private Set<Node> getValue(VocCodeSystemEx scheme, String originalCode,
 				String originalTerm, String legacyCode) throws DataFormatException, IOException {
 				if (scheme == VocCodeSystemEx.EMISINTERNAL) {
 					String key = "EMISINTERNAL/" + originalCode;
@@ -522,19 +542,19 @@ public class EqdResources {
 							valueMap.put(originalCode, snomed);
 					}
 					if (snomed != null)
-						return snomed.stream().map(e -> new Element().setId(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
+						return snomed.stream().map(e -> new Node().setIri(e.getIri()).setName(e.getName())).collect(Collectors.toSet());
 					else return null;
 				} else
 					throw new DataFormatException("code scheme not recognised : " + scheme.value());
 
 			}
 
-			private Set<Element> getValueIriResult(Object mapValue) throws IOException {
-				Element iri = new Element().setId(mapValue.toString());
-				String name = importMaps.getCoreName(iri.getId());
+			private Set<Node> getValueIriResult(Object mapValue) throws IOException {
+				Node iri = new Node().setIri(mapValue.toString());
+				String name = importMaps.getCoreName(iri.getIri());
 				if (name != null)
 					iri.setName(name);
-				Set<Element> result = new HashSet<>();
+				Set<Node> result = new HashSet<>();
 				result.add(iri);
 				return result;
 			}
@@ -599,32 +619,32 @@ public class EqdResources {
 					return getLabelStringBuilder(cv);
 				}
 				else if (cv.getLibraryItem() != null) {
-					StringBuilder setIds = new StringBuilder();
+					StringBuilder setIris = new StringBuilder();
 					int i = 0;
 					for (String item : cv.getLibraryItem()) {
 						i++;
 						if (i > 1)
-							setIds.append(",");
-						setIds.append(item);
+							setIris.append(",");
+						setIris.append(item);
 					}
-					if (labels.get(setIds.toString()) != null)
-						return (String) labels.get(setIds.toString());
+					if (labels.get(setIris.toString()) != null)
+						return (String) labels.get(setIris.toString());
 
 				}
 				return null;
 			}
 
 			private String getLabelStringBuilder(EQDOCColumnValue cv) {
-				StringBuilder setIds = new StringBuilder();
+				StringBuilder setIris = new StringBuilder();
 				int i = 0;
 				for (EQDOCValueSet vs : cv.getValueSet()) {
 					i++;
 					if (i > 1)
-						setIds.append(",");
-					setIds.append(vs.getId());
+						setIris.append(",");
+					setIris.append(vs.getId());
 				}
-				if (labels.get(setIds.toString()) != null)
-					return (String) labels.get(setIds.toString());
+				if (labels.get(setIris.toString()) != null)
+					return (String) labels.get(setIris.toString());
 				else {
 					return getLabelGetString(cv);
 				}

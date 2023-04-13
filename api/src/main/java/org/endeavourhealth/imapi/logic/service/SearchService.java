@@ -9,8 +9,6 @@ import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.springframework.http.ResponseEntity;
-
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +29,6 @@ public class SearchService {
 	 * @throws DataFormatException if query format is invalid
 	 */
 	public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-		validateQueryRequest(queryRequest);
 		return new QueryRepository().queryIM(queryRequest);
 	}
 

@@ -12,10 +12,9 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"exclude","boolMatch","description","graph","iri","set","type","name","path","descendantOrSelfOf","descendantOf",
 	"ancestorOf","description","bool","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends Element implements Whereable{
+public class Match extends Node implements Whereable{
 	private Bool boolMatch;
 	private List<Match> match;
-	private List<Element> path;
 	private Bool bool;
 	private boolean exclude;
 	private Element graph;
@@ -33,8 +32,13 @@ public class Match extends Element implements Whereable{
 		return this;
 	}
 
-	public Match setIri(String id){
-		super.setId(id);
+	public Match setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
+	public Match setParameter(String parameter){
+		super.setParameter(parameter);
 		return this;
 	}
 
@@ -54,24 +58,16 @@ public class Match extends Element implements Whereable{
 	}
 
 
-	public List<Element> getPath() {
-		return path;
+
+	public Match setPath(Relationship path) {
+		super.setPath(path);
+		return this;
 	}
 
-	public Match setPath(List<Element> path) {
-		this.path = path;
-		return this;
-	}
-	public Match addPath(Element path){
-		if (this.path==null)
-			this.path= new ArrayList<>();
-		this.path.add(path);
-		return this;
-	}
-	public Match path(Consumer<Element> builder){
-		Element path= new Element();
-		addPath(path);
-		builder.accept(path);
+	public Match path(Consumer<Relationship> builder){
+		if (getPath()!=null)
+			throw new IllegalArgumentException("Builder should not be used to overwrite properties ");
+		super.path(builder);
 		return this;
 	}
 
@@ -150,10 +146,6 @@ public class Match extends Element implements Whereable{
 
 
 
-	public Match setId(String iri) {
-		super.setId(iri);
-		return this;
-	}
 
 	public Match setVariable(String variable){
 		super.setVariable(variable);

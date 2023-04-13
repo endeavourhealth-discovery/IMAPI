@@ -10,29 +10,55 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"nodeVariable","id","variable","case","aggregate", "caze","select"})
+@JsonPropertyOrder({"inverse","iri","subjectVar","predicateVar","objectVare","case","aggregate", "caze","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Select extends Property{
+public class Select extends TripleVar {
 	private FunctionClause function;
 	private List<Select> select;
 	private List<Case> caze;
+	private boolean inverse;
 
 
 
+	public boolean isInverse() {
+		return inverse;
+	}
 	public Select setInverse(boolean inverse){
-		super.setInverse(inverse);
+		this.inverse= inverse;
 		return this;
 	}
 
 	public Select setId(String id){
-		super.setId(id);
+		super.setIri(id);
 		return this;
 	}
 
-	public Select setIri(String id){
-		super.setId(id);
+
+
+
+	@JsonSetter
+	public Select setIri(String iri){
+		super.setIri(iri);
 		return this;
 	}
+
+	public Select setNodeVar(String variable){
+		super.setNodeVar(variable);
+		return this;
+	}
+
+
+	public Select setVariable(String variable){
+		super.setVariable(variable);
+		return this;
+	}
+
+
+	public Select setPathVar(String variable){
+		super.setPathVar(variable);
+		return this;
+	}
+
 
 
 
@@ -54,10 +80,6 @@ public class Select extends Property{
 	}
 
 
-	public Select setVariable(String variable) {
-		super.setVariable(variable);
-		return this;
-	}
 
 
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -8,20 +9,11 @@ import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class TestQueries {
 	public static String ex="http://example.org/qry#";
 
 
-	public static TTContext getDefaultContext(){
-		TTContext context= new TTContext();
-		context.add(IM.NAMESPACE,"im");
-		context.add(RDFS.NAMESPACE,"rdfs");
-		context.add(SNOMED.NAMESPACE,"sn");
-		context.add(SHACL.NAMESPACE,"sh");
-		return context;
-	}
 
 	public static QueryRequest testQuery()  {
 		Query prof = new Query()
@@ -39,7 +31,7 @@ public class TestQueries {
 				.match(or->or
 					.setDescription("aged between 65 and 70")
 					.where(w->w
-					.setId("age")
+					.setIri("age")
 					.range(r->r
 						.from(from->from
 							.setOperator(Operator.gte)
@@ -51,62 +43,62 @@ public class TestQueries {
 					.setDescription("Diabetic")
 					.setSet(ex+"Q_Diabetics"))
 				.match(or->or
-					.path(p->p.setId("observation"))
-					.path(p->p.setType("Observation"))
+					.path(p->p.setIri("observation")
+					.node(n->n.setType("Observation")))
 					.where(ob->ob
-						.setId("concept")
-						.addIn(new Element().setId(SNOMED.NAMESPACE+"714628002").setDescendantsOf(true)))))
+						.setIri("concept")
+						.addIn(new Node().setIri(SNOMED.NAMESPACE+"714628002").setDescendantsOf(true)))))
 			.match(w->w
-				.path(p->p.setId("observation"))
-				.path(p->p.setType("Observation")
-					.setVariable("latestBP"))
+				.path(p->p.setIri("observation")
+				.node(n->n.setType("Observation")
+					.setVariable("latestBP")))
 				.setBool(Bool.and)
 				.where(ww->ww
 						.setDescription("Home or office based Systolic")
-						.setId("concept")
+						.setIri("concept")
 						.setName("concept")
-						.addIn(new Element()
-							.setId(SNOMED.NAMESPACE+"271649006")
+						.addIn(new Node()
+							.setIri(SNOMED.NAMESPACE+"271649006")
 							.setName("Systolic blood pressure"))
-						.addIn(new Element()
-							.setId(IM.CODE_SCHEME_EMIS.getIri()+"1994021000006104")
+						.addIn(new Node()
+							.setIri(IM.CODE_SCHEME_EMIS.getIri()+"1994021000006104")
 							.setName("Home systolic blood pressure"))
 						.setValueLabel("Office or home systolic blood pressure"))
 					.where(ww->ww
 						.setDescription("Last 6 months")
-						.setId("effectiveDate")
+						.setIri("effectiveDate")
 						.setOperator(Operator.gte)
 						.setValue("-6")
 						.setUnit("MONTHS")
 						.relativeTo(r->r.setParameter("$referenceDate"))
 						.setValueLabel("last 6 months"))
 					.addOrderBy(new OrderLimit()
-						.setId("effectiveDate")
-						.setNode("latestBP")
+						.setIri("effectiveDate")
+						.setVariable("latestBP")
 						.setLimit(1)
 						.setDirection(Order.descending)))
 					.match(m->m
 						.where(w->w
-							.setNode("latestBP")
-						.setId(IM.NAMESPACE+"numericValue")
+							.setVariable("latestBP")
+						.setIri(IM.NAMESPACE+"numericValue")
 						.setDescription(">150")
 						.setOperator(Operator.gt)
 						.setValue("150")))
 			.match(w->w
 				.setExclude(true)
 				.setDescription("High BP not followed by screening invite")
-				.path(p->p.setId(IM.NAMESPACE+"observation"))
-				.path(p->p.setType("Observation"))
+				.path(p->p.setIri(IM.NAMESPACE+"observation")
+				.node(n->n.setType("Observation")))
 				.setBool(Bool.and)
 				.where(inv->inv
 					.setDescription("Invited for Screening after BP")
-					.setId(IM.NAMESPACE+"concept")
-					.addIn(new Element().setSet(IM.NAMESPACE+"InvitedForScreening")))
+					.setIri(IM.NAMESPACE+"concept")
+					.addIn(new Node().setSet(IM.NAMESPACE+"InvitedForScreening")))
 				.where(after->after
 					.setDescription("after high BP")
-					.setId(IM.NAMESPACE+"effectiveDate")
+					.setIri(IM.NAMESPACE+"effectiveDate")
 					.setOperator(Operator.gte)
-					.relativeTo(r->r.setNode("latestBP").setId("effectiveDate"))))
+					.relativeTo(r->r.setVariable("latestBP").setIri("effectiveDate"))))
 			.match(w->w
 				.setExclude(true)
 				.setDescription("not hypertensive")
@@ -115,10 +107,165 @@ public class TestQueries {
 		return new QueryRequest().setQuery(prof);
 	}
 
+	public static QueryRequest rangeSuggestion(){
+		return new QueryRequest()
+			.setContext(TTManager.createBasicContext())
+			.addArgument(new Argument()
+				.setParameter("this")
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"recordOwner")))
+			.query(q->q
+				.setName("Suggested range for a property")
+				.setDescription("get node, class or datatype values (ranges)  of property objects that have 4this as their path")
+				.match(m->m
+					.setBoolMatch(Bool.or)
+					.match(m1->m1
+						.path(p->p
+							.setIri(SHACL.NODE.getIri())
+						.node(n->n
+							.setVariable("range"))))
+					.match(m1->m1
+						.path(p->p
+							.setIri(SHACL.CLASS.getIri())
+						.node(n->n
+							.setVariable("range"))))
+					.match(m1->m1
+						.path(p->p
+							.setIri(SHACL.DATATYPE.getIri())
+						.node(n->n
+							.setVariable("range"))))
+					.where(w->w
+						.setIri(SHACL.PATH.getIri())
+						.addIn(new Node().setParameter("this"))))
+				.select(s->s.setNodeVar("range").setIri(RDFS.LABEL.getIri())));
+	}
+
+	public static QueryRequest getShaclProperty(){
+		return new QueryRequest()
+			.argument(a->a.setParameter("dataModel").setValueIri(TTIriRef.iri(IM.NAMESPACE+"Patient")))
+			.argument(a->a.setParameter("property").setValueIri(TTIriRef.iri(IM.NAMESPACE+"age")))
+			.query(q->q
+				.setName("Query - shacl property predicates for a property in a data model")
+				.setDescription("Select the predicates and values and labels of the values for a given data mode and property")
+				.match(m->m
+					.setParameter("$dataModel")
+					.path(p->p
+						.setIri(SHACL.PROPERTY.getIri())
+						.node(n->n.setVariable("shaclProperty")))
+					.where(w->w
+						.setIri(SHACL.PATH.getIri())
+						.in(in->in.setParameter("$property"))))
+				.select(s->s
+					.setNodeVar("shaclProperty")
+					.setIri(SHACL.CLASS.getIri())
+					.select(s1->s1.setIri(RDFS.LABEL.getIri())))
+				.select(s->s
+					.setNodeVar("shaclProperty")
+					.setIri(SHACL.NODE.getIri())
+					.select(s1->s1.setIri(RDFS.LABEL.getIri())))
+				.select(s->s
+					.setNodeVar("shaclProperty")
+					.setIri(SHACL.DATATYPE.getIri())
+					.select(s1->s1.setIri(RDFS.LABEL.getIri())))
+				.select(s->s
+					.setNodeVar("shaclProperty")
+					.setIri(SHACL.MAXCOUNT.getIri()))
+				.select(s->s
+					.setNodeVar("shaclProperty")
+					.setIri(SHACL.MINCOUNT.getIri())
+					.select(s1->s1.setIri(RDFS.LABEL.getIri()))));
+
+	}
+
+	public static QueryRequest getPropertyPredicates() throws JsonProcessingException {
+		String json="{\n" +
+			"\t \"argument\": [\n" +
+			"\t\t{\n" +
+			"\t\t\t \"parameter\": \"dataModel\",\n" +
+			"\t\t\t \"valueIri\": \"http://endhealth.info/im#Patient\"\n" +
+			"\t\t},\n" +
+			"\t\t{\n" +
+			"\t\t\t \"parameter\": \"property\",\n" +
+			"\t\t\t \"valueIri\": \"http://endhealth.info/im#age\"\n" +
+			"\t\t}\n" +
+			"\t],\n" +
+			"\t \"query\": {\n" +
+			"\t\t \"name\": \"Query - property from a data model\",\n" +
+			"\t\t \"match\": [\n" +
+			"\t\t\t{\n" +
+			"\t\t\t\t \"parameter\": \"$dataModel\",\n" +
+			"\t\t\t\t \"path\": \n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#property\"\n" +
+			"\t\t\t\t\t}\n" +
+			"\t\t\t\t,\n" +
+			"\t\t\t\t \"where\": [\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#path\",\n" +
+			"\t\t\t\t\t\t \"in\": [\n" +
+			"\t\t\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t\t\t \"parameter\": \"$property\"\n" +
+			"\t\t\t\t\t\t\t}\n" +
+			"\t\t\t\t\t\t]\n" +
+			"\t\t\t\t\t}\n" +
+			"\t\t\t\t]\n" +
+			"\t\t\t}\n" +
+			"\t\t],\n" +
+			"\t\t \"select\": [\n" +
+			"\t\t\t{\n" +
+			"\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#property\",\n" +
+			"\t\t\t\t \"select\": [\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#path\",\n" +
+			"\t\t\t\t\t\t \"select\": [\n" +
+			"\t\t\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
+			"\t\t\t\t\t\t\t}\n" +
+			"\t\t\t\t\t\t]\n" +
+			"\t\t\t\t\t},\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#class\",\n" +
+			"\t\t\t\t\t\t \"select\": [\n" +
+			"\t\t\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
+			"\t\t\t\t\t\t\t}\n" +
+			"\t\t\t\t\t\t]\n" +
+			"\t\t\t\t\t},\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#node\",\n" +
+			"\t\t\t\t\t\t \"select\": [\n" +
+			"\t\t\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
+			"\t\t\t\t\t\t\t}\n" +
+			"\t\t\t\t\t\t]\n" +
+			"\t\t\t\t\t},\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#datatype\",\n" +
+			"\t\t\t\t\t\t \"select\": [\n" +
+			"\t\t\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
+			"\t\t\t\t\t\t\t}\n" +
+			"\t\t\t\t\t\t]\n" +
+			"\t\t\t\t\t},\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#maxCount\"\n" +
+			"\t\t\t\t\t},\n" +
+			"\t\t\t\t\t{\n" +
+			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#minCount\"\n" +
+			"\t\t\t\t\t}\n" +
+			"\t\t\t\t]\n" +
+			"\t\t\t}\n" +
+			"\t\t],\n" +
+			"\t\t \"activeOnly\": true\n" +
+			"\t}\n" +
+			"}";
+		QueryRequest qr= new ObjectMapper().readValue(json,QueryRequest.class);
+		return qr;
+	}
+
 
 	public static QueryRequest getAllowableSubtypes() throws IOException {
 		QueryRequest qr= new QueryRequest();
-		qr.setContext(getDefaultContext());
+		qr.setContext(TTManager.createBasicContext());
 		qr.addArgument(new Argument()
 			.setParameter("this")
 			.setValueIri(IM.FOLDER));
@@ -152,8 +299,9 @@ public class TestQueries {
 				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#243640007")))
 			.setQuery(new Query()
 				.setName("Subtypes of concepts as a parameterised query")
-				.select(s->s.setIri(RDFS.LABEL.getIri()))
+				.select(s->s.setVariable("c").setIri(RDFS.LABEL.getIri()))
 				.match(f->f
+					.setVariable("c")
 					.setParameter("this")
 					.setDescendantsOrSelfOf(true)));
 	}

@@ -13,8 +13,10 @@
     }
   },
   "entities" : [ {
-    "@id" : "sn:105590001",
-    "rdfs:label" : "105590001",
-    "im:code" : "105590001"
+    "sh:datatype" : [ {
+      "@id" : "xsd:integer",
+      "rdfs:label" : "integer"
+    } ],
+    "sh:maxCount" : "1"
   } ]
 }

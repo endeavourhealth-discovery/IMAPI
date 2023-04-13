@@ -1,8 +1,11 @@
 {
   "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "im" : "http://endhealth.info/im#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
     "sh" : "http://www.w3.org/ns/shacl#",
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
     "sn" : "http://snomed.info/sct#",
     "entities" : {
       "@id" : "http://envhealth.info/im#entities",
@@ -14,43 +17,7 @@
     "rdfs:label" : "Concept Set",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:definition"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:hasMember"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:isSubsetOf"
       } ]
     } ]
   }, {
@@ -58,39 +25,7 @@
     "rdfs:label" : "Value set",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:definition"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:hasMember"
       } ]
     } ]
   }, {
@@ -98,43 +33,7 @@
     "rdfs:label" : "Property",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/2002/07/owl#inverseOf"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:domain"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:range"
       } ]
     } ]
   }, {
@@ -142,35 +41,7 @@
     "rdfs:label" : "Entity selector",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:list"
       } ]
     } ]
   }, {
@@ -178,75 +49,7 @@
     "rdfs:label" : "Terminology concept",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:subClassOf"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:code"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:hasTermCode"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:weighting"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:definitionalStatus"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:hasMap"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:usageTotal"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:im1Id"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:matchedTo"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:sourceContext"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:isChildOf"
       } ]
     } ]
   }, {
@@ -254,31 +57,7 @@
     "rdfs:label" : "Folder",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
       } ]
     } ]
   }, {
@@ -288,49 +67,13 @@
       "sh:path" : [ {
         "@id" : "im:isContainedIn"
       } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:subClassOf"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sh:property"
-      } ]
     } ]
   }, {
     "@id" : "im:Query",
     "rdfs:label" : "Query",
     "sh:property" : [ {
       "sh:path" : [ {
-        "@id" : "rdfs:label"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "rdfs:comment"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:status"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:scheme"
-      } ]
-    }, {
-      "sh:path" : [ {
         "@id" : "im:isContainedIn"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "sn:370124000"
-      } ]
-    }, {
-      "sh:path" : [ {
-        "@id" : "im:definition"
       } ]
     } ]
   } ]

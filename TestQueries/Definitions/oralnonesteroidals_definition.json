@@ -1,28 +1,37 @@
 {
+  "context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
   "query" : {
     "name" : "oral none steroidals",
     "match" : [ {
       "boolMatch" : "and",
       "match" : [ {
+        "@id" : "http://snomed.info/sct#763158003",
         "where" : [ {
-          "@id" : "http://snomed.info/sct#127489000",
           "in" : [ {
             "@id" : "http://snomed.info/sct#372665008",
             "descendantsOrSelfOf" : true
           } ],
           "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true
+          "descendantsOrSelfOf" : true,
+          "@id" : "http://snomed.info/sct#127489000"
         }, {
-          "@id" : "http://snomed.info/sct#411116001",
           "in" : [ {
             "@id" : "http://snomed.info/sct#385268001",
             "descendantsOrSelfOf" : true
           } ],
           "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true
+          "descendantsOrSelfOf" : true,
+          "@id" : "http://snomed.info/sct#411116001"
         } ],
-        "descendantsOrSelfOf" : true,
-        "@id" : "http://snomed.info/sct#763158003"
+        "descendantsOrSelfOf" : true
       } ]
     } ],
     "select" : [ {

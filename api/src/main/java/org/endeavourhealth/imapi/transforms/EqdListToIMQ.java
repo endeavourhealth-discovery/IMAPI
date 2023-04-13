@@ -4,7 +4,6 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Select;
-import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 

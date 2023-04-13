@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -12,6 +13,8 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.Test;
@@ -59,12 +62,18 @@ class SearchServiceTest {
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 
 		for (QueryRequest qr1 : List.of(
+			TestQueries.query5(),
+			TestQueries.query1(),
+			TestQueries.query2(),
+			TestQueries.getShaclProperty(),
+			TestQueries.getPropertyPredicates(),
+			TestQueries.rangeSuggestion(),
+			TestQueries.pathToAtenolol(),
 			TestQueries.pathDobQuery(),
 			TestQueries.pathToPostCode(),
 			TestQueries.deleteSets(),
-			TestQueries.getAllowableSubtypes(),
-			TestQueries.pathToCSA(),
-			TestQueries.pathToAtenolol()
+			TestQueries.getAllowableSubtypes()
+
 		)) {
 			output(qr1);
 		}
@@ -74,8 +83,8 @@ class SearchServiceTest {
 			TestQueries.subtypesParameterised(), TestQueries.substanceTextSearch(),
 			TestQueries.rangeTextSearch(), TestQueries.getAllowableRanges(), TestQueries.oralNsaids(),
 			TestQueries.getAllowableProperties(), TestQueries.getIsas(),
-			TestQueries.getConcepts(), TestQueries.query2(), TestQueries.query1(),
-			TestQueries.query4(), TestQueries.query5(), TestQueries.query6())) {
+			TestQueries.getConcepts(),
+			TestQueries.query4(), TestQueries.query6())) {
 			output(qr1);
 		}
 	}
@@ -99,15 +108,19 @@ class SearchServiceTest {
 			name = "unnamed query";
 		SearchService searchService = new SearchService();
 		System.out.println("Testing " + name);
+		dataSet.setContext(TTManager.createBasicContext());
+
 		try (FileWriter wr = new FileWriter(testDefinitions + "\\" + name + "_definition.json")) {
-			wr.write(new ObjectMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
+			wr.write(new JsonLDMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
 		}
-		ObjectMapper om = new ObjectMapper();
+		ObjectMapper om= new ObjectMapper();
+
 		if (dataSet.getQuery() != null) {
 			TTDocument result = searchService.queryIM(dataSet);
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
-				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+ 				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
+
 			System.out.println("Found " + result.getEntities().size() + " entities");
 		}
 		else if (dataSet.getUpdate() != null) {

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -8,14 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","description","nodeVariable","id","name","bool","where","range"
+@JsonPropertyOrder({"description","nodeVariable","id","name","bool","where","range"
 	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends Property implements Assignable,Whereable{
 	private String description;
 	private Range range;
-	private List<Element> in;
-	private List<Element> notIn;
+	private List<Node> in;
+	private List<Node> notIn;
 	private Bool bool;
 	private List<Where> where;
 	private Operator operator;
@@ -25,6 +26,27 @@ public class Where extends Property implements Assignable,Whereable{
 	private boolean anyRoleGroup;
 	private boolean isNull;
 	private Property relativeTo;
+
+	public static Where iri(String iri) {
+		return new Where(iri);
+	}
+
+	public Where(){}
+
+	public Where(String iri){
+		super.setIri(iri);
+	}
+
+
+	@JsonProperty("@id")
+	public String getId() {
+		return super.getIri();
+	}
+
+
+
+
+
 
 	public boolean isNull() {
 		return isNull;
@@ -36,13 +58,18 @@ public class Where extends Property implements Assignable,Whereable{
 	}
 
 
-	public Where setId(String id){
-		super.setId(id);
+	public Where setVariable(String variable){
+		super.setVariable(variable);
 		return this;
 	}
 
-	public Where setNode(String node){
-		super.setNode(node);
+	public Where setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
+	public Where setAncestorsOf(boolean entailment){
+		super.setAncestorsOf(entailment);
 		return this;
 	}
 
@@ -57,24 +84,20 @@ public class Where extends Property implements Assignable,Whereable{
 		return this;
 	}
 
-	public Where setIri(String id){
-		super.setId(id);
-		return this;
-	}
 
 
 
 
-	public List<Element> getNotIn() {
+	public List<Node> getNotIn() {
 		return notIn;
 	}
 
-	public Where setNotIn(List<Element> notIn) {
+	public Where setNotIn(List<Node> notIn) {
 		this.notIn = notIn;
 		return this;
 	}
 
-	public Where addNotIn(Element notIn) {
+	public Where addNotIn(Node notIn) {
 		if (this.notIn==null)
 			this.notIn = new ArrayList<>();
 		this.notIn.add(notIn);
@@ -129,16 +152,6 @@ public class Where extends Property implements Assignable,Whereable{
 
 
 
-	public Where setInverse(boolean inverse){
-		super.setInverse(inverse);
-		return this;
-	}
-
-	public Where setDescendantsOrSelfOf(boolean subtypes){
-		super.setDescendantsOrSelfOf(subtypes);
-		return this;
-	}
-
 
 	public Where setName(String name) {
 		super.setName(name);
@@ -157,12 +170,12 @@ public class Where extends Property implements Assignable,Whereable{
 
 
 
-	public List<Element> getIn() {
+	public List<Node> getIn() {
 		return in;
 	}
 
 	@JsonSetter
-	public Where setIn(List<Element> in) {
+	public Where setIn(List<Node> in) {
 		this.in = in;
 		return this;
 	}
@@ -170,33 +183,45 @@ public class Where extends Property implements Assignable,Whereable{
 
 
 
-	public Where addIn(Element in){
+	public Where addIn(Node in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
 		this.in.add(in);
 		return this;
 	}
 
-	public Where in(Consumer<Element> builder){
-		Element in = new Element();
+	public Where in(Consumer<Node> builder){
+		Node in = new Node();
 		addIn(in);
 		builder.accept(in);
 		return this;
 	}
 
-	public Where notIn(Consumer<Element> builder){
-		Element in = new Element();
+	public Where notIn(Consumer<Node> builder){
+		Node in = new Node();
 		addNotIn(in);
 		builder.accept(in);
+		return this;
+	}
+
+	public Where setInverse(boolean inverse){
+		super.setInverse(inverse);
 		return this;
 	}
 
 	public Where addIn(String in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
-		this.in.add(new Element().setId(in));
+		this.in.add(new Node().setIri(in));
 		return this;
 	}
+
+	public Where setDescendantsOrSelfOf(boolean entailment){
+		super.setDescendantsOrSelfOf(entailment);
+		return this;
+	}
+
+
 
 
 	@Override

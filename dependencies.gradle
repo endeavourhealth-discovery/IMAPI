@@ -23,7 +23,7 @@ ext {
             reactor             : '3.5.4',
             slf4j               : '2.0.7',
             spring              : '3.0.5',
-            springContext       : '5.3.25',
+            springContext       : '6.0.8',
             springdoc           : '1.3.9',
             springStatemachine  : '3.0.1',
             springTestSecurity  : '6.0.2',

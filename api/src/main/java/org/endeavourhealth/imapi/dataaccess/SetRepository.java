@@ -54,7 +54,7 @@ public class SetRepository {
             .select(s2->s2
                 .setIri(RDFS.LABEL.getIri()).setVariable("schemeName")))
           .select(s->s
-              .setIri(IM.NAMESPACE+"usageTotal").setVariable("use"))
+              .setIri(IM.WEIGHTING.getIri()).setVariable("usage"))
             .select(s->s
                 .setIri(IM.IM1ID.getIri()).setVariable("im1Id"))
             .select(s->s
@@ -143,7 +143,7 @@ public class SetRepository {
                     Value code = bs.getValue("code");
                     Value scheme = bs.getValue("scheme");
                     Value schemeName = bs.getValue("schemeName");
-                    Value use = bs.getValue("use");
+                    Value usage = bs.getValue("usage");
                     Value status = bs.getValue("status");
                     Value statusName = bs.getValue("statusName");
                     Value type = bs.getValue("type");
@@ -161,7 +161,7 @@ public class SetRepository {
                     if (null != type) {
                         cl.addType(iri(type.stringValue(),typeName.stringValue()));
                     }
-                    cl.setUsage(use == null ? null : ((Literal) use).intValue());
+                    cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
                 } else {
                     Value type = bs.getValue("type");
                     Value typeName = bs.getValue("typeName");

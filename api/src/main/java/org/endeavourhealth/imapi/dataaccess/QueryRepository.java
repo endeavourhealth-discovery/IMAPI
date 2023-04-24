@@ -412,6 +412,9 @@ public class QueryRepository {
     }
 
     private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (iri != null && !iri.isEmpty() && !iri.matches("([a-z]+)?[:].*")){
+            iri = IM.NAMESPACE + iri;
+        }
         ttIris.add(TTIriRef.iri(iri));
         iris.put(iri, null);
     }

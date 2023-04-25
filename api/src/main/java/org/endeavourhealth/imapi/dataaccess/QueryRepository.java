@@ -309,6 +309,7 @@ public class QueryRepository {
         for (TTIriRef ttIri : ttIris) {
             ttIri.setName(iriLabels.get(ttIri.getIri()));
         }
+        setQueryLabels(query,iriLabels);
     }
 
     public List<String> resolveIris(Set<String> iriLabels) {
@@ -354,8 +355,6 @@ public class QueryRepository {
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 addToIriList(in.getIri(), ttIris, iris);
-
-
     }
 
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
@@ -371,10 +370,113 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
+        if (match.getSet() != null) {
+            addToIriList(match.getSet(), ttIris, iris);
+        }
+        if (match.getPath() != null) {
+            addToIriList(match.getPath().getIri(), ttIris, iris);
+        }
+        if (match.getOrderBy() != null) {
+            for(OrderLimit orderBy : match.getOrderBy()) {
+                gatherOrderLimitLabels(orderBy, ttIris,iris);
+            }
+        }
+    }
+
+    private void gatherOrderLimitLabels(OrderLimit orderBy, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if(orderBy.getIri() != null) {
+            addToIriList(orderBy.getIri(), ttIris, iris);
+        }
+    }
+
+    private void setQueryLabels(Query query, Map<String, String> iriLabels) {
+        if (query.getMatch() != null) {
+            for (Match match : query.getMatch()) {
+                setMatchLabels(match, iriLabels);
+            }
+        }
+        if (query.getReturn() != null)
+            for (Return select : query.getReturn())
+                setReturnLabels(select, iriLabels);
+        if (query.getQuery() != null)
+            for (Query subQuery : query.getQuery())
+                setQueryLabels(subQuery, iriLabels);
+    }
+
+    private void setMatchLabels(Match match,Map<String, String> iriLabels) {
+        if (match.getIri() != null) {
+            match.setName(iriLabels.get(match.getIri()));
+        }
+        else if (match.getType() != null) {
+            if(!isIri(match.getType())) {
+                match.setType(IM.NAMESPACE + match.getType());
+            }
+            match.setName(iriLabels.get(match.getType()));
+        }
+        if (match.getWhere() != null) {
+            for (Where where : match.getWhere()) {
+                setWhereLabels(where,iriLabels);
+            }
+        }
+        if (match.getMatch() != null) {
+            match.getMatch().forEach(f -> setMatchLabels(f,iriLabels));
+        }
+        if (match.getSet() != null) {
+            match.setName(iriLabels.get(match.getSet()));
+        }
+        if (match.getPath() != null) {
+            match.getPath().setName(iriLabels.get(match.getPath().getIri()));
+        }
+        if (match.getOrderBy() != null) {
+            for(OrderLimit orderBy : match.getOrderBy()) {
+                setOrderLimitLabels(orderBy, iriLabels);
+            }
+        }
+    }
+
+    private void setOrderLimitLabels(OrderLimit orderBy, Map<String, String> iriLabels) {
+        if(orderBy.getIri() != null) {
+            orderBy.setName(iriLabels.get(orderBy.getIri()));
+        }
+    }
+
+    private void setWhereLabels(Where where, Map<String, String> iris) {
+        if (where.getId() != null)
+            where.setName(iris.get(where.getId()));
+        if (where.getWhere() != null) {
+            for (Where subWhere : where.getWhere()) {
+                setWhereLabels(subWhere, iris);
+            }
+        }
+        if (where.getIn() != null)
+            for (Element in : where.getIn())
+                in.setName(iris.get(in.getIri()));
+    }
+
+    private void setReturnLabels(Return select, Map<String, String> iris) {
+        if (select.getProperty()!=null) {
+            for (ReturnProperty property : select.getProperty()) {
+                if (property.getIri() != null) {
+                    property.setName(iris.get(property.getIri()));
+                }
+                if (property.getNode()!=null){
+                    setReturnLabels(property.getNode(),iris);
+                }
+            }
+        }
     }
 
     private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {
-        ttIris.add(TTIriRef.iri(iri));
-        iris.put(iri, null);
+        if (iri != null && !iri.isEmpty()){
+            if(!isIri(iri)) {
+                iri = IM.NAMESPACE + iri;
+            }
+            ttIris.add(TTIriRef.iri(iri));
+            iris.put(iri, null);
+        }
+    }
+
+    private boolean isIri(String iri) {
+        return iri.matches("([a-z]+)?[:].*");
     }
 }

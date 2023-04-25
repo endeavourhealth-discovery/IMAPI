@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -13,30 +13,32 @@
     "match" : [ {
       "boolMatch" : "and",
       "match" : [ {
-        "@id" : "http://snomed.info/sct#763158003",
+        "@id" : "sn:763158003",
         "where" : [ {
           "in" : [ {
-            "@id" : "http://snomed.info/sct#372665008",
+            "@id" : "sn:372665008",
             "descendantsOrSelfOf" : true
           } ],
           "anyRoleGroup" : true,
           "descendantsOrSelfOf" : true,
-          "@id" : "http://snomed.info/sct#127489000"
+          "@id" : "sn:127489000"
         }, {
           "in" : [ {
-            "@id" : "http://snomed.info/sct#385268001",
+            "@id" : "sn:385268001",
             "descendantsOrSelfOf" : true
           } ],
           "anyRoleGroup" : true,
           "descendantsOrSelfOf" : true,
-          "@id" : "http://snomed.info/sct#411116001"
+          "@id" : "sn:411116001"
         } ],
         "descendantsOrSelfOf" : true
       } ]
     } ],
-    "select" : [ {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    } ],
-    "usePrefixes" : true
+    "usePrefixes" : true,
+    "return" : [ {
+      "property" : [ {
+        "@id" : "rdfs:label"
+      } ]
+    } ]
   }
 }

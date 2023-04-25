@@ -133,7 +133,7 @@ public class EqdResources {
 		String pathMap = getPath(eqKey);
 		if (!pathMap.equals("")) {
 			String[] elements =pathMap.split(" ");
-			Relationship path = new Relationship();
+			Path path = new Path();
 			match.setPath(path);
 			path.setIri(elements[0]);
 			path.setNode(new Node().setIri(elements[1]));
@@ -143,12 +143,14 @@ public class EqdResources {
 	private void setPaths(Node node, String pathMap) {
 		String[] paths= pathMap.split(" ");
 			for (int i=0; i<paths.length-2; i=i+2){
-					Relationship path= new Relationship();
+					Path path= new Path();
 					node.setPath(path);
 					path.setIri(paths[i]);
 					node= new Node();
 					path.setNode(node);
 					node.setIri(paths[i+1]);
+					counter++;
+					node.setVariable("node"+counter);
 				}
 	}
 
@@ -271,7 +273,7 @@ public class EqdResources {
 		match.addMatch(restricted);
 		setTablePath(eqCriterion.getTable(),restricted);
 		counter++;
-		Relationship path= restricted.getPath();
+		Path path= restricted.getPath();
 		String nodeVariable= "with"+counter;
 		getLastNode(path).setVariable(nodeVariable);
 		convertColumns(eqCriterion, restricted);
@@ -283,7 +285,7 @@ public class EqdResources {
 		}
 	}
 
-	private Node getLastNode(Relationship path) throws DataFormatException {
+	private Node getLastNode(Path path) throws DataFormatException {
 		if (path.getNode()!=null) {
 			if (path.getNode().getPath() == null) {
 				return path.getNode();

@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -13,22 +13,24 @@
     "name" : "AllowablePropertiesForCovidStarting with causative",
     "description" : "'using property domains get the allowable properties match the supertypes of this concept",
     "match" : [ {
-      "@type" : "http://endhealth.info/im#Concept",
+      "@type" : "im:Concept",
       "where" : [ {
         "in" : [ {
-          "@id" : "http://snomed.info/sct#674814021000119106",
+          "@id" : "sn:674814021000119106",
           "ancestorsOf" : true
         } ],
-        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
+        "@id" : "rdfs:domain"
       } ],
       "descendantsOrSelfOf" : true
     } ],
-    "select" : [ {
-      "@id" : "http://endhealth.info/im#code"
-    }, {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    } ],
     "activeOnly" : true,
-    "usePrefixes" : true
+    "usePrefixes" : true,
+    "return" : [ {
+      "property" : [ {
+        "@id" : "im:code"
+      }, {
+        "@id" : "rdfs:label"
+      } ]
+    } ]
   }
 }

@@ -59,12 +59,12 @@ public class Match extends Node implements Whereable{
 
 
 
-	public Match setPath(Relationship path) {
+	public Match setPath(Path path) {
 		super.setPath(path);
 		return this;
 	}
 
-	public Match path(Consumer<Relationship> builder){
+	public Match path(Consumer<Path> builder){
 		if (getPath()!=null)
 			throw new IllegalArgumentException("Builder should not be used to overwrite properties ");
 		super.path(builder);

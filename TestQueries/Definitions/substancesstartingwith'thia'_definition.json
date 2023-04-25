@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -12,11 +12,11 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIriList" : [ {
-      "@id" : "http://snomed.info/sct#421149006"
+      "@id" : "sn:421149006"
     } ]
   } ],
   "query" : {
-    "@id" : "http://endhealth.info/im#Query_GetIsas",
+    "@id" : "im:Query_GetIsas",
     "name" : "substances starting with 'thia'"
   }
 }

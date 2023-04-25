@@ -1,160 +1,66 @@
 {
   "@context" : {
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
     "sh" : "http://www.w3.org/ns/shacl#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "sn" : "http://snomed.info/sct#",
-    "entities" : {
-      "@id" : "http://envhealth.info/im#entities",
-      "@container" : "@set"
-    }
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "sn:127489000",
-    "rdfs:label" : "Has active ingredient (attribute)",
-    "im:code" : "127489000"
+    "@id" : "http://snomed.info/sct#127489000"
   }, {
-    "@id" : "sn:766939001",
-    "rdfs:label" : "Plays role (attribute)",
-    "im:code" : "766939001"
+    "@id" : "http://snomed.info/sct#766939001"
   }, {
-    "@id" : "sn:411116001",
-    "rdfs:label" : "Has manufactured dose form (attribute)",
-    "im:code" : "411116001"
+    "@id" : "http://snomed.info/sct#411116001"
   }, {
-    "@id" : "sn:733722007",
-    "rdfs:label" : "Has concentration strength denominator unit (attribute)",
-    "im:code" : "733722007"
+    "@id" : "http://snomed.info/sct#733722007"
   }, {
-    "@id" : "sn:732943007",
-    "rdfs:label" : "Has basis of strength substance (attribute)",
-    "im:code" : "732943007"
+    "@id" : "http://snomed.info/sct#732943007"
   }, {
-    "@id" : "sn:733725009",
-    "rdfs:label" : "Has concentration strength numerator unit (attribute)",
-    "im:code" : "733725009"
+    "@id" : "http://snomed.info/sct#733725009"
   }, {
-    "@id" : "sn:762949000",
-    "rdfs:label" : "Has precise active ingredient (attribute)",
-    "im:code" : "762949000"
+    "@id" : "http://snomed.info/sct#762949000"
   }, {
-    "@id" : "sn:763032000",
-    "rdfs:label" : "Has unit of presentation (attribute)",
-    "im:code" : "763032000"
+    "@id" : "http://snomed.info/sct#763032000"
   }, {
-    "@id" : "sn:732947008",
-    "rdfs:label" : "Has presentation strength denominator unit (attribute)",
-    "im:code" : "732947008"
+    "@id" : "http://snomed.info/sct#732947008"
   }, {
-    "@id" : "sn:732945000",
-    "rdfs:label" : "Has presentation strength numerator unit (attribute)",
-    "im:code" : "732945000"
+    "@id" : "http://snomed.info/sct#732945000"
   }, {
-    "@id" : "sn:732944001",
-    "rdfs:label" : "Has presentation strength numerator value (attribute)",
-    "im:code" : "732944001"
+    "@id" : "http://snomed.info/sct#1142135004"
   }, {
-    "@id" : "sn:1142135004",
-    "rdfs:label" : "Has presentation strength numerator value (attribute)",
-    "im:code" : "1142135004"
+    "@id" : "http://snomed.info/sct#1142136003"
   }, {
-    "@id" : "sn:732946004",
-    "rdfs:label" : "Has presentation strength denominator value (attribute)",
-    "im:code" : "732946004"
+    "@id" : "http://snomed.info/sct#1142137007"
   }, {
-    "@id" : "sn:1142136003",
-    "rdfs:label" : "Has presentation strength denominator value (attribute)",
-    "im:code" : "1142136003"
+    "@id" : "http://snomed.info/sct#1142138002"
   }, {
-    "@id" : "sn:733723002",
-    "rdfs:label" : "Has concentration strength denominator value (attribute)",
-    "im:code" : "733723002"
+    "@id" : "http://snomed.info/sct#1142139005"
   }, {
-    "@id" : "sn:1142137007",
-    "rdfs:label" : "Has concentration strength denominator value (attribute)",
-    "im:code" : "1142137007"
+    "@id" : "http://snomed.info/sct#1142140007"
   }, {
-    "@id" : "sn:733724008",
-    "rdfs:label" : "Has concentration strength numerator value (attribute)",
-    "im:code" : "733724008"
+    "@id" : "http://snomed.info/sct#1142141006"
   }, {
-    "@id" : "sn:1142138002",
-    "rdfs:label" : "Has concentration strength numerator value (attribute)",
-    "im:code" : "1142138002"
+    "@id" : "http://snomed.info/sct#774158006"
   }, {
-    "@id" : "sn:766952006",
-    "rdfs:label" : "Count of base of active ingredient (attribute)",
-    "im:code" : "766952006"
+    "@id" : "http://snomed.info/sct#774159003"
   }, {
-    "@id" : "sn:1142139005",
-    "rdfs:label" : "Count of base of active ingredient (attribute)",
-    "im:code" : "1142139005"
+    "@id" : "http://snomed.info/sct#774160008"
   }, {
-    "@id" : "sn:766953001",
-    "rdfs:label" : "Count of active ingredient (attribute)",
-    "im:code" : "766953001"
+    "@id" : "http://snomed.info/sct#774163005"
   }, {
-    "@id" : "sn:1142140007",
-    "rdfs:label" : "Count of active ingredient (attribute)",
-    "im:code" : "1142140007"
+    "@id" : "http://snomed.info/sct#860779006"
   }, {
-    "@id" : "sn:766954007",
-    "rdfs:label" : "Count of base and modification pair (attribute)",
-    "im:code" : "766954007"
+    "@id" : "http://snomed.info/sct#860781008"
   }, {
-    "@id" : "sn:1142141006",
-    "rdfs:label" : "Count of base and modification pair (attribute)",
-    "im:code" : "1142141006"
+    "@id" : "http://snomed.info/sct#1149367008"
   }, {
-    "@id" : "sn:774158006",
-    "rdfs:label" : "Has product name (attribute)",
-    "im:code" : "774158006"
+    "@id" : "http://snomed.info/sct#1149366004"
   }, {
-    "@id" : "sn:774159003",
-    "rdfs:label" : "Has supplier (attribute)",
-    "im:code" : "774159003"
+    "@id" : "http://snomed.info/sct#1148793005"
   }, {
-    "@id" : "sn:774160008",
-    "rdfs:label" : "Contains clinical drug (attribute)",
-    "im:code" : "774160008"
-  }, {
-    "@id" : "sn:774161007",
-    "rdfs:label" : "Has pack size (attribute)",
-    "im:code" : "774161007"
-  }, {
-    "@id" : "sn:774163005",
-    "rdfs:label" : "Has pack size unit (attribute)",
-    "im:code" : "774163005"
-  }, {
-    "@id" : "sn:860779006",
-    "rdfs:label" : "Has ingredient characteristic (attribute)",
-    "im:code" : "860779006"
-  }, {
-    "@id" : "sn:860781008",
-    "rdfs:label" : "Has product characteristic (attribute)",
-    "im:code" : "860781008"
-  }, {
-    "@id" : "sn:1149367008",
-    "rdfs:label" : "Has target population (attribute)",
-    "im:code" : "1149367008"
-  }, {
-    "@id" : "sn:1149366004",
-    "rdfs:label" : "Has ingredient qualitative strength (attribute)",
-    "im:code" : "1149366004"
-  }, {
-    "@id" : "sn:1148793005",
-    "rdfs:label" : "Unit of presentation size quantity (attribute)",
-    "im:code" : "1148793005"
-  }, {
-    "@id" : "sn:320081000221109",
-    "rdfs:label" : "Unit of presentation size quantity (attribute)",
-    "im:code" : "320081000221109"
-  }, {
-    "@id" : "sn:320091000221107",
-    "rdfs:label" : "Unit of presentation size unit (attribute)",
-    "im:code" : "320091000221107"
+    "@id" : "http://snomed.info/sct#320091000221107"
   } ]
 }

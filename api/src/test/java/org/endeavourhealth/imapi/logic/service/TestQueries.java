@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -136,7 +135,8 @@ public class TestQueries {
 					.where(w->w
 						.setIri(SHACL.PATH.getIri())
 						.addIn(new Node().setParameter("this"))))
-				.select(s->s.setNodeVar("range").setIri(RDFS.LABEL.getIri())));
+				.return_(s->s.setNodeRef("range")
+					.property(p->p.setIri(RDFS.LABEL.getIri()))));
 	}
 
 	public static QueryRequest getShaclProperty(){
@@ -154,112 +154,26 @@ public class TestQueries {
 					.where(w->w
 						.setIri(SHACL.PATH.getIri())
 						.in(in->in.setParameter("$property"))))
-				.select(s->s
-					.setNodeVar("shaclProperty")
-					.setIri(SHACL.CLASS.getIri())
-					.select(s1->s1.setIri(RDFS.LABEL.getIri())))
-				.select(s->s
-					.setNodeVar("shaclProperty")
+				.return_(s->s
+					.setNodeRef("shaclProperty")
+					.property(p->p
+						.setIri(SHACL.CLASS.getIri())
+						.node(n->n
+							.property(p1->p1
+							.setIri(RDFS.LABEL.getIri()))))
+					.property(p->p
 					.setIri(SHACL.NODE.getIri())
-					.select(s1->s1.setIri(RDFS.LABEL.getIri())))
-				.select(s->s
-					.setNodeVar("shaclProperty")
+						.node(n->n
+							.property(p1->p1
+								.setIri(RDFS.LABEL.getIri()))))
+				.property(p->p
 					.setIri(SHACL.DATATYPE.getIri())
-					.select(s1->s1.setIri(RDFS.LABEL.getIri())))
-				.select(s->s
-					.setNodeVar("shaclProperty")
+					.node(n->n
+						.property(p1->p1.setIri(RDFS.LABEL.getIri()))))
+				.property(p->p
 					.setIri(SHACL.MAXCOUNT.getIri()))
-				.select(s->s
-					.setNodeVar("shaclProperty")
-					.setIri(SHACL.MINCOUNT.getIri())
-					.select(s1->s1.setIri(RDFS.LABEL.getIri()))));
-
-	}
-
-	public static QueryRequest getPropertyPredicates() throws JsonProcessingException {
-		String json="{\n" +
-			"\t \"argument\": [\n" +
-			"\t\t{\n" +
-			"\t\t\t \"parameter\": \"dataModel\",\n" +
-			"\t\t\t \"valueIri\": \"http://endhealth.info/im#Patient\"\n" +
-			"\t\t},\n" +
-			"\t\t{\n" +
-			"\t\t\t \"parameter\": \"property\",\n" +
-			"\t\t\t \"valueIri\": \"http://endhealth.info/im#age\"\n" +
-			"\t\t}\n" +
-			"\t],\n" +
-			"\t \"query\": {\n" +
-			"\t\t \"name\": \"Query - property from a data model\",\n" +
-			"\t\t \"match\": [\n" +
-			"\t\t\t{\n" +
-			"\t\t\t\t \"parameter\": \"$dataModel\",\n" +
-			"\t\t\t\t \"path\": \n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#property\"\n" +
-			"\t\t\t\t\t}\n" +
-			"\t\t\t\t,\n" +
-			"\t\t\t\t \"where\": [\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#path\",\n" +
-			"\t\t\t\t\t\t \"in\": [\n" +
-			"\t\t\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t\t\t \"parameter\": \"$property\"\n" +
-			"\t\t\t\t\t\t\t}\n" +
-			"\t\t\t\t\t\t]\n" +
-			"\t\t\t\t\t}\n" +
-			"\t\t\t\t]\n" +
-			"\t\t\t}\n" +
-			"\t\t],\n" +
-			"\t\t \"select\": [\n" +
-			"\t\t\t{\n" +
-			"\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#property\",\n" +
-			"\t\t\t\t \"select\": [\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#path\",\n" +
-			"\t\t\t\t\t\t \"select\": [\n" +
-			"\t\t\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
-			"\t\t\t\t\t\t\t}\n" +
-			"\t\t\t\t\t\t]\n" +
-			"\t\t\t\t\t},\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#class\",\n" +
-			"\t\t\t\t\t\t \"select\": [\n" +
-			"\t\t\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
-			"\t\t\t\t\t\t\t}\n" +
-			"\t\t\t\t\t\t]\n" +
-			"\t\t\t\t\t},\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#node\",\n" +
-			"\t\t\t\t\t\t \"select\": [\n" +
-			"\t\t\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
-			"\t\t\t\t\t\t\t}\n" +
-			"\t\t\t\t\t\t]\n" +
-			"\t\t\t\t\t},\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#datatype\",\n" +
-			"\t\t\t\t\t\t \"select\": [\n" +
-			"\t\t\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t\t\t \"@id\": \"http://www.w3.org/2000/01/rdf-schema#label\"\n" +
-			"\t\t\t\t\t\t\t}\n" +
-			"\t\t\t\t\t\t]\n" +
-			"\t\t\t\t\t},\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#maxCount\"\n" +
-			"\t\t\t\t\t},\n" +
-			"\t\t\t\t\t{\n" +
-			"\t\t\t\t\t\t \"@id\": \"http://www.w3.org/ns/shacl#minCount\"\n" +
-			"\t\t\t\t\t}\n" +
-			"\t\t\t\t]\n" +
-			"\t\t\t}\n" +
-			"\t\t],\n" +
-			"\t\t \"activeOnly\": true\n" +
-			"\t}\n" +
-			"}";
-		QueryRequest qr= new ObjectMapper().readValue(json,QueryRequest.class);
-		return qr;
+				.property(p->p
+					.setIri(SHACL.MINCOUNT.getIri()))));
 	}
 
 
@@ -299,7 +213,7 @@ public class TestQueries {
 				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#243640007")))
 			.setQuery(new Query()
 				.setName("Subtypes of concepts as a parameterised query")
-				.select(s->s.setVariable("c").setIri(RDFS.LABEL.getIri()))
+				.return_(s->s.setNodeRef("c").property(p->p.setIri(RDFS.LABEL.getIri())))
 				.match(f->f
 					.setVariable("c")
 					.setParameter("this")
@@ -318,7 +232,7 @@ public class TestQueries {
 				.addToValueIriList(TTIriRef.iri("http://snomed.info/sct#71388002")))
 			.setQuery(new Query()
 				.setName("Get allowable property values with text filter")
-				.select(s->s.setIri(RDFS.LABEL.getIri()))
+				.return_(s->s.property(p->p.setIri(RDFS.LABEL.getIri())))
 				.match(f->f
 					.setParameter("this")
 					.setDescendantsOrSelfOf(true)));
@@ -385,17 +299,19 @@ public class TestQueries {
 				.setIri(IM.HAS_MEMBER.getIri())
 				.setInverse(true)
 				.addIn(new Match().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
-			.select(s->s
+			.return_(s->s
+				.property(p->p
 				.setIri(RDFS.LABEL.getIri()))
-			.select(s->s
+			.property(p->p
 				.setIri(IM.CODE.getIri()))
-			.select(s->s
+			.property(p->p
 				.setIri(IM.MATCHED_TO.getIri())
-					.setInverse(true))
-					.select(s2 ->s2
-					.setIri(RDFS.LABEL.getIri()))
-					.select(s2 -> s2
-					.setIri(IM.CODE.getIri()));
+				.setInverse(true)
+				.node(n->n
+					.property(p1->p1
+						.setIri(RDFS.LABEL.getIri()))
+					.property(p1->p1
+						.setIri(IM.CODE.getIri())))));
 		return new QueryRequest().setQuery(query);
 	}
 
@@ -416,14 +332,16 @@ public class TestQueries {
 			.match(m->m
 				.path(p->p
 					.setIri(SHACL.PROPERTY.getIri())))
-			.select(s->s
-				.setIri(SHACL.PROPERTY.getIri())
-				.select(s1->s1.setIri(SHACL.PATH.getIri()))
-				.select(s1->s1.setIri(SHACL.NODE.getIri()))
-				.select(s1->s1.setIri(SHACL.MINCOUNT.getIri()))
-				.select(s1->s1.setIri(SHACL.MAXCOUNT.getIri()))
-				.select(s1->s1.setIri(SHACL.CLASS.getIri()))
-				.select(s1->s1.setIri(SHACL.DATATYPE.getIri())));
+			.return_(s->s
+				.property(p->p
+					.setIri(SHACL.PROPERTY.getIri())
+					.node(n->n
+						.property(s1->s1.setIri(SHACL.PATH.getIri()))
+						.property(s1->s1.setIri(SHACL.NODE.getIri()))
+						.property(s1->s1.setIri(SHACL.MINCOUNT.getIri()))
+						.property(s1->s1.setIri(SHACL.MAXCOUNT.getIri()))
+						.property(s1->s1.setIri(SHACL.CLASS.getIri()))
+						.property(s1->s1.setIri(SHACL.DATATYPE.getIri())))));
 		return new QueryRequest().setQuery(query);
 	}
 
@@ -456,8 +374,9 @@ public class TestQueries {
 			.setUsePrefixes(true)
 			.match(f ->f
 				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true))
-			.select(s->s.setIri(RDFS.LABEL.getIri()))
-			.select(s->s.setIri(IM.CODE.getIri()));
+			.return_(s->s
+				.property(p->p.setIri(RDFS.LABEL.getIri()))
+				.property(p->p.setIri(IM.CODE.getIri())));
 		return new QueryRequest().setQuery(query);
 	}
 
@@ -488,8 +407,9 @@ public class TestQueries {
 				.setName("Search for concepts")
 				.match(f->f
 					.setType(IM.CONCEPT.getIri()))
-				.select(s->s
-					.setIri(RDFS.LABEL.getIri())))
+				.return_(s->s
+					.property(p->p
+						.setIri(RDFS.LABEL.getIri()))))
 			.setTextSearch("chest pain");
 		return qr;
 	}
@@ -500,12 +420,12 @@ public class TestQueries {
 				.setName("All subtypes of an entity, active only")
 				.setActiveOnly(true)
 				.match(f->f.setParameter("this").setDescendantsOrSelfOf(true))
-				.select(s->s.setIri(RDFS.LABEL.getIri())));
+				.return_(r->r.property(s->s.setIri(RDFS.LABEL.getIri()))));
 		qr.addArgument("this",SNOMED.NAMESPACE+"417928002");
 		return qr;
 	}
 
-	public static QueryRequest query5(){
+	public static QueryRequest AllowablePropertiesForCovid(){
 		QueryRequest qr= new QueryRequest()
 			.setTextSearch("causative");
 		Query query= new Query()
@@ -521,8 +441,9 @@ public class TestQueries {
 						.setIri(RDFS.DOMAIN.getIri())
 						.addIn(new Match().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					))
-						.select(s->s.setIri(IM.CODE.getIri()))
-						.select(s->s.setIri(RDFS.LABEL.getIri()));
+				.return_(r->r
+						.property(s->s.setIri(IM.CODE.getIri()))
+						.property(s->s.setIri(RDFS.LABEL.getIri())));
 				qr.setQuery(query);
 				return qr;
 	}
@@ -533,16 +454,18 @@ public class TestQueries {
 			.setUsePrefixes(true);
 
 		query
-			.select(s->s.setIri(RDFS.LABEL.getIri()))
-			.select(s->s.setIri(IM.CODE.getIri()))
-			.select(s->s
+			.return_(r->r
+			.property(s->s.setIri(RDFS.LABEL.getIri()))
+			.property(s->s.setIri(IM.CODE.getIri()))
+			.property(s->s
 				.setIri(IM.SOURCE_CONTEXT.getIri())
-				.select(s1->s1.setIri(IM.SOURCE_CODE_SCHEME.getIri()))
-				.select(s1->s1.setIri(IM.SOURCE_HEADING.getIri()))
-				.select(s1->s1.setIri(IM.SOURCE_SYSTEM.getIri()))
-				.select(s1->s1.setIri(IM.SOURCE_TABLE.getIri()))
-				.select(s1->s1.setIri(IM.SOURCE_FIELD.getIri()))
-				.select(s1->s1.setIri(IM.SOURCE_SCHEMA.getIri())))
+				.node(n->n
+				.property(s1->s1.setIri(IM.SOURCE_CODE_SCHEME.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_HEADING.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_SYSTEM.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_TABLE.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_FIELD.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_SCHEMA.getIri())))))
 			.match(f->f
 			.path(p->p
 					.setIri(IM.SOURCE_CONTEXT.getIri()))
@@ -555,7 +478,8 @@ public class TestQueries {
 		Query query= new Query()
 			.setName("oral none steroidals")
 			.setUsePrefixes(true)
-			.select(s->s.setIri(RDFS.LABEL.getIri()))
+			.return_(r->r
+			.property(s->s.setIri(RDFS.LABEL.getIri())))
 			.match(rf->rf
 				.setBoolMatch(Bool.and)
 				.match(f->f

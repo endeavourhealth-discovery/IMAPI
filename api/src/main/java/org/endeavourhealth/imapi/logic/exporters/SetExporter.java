@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -41,14 +42,14 @@ public class SetExporter {
     private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
     private SetRepository setRepository= new SetRepository();
 
-    public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException {
+    public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException, QueryException {
         StringJoiner results = generateForIm1(setIri);
 
         pushToS3(results);
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) throws DataFormatException, JsonProcessingException {
+    public StringJoiner generateForIm1(String setIri) throws DataFormatException, JsonProcessingException, QueryException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
@@ -75,7 +76,7 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException, QueryException {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");

@@ -1,12 +1,14 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -35,7 +37,7 @@ class SearchServiceTest {
 	private String succinctDefinitions;
 
 
-//@Test
+  //@Test
 	void runOS() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
 
 		SearchRequest request= new SearchRequest();
@@ -55,18 +57,17 @@ class SearchServiceTest {
 	}
 
 	//@Test
-	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 
 		for (QueryRequest qr1 : List.of(
-			TestQueries.query5(),
+			TestQueries.AllowablePropertiesForCovid(),
 			TestQueries.query1(),
 			TestQueries.query2(),
 			TestQueries.getShaclProperty(),
-			TestQueries.getPropertyPredicates(),
 			TestQueries.rangeSuggestion(),
 			TestQueries.pathToAtenolol(),
 			TestQueries.pathDobQuery(),
@@ -93,7 +94,7 @@ class SearchServiceTest {
 
 
 
-	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException {
+	private void output(QueryRequest dataSet) throws IOException, DataFormatException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		String name = null;
 
 		if (dataSet.getPathQuery() != null)
@@ -116,12 +117,12 @@ class SearchServiceTest {
 		ObjectMapper om= new ObjectMapper();
 
 		if (dataSet.getQuery() != null) {
-			TTDocument result = searchService.queryIM(dataSet);
+			JsonNode result = searchService.queryIM(dataSet);
 			try (FileWriter wr = new FileWriter(testResults + "\\" + name + "_result.json")) {
  				wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
 			}
 
-			System.out.println("Found " + result.getEntities().size() + " entities");
+			System.out.println("Found " + result.get("entities").size() + " entities");
 		}
 		else if (dataSet.getUpdate() != null) {
 			searchService.updateIM(dataSet);
@@ -136,7 +137,7 @@ class SearchServiceTest {
 	}
 
 	//@Test
-	public void setTest() throws DataFormatException, JsonProcessingException {
+	public void setTest() throws DataFormatException, JsonProcessingException, QueryException {
 		EntityService es= new EntityService();
 		TTEntity entity= es.getFullEntity(IM.NAMESPACE+"VSET_VitalSigns").getEntity();
 		String json = entity.get(IM.DEFINITION).asLiteral().getValue();

@@ -406,7 +406,7 @@ public class OSQuery {
             return null;
         Query query = queryRequest.getQuery();
 
-        if (query.getSelect() != null && !validateSelects(query)) {
+        if (query.getReturn() != null && !validateReturn(query)) {
             return null;
         }
 
@@ -427,12 +427,20 @@ public class OSQuery {
 
     }
 
-    private static boolean validateSelects(Query query) {
-        for (Select select : query.getSelect()) {
-            if (select.getIri() != null && !propIsSupported(select.getIri()))
-                return false;
-            if (select.getSelect() != null)
-                return false;
+
+    private static boolean validateReturn(Query query) {
+        if (query.getReturn()!=null) {
+            for (Return aReturn : query.getReturn()) {
+                if (aReturn.getProperty() != null) {
+                    for (ReturnProperty property : aReturn.getProperty()) {
+                        if (property.getIri() != null && !propIsSupported(property.getIri()))
+                            return false;
+                        if (property.getNode() != null)
+                            return false;
+                    }
+
+                }
+            }
         }
         return true;
     }
@@ -474,9 +482,9 @@ public class OSQuery {
                 ObjectNode resultNode = om.createObjectNode();
                 resultNodes.add(resultNode);
                 resultNode.put("@id", searchResult.getIri());
-                if (query.getSelect()==null)
-                    query.select(s->s.setIri(RDFS.LABEL.getIri()));
-                for (Select select : query.getSelect()) {
+                if (query.getReturn()==null)
+                    query.return_(s->s.property(p->p.setIri(RDFS.LABEL.getIri())));
+                for (Return select : query.getReturn()) {
                     convertOSResultAddNode(om, searchResult, resultNode, select);
                 }
             }
@@ -484,35 +492,38 @@ public class OSQuery {
         }
     }
 
-    private void convertOSResultAddNode(CachedObjectMapper om, SearchResultSummary searchResult, ObjectNode resultNode, Select select) {
-        TripleVar prop = select;
-        if (prop.getIri() != null) {
-            String field = prop.getIri();
-            switch (field) {
-                case (RDFS.NAMESPACE + "label"):
-                    resultNode.put(field, searchResult.getName());
-                    break;
-                case (RDFS.NAMESPACE + comment):
-                    if (searchResult.getDescription() != null)
-                        resultNode.put(field, searchResult.getDescription());
-                    break;
-                case (IM.NAMESPACE + "code"):
-                    resultNode.put(field, searchResult.getCode());
-                    break;
-                case (IM.NAMESPACE + status):
-                    resultNode.set(field, fromIri(searchResult.getStatus(), om));
-                    break;
-                case (IM.NAMESPACE + scheme):
-                    resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                    break;
-                case (RDF.NAMESPACE + "type"):
-                    resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
-                    break;
-                case (IM.NAMESPACE + weighting):
-                    resultNode.put(field, searchResult.getWeighting());
-                    break;
-                default:
+    private void convertOSResultAddNode(CachedObjectMapper om, SearchResultSummary searchResult, ObjectNode resultNode, Return select) {
+        if (select.getProperty()!=null) {
+            for (ReturnProperty prop : select.getProperty()) {
+                if (prop.getIri() != null) {
+                    String field = prop.getIri();
+                    switch (field) {
+                        case (RDFS.NAMESPACE + "label"):
+                            resultNode.put(field, searchResult.getName());
+                            break;
+                        case (RDFS.NAMESPACE + comment):
+                            if (searchResult.getDescription() != null)
+                                resultNode.put(field, searchResult.getDescription());
+                            break;
+                        case (IM.NAMESPACE + "code"):
+                            resultNode.put(field, searchResult.getCode());
+                            break;
+                        case (IM.NAMESPACE + status):
+                            resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                            break;
+                        case (IM.NAMESPACE + scheme):
+                            resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                            break;
+                        case (RDF.NAMESPACE + "type"):
+                            resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
+                            break;
+                        case (IM.NAMESPACE + weighting):
+                            resultNode.put(field, searchResult.getWeighting());
+                            break;
+                        default:
 
+                    }
+                }
             }
         }
     }
@@ -560,31 +571,22 @@ public class OSQuery {
     }
 
     private void processSelects(SearchRequest request, Query query) {
-        if (query.getSelect() != null) {
-            for (Select select : query.getSelect()) {
-                TripleVar prop = select;
-                if (prop.getIri() != null) {
-                    switch (prop.getIri()) {
-                        case (RDFS.NAMESPACE + comment):
-                            request.addSelect("description");
-
-                            break;
-                        case (IM.NAMESPACE + "code"):
-                            request.addSelect("code");
-                            break;
-                        case (IM.NAMESPACE + status):
-                            request.addSelect(status);
-                            break;
-                        case (IM.NAMESPACE + scheme):
-                            request.addSelect(scheme);
-                            break;
-                        case (RDF.NAMESPACE + "type"):
-                            request.addSelect("entityType");
-                            break;
-                        case (IM.NAMESPACE + weighting):
-                            request.addSelect(weighting);
-                            break;
-                        default:
+        if (query.getReturn() != null) {
+            for (Return select : query.getReturn()) {
+                if (select.getProperty() != null) {
+                    for (ReturnProperty prop : select.getProperty()) {
+                        if (prop.getIri() != null) {
+                            switch (prop.getIri()) {
+                                case (RDFS.NAMESPACE + comment) -> request.addSelect("description");
+                                case (IM.NAMESPACE + "code") -> request.addSelect("code");
+                                case (IM.NAMESPACE + status) -> request.addSelect(status);
+                                case (IM.NAMESPACE + scheme) -> request.addSelect(scheme);
+                                case (RDF.NAMESPACE + "type") -> request.addSelect("entityType");
+                                case (IM.NAMESPACE + weighting) -> request.addSelect(weighting);
+                                default -> {
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -604,9 +606,7 @@ public class OSQuery {
                 request.addType(match.getType());
                 if (match.getMatch()!=null)
                     return false;
-                if (match.getWhere()!=null)
-                    return false;
-                return true;
+            return match.getWhere() == null;
         }
         else if (match.isDescendantsOrSelfOf()) {
                 return processSubTypes(request, match, imRequest);
@@ -669,18 +669,11 @@ public class OSQuery {
     private static boolean propIsSupported(String iri) {
         if (iri == null)
             return false;
-        switch (iri) {
-            case (RDFS.NAMESPACE + "label"):
-            case (RDFS.NAMESPACE + "comment"):
-            case (IM.NAMESPACE + "code"):
-            case (IM.NAMESPACE + "status"):
-            case (IM.NAMESPACE + "scheme"):
-            case (RDF.NAMESPACE + "type"):
-            case (IM.NAMESPACE + "weighting"):
-                return true;
-            default:
-                return false;
-        }
+        return switch (iri) {
+            case (RDFS.NAMESPACE + "label"), (RDFS.NAMESPACE + "comment"), (IM.NAMESPACE + "code"), (IM.NAMESPACE + "status"), (IM.NAMESPACE + "scheme"), (RDF.NAMESPACE + "type"), (IM.NAMESPACE + "weighting") ->
+              true;
+            default -> false;
+        };
 
     }
 

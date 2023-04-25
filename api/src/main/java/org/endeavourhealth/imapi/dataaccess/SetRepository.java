@@ -11,8 +11,9 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.imq.Select;
+import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -42,50 +43,58 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException {
-        imQuery
-          .select(s->s
-              .setIri(RDFS.LABEL.getIri()).setVariable("term"))
-          .select(s->s
-              .setIri(IM.CODE.getIri()).setVariable("code"))
-          .select(s->s
-
-              .setIri(IM.HAS_SCHEME.getIri()).setVariable("scheme")
-            .select(s2->s2
-                .setIri(RDFS.LABEL.getIri()).setVariable("schemeName")))
-          .select(s->s
-              .setIri(IM.WEIGHTING.getIri()).setVariable("usage"))
-            .select(s->s
-                .setIri(IM.IM1ID.getIri()).setVariable("im1Id"))
-            .select(s->s
-                    .setIri(IM.HAS_STATUS.getIri()).setVariable("status")
-                .select(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).setVariable("statusName")))
-            .select(s->s
-                    .setIri(RDF.TYPE.getIri()).setVariable("type")
-                .select(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).setVariable("typeName")));
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException, QueryException {
+        Return aReturn= new Return();
+        imQuery.addReturn(aReturn);
+          aReturn
+            .property(s->s
+              .setIri(RDFS.LABEL.getIri()).as("term"))
+            .property(s->s
+              .setIri(IM.CODE.getIri()).as("code"))
+            .property(s->s
+              .setIri(IM.HAS_SCHEME.getIri())
+              .node(n->n
+                .as("scheme")
+                .property(s2->s2
+                  .setIri(RDFS.LABEL.getIri()).as("schemeName"))))
+            .property(s->s
+              .setIri(IM.NAMESPACE+"usageTotal").as("usage"))
+            .property(s->s
+              .setIri(IM.IM1ID.getIri()).as("im1Id"))
+            .property(s->s
+              .setIri(IM.HAS_STATUS.getIri())
+              .node(s2->s2
+                .as("status")
+                .property(p->p
+                  .setIri(RDFS.LABEL.getIri()).as("statusName"))))
+            .property(s->s
+              .setIri(RDF.TYPE.getIri())
+              .node(s2->s2
+                .as("type")
+                .property(p->p
+                  .setIri(RDFS.LABEL.getIri()).as("typeName"))));
 
         if (includeLegacy) {
-            Select legacy= new Select();
-              legacy
-                  .setIri(IM.MATCHED_TO.getIri())
+            aReturn
+              .property(p->p
+                .setIri(IM.MATCHED_TO.getIri())
                 .setInverse(true)
-                .setVariable("legacy")
-                .select(s -> s
-                    .setIri(RDFS.LABEL.getIri()).setVariable("legacyTerm"))
-                .select(s -> s
-                    .setIri(IM.CODE.getIri()).setVariable("legacyCode"))
-                .select(s -> s
-                    .setIri(IM.HAS_SCHEME.getIri()).setVariable("legacyScheme")
-                  .select(s1->s1
-                      .setIri(RDFS.LABEL.getIri()).setVariable("legacySchemeName")))
-                .select(s->s
-                    .setIri(IM.NAMESPACE+"usageTotal").setVariable("legacyUse"))
-                .select(s->s
-
-                    .setIri(IM.IM1ID.getIri()).setVariable("legacyIm1Id"));
-              imQuery.addSelect(legacy);
+                .node(n->n
+                  .as("legacy")
+                  .property(s -> s
+                    .setIri(RDFS.LABEL.getIri()).as("legacyTerm"))
+                  .property(s -> s
+                    .setIri(IM.CODE.getIri()).as("legacyCode"))
+                  .property(s -> s
+                    .setIri(IM.HAS_SCHEME.getIri())
+                    .node(n1->n1
+                      .as("legacyScheme")
+                      .property(p1->p1
+                        .setIri(RDFS.LABEL.getIri()).as("legacySchemeName"))))
+                  .property(s->s
+                    .setIri(IM.NAMESPACE+"usageTotal").as("legacyUse"))
+                  .property(s->s
+                    .setIri(IM.IM1ID.getIri()).as("legacyIm1Id"))));
         }
         String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {

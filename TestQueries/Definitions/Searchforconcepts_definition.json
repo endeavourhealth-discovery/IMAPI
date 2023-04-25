@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -12,11 +12,13 @@
   "query" : {
     "name" : "Search for concepts",
     "match" : [ {
-      "@type" : "http://endhealth.info/im#Concept"
+      "@type" : "im:Concept"
     } ],
-    "select" : [ {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    } ],
-    "activeOnly" : true
+    "activeOnly" : true,
+    "return" : [ {
+      "property" : [ {
+        "@id" : "rdfs:label"
+      } ]
+    } ]
   }
 }

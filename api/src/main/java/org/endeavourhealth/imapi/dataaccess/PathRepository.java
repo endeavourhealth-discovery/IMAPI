@@ -34,7 +34,7 @@ public class PathRepository {
 
 	private int getLength(Node node){
 		int count=0;
-		Relationship path= node.getPath();
+		Path path= node.getPath();
 		if (path==null)
 			return 0;
 		else {
@@ -71,7 +71,7 @@ public class PathRepository {
 							nextPath
 								.setType(bs.getValue("entity").stringValue())
 								.setName(bs.getValue("entityName").stringValue());
-							Relationship path= new Relationship();
+							Path path= new Path();
 							nextPath.setPath(path);
 							path
 								.setIri(bs.getValue("path").stringValue())

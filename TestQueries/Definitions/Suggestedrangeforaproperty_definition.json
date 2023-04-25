@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,7 +11,7 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIri" : {
-      "@id" : "http://endhealth.info/im#recordOwner"
+      "@id" : "im:recordOwner"
     }
   } ],
   "query" : {
@@ -21,21 +21,21 @@
       "boolMatch" : "or",
       "match" : [ {
         "path" : {
-          "@id" : "http://www.w3.org/ns/shacl#node",
+          "@id" : "sh:node",
           "node" : {
             "variable" : "range"
           }
         }
       }, {
         "path" : {
-          "@id" : "http://www.w3.org/ns/shacl#class",
+          "@id" : "sh:class",
           "node" : {
             "variable" : "range"
           }
         }
       }, {
         "path" : {
-          "@id" : "http://www.w3.org/ns/shacl#datatype",
+          "@id" : "sh:datatype",
           "node" : {
             "variable" : "range"
           }
@@ -45,12 +45,14 @@
         "in" : [ {
           "parameter" : "this"
         } ],
-        "@id" : "http://www.w3.org/ns/shacl#path"
+        "@id" : "sh:path"
       } ]
     } ],
-    "select" : [ {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
-      "nodeVar" : "range"
+    "return" : [ {
+      "property" : [ {
+        "@id" : "rdfs:label"
+      } ],
+      "nodeRef" : "range"
     } ]
   }
 }

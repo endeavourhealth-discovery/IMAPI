@@ -2,9 +2,9 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import joptsimple.internal.Strings;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -14,7 +14,10 @@ import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.logic.service.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -32,9 +35,11 @@ import java.util.zip.DataFormatException;
  */
 public class QueryRepository {
     private Query query;
-    private final TTDocument result = new TTDocument();
+    private final ObjectMapper mapper= new ObjectMapper();
+    private ObjectNode result ;
     private final Set<String> predicates = new HashSet<>();
     private QueryRequest queryRequest;
+    private SparqlConverter converter;
 
     /**
      * Generic query of IM with the select statements determining the response
@@ -44,17 +49,18 @@ public class QueryRepository {
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public TTDocument queryIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-
+    public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, DataFormatException,JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+        result= mapper.createObjectNode();
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             unpackQueryRequest(queryRequest);
             if (null != queryRequest.getTextSearch()) {
                 ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
-                if (null != osResult)
-                    return convertToEntity(osResult);
+               if (osResult!=null)
+                   return osResult;
             }
             checkReferenceDate();
-            SparqlConverter converter = new SparqlConverter(queryRequest);
+            new QueryValidator().validateQuery(queryRequest.getQuery());
+            converter = new SparqlConverter(queryRequest);
             String spq = converter.getSelectSparql(null);
             return graphSelectSearch(spq, conn);
         }
@@ -67,7 +73,7 @@ public class QueryRepository {
      * @throws DataFormatException     if query syntax is invalid
      * @throws JsonProcessingException if the json is invalid
      */
-    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+    public void updateIM(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException,QueryException {
         this.queryRequest = queryRequest;
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             if (queryRequest.getUpdate() == null)
@@ -96,11 +102,11 @@ public class QueryRepository {
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
         if (null != queryRequest.getContext())
-            result.setContext(queryRequest.getAsContext());
+            result.set("@context",mapper.convertValue(queryRequest.getContext(),JsonNode.class));
     }
 
     private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
-        if (query.getIri() != null && query.getSelect() == null && query.getMatch() == null) {
+        if (query.getIri() != null && query.getReturn() == null && query.getMatch() == null) {
             TTEntity entity = getEntity(query.getIri());
             if (entity.get(SHACL.PARAMETER) != null) {
                 for (TTValue param : entity.get(SHACL.PARAMETER).getElements()) {
@@ -136,36 +142,18 @@ public class QueryRepository {
         return query;
     }
 
-    private TTDocument graphSelectSearch(String spq, RepositoryConnection conn) {
+    private ObjectNode graphSelectSearch(String spq, RepositoryConnection conn) throws JsonProcessingException {
+        ArrayNode entities= result.putArray("entities");
         try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
-            Map<Value, TTEntity> entityMap = new HashMap<>();
             while (rs.hasNext()) {
                 BindingSet bs = rs.next();
-                bindObjects(bs, result, entityMap);
-            }
-        }
-
-        if (!predicates.isEmpty()) {
-            Set<String> sparqlPredicates = new HashSet<>();
-            predicates.forEach(p -> sparqlPredicates.add(SparqlConverter.iriFromString(p)));
-            String predlist = Strings.join(sparqlPredicates, ",");
-            String predLookup = SparqlConverter.getDefaultPrefixes() +
-                    "select ?predicate ?label \nwhere {" +
-                    "?predicate <" + RDFS.LABEL.getIri() + "> ?label.\n" +
-                    "filter (?predicate in (" + predlist + "))}";
-            try (TupleQueryResult rs = sparqlQuery(predLookup, conn)) {
-                while (rs.hasNext()) {
-                    BindingSet bs = rs.next();
-                    Value predicate = bs.getValue("predicate");
-                    Value label = bs.getValue("label");
-                    if (label != null)
-                        result.getPredicates().put(predicate.stringValue(), label.stringValue());
+                for (Return aReturn:query.getReturn()){
+                    Map<String,ObjectNode> nodeMap= new HashMap<>();
+                    bindReturn(bs,aReturn,entities,nodeMap);
                 }
             }
-
         }
         return result;
-
     }
 
     private TupleQueryResult sparqlQuery(String spq, RepositoryConnection conn) {
@@ -174,138 +162,107 @@ public class QueryRepository {
     }
 
 
-    private void bindObjects(BindingSet bs, TTDocument result, Map<Value, TTEntity> entityMap) {
-        Map<String, TTNode> nodeMap = new HashMap<>();
-        TTEntity entity= new TTEntity();
-        result.addEntity(entity);
-        for (Select select : query.getSelect()) {
-                bindObject(bs, nodeMap, entity, select);
+    private void bindReturn(BindingSet bs,Return aReturn, ArrayNode entities,
+                            Map<String,ObjectNode> nodeMap) {
+        String subject = aReturn.getNodeRef();
+        Value value = bs.getValue(subject);
+        ObjectNode node;
+        if (value != null) {
+            node = nodeMap.get(value.stringValue());
+            if (node == null) {
+                node = mapper.createObjectNode();
+                entities.add(node);
+                nodeMap.put(value.stringValue(), node);
+                if (value.isIRI())
+                    node.put("@id", value.stringValue());
+                else
+                    node.put("@bn",value.stringValue());
+            }
+            bindNode(bs, aReturn, node);
         }
-
     }
 
-    private void bindObject(BindingSet bs, Map<String, TTNode> nodeMap, TTNode node, Select select) {
-        String alias = select.getNodeVar();
-        if (alias!=null) {
-            Value value = bs.getValue(alias);
-            if (value == null)
-                return;
-            nodeMap.put(value.stringValue(),node);
-            if (value.isIRI())
-                node.setIri(value.stringValue());
-        }
-        TTIriRef predicate= null;
-       if (select.getPathVar()!=null){
-           predicate= TTIriRef.iri(bs.getValue(select.getPathVar()).stringValue());
-        }
-        if (select.getIri()!=null) {
-            predicate = TTIriRef.iri(select.getIri());
-        }
-        if (select.getVariable()!=null) {
-            Value objectValue= bs.getValue(select.getVariable());
-            if (objectValue!=null){
-                if (select.getSelect()!=null) {
-                    TTNode subObject = nodeMap.get(predicate.getIri());
-                    if (subObject == null) {
-                        subObject = new TTNode();
-                        node.addObject(predicate, subObject);
-                    }
-                    for (Select subSelect : select.getSelect()) {
-                        bindObject(bs, nodeMap, subObject, subSelect);
-                    }
-                }
-                else if (objectValue.isIRI()) {
-                    node.addObject(predicate,TTIriRef.iri(objectValue.stringValue()));
-                }
-                else if (objectValue.isLiteral()) {
-                    node.addObject(predicate, TTLiteral.literal(objectValue.stringValue()));
-                }
+    private void bindNode(BindingSet bs, Return aReturn, ObjectNode node) {
+
+        if (aReturn.getProperty()!=null){
+            for (ReturnProperty path: aReturn.getProperty()){
+                bindPath(bs,path,node);
             }
         }
 
-        if (predicate!=null) {
-            predicates.add(predicate.getIri());
+    }
+
+    private void bindProperty(BindingSet bs, ObjectNode node, ReturnProperty property) {
+        String iri = property.getIri();
+        String objectVariable= property.getValueVariable();
+        Value object = bs.getValue(objectVariable);
+        if (object != null) {
+                String nodeValue = object.stringValue();
+                if (object.isIRI()) {
+                    ObjectNode iriNode= mapper.createObjectNode();
+                    node.set("@id", iriNode);
+                }
+                else if (object.isBNode()) {
+                    node.put(property.getIri(),nodeValue);
+            }
         }
     }
 
-    private String resultIri(String iri) {
-        if (!query.isUsePrefixes())
-            return iri;
-        if (result.getContext() != null)
-            return result.getContext().prefix(iri);
-        return iri;
+    private void bindPath(BindingSet bs, ReturnProperty path, ObjectNode node) {
+        if (path.getNode()==null) {
+            bindProperty(bs, node, path);
+            return;
+        }
+        String iri=null;
+        if (path.getIri()!=null)
+            iri= path.getIri();
+        else {
+            Value pathVariable= bs.getValue(path.getPropertyRef());
+            if (pathVariable!=null)
+                iri= pathVariable.stringValue();
+        }
+        if (iri!=null) {
+            Return returnNode = path.getNode();
+            String nodeVariable = returnNode.getNodeRef();
+            Value nodeValue = bs.getValue(nodeVariable);
+            if (nodeValue != null) {
+                if (node.get(iri)==null) {
+                    node.putArray(iri);
+                }
+                ArrayNode arrayNode = (ArrayNode) node.path(iri);
+                if (arrayNode.isMissingNode()) {
+                    arrayNode = new ObjectMapper().createArrayNode();
+                    node.set(iri, arrayNode);
+                }
+                ObjectNode valueNode= getValueNode(arrayNode, nodeValue.stringValue());
+                   if (valueNode==null){
+                    valueNode = mapper.createObjectNode();
+                    arrayNode.add(valueNode);
+                    if (nodeValue.isIRI())
+                        valueNode.put("@id", nodeValue.stringValue());
+                    else
+                        valueNode.put("@bn", nodeValue.stringValue());
+                }
+                bindNode(bs,returnNode,valueNode);
+            }
+        }
     }
+
+    private ObjectNode getValueNode(ArrayNode arrayNode,String nodeId){
+        for (JsonNode entry:arrayNode){
+            if (entry.get("@id").textValue().equals(nodeId))
+                return (ObjectNode) entry;
+            if (entry.get("@bn").textValue().equals(nodeId))
+                return (ObjectNode) entry;
+        }
+        return null;
+
+    }
+
 
 
     public Set<String> getPredicates() {
         return predicates;
-    }
-
-    private TTDocument convertToEntity(ObjectNode genericResult) {
-        TTDocument result = new TTDocument();
-        if (genericResult != null) {
-            ArrayNode entities = (ArrayNode) genericResult.get("entities");
-            if (entities != null) {
-                for (Iterator<JsonNode> it = entities.elements(); it.hasNext(); ) {
-                    JsonNode node = it.next();
-                    TTEntity ttEntity = new TTEntity();
-                    result.addEntity(ttEntity);
-                    if (node.has("@id"))
-                        ttEntity.setIri(node.get("@id").asText());
-                    nodeToTT(node, ttEntity);
-                }
-            }
-        }
-        return result;
-    }
-
-    private void nodeToTT(JsonNode node, TTNode ttParent) {
-        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            String fieldName = field.getKey();
-            if (!fieldName.equals("@id")) {
-                JsonNode fieldValue = field.getValue();
-                TTIriRef predicate = TTIriRef.iri(fieldName);
-                if (fieldValue.isObject()) {
-                    if (fieldValue.has("@id")) {
-                        TTIriRef iri = TTIriRef.iri(fieldValue.get("@id").asText());
-                        ttParent.set(predicate, iri);
-                    } else {
-                        TTNode ttNode = new TTNode();
-                        ttParent.set(predicate, ttNode);
-                        nodeToTT(fieldValue, ttNode);
-                    }
-                } else if (fieldValue.isArray()) {
-                    ttParent.set(predicate, new TTArray());
-                    Iterator<JsonNode> aIt = fieldValue.elements();
-                    while (aIt.hasNext()) {
-                        JsonNode arrayField = aIt.next();
-                        if (arrayField.isObject()) {
-                            if (arrayField.has("@id")) {
-                                TTIriRef iri = TTIriRef.iri(arrayField.get("@id").asText());
-                                ttParent.addObject(predicate, iri);
-                            } else {
-                                TTNode ttNode = new TTNode();
-                                ttParent.addObject(predicate, ttNode);
-                                nodeToTT(arrayField, ttNode);
-                            }
-                        } else
-                            ttParent.addObject(predicate, getLiteral(arrayField));
-                    }
-                } else
-                    ttParent.set(predicate, getLiteral(fieldValue));
-            }
-        }
-    }
-
-    private TTValue getLiteral(JsonNode literal) {
-        if (literal.isBoolean())
-            return TTLiteral.literal(literal.asBoolean());
-        else if (literal.isInt())
-            return TTLiteral.literal(literal.asInt());
-        else
-            return TTLiteral.literal(literal.asText());
     }
 
 
@@ -355,7 +312,7 @@ public class QueryRepository {
     }
 
     public List<String> resolveIris(Set<String> iriLabels) {
-        List<String> iriList = iriLabels.stream().filter(iri -> iri != null && iri.contains("#")).collect(Collectors.toList());
+        List<String> iriList = iriLabels.stream().filter(iri -> iri != null && iri.contains("#")).toList();
         return iriList.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());
     }
 
@@ -365,20 +322,25 @@ public class QueryRepository {
                 gatherFromLabels(match, ttIris, iris);
             }
         }
-        if (query.getSelect() != null)
-            for (Select select : query.getSelect())
-                gatherSelectLabels(select, ttIris, iris);
+        if (query.getReturn() != null)
+            for (Return select : query.getReturn())
+                gatherReturnLabels(select, ttIris, iris);
         if (query.getQuery() != null)
             for (Query subQuery : query.getQuery())
                 gatherQueryLabels(subQuery, ttIris, iris);
     }
 
-    private void gatherSelectLabels(Select select, List<TTIriRef> ttIris, Map<String, String> iris) {
-        if (select.getIri() != null)
-            addToIriList(select.getIri(), ttIris, iris);
-        if (select.getSelect() != null)
-            for (Select sub : select.getSelect())
-                gatherSelectLabels(sub, ttIris, iris);
+    private void gatherReturnLabels(Return select, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if (select.getProperty()!=null) {
+            for (ReturnProperty property : select.getProperty()) {
+                if (property.getIri() != null) {
+                    addToIriList(property.getIri(), ttIris, iris);
+                }
+                if (property.getNode()!=null){
+                    gatherReturnLabels(property.getNode(),ttIris,iris);
+                }
+            }
+        }
     }
 
     private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {

@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -39,7 +40,7 @@ public class SetController {
             description = "Publishes an expanded set to IM1"
     )
     @PreAuthorize("hasAuthority('IM1_PUBLISH')")
-    public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException {
+    public void publish(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException, QueryException {
         setExporter.publishSetToIM1(iri);
     }
 
@@ -48,7 +49,7 @@ public class SetController {
             summary = "Export set",
             description = "Exporting an expanded set to IM1"
     )
-    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException {
+    public HttpEntity<Object> exportSet(@RequestParam(name = "iri") String iri) throws DataFormatException, JsonProcessingException, QueryException {
         TTIriRef entity = entityService.getEntityReference(iri);
         String filename = entity.getName() + " " + LocalDate.now();
         HttpHeaders headers = new HttpHeaders();

@@ -26,6 +26,7 @@ import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
@@ -436,7 +437,7 @@ public class EntityController {
 		@RequestParam(name = "core") boolean core,
 		@RequestParam(name = "legacy") boolean legacy,
         @RequestParam(name = "flat") boolean flat
-	) throws DataFormatException, IOException {
+	) throws DataFormatException, IOException, QueryException {
 		LOG.debug("getSetExport");
 		XSSFWorkbook workbook = entityService.getSetExport(iri, core, legacy, flat);
 		HttpHeaders headers = new HttpHeaders();

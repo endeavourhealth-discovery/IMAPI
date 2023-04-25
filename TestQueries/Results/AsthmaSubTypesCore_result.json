@@ -1,836 +1,422 @@
 {
   "@context" : {
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
     "sh" : "http://www.w3.org/ns/shacl#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "sn" : "http://snomed.info/sct#",
-    "entities" : {
-      "@id" : "http://envhealth.info/im#entities",
-      "@container" : "@set"
-    }
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "sn:1945002",
-    "rdfs:label" : "Allergic asthma with stated cause (disorder)",
-    "im:code" : "1945002"
-  }, {
-    "@id" : "sn:423889005",
-    "rdfs:label" : "Non-immunoglobulin E mediated allergic asthma (disorder)",
-    "im:code" : "423889005"
-  }, {
-    "@id" : "sn:424643009",
-    "rdfs:label" : "Immunoglobulin E-mediated allergic asthma (disorder)",
-    "im:code" : "424643009"
-  }, {
-    "@id" : "sn:8312004",
-    "rdfs:label" : "Intrinsic asthma (disorder)",
-    "im:code" : "8312004"
-  }, {
-    "@id" : "sn:233679003",
-    "rdfs:label" : "Late onset asthma (disorder)",
-    "im:code" : "233679003"
-  }, {
-    "@id" : "sn:266361008",
-    "rdfs:label" : "Non-allergic asthma (disorder)",
-    "im:code" : "266361008"
-  }, {
-    "@id" : "sn:11641008",
-    "rdfs:label" : "Millers' asthma (disorder)",
-    "im:code" : "11641008"
-  }, {
-    "@id" : "sn:57607007",
-    "rdfs:label" : "Occupational asthma (disorder)",
-    "im:code" : "57607007"
-  }, {
-    "@id" : "sn:12428000",
-    "rdfs:label" : "Intrinsic asthma without status asthmaticus (disorder)",
-    "im:code" : "12428000"
-  }, {
-    "@id" : "sn:55570000",
-    "rdfs:label" : "Asthma without status asthmaticus (disorder)",
-    "im:code" : "55570000"
-  }, {
-    "@id" : "sn:16862005",
-    "rdfs:label" : "Extrinsic asthma (disorder)",
-    "im:code" : "16862005"
-  }, {
-    "@id" : "sn:233678006",
-    "rdfs:label" : "Childhood asthma (disorder)",
-    "im:code" : "233678006"
-  }, {
-    "@id" : "sn:389145006",
-    "rdfs:label" : "Allergic asthma (disorder)",
-    "im:code" : "389145006"
-  }, {
-    "@id" : "sn:18041002",
-    "rdfs:label" : "Printers' asthma (disorder)",
-    "im:code" : "18041002"
-  }, {
-    "@id" : "sn:19849005",
-    "rdfs:label" : "Meat-wrappers' asthma (disorder)",
-    "im:code" : "19849005"
-  }, {
-    "@id" : "sn:21341004",
-    "rdfs:label" : "Asthma (disorder)",
-    "im:code" : "21341004"
-  }, {
-    "@id" : "sn:195967001",
-    "rdfs:label" : "Asthma (disorder)",
-    "im:code" : "195967001"
-  }, {
-    "@id" : "sn:405944004",
-    "rdfs:label" : "Asthmatic bronchitis (disorder)",
-    "im:code" : "405944004"
-  }, {
-    "@id" : "sn:30352005",
-    "rdfs:label" : "Allergic-infective asthma (disorder)",
-    "im:code" : "30352005"
-  }, {
-    "@id" : "sn:782520007",
-    "rdfs:label" : "Exacerbation of allergic asthma due to infection (disorder)",
-    "im:code" : "782520007"
-  }, {
-    "@id" : "sn:31387002",
-    "rdfs:label" : "Exercise-induced asthma (disorder)",
-    "im:code" : "31387002"
-  }, {
-    "@id" : "sn:34015007",
-    "rdfs:label" : "Bakers' asthma (disorder)",
-    "im:code" : "34015007"
-  }, {
-    "@id" : "sn:36979006",
-    "rdfs:label" : "Status asthmaticus (disorder)",
-    "im:code" : "36979006"
-  }, {
-    "@id" : "sn:708090002",
-    "rdfs:label" : "Acute severe exacerbation of asthma (disorder)",
-    "im:code" : "708090002"
-  }, {
-    "@id" : "sn:41553006",
-    "rdfs:label" : "Detergent asthma (disorder)",
-    "im:code" : "41553006"
-  }, {
-    "@id" : "sn:56507008",
-    "rdfs:label" : "Tea-tasters' disease (disorder)",
-    "im:code" : "56507008"
-  }, {
-    "@id" : "sn:418395004",
-    "rdfs:label" : "Tea-makers' asthma (disorder)",
-    "im:code" : "418395004"
-  }, {
-    "@id" : "sn:56968009",
-    "rdfs:label" : "Asthma caused by wood dust (disorder)",
-    "im:code" : "56968009"
-  }, {
-    "@id" : "sn:424199006",
-    "rdfs:label" : "Substance induced asthma (disorder)",
-    "im:code" : "424199006"
-  }, {
-    "@id" : "sn:57546000",
-    "rdfs:label" : "Asthma with status asthmaticus (disorder)",
-    "im:code" : "57546000"
-  }, {
-    "@id" : "sn:59327009",
-    "rdfs:label" : "Intrinsic asthma with status asthmaticus (disorder)",
-    "im:code" : "59327009"
-  }, {
-    "@id" : "sn:708096008",
-    "rdfs:label" : "Acute severe exacerbation of intrinsic asthma (disorder)",
-    "im:code" : "708096008"
-  }, {
-    "@id" : "sn:59786004",
-    "rdfs:label" : "Weavers' cough (disorder)",
-    "im:code" : "59786004"
-  }, {
-    "@id" : "sn:63088003",
-    "rdfs:label" : "Allergic asthma without status asthmaticus (disorder)",
-    "im:code" : "63088003"
-  }, {
-    "@id" : "sn:67415000",
-    "rdfs:label" : "Hay asthma (disorder)",
-    "im:code" : "67415000"
-  }, {
-    "@id" : "sn:233683003",
-    "rdfs:label" : "Hay fever with asthma (disorder)",
-    "im:code" : "233683003"
-  }, {
-    "@id" : "sn:71435009",
-    "rdfs:label" : "Chronic obstructive bronchitis (disorder)",
-    "im:code" : "71435009"
-  }, {
-    "@id" : "sn:195949008",
-    "rdfs:label" : "Chronic asthmatic bronchitis (disorder)",
-    "im:code" : "195949008"
-  }, {
-    "@id" : "sn:73849000",
-    "rdfs:label" : "Cheese-washers' lung (disorder)",
-    "im:code" : "73849000"
-  }, {
-    "@id" : "sn:404806001",
-    "rdfs:label" : "Cheese-makers' asthma (disorder)",
-    "im:code" : "404806001"
-  }, {
-    "@id" : "sn:80374003",
-    "rdfs:label" : "Platinosis (disorder)",
-    "im:code" : "80374003"
-  }, {
-    "@id" : "sn:404804003",
-    "rdfs:label" : "Platinum asthma (disorder)",
-    "im:code" : "404804003"
-  }, {
-    "@id" : "sn:91053000",
-    "rdfs:label" : "Pulmonary eosinophilia (disorder)",
-    "im:code" : "91053000"
-  }, {
-    "@id" : "sn:233691007",
-    "rdfs:label" : "Asthmatic pulmonary eosinophilia (disorder)",
-    "im:code" : "233691007"
-  }, {
-    "@id" : "sn:91340006",
-    "rdfs:label" : "Extrinsic asthma with status asthmaticus (disorder)",
-    "im:code" : "91340006"
-  }, {
-    "@id" : "sn:708095007",
-    "rdfs:label" : "Acute severe exacerbation of immunoglobin E-mediated allergic asthma (disorder)",
-    "im:code" : "708095007"
-  }, {
-    "@id" : "sn:92807009",
-    "rdfs:label" : "Chemical-induced asthma (disorder)",
-    "im:code" : "92807009"
-  }, {
-    "@id" : "sn:93432008",
-    "rdfs:label" : "Drug-induced asthma (disorder)",
-    "im:code" : "93432008"
-  }, {
-    "@id" : "sn:139202009",
-    "rdfs:label" : "Exercise-induced asthma (finding)",
-    "im:code" : "139202009"
-  }, {
-    "@id" : "sn:155574008",
-    "rdfs:label" : "Asthma (disorder)",
-    "im:code" : "155574008"
-  }, {
-    "@id" : "sn:155575009",
-    "rdfs:label" : "Extrinsic asthma - atopy (& pollen) (disorder)",
-    "im:code" : "155575009"
-  }, {
-    "@id" : "sn:155576005",
-    "rdfs:label" : "Asthma: [intrinsic] or [late onset] (disorder)",
-    "im:code" : "155576005"
-  }, {
-    "@id" : "sn:155577001",
-    "rdfs:label" : "Status asthmaticus (disorder)",
-    "im:code" : "155577001"
-  }, {
-    "@id" : "sn:155578006",
-    "rdfs:label" : "Asthma attack (& NOS) (disorder)",
-    "im:code" : "155578006"
-  }, {
-    "@id" : "sn:281239006",
-    "rdfs:label" : "Exacerbation of asthma (disorder)",
-    "im:code" : "281239006"
-  }, {
-    "@id" : "sn:155579003",
-    "rdfs:label" : "Asthma: [NOS] or [attack] (disorder)",
-    "im:code" : "155579003"
-  }, {
-    "@id" : "sn:155623005",
-    "rdfs:label" : "Pulmonary eosinophilia (disorder)",
-    "im:code" : "155623005"
-  }, {
-    "@id" : "sn:170643001",
-    "rdfs:label" : "Occasional asthma (procedure)",
-    "im:code" : "170643001"
-  }, {
-    "@id" : "sn:370220003",
-    "rdfs:label" : "Occasional asthma (disorder)",
-    "im:code" : "370220003"
-  }, {
-    "@id" : "sn:170644007",
-    "rdfs:label" : "Mild asthma (procedure)",
-    "im:code" : "170644007"
-  }, {
-    "@id" : "sn:370218001",
-    "rdfs:label" : "Mild asthma (disorder)",
-    "im:code" : "370218001"
-  }, {
-    "@id" : "sn:170645008",
-    "rdfs:label" : "Moderate asthma (procedure)",
-    "im:code" : "170645008"
-  }, {
-    "@id" : "sn:370219009",
-    "rdfs:label" : "Moderate asthma (disorder)",
-    "im:code" : "370219009"
-  }, {
-    "@id" : "sn:170646009",
-    "rdfs:label" : "Severe asthma (procedure)",
-    "im:code" : "170646009"
-  }, {
-    "@id" : "sn:370221004",
-    "rdfs:label" : "Severe asthma (disorder)",
-    "im:code" : "370221004"
-  }, {
-    "@id" : "sn:187687003",
-    "rdfs:label" : "Asthma (disorder)",
-    "im:code" : "187687003"
-  }, {
-    "@id" : "sn:195936003",
-    "rdfs:label" : "Bronchitis: [unspecified (& chest infection)] or [recurrent wheezy] (disorder)",
-    "im:code" : "195936003"
-  }, {
-    "@id" : "sn:195939005",
-    "rdfs:label" : "Asthmatic bronchitis (disorder)",
-    "im:code" : "195939005"
-  }, {
-    "@id" : "sn:195968006",
-    "rdfs:label" : "Asthma: [extrinsic - atopic] or [allergic] or [pollen] or [childhood] or [with hay fever] (disorder)",
-    "im:code" : "195968006"
-  }, {
-    "@id" : "sn:195970002",
-    "rdfs:label" : "(Hay fever with asthma) or (extrinsic asthma without status asthmaticus) (disorder)",
-    "im:code" : "195970002"
-  }, {
-    "@id" : "sn:195971003",
-    "rdfs:label" : "Extrinsic asthma with: [asthma attack] or [status asthmaticus] (disorder)",
-    "im:code" : "195971003"
-  }, {
-    "@id" : "sn:708093000",
-    "rdfs:label" : "Acute exacerbation of immunoglobulin E-mediated allergic asthma (disorder)",
-    "im:code" : "708093000"
-  }, {
-    "@id" : "sn:195972005",
-    "rdfs:label" : "Extrinsic asthma NOS (disorder)",
-    "im:code" : "195972005"
-  }, {
-    "@id" : "sn:195973000",
-    "rdfs:label" : "(Intrinsic asthma) or (late onset asthma) (disorder)",
-    "im:code" : "195973000"
-  }, {
-    "@id" : "sn:195974006",
-    "rdfs:label" : "Intrinsic asthma without status asthmaticus (disorder)",
-    "im:code" : "195974006"
-  }, {
-    "@id" : "sn:195975007",
-    "rdfs:label" : "Intrinsic asthma with: [asthma attack] or [status asthmaticus] (disorder)",
-    "im:code" : "195975007"
-  }, {
-    "@id" : "sn:708094006",
-    "rdfs:label" : "Acute exacerbation of intrinsic asthma (disorder)",
-    "im:code" : "708094006"
-  }, {
-    "@id" : "sn:195976008",
-    "rdfs:label" : "Intrinsic asthma NOS (disorder)",
-    "im:code" : "195976008"
-  }, {
-    "@id" : "sn:195977004",
-    "rdfs:label" : "Mixed asthma (disorder)",
-    "im:code" : "195977004"
-  }, {
-    "@id" : "sn:195978009",
-    "rdfs:label" : "Exacerbation of asthma (disorder)",
-    "im:code" : "195978009"
-  }, {
-    "@id" : "sn:195979001",
-    "rdfs:label" : "Asthma unspecified (disorder)",
-    "im:code" : "195979001"
-  }, {
-    "@id" : "sn:195980003",
-    "rdfs:label" : "(Severe asthma attack) or (status asthmaticus NOS) (disorder)",
-    "im:code" : "195980003"
-  }, {
-    "@id" : "sn:195981004",
-    "rdfs:label" : "Asthma attack (& NOS) (disorder)",
-    "im:code" : "195981004"
-  }, {
-    "@id" : "sn:195982006",
-    "rdfs:label" : "Late onset asthma (disorder)",
-    "im:code" : "195982006"
-  }, {
-    "@id" : "sn:195983001",
-    "rdfs:label" : "(Asthma: [exercise induced] or [allergic NEC] or [NOS]) or (allergic bronchitis NEC)",
-    "im:code" : "195983001"
-  }, {
-    "@id" : "sn:196013003",
-    "rdfs:label" : "Pneumopathy due to inhalation of other dust (disorder)",
-    "im:code" : "196013003"
-  }, {
-    "@id" : "sn:196015005",
-    "rdfs:label" : "Pneumopathy due to inhalation of other dust NOS (disorder)",
-    "im:code" : "196015005"
-  }, {
-    "@id" : "sn:225057002",
-    "rdfs:label" : "Brittle asthma (disorder)",
-    "im:code" : "225057002"
-  }, {
-    "@id" : "sn:233680000",
-    "rdfs:label" : "Allergic asthma (disorder)",
-    "im:code" : "233680000"
-  }, {
-    "@id" : "sn:233681001",
-    "rdfs:label" : "Extrinsic asthma with asthma attack (disorder)",
-    "im:code" : "233681001"
-  }, {
-    "@id" : "sn:233682008",
-    "rdfs:label" : "Allergic asthma NEC (disorder)",
-    "im:code" : "233682008"
-  }, {
-    "@id" : "sn:445427006",
-    "rdfs:label" : "Seasonal asthma (disorder)",
-    "im:code" : "445427006"
-  }, {
-    "@id" : "sn:233684009",
-    "rdfs:label" : "Allergic non-atopic asthma (disorder)",
-    "im:code" : "233684009"
-  }, {
-    "@id" : "sn:233685005",
-    "rdfs:label" : "Intrinsic asthma with asthma attack (disorder)",
-    "im:code" : "233685005"
-  }, {
-    "@id" : "sn:233686006",
-    "rdfs:label" : "Aspirin-sensitive asthma with nasal polyps (disorder)",
-    "im:code" : "233686006"
-  }, {
-    "@id" : "sn:10692681000119108",
-    "rdfs:label" : "Aspirin exacerbated respiratory disease (disorder)",
-    "im:code" : "10692681000119108"
-  }, {
-    "@id" : "sn:233687002",
-    "rdfs:label" : "Colophony asthma (disorder)",
-    "im:code" : "233687002"
-  }, {
-    "@id" : "sn:233688007",
-    "rdfs:label" : "Sulfite-induced asthma (disorder)",
-    "im:code" : "233688007"
-  }, {
-    "@id" : "sn:266358007",
-    "rdfs:label" : "Allergic atopic asthma (disorder)",
-    "im:code" : "266358007"
-  }, {
-    "@id" : "sn:266359004",
-    "rdfs:label" : "Extrinsic asthma without status asthmaticus (disorder)",
-    "im:code" : "266359004"
-  }, {
-    "@id" : "sn:266360009",
-    "rdfs:label" : "Extrinsic asthma with status asthmaticus (disorder)",
-    "im:code" : "266360009"
-  }, {
-    "@id" : "sn:266362001",
-    "rdfs:label" : "Intrinsic asthma with status asthmaticus (disorder)",
-    "im:code" : "266362001"
-  }, {
-    "@id" : "sn:266363006",
-    "rdfs:label" : "Status asthmaticus NOS (disorder)",
-    "im:code" : "266363006"
-  }, {
-    "@id" : "sn:266364000",
-    "rdfs:label" : "Asthma attack (disorder)",
-    "im:code" : "266364000"
-  }, {
-    "@id" : "sn:266365004",
-    "rdfs:label" : "Asthma NOS (disorder)",
-    "im:code" : "266365004"
-  }, {
-    "@id" : "sn:266396008",
-    "rdfs:label" : "Extrinsic asthma - atopy (& pollen) (disorder)",
-    "im:code" : "266396008"
-  }, {
-    "@id" : "sn:266397004",
-    "rdfs:label" : "Asthma: [intrinsic] or [late onset] (disorder)",
-    "im:code" : "266397004"
-  }, {
-    "@id" : "sn:266398009",
-    "rdfs:label" : "Asthma: [NOS] or [attack] (disorder)",
-    "im:code" : "266398009"
-  }, {
-    "@id" : "sn:274105009",
-    "rdfs:label" : "Asthma attack NOS (disorder)",
-    "im:code" : "274105009"
-  }, {
-    "@id" : "sn:278517007",
-    "rdfs:label" : "Asthmatic bronchitis (disorder)",
-    "im:code" : "278517007"
-  }, {
-    "@id" : "sn:304527002",
-    "rdfs:label" : "Acute asthma (disorder)",
-    "im:code" : "304527002"
-  }, {
-    "@id" : "sn:367110001",
-    "rdfs:label" : "Exacerbation of asthma (disorder)",
-    "im:code" : "367110001"
-  }, {
-    "@id" : "sn:389146007",
-    "rdfs:label" : "Extrinsic asthma (disorder)",
-    "im:code" : "389146007"
-  }, {
-    "@id" : "sn:404808000",
-    "rdfs:label" : "Isocyanate induced asthma (disorder)",
-    "im:code" : "404808000"
-  }, {
-    "@id" : "sn:407674008",
-    "rdfs:label" : "Aspirin-induced asthma (disorder)",
-    "im:code" : "407674008"
-  }, {
-    "@id" : "sn:409663006",
-    "rdfs:label" : "Cough variant asthma (disorder)",
-    "im:code" : "409663006"
-  }, {
-    "@id" : "sn:416601004",
-    "rdfs:label" : "Work aggravated asthma (disorder)",
-    "im:code" : "416601004"
-  }, {
-    "@id" : "sn:425969006",
-    "rdfs:label" : "Exacerbation of intermittent asthma (disorder)",
-    "im:code" : "425969006"
-  }, {
-    "@id" : "sn:427603009",
-    "rdfs:label" : "Intermittent asthma (disorder)",
-    "im:code" : "427603009"
-  }, {
-    "@id" : "sn:426656000",
-    "rdfs:label" : "Severe persistent asthma (disorder)",
-    "im:code" : "426656000"
-  }, {
-    "@id" : "sn:426979002",
-    "rdfs:label" : "Mild persistent asthma (disorder)",
-    "im:code" : "426979002"
-  }, {
-    "@id" : "sn:427295004",
-    "rdfs:label" : "Moderate persistent asthma (disorder)",
-    "im:code" : "427295004"
-  }, {
-    "@id" : "sn:427354000",
-    "rdfs:label" : "Exacerbation of persistent asthma (disorder)",
-    "im:code" : "427354000"
-  }, {
-    "@id" : "sn:707445000",
-    "rdfs:label" : "Exacerbation of mild persistent asthma (disorder)",
-    "im:code" : "707445000"
-  }, {
-    "@id" : "sn:707446004",
-    "rdfs:label" : "Exacerbation of moderate persistent asthma (disorder)",
-    "im:code" : "707446004"
-  }, {
-    "@id" : "sn:707447008",
-    "rdfs:label" : "Exacerbation of severe persistent asthma (disorder)",
-    "im:code" : "707447008"
-  }, {
-    "@id" : "sn:427679007",
-    "rdfs:label" : "Mild intermittent asthma (disorder)",
-    "im:code" : "427679007"
-  }, {
-    "@id" : "sn:442025000",
-    "rdfs:label" : "Acute exacerbation of chronic asthmatic bronchitis (disorder)",
-    "im:code" : "442025000"
-  }, {
-    "@id" : "sn:703953004",
-    "rdfs:label" : "Allergic asthma caused by Dermatophagoides pteronyssinus (disorder)",
-    "im:code" : "703953004"
-  }, {
-    "@id" : "sn:703954005",
-    "rdfs:label" : "Allergic asthma caused by Dermatophagoides farinae (disorder)",
-    "im:code" : "703954005"
-  }, {
-    "@id" : "sn:707444001",
-    "rdfs:label" : "Uncomplicated asthma (disorder)",
-    "im:code" : "707444001"
-  }, {
-    "@id" : "sn:707511009",
-    "rdfs:label" : "Uncomplicated mild persistent asthma (disorder)",
-    "im:code" : "707511009"
-  }, {
-    "@id" : "sn:707512002",
-    "rdfs:label" : "Uncomplicated moderate persistent asthma (disorder)",
-    "im:code" : "707512002"
-  }, {
-    "@id" : "sn:707513007",
-    "rdfs:label" : "Uncomplicated severe persistent asthma (disorder)",
-    "im:code" : "707513007"
-  }, {
-    "@id" : "sn:707979007",
-    "rdfs:label" : "Acute severe exacerbation of severe persistent asthma (disorder)",
-    "im:code" : "707979007"
-  }, {
-    "@id" : "sn:707980005",
-    "rdfs:label" : "Acute severe exacerbation of moderate persistent asthma (disorder)",
-    "im:code" : "707980005"
-  }, {
-    "@id" : "sn:707981009",
-    "rdfs:label" : "Acute severe exacerbation of mild persistent asthma (disorder)",
-    "im:code" : "707981009"
-  }, {
-    "@id" : "sn:708038006",
-    "rdfs:label" : "Acute exacerbation of asthma (disorder)",
-    "im:code" : "708038006"
-  }, {
-    "@id" : "sn:762521001",
-    "rdfs:label" : "Exacerbation of allergic asthma (disorder)",
-    "im:code" : "762521001"
-  }, {
-    "@id" : "sn:782513000",
-    "rdfs:label" : "Acute severe exacerbation of allergic asthma (disorder)",
-    "im:code" : "782513000"
-  }, {
-    "@id" : "sn:733858005",
-    "rdfs:label" : "Acute severe refractory exacerbation of asthma (disorder)",
-    "im:code" : "733858005"
-  }, {
-    "@id" : "sn:734904007",
-    "rdfs:label" : "Life threatening acute exacerbation of asthma (disorder)",
-    "im:code" : "734904007"
-  }, {
-    "@id" : "sn:734905008",
-    "rdfs:label" : "Moderate acute exacerbation of asthma (disorder)",
-    "im:code" : "734905008"
-  }, {
-    "@id" : "sn:735587000",
-    "rdfs:label" : "Acute severe exacerbation of asthma co-occurrent and due to allergic asthma (disorder)",
-    "im:code" : "735587000"
-  }, {
-    "@id" : "sn:735588005",
-    "rdfs:label" : "Uncomplicated allergic asthma (disorder)",
-    "im:code" : "735588005"
-  }, {
-    "@id" : "sn:735589002",
-    "rdfs:label" : "Uncomplicated non-allergic asthma (disorder)",
-    "im:code" : "735589002"
-  }, {
-    "@id" : "sn:786836003",
-    "rdfs:label" : "Near fatal asthma (disorder)",
-    "im:code" : "786836003"
-  }, {
-    "@id" : "sn:829976001",
-    "rdfs:label" : "Thunderstorm asthma (disorder)",
-    "im:code" : "829976001"
-  }, {
-    "@id" : "sn:401000119107",
-    "rdfs:label" : "Asthma with irreversible airway obstruction (disorder)",
-    "im:code" : "401000119107"
-  }, {
-    "@id" : "sn:1741000119102",
-    "rdfs:label" : "Intermittent asthma uncontrolled (disorder)",
-    "im:code" : "1741000119102"
-  }, {
-    "@id" : "sn:1751000119100",
-    "rdfs:label" : "Acute exacerbation of chronic obstructive airways disease with asthma (disorder)",
-    "im:code" : "1751000119100"
-  }, {
-    "@id" : "sn:1761000119103",
-    "rdfs:label" : "Chronic obstructive airway disease with asthma (disorder)",
-    "im:code" : "1761000119103"
-  }, {
-    "@id" : "sn:10692761000119107",
-    "rdfs:label" : "Asthma-chronic obstructive pulmonary disease overlap syndrome (disorder)",
-    "im:code" : "10692761000119107"
-  }, {
-    "@id" : "sn:72301000119103",
-    "rdfs:label" : "Asthma in pregnancy (disorder)",
-    "im:code" : "72301000119103"
-  }, {
-    "@id" : "sn:99031000119107",
-    "rdfs:label" : "Acute exacerbation of asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "99031000119107"
-  }, {
-    "@id" : "sn:124991000119109",
-    "rdfs:label" : "Severe persistent asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "124991000119109"
-  }, {
-    "@id" : "sn:10675431000119106",
-    "rdfs:label" : "Severe persistent allergic asthma (disorder)",
-    "im:code" : "10675431000119106"
-  }, {
-    "@id" : "sn:125001000119103",
-    "rdfs:label" : "Moderate persistent asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "125001000119103"
-  }, {
-    "@id" : "sn:10676391000119108",
-    "rdfs:label" : "Moderate persistent allergic asthma (disorder)",
-    "im:code" : "10676391000119108"
-  }, {
-    "@id" : "sn:125011000119100",
-    "rdfs:label" : "Mild persistent asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "125011000119100"
-  }, {
-    "@id" : "sn:10675871000119106",
-    "rdfs:label" : "Mild persistent allergic asthma (disorder)",
-    "im:code" : "10675871000119106"
-  }, {
-    "@id" : "sn:125021000119107",
-    "rdfs:label" : "Intermittent asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "125021000119107"
-  }, {
-    "@id" : "sn:10674991000119104",
-    "rdfs:label" : "Intermittent allergic asthma (disorder)",
-    "im:code" : "10674991000119104"
-  }, {
-    "@id" : "sn:135171000119106",
-    "rdfs:label" : "Acute exacerbation of moderate persistent asthma (disorder)",
-    "im:code" : "135171000119106"
-  }, {
-    "@id" : "sn:135181000119109",
-    "rdfs:label" : "Acute exacerbation of mild persistent asthma (disorder)",
-    "im:code" : "135181000119109"
-  }, {
-    "@id" : "sn:2360001000004109",
-    "rdfs:label" : "Steroid dependent asthma (disorder)",
-    "im:code" : "2360001000004109"
-  }, {
-    "@id" : "sn:10674711000119105",
-    "rdfs:label" : "Acute severe exacerbation of asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "10674711000119105"
-  }, {
-    "@id" : "sn:10675391000119101",
-    "rdfs:label" : "Severe controlled persistent asthma (disorder)",
-    "im:code" : "10675391000119101"
-  }, {
-    "@id" : "sn:10675471000119109",
-    "rdfs:label" : "Acute severe exacerbation of severe persistent allergic asthma (disorder)",
-    "im:code" : "10675471000119109"
-  }, {
-    "@id" : "sn:10675551000119104",
-    "rdfs:label" : "Acute severe exacerbation of severe persistent asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "10675551000119104"
-  }, {
-    "@id" : "sn:10675751000119107",
-    "rdfs:label" : "Severe uncontrolled persistent asthma (disorder)",
-    "im:code" : "10675751000119107"
-  }, {
-    "@id" : "sn:10675911000119109",
-    "rdfs:label" : "Acute severe exacerbation of mild persistent allergic asthma (disorder)",
-    "im:code" : "10675911000119109"
-  }, {
-    "@id" : "sn:10675991000119100",
-    "rdfs:label" : "Acute severe exacerbation of mild persistent allergic asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "10675991000119100"
-  }, {
-    "@id" : "sn:10676431000119103",
-    "rdfs:label" : "Acute severe exacerbation of moderate persistent allergic asthma (disorder)",
-    "im:code" : "10676431000119103"
-  }, {
-    "@id" : "sn:10676511000119109",
-    "rdfs:label" : "Acute severe exacerbation of moderate persistent asthma co-occurrent with allergic rhinitis (disorder)",
-    "im:code" : "10676511000119109"
-  }, {
-    "@id" : "sn:10692721000119102",
-    "rdfs:label" : "Chronic obstructive asthma co-occurrent with acute exacerbation of asthma (disorder)",
-    "im:code" : "10692721000119102"
-  }, {
-    "@id" : "sn:10742121000119104",
-    "rdfs:label" : "Asthma in mother complicating childbirth (disorder)",
-    "im:code" : "10742121000119104"
-  }, {
-    "@id" : "sn:16584951000119101",
-    "rdfs:label" : "Oral steroid-dependent asthma (disorder)",
-    "im:code" : "16584951000119101"
-  }, {
-    "@id" : "sn:95111000000105",
-    "rdfs:label" : "Aspirin-induced asthma",
-    "im:code" : "95111000000105"
-  }, {
-    "@id" : "sn:99981000000103",
-    "rdfs:label" : "Aspirin-induced asthma",
-    "im:code" : "99981000000103"
-  }, {
-    "@id" : "sn:111991000000106",
-    "rdfs:label" : "Brittle asthma",
-    "im:code" : "111991000000106"
-  }, {
-    "@id" : "sn:165621000000103",
-    "rdfs:label" : "Brittle asthma",
-    "im:code" : "165621000000103"
-  }, {
-    "@id" : "sn:186071000000103",
-    "rdfs:label" : "Occupational asthma",
-    "im:code" : "186071000000103"
-  }, {
-    "@id" : "sn:186081000000101",
-    "rdfs:label" : "Work aggravated asthma",
-    "im:code" : "186081000000101"
-  }, {
-    "@id" : "sn:189511000000105",
-    "rdfs:label" : "Occupational asthma",
-    "im:code" : "189511000000105"
-  }, {
-    "@id" : "sn:189521000000104",
-    "rdfs:label" : "Work aggravated asthma",
-    "im:code" : "189521000000104"
-  }, {
-    "@id" : "sn:579691000000102",
-    "rdfs:label" : "Intrinsic asthma NOS (disorder)",
-    "im:code" : "579691000000102"
-  }, {
-    "@id" : "sn:589231000000108",
-    "rdfs:label" : "Extrinsic asthma NOS (disorder)",
-    "im:code" : "589231000000108"
-  }, {
-    "@id" : "sn:589241000000104",
-    "rdfs:label" : "Asthma unspecified (disorder)",
-    "im:code" : "589241000000104"
-  }, {
-    "@id" : "sn:593201000000103",
-    "rdfs:label" : "Pneumopathy due to inhalation of other dust NOS (disorder)",
-    "im:code" : "593201000000103"
-  }, {
-    "@id" : "sn:593601000000101",
-    "rdfs:label" : "Pneumopathy due to inhalation of other dust (disorder)",
-    "im:code" : "593601000000101"
-  }, {
-    "@id" : "sn:644281000000107",
-    "rdfs:label" : "Allergic asthma NEC (disorder)",
-    "im:code" : "644281000000107"
-  }, {
-    "@id" : "sn:653751000000109",
-    "rdfs:label" : "Asthma attack NOS (disorder)",
-    "im:code" : "653751000000109"
-  }, {
-    "@id" : "sn:689421000000104",
-    "rdfs:label" : "Status asthmaticus NOS (disorder)",
-    "im:code" : "689421000000104"
-  }, {
-    "@id" : "sn:689431000000102",
-    "rdfs:label" : "Asthma NOS (disorder)",
-    "im:code" : "689431000000102"
-  }, {
-    "@id" : "sn:866881000000101",
-    "rdfs:label" : "Chronic asthma with fixed airflow obstruction (disorder)",
-    "im:code" : "866881000000101"
-  }, {
-    "@id" : "sn:866891000000104",
-    "rdfs:label" : "Chronic asthma with fixed airflow obstruction ",
-    "im:code" : "866891000000104"
-  }, {
-    "@id" : "sn:944961000000107",
-    "rdfs:label" : "Asthma-chronic obstructive pulmonary disease overlap syndrome (disorder)",
-    "im:code" : "944961000000107"
-  }, {
-    "@id" : "sn:944971000000100",
-    "rdfs:label" : "Asthma-chronic obstructive pulmonary disease overlap syndrome ",
-    "im:code" : "944971000000100"
-  }, {
-    "@id" : "sn:1064771000000103",
-    "rdfs:label" : "Acute severe exacerbation of asthma (disorder)",
-    "im:code" : "1064771000000103"
-  }, {
-    "@id" : "sn:1064811000000103",
-    "rdfs:label" : "Moderate acute exacerbation of asthma (disorder)",
-    "im:code" : "1064811000000103"
-  }, {
-    "@id" : "sn:1064821000000109",
-    "rdfs:label" : "Life threatening acute exacerbation of asthma (disorder)",
-    "im:code" : "1064821000000109"
-  }, {
-    "@id" : "sn:1086701000000102",
-    "rdfs:label" : "Life threatening acute exacerbation of allergic asthma (disorder)",
-    "im:code" : "1086701000000102"
-  }, {
-    "@id" : "sn:1086711000000100",
-    "rdfs:label" : "Life threatening acute exacerbation of intrinsic asthma (disorder)",
-    "im:code" : "1086711000000100"
-  }, {
-    "@id" : "sn:1103911000000103",
-    "rdfs:label" : "Severe asthma with fungal sensitisation (disorder)",
-    "im:code" : "1103911000000103"
+    "@id" : "http://snomed.info/sct#1945002"
+  }, {
+    "@id" : "http://snomed.info/sct#423889005"
+  }, {
+    "@id" : "http://snomed.info/sct#424643009"
+  }, {
+    "@id" : "http://snomed.info/sct#8312004"
+  }, {
+    "@id" : "http://snomed.info/sct#233679003"
+  }, {
+    "@id" : "http://snomed.info/sct#266361008"
+  }, {
+    "@id" : "http://snomed.info/sct#11641008"
+  }, {
+    "@id" : "http://snomed.info/sct#57607007"
+  }, {
+    "@id" : "http://snomed.info/sct#12428000"
+  }, {
+    "@id" : "http://snomed.info/sct#55570000"
+  }, {
+    "@id" : "http://snomed.info/sct#16862005"
+  }, {
+    "@id" : "http://snomed.info/sct#233678006"
+  }, {
+    "@id" : "http://snomed.info/sct#389145006"
+  }, {
+    "@id" : "http://snomed.info/sct#18041002"
+  }, {
+    "@id" : "http://snomed.info/sct#19849005"
+  }, {
+    "@id" : "http://snomed.info/sct#21341004"
+  }, {
+    "@id" : "http://snomed.info/sct#195967001"
+  }, {
+    "@id" : "http://snomed.info/sct#405944004"
+  }, {
+    "@id" : "http://snomed.info/sct#30352005"
+  }, {
+    "@id" : "http://snomed.info/sct#782520007"
+  }, {
+    "@id" : "http://snomed.info/sct#31387002"
+  }, {
+    "@id" : "http://snomed.info/sct#34015007"
+  }, {
+    "@id" : "http://snomed.info/sct#36979006"
+  }, {
+    "@id" : "http://snomed.info/sct#708090002"
+  }, {
+    "@id" : "http://snomed.info/sct#41553006"
+  }, {
+    "@id" : "http://snomed.info/sct#56507008"
+  }, {
+    "@id" : "http://snomed.info/sct#418395004"
+  }, {
+    "@id" : "http://snomed.info/sct#56968009"
+  }, {
+    "@id" : "http://snomed.info/sct#424199006"
+  }, {
+    "@id" : "http://snomed.info/sct#57546000"
+  }, {
+    "@id" : "http://snomed.info/sct#59327009"
+  }, {
+    "@id" : "http://snomed.info/sct#708096008"
+  }, {
+    "@id" : "http://snomed.info/sct#59786004"
+  }, {
+    "@id" : "http://snomed.info/sct#63088003"
+  }, {
+    "@id" : "http://snomed.info/sct#67415000"
+  }, {
+    "@id" : "http://snomed.info/sct#233683003"
+  }, {
+    "@id" : "http://snomed.info/sct#71435009"
+  }, {
+    "@id" : "http://snomed.info/sct#195949008"
+  }, {
+    "@id" : "http://snomed.info/sct#73849000"
+  }, {
+    "@id" : "http://snomed.info/sct#404806001"
+  }, {
+    "@id" : "http://snomed.info/sct#80374003"
+  }, {
+    "@id" : "http://snomed.info/sct#404804003"
+  }, {
+    "@id" : "http://snomed.info/sct#91053000"
+  }, {
+    "@id" : "http://snomed.info/sct#233691007"
+  }, {
+    "@id" : "http://snomed.info/sct#91340006"
+  }, {
+    "@id" : "http://snomed.info/sct#708095007"
+  }, {
+    "@id" : "http://snomed.info/sct#92807009"
+  }, {
+    "@id" : "http://snomed.info/sct#93432008"
+  }, {
+    "@id" : "http://snomed.info/sct#139202009"
+  }, {
+    "@id" : "http://snomed.info/sct#155574008"
+  }, {
+    "@id" : "http://snomed.info/sct#155575009"
+  }, {
+    "@id" : "http://snomed.info/sct#155576005"
+  }, {
+    "@id" : "http://snomed.info/sct#155577001"
+  }, {
+    "@id" : "http://snomed.info/sct#155578006"
+  }, {
+    "@id" : "http://snomed.info/sct#281239006"
+  }, {
+    "@id" : "http://snomed.info/sct#155579003"
+  }, {
+    "@id" : "http://snomed.info/sct#155623005"
+  }, {
+    "@id" : "http://snomed.info/sct#170643001"
+  }, {
+    "@id" : "http://snomed.info/sct#370220003"
+  }, {
+    "@id" : "http://snomed.info/sct#170644007"
+  }, {
+    "@id" : "http://snomed.info/sct#370218001"
+  }, {
+    "@id" : "http://snomed.info/sct#170645008"
+  }, {
+    "@id" : "http://snomed.info/sct#370219009"
+  }, {
+    "@id" : "http://snomed.info/sct#170646009"
+  }, {
+    "@id" : "http://snomed.info/sct#370221004"
+  }, {
+    "@id" : "http://snomed.info/sct#187687003"
+  }, {
+    "@id" : "http://snomed.info/sct#195936003"
+  }, {
+    "@id" : "http://snomed.info/sct#195939005"
+  }, {
+    "@id" : "http://snomed.info/sct#195968006"
+  }, {
+    "@id" : "http://snomed.info/sct#195970002"
+  }, {
+    "@id" : "http://snomed.info/sct#195971003"
+  }, {
+    "@id" : "http://snomed.info/sct#708093000"
+  }, {
+    "@id" : "http://snomed.info/sct#195972005"
+  }, {
+    "@id" : "http://snomed.info/sct#195973000"
+  }, {
+    "@id" : "http://snomed.info/sct#195974006"
+  }, {
+    "@id" : "http://snomed.info/sct#195975007"
+  }, {
+    "@id" : "http://snomed.info/sct#708094006"
+  }, {
+    "@id" : "http://snomed.info/sct#195976008"
+  }, {
+    "@id" : "http://snomed.info/sct#195977004"
+  }, {
+    "@id" : "http://snomed.info/sct#195978009"
+  }, {
+    "@id" : "http://snomed.info/sct#195979001"
+  }, {
+    "@id" : "http://snomed.info/sct#195980003"
+  }, {
+    "@id" : "http://snomed.info/sct#195981004"
+  }, {
+    "@id" : "http://snomed.info/sct#195982006"
+  }, {
+    "@id" : "http://snomed.info/sct#195983001"
+  }, {
+    "@id" : "http://snomed.info/sct#196013003"
+  }, {
+    "@id" : "http://snomed.info/sct#196015005"
+  }, {
+    "@id" : "http://snomed.info/sct#225057002"
+  }, {
+    "@id" : "http://snomed.info/sct#233680000"
+  }, {
+    "@id" : "http://snomed.info/sct#233681001"
+  }, {
+    "@id" : "http://snomed.info/sct#233682008"
+  }, {
+    "@id" : "http://snomed.info/sct#445427006"
+  }, {
+    "@id" : "http://snomed.info/sct#233684009"
+  }, {
+    "@id" : "http://snomed.info/sct#233685005"
+  }, {
+    "@id" : "http://snomed.info/sct#233686006"
+  }, {
+    "@id" : "http://snomed.info/sct#10692681000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#233687002"
+  }, {
+    "@id" : "http://snomed.info/sct#233688007"
+  }, {
+    "@id" : "http://snomed.info/sct#266358007"
+  }, {
+    "@id" : "http://snomed.info/sct#266359004"
+  }, {
+    "@id" : "http://snomed.info/sct#266360009"
+  }, {
+    "@id" : "http://snomed.info/sct#266362001"
+  }, {
+    "@id" : "http://snomed.info/sct#266363006"
+  }, {
+    "@id" : "http://snomed.info/sct#266364000"
+  }, {
+    "@id" : "http://snomed.info/sct#266365004"
+  }, {
+    "@id" : "http://snomed.info/sct#266396008"
+  }, {
+    "@id" : "http://snomed.info/sct#266397004"
+  }, {
+    "@id" : "http://snomed.info/sct#266398009"
+  }, {
+    "@id" : "http://snomed.info/sct#274105009"
+  }, {
+    "@id" : "http://snomed.info/sct#278517007"
+  }, {
+    "@id" : "http://snomed.info/sct#304527002"
+  }, {
+    "@id" : "http://snomed.info/sct#367110001"
+  }, {
+    "@id" : "http://snomed.info/sct#389146007"
+  }, {
+    "@id" : "http://snomed.info/sct#404808000"
+  }, {
+    "@id" : "http://snomed.info/sct#407674008"
+  }, {
+    "@id" : "http://snomed.info/sct#409663006"
+  }, {
+    "@id" : "http://snomed.info/sct#416601004"
+  }, {
+    "@id" : "http://snomed.info/sct#425969006"
+  }, {
+    "@id" : "http://snomed.info/sct#427603009"
+  }, {
+    "@id" : "http://snomed.info/sct#426656000"
+  }, {
+    "@id" : "http://snomed.info/sct#426979002"
+  }, {
+    "@id" : "http://snomed.info/sct#427295004"
+  }, {
+    "@id" : "http://snomed.info/sct#427354000"
+  }, {
+    "@id" : "http://snomed.info/sct#707445000"
+  }, {
+    "@id" : "http://snomed.info/sct#707446004"
+  }, {
+    "@id" : "http://snomed.info/sct#707447008"
+  }, {
+    "@id" : "http://snomed.info/sct#427679007"
+  }, {
+    "@id" : "http://snomed.info/sct#442025000"
+  }, {
+    "@id" : "http://snomed.info/sct#703953004"
+  }, {
+    "@id" : "http://snomed.info/sct#703954005"
+  }, {
+    "@id" : "http://snomed.info/sct#707444001"
+  }, {
+    "@id" : "http://snomed.info/sct#707511009"
+  }, {
+    "@id" : "http://snomed.info/sct#707512002"
+  }, {
+    "@id" : "http://snomed.info/sct#707513007"
+  }, {
+    "@id" : "http://snomed.info/sct#707979007"
+  }, {
+    "@id" : "http://snomed.info/sct#707980005"
+  }, {
+    "@id" : "http://snomed.info/sct#707981009"
+  }, {
+    "@id" : "http://snomed.info/sct#708038006"
+  }, {
+    "@id" : "http://snomed.info/sct#762521001"
+  }, {
+    "@id" : "http://snomed.info/sct#782513000"
+  }, {
+    "@id" : "http://snomed.info/sct#733858005"
+  }, {
+    "@id" : "http://snomed.info/sct#734904007"
+  }, {
+    "@id" : "http://snomed.info/sct#734905008"
+  }, {
+    "@id" : "http://snomed.info/sct#735587000"
+  }, {
+    "@id" : "http://snomed.info/sct#735588005"
+  }, {
+    "@id" : "http://snomed.info/sct#735589002"
+  }, {
+    "@id" : "http://snomed.info/sct#786836003"
+  }, {
+    "@id" : "http://snomed.info/sct#829976001"
+  }, {
+    "@id" : "http://snomed.info/sct#401000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#1741000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#1751000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#1761000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#10692761000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#72301000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#99031000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#124991000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#10675431000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#125001000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#10676391000119108"
+  }, {
+    "@id" : "http://snomed.info/sct#125011000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#10675871000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#125021000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#10674991000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#135171000119106"
+  }, {
+    "@id" : "http://snomed.info/sct#135181000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#2360001000004109"
+  }, {
+    "@id" : "http://snomed.info/sct#10674711000119105"
+  }, {
+    "@id" : "http://snomed.info/sct#10675391000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#10675471000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#10675551000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#10675751000119107"
+  }, {
+    "@id" : "http://snomed.info/sct#10675911000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#10675991000119100"
+  }, {
+    "@id" : "http://snomed.info/sct#10676431000119103"
+  }, {
+    "@id" : "http://snomed.info/sct#10676511000119109"
+  }, {
+    "@id" : "http://snomed.info/sct#10692721000119102"
+  }, {
+    "@id" : "http://snomed.info/sct#10742121000119104"
+  }, {
+    "@id" : "http://snomed.info/sct#16584951000119101"
+  }, {
+    "@id" : "http://snomed.info/sct#95111000000105"
+  }, {
+    "@id" : "http://snomed.info/sct#99981000000103"
+  }, {
+    "@id" : "http://snomed.info/sct#111991000000106"
+  }, {
+    "@id" : "http://snomed.info/sct#165621000000103"
+  }, {
+    "@id" : "http://snomed.info/sct#186071000000103"
+  }, {
+    "@id" : "http://snomed.info/sct#186081000000101"
+  }, {
+    "@id" : "http://snomed.info/sct#189511000000105"
+  }, {
+    "@id" : "http://snomed.info/sct#189521000000104"
+  }, {
+    "@id" : "http://snomed.info/sct#579691000000102"
+  }, {
+    "@id" : "http://snomed.info/sct#589231000000108"
+  }, {
+    "@id" : "http://snomed.info/sct#589241000000104"
+  }, {
+    "@id" : "http://snomed.info/sct#593201000000103"
+  }, {
+    "@id" : "http://snomed.info/sct#593601000000101"
+  }, {
+    "@id" : "http://snomed.info/sct#644281000000107"
+  }, {
+    "@id" : "http://snomed.info/sct#653751000000109"
+  }, {
+    "@id" : "http://snomed.info/sct#689421000000104"
+  }, {
+    "@id" : "http://snomed.info/sct#689431000000102"
+  }, {
+    "@id" : "http://snomed.info/sct#866881000000101"
+  }, {
+    "@id" : "http://snomed.info/sct#866891000000104"
+  }, {
+    "@id" : "http://snomed.info/sct#944961000000107"
+  }, {
+    "@id" : "http://snomed.info/sct#944971000000100"
+  }, {
+    "@id" : "http://snomed.info/sct#1064771000000103"
+  }, {
+    "@id" : "http://snomed.info/sct#1064811000000103"
+  }, {
+    "@id" : "http://snomed.info/sct#1064821000000109"
+  }, {
+    "@id" : "http://snomed.info/sct#1086701000000102"
+  }, {
+    "@id" : "http://snomed.info/sct#1086711000000100"
+  }, {
+    "@id" : "http://snomed.info/sct#1103911000000103"
   } ]
 }

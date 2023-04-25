@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends TripleVar {
+public class OrderLimit extends Property {
 	private Order direction;
 	private int limit;
 
@@ -23,10 +23,6 @@ public class OrderLimit extends TripleVar {
 		return this;
 	}
 
-	public OrderLimit setNodeVar(String variable){
-		super.setNodeVar(variable);
-		return this;
-	}
 
 
 	public OrderLimit setVariable(String variable){

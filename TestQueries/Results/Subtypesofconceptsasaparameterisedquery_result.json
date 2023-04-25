@@ -1,43 +1,30 @@
 {
   "@context" : {
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
     "sh" : "http://www.w3.org/ns/shacl#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "sn" : "http://snomed.info/sct#",
-    "entities" : {
-      "@id" : "http://envhealth.info/im#entities",
-      "@container" : "@set"
-    }
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "sn:10035008",
-    "rdfs:label" : "Low altitude (physical force)"
+    "@id" : "http://snomed.info/sct#10035008"
   }, {
-    "@id" : "sn:76661004",
-    "rdfs:label" : "Altitude (physical force)"
+    "@id" : "http://snomed.info/sct#76661004"
   }, {
-    "@id" : "sn:87588000",
-    "rdfs:label" : "High altitude (physical force)"
+    "@id" : "http://snomed.info/sct#87588000"
   }, {
-    "@id" : "sn:72110006",
-    "rdfs:label" : "Below sea level (physical force)"
+    "@id" : "http://snomed.info/sct#72110006"
   }, {
-    "@id" : "sn:26366004",
-    "rdfs:label" : "Pr P^Sc^ (organism)"
+    "@id" : "http://snomed.info/sct#26366004"
   }, {
-    "@id" : "sn:243640007",
-    "rdfs:label" : "Animal spongiform encephalopathy agent (organism)"
+    "@id" : "http://snomed.info/sct#243640007"
   }, {
-    "@id" : "sn:68638009",
-    "rdfs:label" : "Bovine spongiform encephalopathy agent (organism)"
+    "@id" : "http://snomed.info/sct#68638009"
   }, {
-    "@id" : "sn:243641006",
-    "rdfs:label" : "Chronic wasting disease of mule deer and elk agent (organism)"
+    "@id" : "http://snomed.info/sct#243641006"
   }, {
-    "@id" : "sn:243642004",
-    "rdfs:label" : "Transmissible mink encephalopathy agent (organism)"
+    "@id" : "http://snomed.info/sct#243642004"
   } ]
 }

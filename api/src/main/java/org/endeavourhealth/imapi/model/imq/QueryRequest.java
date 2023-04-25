@@ -188,6 +188,7 @@ public class QueryRequest implements ContextMap {
 
 
 	@Override
+	@JsonProperty("@context")
 	public Map<String, String> getContext() {
 		return this.context;
 	}

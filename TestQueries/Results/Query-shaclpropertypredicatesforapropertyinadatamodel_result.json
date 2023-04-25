@@ -1,22 +1,17 @@
 {
   "@context" : {
-    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
     "sh" : "http://www.w3.org/ns/shacl#",
-    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "xsd" : "http://www.w3.org/2001/XMLSchema#",
-    "sn" : "http://snomed.info/sct#",
-    "entities" : {
-      "@id" : "http://envhealth.info/im#entities",
-      "@container" : "@set"
-    }
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "sh:datatype" : [ {
-      "@id" : "xsd:integer",
-      "rdfs:label" : "integer"
-    } ],
-    "sh:maxCount" : "1"
+    "@bn" : "genid-f447796577734dd4a0e00e936f232e2326-b173",
+    "http://www.w3.org/ns/shacl#datatype" : [ {
+      "@id" : "http://www.w3.org/2001/XMLSchema#integer"
+    } ]
   } ]
 }

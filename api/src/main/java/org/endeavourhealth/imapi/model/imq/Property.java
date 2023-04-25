@@ -4,6 +4,26 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class Property extends Element {
 	private boolean inverse;
+	private String nodeRef;
+	private String valueVariable;
+
+	public String getNodeRef() {
+		return nodeRef;
+	}
+
+	public Property setNodeRef(String nodeRef) {
+		this.nodeRef = nodeRef;
+		return this;
+	}
+
+	public String getValueVariable() {
+		return valueVariable;
+	}
+
+	public Property setValueVariable(String valueVariable) {
+		this.valueVariable = valueVariable;
+		return this;
+	}
 
 
 	public boolean isInverse() {

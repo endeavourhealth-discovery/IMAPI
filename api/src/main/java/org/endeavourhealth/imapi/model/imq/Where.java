@@ -27,6 +27,10 @@ public class Where extends Property implements Assignable,Whereable{
 	private boolean isNull;
 	private Property relativeTo;
 
+	public Where setValueVariable(String valueVariable) {
+		super.setValueVariable(valueVariable);
+		return this;
+	}
 	public static Where iri(String iri) {
 		return new Where(iri);
 	}
@@ -42,10 +46,6 @@ public class Where extends Property implements Assignable,Whereable{
 	public String getId() {
 		return super.getIri();
 	}
-
-
-
-
 
 
 	public boolean isNull() {

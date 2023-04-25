@@ -1,0 +1,36 @@
+{
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
+  "entities" : [ {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://endhealth.info/im#sourceContext" : [ {
+      "@bn" : "genid-f447796577734dd4a0e00e936f232e2326-b7358044",
+      "@id" : { }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://endhealth.info/im#sourceContext" : [ {
+      "@bn" : "genid-f447796577734dd4a0e00e936f232e2326-b7358045",
+      "@id" : { }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://endhealth.info/im#sourceContext" : [ {
+      "@bn" : "genid-f447796577734dd4a0e00e936f232e2326-b7358046",
+      "@id" : { }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/bc#PF4",
+    "http://endhealth.info/im#sourceContext" : [ {
+      "@bn" : "genid-f447796577734dd4a0e00e936f232e2326-b7358047",
+      "@id" : { }
+    } ]
+  } ]
+}

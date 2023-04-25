@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -11,18 +12,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"@context","iri","name","description","match","select","subQuery","groupBy","orderBy","direction","limit","having"})
+@JsonPropertyOrder({"@context","iri","name","description","match","select","construct","subQuery","groupBy","orderBy","direction","limit","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends TTIriRef {
 
 	private String description;
-	private List<Select> select;
 	private boolean activeOnly;
 	private boolean usePrefixes;
 	private List<Query> query;
 	private List<Match> match;
 	private List<OrderLimit> orderBy;
-	private List<TripleVar> groupBy;
+	private List<Property> groupBy;
+	private List<Return> returx;
+
+	@JsonProperty("return")
+	public List<Return> getReturn() {
+		return returx;
+	}
+
+	public Query setReturn(List<Return> returx) {
+		this.returx = returx;
+		return this;
+	}
+
+	public Query addReturn(Return aReturn){
+		if (this.returx==null)
+			this.returx= new ArrayList<>();
+		this.returx.add(aReturn);
+		return this;
+	}
+
+	public Query return_(Consumer<Return> builder){
+		Return ret= new Return();
+		addReturn(ret);
+		builder.accept(ret);
+		return this;
+	}
 
 
 	public List<Match> getMatch() {
@@ -91,32 +116,28 @@ public class Query extends TTIriRef {
 	}
 
 
-	public List<TripleVar> getGroupBy() {
+	public List<Property> getGroupBy() {
 		return groupBy;
 	}
 
-	public Query setGroupBy(List<TripleVar> groupBy) {
+	public Query setGroupBy(List<Property> groupBy) {
 		this.groupBy = groupBy;
 		return this;
 	}
 
-	public Query addGroupBy(TripleVar group){
+	public Query addGroupBy(Property group){
 		if (this.groupBy==null)
 			this.groupBy= new ArrayList<>();
 		this.groupBy.add(group);
 		return this;
 	}
 
-	public Query groupBy(Consumer<TripleVar> builder){
-		TripleVar group= new TripleVar();
+	public Query groupBy(Consumer<Property> builder){
+		Property group= new Property();
 		addGroupBy(group);
 		builder.accept(group);
 		return this;
 	}
-
-
-
-
 
 	public List<Query> getQuery() {
 		return query;
@@ -142,6 +163,7 @@ public class Query extends TTIriRef {
 		return this;
 	}
 
+
 	public boolean isActiveOnly() {
 		return activeOnly;
 	}
@@ -160,33 +182,7 @@ public class Query extends TTIriRef {
 		return this;
 	}
 
-	public List<Select> getSelect() {
-		return select;
-	}
 
-	@JsonSetter
-	public Query setSelect(List<Select> select) {
-		this.select = select;
-		return this;
-	}
-
-	public Query addSelect(Select select){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		this.select.add(select);
-		return this;
-	}
-
-
-
-	public Query select(Consumer<Select> builder){
-		if (this.select==null)
-			this.select= new ArrayList<>();
-		Select select= new Select();
-		this.select.add(select);
-		builder.accept(select);
-		return this;
-	}
 
 
 

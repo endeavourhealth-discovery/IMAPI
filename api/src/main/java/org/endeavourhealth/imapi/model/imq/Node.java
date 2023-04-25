@@ -14,18 +14,18 @@ import java.util.function.Consumer;
 public class Node extends Element{
 	private String type;
 	private String set;
-	private Relationship path;
+	private Path path;
 
-	public Relationship getPath() {
+	public Path getPath() {
 		return path;
 	}
 
-	public Node setPath(Relationship path) {
+	public Node setPath(Path path) {
 		this.path = path;
 		return this;
 	}
-	public Node path(Consumer<Relationship> builder){
-		builder.accept(setPath(new Relationship()).getPath());
+	public Node path(Consumer<Path> builder){
+		builder.accept(setPath(new Path()).getPath());
 		return this;
 	}
 

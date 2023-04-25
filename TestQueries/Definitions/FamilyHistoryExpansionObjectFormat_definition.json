@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -13,24 +13,29 @@
     "match" : [ {
       "where" : [ {
         "in" : [ {
-          "@id" : "http://endhealth.info/im#VSET_FamilyHistory"
+          "@id" : "im:VSET_FamilyHistory"
         } ],
         "inverse" : true,
-        "@id" : "http://endhealth.info/im#hasMember"
+        "@id" : "im:hasMember"
       } ]
     } ],
-    "select" : [ {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    }, {
-      "@id" : "http://endhealth.info/im#code"
-    }, {
-      "inverse" : true,
-      "@id" : "http://endhealth.info/im#matchedTo"
-    }, {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    }, {
-      "@id" : "http://endhealth.info/im#code"
-    } ],
-    "usePrefixes" : true
+    "usePrefixes" : true,
+    "return" : [ {
+      "property" : [ {
+        "@id" : "rdfs:label"
+      }, {
+        "@id" : "im:code"
+      }, {
+        "node" : {
+          "property" : [ {
+            "@id" : "rdfs:label"
+          }, {
+            "@id" : "im:code"
+          } ]
+        },
+        "@id" : "im:matchedTo",
+        "inverse" : true
+      } ]
+    } ]
   }
 }

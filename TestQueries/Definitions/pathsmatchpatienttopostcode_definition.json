@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,10 +11,10 @@
   "pathQuery" : {
     "name" : "paths match patient to post code",
     "source" : {
-      "@id" : "http://endhealth.info/im#Patient"
+      "@id" : "im:Patient"
     },
     "target" : {
-      "@id" : "http://endhealth.info/im#postCode"
+      "@id" : "im:postCode"
     },
     "depth" : 3
   }

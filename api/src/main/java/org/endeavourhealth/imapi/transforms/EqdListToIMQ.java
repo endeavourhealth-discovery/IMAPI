@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Select;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -41,36 +39,47 @@ public class EqdListToIMQ {
 	private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException {
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
-			Select select= new Select();
-			subQuery.addSelect(select);
+			Return select= new Return();
+			subQuery.addReturn(select);
 			String eqColumn= String.join("/",eqCol.getColumn());
 			String property = resources.getPath(eqTable + "/" + eqColumn);
-			select.setIri(IM.NAMESPACE+property);
+			select.property(p->p
+				.setIri(IM.NAMESPACE+property));
 		}
+	}
 
+	private String getLastNode(Match match){
+		if (match.getPath()!=null){
+			return getLastNode(match.getPath());
+		}
+		else
+			return match.getVariable();
+	}
+
+	private String getLastNode(Path path){
+			if (path.getNode().getPath()==null) {
+				return path.getNode().getVariable();
+			}
+			else
+				return getLastNode(path.getNode().getPath());
 	}
 
 	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException {
-		Select select = new Select();
-		subQuery.addSelect(select);
+		Return aReturn = new Return();
+		subQuery.addReturn(aReturn);
 		Match match = new Match();
 		subQuery.addMatch(match);
 		resources.convertCriteria(eqColGroup.getCriteria(), match);
-		select.setIri(IM.NAMESPACE+resources.getPath(eqTable));
+		String node= getLastNode(match);
+		aReturn.setNodeRef(node);
+		ReturnProperty property= new ReturnProperty();
 		EQDOCListColumns eqCols = eqColGroup.getColumnar();
 		for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
 			String eqColumn = String.join("/", eqCol.getColumn());
 			String subPath = resources.getPath(eqTable + "/" + eqColumn);
-			String[] subPaths= subPath.split(" ");
-			if (subPath.contains(" ")) {
-				for (int i = 0; i < subPaths.length - 1; i++) {
-					select.setIri(IM.NAMESPACE+subPaths[i]);
-					Select subSelect= new Select();
-					select.addSelect(subSelect);
-					select= subSelect;
-				}
-			}
-			select.setIri(IM.NAMESPACE+subPaths[subPaths.length-1]);
+			String field= subPath.substring(subPath.lastIndexOf(" ")+1);
+			aReturn.property(p->p
+				.setIri(IM.NAMESPACE+field));
 		}
 	}
 

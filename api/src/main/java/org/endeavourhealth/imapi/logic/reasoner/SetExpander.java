@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -30,7 +31,7 @@ public class SetExpander {
 	private final EntityRepository2 repo2= new EntityRepository2();
 	private final SetRepository setRepo= new SetRepository();
 
-	public void expandAllSets() throws DataFormatException, JsonProcessingException {
+	public void expandAllSets() throws DataFormatException, JsonProcessingException, QueryException {
 		LOG.info("Getting value sets....");
 		//First get the list of sets that dont have members already expanded
 		Set<String> sets= getSets();
@@ -48,7 +49,7 @@ public class SetExpander {
 
 	}
 
-	public void expandSet(String iri) throws DataFormatException, JsonProcessingException {
+	public void expandSet(String iri) throws DataFormatException, JsonProcessingException, QueryException {
 		LOG.info("Updating members of "+ iri);
 		TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 		if (setDefinition.getEntity().get(IM.DEFINITION)==null)

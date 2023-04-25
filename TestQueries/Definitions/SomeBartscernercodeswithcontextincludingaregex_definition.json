@@ -9,43 +9,38 @@
     "sn" : "http://snomed.info/sct#"
   },
   "query" : {
-    "name" : "PropertiesOfShapesUsingDateOfBirth",
-    "description" : "all of the data model properties for entities that have a property df a data of birth",
+    "name" : "Some Barts cerner codes with context including a regex",
     "match" : [ {
-      "@type" : "sh:NodeShape",
       "path" : {
-        "@id" : "sh:property"
+        "@id" : "im:sourceContext"
       },
       "where" : [ {
-        "in" : [ {
-          "@id" : "im:dateOfBirth"
-        } ],
-        "@id" : "sh:path"
+        "@id" : "im:sourceRegex"
       } ]
-    }, {
-      "path" : {
-        "@id" : "sh:property"
-      }
     } ],
     "usePrefixes" : true,
     "return" : [ {
       "property" : [ {
+        "@id" : "rdfs:label"
+      }, {
+        "@id" : "im:code"
+      }, {
         "node" : {
           "property" : [ {
-            "@id" : "sh:path"
+            "@id" : "im:sourceCodeScheme"
           }, {
-            "@id" : "sh:node"
+            "@id" : "im:sourceHeading"
           }, {
-            "@id" : "sh:minCount"
+            "@id" : "im:sourceSystem"
           }, {
-            "@id" : "sh:maxCount"
+            "@id" : "im:sourceTable"
           }, {
-            "@id" : "sh:class"
+            "@id" : "im:sourceField"
           }, {
-            "@id" : "sh:datatype"
+            "@id" : "im:sourceSchema"
           } ]
         },
-        "@id" : "sh:property"
+        "@id" : "im:sourceContext"
       } ]
     } ]
   }

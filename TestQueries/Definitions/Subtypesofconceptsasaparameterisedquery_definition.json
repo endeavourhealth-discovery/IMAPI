@@ -1,5 +1,5 @@
 {
-  "context" : {
+  "@context" : {
     "im" : "http://endhealth.info/im#",
     "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "owl" : "http://www.w3.org/2002/07/owl#",
@@ -11,9 +11,9 @@
   "argument" : [ {
     "parameter" : "this",
     "valueIriList" : [ {
-      "@id" : "http://snomed.info/sct#76661004"
+      "@id" : "sn:76661004"
     }, {
-      "@id" : "http://snomed.info/sct#243640007"
+      "@id" : "sn:243640007"
     } ]
   } ],
   "query" : {
@@ -23,9 +23,11 @@
       "parameter" : "this",
       "descendantsOrSelfOf" : true
     } ],
-    "select" : [ {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label",
-      "variable" : "c"
+    "return" : [ {
+      "property" : [ {
+        "@id" : "rdfs:label"
+      } ],
+      "nodeRef" : "c"
     } ]
   }
 }

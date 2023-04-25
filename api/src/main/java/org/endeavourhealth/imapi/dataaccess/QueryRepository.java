@@ -385,9 +385,9 @@ public class QueryRepository {
                 setMatchLabels(match, iriLabels);
             }
         }
-        if (query.getSelect() != null)
-            for (Select select : query.getSelect())
-                setSelectLabels(select, iriLabels);
+        if (query.getReturn() != null)
+            for (Return select : query.getReturn())
+                setReturnLabels(select, iriLabels);
         if (query.getQuery() != null)
             for (Query subQuery : query.getQuery())
                 setQueryLabels(subQuery, iriLabels);
@@ -430,12 +430,17 @@ public class QueryRepository {
 
     }
 
-    private void setSelectLabels(Select select, Map<String, String> iris) {
-        if (select.getIri() != null)
-            select.setName(iris.get(select.getIri()));
-        if (select.getSelect() != null)
-            for (Select sub : select.getSelect())
-                setSelectLabels(sub, iris);
+    private void setReturnLabels(Return select, Map<String, String> iris) {
+        if (select.getProperty()!=null) {
+            for (ReturnProperty property : select.getProperty()) {
+                if (property.getIri() != null) {
+                    property.setName(iris.get(property.getIri()));
+                }
+                if (property.getNode()!=null){
+                    setReturnLabels(property.getNode(),iris);
+                }
+            }
+        }
     }
 
     private void addToIriList(String iri, List<TTIriRef> ttIris, Map<String, String> iris) {

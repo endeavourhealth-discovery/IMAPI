@@ -355,10 +355,6 @@ public class QueryRepository {
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 addToIriList(in.getIri(), ttIris, iris);
-
-        //not checking relativeTo
-
-
     }
 
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
@@ -374,9 +370,23 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> gatherFromLabels(f, ttIris, iris));
         }
-        //path
-        //@set
-        //orderBy
+        if (match.getSet() != null) {
+            addToIriList(match.getSet(), ttIris, iris);
+        }
+        if (match.getPath() != null) {
+            addToIriList(match.getPath().getIri(), ttIris, iris);
+        }
+        if (match.getOrderBy() != null) {
+            for(OrderLimit orderBy : match.getOrderBy()) {
+                gatherOrderLimitLabels(orderBy, ttIris,iris);
+            }
+        }
+    }
+
+    private void gatherOrderLimitLabels(OrderLimit orderBy, List<TTIriRef> ttIris, Map<String, String> iris) {
+        if(orderBy.getIri() != null) {
+            addToIriList(orderBy.getIri(), ttIris, iris);
+        }
     }
 
     private void setQueryLabels(Query query, Map<String, String> iriLabels) {
@@ -411,6 +421,23 @@ public class QueryRepository {
         if (match.getMatch() != null) {
             match.getMatch().forEach(f -> setMatchLabels(f,iriLabels));
         }
+        if (match.getSet() != null) {
+            match.setName(iriLabels.get(match.getSet()));
+        }
+        if (match.getPath() != null) {
+            match.getPath().setName(iriLabels.get(match.getPath().getIri()));
+        }
+        if (match.getOrderBy() != null) {
+            for(OrderLimit orderBy : match.getOrderBy()) {
+                setOrderLimitLabels(orderBy, iriLabels);
+            }
+        }
+    }
+
+    private void setOrderLimitLabels(OrderLimit orderBy, Map<String, String> iriLabels) {
+        if(orderBy.getIri() != null) {
+            orderBy.setName(iriLabels.get(orderBy.getIri()));
+        }
     }
 
     private void setWhereLabels(Where where, Map<String, String> iris) {
@@ -424,10 +451,6 @@ public class QueryRepository {
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 in.setName(iris.get(in.getIri()));
-
-        //not checking relativeTo
-
-
     }
 
     private void setReturnLabels(Return select, Map<String, String> iris) {

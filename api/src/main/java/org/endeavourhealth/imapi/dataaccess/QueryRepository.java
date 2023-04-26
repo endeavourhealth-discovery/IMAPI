@@ -205,6 +205,8 @@ public class QueryRepository {
                 else if (object.isBNode()) {
                     node.put(property.getIri(),nodeValue);
             }
+                else
+                    node.put(property.getIri(),nodeValue);
         }
     }
 

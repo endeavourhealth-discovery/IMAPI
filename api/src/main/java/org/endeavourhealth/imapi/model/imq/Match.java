@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","boolMatch","description","graph","iri","set","type","name","path","descendantOrSelfOf","descendantOf",
-	"ancestorOf","description","bool","match","where"})
+@JsonPropertyOrder({"exclude","boolMatch","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
+	"ancestorsOf","description","bool","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Node implements Whereable{
 	private Bool boolMatch;

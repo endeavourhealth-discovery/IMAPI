@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"node","function","property","groupBy","as"})
+@JsonPropertyOrder({"nodeRef","function","property","groupBy","as"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Return {
 	private String nodeRef;

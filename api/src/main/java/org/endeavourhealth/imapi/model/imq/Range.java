@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"match","to","relativeTo"})
+@JsonPropertyOrder({"match","from","to","relativeTo"})
 public class Range {
 	private Assignable from;
 	private Assignable to;

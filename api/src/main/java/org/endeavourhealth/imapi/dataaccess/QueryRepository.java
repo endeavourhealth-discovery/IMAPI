@@ -200,13 +200,14 @@ public class QueryRepository {
                 String nodeValue = object.stringValue();
                 if (object.isIRI()) {
                     ObjectNode iriNode= mapper.createObjectNode();
-                    node.set("@id", iriNode);
+                    node.set(iri, iriNode);
+                    iriNode.put("@id",nodeValue);
                 }
                 else if (object.isBNode()) {
-                    node.put(property.getIri(),nodeValue);
-            }
+                    node.put(iri,nodeValue);
+                }
                 else
-                    node.put(property.getIri(),nodeValue);
+                    node.put(iri,nodeValue);
         }
     }
 

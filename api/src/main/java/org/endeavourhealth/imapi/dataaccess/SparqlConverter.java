@@ -199,7 +199,7 @@ public class SparqlConverter {
 					else
 						whereQl.append(" in (").append(inList).append("))\n");
 				}
-				else if (match.getIri() != null) {
+				else {
 					o++;
 					whereQl.append("?").append(subject).append(" rdf:type ?type.\n");
 					whereQl.append("Filter (?").append(subject);

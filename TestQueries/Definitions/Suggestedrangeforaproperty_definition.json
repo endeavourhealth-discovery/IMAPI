@@ -42,17 +42,17 @@
         }
       } ],
       "where" : [ {
+        "@id" : "sh:path",
         "in" : [ {
           "parameter" : "this"
-        } ],
-        "@id" : "sh:path"
+        } ]
       } ]
     } ],
     "return" : [ {
+      "nodeRef" : "range",
       "property" : [ {
         "@id" : "rdfs:label"
-      } ],
-      "nodeRef" : "range"
+      } ]
     } ]
   }
 }

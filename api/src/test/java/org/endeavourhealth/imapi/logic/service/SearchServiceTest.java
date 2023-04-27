@@ -64,6 +64,7 @@ class SearchServiceTest {
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 
 		for (QueryRequest qr1 : List.of(
+			TestQueries.getAllowableSubtypes(),
 			TestQueries.AllowablePropertiesForCovid(),
 			TestQueries.query1(),
 			TestQueries.query2(),
@@ -72,8 +73,8 @@ class SearchServiceTest {
 			TestQueries.pathToAtenolol(),
 			TestQueries.pathDobQuery(),
 			TestQueries.pathToPostCode(),
-			TestQueries.deleteSets(),
-			TestQueries.getAllowableSubtypes()
+			TestQueries.deleteSets()
+
 
 		)) {
 			output(qr1);

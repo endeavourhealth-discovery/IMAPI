@@ -30,14 +30,15 @@
         }
       },
       "where" : [ {
+        "@id" : "sh:path",
         "in" : [ {
           "parameter" : "$property"
-        } ],
-        "@id" : "sh:path"
+        } ]
       } ],
       "parameter" : "$dataModel"
     } ],
     "return" : [ {
+      "nodeRef" : "shaclProperty",
       "property" : [ {
         "node" : {
           "property" : [ {
@@ -63,8 +64,7 @@
         "@id" : "sh:maxCount"
       }, {
         "@id" : "sh:minCount"
-      } ],
-      "nodeRef" : "shaclProperty"
+      } ]
     } ]
   }
 }

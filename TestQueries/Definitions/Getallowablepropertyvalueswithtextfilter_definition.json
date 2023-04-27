@@ -20,8 +20,8 @@
   "query" : {
     "name" : "Get allowable property values with text filter",
     "match" : [ {
-      "parameter" : "this",
-      "descendantsOrSelfOf" : true
+      "descendantsOrSelfOf" : true,
+      "parameter" : "this"
     } ],
     "return" : [ {
       "property" : [ {

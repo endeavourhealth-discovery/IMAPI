@@ -15,8 +15,8 @@
   "query" : {
     "name" : "All subtypes of an entity, active only",
     "match" : [ {
-      "parameter" : "this",
-      "descendantsOrSelfOf" : true
+      "descendantsOrSelfOf" : true,
+      "parameter" : "this"
     } ],
     "activeOnly" : true,
     "return" : [ {

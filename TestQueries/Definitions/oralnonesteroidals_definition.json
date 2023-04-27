@@ -14,24 +14,24 @@
       "boolMatch" : "and",
       "match" : [ {
         "@id" : "sn:763158003",
+        "descendantsOrSelfOf" : true,
         "where" : [ {
+          "@id" : "sn:127489000",
           "in" : [ {
             "@id" : "sn:372665008",
             "descendantsOrSelfOf" : true
           } ],
           "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true,
-          "@id" : "sn:127489000"
+          "descendantsOrSelfOf" : true
         }, {
+          "@id" : "sn:411116001",
           "in" : [ {
             "@id" : "sn:385268001",
             "descendantsOrSelfOf" : true
           } ],
           "anyRoleGroup" : true,
-          "descendantsOrSelfOf" : true,
-          "@id" : "sn:411116001"
-        } ],
-        "descendantsOrSelfOf" : true
+          "descendantsOrSelfOf" : true
+        } ]
       } ]
     } ],
     "usePrefixes" : true,

@@ -14,14 +14,14 @@
     "description" : "'using property domains get the allowable properties match the supertypes of this concept",
     "match" : [ {
       "@type" : "im:Concept",
+      "descendantsOrSelfOf" : true,
       "where" : [ {
+        "@id" : "rdfs:domain",
         "in" : [ {
           "@id" : "sn:674814021000119106",
           "ancestorsOf" : true
-        } ],
-        "@id" : "rdfs:domain"
-      } ],
-      "descendantsOrSelfOf" : true
+        } ]
+      } ]
     } ],
     "activeOnly" : true,
     "usePrefixes" : true,

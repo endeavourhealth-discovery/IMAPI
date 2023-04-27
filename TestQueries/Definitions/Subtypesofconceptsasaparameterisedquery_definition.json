@@ -19,15 +19,15 @@
   "query" : {
     "name" : "Subtypes of concepts as a parameterised query",
     "match" : [ {
+      "descendantsOrSelfOf" : true,
       "variable" : "c",
-      "parameter" : "this",
-      "descendantsOrSelfOf" : true
+      "parameter" : "this"
     } ],
     "return" : [ {
+      "nodeRef" : "c",
       "property" : [ {
         "@id" : "rdfs:label"
-      } ],
-      "nodeRef" : "c"
+      } ]
     } ]
   }
 }

@@ -12,11 +12,11 @@
     "name" : "FamilyHistoryExpansionObjectFormat",
     "match" : [ {
       "where" : [ {
+        "@id" : "im:hasMember",
         "in" : [ {
           "@id" : "im:VSET_FamilyHistory"
         } ],
-        "inverse" : true,
-        "@id" : "im:hasMember"
+        "inverse" : true
       } ]
     } ],
     "usePrefixes" : true,

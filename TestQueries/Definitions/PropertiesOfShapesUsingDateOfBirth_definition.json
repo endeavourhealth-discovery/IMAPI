@@ -17,10 +17,10 @@
         "@id" : "sh:property"
       },
       "where" : [ {
+        "@id" : "sh:path",
         "in" : [ {
           "@id" : "im:dateOfBirth"
-        } ],
-        "@id" : "sh:path"
+        } ]
       } ]
     }, {
       "path" : {

@@ -341,22 +341,24 @@ public class SparqlConverter {
 	 * @param where the where clause
 	 */
 	private void whereProperty(StringBuilder whereQl, String subject,Where where) throws DataFormatException {
-			o++;
 
-		  String object=null;
+
+		String object=where.getValueVariable();
 		if (where.isAnyRoleGroup()) {
 			whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
 			subject = "roleGroup" + o;
 			o++;
 		}
-			if (where.getIri()==null)
+		if (where.getIri()==null) {
 				throw new DataFormatException("Where clause must contain actual properties, use match clause for Paths as variables.");
-			String inverse = where.isInverse() ? "^" : "";
-			String property= "p"+o;
-			if (where.getParameter()!=null) {
+		}
+		o++;
+		String inverse = where.isInverse() ? "^" : "";
+		String property= "p"+o;
+		if (where.getParameter()!=null) {
 				property = iriFromAlias(where);
-			}
-			else
+		}
+		else
 				if (where.getVariable()!=null)
 				property= where.getVariable();
 				else
@@ -529,6 +531,9 @@ public class SparqlConverter {
 						String objectVariable = "o" + o;
 						path.setValueVariable(objectVariable);
 						addOptionalProperty(selectQl, whereQl, aReturn.getNodeRef(), path.getIri(), objectVariable,path.getAs());
+					}
+					else{
+						selectQl.append(" ?").append(path.getValueVariable());
 					}
 				}
 			}

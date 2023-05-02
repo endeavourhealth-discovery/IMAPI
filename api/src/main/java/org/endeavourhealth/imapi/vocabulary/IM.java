@@ -243,7 +243,7 @@ public class IM {
     public static final TTIriRef REGION = iri(NAMESPACE + "region");
     public static final TTIriRef POST_CODE = iri(NAMESPACE + "postCode");
     public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
-    public static final TTIriRef UPRN = iri(NAMESPACE + "#uprn");
+    public static final TTIriRef UPRN = iri(NAMESPACE + "uprn");
 
     //Editor
     public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");

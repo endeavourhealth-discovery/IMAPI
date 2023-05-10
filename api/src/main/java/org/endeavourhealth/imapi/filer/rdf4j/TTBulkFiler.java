@@ -126,7 +126,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
     private void createFileWriters(String scheme, String path) throws IOException {
         quads = new FileWriter(path + "/BulkImport" + ".nq", true);
         //quads = new FileWriter(path + "/BulkImport-" + fileNumber + ".nq");
-        codeMap = new FileWriter(path + "/CodeMap-" + scheme + ".txt", true);
+        codeMap = new FileWriter(path + "/CodeMap.txt", true);
         termCoreMap = new FileWriter(path + "/TermCoreMap-" + scheme + ".txt", true);
         subtypes = new FileWriter(path + "/SubTypes" + ".txt", true);
         allEntities = new FileWriter(path + "/Entities" + ".txt", true);
@@ -186,7 +186,7 @@ public class TTBulkFiler  extends TTDocumentFiler {
 
     private void addCodeToMaps(TTEntity entity, String graph) throws IOException {
         if (entity.getCode()!=null){
-            codeMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
+            codeMap.write(graph+entity.getCode()+"\t"+ entity.getIri()+"\n");
             if (graph.equals(IM.NAMESPACE)|| (graph.equals(SNOMED.NAMESPACE)))
                 codeCoreMap.write(entity.getCode()+"\t"+ entity.getIri()+"\n");
         }
@@ -237,10 +237,6 @@ public class TTBulkFiler  extends TTDocumentFiler {
                 TTNode termCode = tc.asNode();
                 if (termCode.get(IM.CODE) != null) {
                     String code = termCode.get(IM.CODE).asLiteral().getValue();
-                    codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
-                }
-                if (termCode.get(IM.OLD_CODE) != null) {
-                    String code = termCode.get(IM.OLD_CODE).asLiteral().getValue();
                     codeCoreMap.write(code+"\t"+core.asIriRef().getIri()+"\n");
                 }
                 if (termCode.get(RDFS.LABEL) != null) {

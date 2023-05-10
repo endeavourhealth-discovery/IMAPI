@@ -47,6 +47,11 @@ public class Where extends Property implements Assignable,Whereable{
 		return super.getIri();
 	}
 
+	@Override
+	public Where setNodeRef(String nodeRef) {
+		super.setNodeRef(nodeRef);
+		return this;
+	}
 
 	public boolean isNull() {
 		return isNull;

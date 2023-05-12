@@ -22,6 +22,7 @@ public class PropertyShape {
 	private int order;
 	private Integer minCount;
 	private Integer maxCount;
+	private List<PropertyShape> property;
 	private TTIriRef path;
 	private TTIriRef datatype;
 	private TTIriRef clazz;
@@ -36,12 +37,11 @@ public class PropertyShape {
 	private TTIriRef function;
 	private List<Argument> argument;
 	private String valueVariable;
+	private TTIriRef valueIri;
 	private List<TTIriRef> select;
 	private Boolean builderChild;
 	private NodeShape expression;
 	private Boolean forceIsValue;
-
-    private List<PropertyShape> subProperty;
 
 	public Boolean getForceIsValue() {
 		return forceIsValue;
@@ -280,12 +280,27 @@ public class PropertyShape {
 		return this;
 	}
 
-    public List<PropertyShape> getSubProperty() {
-        return subProperty;
-    }
+	public List<PropertyShape> getProperty() {
+		return property;
+	}
 
-    public PropertyShape setSubProperty(List<PropertyShape> subProperty) {
-        this.subProperty = subProperty;
-        return this;
-    }
+	public PropertyShape setProperty(List<PropertyShape> property) {
+		this.property = property;
+		return this;
+	}
+
+	public PropertyShape addProperty(PropertyShape prop) {
+		if (null==this.property) this.property = new ArrayList<>();
+		this.property.add(prop);
+		return this;
+	}
+
+	public TTIriRef getValueIri() {
+		return valueIri;
+	}
+
+	public PropertyShape setValueIri(TTIriRef valueIri) {
+		this.valueIri = valueIri;
+		return this;
+	}
 }

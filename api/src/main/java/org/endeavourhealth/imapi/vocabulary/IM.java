@@ -100,7 +100,7 @@ public class IM {
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
     public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE + "hasTermCode");
-    public static final TTIriRef OLD_CODE = iri(NAMESPACE + "oldCode");
+    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
     public static final TTIriRef DESCRIPTION_ID = iri(NAMESPACE + "descriptionId");
     public static final TTIriRef CODE_ID = iri(NAMESPACE + "codeId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE + "matchedTo");

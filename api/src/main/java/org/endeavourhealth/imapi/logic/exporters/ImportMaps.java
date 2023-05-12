@@ -57,21 +57,6 @@ public class ImportMaps implements AutoCloseable {
 
 	}
 
-	/**
-	 * Retrieves snomed codes from im
-	 * @return a set of snomed codes
-	 * @throws TTFilerException if using rdf4j
-	 */
-	public  Set<String> importSnomedCodes() throws TTFilerException, IOException {
-
-		if (TTFilerFactory.isBulk()) {
-			return fileRepo.getCodes(SNOMED.NAMESPACE);
-		}
-		else {
-			Set<String> snomedCodes = new HashSet<>();
-			return importSnomedRDF4J(snomedCodes);
-		}
-	}
 
 	/**
 	 * Returns A core entity iri and name from a core term
@@ -83,6 +68,26 @@ public class ImportMaps implements AutoCloseable {
 			return fileRepo.getReferenceFromCoreTerm(term);
 		else
 			return new EntityRepository2().getReferenceFromCoreTerm(term);
+	}
+
+	public Map<String,String> getCodeToIri() throws IOException {
+		if (TTFilerFactory.isBulk())
+			return fileRepo.getCodeToIri();
+		else
+			return new EntityRepository2().getCodeToIri();
+	}
+
+	public Set<String> getCodes(String scheme) throws IOException {
+		Map<String,String> codeToIri=getCodeToIri();
+		Set<String> codes= new HashSet<>();
+		codeToIri.entrySet().stream().forEach(item->{
+			String entry= item.getKey();
+			if (entry.startsWith(scheme)) {
+				String code = entry.split(scheme)[1];
+				codes.add(code);
+			}
+		});
+		return codes;
 	}
 
 	public Set<TTIriRef> getCoreFromCode(String code, List<String> schemes) {

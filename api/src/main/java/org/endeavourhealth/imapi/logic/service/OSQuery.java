@@ -80,11 +80,15 @@ public class OSQuery {
     }
 
     private List<SearchResultSummary> iriTermQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
+        List<SearchResultSummary> result1= codeIriQuery(request);
+
         SearchSourceBuilder bld= new SearchSourceBuilder();
-        QueryBuilder qry = buildIriTermQuery(request);
+
+        QueryBuilder qry = buildOneWordQuery(request);
         bld.query(qry);
         bld.sort("length");
-        return wrapandRun(bld, request);
+        result1.addAll(wrapandRun(bld, request));
+        return result1;
     }
 
     private List<SearchResultSummary> multiWordQuery(SearchRequest request) throws InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, JsonProcessingException {
@@ -222,14 +226,8 @@ public class OSQuery {
 
     }
 
-    private QueryBuilder buildIriTermQuery(SearchRequest request) {
+    private QueryBuilder buildOneWordQuery(SearchRequest request) {
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        TermQueryBuilder tqb = new TermQueryBuilder("code", request.getTermFilter());
-        tqb.boost(4F);
-        boolQuery.should(tqb);
-        TermQueryBuilder tqiri = new TermQueryBuilder("iri", request.getTermFilter());
-        tqiri.boost(4F);
-        boolQuery.should(tqiri);
         PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", request.getTermFilter());
         pqb.boost(2F);
         boolQuery.should(pqb);

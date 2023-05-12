@@ -194,12 +194,11 @@ public class OpenSearchSender {
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
           .add("PREFIX im: <http://endhealth.info/im#>")
           .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
-          .add("select ?iri ?termCode ?oldCode ?synonym ?termCodeStatus")
+          .add("select ?iri ?termCode ?synonym ?termCodeStatus")
           .add("where {")
           .add("?iri im:hasTermCode ?tc.")
           .add("      filter (?iri in ("+ inList+") )")
           .add("       Optional {?tc im:code ?termCode}")
-          .add("       Optional {?tc im:oldCode ?oldCode}")
           .add("       Optional  {?tc rdfs:label ?synonym}")
           .add("       Optional  {?tc im:status ?termCodeStatus}")
           .add("}").toString();
@@ -251,13 +250,11 @@ public class OpenSearchSender {
                     String termCode = null;
                     String synonym = null;
                     TTIriRef status = null;
-                    String oldCode=null;
                     if (rs.getValue("synonym") != null)
                         synonym = rs.getValue("synonym").stringValue().toLowerCase();
                     if (rs.getValue("termCode") != null)
                         termCode = rs.getValue("termCode").stringValue();
-                    if (rs.getValue("oldCode") != null)
-                        oldCode = rs.getValue("oldCode").stringValue();
+
                     if (rs.getValue("termCodeStatus") != null)
                         status = TTIriRef.iri(rs.getValue("termCodeStatus").stringValue());
                     if (synonym != null) {
@@ -279,12 +276,6 @@ public class OpenSearchSender {
                                 blob.addTermCode(null, termCode, status);
                             }
                         }
-                    if (oldCode!=null){
-                        SearchTermCode tc = getTermCodeFromCode(blob, oldCode);
-                        if (tc == null) {
-                            blob.addTermCode(null, oldCode, status);
-                        }
-                    }
 
                 }
             }

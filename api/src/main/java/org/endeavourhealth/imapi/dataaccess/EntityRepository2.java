@@ -230,6 +230,31 @@ public class EntityRepository2 {
         }
     }
 
+    public Map<String,String> getCodeToIri() {
+        StringJoiner sql = new StringJoiner(System.lineSeparator())
+          .add(IM_PREFIX)
+          .add(RDFS_PREFIX)
+          .add("select ?code ?scheme ?iri")
+          .add("where {")
+          .add("?iri im:code ?code.")
+          .add("?iri im:scheme ?scheme }");
+        Map<String,String> codeToIri= new HashMap<>();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql.toString());
+            try (TupleQueryResult gs = qry.evaluate()) {
+                while (gs.hasNext()) {
+                    BindingSet bs = gs.next();
+                    String code=bs.getValue("code").stringValue();
+                    String scheme= bs.getValue("scheme").stringValue();
+                    String iri= bs.getValue("iri").stringValue();
+                    codeToIri.put(scheme+code,iri);
+                }
+            }
+
+        }
+        return codeToIri;
+    }
+
     /**
      * Returns A core entity iri and name from a core term
      *

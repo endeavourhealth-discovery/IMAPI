@@ -49,6 +49,22 @@ public class FileRepository {
 		}
 	}
 
+	public Map<String,String> getCodeToIri() throws IOException{
+		Map<String,String> codeToIri= new HashMap<>();
+		String fileName=getFile("CodeMap");
+		try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+			String line = reader.readLine();
+			while (line != null && !line.isEmpty()) {
+				String[] fields = line.split("\t");
+				String code= fields[0];
+				String iri= fields[1];
+				codeToIri.put(code,iri);
+				line = reader.readLine();
+			}
+		}
+		return codeToIri;
+	}
+
 	public void fetchRelationships(
 		Map<String,
 		Set<String>> parentMap,
@@ -183,11 +199,6 @@ public class FileRepository {
 			return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::iri).collect(Collectors.toSet());
 		else
 			return Collections.emptySet();
-	}
-	public Set<String> getCodes(String scheme) throws IOException {
-		if (codes.get(scheme)==null)
-			fetchCodeMap(scheme);
-		return new HashSet<>(codes.get(scheme).keySet());
 	}
 
 	public Set<String> getAllEntities() throws IOException{

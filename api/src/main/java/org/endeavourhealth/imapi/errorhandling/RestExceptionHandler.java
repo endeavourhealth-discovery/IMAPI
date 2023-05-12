@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.customexceptions.ErrorCodes;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -123,6 +124,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(TTFilerException.class)
     protected ResponseEntity<Object> handleTTFilerException(TTFilerException ex) {
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.TT_FILER_EXCEPTION);
+        return buildResponseEntity(error);
+    }
+
+    @ExceptionHandler(QueryException.class)
+    protected ResponseEntity<Object> handleQueryException(QueryException ex) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.QUERY_EXCEPTION);
         return buildResponseEntity(error);
     }
 

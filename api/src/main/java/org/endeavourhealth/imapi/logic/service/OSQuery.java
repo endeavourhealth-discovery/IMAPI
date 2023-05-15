@@ -277,7 +277,8 @@ public class OSQuery {
 
         String termCode = "termCode";
 
-        Set<String> fields = Set.of("iri", "name", "code", termCode, "entityType", status, scheme, weighting,"preferredName");
+        List<String> defaultTypes = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", status, scheme, weighting,"preferredName"));
+        Set<String> fields = new HashSet<>(defaultTypes);
         if (!request.getSelect().isEmpty()) {
             for (String select : request.getSelect()) {
                 if (!fields.contains(select))

@@ -97,7 +97,7 @@ public class QueryRepository {
 
     }
 
-    private void unpackQueryRequest(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException {
+    private void unpackQueryRequest(QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, QueryException {
         this.queryRequest = queryRequest;
         this.query = unpackQuery(queryRequest.getQuery(), queryRequest);
         queryRequest.setQuery(query);
@@ -105,7 +105,7 @@ public class QueryRepository {
             result.set("@context",mapper.convertValue(queryRequest.getContext(),JsonNode.class));
     }
 
-    private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException {
+    private Query unpackQuery(Query query, QueryRequest queryRequest) throws JsonProcessingException, DataFormatException, QueryException {
         if (query.getIri() != null && query.getReturn() == null && query.getMatch() == null) {
             TTEntity entity = getEntity(query.getIri());
             if (entity.get(SHACL.PARAMETER) != null) {
@@ -137,6 +137,7 @@ public class QueryRepository {
 
                 }
             }
+            if (null == entity.get(IM.DEFINITION)) throw new QueryException("Query: '" + query.getIri() + "' was not found");
             return entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
         }
         return query;

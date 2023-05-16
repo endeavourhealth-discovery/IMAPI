@@ -130,6 +130,7 @@ public class IM {
     public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
     public static final TTIriRef SOURCE_HEADING = iri(NAMESPACE + "sourceHeading");
     public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
+    public static final TTIriRef CONTEXT_NODE = iri(NAMESPACE + "contextNode");
 
 
     //Graphs

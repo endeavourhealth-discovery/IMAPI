@@ -1,0 +1,234 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "" : "http://endhealth.info/im#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#",
+    "entities" : {
+      "@id" : "http://envhealth.info/im#entities",
+      "@container" : "@set"
+    }
+  },
+  "@graph" : {
+    "@id" : ":"
+  },
+  "entities" : [ {
+    "@id" : ":Query_GetIsas",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Get active subtypes of concept",
+    "rdfs:comment" : "returns transitive closure of an entity and its subtypes, usually used with a text search filter to narrow results",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"All subtypes of an entity, active only\",\"match\":[{\"descendantsOrSelfOf\":true,\"variable\":\"isa\",\"parameter\":\"this\"}],\"activeOnly\":true,\"return\":[{\"nodeRef\":\"isa\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"},{\"@id\":\"http://endhealth.info/im#code\"}]}]}"
+  }, {
+    "@id" : ":Query_SearchEntities",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Search for entities of a certain type",
+    "rdfs:comment" : "parameter 'this' set to the list of type iris, Normally used with a text search entry to filter the list",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Search for concepts\",\"match\":[{\"parameter\":\"this\"}],\"activeOnly\":true,\"return\":[{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"},{\"@id\":\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\"}]}]}"
+  }, {
+    "@id" : ":Query_AllowableProperties",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Allowable properties for a terminology concept",
+    "rdfs:comment" : "Returns a list of properties for a particular term concept, used in value set definitions with RCL",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Allowable Properties for a terminology concept\",\"match\":[{\"@type\":\"http://endhealth.info/im#Concept\",\"where\":[{\"description\":\"property that has this concept or supertype as a domain\",\"@id\":\"http://www.w3.org/2000/01/rdf-schema#domain\",\"in\":[{\"parameter\":\"this\",\"ancestorsOf\":true}]}],\"variable\":\"concept\"}],\"activeOnly\":true,\"return\":[{\"nodeRef\":\"concept\",\"property\":[{\"@id\":\"http://endhealth.info/im#code\"},{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_AllowableRanges",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Allowable ranges for a particular property or its ancestors",
+    "rdfs:comment" : "uses inverse range property to return the ranges of the property as authored. Should be used with another ",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Allowable Ranges for a property and super properties\",\"match\":[{\"where\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#range\",\"in\":[{\"parameter\":\"this\"}],\"ancestorsOf\":true,\"inverse\":true}]}],\"activeOnly\":true,\"return\":[{\"property\":[{\"@id\":\"http://endhealth.info/im#code\"},{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_AllowableRanges",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Allowable ranges for a particular property or its ancestors",
+    "rdfs:comment" : "uses inverse range property to return the ranges of the property as authored. Should be used with another ",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Allowable Ranges for a property and super properties\",\"match\":[{\"where\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#range\",\"in\":[{\"parameter\":\"this\"}],\"ancestorsOf\":true,\"inverse\":true}]}],\"activeOnly\":true,\"return\":[{\"property\":[{\"@id\":\"http://endhealth.info/im#code\"},{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_SearchmainTypes",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Search for entities of the main types",
+    "rdfs:comment" : "used to filter free text searches excluding queries and concept sets",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Search for all main types\",\"match\":[{\"boolMatch\":\"or\",\"match\":[{\"@type\":\"http://endhealth.info/im#Concept\"},{\"@type\":\"http://endhealth.info/im#ConceptSet\"},{\"@type\":\"http://endhealth.info/im#Folder\"},{\"@type\":\"http://endhealth.info/im#ValueSet\"},{\"@type\":\"http://endhealth.info/im#dataModelProperty\"}],\"variable\":\"type\"}],\"activeOnly\":true,\"return\":[{\"nodeRef\":\"type\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"},{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#comment\"},{\"@id\":\"http://endhealth.info/im#status\"},{\"@id\":\"http://endhealth.info/im#weighting\"},{\"@id\":\"http://endhealth.info/im#scheme\"}]}]}"
+  }, {
+    "@id" : ":Query_AllowableChildTypes",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "for a parent entity, the types that can be child types",
+    "rdfs:comment" : "used in the editor to select the type of entity being created as a subtype",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Allowable child types for editor\",\"match\":[{\"where\":[{\"@id\":\"http://endhealth.info/im#isContainedIn\",\"in\":[{\"@id\":\"http://endhealth.info/im#EntityTypes\"}]}],\"variable\":\"concept\"},{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\"node\":{\"variable\":\"predicate\"}},\"bool\":\"and\",\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#node\",\"in\":[{\"parameter\":\"$this\"}]},{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"@id\":\"http://endhealth.info/im#isContainedIn\"},{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#subClassOf\"},{\"@id\":\"http://endhealth.info/im#isSubsetOf\"}]}]}],\"return\":[{\"nodeRef\":\"concept\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"},{\"node\":{\"nodeRef\":\"predicate\",\"property\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\"}]},\"@id\":\"http://www.w3.org/ns/shacl#property\"}]}]}"
+  }, {
+    "@id" : ":Q_RegisteredGMS",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Patients registered for GMS services on the reference date",
+    "rdfs:comment" : "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.",
+    ":isContainedIn" : [ {
+      "@id" : ":Q_StandardCohorts"
+    } ],
+    ":weighting" : 10000,
+    ":definition" : "{\"@id\":\"http://endhealth.info/im#Q_RegisteredGMS\",\"name\":\"Patients registered for GMS services on the reference date\",\"description\":\"For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date.\",\"match\":[{\"@type\":\"http://endhealth.info/im#Patient\",\"name\":\"Patient\"},{\"path\":{\"@id\":\"http://endhealth.info/im#gpRegistration\"},\"bool\":\"and\",\"where\":[{\"@id\":\"http://endhealth.info/im#patientType\",\"in\":[{\"@id\":\"http://endhealth.info/im#2751000252106\",\"name\":\"Regular GMS patient\"}]},{\"@id\":\"http://endhealth.info/im#effectiveDate\",\"operator\":\"<=\",\"relativeTo\":{\"parameter\":\"$referenceDate\"}},{\"bool\":\"or\",\"where\":[{\"@id\":\"http://endhealth.info/im#endDate\",\"null\":true},{\"@id\":\"http://endhealth.info/im#endDate\",\"operator\":\">\",\"relativeTo\":{\"parameter\":\"$referenceDate\"}}]}]}]}"
+  }, {
+    "@id" : ":gpGMSRegisteredPractice",
+    "rdf:type" : [ {
+      "@id" : ":FunctionClause"
+    }, {
+      "@id" : "rdf:Property"
+    } ],
+    "rdfs:label" : "Current GMS registered practice",
+    "rdfs:subClassOf" : [ {
+      "@id" : ":functionProperty"
+    } ],
+    ":scheme" : [ {
+      "@id" : ":"
+    } ],
+    ":definition" : "{\"name\":\"GMS registered practice on reference date\",\"match\":[{\"path\":{\"@id\":\"http://endhealth.info/im#gpRegistration\",\"variable\":\"practice\",\"node\":{\"@id\":\"http://endhealth.info/im#GPRegistration\"}},\"bool\":\"and\",\"where\":[{\"@id\":\"http://endhealth.info/im#patientType\",\"in\":[{\"@id\":\"http://endhealth.info/im#2751000252106\",\"name\":\"Regular GMS patient\"}]},{\"@id\":\"http://endhealth.info/im#effectiveDate\",\"operator\":\"<=\",\"relativeTo\":{\"parameter\":\"$referenceDate\"}},{\"bool\":\"or\",\"where\":[{\"@id\":\"http://endhealth.info/im#endDate\",\"null\":true},{\"@id\":\"http://endhealth.info/im#endDate\",\"operator\":\">\",\"relativeTo\":{\"parameter\":\"$referenceDate\"}}]}],\"parameter\":\"this\"}],\"return\":[{\"nodeRef\":\"practice\",\"property\":[{\"@id\":\"http://endhealth.info/im#recordOwner\"}]}]}"
+  }, {
+    "@id" : ":DeleteSets",
+    "rdfs:label" : "Delete all concept sets in a graph",
+    "rdfs:comment" : "Pass in the graph name as a 'this' argument and it deletes all sets",
+    ":updateProcedure" : "{\"match\":[{\"graph\":{\"parameter\":\"this\"},\"@type\":\"http://endhealth.info/im#ConceptSet\"}],\"delete\":[{}]}"
+  }, {
+    "@id" : ":Q_TestQuery",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
+    ":isContainedIn" : [ {
+      "@id" : ":Q_StandardCohorts"
+    } ],
+    ":definition" : "{\"@id\":\"http://endhealth.info/im#Q_TestQuery\",\"name\":\"Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives\",\"match\":[{\"@type\":\"Patient\"},{\"@set\":\"http://endhealth.info/im#Q_RegisteredGMS\",\"name\":\"Registered for GMS services on reference date\"},{\"boolMatch\":\"or\",\"match\":[{\"where\":[{\"@id\":\"http://endhealth.info/im#age\",\"range\":{\"from\":{\"operator\":\">=\",\"value\":\"65\",\"unit\":\"YEARS\",\"relativeTo\":null},\"to\":{\"operator\":\">\",\"value\":\"70\",\"unit\":\"YEARS\",\"relativeTo\":null}}}]},{\"@set\":\"http://example/queries#Q_Diabetics\"},{\"path\":{\"@id\":\"http://endhealth.info/im#observation\",\"node\":{\"@type\":\"Observation\"}},\"where\":[{\"@id\":\"http://endhealth.info/im#concept\",\"in\":[{\"@id\":\"http://snomed.info/sct#714628002\",\"descendantsOf\":true}],\"valueVariable\":\"Prediabetes\"}]}]},{\"path\":{\"@id\":\"http://endhealth.info/im#observation\",\"node\":{\"@type\":\"Observation\"}},\"bool\":\"and\",\"where\":[{\"@id\":\"http://endhealth.info/im#concept\",\"name\":\"concept\",\"in\":[{\"@id\":\"http://snomed.info/sct#271649006\",\"name\":\"Systolic blood pressure\",\"descendantsOrSelfOf\":true},{\"@id\":\"http://endhealth.info/emis#1994021000006104\",\"name\":\"Home systolic blood pressure\",\"descendantsOrSelfOf\":true}],\"valueLabel\":\"Office or home systolic blood pressure\"},{\"@id\":\"http://endhealth.info/im#effectiveDate\",\"operator\":\">=\",\"value\":\"-6\",\"unit\":\"MONTHS\",\"relativeTo\":{\"parameter\":\"$referenceDate\"},\"valueLabel\":\"last 6 months\"}],\"orderBy\":[{\"direction\":\"descending\",\"limit\":1,\"@id\":\"http://endhealth.info/im#effectiveDate\"}]},{\"boolMatch\":\"or\",\"match\":[{\"bool\":\"and\",\"where\":[{\"@id\":\"http://endhealth.info/im#numericValue\",\"operator\":\">\",\"value\":\"140\",\"nodeRef\":\"latestBP\"},{\"@id\":\"http://endhealth.info/im#concept\",\"in\":[{\"@id\":\"http://snomed.info/sct#271649006\",\"name\":\"Systolic blood pressure\",\"descendantsOrSelfOf\":true}],\"nodeRef\":\"latestBP\",\"valueLabel\":\"Office blood pressure\"}]},{\"bool\":\"and\",\"where\":[{\"@id\":\"http://endhealth.info/im#numericValue\",\"operator\":\">\",\"value\":\"130\",\"nodeRef\":\"latestBP\"},{\"@id\":\"http://endhealth.info/im#concept\",\"in\":[{\"@id\":\"http://endhealth.info/emis#1994021000006104\",\"name\":\"Home systolic blood pressure\",\"descendantsOrSelfOf\":true}],\"nodeRef\":\"latestBP\",\"valueLabel\":\"Home blood pressure\"}]}],\"variable\":\"highBPReading\"},{\"exclude\":true,\"path\":{\"@id\":\"http://endhealth.info/im#observation\",\"node\":{\"@type\":\"Observation\"}},\"bool\":\"and\",\"where\":[{\"@id\":\"http://endhealth.info/im#concept\",\"in\":[{\"@set\":\"http://endhealth.info/im#InvitedForScreening\"}]},{\"@id\":\"http://endhealth.info/im#effectiveDate\",\"operator\":\">=\",\"relativeTo\":{\"@id\":\"http://endhealth.info/im#effectiveDate\",\"nodeRef\":\"highBPReading\"}}]},{\"exclude\":true,\"@set\":\"http://endhealth.info/im#Q_Hypertensives\",\"name\":\"Hypertensives\"}]}"
+  }, {
+    "@id" : ":Query_ObjectPropertyRangeSuggestions",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Range suggestions for object property",
+    "rdfs:comment" : "takes account of the data model shape that the property is part of",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Suggested range for a property\",\"description\":\"get node, class or datatype values (ranges)  of property objects that have 4this as their path\",\"match\":[{\"boolMatch\":\"or\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#node\",\"node\":{\"variable\":\"range\"}}},{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#class\",\"node\":{\"variable\":\"range\"}}},{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#datatype\",\"node\":{\"variable\":\"range\"}}}],\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"parameter\":\"this\"}]}]}],\"return\":[{\"nodeRef\":\"range\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_ObjectPropertyRangeSuggestions",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Range suggestions for object property",
+    "rdfs:comment" : "takes account of the data model shape that the property is part of",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Suggested range for a property\",\"description\":\"get node, class or datatype values (ranges)  of property objects that have 4this as their path\",\"match\":[{\"boolMatch\":\"or\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#node\",\"node\":{\"variable\":\"range\"}}},{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#class\",\"node\":{\"variable\":\"range\"}}},{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#datatype\",\"node\":{\"variable\":\"range\"}}}],\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"parameter\":\"this\"}]}]}],\"return\":[{\"nodeRef\":\"range\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_dataPropertyRangeSuggestions",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Range suggestions for object property",
+    "rdfs:comment" : "takes account of the data model shape that the property is part of",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Suggested range for a data property\",\"description\":\"get datatype values (ranges)  of property objects that have 4this as their path\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#datatype\",\"node\":{\"variable\":\"range\"}}}],\"return\":[{\"nodeRef\":\"range\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_dataPropertyRangeSuggestions",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Range suggestions for object property",
+    "rdfs:comment" : "takes account of the data model shape that the property is part of",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Suggested range for a data property\",\"description\":\"get datatype values (ranges)  of property objects that have 4this as their path\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#datatype\",\"node\":{\"variable\":\"range\"}}}],\"return\":[{\"nodeRef\":\"range\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_SearchProperties",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Search for properties by name",
+    "rdfs:comment" : "Returns a list of properties using a text search to filter the list.",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Search for properties by name\",\"match\":[{\"@type\":\"http://www.w3.org/1999/02/22-rdf-syntax-ns#Property\",\"variable\":\"concept\"}],\"activeOnly\":true,\"return\":[{\"nodeRef\":\"concept\",\"property\":[{\"@id\":\"http://endhealth.info/im#code\"},{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_DataModelPropertyRange",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Data model property range",
+    "rdfs:comment" : "returns a flat list of data model property ranges based on input data model and property",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Data model property range\",\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\"node\":{\"variable\":\"shaclProperty\"}},\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"parameter\":\"myProperty\"}]}],\"parameter\":\"myDataModel\"}],\"return\":[{\"nodeRef\":\"range\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_DataModelPropertyRange",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Data model property range",
+    "rdfs:comment" : "returns a flat list of data model property ranges based on input data model and property",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Data model property range\",\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\"node\":{\"variable\":\"shaclProperty\"}},\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"parameter\":\"myProperty\"}]}],\"parameter\":\"myDataModel\"}],\"return\":[{\"nodeRef\":\"range\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]}"
+  }, {
+    "@id" : ":Query_DataModelPropertyRangeByShape",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Data model property range",
+    "rdfs:comment" : "takes account of the data model shape that the property is part of",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Data model property range\",\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\"node\":{\"variable\":\"shaclProperty\"}},\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"parameter\":\"myProperty\"}]}],\"parameter\":\"myDataModel\"}],\"return\":[{\"nodeRef\":\"shaclProperty\",\"property\":[{\"node\":{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]},\"@id\":\"http://www.w3.org/ns/shacl#class\"},{\"node\":{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]},\"@id\":\"http://www.w3.org/ns/shacl#node\"},{\"node\":{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]},\"@id\":\"http://www.w3.org/ns/shacl#datatype\"}]}]}"
+  }, {
+    "@id" : ":Query_DataModelPropertyRangeByShape",
+    "rdf:type" : [ {
+      "@id" : ":Query"
+    } ],
+    "rdfs:label" : "Data model property range",
+    "rdfs:comment" : "takes account of the data model shape that the property is part of",
+    ":isContainedIn" : [ {
+      "@id" : ":IMFormValidationQueries"
+    } ],
+    ":definition" : "{\"name\":\"Data model property range\",\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\"match\":[{\"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\"node\":{\"variable\":\"shaclProperty\"}},\"where\":[{\"@id\":\"http://www.w3.org/ns/shacl#path\",\"in\":[{\"parameter\":\"myProperty\"}]}],\"parameter\":\"myDataModel\"}],\"return\":[{\"nodeRef\":\"shaclProperty\",\"property\":[{\"node\":{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]},\"@id\":\"http://www.w3.org/ns/shacl#class\"},{\"node\":{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]},\"@id\":\"http://www.w3.org/ns/shacl#node\"},{\"node\":{\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]},\"@id\":\"http://www.w3.org/ns/shacl#datatype\"}]}]}"
+  } ]
+}

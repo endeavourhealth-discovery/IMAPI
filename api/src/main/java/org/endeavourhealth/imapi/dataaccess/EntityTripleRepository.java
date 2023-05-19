@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.module.FindException;
 import java.util.*;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
@@ -690,13 +691,12 @@ public class EntityTripleRepository {
             TupleQuery qry = prepareSparql(conn, sql.toString());
             qry.setBinding("iri", iri(iri));
             try (TupleQueryResult rs = qry.evaluate()) {
-                if (rs.hasNext()) {
+                if (rs.hasNext()){
                     BindingSet bs = rs.next();
                     return new TTIriRef(bs.getValue("shape").stringValue());
-                }
+                } else throw new FindException("No shape found for type: " + iri);
             }
         }
-        return null;
     }
 
     public Pageable<TTIriRef> getSuperiorPropertiesByConceptPagedWithTotalCount(String conceptIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {

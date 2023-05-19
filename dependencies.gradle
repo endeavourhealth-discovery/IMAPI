@@ -12,7 +12,7 @@ ext {
             h2                  : '2.1.214',
             jackson             : '2.14.2',
             jersey              : '3.1.1',
-            junit               : '5.9.2',
+            junit               : '5.9.3',
             junitRunner         : '1.9.2',
             logback             : '1.4.6',
             lombok              : '1.18.26',

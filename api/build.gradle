@@ -3,7 +3,7 @@
  */
 plugins {
     id 'war'
-    id "cz.habarta.typescript-generator" version "2.36.1070"
+    id "cz.habarta.typescript-generator" version "3.2.1263"
 }
 
 import cz.habarta.typescript.generator.JsonLibrary

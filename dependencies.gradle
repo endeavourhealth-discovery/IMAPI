@@ -24,7 +24,7 @@ ext {
             slf4j               : '2.0.7',
             spring              : '3.0.5',
             springContext       : '6.0.9',
-            springdoc           : '1.3.9',
+            springdoc           : '1.7.0',
             springStatemachine  : '3.2.0',
             springTestSecurity  : '6.0.2',
             tomcatAnnotations   : '6.0.53',

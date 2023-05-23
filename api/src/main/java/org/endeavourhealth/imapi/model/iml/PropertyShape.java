@@ -19,6 +19,7 @@ public class PropertyShape {
 	private String label;
 	private String comment;
 	private String name;
+	private Boolean showTitle;
 	private int order;
 	private Integer minCount;
 	private Integer maxCount;
@@ -162,6 +163,15 @@ public class PropertyShape {
 
 	public PropertyShape setName(String name) {
 		this.name = name;
+		return this;
+	}
+
+	public Boolean getShowTitle() {
+		return showTitle;
+	}
+
+	public PropertyShape setShowTitle(Boolean showTitle) {
+		this.showTitle = showTitle;
 		return this;
 	}
 

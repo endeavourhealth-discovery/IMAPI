@@ -56,7 +56,7 @@ class SearchServiceTest {
 
 	}
 
-	//@Test
+	@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
@@ -64,6 +64,7 @@ class SearchServiceTest {
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
 
 		for (QueryRequest qr1 : List.of(
+			TestQueries.dataModelPropertyRange(),
 			TestQueries.getAllowableSubtypes(),
 			TestQueries.AllowablePropertiesForCovid(),
 			TestQueries.query1(),

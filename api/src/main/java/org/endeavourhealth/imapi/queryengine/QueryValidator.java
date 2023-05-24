@@ -42,9 +42,7 @@ public class QueryValidator {
 	private void validateReturn(Return aReturn) throws QueryException {
 		if (aReturn.getNodeRef() != null) {
 			if (variables.get(aReturn.getNodeRef()) == null)
-				throw new QueryException("return_ clause uses an unbound variable (" + aReturn.getNodeRef() + ")");
-			if (variables.get(aReturn.getNodeRef()) != VarType.NODE)
-				throw new QueryException("return_ clause uses a path variable (" + aReturn.getNodeRef() + ") ,must be a node variable");
+				throw new QueryException("return_ clause uses an unbound node reference variable (" + aReturn.getNodeRef() + ") Should it be a propertyRef?");
 		}
 
 		if (aReturn.getProperty() != null) {
@@ -59,11 +57,7 @@ public class QueryValidator {
 	private void validateReturnProperty(String subject, ReturnProperty path) throws QueryException {
 		if (path.getPropertyRef() != null) {
 			if (variables.get(path.getPropertyRef()) == null)
-				throw new QueryException("return_ clause uses an unbound variable (" + path.getPropertyRef());
-			if (variables.get(path.getPropertyRef()) != VarType.PATH)
-				throw new QueryException("return_ clause uses a node variable ("
-					+ path.getPropertyRef() + ") ,must be a path variable");
-
+				throw new QueryException("return_ clause uses an unbound property reference variable (" + path.getPropertyRef()+") should it be a node ref?");
 		}
 		if (path.getNode() != null) {
 			if (pathMap.get(subject) != null) {
@@ -124,6 +118,8 @@ public class QueryValidator {
 
 
 	private void validateWhere(Where where,String subject) throws QueryException {
+		if (where.getVariable()!=null)
+			variables.put(where.getVariable(),VarType.PATH);
 		if (where.getWhere()!=null){
 			if (where.getBool()==null)
 				throw new QueryException("Where clause has nested where without a boolean operator");

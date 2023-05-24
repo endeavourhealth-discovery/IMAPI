@@ -23,6 +23,7 @@ public class QueryRequest implements ContextMap {
 	private Map<String,String> context;
 	private String textSearch;
 	private List<Argument> argument;
+	@JsonProperty(required = true)
 	private Query query;
 	private PathQuery pathQuery;
 	private Update update;

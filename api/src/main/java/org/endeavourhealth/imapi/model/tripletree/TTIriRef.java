@@ -43,7 +43,7 @@ public class TTIriRef implements TTValue, Serializable {
         setName(name);
     }
 
-    @JsonProperty("@id")
+    @JsonProperty(value = "@id", required = true)
     public String getIri() {
         return this.iri;
     }

@@ -149,8 +149,6 @@ public class EqdResources {
 					node= new Node();
 					path.setNode(node);
 					node.setIri(paths[i+1]);
-					counter++;
-					node.setVariable("node"+counter);
 				}
 	}
 
@@ -162,10 +160,6 @@ public class EqdResources {
 		else {
 			setTablePath(eqCriterion.getTable(),match);
 			convertColumns(eqCriterion, match);
-			if (eqCriterion.getId() != null)
-				if (labels.get(eqCriterion.getId()) != null) {
-					match.setDescription(labels.get(eqCriterion.getId()).toString());
-				}
 		}
 	}
 
@@ -272,17 +266,32 @@ public class EqdResources {
 		Match restricted= new Match();
 		match.addMatch(restricted);
 		setTablePath(eqCriterion.getTable(),restricted);
-		counter++;
-		Path path= restricted.getPath();
-		String nodeVariable= "with"+counter;
-		getLastNode(path).setVariable(nodeVariable);
 		convertColumns(eqCriterion, restricted);
 		setRestriction(eqCriterion, restricted);
+
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null) {
+			String variable=getBestVariable(restricted);
+			if (variable==null){
+				counter++;
+				variable="match_"+counter;
+			}
+			restricted.setVariable(variable);
 			Match testMatch = new Match();
+			testMatch.setNodeRef(variable);
 			match.addMatch(testMatch);
-			restrictionTest(eqCriterion, testMatch,nodeVariable);
+			restrictionTest(eqCriterion, testMatch,variable);
 		}
+	}
+
+	private String getBestVariable(Match match){
+		String variable=null;
+		if (match.getWhere()!=null){
+			for (Where where:match.getWhere()){
+				if (where.getValueVariable()!=null)
+					variable=where.getValueLabel().replaceAll(" ","").replaceAll(",","_");
+			}
+		}
+		return variable;
 	}
 
 	private Node getLastNode(Path path) throws DataFormatException {
@@ -304,7 +313,7 @@ public class EqdResources {
 				for (EQDOCColumnValue cv : testAtt.getColumnValue()) {
 					Where columnWhere= new Where();
 					testMatch.addWhere(columnWhere);
-					columnWhere.setVariable(nodeVariable);
+				//	columnWhere.setNodeRef(nodeVariable);
 					setColumnWhere(cv,eqCriterion.getTable(),testMatch,columnWhere);
 				}
 			}
@@ -325,32 +334,18 @@ public class EqdResources {
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
 		String linkElement= getLastNode(restricted.getPath()).getVariable();
-		restricted.orderBy(o->o.setIri(orderBy).setVariable(linkElement).setLimit(1).setDirection(direction));
+		restricted.orderBy(o->o.setIri(orderBy).setLimit(1).setDirection(direction));
 		return linkElement;
 	}
 
-	private String checkForProperty(Match match,String property){
-		if (match.getWhere()!=null) {
-		 for (Where where : match.getWhere()) {
-		 		if (where.getIri() != null) {
-					if (where.getIri().equals(property)) {
-						counter++;
-						match.setVariable(property + "_" + counter);
-						return property + "_" + counter;
-					}
-				}
-			}
-		}
-		return null;
-  }
+
 
 			private void convertLinkedCriterion(EQDOCCriterion eqCriterion, Match topMatch) throws DataFormatException, IOException {
 				Match targetMatch= new Match();
-				counter++;
-				String linkAlias="linkAlias"+counter;
-				targetMatch.setVariable(linkAlias);
 				topMatch.addMatch(targetMatch);
 				convertStandardCriterion(eqCriterion,targetMatch);
+				String variable= getBestVariable(targetMatch);
+				targetMatch.setVariable(variable);
 				Match linkMatch= new Match();
 				topMatch.addMatch(linkMatch);
 				EQDOCLinkedCriterion eqLinked= eqCriterion.getLinkedCriterion();
@@ -365,7 +360,7 @@ public class EqdResources {
 						.setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
 						.setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
 						.setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-						.relativeTo(r->r.setVariable(linkAlias).setIri("effectiveDate"));
+						.relativeTo(r->r.setNodeRef(variable).setIri("effectiveDate"));
 				}
 				else
 					throw new DataFormatException("Only date link fields supported at the moment");

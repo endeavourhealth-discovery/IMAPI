@@ -170,8 +170,7 @@ public class OSQuery {
         TermQueryBuilder tciri = new TermQueryBuilder("termCode.code", request.getTermFilter());
         tqiri.boost(1F);
         boolBuilder.should(tciri);
-        tqb = new TermQueryBuilder("key", request.getTermFilter().toLowerCase());
-        boolBuilder.should(tqb).minimumShouldMatch(1);
+        boolBuilder.minimumShouldMatch(1);
         addFilters(boolBuilder, request);
         return boolBuilder;
     }

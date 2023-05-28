@@ -86,6 +86,7 @@ public class EqdPopToIMQ {
 	private void convertGroup(EQDOCCriteriaGroup eqGroup, Match groupMatch) throws DataFormatException, IOException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (memberOp == VocMemberOperator.AND) {
+			groupMatch.setBoolMatch(Bool.and);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
 					Match match = new Match();
 					groupMatch.addMatch(match);

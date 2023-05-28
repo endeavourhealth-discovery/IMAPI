@@ -263,8 +263,13 @@ public class EqdResources {
 
 
 	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
-		Match restricted= new Match();
-		match.addMatch(restricted);
+		Match restricted=match;
+		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null) {
+			match.setBoolMatch(Bool.and);
+			restricted = new Match();
+			match.addMatch(restricted);
+		}
+
 		setTablePath(eqCriterion.getTable(),restricted);
 		convertColumns(eqCriterion, restricted);
 		setRestriction(eqCriterion, restricted);

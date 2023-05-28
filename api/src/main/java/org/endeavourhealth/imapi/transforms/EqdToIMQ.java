@@ -106,48 +106,34 @@ public class EqdToIMQ {
 	}
 
 	private void flattenQuery(Query qry) {
-		List<Match> newMatches = new ArrayList<>();
-		for (Match oldMatch : qry.getMatch()) {
-			if (oldMatch.getMatch() == null) {
-				newMatches.add(oldMatch);
+		List<Match> flatMatches= new ArrayList<>();
+		flattenAnds(qry.getMatch(),flatMatches);
+		qry.setMatch(flatMatches);
+	}
+
+	private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) {
+		for (Match topMatch:topMatches) {
+			if (topMatch.getMatch()==null){
+				flatMatches.add(topMatch);
 			}
-			else if (oldMatch.getBoolMatch() != Bool.or) {
-				flattenSubMatches(newMatches, oldMatch);
-			}
-			else {
-				newMatches.add(oldMatch);
-				flattenOrMatch(oldMatch);
+			else if (topMatch.getBoolMatch()==Bool.or) {
+				flatMatches.add(topMatch);
+				for (Match orMatch : topMatch.getMatch()) {
+					if (orMatch.getMatch() != null) {
+						List<Match> newMatchList = new ArrayList<>();
+						flattenAnds(orMatch.getMatch(), newMatchList);
+						orMatch.setMatch(newMatchList);
+					}
 				}
 			}
-		qry.setMatch(newMatches);
-	}
-
-	private void flattenOrMatch(Match orMatch) {
-		List<Match> newOrMatches = new ArrayList<>();
-		for (Match subMatch : orMatch.getMatch()) {
-			if (subMatch.getMatch()==null){
-				newOrMatches.add(subMatch);
-			}
-			else
-			 flattenSubMatches(newOrMatches, subMatch);
-		}
-		orMatch.setMatch(newOrMatches);
-
-	}
-
-	private void flattenSubMatches(List<Match> newMatches,Match oldMatch) {
-		for (Match subMatch:oldMatch.getMatch()){
-			if (subMatch.getMatch()==null) {
-				newMatches.add(subMatch);
-			}
-			else if (subMatch.getBoolMatch()!=Bool.or){
-				flattenSubMatches(newMatches,subMatch);
-			}
 			else {
-				newMatches.add(subMatch);
+					flattenAnds(topMatch.getMatch(),flatMatches);
+				}
 			}
-		}
+
 	}
+
+
 
 
 }

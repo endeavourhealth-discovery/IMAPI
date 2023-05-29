@@ -332,7 +332,7 @@ public class EqdResources {
 			direction= Order.ascending;
 		}
 		else {
-			direction=Order.ascending;
+			direction=Order.descending;
 		}
 		String linkColumn = eqCriterion.getFilterAttribute().getRestriction()
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);

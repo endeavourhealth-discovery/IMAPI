@@ -10,6 +10,16 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class OrderLimit extends Property {
 	private Order direction;
 	private int limit;
+	private String description;
+
+	public String getDescription() {
+		return description;
+	}
+
+	public OrderLimit setDescription(String description) {
+		this.description = description;
+		return this;
+	}
 
 	public OrderLimit setId(String id){
 		super.setIri(id);

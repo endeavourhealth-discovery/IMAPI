@@ -14,12 +14,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri","label","comment","name","order","minCount","maxCount","componentType","path","dataType","class","node",
-"functionClause","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue","forceIsValue", "builderChild"})
+"functionClause","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue","forceIsValue", "builderChild", "showTitle"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
 	private String label;
 	private String comment;
 	private String name;
+	private Boolean showTitle;
 	private int order;
 	private Integer minCount;
 	private Integer maxCount;
@@ -165,6 +166,16 @@ public class PropertyShape {
 		this.name = name;
 		return this;
 	}
+
+	public Boolean getShowTitle() {
+		return showTitle;
+	}
+
+	public PropertyShape setShowTitle(Boolean showTitle) {
+		this.showTitle = showTitle;
+		return this;
+	}
+
 	@JsonProperty(required = true)
 	public int getOrder() {
 		return order;

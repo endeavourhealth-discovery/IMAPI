@@ -211,12 +211,10 @@ public class EqdResources {
 			for (String vset : cv.getLibraryItem()) {
 				String vsetName=null;
 				if (labels.get(vset) != null){
-					vsetName= (String) labels.get(vset);
+					vsetName= (String) labels.get(vset);}
+				else
+					vsetName="unknown concept set";
 					valueLabel= valueLabel+ (valueLabel.equals("") ?"": ",")+ vsetName;
-				}
-				else{
-					valueLabel= valueLabel+""
-				}
 				Node iri = new Match().setSet("urn:uuid:" + vset);
 				if (vsetName!=null)
 					iri.setName(vsetName);

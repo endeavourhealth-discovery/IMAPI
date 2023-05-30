@@ -298,9 +298,6 @@ public class OpenSearchSender {
                     String name = rs.getValue("name").stringValue();
                     blob.setName(name);
 
-                   // if (name.contains(" "))
-                       // if (name.split(" ")[0].length() < 3)
-                         //   blob.addKey(name.substring(0, name.indexOf(" ")).toLowerCase());
                     String code = null;
                     if (rs.getValue("code") != null) {
                         code = rs.getValue("code").stringValue();

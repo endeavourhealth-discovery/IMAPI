@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.imq.Argument;
@@ -175,6 +176,7 @@ public class PropertyShape {
 		return this;
 	}
 
+	@JsonProperty(required = true)
 	public int getOrder() {
 		return order;
 	}
@@ -201,7 +203,7 @@ public class PropertyShape {
 		this.maxCount = maxCount;
 		return this;
 	}
-
+	@JsonProperty(required = true)
 	public TTIriRef getPath() {
 		return path;
 	}
@@ -262,7 +264,7 @@ public class PropertyShape {
 		this.isNumericValue = isNumericValue;
 		return this;
 	}
-
+	@JsonProperty(required = true)
 	public TTIriRef getComponentType() {
 		return componentType;
 	}

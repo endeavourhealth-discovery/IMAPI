@@ -221,13 +221,13 @@ public class SparqlConverter {
 						whereQl.append("{ \n");
 					else
 						whereQl.append("UNION {\n");
-					where(whereQl, subject, match.getWhere().get(i));
+					where(whereQl, subject, match.getWhere().get(i),null);
 					whereQl.append("}\n");
 				}
 			}
 			else{
 				for (Where where : match.getWhere()) {
-					where(whereQl, subject, where);
+					where(whereQl, subject, where,null);
 				}
 			}
 		}
@@ -298,33 +298,35 @@ public class SparqlConverter {
 	 * @param subject the SPARQL subject passed in - always starts with ?entity in the outer where
 	 * @param where the where clause of the query
 	 */
-	private void where(StringBuilder whereQl, String subject,Where where) throws DataFormatException {
+	private void where(StringBuilder whereQl, String subject,Where where,String parentVariable) throws DataFormatException {
 
 		if (where.getIri() != null) {
-			whereProperty(whereQl, subject, where);
+			whereProperty(whereQl, subject, where,parentVariable);
 		}
 		else if (where.getWhere()!=null) {
-			subWhere(whereQl, subject, where);
+			subWhere(whereQl, subject, where,parentVariable);
 		}
 	}
 
-	private void subWhere(StringBuilder whereQl, String subject, Where where) throws DataFormatException {
+	private void subWhere(StringBuilder whereQl, String subject, Where where,String parentVariable) throws DataFormatException {
 		if (where.isNull()){
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 		}
+		if (where.getVariable()!=null)
+			parentVariable= where.getVariable();
 		if (where.getBool() == Bool.or) {
 			for (int i = 0; i < where.getWhere().size(); i++) {
 				if (i == 0)
 					whereQl.append("{ \n");
 				else
 					whereQl.append("UNION {\n");
-				where(whereQl, subject, where.getWhere().get(i));
+				where(whereQl, subject, where.getWhere().get(i),parentVariable);
 				whereQl.append("}\n");
 			}
 		}
 		else {
 			for (Where subMatch : where.getWhere()) {
-				where(whereQl, subject, subMatch);
+				where(whereQl, subject, subMatch,parentVariable);
 			}
 		}
 
@@ -340,9 +342,8 @@ public class SparqlConverter {
 	 * @param subject the parent subject passed to this where clause
 	 * @param where the where clause
 	 */
-	private void whereProperty(StringBuilder whereQl, String subject,Where where) throws DataFormatException {
-
-
+	private void whereProperty(StringBuilder whereQl, String subject,Where where,String parentVariable) throws DataFormatException {
+		String propertyVariable= where.getVariable()!=null ?where.getVariable() : parentVariable;
 		String object=where.getValueVariable();
 		if (where.isAnyRoleGroup()) {
 			whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");
@@ -354,30 +355,36 @@ public class SparqlConverter {
 		}
 		o++;
 		String inverse = where.isInverse() ? "^" : "";
-		String property= "p"+o;
+		String property;
+		if (propertyVariable==null) {
+			property = "p" + o;
+		}
+		else
+			property= propertyVariable;
 		if (where.getParameter()!=null) {
 				property = iriFromAlias(where);
 		}
-		else
-				if (where.getVariable()!=null)
-				property= where.getVariable();
-				else
-					where.setVariable(property);
-		  if (where.getIn()!=null){
+		where.setVariable(property);
+		if (where.getIn()!=null){
 				if (where.getIn().get(0).getVariable()!=null) {
 					object = where.getIn().get(0).getVariable();
 				}
-			}
-			if (object==null) {
+		}
+		if (object==null) {
 				o++;
 				object = "object" + o;
-			}
-			if (where.isDescendantsOrSelfOf()) {
+		}
+		if (where.isDescendantsOrSelfOf()) {
 				whereQl.append("?").append(property).append(" im:isA ").append(iriFromString(where.getIri())).append(".\n");
 				whereQl.append("?").append(subject).append(" ").append(inverse).append("?").append(property).append(" ?").append(object).append(".\n");
 			}
 			else {
-				whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
+				if (propertyVariable!=null){
+					whereQl.append("?").append(subject).append(" ").append(inverse).append("?").append(property).append(" ?").append(object).append(".\n");
+					whereQl.append("filter (?"+property+" = "+ iriFromString(where.getIri())+")\n");
+				}
+				else
+					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");
 			}
 		if (where.getIn() != null) {
 				whereIn(whereQl, object, where.getIn(), false);

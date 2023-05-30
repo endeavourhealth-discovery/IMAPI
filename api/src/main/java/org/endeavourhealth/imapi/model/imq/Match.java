@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","boolMatch","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
+@JsonPropertyOrder({"exclude","nodeRef","boolMatch","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
 	"ancestorsOf","description","bool","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Node implements Whereable{
@@ -21,6 +21,16 @@ public class Match extends Node implements Whereable{
 	private List<Where> where;
 	private String description;
 	private List<OrderLimit> orderBy;
+	private String nodeRef;
+
+	public String getNodeRef() {
+		return nodeRef;
+	}
+
+	public Match setNodeRef(String nodeRef) {
+		this.nodeRef = nodeRef;
+		return this;
+	}
 
 	public List<OrderLimit> getOrderBy() {
 		return orderBy;

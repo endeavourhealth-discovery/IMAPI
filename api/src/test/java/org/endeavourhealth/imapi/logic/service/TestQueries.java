@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
@@ -104,6 +105,44 @@ public class TestQueries {
 					.setSet(IM.NAMESPACE+"Q_Hypertensives")
 						.setName("Hypertensives"));
 		return new QueryRequest().setQuery(prof);
+	}
+
+	public static QueryRequest dataModelPropertyRange() throws JsonProcessingException {
+		String json="{\n" +
+			"\"name\":\"Data model property range\",\n" +
+			"\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\n" +
+			"\"match\":[{\n" +
+			"    \"parameter\":\"myDataModel\",\n" +
+			"    \"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\n" +
+			"    \"node\":{\"variable\":\"shaclProperty\"}},\n" +
+			"    \"where\":[\n" +
+			"        {\n" +
+			"        \"@id\":\"http://www.w3.org/ns/shacl#path\",\n" +
+			"        \"in\":[{\"parameter\":\"myProperty\"}]\n" +
+			"        },\n" +
+			"        {\n" +
+			"            \"bool\":\"or\",\n" +
+			"            \"where\":[\n" +
+			"                {\"@id\":\"http://www.w3.org/ns/shacl#class\"},\n" +
+			"                {\"@id\":\"http://www.w3.org/ns/shacl#node\"},\n" +
+			"                {\"@id\":\"http://www.w3.org/ns/shacl#datatype\"}\n" +
+			"                ],\n" +
+			"            \"variable\":\"propType\"\n" +
+			"        }\n" +
+			"    ]\n" +
+			"    }],\n" +
+			"    \"return\":[{\"nodeRef\":\"propType\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]\n" +
+			"}";
+		Query query= new ObjectMapper().readValue(json,Query.class);
+		return new QueryRequest()
+			.setQuery(query)
+			.argument(a->a
+				.setParameter("myDataModel")
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"Observation")))
+			.argument(a->a
+				.setParameter("myProperty")
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"concept")));
+
 	}
 
 	public static QueryRequest rangeSuggestion(){

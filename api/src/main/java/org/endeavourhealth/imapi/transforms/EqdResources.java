@@ -214,6 +214,9 @@ public class EqdResources {
 					vsetName= (String) labels.get(vset);
 					valueLabel= valueLabel+ (valueLabel.equals("") ?"": ",")+ vsetName;
 				}
+				else{
+					valueLabel= valueLabel+""
+				}
 				Node iri = new Match().setSet("urn:uuid:" + vset);
 				if (vsetName!=null)
 					iri.setName(vsetName);
@@ -275,11 +278,8 @@ public class EqdResources {
 		setRestriction(eqCriterion, restricted);
 
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null) {
-			String variable=getBestVariable(restricted);
-			if (variable==null){
-				counter++;
-				variable="match_"+counter;
-			}
+			counter++;
+			String variable="match_"+counter;
 			restricted.setVariable(variable);
 			Match testMatch = new Match();
 			testMatch.setNodeRef(variable);
@@ -288,16 +288,6 @@ public class EqdResources {
 		}
 	}
 
-	private String getBestVariable(Match match){
-		String variable=null;
-		if (match.getWhere()!=null){
-			for (Where where:match.getWhere()){
-				if (where.getValueVariable()!=null)
-					variable=where.getValueLabel().replaceAll(" ","").replaceAll(",","_");
-			}
-		}
-		return variable;
-	}
 
 	private Node getLastNode(Path path) throws DataFormatException {
 		if (path.getNode()!=null) {
@@ -349,7 +339,8 @@ public class EqdResources {
 				Match targetMatch= new Match();
 				topMatch.addMatch(targetMatch);
 				convertStandardCriterion(eqCriterion,targetMatch);
-				String variable= getBestVariable(targetMatch);
+				counter++;
+				String variable= "match_"+counter;
 				targetMatch.setVariable(variable);
 				Match linkMatch= new Match();
 				topMatch.addMatch(linkMatch);

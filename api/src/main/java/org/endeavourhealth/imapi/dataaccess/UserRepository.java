@@ -54,7 +54,6 @@ public class UserRepository {
             TupleQuery qry = prepareSparql(conn, sparql);
             qry.setBinding("s", iri(USER.NAMESPACE + user));
             qry.setBinding("p", iri(USER.USER_THEME.getIri()));
-            System.out.println(qry.toString());
 
             try (TupleQueryResult rs = qry.evaluate()) {
                 if (rs.hasNext()) {

@@ -136,13 +136,48 @@ public class FilerController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("folder/add")
+    @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
+    public ResponseEntity addToFolder(
+            @RequestParam(name = "entity") String entityIri,
+            @RequestParam(name = "folder") String folderIri,
+            HttpServletRequest request) throws Exception {
+        LOG.debug("addToFolder");
+
+        if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
+        }
+
+        if (entityIri.equals(folderIri)) {
+            return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
+        }
+
+        TTEntity entity = entityService.getBundle(entityIri, Set.of(IM.IS_CONTAINED_IN.getIri(), IM.HAS_SCHEME.getIri())).getEntity();
+        TTArray folders = entity.get(IM.IS_CONTAINED_IN);
+        if(folders == null) folders = new TTArray();
+        folders.add(iri(folderIri));
+        String agentName = reqObjService.getRequestAgentName(request);
+        entity.setCrud(IM.UPDATE_PREDICATES);
+
+        TTDocument doc = new TTDocument(IM.GRAPH_DISCOVERY).setCrud(IM.UPDATE_PREDICATES);
+        doc.addEntity(entity);
+
+        filerService.fileTransactionDocument(doc, agentName);
+
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("folder/create")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public String moveFolder(
+    public String createFolder(
         @RequestParam(name = "container") String container,
         @RequestParam(name = "name") String name,
         HttpServletRequest request) throws Exception {
         LOG.debug("createFolder");
+
+        if(name.isBlank()){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
+        }
 
         if (!entityService.iriExists(container)) {
             LOG.error("Cannot create, container does not exist");

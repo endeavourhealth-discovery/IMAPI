@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +50,10 @@ public class FilerController {
 
     @PostMapping("file/document")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public ResponseEntity fileDocument(@RequestBody TTDocument document,
-                                       @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction,
-                                       HttpServletRequest request) throws Exception {
+    public ResponseEntity fileDocument(@RequestBody TTDocument document, @RequestParam(name = "withoutTransaction", required = false) boolean withoutTransaction, HttpServletRequest request) throws Exception {
         LOG.debug("fileDocument");
         String agentName = reqObjService.getRequestAgentName(request);
-        if(withoutTransaction) {
+        if (withoutTransaction) {
             filerService.fileDocument(document, agentName);
         } else {
             filerService.fileTransactionDocument(document, agentName);
@@ -64,10 +63,7 @@ public class FilerController {
 
     @PostMapping("file/entity")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public void fileEntity(@RequestBody TTEntity entity,
-                           @RequestParam(name = "graph") String graph,
-                           @RequestParam(name = "crud") String crud,
-                           HttpServletRequest request) throws TTFilerException, JsonProcessingException {
+    public void fileEntity(@RequestBody TTEntity entity, @RequestParam(name = "graph") String graph, @RequestParam(name = "crud") String crud, HttpServletRequest request) throws TTFilerException, JsonProcessingException {
         LOG.debug("fileEntity");
         String agentName = reqObjService.getRequestAgentName(request);
         TTEntity usedEntity = null;
@@ -76,22 +72,16 @@ public class FilerController {
             entity.setVersion(usedEntity.getVersion() + 1);
         }
 
-        if (graph != null && !graph.isEmpty())
-            entity.setGraph(iri(graph));
+        if (graph != null && !graph.isEmpty()) entity.setGraph(iri(graph));
 
-        if (crud != null && !crud.isEmpty())
-            entity.setCrud(iri(crud));
+        if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
         filerService.fileEntity(entity, entity.getGraph(), agentName, usedEntity);
     }
 
     @PostMapping("folder/move")
     @PreAuthorize("hasAuthority('CONCEPT_WRITE')")
-    public ResponseEntity moveFolder(
-        @RequestParam(name = "entity") String entityIri,
-        @RequestParam(name = "oldFolder") String oldFolderIri,
-        @RequestParam(name = "newFolder") String newFolderIri,
-        HttpServletRequest request) throws Exception {
+    public ResponseEntity moveFolder(@RequestParam(name = "entity") String entityIri, @RequestParam(name = "oldFolder") String oldFolderIri, @RequestParam(name = "newFolder") String newFolderIri, HttpServletRequest request) throws Exception {
         LOG.debug("moveFolder");
 
 
@@ -120,18 +110,14 @@ public class FilerController {
         if (entityService.isLinked(newFolderIri, IM.IS_CONTAINED_IN, oldFolderIri)) {
             return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
         }
-
+        TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+        
         folders.remove(iri(oldFolderIri));
         folders.add(iri(newFolderIri));
-
+        entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
 
         String agentName = reqObjService.getRequestAgentName(request);
-        entity.setCrud(IM.UPDATE_PREDICATES);
-
-        TTDocument doc = new TTDocument(IM.GRAPH_DISCOVERY).setCrud(IM.UPDATE_PREDICATES);
-        doc.addEntity(entity);
-
-        filerService.fileTransactionDocument(doc, agentName);
+        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -156,13 +142,11 @@ public class FilerController {
         TTArray folders = entity.get(IM.IS_CONTAINED_IN);
         if(folders == null) folders = new TTArray();
         folders.add(iri(folderIri));
+
         String agentName = reqObjService.getRequestAgentName(request);
-        entity.setCrud(IM.UPDATE_PREDICATES);
-
-        TTDocument doc = new TTDocument(IM.GRAPH_DISCOVERY).setCrud(IM.UPDATE_PREDICATES);
-        doc.addEntity(entity);
-
-        filerService.fileTransactionDocument(doc, agentName);
+        TTEntity usedEntity = entityService.getFullEntity(entity.getIri()).getEntity();
+        entity.setVersion(usedEntity.getVersion() + 1).setCrud(IM.UPDATE_PREDICATES);
+        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, usedEntity);
 
         return ResponseEntity.ok().build();
     }
@@ -190,19 +174,10 @@ public class FilerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
         }
 
-        TTEntity entity = new TTEntity(iri)
-            .setName(name)
-            .addType(IM.FOLDER)
-            .set(IM.IS_CONTAINED_IN, iri(container))
-            .setCrud(IM.UPDATE_PREDICATES);
+        TTEntity entity = new TTEntity(iri).setName(name).addType(IM.FOLDER).set(IM.IS_CONTAINED_IN, iri(container)).setVersion(1).setCrud(IM.ADD_QUADS);
 
         String agentName = reqObjService.getRequestAgentName(request);
-
-        TTDocument doc = new TTDocument(IM.GRAPH_DISCOVERY).setCrud(IM.ADD_QUADS);
-        doc.addEntity(entity);
-
-        filerService.fileTransactionDocument(doc, agentName);
-
+        filerService.fileEntity(entity, IM.GRAPH_DISCOVERY, agentName, null);
         return iri;
     }
 
@@ -214,7 +189,7 @@ public class FilerController {
 
         // Collect files into Zip
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try(ZipOutputStream zos = new ZipOutputStream(baos)) {
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
 
             File directory = new File(System.getenv("DELTA_PATH"));
             for (File file : Objects.requireNonNull(directory.listFiles())) {

@@ -500,6 +500,10 @@ public class SparqlConverter {
 								return argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.joining(","));
 							} else if (null != argument.getValueVariable()) {
 								return argument.getValueVariable();
+							} else if (null!= argument.getValueDataList()) {
+								return String.join(",", argument.getValueDataList());
+							} else if (null != argument.getValueObject()) {
+								return argument.getValueObject().toString();
 							}
 						}
 					}

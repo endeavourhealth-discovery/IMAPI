@@ -498,6 +498,8 @@ public class SparqlConverter {
 								return argument.getValueIri().getIri();
 							else if (null!= argument.getValueIriList()){
 								return argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.joining(","));
+							} else if (null != argument.getValueVariable()) {
+								return argument.getValueVariable();
 							}
 						}
 					}

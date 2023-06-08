@@ -6,7 +6,7 @@ ext {
             apachePoi           : '5.2.3',
             aws                 : '1.12.153',
             cucumber            : '7.11.2',
-            elasticSearch       : '7.16.3',
+            elasticSearch       : '8.8.1',
             factPlusPlus        : '1.6.5',
             grpc                : '1.50.2',
             h2                  : '2.1.214',

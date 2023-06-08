@@ -154,7 +154,6 @@ public class IM {
     public static final TTIriRef GRAPH_NHS_TFC = TTIriRef.iri(DOMAIN + "nhstfc#");
     public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
     public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
-    public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
     public static final TTIriRef GRAPH_PROV = TTIriRef.iri(DOMAIN + "prov#");
     public static final TTIriRef GRAPH_QUERY = TTIriRef.iri(DOMAIN + "query#");
 

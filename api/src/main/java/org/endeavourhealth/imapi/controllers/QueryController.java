@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -89,5 +91,14 @@ public class QueryController {
     public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("updateIM");
         searchService.updateIM(queryRequest);
+    }
+
+    @GetMapping("/public/allQueries")
+    @Operation(
+            summary = "Get all queries",
+            description = "Get all queries"
+    )
+    public List<TTIriRef> getAllQueries() {
+        return queryService.getAllQueries();
     }
 }

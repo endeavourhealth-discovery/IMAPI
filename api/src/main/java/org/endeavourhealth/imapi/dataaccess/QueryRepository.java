@@ -483,4 +483,27 @@ public class QueryRepository {
     private boolean isIri(String iri) {
         return iri.matches("([a-z]+)?[:].*");
     }
+
+    public List<TTIriRef> getAllQueries() {
+        List<TTIriRef> queries = new ArrayList<>();
+        String sql = new StringJoiner(System.lineSeparator())
+                .add("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>")
+                .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
+                .add("PREFIX im: <http://endhealth.info/im#>")
+                .add("SELECT * WHERE {")
+                .add("?q rdf:type im:Query .")
+                .add("?q rdfs:label ?qname .")
+                .add("}")
+                .toString();
+        try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
+            TupleQuery qry = conn.prepareTupleQuery(sql);
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                   queries.add(new TTIriRef(bs.getValue("q").toString(), bs.getValue("qname").toString()));
+                }
+            }
+        }
+        return queries;
+    }
 }

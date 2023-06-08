@@ -101,4 +101,13 @@ public class QueryController {
     public List<TTIriRef> getAllQueries() {
         return queryService.getAllQueries();
     }
+
+    @GetMapping("/public/allByType")
+    @Operation(
+            summary = "Get entities by type",
+            description = "Get entities by type"
+    )
+    public List<TTIriRef> getAllByType(@RequestParam(name = "iri") String typeIri) {
+        return queryService.getAllByType(typeIri);
+    }
 }

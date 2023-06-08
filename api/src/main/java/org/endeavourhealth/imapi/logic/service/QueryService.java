@@ -19,4 +19,8 @@ public class QueryService {
     public List<TTIriRef> getAllQueries() {
         return queryRepository.getAllQueries();
     }
+
+    public List<TTIriRef> getAllByType(String typeIri) {
+        return queryRepository.getAllByType(typeIri);
+    }
 }

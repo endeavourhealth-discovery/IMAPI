@@ -246,7 +246,7 @@ public class EntityTripleRepository {
                     BindingSet bs = rs.next();
                     children.add(new TTIriRef(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
                 }
-                result.setResult(children);;
+                result.setResult(children);
             }
         }
 

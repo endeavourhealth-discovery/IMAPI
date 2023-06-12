@@ -26,18 +26,22 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http
-                .csrf().disable().authorizeHttpRequests()
+            .csrf(c -> c.disable())
+            .authorizeHttpRequests(req -> req
                 .requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v3/**").permitAll()
-                .anyRequest().authenticated();
-        http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
-        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor());
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .accessDeniedHandler(accessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint())
+            )
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .oauth2ResourceServer(oa2 -> oa2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
         return http.build();
     }
 

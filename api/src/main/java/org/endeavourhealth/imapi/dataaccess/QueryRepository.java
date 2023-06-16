@@ -502,7 +502,7 @@ public class QueryRepository {
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                   queries.add(new TTIriRef(bs.getValue("q").toString(), bs.getValue("qname").toString()));
+                   queries.add(new TTIriRef(bs.getValue("q").stringValue(), bs.getValue("qname").stringValue()));
                 }
             }
         }
@@ -525,7 +525,7 @@ public class QueryRepository {
             try (TupleQueryResult rs = qry.evaluate()) {
                 while (rs.hasNext()) {
                     BindingSet bs = rs.next();
-                    result.add(new TTIriRef(bs.getValue("e").toString(), bs.getValue("ename").toString()));
+                    result.add(new TTIriRef(bs.getValue("e").stringValue(), bs.getValue("ename").stringValue()));
                 }
             }
         }

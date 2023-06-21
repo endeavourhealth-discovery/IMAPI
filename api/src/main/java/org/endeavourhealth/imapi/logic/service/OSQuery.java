@@ -88,6 +88,8 @@ public class OSQuery {
         bld.query(qry);
         bld.sort("length");
         result1.addAll(wrapandRun(bld, request));
+        Set<String> set = new HashSet<>();
+        result1.removeIf(p -> !set.add(p.getIri()));
         return result1;
     }
 

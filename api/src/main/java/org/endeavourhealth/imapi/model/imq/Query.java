@@ -15,7 +15,8 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"@context","iri","name","description","match","select","construct","subQuery","groupBy","orderBy","direction","limit","having"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends TTIriRef {
-
+	private String type;
+	private String set;
 	private String description;
 	private boolean activeOnly;
 	private boolean usePrefixes;
@@ -24,6 +25,24 @@ public class Query extends TTIriRef {
 	private List<OrderLimit> orderBy;
 	private List<Property> groupBy;
 	private List<Return> returx;
+
+	public String getType() {
+		return type;
+	}
+
+	public Query setType(String type) {
+		this.type = type;
+		return this;
+	}
+
+	public String getSet() {
+		return set;
+	}
+
+	public Query setSet(String set) {
+		this.set = set;
+		return this;
+	}
 
 	@JsonProperty("return")
 	public List<Return> getReturn() {
@@ -59,7 +78,7 @@ public class Query extends TTIriRef {
 		return this;
 	}
 
-	public Query addMatch(Match match){
+	public Query addMatch(Match match) {
 		if (this.match ==null)
 			this.match = new ArrayList<>();
 		this.match.add(match);

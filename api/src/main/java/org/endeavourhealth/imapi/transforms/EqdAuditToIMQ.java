@@ -12,7 +12,7 @@ public class EqdAuditToIMQ {
 	private EqdResources resources;
 	private int aliasCount=0;
 
-	public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException {
+	public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, QueryException {
 		this.resources = resources;
 		Match match = new Match();
 		query.addMatch(match);

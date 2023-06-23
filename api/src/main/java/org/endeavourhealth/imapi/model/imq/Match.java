@@ -3,25 +3,26 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","nodeRef","boolMatch","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
-	"ancestorsOf","description","bool","match","where"})
+@JsonPropertyOrder({"exclude","nodeRef","boolMatch","boolWhere","boolPath","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
+	"ancestorsOf","description","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends Node implements Whereable{
 	private Bool boolMatch;
+	private Bool boolWhere;
+	private Bool boolPath;
 	private List<Match> match;
-	private Bool bool;
 	private boolean exclude;
 	private Element graph;
 	private List<Where> where;
 	private String description;
 	private List<OrderLimit> orderBy;
 	private String nodeRef;
+	private List<Path> path;
 
 	public String getNodeRef() {
 		return nodeRef;
@@ -29,6 +30,24 @@ public class Match extends Node implements Whereable{
 
 	public Match setNodeRef(String nodeRef) {
 		this.nodeRef = nodeRef;
+		return this;
+	}
+
+	public Bool getBoolWhere() {
+		return boolWhere;
+	}
+
+	public Match setBoolWhere(Bool boolWhere) {
+		this.boolWhere = boolWhere;
+		return this;
+	}
+
+	public Bool getBoolPath() {
+		return boolPath;
+	}
+
+	public Match setBoolPath(Bool boolPath) {
+		this.boolPath = boolPath;
 		return this;
 	}
 
@@ -69,15 +88,27 @@ public class Match extends Node implements Whereable{
 
 
 
-	public Match setPath(Path path) {
-		super.setPath(path);
+	public Match setPath(List<Path> path){
+		this.path=path;
+		return this;
+	}
+
+	public List<Path> getPath(){
+		return this.path;
+	}
+
+	public Match addPath(Path path) {
+
+		if (this.path==null)
+			this.path= new ArrayList<>();
+		this.path.add(path);
 		return this;
 	}
 
 	public Match path(Consumer<Path> builder){
-		if (getPath()!=null)
-			throw new IllegalArgumentException("Builder should not be used to overwrite properties ");
-		super.path(builder);
+		Path path= new Path();
+		addPath(path);
+		builder.accept(path);
 		return this;
 	}
 
@@ -90,12 +121,12 @@ public class Match extends Node implements Whereable{
 		return this;
 	}
 
-	public Bool getBool() {
-		return bool;
+	public Bool getBoolMatch() {
+		return boolMatch;
 	}
 
-	public Match setBool(Bool bool) {
-		this.bool = bool;
+	public Match setBoolMatch(Bool boolMatch) {
+		this.boolMatch = boolMatch;
 		return this;
 	}
 
@@ -120,14 +151,7 @@ public class Match extends Node implements Whereable{
 	}
 
 
-	public Bool getBoolMatch() {
-		return boolMatch;
-	}
 
-	public Match setBoolMatch(Bool boolMatch) {
-		this.boolMatch = boolMatch;
-		return this;
-	}
 
 
 	public List<Match> getMatch() {
@@ -146,7 +170,7 @@ public class Match extends Node implements Whereable{
 		return this;
 	}
 
-	public Match addMatch(Match match) {
+	public Match addMatch(Match match){
 		if (this.match ==null)
 			this.match = new ArrayList<>();
 		this.match.add(match);

@@ -141,9 +141,9 @@ public class IMLToECL {
 
 	private static void addRefinedGroupAppendBool(Where where, StringBuilder ecl, Boolean includeName, int i) throws DataFormatException {
 		if (i > 0) {
-			if (where.getBool() == Bool.or)
+			if (where.getBoolWhere() == Bool.or)
 				ecl.append(" OR ");
-			else if (where.getBool() == Bool.and)
+			else if (where.getBoolWhere() == Bool.and)
 				ecl.append(" , ");
 			}
 		addRefinedGroup(where.getWhere().get(i), ecl, includeName);

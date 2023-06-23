@@ -68,7 +68,7 @@ public class QueryController {
       summary = "Path Query ",
       description = "Query IM for a path between source and target"
     )
-    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, ExecutionException, QueryException {
         LOG.debug("pathQuery");
         return searchService.pathQuery(queryRequest);
     }

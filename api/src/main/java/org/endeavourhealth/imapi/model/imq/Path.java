@@ -9,18 +9,18 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Path extends Property{
-	private Node node;
+	private Match match;
 
-	public Node getNode() {
-		return node;
+	public Match getMatch() {
+		return match;
 	}
 
-	public Path setNode(Node node) {
-		this.node = node;
+	public Path setMatch(Match match) {
+		this.match = match;
 		return this;
 	}
-	public Path node(Consumer<Node> builder){
-		builder.accept(setNode(new Node()).getNode());
+	public Path match(Consumer<Match> builder){
+		builder.accept(setMatch(new Match()).getMatch());
 		return this;
 	}
 

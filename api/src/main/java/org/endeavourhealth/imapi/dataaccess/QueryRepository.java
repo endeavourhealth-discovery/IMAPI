@@ -380,7 +380,9 @@ public class QueryRepository {
             addToIriList(match.getSet(), ttIris, iris);
         }
         if (match.getPath() != null) {
-            addToIriList(match.getPath().getIri(), ttIris, iris);
+            for (Path path:match.getPath()) {
+                addToIriList(path.getIri(), ttIris, iris);
+            }
         }
         if (match.getOrderBy() != null) {
             for(OrderLimit orderBy : match.getOrderBy()) {
@@ -431,7 +433,9 @@ public class QueryRepository {
             match.setName(iriLabels.get(match.getSet()));
         }
         if (match.getPath() != null) {
-            match.getPath().setName(iriLabels.get(match.getPath().getIri()));
+            for (Path path:match.getPath()) {
+                path.setName(iriLabels.get(path.getIri()));
+            }
         }
         if (match.getOrderBy() != null) {
             for(OrderLimit orderBy : match.getOrderBy()) {

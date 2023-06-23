@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.iml.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -22,7 +23,7 @@ import java.util.zip.DataFormatException;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-	public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException, IOException, DataFormatException {
+	public ModelDocument transformEqd(EnquiryDocument eqDoc) throws FileNotFoundException, IOException, DataFormatException, QueryException {
 		Properties dataMap= new Properties();
         Properties criteriaLabels = new Properties();
 

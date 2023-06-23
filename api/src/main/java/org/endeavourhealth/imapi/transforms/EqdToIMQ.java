@@ -27,7 +27,7 @@ public class EqdToIMQ {
 
 	public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
 
-																	Properties criteriaLabels) throws DataFormatException, IOException {
+																	Properties criteriaLabels) throws DataFormatException, IOException, QueryException {
 
 		resources.setDataMap(dataMap);
 		resources.setDocument(new ModelDocument());
@@ -47,7 +47,7 @@ public class EqdToIMQ {
 
 	}
 
-	private void convertReports(EnquiryDocument eqd) throws DataFormatException, IOException {
+	private void convertReports(EnquiryDocument eqd) throws DataFormatException, IOException, QueryException {
 		for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
 			if (eqReport.getId() == null)
 				throw new DataFormatException("No report id");
@@ -78,7 +78,7 @@ public class EqdToIMQ {
 	}
 
 
-	public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException {
+	public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException, QueryException {
 
 		resources.setActiveReport(eqReport.getId());
 		resources.setActiveReportName(eqReport.getName());
@@ -105,13 +105,13 @@ public class EqdToIMQ {
 		return queryEntity;
 	}
 
-	private void flattenQuery(Query qry) {
+	private void flattenQuery(Query qry) throws QueryException {
 		List<Match> flatMatches= new ArrayList<>();
 		flattenAnds(qry.getMatch(),flatMatches);
 		qry.setMatch(flatMatches);
 	}
 
-	private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) {
+	private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) throws QueryException {
 		for (Match topMatch:topMatches) {
 			if (topMatch.getMatch()==null){
 				flatMatches.add(topMatch);

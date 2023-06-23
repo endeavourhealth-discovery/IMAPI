@@ -181,7 +181,7 @@ public class QueryRequest implements ContextMap {
 		return this;
 	}
 
-	public QueryRequest query(Consumer<Query> builder) {
+	public QueryRequest query(Consumer<Query> builder){
 		this.query= new Query();
 		builder.accept(this.query);
 		return this;

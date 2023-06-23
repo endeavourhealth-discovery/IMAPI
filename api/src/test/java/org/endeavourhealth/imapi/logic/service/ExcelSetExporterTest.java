@@ -65,7 +65,7 @@ public class ExcelSetExporterTest {
         assertEquals(3, actual.getNumberOfSheets());
     }
 
-    private TTEntity mockDefinition() throws JsonProcessingException {
+    private TTEntity mockDefinition() throws JsonProcessingException{
         TTEntity definition = new TTEntity()
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept SetModel- Barts Covid vaccine study medication concepts");

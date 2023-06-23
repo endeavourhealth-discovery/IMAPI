@@ -11,7 +11,7 @@ import java.util.zip.DataFormatException;
 public class EqdListToIMQ {
 	private EqdResources resources;
 
-	public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException {
+	public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.resources= resources;
 		String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
 		query.match(f->f
@@ -26,7 +26,7 @@ public class EqdListToIMQ {
 	}
 
 
-	private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery) throws DataFormatException, IOException {
+	private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery) throws DataFormatException, IOException, QueryException {
 		String eqTable = eqColGroup.getLogicalTableName();
 		subQuery.setName(eqColGroup.getDisplayName());
 		if (eqColGroup.getCriteria() == null) {
@@ -50,21 +50,21 @@ public class EqdListToIMQ {
 
 	private String getLastNode(Match match){
 		if (match.getPath()!=null){
-			return getLastNode(match.getPath());
+			return getLastNode(match.getPath().get(0));
 		}
 		else
 			return match.getVariable();
 	}
 
 	private String getLastNode(Path path){
-			if (path.getNode().getPath()==null) {
-				return path.getNode().getVariable();
+			if (path.getMatch().getPath()==null) {
+				return path.getMatch().getVariable();
 			}
 			else
-				return getLastNode(path.getNode().getPath());
+				return getLastNode(path.getMatch().getPath().get(0));
 	}
 
-	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException {
+	private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws DataFormatException, IOException, QueryException {
 		Return aReturn = new Return();
 		subQuery.addReturn(aReturn);
 		Match match = new Match();

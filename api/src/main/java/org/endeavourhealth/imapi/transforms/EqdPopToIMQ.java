@@ -14,7 +14,7 @@ public class EqdPopToIMQ {
 
 
 
-	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException {
+	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
 		Match rootMatch = new Match();
@@ -83,7 +83,7 @@ public class EqdPopToIMQ {
 	}
 
 
-	private void convertGroup(EQDOCCriteriaGroup eqGroup, Match groupMatch) throws DataFormatException, IOException {
+	private void convertGroup(EQDOCCriteriaGroup eqGroup, Match groupMatch) throws DataFormatException, IOException, QueryException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (memberOp == VocMemberOperator.AND) {
 			groupMatch.setBoolMatch(Bool.and);

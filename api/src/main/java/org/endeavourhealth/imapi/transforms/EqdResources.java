@@ -101,7 +101,7 @@ public class EqdResources {
 
 
 	public void convertCriteria(EQDOCCriteria eqCriteria,
-															 Match match) throws DataFormatException, IOException {
+															 Match match) throws DataFormatException, IOException, QueryException {
 
 		if ((eqCriteria.getPopulationCriterion() != null)) {
 			EQDOCSearchIdentifier srch = eqCriteria.getPopulationCriterion();
@@ -115,7 +115,7 @@ public class EqdResources {
 
 
 
-	private void convertCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
+	private void convertCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
 		if (eqCriterion.isNegation()) {
 			match.setExclude(true);
 		}
@@ -129,30 +129,30 @@ public class EqdResources {
 
 	}
 
-	private void setTablePath(String eqKey,Match match) throws DataFormatException {
+	private void setTablePath(String eqKey,Match match) throws DataFormatException, QueryException {
 		String pathMap = getPath(eqKey);
 		if (!pathMap.equals("")) {
 			String[] elements =pathMap.split(" ");
 			Path path = new Path();
-			match.setPath(path);
+			match.addPath(path);
 			path.setIri(elements[0]);
-			path.setNode(new Node().setIri(elements[1]));
+			path.setMatch(new Match().setType(elements[1]));
 		}
 	}
 
-	private void setPaths(Node node, String pathMap) {
+	private void setPaths(Match node, String pathMap) throws QueryException {
 		String[] paths= pathMap.split(" ");
 			for (int i=0; i<paths.length-2; i=i+2){
 					Path path= new Path();
-					node.setPath(path);
+					node.addPath(path);
 					path.setIri(paths[i]);
-					node= new Node();
-					path.setNode(node);
-					node.setIri(paths[i+1]);
+					node= new Match();
+					path.setMatch(node);
+					node.setType(paths[i+1]);
 				}
 	}
 
-	private void convertStandardCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
+	private void convertStandardCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
 		if (eqCriterion.getFilterAttribute().getRestriction() != null) {
 			convertRestrictionCriterion(eqCriterion, match);
 
@@ -163,7 +163,7 @@ public class EqdResources {
 		}
 	}
 
-	private void convertColumns(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
+	private void convertColumns(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
 		EQDOCFilterAttribute filterAttribute = eqCriterion.getFilterAttribute();
 		List<EQDOCColumnValue> cvs= filterAttribute.getColumnValue();
 		if (cvs.size()==1){
@@ -173,7 +173,7 @@ public class EqdResources {
 			setColumnWhere(cv,eqCriterion.getTable(),match,columnWhere);
 		}
 		else {
-			match.setBool(Bool.and);
+			match.setBoolWhere(Bool.and);
 			for (EQDOCColumnValue cv : filterAttribute.getColumnValue()) {
 				Where columnWhere= new Where();
 				match.addWhere(columnWhere);
@@ -183,12 +183,12 @@ public class EqdResources {
 
 	}
 
-	private void setColumnWhere(EQDOCColumnValue cv, String eqTable,Match match,Where where) throws DataFormatException, IOException {
+	private void setColumnWhere(EQDOCColumnValue cv, String eqTable,Match match,Where where) throws DataFormatException, IOException, QueryException {
 		String eqColumn= String.join("/",cv.getColumn());
 		String pathMap= getPath(eqTable+"/"+ eqColumn);
 		if (pathMap.contains(" ")) {
 			if (match.getPath()!=null) {
-				Node node = getLastNode(match.getPath());
+				Match node = getLastNode(match.getPath().get(0));
 				setPaths(node,pathMap);
 			}
 			else
@@ -211,10 +211,11 @@ public class EqdResources {
 			for (String vset : cv.getLibraryItem()) {
 				String vsetName=null;
 				if (labels.get(vset) != null){
-					vsetName= (String) labels.get(vset);}
+					vsetName= (String) labels.get(vset);
+				}
 				else
 					vsetName="unknown concept set";
-					valueLabel= valueLabel+ (valueLabel.equals("") ?"": ",")+ vsetName;
+				valueLabel= valueLabel+ (valueLabel.equals("") ?"": ", ")+ vsetName;
 				Node iri = new Match().setSet("urn:uuid:" + vset);
 				if (vsetName!=null)
 					iri.setName(vsetName);
@@ -263,7 +264,7 @@ public class EqdResources {
 	}
 
 
-	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException {
+	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
 		Match restricted=match;
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null) {
 			match.setBoolMatch(Bool.and);
@@ -287,22 +288,22 @@ public class EqdResources {
 	}
 
 
-	private Node getLastNode(Path path) throws DataFormatException {
-		if (path.getNode()!=null) {
-			if (path.getNode().getPath() == null) {
-				return path.getNode();
+	private Match getLastNode(Path path) throws DataFormatException {
+		if (path.getMatch()!=null) {
+			if (path.getMatch().getPath() == null) {
+				return path.getMatch();
 			}
 			else
-				return getLastNode(path.getNode().getPath());
+				return getLastNode(path.getMatch().getPath().get(0));
 		}
 		throw new DataFormatException("Match path appears ccorrupted");
 	}
 
 
-	private void restrictionTest(EQDOCCriterion eqCriterion, Match testMatch,String nodeVariable) throws IOException, DataFormatException {
+	private void restrictionTest(EQDOCCriterion eqCriterion, Match testMatch,String nodeVariable) throws IOException, DataFormatException, QueryException {
 		EQDOCTestAttribute testAtt= eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
 		if (testAtt != null) {
-			testMatch.setBool(Bool.and);
+			testMatch.setBoolWhere(Bool.and);
 				for (EQDOCColumnValue cv : testAtt.getColumnValue()) {
 					Where columnWhere= new Where();
 					testMatch.addWhere(columnWhere);
@@ -326,14 +327,14 @@ public class EqdResources {
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
-		String linkElement= getLastNode(restricted.getPath()).getVariable();
+		String linkElement= getLastNode(restricted.getPath().get(0)).getVariable();
 		restricted.orderBy(o->o.setIri(orderBy).setLimit(1).setDirection(direction));
 		return linkElement;
 	}
 
 
 
-			private void convertLinkedCriterion(EQDOCCriterion eqCriterion, Match topMatch) throws DataFormatException, IOException {
+			private void convertLinkedCriterion(EQDOCCriterion eqCriterion, Match topMatch) throws DataFormatException, IOException, QueryException {
 				Match targetMatch= new Match();
 				topMatch.addMatch(targetMatch);
 				convertStandardCriterion(eqCriterion,targetMatch);

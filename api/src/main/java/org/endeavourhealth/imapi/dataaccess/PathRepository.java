@@ -16,7 +16,7 @@ public class PathRepository {
 	private PathDocument document= new PathDocument();
 	private TupleQuery queryToShape;
 
-	public PathDocument pathQuery(QueryRequest request) {
+	public PathDocument pathQuery(QueryRequest request) throws QueryException {
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()){
 			this.conn= conn;
 			PathQuery pathQuery = request.getPathQuery();
@@ -32,21 +32,20 @@ public class PathRepository {
 		return document;
 	}
 
-	private int getLength(Node node){
+	private int getLength(Match match){
 		int count=0;
-		Path path= node.getPath();
-		if (path==null)
+		if (match.getPath()==null)
 			return 0;
 		else {
 			count++;
-			if (path.getNode()!=null)
-				count=count+getLength(path.getNode());
+			for (Path path:match.getPath())
+				count=count+getLength(path.getMatch());
 		}
 		return count;
 	}
 
 
-	private List<Match> getAllPaths(String source, String target,Integer depth) {
+	private List<Match> getAllPaths(String source, String target,Integer depth) throws QueryException {
 		queryToShape = conn.prepareTupleQuery(getPathSql());
 		List<Match> partial= new ArrayList<>();
 		List<Match> full = new ArrayList<>();
@@ -59,7 +58,7 @@ public class PathRepository {
 		return full;
 	}
 
-	private List<Match> nextPaths(String source, String target, List<Match> partials, List<Match> full) {
+	private List<Match> nextPaths(String source, String target, List<Match> partials, List<Match> full) throws  QueryException{
 		List<Match> next= new ArrayList<>();
 		for (Match partial:partials){
 					queryToShape.setBinding("target", Values.iri(partial.getType()));
@@ -72,12 +71,12 @@ public class PathRepository {
 								.setType(bs.getValue("entity").stringValue())
 								.setName(bs.getValue("entityName").stringValue());
 							Path path= new Path();
-							nextPath.setPath(path);
+							nextPath.addPath(path);
 							path
 								.setIri(bs.getValue("path").stringValue())
 								.setName(bs.getValue("pathName").stringValue());
-							Node node= new Node();
-							path.setNode(node);
+							Match node= new Match();
+							path.setMatch(node);
 							node.setType(partial.getType());
 							node.setPath(partial.getPath());
 							if (nextPath.getType().equals(source))
@@ -114,7 +113,7 @@ public class PathRepository {
 	}
 
 
-	private List<Match> getPathsFromShape(String source, String target,List<Match> full) {
+	private List<Match> getPathsFromShape(String source, String target,List<Match> full) throws QueryException{
 		String targetIri = "<" + target + ">";
 		List<Match> pathsFromShape = new ArrayList<>();
 		//First get the shapes

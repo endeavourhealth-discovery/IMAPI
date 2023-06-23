@@ -80,8 +80,8 @@ public class SparqlConverter {
 				for (TTIriRef status : statusFilter) {
 					statusStrings.add("<" + status.getIri() + ">");
 				}
-				whereQl.append("?").append(mainEntity).append(" im:status ?"+ statusVar+".\n");
-				whereQl.append("Filter (?"+ statusVar+" in(").append(String.join(",", statusStrings)).append("))\n");
+				whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
+				whereQl.append("Filter (?").append(statusVar).append(" in(").append(String.join(",", statusStrings)).append("))\n");
 			}
 		if (query.isActiveOnly()) {
 					whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
@@ -130,7 +130,7 @@ public class SparqlConverter {
 		}
 		String searchText= String.join(" && ",words);
 		whereQl.append("(").append(searchText).append(")").append("\" ;\n");
-		whereQl.append("       con:entities ?"+mainEntity+".\n");
+		whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
 	}
 
 
@@ -212,10 +212,12 @@ public class SparqlConverter {
 			}
 		}
 		if (match.getPath() != null) {
-				subject = path(whereQl, subject, match.getPath());
+			for (Path path:match.getPath()) {
+				path(whereQl, subject, path);
 			}
+		}
 		if (match.getWhere()!=null) {
-			if (match.getBool() == Bool.or) {
+			if (match.getBoolMatch() == Bool.or) {
 				for (int i = 0; i < match.getWhere().size(); i++) {
 					if (i == 0)
 						whereQl.append("{ \n");
@@ -256,16 +258,16 @@ public class SparqlConverter {
 		}
 	}
 
-	private String path(StringBuilder whereQl,String subject,Path path) throws DataFormatException {
+	private void path(StringBuilder whereQl,String subject,Path path) throws DataFormatException {
 		o++;
 		String property="p"+o;
-		String object=path.getNode().getVariable();
+		String object=path.getMatch().getVariable();
 		if (path.getVariable()==null)
 			path.setVariable(property);
 		else {
 			property = path.getVariable();
 		}
-		Node node= path.getNode();
+		Match match= path.getMatch();
 		String inverse = path.isInverse() ? "^" : "";
 		if (path.getIri() != null) {
 			if (path.isDescendantsOrSelfOf()) {
@@ -281,13 +283,7 @@ public class SparqlConverter {
 		}
 
 		whereQl.append(" ?").append(object).append(".\n");
-		if (node.getType()!=null){
-				whereQl.append("?").append(object).append(" rdf:type ").append(iriFromAlias(node)).append(".\n");
-			}
-		if (path.getNode().getPath()!=null) {
-					return path(whereQl, object, path.getNode().getPath());
-			}
-		return object;
+		match(whereQl,object,match);
 	}
 
 
@@ -314,7 +310,7 @@ public class SparqlConverter {
 		}
 		if (where.getVariable()!=null)
 			parentVariable= where.getVariable();
-		if (where.getBool() == Bool.or) {
+		if (where.getBoolWhere() == Bool.or) {
 			for (int i = 0; i < where.getWhere().size(); i++) {
 				if (i == 0)
 					whereQl.append("{ \n");
@@ -381,7 +377,7 @@ public class SparqlConverter {
 			else {
 				if (propertyVariable!=null){
 					whereQl.append("?").append(subject).append(" ").append(inverse).append("?").append(property).append(" ?").append(object).append(".\n");
-					whereQl.append("filter (?"+property+" = "+ iriFromString(where.getIri())+")\n");
+					whereQl.append("filter (?").append(property).append(" = ").append(iriFromString(where.getIri())).append(")\n");
 				}
 				else
 					whereQl.append("?").append(subject).append(" ").append(inverse).append(iriFromString(where.getIri())).append(" ?").append(object).append(".\n");

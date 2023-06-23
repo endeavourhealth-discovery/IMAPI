@@ -85,6 +85,7 @@ public class QueryValidator {
 
 
 
+
 	private void validateMatch(Match match, String subject) throws QueryException {
 		if (match.getVariable()!=null){
 			if (mainEntity!=null) {
@@ -94,6 +95,8 @@ public class QueryValidator {
 			mainEntity= match.getVariable();
 		}
 		if (match.getMatch()!=null){
+			if (match.getBoolWhere()!=null|(match.getBoolPath()!=null))
+				throw new QueryException("Match clause cannot contain where or path and boolean match");
 			for (Match subMatch:match.getMatch()){
 				if (subMatch.getVariable()==null)
 					subMatch.setVariable(subject);
@@ -103,7 +106,8 @@ public class QueryValidator {
 		}
 		subject= match.getVariable();
 		if (match.getPath()!=null){
-			subject=validatePath(match.getVariable(),match.getPath());
+			for (Path path:match.getPath())
+				validatePath(subject,path);
 		}
 		if (match.getWhere()!=null) {
 			for (Where where:match.getWhere()){
@@ -121,7 +125,7 @@ public class QueryValidator {
 		if (where.getVariable()!=null)
 			variables.put(where.getVariable(),VarType.PATH);
 		if (where.getWhere()!=null){
-			if (where.getBool()==null)
+			if (where.getBoolWhere()==null)
 				throw new QueryException("Where clause has nested where without a boolean operator");
 			if (where.getIri()!=null)
 				throw new QueryException("Where clause cannot be both boolean and have a property test. If the intention is to traverse a graph, use match/path");
@@ -145,13 +149,13 @@ public class QueryValidator {
 
 	}
 
-	private String validatePath(String subject, Path path){
+	private void validatePath(String subject,Path path) throws QueryException {
 		o++;
 		String object;
-		Node node= path.getNode();
+		Match node= path.getMatch();
 		if (node==null) {
-			node = new Node();
-			path.setNode(node);
+			node = new Match();
+			path.setMatch(node);
 		}
 		if (node.getVariable() != null) {
 			object = node.getVariable();
@@ -169,12 +173,7 @@ public class QueryValidator {
 		if (path.getVariable()!=null){
 			variables.put(path.getVariable(),VarType.PATH);
 		}
-		if (node.getPath()!=null) {
-			return validatePath(object, node.getPath());
-		}
-		else {
-			return object;
-		}
+		validateMatch(path.getMatch(),object);
 	}
 
 }

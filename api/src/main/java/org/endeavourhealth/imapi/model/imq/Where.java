@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description","nodeVariable","iri","name","bool","where","range"
+@JsonPropertyOrder({"description","nodeVariable","iri","name","boolWhere","where","range"
 	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Where extends Property implements Assignable,Whereable{
@@ -146,12 +146,12 @@ public class Where extends Property implements Assignable,Whereable{
 	}
 
 
-	public Bool getBool() {
+	public Bool getBoolWhere() {
 		return bool;
 	}
 
-	public Where setBool(Bool bool) {
-		this.bool = bool;
+	public Where setBoolWhere(Bool boolMatch) {
+		this.bool = boolMatch;
 		return this;
 	}
 

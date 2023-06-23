@@ -15,98 +15,6 @@ public class TestQueries {
 
 
 
-	public static QueryRequest testQuery()  {
-		Query prof = new Query()
-			.setIri(IM.NAMESPACE + "Q_TestQuery")
-			.setName("Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150"+
-				"not followed by a screening invite, excluding hypertensives")
-		  .match(f->f
-			.setType("Patient"))
-			.match(w->w
-				.setDescription("Registered for gms")
-				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
-					.setName("Registered for GMS services on reference date"))
-			.match(m->m
-				.setBoolMatch(Bool.or)
-				.match(or->or
-					.setDescription("aged between 65 and 70")
-					.where(w->w
-					.setIri("age")
-					.range(r->r
-						.from(from->from
-							.setOperator(Operator.gte)
-							.setValue("65"))
-						.to(to->to
-							.setOperator(Operator.lt)
-							.setValue("70")))))
-				.match(or->or
-					.setDescription("Diabetic")
-					.setSet(ex+"Q_Diabetics"))
-				.match(or->or
-					.path(p->p.setIri("observation")
-					.node(n->n.setType("Observation")))
-					.where(ob->ob
-						.setIri("concept")
-						.addIn(new Node().setIri(SNOMED.NAMESPACE+"714628002").setDescendantsOf(true)))))
-			.match(w->w
-				.path(p->p.setIri("observation")
-				.node(n->n.setType("Observation")
-					.setVariable("latestBP")))
-				.setBool(Bool.and)
-				.where(ww->ww
-						.setDescription("Home or office based Systolic")
-						.setIri("concept")
-						.setName("concept")
-						.addIn(new Node()
-							.setIri(SNOMED.NAMESPACE+"271649006")
-							.setName("Systolic blood pressure"))
-						.addIn(new Node()
-							.setIri(IM.CODE_SCHEME_EMIS.getIri()+"1994021000006104")
-							.setName("Home systolic blood pressure"))
-						.setValueLabel("Office or home systolic blood pressure"))
-					.where(ww->ww
-						.setDescription("Last 6 months")
-						.setIri("effectiveDate")
-						.setOperator(Operator.gte)
-						.setValue("-6")
-						.setUnit("MONTHS")
-						.relativeTo(r->r.setParameter("$referenceDate"))
-						.setValueLabel("last 6 months"))
-					.addOrderBy(new OrderLimit()
-						.setIri("effectiveDate")
-						.setVariable("latestBP")
-						.setLimit(1)
-						.setDirection(Order.descending)))
-					.match(m->m
-						.where(w->w
-							.setVariable("latestBP")
-						.setIri(IM.NAMESPACE+"numericValue")
-						.setDescription(">150")
-						.setOperator(Operator.gt)
-						.setValue("150")))
-			.match(w->w
-				.setExclude(true)
-				.setDescription("High BP not followed by screening invite")
-				.path(p->p.setIri(IM.NAMESPACE+"observation")
-				.node(n->n.setType("Observation")))
-				.setBool(Bool.and)
-				.where(inv->inv
-					.setDescription("Invited for Screening after BP")
-					.setIri(IM.NAMESPACE+"concept")
-					.addIn(new Node().setSet(IM.NAMESPACE+"InvitedForScreening")))
-				.where(after->after
-					.setDescription("after high BP")
-					.setIri(IM.NAMESPACE+"effectiveDate")
-					.setOperator(Operator.gte)
-					.relativeTo(r->r.setVariable("latestBP").setIri("effectiveDate"))))
-			.match(w->w
-				.setExclude(true)
-				.setDescription("not hypertensive")
-					.setSet(IM.NAMESPACE+"Q_Hypertensives")
-						.setName("Hypertensives"));
-		return new QueryRequest().setQuery(prof);
-	}
-
 	public static QueryRequest dataModelPropertyRange() throws JsonProcessingException {
 		String json="{\n" +
 			"\"name\":\"Data model property range\",\n" +
@@ -114,7 +22,7 @@ public class TestQueries {
 			"\"match\":[{\n" +
 			"    \"parameter\":\"myDataModel\",\n" +
 			"    \"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\n" +
-			"    \"node\":{\"variable\":\"shaclProperty\"}},\n" +
+			"    \"match\":{\"variable\":\"shaclProperty\"},\n" +
 			"    \"where\":[\n" +
 			"        {\n" +
 			"        \"@id\":\"http://www.w3.org/ns/shacl#path\",\n" +
@@ -128,7 +36,7 @@ public class TestQueries {
 			"                {\"@id\":\"http://www.w3.org/ns/shacl#datatype\"}\n" +
 			"                ],\n" +
 			"            \"variable\":\"propType\"\n" +
-			"        }\n" +
+			"        }}\n" +
 			"    ]\n" +
 			"    }],\n" +
 			"    \"return\":[{\"nodeRef\":\"propType\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]\n" +
@@ -145,7 +53,7 @@ public class TestQueries {
 
 	}
 
-	public static QueryRequest rangeSuggestion(){
+	public static QueryRequest rangeSuggestion() throws QueryException{
 		return new QueryRequest()
 			.setContext(TTManager.createBasicContext())
 			.addArgument(new Argument()
@@ -159,17 +67,17 @@ public class TestQueries {
 					.match(m1->m1
 						.path(p->p
 							.setIri(SHACL.NODE.getIri())
-						.node(n->n
+						.match(n->n
 							.setVariable("range"))))
 					.match(m1->m1
 						.path(p->p
 							.setIri(SHACL.CLASS.getIri())
-						.node(n->n
+						.match(n->n
 							.setVariable("range"))))
 					.match(m1->m1
 						.path(p->p
 							.setIri(SHACL.DATATYPE.getIri())
-						.node(n->n
+						.match(n->n
 							.setVariable("range"))))
 					.where(w->w
 						.setIri(SHACL.PATH.getIri())
@@ -189,7 +97,7 @@ public class TestQueries {
 					.setParameter("$dataModel")
 					.path(p->p
 						.setIri(SHACL.PROPERTY.getIri())
-						.node(n->n.setVariable("shaclProperty")))
+						.match(n->n.setVariable("shaclProperty")))
 					.where(w->w
 						.setIri(SHACL.PATH.getIri())
 						.in(in->in.setParameter("$property"))))
@@ -354,7 +262,7 @@ public class TestQueries {
 		return new QueryRequest().setQuery(query);
 	}
 
-	public static QueryRequest query2() {
+	public static QueryRequest query2() throws QueryException{
 
 		Query query= new Query()
 			.setName("PropertiesOfShapesUsingDateOfBirth")

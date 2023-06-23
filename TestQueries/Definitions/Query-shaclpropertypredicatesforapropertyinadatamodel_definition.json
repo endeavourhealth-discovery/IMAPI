@@ -23,12 +23,12 @@
     "name" : "Query - shacl property predicates for a property in a data model",
     "description" : "Select the predicates and values and labels of the values for a given data mode and property",
     "match" : [ {
-      "path" : {
+      "path" : [ {
         "@id" : "sh:property",
-        "node" : {
+        "match" : {
           "variable" : "shaclProperty"
         }
-      },
+      } ],
       "where" : [ {
         "@id" : "sh:path",
         "in" : [ {

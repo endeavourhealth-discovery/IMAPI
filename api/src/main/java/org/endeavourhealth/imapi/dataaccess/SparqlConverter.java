@@ -18,6 +18,7 @@ public class SparqlConverter {
 	private Update update;
 	private final QueryRequest queryRequest;
 	private final String tabs="";
+	private TTContext context;
 	int o=0;
 
 
@@ -27,6 +28,7 @@ public class SparqlConverter {
 
 	public SparqlConverter(QueryRequest queryRequest) throws QueryException {
 		this.queryRequest= queryRequest;
+		context= queryRequest.getAsContext();
 		if (queryRequest.getQuery()!=null) {
 			this.query = queryRequest.getQuery();
 			new QueryValidator().validateQuery(this.query);

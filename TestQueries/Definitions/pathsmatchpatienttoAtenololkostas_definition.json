@@ -8,5 +8,14 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "entities" : [ ]
+  "pathQuery" : {
+    "name" : "paths match patient to Atenolol kostas",
+    "source" : {
+      "@id" : "im:Patient"
+    },
+    "target" : {
+      "@id" : "sn:387506000"
+    },
+    "depth" : 3
+  }
 }

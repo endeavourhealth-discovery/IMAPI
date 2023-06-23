@@ -21,22 +21,22 @@ public class TestQueries {
 			"\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\n" +
 			"\"match\":[{\n" +
 			"    \"parameter\":\"myDataModel\",\n" +
-			"    \"path\":{\"@id\":\"http://www.w3.org/ns/shacl#property\",\n" +
-			"    \"match\":{\"variable\":\"shaclProperty\"},\n" +
+			"    \"path\":[{\"@id\":\"http://www.w3.org/ns/shacl#property\",\n" +
+			"    \"match\":{\"variable\":\"shaclProperty\",\n" +
 			"    \"where\":[\n" +
 			"        {\n" +
 			"        \"@id\":\"http://www.w3.org/ns/shacl#path\",\n" +
 			"        \"in\":[{\"parameter\":\"myProperty\"}]\n" +
 			"        },\n" +
 			"        {\n" +
-			"            \"bool\":\"or\",\n" +
+			"            \"boolWhere\":\"or\",\n" +
 			"            \"where\":[\n" +
 			"                {\"@id\":\"http://www.w3.org/ns/shacl#class\"},\n" +
 			"                {\"@id\":\"http://www.w3.org/ns/shacl#node\"},\n" +
 			"                {\"@id\":\"http://www.w3.org/ns/shacl#datatype\"}\n" +
 			"                ],\n" +
 			"            \"variable\":\"propType\"\n" +
-			"        }}\n" +
+			"        }]}}\n" +
 			"    ]\n" +
 			"    }],\n" +
 			"    \"return\":[{\"nodeRef\":\"propType\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]\n" +
@@ -203,6 +203,30 @@ public class TestQueries {
 				.setSource(IM.NAMESPACE+"Patient")
 				.setTarget(IM.NAMESPACE+"dateOfBirth"));
 
+	}
+	public static QueryRequest pathQueryAtenolol3() throws JsonProcessingException {
+		String json="{\n" +
+			"  \"@context\" : {\n" +
+			"    \"im\" : \"http://endhealth.info/im#\",\n" +
+			"    \"rdf\" : \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\n" +
+			"    \"owl\" : \"http://www.w3.org/2002/07/owl#\",\n" +
+			"    \"sh\" : \"http://www.w3.org/ns/shacl#\",\n" +
+			"    \"xsd\" : \"http://www.w3.org/2001/XMLSchema#\",\n" +
+			"    \"rdfs\" : \"http://www.w3.org/2000/01/rdf-schema#\",\n" +
+			"    \"sn\" : \"http://snomed.info/sct#\"\n" +
+			"  },\n" +
+			"  \"pathQuery\" : {\n" +
+			"    \"name\" : \"paths match patient to Atenolol kostas\",\n" +
+			"    \"source\" : {\n" +
+			"      \"@id\" : \"im:Patient\"\n" +
+			"    },\n" +
+			"    \"target\" : {\n" +
+			"      \"@id\" : \"sn:387506000\"\n" +
+			"    },\n" +
+			"    \"depth\" : 3\n" +
+			"  }\n" +
+			"}";
+		return new ObjectMapper().readValue(json,QueryRequest.class);
 	}
 
 	public static QueryRequest pathToAtenolol(){

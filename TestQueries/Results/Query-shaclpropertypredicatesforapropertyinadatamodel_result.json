@@ -8,12 +8,5 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "entities" : [ {
-    "@bn" : "f797a9075e58459c8cb9eb2079537ce3173",
-    "http://www.w3.org/ns/shacl#datatype" : [ {
-      "@id" : "http://www.w3.org/2001/XMLSchema#integer",
-      "http://www.w3.org/2000/01/rdf-schema#label" : "integer"
-    } ],
-    "http://www.w3.org/ns/shacl#maxCount" : "1"
-  } ]
+  "entities" : [ ]
 }

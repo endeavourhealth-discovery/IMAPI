@@ -1,8 +1,5 @@
 {
   "entities" : [ {
-    "@id" : "http://snomed.info/sct#1231552009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyper extension internal rotation test (procedure)"
-  }, {
     "@id" : "http://snomed.info/sct#49184003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperphonia (finding)"
   }, {

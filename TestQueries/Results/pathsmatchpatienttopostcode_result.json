@@ -2,52 +2,52 @@
   "match" : [ {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#homeAddress",
       "name" : "home address",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#Address"
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#workAddress",
       "name" : "work address",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#Address"
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#temporaryAddress",
       "name" : "temporary address",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#Address"
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#patientAddress",
       "name" : "patient address history",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#PatientAddress"
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#placeOfResidenceAtEvent",
       "name" : "place of residence at event",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#PlaceOfResidenceAtEvent"
       }
-    }
+    } ]
   } ]
 }

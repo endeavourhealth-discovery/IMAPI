@@ -11,9 +11,9 @@
   "query" : {
     "name" : "Some Barts cerner codes with context including a regex",
     "match" : [ {
-      "path" : {
+      "path" : [ {
         "@id" : "im:sourceContext"
-      },
+      } ],
       "where" : [ {
         "@id" : "im:sourceRegex"
       } ]

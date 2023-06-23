@@ -1,75 +1,74 @@
 {
   "match" : [ {
     "@type" : "http://endhealth.info/im#Patient",
-    "name" : "Patient",
-    "where" : [ { } ]
+    "name" : "Patient"
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#gpCurrentRegistration",
       "name" : "gp current registration",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#GPCurrentRegistration",
-        "path" : {
+        "path" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
-          "node" : {
+          "match" : {
             "@type" : "http://endhealth.info/im#PractitionerInRole"
           }
-        }
+        } ]
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#gpCurrentRegistration",
       "name" : "gp current registration",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#GPCurrentRegistration",
-        "path" : {
+        "path" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
-          "node" : {
+          "match" : {
             "@type" : "http://endhealth.info/im#PractitionerInRole"
           }
-        }
+        } ]
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#gPRegistration",
       "name" : "gp registration episode",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#GPRegistration",
-        "path" : {
+        "path" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
-          "node" : {
+          "match" : {
             "@type" : "http://endhealth.info/im#PractitionerInRole"
           }
-        }
+        } ]
       }
-    }
+    } ]
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : {
+    "path" : [ {
       "@id" : "http://endhealth.info/im#gPRegistration",
       "name" : "gp registration episode",
-      "node" : {
+      "match" : {
         "@type" : "http://endhealth.info/im#GPRegistration",
-        "path" : {
+        "path" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
-          "node" : {
+          "match" : {
             "@type" : "http://endhealth.info/im#PractitionerInRole"
           }
-        }
+        } ]
       }
-    }
+    } ]
   } ]
 }

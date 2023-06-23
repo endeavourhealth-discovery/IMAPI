@@ -12,7 +12,7 @@
     "@id" : "http://endhealth.info/im#ConceptSet",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Concept Set",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce31845",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff1844",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }
@@ -21,7 +21,7 @@
     "@id" : "http://endhealth.info/im#ValueSet",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Value set",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce31884",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff1883",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }
@@ -30,7 +30,7 @@
     "@id" : "http://endhealth.info/im#Property",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Property",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce31902",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff1901",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }
@@ -39,7 +39,7 @@
     "@id" : "http://endhealth.info/im#Concept",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Terminology concept",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce32054",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff2053",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }
@@ -48,7 +48,7 @@
     "@id" : "http://endhealth.info/im#Folder",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Folder",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce32100",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff2099",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }
@@ -57,7 +57,16 @@
     "@id" : "http://www.w3.org/ns/shacl#NodeShape",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Data model/Node shape ",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce32102",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff2101",
+      "http://www.w3.org/ns/shacl#path" : {
+        "@id" : "http://endhealth.info/im#isContainedIn"
+      }
+    } ]
+  }, {
+    "@id" : "http://endhealth.info/im#DataSet",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Data set",
+    "http://www.w3.org/ns/shacl#property" : [ {
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff2239",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }
@@ -66,7 +75,7 @@
     "@id" : "http://endhealth.info/im#Query",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Query",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "f797a9075e58459c8cb9eb2079537ce32240",
+      "@bn" : "77a26156f39a43b18b35fbf7c2119eff2247",
       "http://www.w3.org/ns/shacl#path" : {
         "@id" : "http://endhealth.info/im#isContainedIn"
       }

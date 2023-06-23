@@ -20,26 +20,26 @@
     "match" : [ {
       "boolMatch" : "or",
       "match" : [ {
-        "path" : {
+        "path" : [ {
           "@id" : "sh:node",
-          "node" : {
+          "match" : {
             "variable" : "range"
           }
-        }
+        } ]
       }, {
-        "path" : {
+        "path" : [ {
           "@id" : "sh:class",
-          "node" : {
+          "match" : {
             "variable" : "range"
           }
-        }
+        } ]
       }, {
-        "path" : {
+        "path" : [ {
           "@id" : "sh:datatype",
-          "node" : {
+          "match" : {
             "variable" : "range"
           }
-        }
+        } ]
       } ],
       "where" : [ {
         "@id" : "sh:path",

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"parameter","iri","type","set","variable","name"})
+@JsonPropertyOrder({"parameter","iri","name","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Path extends Property{
 	private Match match;

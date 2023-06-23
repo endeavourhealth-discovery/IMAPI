@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
@@ -15,14 +16,16 @@ public class PathRepository {
 	private RepositoryConnection conn;
 	private PathDocument document= new PathDocument();
 	private TupleQuery queryToShape;
+	private TTContext context;
 
 	public PathDocument pathQuery(QueryRequest request) throws QueryException {
+		context= request.getAsContext();
 		try (RepositoryConnection conn = ConnectionManager.getIMConnection()){
 			this.conn= conn;
 			PathQuery pathQuery = request.getPathQuery();
-			String targetIri = pathQuery.getTarget().getIri();
+			String targetIri = context.expand(pathQuery.getTarget().getIri());
 			Integer depth = pathQuery.getDepth();
-			String source = pathQuery.getSource().getIri();
+			String source = context.expand(pathQuery.getSource().getIri());
 			List<Match> paths= getAllPaths(source,targetIri,depth);
 			if (paths!=null) {
 				paths.sort(Comparator.comparing((Match m) -> getLength(m)));
@@ -165,10 +168,10 @@ public class PathRepository {
 					.setType(bs.getValue("entity").stringValue())
 				  .setName(bs.getValue("entityName").stringValue());
 				Where where= new Where();
-				match.addWhere(where);
 				if (bs.getValue("property")!=null) {
 					String propertyIri = bs.getValue("property").stringValue();
 					if (bs.getValue("conceptProperty")==null) {
+						match.addWhere(where);
 						where
 							.setIri(propertyIri)
 							.setName(bs.getValue("propertyName").stringValue())
@@ -177,9 +180,13 @@ public class PathRepository {
 								.setName(bs.getValue("targetName").stringValue()));
 					}
 					else {
-						match.path(p->p
+						Path path= new Path();
+						match.addPath(path);
+						path
 							.setIri(propertyIri)
-							.setName(bs.getValue("propertyName").stringValue()));
+							.setName(bs.getValue("propertyName").stringValue())
+							.match(mConcept->mConcept
+								.addWhere(where));
 						where
 						.setIri(bs.getValue("conceptProperty").stringValue())
 						.setName(bs.getValue("conceptPropertyName").stringValue())

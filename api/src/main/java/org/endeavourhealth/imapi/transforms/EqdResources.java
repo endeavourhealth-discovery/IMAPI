@@ -349,17 +349,14 @@ public class EqdResources {
 				Where relationWhere = new Where();
 				linkMatch.addWhere(relationWhere);
 				EQDOCRelationship eqRel = eqLinked.getRelationship();
-				if (eqRel.getParentColumn().contains("DATE")){
+				String parent=getPath(eqCriterion.getTable()+"/"+ eqRel.getParentColumn());
+				String child=getPath(eqLinkedCriterion.getTable()+"/"+ eqRel.getChildColumn());
 					relationWhere
-						.setIri("effectiveDate")
+						.setIri(child)
 						.setOperator((Operator) vocabMap.get(eqRel.getRangeValue().getRangeFrom().getOperator()))
 						.setValue(eqRel.getRangeValue().getRangeFrom().getValue().getValue())
 						.setUnit(eqRel.getRangeValue().getRangeFrom().getValue().getUnit().value())
-						.relativeTo(r->r.setNodeRef(variable).setIri("effectiveDate"));
-				}
-				else
-					throw new DataFormatException("Only date link fields supported at the moment");
-
+						.relativeTo(r->r.setNodeRef(variable).setIri(parent));
 
 			}
 

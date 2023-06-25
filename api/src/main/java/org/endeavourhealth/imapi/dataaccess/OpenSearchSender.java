@@ -41,6 +41,7 @@ public class OpenSearchSender {
     private final HTTPRepository repo = new HTTPRepository(server, repoId);
     private Map<String,EntityDocument> docs;
     private String cache;
+    private Integer total=0;
 
 
 
@@ -56,6 +57,7 @@ public class OpenSearchSender {
             maxId = getMaxDocument();
 
         continueUpload(maxId);
+        System.out.println("Total entities = "+total);
     }
 
 
@@ -118,6 +120,7 @@ public class OpenSearchSender {
                 while (member < batchSize) {
                     member++;
                     mapNumber++;
+                    total++;
                     if (mapIterator.hasNext()) {
                         entry = mapIterator.next();
                         iriBatch.add("<" + entry.getKey() + ">");

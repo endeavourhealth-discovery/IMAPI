@@ -7,6 +7,7 @@ import java.util.*;
 public class QueryValidator {
 	private final Map<String, VarType> variables = new HashMap<>();
 	private int o = 0;
+	private String mainEntity = null;
 	private final Set<String> resultColumns = new HashSet<>();
 	private final Map<String, Map<String, Set<String>>> pathMap = new HashMap<>();
 	private final Map<String, Map<String, String>> propertyMap = new HashMap<>();
@@ -14,15 +15,25 @@ public class QueryValidator {
 	public void validateQuery(Query query) throws QueryException {
 		if (query.getMatch() == null)
 			throw new QueryException("Query must have match clause");
+		mainEntity = query.getMatch().get(0).getVariable();
+		if (mainEntity==null)
+			mainEntity="entity";
 		for (Match match : query.getMatch()) {
-			if (match.getVariable() != null)
-				variables.put(match.getVariable(), VarType.NODE);
+			if (match.getVariable() == null)
+				match.setVariable(mainEntity);
+			variables.put(match.getVariable(), VarType.NODE);
 			String subject = match.getVariable();
 			validateMatch(match, subject);
 		}
 
+		if (query.getReturn() == null) {
+			query.return_(r -> r.setNodeRef(mainEntity));
+		}
 		if (query.getReturn()!= null) {
 			for (Return aReturn : query.getReturn()) {
+				if (aReturn.getNodeRef() == null) {
+					aReturn.setNodeRef(mainEntity);
+				}
 				validateReturn(aReturn);
 			}
 		}
@@ -74,12 +85,15 @@ public class QueryValidator {
 
 
 
-
 	private void validateMatch(Match match, String subject) throws QueryException {
-
+		if (match.getVariable()!=null){
+			if (mainEntity!=null) {
+				if (!match.getVariable().equals(mainEntity))
+					throw new QueryException("Match clauses must all have the same main root entity variable (or none). Cartesion product queries are not supported.");
+			}
+			mainEntity= match.getVariable();
+		}
 		if (match.getMatch()!=null){
-			if (match.getBoolWhere()!=null|(match.getBoolPath()!=null))
-				throw new QueryException("Match clause cannot contain where or path and boolean match");
 			for (Match subMatch:match.getMatch()){
 				if (subMatch.getVariable()==null)
 					subMatch.setVariable(subject);
@@ -90,7 +104,7 @@ public class QueryValidator {
 		subject= match.getVariable();
 		if (match.getPath()!=null){
 			for (Path path:match.getPath())
-				validatePath(subject,path);
+			  validatePath(match.getVariable(),path);
 		}
 		if (match.getWhere()!=null) {
 			for (Where where:match.getWhere()){
@@ -132,7 +146,7 @@ public class QueryValidator {
 
 	}
 
-	private void validatePath(String subject,Path path) throws QueryException {
+	private void validatePath(String subject, Path path) throws QueryException {
 		o++;
 		String object;
 		Match node= path.getMatch();
@@ -150,13 +164,14 @@ public class QueryValidator {
 		}
 		variables.put(object,VarType.NODE);
 		pathMap.computeIfAbsent(subject,s-> new HashMap<>())
-				.computeIfAbsent(path.getVariable()+"\t"+path.getIri(),p-> new HashSet<>())
-				.add(object);
+			.computeIfAbsent(path.getVariable()+"\t"+path.getIri(),p-> new HashSet<>())
+			.add(object);
 
 		if (path.getVariable()!=null){
 			variables.put(path.getVariable(),VarType.PATH);
 		}
-		validateMatch(path.getMatch(),object);
+		validateMatch(node,object);
+
 	}
 
 }

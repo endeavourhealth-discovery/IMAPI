@@ -41,7 +41,6 @@ public class OpenSearchSender {
     private final HTTPRepository repo = new HTTPRepository(server, repoId);
     private Map<String,EntityDocument> docs;
     private String cache;
-    private Integer total=0;
 
 
 
@@ -57,7 +56,6 @@ public class OpenSearchSender {
             maxId = getMaxDocument();
 
         continueUpload(maxId);
-        System.out.println("Total entities = "+total);
     }
 
 
@@ -83,16 +81,14 @@ public class OpenSearchSender {
                 LOG.info("Fetching entity iris  ...");
                 TupleQuery tupleQuery = conn.prepareTupleQuery(sql);
                 EntityDocument blob = null;
-                String lastIri = null;
                 try (TupleQueryResult qr = tupleQuery.evaluate()) {
                     while (qr.hasNext()) {
                         BindingSet rs = qr.next();
                         String iri = rs.getValue("iri").stringValue();
-                        if (!iri.equals(lastIri)) {
+                        if (!docs.containsKey(iri)) {
                             blob = new EntityDocument();
                             blob.setIri(iri);
                             docs.put(iri, blob);
-                            lastIri = iri;
                         }
                     }
                 }
@@ -110,30 +106,31 @@ public class OpenSearchSender {
         int mapNumber = 0;
         int member = 0;
         int batchSize = 5000;
+        List<String> iriBatch = new ArrayList<>();
         Iterator<Map.Entry<String, EntityDocument>> mapIterator = docs.entrySet().iterator();
         while (mapIterator.hasNext()) {
             Map.Entry<String, EntityDocument> entry = mapIterator.next();
             mapNumber++;
+            member++;
             if (mapNumber > maxId) {
-                List<String> iriBatch = new ArrayList<>();
-                iriBatch.add("<"+ entry.getKey()+">");
-                while (member < batchSize) {
-                    member++;
-                    mapNumber++;
-                    total++;
-                    if (mapIterator.hasNext()) {
-                        entry = mapIterator.next();
-                        iriBatch.add("<" + entry.getKey() + ">");
-                    }
-                }
-                if (!iriBatch.isEmpty()) {
+                iriBatch.add("<" + entry.getKey() + ">");
+                if (member == batchSize) {
                     String inList = String.join(",", iriBatch);
-                    Set<EntityDocument> batch= getEntityBatch(inList,mapNumber);
+                    Set<EntityDocument> batch = getEntityBatch(inList, mapNumber);
                     index(batch);
-                    member=0;
+                    member = 0;
+                    iriBatch = new ArrayList<>();
+
                 }
             }
         }
+        if (!iriBatch.isEmpty()) {
+            String inList = String.join(",", iriBatch);
+            Set<EntityDocument> batch= getEntityBatch(inList,mapNumber);
+            index(batch);
+        }
+        System.out.println(mapNumber+" sent up");
+
     }
 
     private void saveIriCache(Map<String, EntityDocument> docs) throws IOException {

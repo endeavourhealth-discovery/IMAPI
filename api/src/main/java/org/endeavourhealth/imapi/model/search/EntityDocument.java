@@ -24,6 +24,7 @@ public class EntityDocument {
 	Integer weighting;
 	String match;
 	Set<TTIriRef> isA= new HashSet<>();
+	Set<TTIriRef> memberOf= new HashSet<>();
 
 	public Set<String> getMatchTerm() {
 		return matchTerm;
@@ -183,7 +184,14 @@ public class EntityDocument {
 	}
 
 
+    public Set<TTIriRef> getMemberOf() {
+        return memberOf;
+    }
 
+    public EntityDocument setMemberOf(Set<TTIriRef> memberOf) {
+        this.memberOf = memberOf;
+        return this;
+    }
 
 
 	public String getMatch() {

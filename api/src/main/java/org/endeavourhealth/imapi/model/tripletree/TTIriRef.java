@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TTIriRef implements TTValue, Serializable {
@@ -17,6 +18,8 @@ public class TTIriRef implements TTValue, Serializable {
     public static TTIriRef iri(String iri, String name) {
         return new TTIriRef(iri, name);
     }
+
+    private static Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
 
     private String iri;
     private String name;
@@ -50,7 +53,7 @@ public class TTIriRef implements TTValue, Serializable {
 
     public TTIriRef setIri(String iri) {
         this.iri = iri;
-        if (iri != null && !iri.isEmpty() && !iri.matches("([a-z]+)?[:].*")){
+        if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()){
             Thread.dumpStack();
         }
         return this;

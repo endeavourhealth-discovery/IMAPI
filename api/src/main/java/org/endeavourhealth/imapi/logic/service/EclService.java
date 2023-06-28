@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
@@ -29,11 +30,11 @@ public class EclService {
         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
-    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
+    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws DataFormatException, JsonProcessingException, QueryException {
         return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter());
     }
 
-    public SearchResponse eclSearch(EclSearchRequest request) throws DataFormatException, JsonProcessingException {
+    public SearchResponse eclSearch(EclSearchRequest request) throws DataFormatException, JsonProcessingException, QueryException {
         int limit = request.getLimit();
         Set<Concept> evaluated = evaluateECLQuery(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated

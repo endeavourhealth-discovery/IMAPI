@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.EntityDefinitionDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -847,13 +848,13 @@ class EntityModelServiceTest {
     }
 
     @Test
-    void getSetExport_NullIri() throws DataFormatException, JsonProcessingException {
+    void getSetExport_NullIri() throws DataFormatException, JsonProcessingException, QueryException {
         XSSFWorkbook actual = entityService.getSetExport(null, true, true, false);
         assertNull(actual);
     }
 
     @Test
-    void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException {
+    void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException, QueryException {
         XSSFWorkbook actual = entityService.getSetExport("", true, true, false);
         assertNull(actual);
     }

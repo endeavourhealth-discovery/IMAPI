@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.iml.FunctionClause;
+import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.imq.Where;
@@ -21,7 +21,7 @@ public class MapProperty extends TTIriRef {
 	private String sourceVariable;
 	private ListMode listMode;
 	private Where where;
-	private FunctionClause functionClause;
+	private MapFunction functionClause;
 	private String target;
 	private String valueData;
 	private String valueVariable;
@@ -158,19 +158,19 @@ public class MapProperty extends TTIriRef {
 
 
 
-	public FunctionClause getFunction() {
+	public MapFunction getFunction() {
 		return functionClause;
 	}
 
-	public MapProperty setFunction(FunctionClause functionClause) {
+	public MapProperty setFunction(MapFunction functionClause) {
 		this.functionClause = functionClause;
 		return this;
 	}
 
 
 
-	public MapProperty function(Consumer<FunctionClause> builder){
-		this.functionClause = new FunctionClause();
+	public MapProperty function(Consumer<MapFunction> builder){
+		this.functionClause = new MapFunction();
 		builder.accept(this.functionClause);
 		return this;
 	}

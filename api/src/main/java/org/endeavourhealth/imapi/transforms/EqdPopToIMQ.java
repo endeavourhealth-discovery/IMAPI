@@ -14,141 +14,96 @@ public class EqdPopToIMQ {
 
 
 
-	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException {
+	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
-		From rootFrom = new From();
-		query.setFrom(rootFrom);
+		Match rootMatch = new Match();
+		query.addMatch(rootMatch);
 
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-				rootFrom
+				rootMatch
 				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
-				rootFrom
+				rootMatch
 					.setSet("urn:uuid:" + id)
 					.setName(resources.reportNames.get(id));
 			}
 			else {
-				rootFrom
-				.setType(IM.NAMESPACE + "Patient")
+				rootMatch
+				.setType("Patient")
 				.setName("Patient");
 			}
 
 
-		Where lastOr = null;
+		Match lastOr = null;
 		for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
 			VocRuleAction ifTrue = eqGroup.getActionIfTrue();
 			VocRuleAction ifFalse = eqGroup.getActionIfFalse();
 			if (eqGroup.getDefinition().getParentPopulationGuid() != null)
 				throw new DataFormatException("parent population at definition level");
 			if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.NEXT) {
-				lastOr = convertOrGroup(eqGroup, lastOr, rootFrom);
+				if (lastOr==null){
+					lastOr= new Match();
+					query.addMatch(lastOr);
+					lastOr.setBoolMatch(Bool.or);
+				}
+				Match orGroup= new Match();
+				lastOr.addMatch(orGroup);
+				convertGroup(eqGroup, orGroup);
 			}
 			else if (ifTrue == VocRuleAction.SELECT && ifFalse == VocRuleAction.REJECT ||
 				(ifTrue == VocRuleAction.NEXT && ifFalse == VocRuleAction.REJECT)) {
-				convertAndGroup(rootFrom, eqGroup);
+				Match andGroup= new Match();
+				if (lastOr!=null){
+					lastOr.addMatch(andGroup);
+					lastOr=null;
+				}
+				else
+					query.addMatch(andGroup);
+				convertGroup(eqGroup,andGroup);
 			}
 			else if (ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.SELECT ||
 				ifTrue == VocRuleAction.REJECT && ifFalse == VocRuleAction.NEXT) {
-				convertNotGroup(eqGroup, rootFrom);
+				Match notGroup= new Match();
+				if (lastOr!=null) {
+					lastOr.addMatch(notGroup);
+					lastOr=null;
+				}
+				else
+					query.addMatch(notGroup);
+				notGroup.setExclude(true);
+				convertGroup(eqGroup, notGroup);
 			}
 			else
 				throw new DataFormatException("unrecognised action rule combination : " + activeReport);
 		}
 	}
 
-	private void convertNotGroup(EQDOCCriteriaGroup eqGroup, From rootFrom) throws DataFormatException, IOException {
-		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
-		if (eqGroup.getDefinition().getCriteria().size()==1){
-			Where not= new Where();
-			rootFrom.addWhere(not);
-			not.setExclude(true);
-			resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0),not);
-		}
-		else {
-			if (memberOp == VocMemberOperator.AND) {
-				Where not = new Where();
-				rootFrom.addWhere(not);
-				not.setExclude(true);
-				not.setBool(Bool.and);
-				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Where and = new Where();
-					not.addWhere(and);
-					resources.convertCriteria(eqCriteria, and);
-				}
-			}
-			else if (memberOp == VocMemberOperator.OR) {
-				Where not = new Where();
-				rootFrom.addWhere(not);
-				not.setExclude(true);
-				not.setBool(Bool.or);
-				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Where or = new Where();
-					not.addWhere(or);
-					resources.convertCriteria(eqCriteria, or);
-				}
-			}
-		}
-	}
 
-	private Where convertOrGroup(EQDOCCriteriaGroup eqGroup, Where lastOr, From rootFrom) throws DataFormatException, IOException {
-		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
-			if (lastOr == null) {
-				lastOr = new Where();
-				rootFrom.addWhere(lastOr);
-				lastOr.setBool(Bool.or);
-			}
-			if (memberOp == VocMemberOperator.AND) {
-				Where and = new Where();
-				lastOr.addWhere(and);
-				and.setBool(Bool.and);
-				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Where match = new Where();
-					and.addWhere(match);
-					resources.convertCriteria(eqCriteria, match);
-				}
-			}
-			else {
-				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Where match = new Where();
-					lastOr.addWhere(match);
-					resources.convertCriteria(eqCriteria, match);
-				}
-
-			}
-		return lastOr;
-	}
-
-	private void convertAndGroup(From rootFrom, EQDOCCriteriaGroup eqGroup) throws DataFormatException, IOException {
+	private void convertGroup(EQDOCCriteriaGroup eqGroup, Match groupMatch) throws DataFormatException, IOException, QueryException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (memberOp == VocMemberOperator.AND) {
-			for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-				Where match = new Where();
-				rootFrom.addWhere(match);
-				resources.convertCriteria(eqCriteria, match);
-			}
-		}
-		else {
-			if (eqGroup.getDefinition().getCriteria().size() == 1) {
-				Where match = new Where();
-				rootFrom.addWhere(match);
-				resources.convertCriteria(eqGroup.getDefinition().getCriteria().get(0), match);
-			}
-			else {
-				Where or = new Where();
-				rootFrom.addWhere(or);
-				or.setBool(Bool.or);
+			groupMatch.setBoolMatch(Bool.and);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
-					Where match = new Where();
-					or.addWhere(match);
+					Match match = new Match();
+					groupMatch.addMatch(match);
 					resources.convertCriteria(eqCriteria, match);
 				}
 			}
-		}
+			else {
+				groupMatch.setBoolMatch(Bool.or);
+				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
+					Match match = new Match();
+					groupMatch.addMatch(match);
+					resources.convertCriteria(eqCriteria, match);
+				}
+
+			}
 	}
+
 
 
 }

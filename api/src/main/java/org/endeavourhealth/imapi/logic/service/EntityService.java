@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.dto.*;
 import org.endeavourhealth.imapi.model.dto.GraphDto.GraphType;
 import org.endeavourhealth.imapi.model.iml.FormGenerator;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchRequest;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -898,7 +899,7 @@ public class EntityService {
         return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException {
+    public XSSFWorkbook getSetExport(String iri, boolean core, boolean legacy, boolean flat) throws DataFormatException, JsonProcessingException, QueryException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
@@ -1107,11 +1108,9 @@ public class EntityService {
     }
 
     public TTIriRef getShapeFromType(String iri) {
-        if (null != iri) {
-            if (iri.equals(IM.CONCEPT_SET.getIri()) || iri.equals(IM.VALUESET.getIri()))
-                return entityTripleRepository.getShapeFromType(IM.SET.getIri());
-            else return entityTripleRepository.getShapeFromType(iri);
-        } else return null;
+        if (iri.equals(IM.CONCEPT_SET.getIri()) || iri.equals(IM.VALUESET.getIri()))
+            return entityTripleRepository.getShapeFromType(IM.SET.getIri());
+        else return entityTripleRepository.getShapeFromType(iri);
     }
 
     public List<TTEntity> getActions(String taskIri) {

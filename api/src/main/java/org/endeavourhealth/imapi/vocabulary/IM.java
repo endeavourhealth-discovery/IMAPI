@@ -100,7 +100,7 @@ public class IM {
     public static final TTIriRef SOURCE_TEXT = iri(NAMESPACE + "sourceText");
     public static final TTIriRef TARGET_TEXT = iri(NAMESPACE + "targetText");
     public static final TTIriRef HAS_TERM_CODE = iri(NAMESPACE + "hasTermCode");
-    public static final TTIriRef OLD_CODE = iri(NAMESPACE + "oldCode");
+    public static final TTIriRef ALTERNATIVE_CODE = iri(NAMESPACE + "alternativeCode");
     public static final TTIriRef DESCRIPTION_ID = iri(NAMESPACE + "descriptionId");
     public static final TTIriRef CODE_ID = iri(NAMESPACE + "codeId");
     public static final TTIriRef MATCHED_TO = iri(NAMESPACE + "matchedTo");
@@ -130,6 +130,7 @@ public class IM {
     public static final TTIriRef SOURCE_REGEX = iri(NAMESPACE + "sourceRegex");
     public static final TTIriRef SOURCE_HEADING = iri(NAMESPACE + "sourceHeading");
     public static final TTIriRef TARGET_PROPERTY = iri(NAMESPACE + "targetProperty");
+    public static final TTIriRef CONTEXT_NODE = iri(NAMESPACE + "contextNode");
 
 
     //Graphs
@@ -143,6 +144,7 @@ public class IM {
     public static final TTIriRef GRAPH_KINGS_APEX = TTIriRef.iri(DOMAIN + "kpax#");
     public static final TTIriRef GRAPH_KINGS_WINPATH = TTIriRef.iri(DOMAIN + "kwp#");
     public static final TTIriRef GRAPH_VISION = TTIriRef.iri(DOMAIN + "vis#");
+    public static final TTIriRef GRAPH_READ2 = TTIriRef.iri(DOMAIN + "read2#");
     public static final TTIriRef GRAPH_BARTS_CERNER = TTIriRef.iri(DOMAIN + "bc#");
     public static final TTIriRef GRAPH_NHSDD_ETHNIC_2001 = TTIriRef.iri(DOMAIN + "nhsethnic2001#");
     public static final TTIriRef GRAPH_IM1 = TTIriRef.iri(DOMAIN + "im1#");
@@ -152,8 +154,8 @@ public class IM {
     public static final TTIriRef GRAPH_NHS_TFC = TTIriRef.iri(DOMAIN + "nhstfc#");
     public static final TTIriRef GRAPH_STATS = TTIriRef.iri(DOMAIN + "stats#");
     public static final TTIriRef GRAPH_DELTAS = TTIriRef.iri(DOMAIN + "deltas#");
-    public static final TTIriRef GRAPH_IMPERIAL_CERNER = TTIriRef.iri(DOMAIN + "ic#");
     public static final TTIriRef GRAPH_PROV = TTIriRef.iri(DOMAIN + "prov#");
+    public static final TTIriRef GRAPH_QUERY = TTIriRef.iri(DOMAIN + "query#");
 
 
 
@@ -166,6 +168,7 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_TPP = IM.GRAPH_TPP;
     public static final TTIriRef CODE_SCHEME_ODS = IM.GRAPH_ODS;
     public static final TTIriRef CODE_SCHEME_VISION = IM.GRAPH_VISION;
+    public static final TTIriRef CODE_SCHEME_READ2 = IM.GRAPH_READ2;
     public static final TTIriRef CODE_SCHEME_NHSDD_ETHNIC_2001 = IM.GRAPH_NHSDD_ETHNIC_2001;
     public static final TTIriRef CODE_SCHEME_KINGS_APEX = IM.GRAPH_KINGS_APEX;
     public static final TTIriRef CODE_SCHEME_KINGS_WINPATH = IM.GRAPH_KINGS_WINPATH;
@@ -240,7 +243,7 @@ public class IM {
     public static final TTIriRef REGION = iri(NAMESPACE + "region");
     public static final TTIriRef POST_CODE = iri(NAMESPACE + "postCode");
     public static final TTIriRef COUNTRY = iri(NAMESPACE + "country");
-    public static final TTIriRef UPRN = iri(NAMESPACE + "#uprn");
+    public static final TTIriRef UPRN = iri(NAMESPACE + "uprn");
 
     //Editor
     public static final TTIriRef ENTITY_TYPES = iri(NAMESPACE + "EntityTypes");

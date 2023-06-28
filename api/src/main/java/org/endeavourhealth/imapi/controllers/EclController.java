@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResponse;
 import org.endeavourhealth.imapi.model.set.EclSearchRequest;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class EclController {
         summary = "Evaluate ECL",
         description = "Evaluates an query"
     )
-    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, EclFormatException {
+    public Set<Concept> evaluateEcl(@RequestBody EclSearchRequest request) throws DataFormatException, QueryException,EclFormatException {
         try {
             return eclService.evaluateECLQuery(request);
         } catch (UnknownFormatConversionException | JsonProcessingException ex) {
@@ -54,7 +55,7 @@ public class EclController {
     )
     public SearchResponse eclSearch(
         @RequestBody EclSearchRequest request
-    ) throws DataFormatException, EclFormatException, JsonProcessingException {
+    ) throws DataFormatException, EclFormatException, JsonProcessingException,QueryException {
         try {
             return eclService.eclSearch(request);
         } catch (UnknownFormatConversionException ex) {

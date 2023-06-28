@@ -4,37 +4,37 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class PathQuery extends TTIriRef {
-	private TTIriRef source;
-	private TTIriRef target;
+	private IriLD source;
+	private IriLD target;
 	private Integer depth;
 
-	public TTIriRef getSource() {
+	public IriLD getSource() {
 		return source;
 	}
 
 	@JsonSetter
-	public PathQuery setSource(TTIriRef source) {
+	public PathQuery setSource(IriLD source) {
 		this.source = source;
 		return this;
 	}
 
 	public PathQuery setSource(String source) {
-		this.source = TTIriRef.iri(source);
+		this.source = new IriLD().setIri(source);
 		return this;
 	}
 
-	public TTIriRef getTarget() {
+	public IriLD getTarget() {
 		return target;
 	}
 
  @JsonSetter
-	public PathQuery setTarget(TTIriRef target) {
+	public PathQuery setTarget(IriLD target) {
 		this.target = target;
 		return this;
 	}
 
 	public PathQuery setTarget(String target) {
-		this.target = TTIriRef.iri(target);
+		this.target = new IriLD().setIri(target);
 		return this;
 	}
 

@@ -1,95 +1,84 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"exclude","description","type","iri","name","alias","bool","with","where","range"
+@JsonPropertyOrder({"description","nodeVariable","iri","name","boolWhere","where","range"
 	,"operator","isNull","value","unit","in","notIn","relativeTo","anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Where extends TTAlias implements Assignable{
+public class Where extends Property implements Assignable,Whereable{
 	private String description;
 	private Range range;
-	private List<TTAlias> in;
-	private List<TTAlias> notIn;
+	private List<Node> in;
+	private List<Node> notIn;
 	private Bool bool;
 	private List<Where> where;
 	private Operator operator;
-	private String relativeTo;
 	private String value;
 	private String unit;
 	private String valueLabel;
 	private boolean anyRoleGroup;
-	private boolean exclude;
 	private boolean isNull;
-	private TTAlias orderBy;
-	private Order direction;
-	private Integer count=1;
-	private Where then;
-	public Where getThen() {
-		return then;
+	private Property relativeTo;
+
+	public Where setValueVariable(String valueVariable) {
+		super.setValueVariable(valueVariable);
+		return this;
+	}
+	public static Where iri(String iri) {
+		return new Where(iri);
 	}
 
-	public Where setThen(Where then) {
-		this.then = then;
+	public Where(){}
+
+	public Where(String iri){
+		super.setIri(iri);
+	}
+
+
+	@JsonProperty("@id")
+	public String getId() {
+		return super.getIri();
+	}
+
+	@Override
+	public Where setNodeRef(String nodeRef) {
+		super.setNodeRef(nodeRef);
 		return this;
 	}
 
-	public Where then(Consumer<Where> builder){
-		this.then= new Where();
-		builder.accept(this.then);
-		return this;
-	}
-
-	public TTAlias getOrderBy() {
-		return orderBy;
-	}
-
-	public Where setOrderBy(TTAlias orderBy) {
-		this.orderBy = orderBy;
-		return this;
-	}
-
-	public Order getDirection() {
-		return direction;
-	}
-
-	public Where setDirection(Order direction) {
-		this.direction = direction;
-		return this;
-	}
-
-	public Integer getCount() {
-		return count;
-	}
-
-	public Where setCount(Integer count) {
-		this.count = count;
-		return this;
-	}
-
-	public boolean getIsNull() {
+	public boolean isNull() {
 		return isNull;
 	}
 
-	public Where setIsNull(boolean aNull) {
+	public Where setNull(boolean aNull) {
 		isNull = aNull;
 		return this;
 	}
 
-	public boolean isExclude() {
-		return exclude;
-	}
 
-	public Where setExclude(boolean exclude) {
-		this.exclude = exclude;
+	public Where setVariable(String variable){
+		super.setVariable(variable);
 		return this;
 	}
+
+	public Where setIri(String iri){
+		super.setIri(iri);
+		return this;
+	}
+
+	public Where setAncestorsOf(boolean entailment){
+		super.setAncestorsOf(entailment);
+		return this;
+	}
+
+
 
 	public String getValueLabel() {
 		return valueLabel;
@@ -100,23 +89,20 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public Where setType(String type) {
-		super.setType(type);
-		return this;
-	}
 
 
 
-	public List<TTAlias> getNotIn() {
+
+	public List<Node> getNotIn() {
 		return notIn;
 	}
 
-	public Where setNotIn(List<TTAlias> notIn) {
+	public Where setNotIn(List<Node> notIn) {
 		this.notIn = notIn;
 		return this;
 	}
 
-	public Where addNotIn(TTAlias notIn) {
+	public Where addNotIn(Node notIn) {
 		if (this.notIn==null)
 			this.notIn = new ArrayList<>();
 		this.notIn.add(notIn);
@@ -160,30 +146,16 @@ public class Where extends TTAlias implements Assignable{
 	}
 
 
-	public Bool getBool() {
+	public Bool getBoolWhere() {
 		return bool;
 	}
 
-	public Where setBool(Bool bool) {
-		this.bool = bool;
+	public Where setBoolWhere(Bool boolMatch) {
+		this.bool = boolMatch;
 		return this;
 	}
 
 
-	public Where setIri(String iri) {
-		super.setIri(iri);
-		return this;
-	}
-
-	public Where setInverse(boolean inverse){
-		super.setInverse(inverse);
-		return this;
-	}
-
-	public Where setDescendantsOrSelfOf(boolean subtypes){
-		super.setDescendantsOrSelfOf(subtypes);
-		return this;
-	}
 
 
 	public Where setName(String name) {
@@ -203,12 +175,12 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public List<TTAlias> getIn() {
+	public List<Node> getIn() {
 		return in;
 	}
 
 	@JsonSetter
-	public Where setIn(List<TTAlias> in) {
+	public Where setIn(List<Node> in) {
 		this.in = in;
 		return this;
 	}
@@ -216,33 +188,45 @@ public class Where extends TTAlias implements Assignable{
 
 
 
-	public Where addIn(TTAlias in){
+	public Where addIn(Node in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
 		this.in.add(in);
 		return this;
 	}
 
-	public Where in(Consumer<TTAlias> builder){
-		TTAlias in = new TTAlias();
+	public Where in(Consumer<Node> builder){
+		Node in = new Node();
 		addIn(in);
 		builder.accept(in);
 		return this;
 	}
 
-	public Where notIn(Consumer<TTAlias> builder){
-		TTAlias in = new TTAlias();
+	public Where notIn(Consumer<Node> builder){
+		Node in = new Node();
 		addNotIn(in);
 		builder.accept(in);
+		return this;
+	}
+
+	public Where setInverse(boolean inverse){
+		super.setInverse(inverse);
 		return this;
 	}
 
 	public Where addIn(String in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
-		this.in.add(new TTAlias().setIri(in));
+		this.in.add(new Node().setIri(in));
 		return this;
 	}
+
+	public Where setDescendantsOrSelfOf(boolean entailment){
+		super.setDescendantsOrSelfOf(entailment);
+		return this;
+	}
+
+
 
 
 	@Override
@@ -255,14 +239,17 @@ public class Where extends TTAlias implements Assignable{
 		return this.operator;
 	}
 
-	@Override
-	public String getRelativeTo() {
+
+   public Property getRelativeTo(){
 		return this.relativeTo;
+	 }
+	public Where setRelativeTo(Property relativeTo) {
+		this.relativeTo= relativeTo;
+		return this;
 	}
 
-	@Override
-	public Where setRelativeTo(String relativeTo) {
-		this.relativeTo= relativeTo;
+	public Where relativeTo(Consumer<Property> builder){
+		builder.accept(setRelativeTo(new Property()).getRelativeTo());
 		return this;
 	}
 
@@ -304,10 +291,6 @@ public class Where extends TTAlias implements Assignable{
 		return this;
 	}
 
-	public Where setAlias(String alias){
-		super.setAlias(alias);
-		return this;
-	}
 
 
 }

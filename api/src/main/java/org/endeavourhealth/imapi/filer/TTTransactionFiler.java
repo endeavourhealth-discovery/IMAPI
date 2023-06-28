@@ -123,13 +123,14 @@ public class TTTransactionFiler {
                 String graph = entry.getKey();
                 Set<String> entities = entry.getValue();
                 String sql = "select * where \n{ graph <" + graph + "> {" +
-                    "?s ?p ?o.\n" +
-                    "filter (?o in(" + String.join(",", entities) + "))" +
-                    "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
+                  "?s ?p ?o.\n" +
+                  "filter (?o in(" + String.join(",", entities) + "))" +
+                  "filter (?p!= <" + IM.IS_A.getIri() + ">) } }";
                 TupleQuery qry = conn.prepareTupleQuery(sql);
-                TupleQueryResult rs = qry.evaluate();
-                if (rs.hasNext())
-                    throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
+                try (TupleQueryResult rs = qry.evaluate()) {
+                    if (rs.hasNext())
+                        throw new TTFilerException("Entities have been used as objects or predicates. These must be deleted first");
+                }
             }
         }
     }

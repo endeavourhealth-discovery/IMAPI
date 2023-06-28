@@ -617,35 +617,37 @@ public class EntityRepository {
 
         try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             StringJoiner sql = new StringJoiner(System.lineSeparator())
-                    .add("SELECT ?child WHERE {")
-                    .add("VALUES ?child { "+ iris +" }")
-                    .add("VALUES ?parent { "+ iris +" }")
-                    .add("?child <http://endhealth.info/im#isA> ?parent .")
-                    .add("FILTER (?child != ?parent)}");
-            TupleQuery qry= conn.prepareTupleQuery(String.valueOf(sql));
-            TupleQueryResult rs= qry.evaluate();
-            while (rs.hasNext()){
-                BindingSet bs= rs.next();
-                isas.add(bs.getValue("child").stringValue());
+              .add("SELECT ?child WHERE {")
+              .add("VALUES ?child { " + iris + " }")
+              .add("VALUES ?parent { " + iris + " }")
+              .add("?child <http://endhealth.info/im#isA> ?parent .")
+              .add("FILTER (?child != ?parent)}");
+            TupleQuery qry = conn.prepareTupleQuery(String.valueOf(sql));
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    isas.add(bs.getValue("child").stringValue());
 
+                }
             }
+            return isas;
         }
-        return isas;
     }
 
     public Set<String> getPredicates(String iri) {
         Set<String> predicates = new HashSet<>();
         try(RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             StringJoiner query = new StringJoiner(System.lineSeparator())
-                    .add("SELECT DISTINCT ?p WHERE {")
-                    .add("  ?s ?p ?o .")
-                    .add("}");
+              .add("SELECT DISTINCT ?p WHERE {")
+              .add("  ?s ?p ?o .")
+              .add("}");
             TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
             qry.setBinding("s", iri(iri));
-            TupleQueryResult rs = qry.evaluate();
-            while (rs.hasNext()){
-                BindingSet bs= rs.next();
-                predicates.add(bs.getValue("p").stringValue());
+            try (TupleQueryResult rs = qry.evaluate()) {
+                while (rs.hasNext()) {
+                    BindingSet bs = rs.next();
+                    predicates.add(bs.getValue("p").stringValue());
+                }
             }
         }
         return predicates;
@@ -661,8 +663,9 @@ public class EntityRepository {
                     .add("} LIMIT 1");
             TupleQuery qry = conn.prepareTupleQuery(String.valueOf(query));
             qry.setBinding("parent", iri(iri));
-            TupleQueryResult rs = qry.evaluate();
-            return rs.hasNext();
+            try (TupleQueryResult rs = qry.evaluate()) {
+                return rs.hasNext();
+            }
         }
     }
 

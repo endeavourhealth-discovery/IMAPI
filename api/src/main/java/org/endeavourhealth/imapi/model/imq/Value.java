@@ -4,7 +4,7 @@ public class Value implements Assignable{
 	private Operator operator;
 	private String value;
 	private String unit;
-	private String relativeTo;
+	private Property relativeTo;
 
 	public Operator getOperator() {
 		return operator;
@@ -15,11 +15,11 @@ public class Value implements Assignable{
 		return this;
 	}
 
-	public String getRelativeTo() {
+	public Property getRelativeTo() {
 		return relativeTo;
 	}
 
-	public Value setRelativeTo(String relativeTo) {
+	public Value setRelativeTo(Property relativeTo) {
 		this.relativeTo = relativeTo;
 		return this;
 	}

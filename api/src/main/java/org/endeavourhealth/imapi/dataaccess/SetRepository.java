@@ -11,12 +11,12 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
-import org.endeavourhealth.imapi.model.imq.Select;
+import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -35,7 +35,7 @@ public class SetRepository {
     private String IM_PREFIX = "PREFIX im: <" + IM.NAMESPACE + ">";
 
     /**
-     * Returns an expanded set members from an iml set definition. If already expanded then returns members
+     * Returns an expanded set members match an iml set definition. If already expanded then returns members
      * otherwise expands and retuens members
      * @param imQuery im query conforming to ecl language constraints
      * @param includeLegacy  to include legacy concepts linked by matchedTo to core concept
@@ -43,50 +43,58 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException {
-        imQuery
-          .select(s->s
-              .setIri(RDFS.LABEL.getIri()).setAlias("term"))
-          .select(s->s
-              .setIri(IM.CODE.getIri()).setAlias("code"))
-          .select(s->s
-           
-              .setIri(IM.HAS_SCHEME.getIri()).setAlias("scheme")
-            .select(s2->s2
-                .setIri(RDFS.LABEL.getIri()).setAlias("schemeName")))
-          .select(s->s
-              .setIri(IM.NAMESPACE+"usageTotal").setAlias("use"))
-            .select(s->s
-                .setIri(IM.IM1ID.getIri()).setAlias("im1Id"))
-            .select(s->s
-                    .setIri(IM.HAS_STATUS.getIri()).setAlias("status")
-                .select(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).setAlias("statusName")))
-            .select(s->s
-                    .setIri(RDF.TYPE.getIri()).setAlias("type")
-                .select(s2->s2
-                        .setIri(RDFS.LABEL.getIri()).setAlias("typeName")));
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException, QueryException {
+        Return aReturn= new Return();
+        imQuery.addReturn(aReturn);
+          aReturn
+            .property(s->s
+              .setIri(RDFS.LABEL.getIri()).as("term"))
+            .property(s->s
+              .setIri(IM.CODE.getIri()).as("code"))
+            .property(s->s
+              .setIri(IM.HAS_SCHEME.getIri())
+              .node(n->n
+                .as("scheme")
+                .property(s2->s2
+                  .setIri(RDFS.LABEL.getIri()).as("schemeName"))))
+            .property(s->s
+              .setIri(IM.NAMESPACE+"usageTotal").as("usage"))
+            .property(s->s
+              .setIri(IM.IM1ID.getIri()).as("im1Id"))
+            .property(s->s
+              .setIri(IM.HAS_STATUS.getIri())
+              .node(s2->s2
+                .as("status")
+                .property(p->p
+                  .setIri(RDFS.LABEL.getIri()).as("statusName"))))
+            .property(s->s
+              .setIri(RDF.TYPE.getIri())
+              .node(s2->s2
+                .as("type")
+                .property(p->p
+                  .setIri(RDFS.LABEL.getIri()).as("typeName"))));
 
         if (includeLegacy) {
-            Select legacy= new Select();
-              legacy
-                  .setIri(IM.MATCHED_TO.getIri())
+            aReturn
+              .property(p->p
+                .setIri(IM.MATCHED_TO.getIri())
                 .setInverse(true)
-                .setAlias("legacy")
-                .select(s -> s
-                    .setIri(RDFS.LABEL.getIri()).setAlias("legacyTerm"))
-                .select(s -> s
-                    .setIri(IM.CODE.getIri()).setAlias("legacyCode"))
-                .select(s -> s
-                    .setIri(IM.HAS_SCHEME.getIri()).setAlias("legacyScheme")
-                  .select(s1->s1
-                      .setIri(RDFS.LABEL.getIri()).setAlias("legacySchemeName")))
-                .select(s->s
-                    .setIri(IM.NAMESPACE+"usageTotal").setAlias("legacyUse"))
-                .select(s->s
-                 
-                    .setIri(IM.IM1ID.getIri()).setAlias("legacyIm1Id"));
-              imQuery.addSelect(legacy);
+                .node(n->n
+                  .as("legacy")
+                  .property(s -> s
+                    .setIri(RDFS.LABEL.getIri()).as("legacyTerm"))
+                  .property(s -> s
+                    .setIri(IM.CODE.getIri()).as("legacyCode"))
+                  .property(s -> s
+                    .setIri(IM.HAS_SCHEME.getIri())
+                    .node(n1->n1
+                      .as("legacyScheme")
+                      .property(p1->p1
+                        .setIri(RDFS.LABEL.getIri()).as("legacySchemeName"))))
+                  .property(s->s
+                    .setIri(IM.NAMESPACE+"usageTotal").as("legacyUse"))
+                  .property(s->s
+                    .setIri(IM.IM1ID.getIri()).as("legacyIm1Id"))));
         }
         String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
@@ -144,7 +152,7 @@ public class SetRepository {
                     Value code = bs.getValue("code");
                     Value scheme = bs.getValue("scheme");
                     Value schemeName = bs.getValue("schemeName");
-                    Value use = bs.getValue("use");
+                    Value usage = bs.getValue("usage");
                     Value status = bs.getValue("status");
                     Value statusName = bs.getValue("statusName");
                     Value type = bs.getValue("type");
@@ -162,7 +170,7 @@ public class SetRepository {
                     if (null != type) {
                         cl.addType(iri(type.stringValue(),typeName.stringValue()));
                     }
-                    cl.setUsage(use == null ? null : ((Literal) use).intValue());
+                    cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
                 } else {
                     Value type = bs.getValue("type");
                     Value typeName = bs.getValue("typeName");

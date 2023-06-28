@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.endeavourhealth.imapi.logic.service.QueryService;
@@ -8,8 +10,10 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.DataFormatException;
 
@@ -52,7 +57,7 @@ public class QueryController {
       summary = "Query IM",
       description = "Runs a generic query on IM"
     )
-    public TTDocument queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+    public JsonNode queryIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("queryIM");
         return searchService.queryIM(queryRequest);
     }
@@ -63,7 +68,7 @@ public class QueryController {
       summary = "Path Query ",
       description = "Query IM for a path between source and target"
     )
-    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+    public PathDocument pathQuery(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, ExecutionException, QueryException {
         LOG.debug("pathQuery");
         return searchService.pathQuery(queryRequest);
     }
@@ -83,8 +88,26 @@ public class QueryController {
       summary = "update  IM",
       description = "Runs a query based update on IM"
     )
-    public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
+    public void updateIM(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
         LOG.debug("updateIM");
         searchService.updateIM(queryRequest);
+    }
+
+    @GetMapping("/public/allQueries")
+    @Operation(
+            summary = "Get all queries",
+            description = "Get all queries"
+    )
+    public List<TTIriRef> getAllQueries() {
+        return queryService.getAllQueries();
+    }
+
+    @GetMapping("/public/allByType")
+    @Operation(
+            summary = "Get entities by type",
+            description = "Get entities by type"
+    )
+    public List<TTIriRef> getAllByType(@RequestParam(name = "iri") String typeIri) {
+        return queryService.getAllByType(typeIri);
     }
 }

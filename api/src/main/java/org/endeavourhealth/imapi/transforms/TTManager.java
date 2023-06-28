@@ -99,6 +99,18 @@ public class TTManager implements AutoCloseable {
       }
    }
 
+   public static TTContext createBasicContext(){
+     TTContext context= new TTContext();
+     context.add(IM.NAMESPACE, "im","Discovery namespace");
+     context.add(SNOMED.NAMESPACE, "sn","Snomed-CT namespace");
+     context.add(OWL.NAMESPACE, "owl","OWL2 namespace");
+     context.add(RDF.NAMESPACE, "rdf","RDF namespace");
+     context.add(RDFS.NAMESPACE, "rdfs","RDFS namespace");
+     context.add(XSD.NAMESPACE, "xsd","xsd namespace");
+     context.add(SHACL.NAMESPACE, "sh","SHACL namespace");
+     return context;
+   }
+
 
 
    public TTContext createDefaultContext() {

@@ -22,7 +22,7 @@ public class FormGenerator {
 	private TTIriRef targetShape;
 	private List<TTIriRef> isContainedIn;
 	private List<TTIriRef> subClassOf;
-	private List<PropertyGroup> group;
+	private List<PropertyShape> property;
 
 	public String getIri() {
 		return iri;
@@ -118,28 +118,28 @@ public class FormGenerator {
 
 
 
-	public List<PropertyGroup> getGroup() {
-		return group;
+	public List<PropertyShape> getProperty() {
+		return property;
 	}
 
 	@JsonSetter
-	public FormGenerator setGroup(List<PropertyGroup> group) {
-		this.group = group;
+	public FormGenerator setProperty(List<PropertyShape> property) {
+		this.property = property;
 		return this;
 	}
 
-	public FormGenerator addGroup(PropertyGroup group){
-		if (this.group==null)
-			this.group= new ArrayList<>();
-		this.group.add(group);
+	public FormGenerator addProperty(PropertyShape property){
+		if (null == this.property)
+			this.property = new ArrayList<>();
+		this.property.add(property);
 		return this;
 	}
 
 	@JsonIgnore
-	public FormGenerator group(Consumer<PropertyGroup> builder){
-		PropertyGroup group= new PropertyGroup();
-		this.addGroup(group);
-		builder.accept(group);
+	public FormGenerator property(Consumer<PropertyShape> builder){
+		PropertyShape property= new PropertyShape();
+		this.addProperty(property);
+		builder.accept(property);
 		return this;
 	}
 	@JsonIgnore

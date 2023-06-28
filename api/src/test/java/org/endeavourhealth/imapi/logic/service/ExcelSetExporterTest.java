@@ -6,9 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.model.imq.Bool;
-import org.endeavourhealth.imapi.model.imq.From;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
@@ -47,14 +45,14 @@ public class ExcelSetExporterTest {
     SetRepository setRepository;
 
     @Test
-    void getSetExport_NotNullIriNoConcept() throws DataFormatException, JsonProcessingException {
+    void getSetExport_NotNullIriNoConcept() throws DataFormatException, JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
         XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true, false);
         assertNotNull(actual);
     }
 
     @Test
-    void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException {
+    void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
         when(setRepository.getSetExpansion(any(), anyBoolean(),any())).thenReturn(new HashSet<>());
         when(setRepository.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
@@ -67,7 +65,7 @@ public class ExcelSetExporterTest {
         assertEquals(3, actual.getNumberOfSheets());
     }
 
-    private TTEntity mockDefinition() throws JsonProcessingException {
+    private TTEntity mockDefinition() throws JsonProcessingException{
         TTEntity definition = new TTEntity()
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept SetModel- Barts Covid vaccine study medication concepts");
@@ -75,11 +73,11 @@ public class ExcelSetExporterTest {
         definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety", "Value sets for the Barts Vaccine safety study")));
 
         definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
-            .from(w->w
-              .setBoolFrom(Bool.or)
-                .from(f->f
+            .match(w->w
+              .setBoolMatch(Bool.or)
+                .match(f->f
                 .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
-                .from(f->f
+                .match(f->f
                     .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true)
                   .where(p->p
                     .setIri(IM.ROLE_GROUP.getIri())
@@ -87,7 +85,7 @@ public class ExcelSetExporterTest {
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)
-                    .addIn(new From().setIri("http://snomed.info/sct#39330711000001103")
+                    .addIn(new Node().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
                       .setDescendantsOrSelfOf(true)))))));
         return definition;

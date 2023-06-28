@@ -1,11 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.logic.query.QuerySummariser;
 import org.endeavourhealth.imapi.model.iml.ConceptSet;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTAlias;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
@@ -29,7 +27,7 @@ public class EqdToIMQ {
 
 	public ModelDocument convertEQD(EnquiryDocument eqd, Properties dataMap,
 
-																	Properties criteriaLabels) throws DataFormatException, IOException {
+																	Properties criteriaLabels) throws DataFormatException, IOException, QueryException {
 
 		resources.setDataMap(dataMap);
 		resources.setDocument(new ModelDocument());
@@ -49,7 +47,7 @@ public class EqdToIMQ {
 
 	}
 
-	private void convertReports(EnquiryDocument eqd) throws DataFormatException, IOException {
+	private void convertReports(EnquiryDocument eqd) throws DataFormatException, IOException, QueryException {
 		for (EQDOCReport eqReport : Objects.requireNonNull(eqd.getReport())) {
 			if (eqReport.getId() == null)
 				throw new DataFormatException("No report id");
@@ -80,7 +78,7 @@ public class EqdToIMQ {
 	}
 
 
-	public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException {
+	public QueryEntity convertReport(EQDOCReport eqReport) throws DataFormatException, IOException, QueryException {
 
 		resources.setActiveReport(eqReport.getId());
 		resources.setActiveReportName(eqReport.getName());
@@ -103,31 +101,39 @@ public class EqdToIMQ {
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
 		flattenQuery(qry);
 
-		QuerySummariser summariser = new QuerySummariser(qry);
-		summariser.summarise(false);
 		queryEntity.setDefinition(qry);
 		return queryEntity;
 	}
 
-	private void flattenQuery(Query qry) {
-		From from= qry.getFrom();
-		List<Where> oldWhereList= from.getWhere();
-		if (oldWhereList!=null) {
-			List<Where> newWhereList = new ArrayList<>();
-			for (Where where : oldWhereList) {
-				if (where.getIri() == null) {
-					if (where.getBool() == Bool.and) {
-						for (Where and : where.getWhere())
-							newWhereList.add(and);
-					}
-					else
-						newWhereList.add(where);
-				}
-				else
-					newWhereList.add(where);
-			}
-			from.setWhere(newWhereList);
-		}
+	private void flattenQuery(Query qry) throws QueryException {
+		List<Match> flatMatches= new ArrayList<>();
+		flattenAnds(qry.getMatch(),flatMatches);
+		qry.setMatch(flatMatches);
 	}
+
+	private void flattenAnds(List<Match> topMatches, List<Match> flatMatches) throws QueryException {
+		for (Match topMatch:topMatches) {
+			if (topMatch.getMatch()==null){
+				flatMatches.add(topMatch);
+			}
+			else if (topMatch.getBoolMatch()==Bool.or) {
+				flatMatches.add(topMatch);
+				for (Match orMatch : topMatch.getMatch()) {
+					if (orMatch.getMatch() != null) {
+						List<Match> newMatchList = new ArrayList<>();
+						flattenAnds(orMatch.getMatch(), newMatchList);
+						orMatch.setMatch(newMatchList);
+					}
+				}
+			}
+			else {
+					flattenAnds(topMatch.getMatch(),flatMatches);
+				}
+			}
+
+	}
+
+
+
 
 }

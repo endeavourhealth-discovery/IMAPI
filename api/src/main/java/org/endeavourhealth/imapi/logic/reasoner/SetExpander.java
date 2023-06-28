@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
@@ -30,7 +31,7 @@ public class SetExpander {
 	private final EntityRepository2 repo2= new EntityRepository2();
 	private final SetRepository setRepo= new SetRepository();
 
-	public void expandAllSets() throws DataFormatException, JsonProcessingException {
+	public void expandAllSets() throws DataFormatException, JsonProcessingException, QueryException {
 		LOG.info("Getting value sets....");
 		//First get the list of sets that dont have members already expanded
 		Set<String> sets= getSets();
@@ -48,7 +49,7 @@ public class SetExpander {
 
 	}
 
-	public void expandSet(String iri) throws DataFormatException, JsonProcessingException {
+	public void expandSet(String iri) throws DataFormatException, JsonProcessingException, QueryException {
 		LOG.info("Updating members of "+ iri);
 		TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 		if (setDefinition.getEntity().get(IM.DEFINITION)==null)
@@ -69,23 +70,24 @@ public class SetExpander {
 			upd.execute();
 			spq="SELECT ?g where { graph ?g {<"+iri+"> <"+RDF.TYPE.getIri()+"> ?type }}";
 			TupleQuery qry= conn.prepareTupleQuery(spq);
-			TupleQueryResult rs= qry.evaluate();
-			BindingSet bs= rs.next();
-			String graph= bs.getValue("g").stringValue();
-			StringJoiner sj = new StringJoiner("\n");
-			sj.add("INSERT DATA { graph <"+ graph+"> {");
-			int batch = 0;
-			for (Concept member : members) {
-				batch++;
-				if (batch == 1000) {
-					sendUp(sj, conn);
-					sj = new StringJoiner("\n");
-					sj.add("INSERT DATA { graph <" + graph + "> {");
-					batch = 0;
+			try (TupleQueryResult rs= qry.evaluate()) {
+				BindingSet bs = rs.next();
+				String graph = bs.getValue("g").stringValue();
+				StringJoiner sj = new StringJoiner("\n");
+				sj.add("INSERT DATA { graph <" + graph + "> {");
+				int batch = 0;
+				for (Concept member : members) {
+					batch++;
+					if (batch == 1000) {
+						sendUp(sj, conn);
+						sj = new StringJoiner("\n");
+						sj.add("INSERT DATA { graph <" + graph + "> {");
+						batch = 0;
+					}
+					sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
 				}
-				sj.add("<" + iri + "> <" + IM.HAS_MEMBER.getIri() + "> <" + member.getIri() + ">.");
-				}
-			sendUp(sj,conn);
+				sendUp(sj, conn);
+			}
 		}
 	}
 

@@ -1,0 +1,49 @@
+{
+  "name" : "Allowable child types for editor",
+  "match" : [ {
+    "where" : [ {
+      "@id" : "http://endhealth.info/im#isContainedIn",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#EntityTypes"
+      } ]
+    } ],
+    "variable" : "concept"
+  }, {
+    "path" : {
+      "@id" : "http://www.w3.org/ns/shacl#property",
+      "node" : {
+        "variable" : "predicate"
+      }
+    },
+    "bool" : "and",
+    "where" : [ {
+      "@id" : "http://www.w3.org/ns/shacl#node",
+      "in" : [ {
+        "parameter" : "$this"
+      } ]
+    }, {
+      "@id" : "http://www.w3.org/ns/shacl#path",
+      "in" : [ {
+        "@id" : "http://endhealth.info/im#isContainedIn"
+      }, {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+      }, {
+        "@id" : "http://endhealth.info/im#isSubsetOf"
+      } ]
+    } ]
+  } ],
+  "return" : [ {
+    "nodeRef" : "concept",
+    "property" : [ {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    }, {
+      "node" : {
+        "nodeRef" : "predicate",
+        "property" : [ {
+          "@id" : "http://www.w3.org/ns/shacl#path"
+        } ]
+      },
+      "@id" : "http://www.w3.org/ns/shacl#property"
+    } ]
+  } ]
+}

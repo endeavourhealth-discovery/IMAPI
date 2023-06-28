@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.imq.Argument;
@@ -13,15 +14,17 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri","label","comment","name","order","minCount","maxCount","componentType","path","dataType","class","node",
-"functionClause","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue","forceIsValue", "builderChild"})
+"functionClause","validation","search","select","argument","valueVariable","isIri","isTextValue","isNumericValue","forceIsValue", "builderChild", "showTitle"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
 	private String label;
 	private String comment;
 	private String name;
+	private Boolean showTitle;
 	private int order;
 	private Integer minCount;
 	private Integer maxCount;
+	private List<PropertyShape> property;
 	private TTIriRef path;
 	private TTIriRef datatype;
 	private TTIriRef clazz;
@@ -36,12 +39,11 @@ public class PropertyShape {
 	private TTIriRef function;
 	private List<Argument> argument;
 	private String valueVariable;
+	private TTIriRef valueIri;
 	private List<TTIriRef> select;
 	private Boolean builderChild;
 	private NodeShape expression;
 	private Boolean forceIsValue;
-
-    private List<PropertyShape> subProperty;
 
 	public Boolean getForceIsValue() {
 		return forceIsValue;
@@ -165,6 +167,16 @@ public class PropertyShape {
 		return this;
 	}
 
+	public Boolean getShowTitle() {
+		return showTitle;
+	}
+
+	public PropertyShape setShowTitle(Boolean showTitle) {
+		this.showTitle = showTitle;
+		return this;
+	}
+
+	@JsonProperty(required = true)
 	public int getOrder() {
 		return order;
 	}
@@ -191,7 +203,7 @@ public class PropertyShape {
 		this.maxCount = maxCount;
 		return this;
 	}
-
+	@JsonProperty(required = true)
 	public TTIriRef getPath() {
 		return path;
 	}
@@ -252,7 +264,7 @@ public class PropertyShape {
 		this.isNumericValue = isNumericValue;
 		return this;
 	}
-
+	@JsonProperty(required = true)
 	public TTIriRef getComponentType() {
 		return componentType;
 	}
@@ -280,12 +292,27 @@ public class PropertyShape {
 		return this;
 	}
 
-    public List<PropertyShape> getSubProperty() {
-        return subProperty;
-    }
+	public List<PropertyShape> getProperty() {
+		return property;
+	}
 
-    public PropertyShape setSubProperty(List<PropertyShape> subProperty) {
-        this.subProperty = subProperty;
-        return this;
-    }
+	public PropertyShape setProperty(List<PropertyShape> property) {
+		this.property = property;
+		return this;
+	}
+
+	public PropertyShape addProperty(PropertyShape prop) {
+		if (null==this.property) this.property = new ArrayList<>();
+		this.property.add(prop);
+		return this;
+	}
+
+	public TTIriRef getValueIri() {
+		return valueIri;
+	}
+
+	public PropertyShape setValueIri(TTIriRef valueIri) {
+		this.valueIri = valueIri;
+		return this;
+	}
 }

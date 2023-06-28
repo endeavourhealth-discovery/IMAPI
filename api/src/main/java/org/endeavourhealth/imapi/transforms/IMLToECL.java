@@ -21,95 +21,106 @@ public class IMLToECL {
 	 */
 	public static String getECLFromQuery(Query query, Boolean includeName) throws DataFormatException {
 		StringBuilder ecl = new StringBuilder();
-		if (query.getFrom()!=null) {
-			fromWhere(query.getFrom(), ecl, includeName);
+		if (query.getMatch()!=null) {
+			boolean first = true;
+			for (Match match : query.getMatch()) {
+				if (!first)
+					ecl.append(" AND ");
+				first = false;
+				fromWhere(match, ecl, includeName);
+			}
 		}
 		return ecl.toString();
 	}
 
-	private static boolean isList(From from){
-		if (null!=from.getFrom())
-				return true;
-		return false;
+	private static boolean isList(Match match){
+		return null != match.getMatch();
 	}
 
 
-
-
-
-
-	private static void fromWhere(From fromWhere, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		if (null!=fromWhere) from(fromWhere, ecl, includeName,null!=fromWhere.getWhere());
+	private static void fromWhere(Match matchWhere, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+		if (null!= matchWhere) {
+			if (matchWhere.isExclude())
+				ecl.append(" MINUS (");
+			from(matchWhere, ecl, includeName, null != matchWhere.getWhere());
+			if (matchWhere.isExclude())
+				ecl.append(")");
+		}
 	}
-	private static void from(From from,StringBuilder ecl, boolean includeName,boolean isRefined) throws DataFormatException {
-		if (null != from.getIri()) {
-			addClass(from, ecl, includeName);
-		} else if (null != from.getFrom()) {
+	private static void from(Match match, StringBuilder ecl, boolean includeName, boolean isRefined) throws DataFormatException {
+		if (null != match.getIri()) {
+			addClass(match, ecl, includeName);
+		} else if (null != match.getMatch()) {
 			boolean bracketFrom = isRefined;
 			if (bracketFrom)
 				ecl.append("(");
 
 			boolean first = true;
-			for (From subFrom : from.getFrom()) {
-				fromAppendBracket(from, ecl, includeName, first, subFrom);
+			for (Match subMatch : match.getMatch()) {
+				fromAppendBracket(match, ecl, includeName, first, subMatch);
 				first = false;
 			}
 			if (bracketFrom) {
 				ecl.append(")");
 			}
 		}
-		if (null != from.getWhere()) {
-			if (null == from.getIri() && null == from.getFrom())
+		if (null != match.getWhere()) {
+			if (null == match.getIri() && null == match.getMatch())
 				ecl.append("*");
-			addFromRefinements(from, ecl, includeName);
+			addFromRefinements(match, ecl, includeName);
 		}
 	}
 
-	private static void fromAppendBracket(From from, StringBuilder ecl, boolean includeName, boolean first, From subFrom) throws DataFormatException {
-		if (subFrom.isExclude()) {
+	private static void fromAppendBracket(Match match, StringBuilder ecl, boolean includeName, boolean first, Match subMatch) throws DataFormatException {
+		if (subMatch.isExclude()) {
 			ecl.append(" MINUS ");
 		}
 		else {
-			fromAppendBool(from, ecl, first);
+			fromAppendBool(match, ecl, first);
 		}
 		boolean bracket = false;
-		if (null != subFrom.getWhere() && isList(from)) {
+		if (null != subMatch.getWhere() && isList(match)) {
 			bracket = true;
 		}
-		if (null != subFrom.getFrom() && subFrom.getFrom().size() > 1) {
+		if (null != subMatch.getMatch() && subMatch.getMatch().size() > 1) {
 			bracket = true;
 		}
-		if (subFrom.isExclude() && null != subFrom.getFrom() && subFrom.getFrom().size() > 1)
+		if (subMatch.isExclude() && null != subMatch.getMatch() && subMatch.getMatch().size() > 1)
 			bracket = true;
 
 		if (bracket)
 			ecl.append("(");
-		from(subFrom, ecl, includeName, null != subFrom.getWhere());
+		from(subMatch, ecl, includeName, null != subMatch.getWhere());
 		if (bracket) {
 			ecl.append(")\n");
 		}
 	}
 
-	private static void fromAppendBool(From from, StringBuilder ecl, boolean first) {
+	private static void fromAppendBool(Match match, StringBuilder ecl, boolean first) {
 		if (!first) {
-			if (from.getBoolFrom() == Bool.and) {
+			if (match.getBoolMatch() == Bool.and) {
 				ecl.append(" AND ");
-			} else if (from.getBoolFrom() == Bool.or) {
+			} else if (match.getBoolMatch() == Bool.or) {
 				ecl.append("  OR ");
 			} else
 				ecl.append(" OR ");
 		}
 	}
 
-	private static void addFromRefinements(From from,StringBuilder ecl, boolean includeNames) throws DataFormatException {
+	private static void addFromRefinements(Match match, StringBuilder ecl, boolean includeNames) throws DataFormatException {
 		ecl.append(": ");
 		boolean first = true;
-		for (Where where : from.getWhere()) {
+		if (match.getPath()!=null){
+			ecl.append(" { ");
+		}
+		for (Where where : match.getWhere()) {
 			if (!first)
 				ecl.append(" , ");
 			first = false;
 			addRefinedGroup(where,ecl,includeNames);
 		}
+		if (match.getPath()!=null)
+			ecl.append("}");
 	}
 
 
@@ -117,41 +128,32 @@ public class IMLToECL {
 	private static void addRefinedGroup(Where where,StringBuilder ecl,Boolean includeName) throws DataFormatException {
 		if (null == where.getWhere()) {
 			addRefined(where, ecl, includeName);
-		} else {
-			boolean grouped = null != where.getIri() && where.getIri().equals(IM.ROLE_GROUP.getIri());
-			if (grouped)
-				ecl.append("{");
+		}
+		else {
 			if (where.getWhere().size() == 1) {
 				addRefinedGroup(where.getWhere().get(0), ecl, includeName);
-			} else for (int i = 0; i < where.getWhere().size(); i++) {
+			}
+			else for (int i = 0; i < where.getWhere().size(); i++) {
 				addRefinedGroupAppendBool(where, ecl, includeName, i);
 			}
-			if (grouped)
-				ecl.append("}");
 		}
 	}
 
 	private static void addRefinedGroupAppendBool(Where where, StringBuilder ecl, Boolean includeName, int i) throws DataFormatException {
 		if (i > 0) {
-			if (where.getBool() == Bool.or)
+			if (where.getBoolWhere() == Bool.or)
 				ecl.append(" OR ");
-			else if (where.getBool() == Bool.and)
+			else if (where.getBoolWhere() == Bool.and)
 				ecl.append(" , ");
-			else if (where.isExclude()) {
-				ecl.append(" MINUS (");
 			}
-		}
 		addRefinedGroup(where.getWhere().get(i), ecl, includeName);
-		if (where.isExclude())
-			ecl.append(")");
 	}
 
 	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		try {
-			TTAlias property = where;
 			try {
-				TTAlias value = where.getIn().get(0);
-				addClass(property, ecl, includeName);
+				Node value = where.getIn().get(0);
+				addProperty(where, ecl, includeName);
 				ecl.append(" = ");
 				addClass(value, ecl, includeName);
 			} catch (Exception e) {
@@ -163,26 +165,43 @@ public class IMLToECL {
 	}
 
 
+	private static void addProperty(Property exp, StringBuilder ecl, boolean includeName) {
+		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
+	}
 
-	private static void addClass(TTAlias exp, StringBuilder ecl, boolean includeName) {
-		if (exp.getIri().equals(IM.CONCEPT.getIri()))
-			ecl.append("* ");
-		else {
-			String subsumption="";
-			if (exp.isDescendantsOrSelfOf())
-				subsumption="<< ";
-			if (exp.isDescendantsOf())
-				subsumption="< ";
-			String iri = checkMember(exp.asIriRef().getIri());
-			String pipe = " | ";
-			if (includeName && null!=exp.asIriRef().getName()) {
-				ecl.append(subsumption).append(iri).append(pipe).append(exp.asIriRef().getName()).append(pipe);
-			} else {
-				EntityRepository entityRepository = new EntityRepository();
-				String name = entityRepository.getEntityReferenceByIri(exp.getIri()).getName();
-				ecl.append(subsumption).append(iri).append(pipe).append(name).append(pipe);
-			}
+	private static void addConcept(StringBuilder ecl, boolean includeName, String subsumption2, String id, String name2) {
+		String subsumption = subsumption2;
+		String iri = checkMember(id);
+		String pipe = " | ";
+		if (includeName && null!= name2) {
+			ecl.append(subsumption).append(iri).append(pipe).append(name2).append(pipe);
 		}
+		else if (includeName){
+			EntityRepository entityRepository = new EntityRepository();
+			String name = entityRepository.getEntityReferenceByIri(id).getName();
+			ecl.append(subsumption).append(iri).append(pipe).append(name).append(pipe);
+		}
+		else
+			ecl.append(subsumption).append(iri).append(" ");
+	}
+
+	private static void addClass(Node exp, StringBuilder ecl, boolean includeName) {
+		if (exp.getType()!=null) {
+			if (exp.getType().equals(IM.CONCEPT.getIri()))
+				ecl.append("* ");
+		}
+		else {
+			addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
+		}
+	}
+
+	private static String getSubsumption(Entailment exp) {
+		String subsumption="";
+		if (exp.isDescendantsOrSelfOf())
+			subsumption="<< ";
+		if (exp.isDescendantsOf())
+			subsumption="< ";
+		return subsumption;
 	}
 
 
@@ -208,7 +227,7 @@ public class IMLToECL {
 		for (TTValue iriRef : members.getElements()) {
 			if (!first)
 				ecl.append(or).append("\n");
-			addClass(new TTAlias(iriRef.asIriRef()), ecl, true);
+			addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true);
 			first = false;
 		}
 		return ecl.toString();

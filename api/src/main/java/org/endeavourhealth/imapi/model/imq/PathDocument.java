@@ -2,8 +2,6 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.endeavourhealth.imapi.model.iml.Path;
-import org.endeavourhealth.imapi.model.tripletree.TTTypedRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,21 +10,21 @@ import java.util.List;
 @JsonPropertyOrder({"source","paths","target"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PathDocument {
-	private List<Where> where;
+	private List<Match> match;
 
-	public List<Where> getWhere() {
-		return where;
+	public List<Match> getMatch() {
+		return match;
 	}
 
-	public PathDocument setWhere(List<Where> where) {
-		this.where = where;
+	public PathDocument setMatch(List<Match> match) {
+		this.match = match;
 		return this;
 	}
 
-	public PathDocument addWhere(Where where){
-		if (this.where==null)
-			this.where= new ArrayList<>();
-		this.where.add(where);
+	public PathDocument addMatch(Match match){
+		if (this.match ==null)
+			this.match = new ArrayList<>();
+		this.match.add(match);
 		return this;
 	}
 }

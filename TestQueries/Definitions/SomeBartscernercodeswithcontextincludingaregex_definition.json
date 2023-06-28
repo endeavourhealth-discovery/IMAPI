@@ -1,34 +1,47 @@
 {
+  "@context" : {
+    "im" : "http://endhealth.info/im#",
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "owl" : "http://www.w3.org/2002/07/owl#",
+    "sh" : "http://www.w3.org/ns/shacl#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "sn" : "http://snomed.info/sct#"
+  },
   "query" : {
     "name" : "Some Barts cerner codes with context including a regex",
-    "from" : {
-      "where" : {
-        "@id" : "http://endhealth.info/im#sourceContext",
-        "where" : [ {
-          "@id" : "http://endhealth.info/im#sourceRegex"
-        } ]
-      }
-    },
-    "select" : [ {
-      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
-    }, {
-      "@id" : "http://endhealth.info/im#code"
-    }, {
-      "select" : [ {
-        "@id" : "http://endhealth.info/im#sourceCodeScheme"
-      }, {
-        "@id" : "http://endhealth.info/im#sourceHeading"
-      }, {
-        "@id" : "http://endhealth.info/im#sourceSystem"
-      }, {
-        "@id" : "http://endhealth.info/im#sourceTable"
-      }, {
-        "@id" : "http://endhealth.info/im#sourceField"
-      }, {
-        "@id" : "http://endhealth.info/im#sourceSchema"
+    "match" : [ {
+      "path" : [ {
+        "@id" : "im:sourceContext"
       } ],
-      "@id" : "http://endhealth.info/im#sourceContext"
+      "where" : [ {
+        "@id" : "im:sourceRegex"
+      } ]
     } ],
-    "usePrefixes" : true
+    "usePrefixes" : true,
+    "return" : [ {
+      "property" : [ {
+        "@id" : "rdfs:label"
+      }, {
+        "@id" : "im:code"
+      }, {
+        "node" : {
+          "property" : [ {
+            "@id" : "im:sourceCodeScheme"
+          }, {
+            "@id" : "im:sourceHeading"
+          }, {
+            "@id" : "im:sourceSystem"
+          }, {
+            "@id" : "im:sourceTable"
+          }, {
+            "@id" : "im:sourceField"
+          }, {
+            "@id" : "im:sourceSchema"
+          } ]
+        },
+        "@id" : "im:sourceContext"
+      } ]
+    } ]
   }
 }

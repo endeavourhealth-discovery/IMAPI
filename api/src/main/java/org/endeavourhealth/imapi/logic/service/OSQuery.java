@@ -199,15 +199,26 @@ public class OSQuery {
             TermsQueryBuilder tqr = new TermsQueryBuilder("isA.@id", isas);
             qry.filter(tqr);
         }
+        if (!request.getMemberOf().isEmpty()) {
+            List<String> memberOfs = new ArrayList<>(request.getMemberOf());
+            TermsQueryBuilder tqr = new TermsQueryBuilder("memberOf.@id", memberOfs);
+            qry.filter(tqr);
+        }
     }
 
     private QueryBuilder buildBoolQuery(SearchRequest request) {
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        if(null == request.getIsA() || request.getIsA().isEmpty()) {
-            return boolQuery;
+
+        if (!request.getIsA().isEmpty()) {
+            List<String> isas = new ArrayList<>(request.getIsA());
+            boolQuery.must(new TermsQueryBuilder("isA.@id", isas));
         }
-        List<String> isas = new ArrayList<>(request.getIsA());
-        boolQuery.must(new TermsQueryBuilder("isA.@id", isas));
+
+        if (!request.getMemberOf().isEmpty()) {
+            List<String> memberOfs = new ArrayList<>(request.getMemberOf());
+            boolQuery.must(new TermsQueryBuilder("memberOf.@id", memberOfs));
+        }
+
         return boolQuery;
     }
 
@@ -406,14 +417,14 @@ public class OSQuery {
             return null;
         Query query = queryRequest.getQuery();
 
-        if (query.getReturn() != null && !validateReturn(query)) {
-            return null;
-        }
+        if (query != null) {
+            if (query.getReturn() != null && !validateReturn(query)) {
+                return null;
+            }
 
-
-
-        if (query.getMatch() != null && !validateFroms(query.getMatch())) {
-            return null;
+            if (query.getMatch() != null && !validateFroms(query.getMatch())) {
+                return null;
+            }
         }
 
         SearchRequest searchRequest = convertIMToOS(queryRequest);
@@ -482,10 +493,13 @@ public class OSQuery {
                 ObjectNode resultNode = om.createObjectNode();
                 resultNodes.add(resultNode);
                 resultNode.put("@id", searchResult.getIri());
-                if (query.getReturn()==null)
-                    query.return_(s->s.property(p->p.setIri(RDFS.LABEL.getIri())));
-                for (Return select : query.getReturn()) {
-                    convertOSResultAddNode(om, searchResult, resultNode, select);
+
+                if (query != null) {
+                    if (query.getReturn() == null)
+                        query.return_(s -> s.property(p -> p.setIri(RDFS.LABEL.getIri())));
+                    for (Return select : query.getReturn()) {
+                        convertOSResultAddNode(om, searchResult, resultNode, select);
+                    }
                 }
             }
             return result;
@@ -558,14 +572,18 @@ public class OSQuery {
             request.setSize(imRequest.getPage().getPageSize());
         }
         request.setTermFilter(imRequest.getTextSearch());
+
         Query query = imRequest.getQuery();
-        if (!validateFromList(request, query,imRequest))
-            return null;
+        if (query != null) {
+            if (!validateFromList(request, query, imRequest))
+                return null;
+            if (query.isActiveOnly())
+                request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
+            processSelects(request, query);
+        }
+
         request.addSelect("iri");
         request.addSelect("name");
-        if (query.isActiveOnly())
-            request.setStatusFilter(List.of(IM.ACTIVE.getIri()));
-        processSelects(request, query);
 
         return request;
     }
@@ -594,6 +612,9 @@ public class OSQuery {
     }
 
     private static boolean validateFromList(SearchRequest request, Query query,QueryRequest imRequest) throws DataFormatException {
+        if (query.getMatch() == null)
+            return true;
+
         for (Match match: query.getMatch()) {
             if (!addFromTypes(request, match, imRequest))
                 return false;
@@ -602,20 +623,20 @@ public class OSQuery {
     }
 
     private static boolean addFromTypes(SearchRequest request, Match match, QueryRequest imRequest) throws DataFormatException {
-        if (match.getType()!= null){
-                request.addType(match.getType());
-                if (match.getMatch()!=null)
-                    return false;
+        if (match.getType() != null) {
+            request.addType(match.getType());
+            if (match.getMatch() != null)
+                return false;
             return match.getWhere() == null;
-        }
-        else if (match.isDescendantsOrSelfOf()) {
-                return processSubTypes(request, match, imRequest);
-        }
-        else if (match.getIri()!=null)
-                throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (match.sourceType= type, or subtypes match.isIncludeSubtypes(true");
+        } else if (match.isDescendantsOrSelfOf()) {
+            return processSubTypes(request, match, imRequest);
+        } else if (match.getWhere() != null) {
+            return processWheres(request, match);
+        } else if (match.getIri() != null)
+            throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (match.sourceType= type, or subtypes match.isIncludeSubtypes(true");
 
         else if (match.getMatch() != null) {
-            if (match.getBoolMatch()!=Bool.or){
+            if (match.getBoolMatch() != Bool.or) {
                 return false;
             }
             for (Match subMatch : match.getMatch()) {
@@ -630,17 +651,44 @@ public class OSQuery {
 
     private static boolean processSubTypes(SearchRequest request, Match match, QueryRequest imRequest) throws DataFormatException {
         List<String> isas= listFromAlias(match,imRequest);
-        if (isas==null)
+
+        if (isas==null || isas.isEmpty())
             return false;
+
         request.setIsA(isas);
+        return true;
+    }
+
+    private static boolean processWheres(SearchRequest request, Match match) throws DataFormatException {
+        for(Where w : match.getWhere()) {
+            if (IM.HAS_SCHEME.getIri().equals(w.getIri())) {
+                if (w.getValue() != null && !w.getValue().isEmpty())
+                    request.setSchemeFilter(List.of(w.getValue()));
+                else if (w.getIn() != null && !w.getIn().isEmpty())
+                    request.setSchemeFilter(w.getIn().stream().map(IriLD::getIri).toList());
+                else
+                    throw new DataFormatException("Scheme filter must be either singular (value) or list (in)");
+            } else if (IM.IS_MEMBER_OF.getIri().equals(w.getIri())) {
+                LOG.info("Member property filter found");
+                if (w.getValue() != null && !w.getValue().isEmpty())
+                    request.setMemberOf(List.of(w.getValue()));
+                else if (w.getIn() != null && !w.getIn().isEmpty())
+                    request.setMemberOf(w.getIn().stream().map(IriLD::getIri).toList());
+                else
+                    throw new DataFormatException("Set membership filter must be either singular (value) or list (in)");
+            } else if ((IM.NAMESPACE + "concept").equals(w.getIri())) {
+                LOG.info("Set membership filter found");
+            } else {
+                return false;
+            }
+        }
+
         return true;
     }
 
     private static List<String> listFromAlias(Match match, QueryRequest queryRequest) throws DataFormatException {
         if (match.getParameter() == null) {
-            List<String> iriList = new ArrayList<>();
-            iriList.add(match.getIri());
-            return iriList;
+            return List.of(match.getIri());
         }
 
         String value = match.getParameter();
@@ -656,7 +704,7 @@ public class OSQuery {
                         return iriList;
                     } else if (null != argument.getValueIriList()) {
                         return
-                                argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
+                            argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
                     }
                 }
             }
@@ -670,7 +718,7 @@ public class OSQuery {
         if (iri == null)
             return false;
         return switch (iri) {
-            case (RDFS.NAMESPACE + "label"), (RDFS.NAMESPACE + "comment"), (IM.NAMESPACE + "code"), (IM.NAMESPACE + "status"), (IM.NAMESPACE + "scheme"), (RDF.NAMESPACE + "type"), (IM.NAMESPACE + "weighting") ->
+            case (RDFS.NAMESPACE + "label"), (RDFS.NAMESPACE + "comment"), (IM.NAMESPACE + "code"), (IM.NAMESPACE + "status"), (IM.NAMESPACE + "scheme"), (RDF.NAMESPACE + "type"), (IM.NAMESPACE + "weighting"), (IM.NAMESPACE + "memberOf") ->
               true;
             default -> false;
         };

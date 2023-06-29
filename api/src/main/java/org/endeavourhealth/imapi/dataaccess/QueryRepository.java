@@ -52,14 +52,14 @@ public class QueryRepository {
      * @throws JsonProcessingException if the json is invalid
      */
     public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, DataFormatException,JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException {
-        result= mapper.createObjectNode();
+        result = mapper.createObjectNode();
+        unpackQueryRequest(queryRequest);
+        if (null != queryRequest.getTextSearch()) {
+            ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
+            if (osResult != null)
+                return osResult;
+        }
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
-            unpackQueryRequest(queryRequest);
-            if (null != queryRequest.getTextSearch()) {
-                ObjectNode osResult = new OSQuery().openSearchQuery(queryRequest);
-               if (osResult!=null)
-                   return osResult;
-            }
             checkReferenceDate();
             new QueryValidator().validateQuery(queryRequest.getQuery());
             converter = new SparqlConverter(queryRequest);

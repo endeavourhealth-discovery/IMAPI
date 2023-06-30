@@ -23,6 +23,29 @@ public class Match extends Node implements Whereable{
 	private List<OrderLimit> orderBy;
 	private String nodeRef;
 	private List<Path> path;
+	private List<Node> in;
+
+	public List<Node> getIn() {
+		return in;
+	}
+
+	public Match setIn(List<Node> in) {
+		this.in = in;
+		return this;
+	}
+	public Match addIn(Node in){
+		if (this.in==null)
+			this.in= new ArrayList<>();
+		this.in.add(in);
+		return this;
+	}
+
+	public Match in(Consumer<Node> builder){
+		Node in = new Node();
+		addIn(in);
+		builder.accept(in);
+		return this;
+	}
 
 	public String getNodeRef() {
 		return nodeRef;

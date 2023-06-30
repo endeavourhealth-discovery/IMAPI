@@ -6,38 +6,26 @@
     "@id" : "http://snomed.info/sct#40608009",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertropia (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#14151009",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperesthesia (finding)"
+    "@id" : "http://snomed.info/sct#25289003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperacusis (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#35885006",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperuricemia (disorder)"
+    "@id" : "http://snomed.info/sct#186661000000102",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperthyroidism resolved"
   }, {
-    "@id" : "http://snomed.info/sct#89620005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperextension (finding)"
+    "@id" : "http://snomed.info/sct#154764002",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkalaemia (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#22006008",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertelorism (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#201059003",
+    "@id" : "http://snomed.info/sct#238623003",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#20637002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#1119257007",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperosteoidosis (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#47091000000100",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension annual review"
-  }, {
-    "@id" : "http://snomed.info/sct#91232002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypersensitivity (finding)"
-  }, {
-    "@id" : "http://snomed.info/sct#59655002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperprolinemia (disorder)"
-  }, {
-    "@id" : "http://snomed.info/sct#83469008",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperinsulinism (disorder)"
+    "@id" : "http://snomed.info/sct#29966009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrichosis (disorder)"
   }, {
     "@id" : "http://snomed.info/sct#271838002",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperperistalsis (finding)"
@@ -48,16 +36,28 @@
     "@id" : "http://snomed.info/sct#1046041000000105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperglobulinaemia (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#209081000000108",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Hyperferritinaemia"
+    "@id" : "http://snomed.info/sct#238624009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperkeratosis NOS (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#46795000",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Actinic cheilitis (disorder)"
+    "@id" : "http://snomed.info/sct#44548000",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperactive behavior (finding)"
   }, {
-    "@id" : "http://snomed.info/sct#158174002",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Hyperhidrosis (situation)"
+    "@id" : "http://snomed.info/sct#201116005",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertrophy of nail (disorder)"
   }, {
-    "@id" : "http://snomed.info/sct#52613005",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive sweating (finding)"
+    "@id" : "http://snomed.info/sct#86573003",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hyperemia of eyelid (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#162659009",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Hypertension resolved (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#88213004",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Aldosteronism (disorder)"
+  }, {
+    "@id" : "http://snomed.info/sct#267023007",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Excessive eating (finding)"
+  }, {
+    "@id" : "http://snomed.info/sct#502941000000104",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "[D]Hyperglycaemia (situation)"
   } ]
 }

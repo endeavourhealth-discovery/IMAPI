@@ -8,5 +8,9 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "entities" : [ ]
+  "entities" : [ {
+    "@id" : "http://snomed.info/sct#105590001",
+    "http://endhealth.info/im#code" : "105590001",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Substance (substance)"
+  } ]
 }

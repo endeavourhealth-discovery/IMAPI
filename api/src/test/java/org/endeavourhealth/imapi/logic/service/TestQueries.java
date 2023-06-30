@@ -168,6 +168,27 @@ public class TestQueries {
 	}
 
 
+	public static QueryRequest getMembers(){
+		QueryRequest qr= new QueryRequest()
+			.setTextSearch("FOXG1")
+			.query(q->q
+				.setName("Filter concept subtypes that are members of value sets")
+				.match(m->m
+					.in(n->n
+						.setIri(SNOMED.NAMESPACE+"57148006")
+						.setDescendantsOrSelfOf(true))
+				.in(n->n
+					.setIri(SNOMED.NAMESPACE+"11164009")
+					.setDescendantsOrSelfOf(true))
+					.where(w->w
+						.setIri(IM.HAS_MEMBER.getIri())
+						.setInverse(true)
+						.in(n->n
+							.setIri(IM.NAMESPACE+"VSET_Conditions"))
+						.in(n->n
+							.setIri(IM.NAMESPACE+"VSET_ASD")))));
+		return qr;
+	}
 
 
 	public static QueryRequest rangeTextSearch(){

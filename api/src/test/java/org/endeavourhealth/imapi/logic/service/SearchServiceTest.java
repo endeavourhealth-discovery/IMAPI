@@ -62,6 +62,7 @@ class SearchServiceTest {
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
+		output(TestQueries.getMembers());
 
 		for (QueryRequest qr1 : List.of(
 			TestQueries.pathQueryAtenolol3(),
@@ -91,6 +92,8 @@ class SearchServiceTest {
 			TestQueries.query4(), TestQueries.query6())) {
 			output(qr1);
 		}
+
+
 	}
 
 

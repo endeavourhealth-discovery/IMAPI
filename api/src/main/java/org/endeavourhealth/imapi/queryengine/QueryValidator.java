@@ -86,13 +86,6 @@ public class QueryValidator {
 
 
 	private void validateMatch(Match match, String subject) throws QueryException {
-		if (match.getVariable()!=null){
-			if (mainEntity!=null) {
-				if (!match.getVariable().equals(mainEntity))
-					throw new QueryException("Match clauses must all have the same main root entity variable (or none). Cartesion product queries are not supported.");
-			}
-			mainEntity= match.getVariable();
-		}
 		if (match.getMatch()!=null){
 			for (Match subMatch:match.getMatch()){
 				if (subMatch.getVariable()==null)

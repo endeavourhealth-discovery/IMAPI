@@ -15,27 +15,27 @@ public class UserService {
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
     private UserRepository userRepository = new UserRepository();
 
-    public String getUserTheme(String user) {
-        return userRepository.getUserTheme(user);
+    public String getUserTheme(String userId) {
+        return userRepository.getUserTheme(userId);
     }
 
-    public void updateUserTheme(String user, String theme) throws JsonProcessingException {
-        userRepository.updateUserTheme(user, theme);
+    public void updateUserTheme(String userId, String theme) throws JsonProcessingException {
+        userRepository.updateUserTheme(userId, theme);
     }
 
-    public List<RecentActivityItemDto> getUserMRU(String user) throws JsonProcessingException {
-        return userRepository.getUserMRU(user);
+    public List<RecentActivityItemDto> getUserMRU(String userId) throws JsonProcessingException {
+        return userRepository.getUserMRU(userId);
     }
 
-    public void updateUserMRU(String user, List<RecentActivityItemDto> mru) throws JsonProcessingException {
-        userRepository.updateUserMRU(user, mru);
+    public void updateUserMRU(String userId, List<RecentActivityItemDto> mru) throws JsonProcessingException {
+        userRepository.updateUserMRU(userId, mru);
     }
 
-    public List<String> getUserFavourites(String user) throws JsonProcessingException {
-        return userRepository.getUserFavourites(user);
+    public List<String> getUserFavourites(String userId) throws JsonProcessingException {
+        return userRepository.getUserFavourites(userId);
     }
 
-    public void updateUserFavourites(String user, List<String> favourites) throws JsonProcessingException {
-        userRepository.updateUserFavourites(user, favourites);
+    public void updateUserFavourites(String userId, List<String> favourites) throws JsonProcessingException {
+        userRepository.updateUserFavourites(userId, favourites);
     }
 }

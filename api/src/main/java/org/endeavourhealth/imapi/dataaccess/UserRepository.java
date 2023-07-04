@@ -131,8 +131,14 @@ public class UserRepository {
     }
 
     public void updateUserMRU(String user, List<RecentActivityItemDto> mru) throws JsonProcessingException {
-        delete(user, USER.USER_MRU.getIri());
-        insert(user, USER.USER_MRU.getIri(), mru);
+        if (!mru.isEmpty() && mru.stream().allMatch(this::isValidRecentActivityItem)) {
+            delete(user, USER.USER_MRU.getIri());
+            insert(user, USER.USER_MRU.getIri(), mru);
+        } else throw new Error("One or more activity items are invalid");
+    }
+
+    private boolean isValidRecentActivityItem(RecentActivityItemDto item) {
+        return !item.getIri().isEmpty() && !item.getAction().isEmpty() && null != item.getDateTime();
     }
 
     public void updateUserFavourites(String user, List<String> favourites) throws JsonProcessingException {

@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 public class IMLToECL {
@@ -22,13 +23,7 @@ public class IMLToECL {
 	public static String getECLFromQuery(Query query, Boolean includeName) throws DataFormatException {
 		StringBuilder ecl = new StringBuilder();
 		if (query.getMatch()!=null) {
-			boolean first = true;
-			for (Match match : query.getMatch()) {
-				if (!first)
-					ecl.append(" AND ");
-				first = false;
-				fromWhere(match, ecl, includeName);
-			}
+			match(query, ecl, includeName);
 		}
 		return ecl.toString();
 	}
@@ -38,118 +33,91 @@ public class IMLToECL {
 	}
 
 
-	private static void fromWhere(Match matchWhere, StringBuilder ecl, Boolean includeName) throws DataFormatException {
-		if (null!= matchWhere) {
-			if (matchWhere.isExclude())
-				ecl.append(" MINUS (");
-			from(matchWhere, ecl, includeName, null != matchWhere.getWhere());
-			if (matchWhere.isExclude())
-				ecl.append(")");
-		}
-	}
-	private static void from(Match match, StringBuilder ecl, boolean includeName, boolean isRefined) throws DataFormatException {
+	private static void match(Match match, StringBuilder ecl, boolean includeName) throws DataFormatException {
+		if (match.isExclude())
+			ecl.append(" MINUS ");
+
 		if (null != match.getIri()) {
 			addClass(match, ecl, includeName);
-		} else if (null != match.getMatch()) {
-			boolean bracketFrom = isRefined;
-			if (bracketFrom)
+		}
+		else if (null != match.getMatch()) {
+			boolean bracket= needsBracket(match);
+			if (bracket)
 				ecl.append("(");
-
 			boolean first = true;
 			for (Match subMatch : match.getMatch()) {
-				fromAppendBracket(match, ecl, includeName, first, subMatch);
+				if (!first){
+					if (match.getBool()==Bool.or){
+						ecl.append(" OR ");
+					}
+					else
+						ecl.append(" AND ");
+				}
+				if (subMatch.getProperty()!=null)
+					ecl.append("(");
+				match(subMatch, ecl, includeName);
+				if (subMatch.getProperty()!=null)
+					ecl.append(")");
 				first = false;
 			}
-			if (bracketFrom) {
+			if (bracket)
 				ecl.append(")");
-			}
 		}
-		if (null != match.getWhere()) {
+		if (null != match.getProperty()) {
 			if (null == match.getIri() && null == match.getMatch())
 				ecl.append("*");
-			addFromRefinements(match, ecl, includeName);
+			addRefinements(match, ecl, includeName);
 		}
+
 	}
 
-	private static void fromAppendBracket(Match match, StringBuilder ecl, boolean includeName, boolean first, Match subMatch) throws DataFormatException {
-		if (subMatch.isExclude()) {
-			ecl.append(" MINUS ");
+	private static boolean needsBracket(Match match){
+		if (match.getMatch()!=null){
+			if (match.getProperty()!=null)
+				return true;
+			for (Match subMatch:match.getMatch()){
+				if (subMatch.isExclude())
+					return true;
+			}
 		}
-		else {
-			fromAppendBool(match, ecl, first);
-		}
-		boolean bracket = false;
-		if (null != subMatch.getWhere() && isList(match)) {
-			bracket = true;
-		}
-		if (null != subMatch.getMatch() && subMatch.getMatch().size() > 1) {
-			bracket = true;
-		}
-		if (subMatch.isExclude() && null != subMatch.getMatch() && subMatch.getMatch().size() > 1)
-			bracket = true;
-
-		if (bracket)
-			ecl.append("(");
-		from(subMatch, ecl, includeName, null != subMatch.getWhere());
-		if (bracket) {
-			ecl.append(")\n");
-		}
+		return false;
 	}
 
-	private static void fromAppendBool(Match match, StringBuilder ecl, boolean first) {
-		if (!first) {
-			if (match.getBoolMatch() == Bool.and) {
-				ecl.append(" AND ");
-			} else if (match.getBoolMatch() == Bool.or) {
-				ecl.append("  OR ");
-			} else
-				ecl.append(" OR ");
-		}
-	}
 
-	private static void addFromRefinements(Match match, StringBuilder ecl, boolean includeNames) throws DataFormatException {
+	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws DataFormatException {
 		ecl.append(": ");
 		boolean first = true;
-		if (match.getPath()!=null){
+		if (match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
 			ecl.append(" { ");
-		}
-		for (Where where : match.getWhere()) {
-			if (!first)
-				ecl.append(" , ");
-			first = false;
-			addRefinedGroup(where,ecl,includeNames);
-		}
-		if (match.getPath()!=null)
+			addRefinements(match.getProperty().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");
-	}
-
-
-
-	private static void addRefinedGroup(Where where,StringBuilder ecl,Boolean includeName) throws DataFormatException {
-		if (null == where.getWhere()) {
-			addRefined(where, ecl, includeName);
 		}
 		else {
-			if (where.getWhere().size() == 1) {
-				addRefinedGroup(where.getWhere().get(0), ecl, includeName);
-			}
-			else for (int i = 0; i < where.getWhere().size(); i++) {
-				addRefinedGroupAppendBool(where, ecl, includeName, i);
+			for (Property property : match.getProperty()) {
+				if (!first)
+					ecl.append(" , ");
+				first = false;
+				addRefinedGroup(property, ecl, includeNames);
 			}
 		}
 	}
 
-	private static void addRefinedGroupAppendBool(Where where, StringBuilder ecl, Boolean includeName, int i) throws DataFormatException {
-		if (i > 0) {
-			if (where.getBoolWhere() == Bool.or)
-				ecl.append(" OR ");
-			else if (where.getBoolWhere() == Bool.and)
-				ecl.append(" , ");
-			}
-		addRefinedGroup(where.getWhere().get(i), ecl, includeName);
+
+
+	private static void addRefinedGroup(Property property, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+		if (null == property.getMatch()) {
+			addRefined(property, ecl, includeName);
+		}
+		else {
+			addProperty(property, ecl, includeName);
+			ecl.append(" = (");
+			match(property.getMatch(), ecl, includeName);
+			ecl.append(")");
+		}
 	}
 
-	private static void addRefined(Where where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+
+	private static void addRefined(Property where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
 		try {
 			try {
 				Node value = where.getIn().get(0);
@@ -157,15 +125,15 @@ public class IMLToECL {
 				ecl.append(" = ");
 				addClass(value, ecl, includeName);
 			} catch (Exception e) {
-				throw new DataFormatException("Where clause must contain 'is' value");
+				throw new DataFormatException("Property clause must contain 'is' value");
 			}
 		} catch (Exception e) {
-			throw new DataFormatException("Where clause inside a role group clause must contain a property");
+			throw new DataFormatException("Property clause inside a role group clause must contain a property");
 		}
 	}
 
 
-	private static void addProperty(Property exp, StringBuilder ecl, boolean includeName) {
+	private static void addProperty(PropertyRef exp, StringBuilder ecl, boolean includeName) {
 		addConcept(ecl, includeName, getSubsumption(exp), exp.getIri(), exp.getName());
 	}
 

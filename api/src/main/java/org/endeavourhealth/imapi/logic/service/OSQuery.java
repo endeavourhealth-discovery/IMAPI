@@ -447,31 +447,34 @@ public class OSQuery {
 
     private boolean validateFroms(List<Match> matches) {
         for (Match match:matches) {
-            if (match.getWhere() != null)
-                for (Where where : match.getWhere()) {
-                    if (!validateWhere(where))
-                        return false;
-                }
-            if (match.getMatch() != null)
-                    if (!validateFroms(match.getMatch()))
-                        return false;
-            return true;
+            if (!validateMatch(match)){
+                return false;
+            }
         }
         return true;
     }
 
-    private boolean validateWhere(Where where){
-        if (where.getWhere()!=null && !propIsSupported(where.getIri())){
-            return false;
-        }
-        if (where.getWhere()!=null){
-            for (Where subWhere:where.getWhere())
-                if (!validateWhere(subWhere))
+    private boolean validateMatch(Match match){
+        if (match.getProperty() != null){
+            for (Property where : match.getProperty()) {
+                if (!validateWhere(where))
                     return false;
+            }
+        }
+        if (match.getMatch() != null){
+            return validateFroms(match.getMatch());
         }
         return true;
+    }
 
-
+    private boolean validateWhere(Property where){
+        if (!propIsSupported(where.getIri())){
+            return false;
+        }
+        if (where.getMatch()!=null){
+           return validateMatch(where.getMatch());
+        }
+        return true;
     }
     private ObjectNode convertOSResult(List<SearchResultSummary> searchResults, Query query) {
         try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -606,7 +609,7 @@ public class OSQuery {
                 request.addType(match.getType());
                 if (match.getMatch()!=null)
                     return false;
-            return match.getWhere() == null;
+            return match.getProperty() == null;
         }
         else if (match.isDescendantsOrSelfOf()) {
                 return processSubTypes(request, match, imRequest);
@@ -615,7 +618,7 @@ public class OSQuery {
                 throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (match.sourceType= type, or subtypes match.isIncludeSubtypes(true");
 
         else if (match.getMatch() != null) {
-            if (match.getBoolMatch()!=Bool.or){
+            if (match.getBool()!=Bool.or){
                 return false;
             }
             for (Match subMatch : match.getMatch()) {

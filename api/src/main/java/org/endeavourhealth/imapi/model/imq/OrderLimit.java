@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonPropertyOrder({"nodeVariable","id","count","direction"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class OrderLimit extends Property {
+public class OrderLimit extends PropertyRef {
 	private Order direction;
 	private int limit;
 	private String description;

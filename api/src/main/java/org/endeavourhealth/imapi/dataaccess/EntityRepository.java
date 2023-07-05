@@ -548,7 +548,7 @@ public class EntityRepository {
 
         String spql = new StringJoiner(System.lineSeparator())
                 .add("select ?s ?name {")
-                .add("  ?s rdf:type rdf:Property ;")
+                .add("  ?s rdf:type rdf:PropertyRef ;")
                 .add("  rdfs:label ?name .")
                 .add("}")
                 .toString();

@@ -17,7 +17,7 @@ public class EqdAuditToIMQ {
 		Match match = new Match();
 		query.addMatch(match);
 		match.setVariable("population");
-		match.setBoolMatch(Bool.or);
+		match.setBool(Bool.or);
 		for (String popId : eqReport.getAuditReport().getPopulation()) {
 			match
 				.match(f -> f
@@ -27,7 +27,7 @@ public class EqdAuditToIMQ {
 		Return aReturn = new Return();
 		query.addReturn(aReturn);
 		aReturn.setNodeRef("population");
-		query.addGroupBy(new Property().setVariable("population"));
+		query.addGroupBy(new PropertyRef().setVariable("population"));
 		EQDOCAggregateReport agg = eqReport.getAuditReport().getCustomAggregate();
 		String eqTable = agg.getLogicalTable();
 		String table = resources.getPath(eqTable);
@@ -46,7 +46,7 @@ public class EqdAuditToIMQ {
 					}
 					else{
 						path.setPropertyRef(pathMap[i]);
-						query.addGroupBy(new Property().setVariable(pathMap[i]));
+						query.addGroupBy(new PropertyRef().setVariable(pathMap[i]));
 					}
 				}
 

@@ -74,20 +74,21 @@ public class ExcelSetExporterTest {
 
         definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
             .match(w->w
-              .setBoolMatch(Bool.or)
+              .setBool(Bool.or)
                 .match(f->f
                 .setIri("http://snomed.info/sct#39330711000001103").setName("COVID-19 vaccine (product)").setDescendantsOrSelfOf(true)))
                 .match(f->f
                     .setIri("http://snomed.info/sct#10363601000001109").setName("UK product (product)").setDescendantsOrSelfOf(true)
-                  .where(p->p
+                  .property(p->p
                     .setIri(IM.ROLE_GROUP.getIri())
-                    .where(p1->p1
+                    .match(m1->m1
+                    .property(p1->p1
                       .setIri("http://snomed.info/sct#10362601000001103")
                       .setName("Has VMP (attribute)")
                       .setDescendantsOrSelfOf(true)
                     .addIn(new Node().setIri("http://snomed.info/sct#39330711000001103")
                       .setName("COVID-19 vaccine (product)")
-                      .setDescendantsOrSelfOf(true)))))));
+                      .setDescendantsOrSelfOf(true))))))));
         return definition;
     }
 

@@ -5,9 +5,9 @@ public interface Assignable {
 
 	public Assignable setOperator(Operator operator);
 
-	public Property getRelativeTo();
+	public PropertyRef getRelativeTo();
 
-	public Assignable setRelativeTo(Property relativeTo);
+	public Assignable setRelativeTo(PropertyRef relativeTo);
 
 
 	public String getValue();

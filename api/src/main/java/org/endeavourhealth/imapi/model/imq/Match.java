@@ -11,28 +11,31 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"exclude","nodeRef","boolMatch","boolWhere","boolPath","description","graph","iri","set","type","name","path","descendantsOrSelfOf","descendantsOf",
 	"ancestorsOf","description","match","where"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends Node implements Whereable{
-	private Bool boolMatch;
-	private Bool boolWhere;
-	private Bool boolPath;
+public class Match extends Node{
+	private Bool bool;
 	private List<Match> match;
+	private List<Node> in;
 	private boolean exclude;
 	private Element graph;
-	private List<Where> where;
+	private List<Property> property;
 	private String description;
 	private List<OrderLimit> orderBy;
 	private String nodeRef;
-	private List<Path> path;
-	private List<Node> in;
+
 
 	public List<Node> getIn() {
 		return in;
 	}
 
+	@JsonSetter
 	public Match setIn(List<Node> in) {
 		this.in = in;
 		return this;
 	}
+
+
+
+
 	public Match addIn(Node in){
 		if (this.in==null)
 			this.in= new ArrayList<>();
@@ -56,23 +59,6 @@ public class Match extends Node implements Whereable{
 		return this;
 	}
 
-	public Bool getBoolWhere() {
-		return boolWhere;
-	}
-
-	public Match setBoolWhere(Bool boolWhere) {
-		this.boolWhere = boolWhere;
-		return this;
-	}
-
-	public Bool getBoolPath() {
-		return boolPath;
-	}
-
-	public Match setBoolPath(Bool boolPath) {
-		this.boolPath = boolPath;
-		return this;
-	}
 
 	public List<OrderLimit> getOrderBy() {
 		return orderBy;
@@ -111,30 +97,6 @@ public class Match extends Node implements Whereable{
 
 
 
-	public Match setPath(List<Path> path){
-		this.path=path;
-		return this;
-	}
-
-	public List<Path> getPath(){
-		return this.path;
-	}
-
-	public Match addPath(Path path) {
-
-		if (this.path==null)
-			this.path= new ArrayList<>();
-		this.path.add(path);
-		return this;
-	}
-
-	public Match path(Consumer<Path> builder){
-		Path path= new Path();
-		addPath(path);
-		builder.accept(path);
-		return this;
-	}
-
 	public boolean isExclude() {
 		return exclude;
 	}
@@ -144,12 +106,12 @@ public class Match extends Node implements Whereable{
 		return this;
 	}
 
-	public Bool getBoolMatch() {
-		return boolMatch;
+	public Bool getBool() {
+		return bool;
 	}
 
-	public Match setBoolMatch(Bool boolMatch) {
-		this.boolMatch = boolMatch;
+	public Match setBool(Bool bool) {
+		this.bool = bool;
 		return this;
 	}
 
@@ -237,27 +199,27 @@ public class Match extends Node implements Whereable{
 		return description;
 	}
 
-	public List<Where> getWhere() {
-		return where;
+	public List<Property> getProperty() {
+		return property;
 	}
 
  @JsonSetter
-	public Match setWhere(List<Where> where) {
-		this.where = where;
+	public Match setProperty(List<Property> property) {
+		this.property = property;
 		return this;
 	}
 
-	public Match addWhere(Where where){
-		if (this.where==null)
-			this.where= new ArrayList<>();
-		this.where.add(where);
+	public Match addProperty(Property prop){
+		if (this.property ==null)
+			this.property = new ArrayList<>();
+		this.property.add(prop);
 		return this;
 	}
 
-	public Match where(Consumer<Where> builder){
-		Where where= new Where();
-		addWhere(where);
-		builder.accept(where);
+	public Match property(Consumer<Property> builder){
+		Property prop= new Property();
+		addProperty(prop);
+		builder.accept(prop);
 		return this;
 	}
 

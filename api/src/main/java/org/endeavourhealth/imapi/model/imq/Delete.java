@@ -2,17 +2,14 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 @JsonPropertyOrder({"id","iri","@id","alias","case","aggregate",
 	"where","orderBy","direction","limit","groupBy","having","select"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Delete{
-	private Where where;
+	private Property where;
 	private Element subject;
 	private boolean inverse;
 	private Element predicate;
@@ -20,11 +17,11 @@ public class Delete{
 	private List<Delete> delete;
 
 
-	public Where getWhere() {
+	public Property getWhere() {
 		return where;
 	}
 
-	public Delete setWhere(Where where) {
+	public Delete setWhere(Property where) {
 		this.where = where;
 		return this;
 	}

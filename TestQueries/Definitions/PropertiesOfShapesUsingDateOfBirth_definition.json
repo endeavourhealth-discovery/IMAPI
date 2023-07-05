@@ -13,21 +13,22 @@
     "description" : "all of the data model properties for entities that have a property df a data of birth",
     "match" : [ {
       "@type" : "sh:NodeShape",
-      "path" : [ {
-        "@id" : "sh:property"
-      } ],
-      "where" : [ {
-        "@id" : "sh:path",
-        "in" : [ {
-          "@id" : "im:dateOfBirth"
+      "match" : [ {
+        "property" : [ {
+          "@id" : "sh:path",
+          "in" : [ {
+            "@id" : "im:dateOfBirth"
+          } ]
         } ]
+      } ],
+      "property" : [ {
+        "@id" : "sh:property"
       } ]
     }, {
-      "path" : [ {
+      "property" : [ {
         "@id" : "sh:property"
       } ]
     } ],
-    "usePrefixes" : true,
     "return" : [ {
       "property" : [ {
         "node" : {

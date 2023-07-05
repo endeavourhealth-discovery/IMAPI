@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.imq.Argument;
-import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Property;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 
@@ -104,7 +105,7 @@ public class Transformer {
 		if (targetObject == null)
 			throw new DataFormatException("Data map or value map has not created or retrieved a target entity to populate ");
 
-		Where where = rule.getWhere();
+		Match where = rule.getWhere();
 		if (where != null && !where(where, sourceObject))
 			return;
 
@@ -177,7 +178,7 @@ public class Transformer {
 		} else if (rule.getValueVariable() != null) {
 			targetTranslator.setPropertyValue(rule, targetObject, rule.getTarget(), varToObject.get(rule.getValueVariable()));
 		} else
-			throw new DataFormatException("Where map has a target property of " + rule.getTarget() + " but no source property and no object map for the target property.");
+			throw new DataFormatException("Property map has a target property of " + rule.getTarget() + " but no source property and no object map for the target property.");
 	}
 
 
@@ -218,7 +219,7 @@ public class Transformer {
 			return result;
 		}
 
-	/*private Object query(Object sourceEntity, String path,Where where) throws DataFormatException, JsonProcessingException {
+	/*private Object query(Object sourceEntity, String path,Property where) throws DataFormatException, JsonProcessingException {
 		if (where.getWhere() != null) { // should this be == null? (see else)
 			if (where(where, sourceEntity))
 				return sourceTranslator.getPropertyValue(sourceEntity,path);
@@ -226,19 +227,23 @@ public class Transformer {
 				return null;
 		}
 		else if (where.getWhere()!=null){
-			for (Where and:where.getWhere()){
+			for (Property and:where.getWhere()){
 				if (!where(and,sourceEntity))
 					return null;
 			}
 			return sourceTranslator.getPropertyValue(sourceEntity,path);
 		}
 		else
-			throw new DataFormatException("Where clause for rule on path : "+path+" has clause format not yet supported");
+			throw new DataFormatException("Property clause for rule on path : "+path+" has clause format not yet supported");
 	}*/
 
-	private boolean where (Where where,Object sourceNode) throws DataFormatException, JsonProcessingException {
-		Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, where.getId());
-		return where.getValue() != null && where.getValue().equals(sourceValue);
+	private boolean where (Match where, Object sourceNode) throws DataFormatException, JsonProcessingException {
+		for (Property property:where.getProperty()){
+			Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getId());
+		  if (property.getValue() != null && property.getValue().equals(sourceValue))
+				return true;
+		}
+		return false;
 	}
 
 	public Object getListItems(List source, ListMode listMode){

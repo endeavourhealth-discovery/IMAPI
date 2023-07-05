@@ -48,7 +48,7 @@ public class EqdPopToIMQ {
 				if (lastOr==null){
 					lastOr= new Match();
 					query.addMatch(lastOr);
-					lastOr.setBoolMatch(Bool.or);
+					lastOr.setBool(Bool.or);
 				}
 				Match orGroup= new Match();
 				lastOr.addMatch(orGroup);
@@ -86,7 +86,7 @@ public class EqdPopToIMQ {
 	private void convertGroup(EQDOCCriteriaGroup eqGroup, Match groupMatch) throws DataFormatException, IOException, QueryException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (memberOp == VocMemberOperator.AND) {
-			groupMatch.setBoolMatch(Bool.and);
+			groupMatch.setBool(Bool.and);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
 					Match match = new Match();
 					groupMatch.addMatch(match);
@@ -94,7 +94,7 @@ public class EqdPopToIMQ {
 				}
 			}
 			else {
-				groupMatch.setBoolMatch(Bool.or);
+				groupMatch.setBool(Bool.or);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
 					Match match = new Match();
 					groupMatch.addMatch(match);

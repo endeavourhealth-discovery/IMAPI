@@ -2,16 +2,16 @@
   "match" : [ {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#allergyIntoleranceAndAdverseReaction",
       "name" : "allergy, intolerance or adverse reaction",
       "match" : {
         "@type" : "http://endhealth.info/im#AllergyIntoleranceAndAdverseReaction",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#246075003",
               "name" : "Causative agent (attribute)",
               "in" : [ {
@@ -27,16 +27,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#condition",
       "name" : "condition",
       "match" : {
         "@type" : "http://endhealth.info/im#Condition",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#246075003",
               "name" : "Causative agent (attribute)",
               "in" : [ {
@@ -52,16 +52,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#medicationAuthorisation",
       "name" : "medication authorisation",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#10362801000001104",
               "name" : "Has specific active ingredient (attribute)",
               "in" : [ {
@@ -77,16 +77,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#medicationAuthorisation",
       "name" : "medication authorisation",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#127489000",
               "name" : "Has active ingredient (attribute)",
               "in" : [ {
@@ -102,16 +102,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#medicationAuthorisation",
       "name" : "medication authorisation",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#732943007",
               "name" : "Has basis of strength substance (attribute)",
               "in" : [ {
@@ -127,16 +127,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#medicationAuthorisation",
       "name" : "medication authorisation",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#762949000",
               "name" : "Has precise active ingredient (attribute)",
               "in" : [ {
@@ -152,16 +152,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#10362801000001104",
               "name" : "Has specific active ingredient (attribute)",
               "in" : [ {
@@ -177,16 +177,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#127489000",
               "name" : "Has active ingredient (attribute)",
               "in" : [ {
@@ -202,16 +202,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#732943007",
               "name" : "Has basis of strength substance (attribute)",
               "in" : [ {
@@ -227,16 +227,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#762949000",
               "name" : "Has precise active ingredient (attribute)",
               "in" : [ {
@@ -252,16 +252,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#observation",
       "name" : "observation",
       "match" : {
         "@type" : "http://endhealth.info/im#Observation",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#246075003",
               "name" : "Causative agent (attribute)",
               "in" : [ {
@@ -277,16 +277,16 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#procedure",
       "name" : "procedure ",
       "match" : {
         "@type" : "http://endhealth.info/im#Procedure",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#concept",
           "name" : "concept",
           "match" : {
-            "where" : [ {
+            "property" : [ {
               "@id" : "http://snomed.info/sct#246093002",
               "name" : "Component (attribute)",
               "in" : [ {
@@ -302,21 +302,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#condition",
       "name" : "condition",
       "match" : {
         "@type" : "http://endhealth.info/im#Condition",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#parent",
           "name" : "parent",
           "match" : {
             "@type" : "http://endhealth.info/im#Condition",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#246075003",
                   "name" : "Causative agent (attribute)",
                   "in" : [ {
@@ -334,21 +334,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#condition",
       "name" : "condition",
       "match" : {
         "@type" : "http://endhealth.info/im#Condition",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#parent",
           "name" : "parent",
           "match" : {
             "@type" : "http://endhealth.info/im#Condition",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#246075003",
                   "name" : "Causative agent (attribute)",
                   "in" : [ {
@@ -366,21 +366,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#procedure",
       "name" : "procedure ",
       "match" : {
         "@type" : "http://endhealth.info/im#Procedure",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#linkedProblems",
           "name" : "linked problems",
           "match" : {
             "@type" : "http://endhealth.info/im#Condition",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#246075003",
                   "name" : "Causative agent (attribute)",
                   "in" : [ {
@@ -398,21 +398,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#procedure",
       "name" : "procedure ",
       "match" : {
         "@type" : "http://endhealth.info/im#Procedure",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#linkedProblems",
           "name" : "linked problems",
           "match" : {
             "@type" : "http://endhealth.info/im#Condition",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#246075003",
                   "name" : "Causative agent (attribute)",
                   "in" : [ {
@@ -430,21 +430,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#10362801000001104",
                   "name" : "Has specific active ingredient (attribute)",
                   "in" : [ {
@@ -462,21 +462,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#10362801000001104",
                   "name" : "Has specific active ingredient (attribute)",
                   "in" : [ {
@@ -494,21 +494,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#127489000",
                   "name" : "Has active ingredient (attribute)",
                   "in" : [ {
@@ -526,21 +526,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#127489000",
                   "name" : "Has active ingredient (attribute)",
                   "in" : [ {
@@ -558,21 +558,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#732943007",
                   "name" : "Has basis of strength substance (attribute)",
                   "in" : [ {
@@ -590,21 +590,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#732943007",
                   "name" : "Has basis of strength substance (attribute)",
                   "in" : [ {
@@ -622,21 +622,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#762949000",
                   "name" : "Has precise active ingredient (attribute)",
                   "in" : [ {
@@ -654,21 +654,21 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#prescription",
       "name" : "medication request / prescription",
       "match" : {
         "@type" : "http://endhealth.info/im#MedicationRequest",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#authorisation",
           "name" : "authorisation",
           "match" : {
             "@type" : "http://endhealth.info/im#MedicationAuthorisation",
-            "path" : [ {
+            "property" : [ {
               "@id" : "http://endhealth.info/im#concept",
               "name" : "concept",
               "match" : {
-                "where" : [ {
+                "property" : [ {
                   "@id" : "http://snomed.info/sct#762949000",
                   "name" : "Has precise active ingredient (attribute)",
                   "in" : [ {

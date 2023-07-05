@@ -133,23 +133,37 @@ public class EqdResources {
 		String pathMap = getPath(eqKey);
 		if (!pathMap.equals("")) {
 			String[] elements =pathMap.split(" ");
-			Path path = new Path();
-			match.addPath(path);
+			Property path = new Property();
+			match.addProperty(path);
 			path.setIri(elements[0]);
 			path.setMatch(new Match().setType(elements[1]));
 		}
 	}
 
-	private void setPaths(Match node, String pathMap) throws QueryException {
+	private Match getPaths(Match node, String pathMap) throws QueryException {
 		String[] paths= pathMap.split(" ");
-			for (int i=0; i<paths.length-2; i=i+2){
-					Path path= new Path();
-					node.addPath(path);
+			for (int i=0; i<paths.length-2; i=i+2) {
+				Match subMatch = getPathMatch(node, paths[i]);
+				if (subMatch == null) {
+					Property path = new Property();
+					node.addProperty(path);
 					path.setIri(paths[i]);
-					node= new Match();
-					path.setMatch(node);
-					node.setType(paths[i+1]);
+					subMatch = new Match();
+					path.setMatch(subMatch);
+					subMatch.setType(paths[i + 1]);
+					node = subMatch;
 				}
+			}
+			return node;
+	}
+	private Match getPathMatch(Match match, String property){
+		if (match.getProperty()==null)
+			return null;
+		for (Property prop:match.getProperty()) {
+			if (prop.getIri().equals(property))
+				return prop.getMatch();
+		}
+		return null;
 	}
 
 	private void convertStandardCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
@@ -167,39 +181,30 @@ public class EqdResources {
 		EQDOCFilterAttribute filterAttribute = eqCriterion.getFilterAttribute();
 		List<EQDOCColumnValue> cvs= filterAttribute.getColumnValue();
 		if (cvs.size()==1){
-			Where columnWhere= new Where();
-			match.addWhere(columnWhere);
 			EQDOCColumnValue cv= cvs.get(0);
-			setColumnWhere(cv,eqCriterion.getTable(),match,columnWhere);
+			setColumnWhere(cv,eqCriterion.getTable(),match);
 		}
 		else {
-			match.setBoolWhere(Bool.and);
+			match.setBool(Bool.and);
 			for (EQDOCColumnValue cv : filterAttribute.getColumnValue()) {
-				Where columnWhere= new Where();
-				match.addWhere(columnWhere);
-				setColumnWhere(cv,eqCriterion.getTable(),match,columnWhere);
+				setColumnWhere(cv,eqCriterion.getTable(),match);
 			}
 		}
 
 	}
 
-	private void setColumnWhere(EQDOCColumnValue cv, String eqTable,Match match,Where where) throws DataFormatException, IOException, QueryException {
+	private void setColumnWhere(EQDOCColumnValue cv, String eqTable, Match match) throws DataFormatException, IOException, QueryException {
 		String eqColumn= String.join("/",cv.getColumn());
 		String pathMap= getPath(eqTable+"/"+ eqColumn);
-		if (pathMap.contains(" ")) {
-			if (match.getPath()!=null) {
-				Match node = getLastNode(match.getPath().get(0));
-				setPaths(node,pathMap);
-			}
-			else
-				setPaths(match,pathMap);
-		}
-		where.setIri(pathMap.substring(pathMap.lastIndexOf(" ")+1));;
-		setWhere(cv,where);
+		match= getPaths(match,pathMap);
+		Property property= new Property();
+		match.addProperty(property);
+		property.setIri(pathMap.substring(pathMap.lastIndexOf(" ")+1));;
+		setWhere(cv,property);
 	}
 
 
-	private void setWhere(EQDOCColumnValue cv, Where pv) throws DataFormatException, IOException {
+	private void setWhere(EQDOCColumnValue cv, Property pv) throws DataFormatException, IOException {
 
 		VocColumnValueInNotIn in = cv.getInNotIn();
 		boolean notIn = (in == VocColumnValueInNotIn.NOTIN);
@@ -236,7 +241,7 @@ public class EqdResources {
 		}
 	}
 
-	private void setWhereValueSetSetters(EQDOCColumnValue cv, Where pv, boolean notIn) throws DataFormatException, IOException {
+	private void setWhereValueSetSetters(EQDOCColumnValue cv, Property pv, boolean notIn) throws DataFormatException, IOException {
 		for (EQDOCValueSet vs : cv.getValueSet()) {
 			if (vs.getId()!=null)
 				if (labels.get(vs.getId())!=null) {
@@ -267,7 +272,7 @@ public class EqdResources {
 	private void convertRestrictionCriterion(EQDOCCriterion eqCriterion, Match match) throws DataFormatException, IOException, QueryException {
 		Match restricted=match;
 		if (eqCriterion.getFilterAttribute().getRestriction().getTestAttribute()!=null) {
-			match.setBoolMatch(Bool.and);
+			match.setBool(Bool.and);
 			restricted = new Match();
 			match.addMatch(restricted);
 		}
@@ -288,13 +293,13 @@ public class EqdResources {
 	}
 
 
-	private Match getLastNode(Path path) throws DataFormatException {
+	private Match getLastNode(Property path) throws DataFormatException {
 		if (path.getMatch()!=null) {
-			if (path.getMatch().getPath() == null) {
+			if (path.getMatch().getProperty() == null) {
 				return path.getMatch();
 			}
 			else
-				return getLastNode(path.getMatch().getPath().get(0));
+				return getLastNode(path.getMatch().getProperty().get(0));
 		}
 		throw new DataFormatException("Match path appears ccorrupted");
 	}
@@ -303,12 +308,9 @@ public class EqdResources {
 	private void restrictionTest(EQDOCCriterion eqCriterion, Match testMatch,String nodeVariable) throws IOException, DataFormatException, QueryException {
 		EQDOCTestAttribute testAtt= eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
 		if (testAtt != null) {
-			testMatch.setBoolWhere(Bool.and);
+			testMatch.setBool(Bool.and);
 				for (EQDOCColumnValue cv : testAtt.getColumnValue()) {
-					Where columnWhere= new Where();
-					testMatch.addWhere(columnWhere);
-				//	columnWhere.setNodeRef(nodeVariable);
-					setColumnWhere(cv,eqCriterion.getTable(),testMatch,columnWhere);
+					setColumnWhere(cv,eqCriterion.getTable(),testMatch);
 				}
 			}
 
@@ -327,7 +329,7 @@ public class EqdResources {
 			.getColumnOrder().getColumns().get(0).getColumn().get(0);
 		String orderBy= getPath(eqCriterion.getTable()+"/"+linkColumn);
 		counter++;
-		String linkElement= getLastNode(restricted.getPath().get(0)).getVariable();
+		String linkElement= getLastNode(restricted.getProperty().get(0)).getVariable();
 		restricted.orderBy(o->o.setIri(orderBy).setLimit(1).setDirection(direction));
 		return linkElement;
 	}
@@ -346,8 +348,8 @@ public class EqdResources {
 				EQDOCLinkedCriterion eqLinked= eqCriterion.getLinkedCriterion();
 				EQDOCCriterion eqLinkedCriterion= eqLinked.getCriterion();
 				convertCriterion(eqLinkedCriterion,linkMatch);
-				Where relationWhere = new Where();
-				linkMatch.addWhere(relationWhere);
+				Property relationWhere = new Property();
+				linkMatch.addProperty(relationWhere);
 				EQDOCRelationship eqRel = eqLinked.getRelationship();
 				String parent=getPath(eqCriterion.getTable()+"/"+ eqRel.getParentColumn());
 				String child=getPath(eqLinkedCriterion.getTable()+"/"+ eqRel.getChildColumn());
@@ -360,7 +362,7 @@ public class EqdResources {
 
 			}
 
-			private void setRangeValue(EQDOCRangeValue rv, Where pv) throws DataFormatException {
+			private void setRangeValue(EQDOCRangeValue rv, Property pv) throws DataFormatException {
 
 				EQDOCRangeFrom rFrom = rv.getRangeFrom();
 				EQDOCRangeTo rTo = rv.getRangeTo();
@@ -397,7 +399,7 @@ public class EqdResources {
 			private void setCompare(Assignable pv, Operator comp, String value, String units, VocRelation relation,
 			boolean from) throws DataFormatException {
 				if (relation == VocRelation.RELATIVE) {
-					pv.setRelativeTo(new Property().setParameter("$referenceDate"));
+					pv.setRelativeTo(new PropertyRef().setParameter("$referenceDate"));
 					if (from) {
 						comp = reverseComp(comp);
 						value = String.valueOf(-Integer.parseInt(value));
@@ -443,7 +445,7 @@ public class EqdResources {
 			}
 
 
-			private void setRangeCompare(Where pv, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
+			private void setRangeCompare(Property pv, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo) throws DataFormatException {
 				String fromComp;
 				Range range= new Range();
 				pv.setRange(range);
@@ -474,7 +476,7 @@ public class EqdResources {
 
 
 
-			private List<Node> getInlineValues(EQDOCValueSet vs, Where pv) throws DataFormatException, IOException {
+			private List<Node> getInlineValues(EQDOCValueSet vs, Property pv) throws DataFormatException, IOException {
 				List<Node> setContent = new ArrayList<>();
 				VocCodeSystemEx scheme = vs.getCodeSystem();
 				for (EQDOCValueSetValue ev : vs.getValues()) {

@@ -17,24 +17,25 @@ public class EqdPopToIMQ {
 	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
-		Match rootMatch = new Match();
-		query.addMatch(rootMatch);
+
+		query.setType(IM.NAMESPACE+"Patient");
+
 
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
+			Match rootMatch = new Match();
+			query.addMatch(rootMatch);
 				rootMatch
 				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+			Match rootMatch = new Match();
+			query.addMatch(rootMatch);
+				query.addMatch(rootMatch);
 				rootMatch
 					.setSet("urn:uuid:" + id)
 					.setName(resources.reportNames.get(id));
-			}
-			else {
-				rootMatch
-				.setType("Patient")
-				.setName("Patient");
 			}
 
 

@@ -14,11 +14,11 @@
   } ],
   "query" : {
     "name" : "All subtypes of an entity, active only",
+    "activeOnly" : true,
     "match" : [ {
       "descendantsOrSelfOf" : true,
       "parameter" : "this"
     } ],
-    "activeOnly" : true,
     "return" : [ {
       "property" : [ {
         "@id" : "rdfs:label"

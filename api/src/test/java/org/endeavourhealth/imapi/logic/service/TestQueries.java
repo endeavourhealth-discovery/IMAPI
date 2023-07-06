@@ -16,32 +16,38 @@ public class TestQueries {
 
 
 	public static QueryRequest dataModelPropertyRange() throws JsonProcessingException {
-		String json="{\n" +
-			"\"name\":\"Data model property range\",\n" +
-			"\"description\":\"get node, class or datatype value (range)  of property objects for specific data model and property\",\n" +
-			"\"match\":[{\n" +
-			"    \"parameter\":\"myDataModel\",\n" +
-			"    \"path\":[{\"@id\":\"http://www.w3.org/ns/shacl#property\",\n" +
-			"    \"match\":{\"variable\":\"shaclProperty\",\n" +
-			"    \"where\":[\n" +
-			"        {\n" +
-			"        \"@id\":\"http://www.w3.org/ns/shacl#path\",\n" +
-			"        \"in\":[{\"parameter\":\"myProperty\"}]\n" +
-			"        },\n" +
-			"        {\n" +
-			"            \"boolWhere\":\"or\",\n" +
-			"            \"where\":[\n" +
-			"                {\"@id\":\"http://www.w3.org/ns/shacl#class\"},\n" +
-			"                {\"@id\":\"http://www.w3.org/ns/shacl#node\"},\n" +
-			"                {\"@id\":\"http://www.w3.org/ns/shacl#datatype\"}\n" +
-			"                ],\n" +
-			"            \"variable\":\"propType\"\n" +
-			"        }]}}\n" +
-			"    ]\n" +
-			"    }],\n" +
-			"    \"return\":[{\"nodeRef\":\"propType\",\"property\":[{\"@id\":\"http://www.w3.org/2000/01/rdf-schema#label\"}]}]\n" +
-			"}";
-		Query query= new ObjectMapper().readValue(json,Query.class);
+		Query query= new Query()
+			.setName("Data model property range")
+			.setDescription("get node, class or datatype value (range)  of property objects for specific data model and property")
+			.match(m->m
+				.setParameter("myDataModel")
+				.property(p->p
+					.setIri("http://www.w3.org/ns/shacl#property")
+						.match(m1->m1
+							.setVariable("shaclProperty")
+							.setBool(Bool.and)
+								.property(p2->p2
+										.setIri(SHACL.PATH.getIri())
+										.in(in->in
+											.setParameter("myProperty")))
+							  .property(p2->p2
+									.setBool(Bool.or)
+									   .property(p3->p3
+												 .setIri(SHACL.CLASS.getIri())
+												 .match(m3->m3
+													 .setVariable("propType")))
+										 .property(p3->p3
+												 .setIri(SHACL.NODE.getIri())
+												 .match(m3->m3
+													 .setVariable("propType")))
+										.property(p3->p3
+											.setIri(SHACL.DATATYPE.getIri())
+												.match(m3->m3
+													.setVariable("propType")))))))
+			.return_(r->r
+					.setNodeRef("propType")
+					.property(p->p
+							.setIri(RDFS.LABEL.getIri())));
 		return new QueryRequest()
 			.setQuery(query)
 			.argument(a->a
@@ -63,25 +69,23 @@ public class TestQueries {
 				.setName("Suggested range for a property")
 				.setDescription("get node, class or datatype values (ranges)  of property objects that have 4this as their path")
 				.match(m->m
-					.setBoolMatch(Bool.or)
-					.match(m1->m1
-						.path(p->p
+					.property(w->w
+						.setIri(SHACL.PATH.getIri())
+						.addIn(new Node().setParameter("this")))
+					.property(w->w
+					.setBool(Bool.or)
+						.property(p->p
 							.setIri(SHACL.NODE.getIri())
 						.match(n->n
-							.setVariable("range"))))
-					.match(m1->m1
-						.path(p->p
+							.setVariable("range")))
+						.property(p->p
 							.setIri(SHACL.CLASS.getIri())
 						.match(n->n
-							.setVariable("range"))))
-					.match(m1->m1
-						.path(p->p
+							.setVariable("range")))
+						.property(p->p
 							.setIri(SHACL.DATATYPE.getIri())
-						.match(n->n
-							.setVariable("range"))))
-					.where(w->w
-						.setIri(SHACL.PATH.getIri())
-						.addIn(new Node().setParameter("this"))))
+							.match(n->n
+								.setVariable("range")))))
 				.return_(s->s.setNodeRef("range")
 					.property(p->p.setIri(RDFS.LABEL.getIri()))));
 	}
@@ -95,12 +99,13 @@ public class TestQueries {
 				.setDescription("Select the predicates and values and labels of the values for a given data mode and property")
 				.match(m->m
 					.setParameter("$dataModel")
-					.path(p->p
+					.property(p->p
 						.setIri(SHACL.PROPERTY.getIri())
-						.match(n->n.setVariable("shaclProperty")))
-					.where(w->w
-						.setIri(SHACL.PATH.getIri())
-						.in(in->in.setParameter("$property"))))
+						.match(n->n
+							.setVariable("shaclProperty")
+							.property(w->w
+								.setIri(SHACL.PATH.getIri())
+								.in(in->in.setParameter("$property"))))))
 				.return_(s->s
 					.setNodeRef("shaclProperty")
 					.property(p->p
@@ -174,13 +179,15 @@ public class TestQueries {
 			.query(q->q
 				.setName("Filter concept subtypes that are members of value sets")
 				.match(m->m
-					.in(n->n
-						.setIri(SNOMED.NAMESPACE+"57148006")
-						.setDescendantsOrSelfOf(true))
-				.in(n->n
-					.setIri(SNOMED.NAMESPACE+"11164009")
-					.setDescendantsOrSelfOf(true))
-					.where(w->w
+					.match(m2->m2
+						.setBool(Bool.or)
+						.match(m1->m1
+							.setIri(SNOMED.NAMESPACE+"57148006")
+							.setDescendantsOrSelfOf(true))
+						.match(m1->m1
+						.setIri(SNOMED.NAMESPACE+"11164009")
+						.setDescendantsOrSelfOf(true)))
+					.property(w->w
 						.setIri(IM.HAS_MEMBER.getIri())
 						.setInverse(true)
 						.in(n->n
@@ -283,11 +290,10 @@ public class TestQueries {
 
 	public static QueryRequest query1() {
 		Query query = new Query()
-			.setName("FamilyHistoryExpansionObjectFormat")
-			.setUsePrefixes(true);
+			.setName("FamilyHistoryExpansionObjectFormat");
 		query
 			.match(f->f
-			.where(w->w
+			.property(w->w
 				.setIri(IM.HAS_MEMBER.getIri())
 				.setInverse(true)
 				.addIn(new Match().setIri(IM.NAMESPACE+"VSET_FamilyHistory"))))
@@ -311,18 +317,18 @@ public class TestQueries {
 
 		Query query= new Query()
 			.setName("PropertiesOfShapesUsingDateOfBirth")
-			.setDescription("all of the data model properties for entities that have a property df a data of birth")
-			.setUsePrefixes(true);
+			.setDescription("all of the data model properties for entities that have a property df a data of birth");
 		query
 			.match(f->f
 				.setType(SHACL.NODESHAPE.getIri())
-			.path(p->p
+			.property(p->p
 				.setIri(SHACL.PROPERTY.getIri()))
-				.where(w1->w1
+				.match(w1->w1
+					.property(p->p
 					.setIri(SHACL.PATH.getIri())
-					.addIn(IM.NAMESPACE+"dateOfBirth")))
+					.addIn(IM.NAMESPACE+"dateOfBirth"))))
 			.match(m->m
-				.path(p->p
+				.property(p->p
 					.setIri(SHACL.PROPERTY.getIri())))
 			.return_(s->s
 				.property(p->p
@@ -363,7 +369,6 @@ public class TestQueries {
 		Query query= new Query()
 			.setName("AsthmaSubTypesCore");
 		query
-			.setUsePrefixes(true)
 			.match(f ->f
 				.setIri(SNOMED.NAMESPACE+"195967001").setDescendantsOrSelfOf(true))
 			.return_(s->s
@@ -423,13 +428,12 @@ public class TestQueries {
 		Query query= new Query()
 				.setName("AllowablePropertiesForCovidStarting with causative")
 				.setDescription("'using property domains get the allowable properties match the supertypes of this concept")
-				.setActiveOnly(true)
-				.setUsePrefixes(true);
+				.setActiveOnly(true);
 			query
 				.match(f ->f
 					.setType(IM.CONCEPT.getIri())
 					.setDescendantsOrSelfOf(true)
-					.where(w1-> w1
+					.property(w1-> w1
 						.setIri(RDFS.DOMAIN.getIri())
 						.addIn(new Match().setIri(SNOMED.NAMESPACE+"674814021000119106").setAncestorsOf(true))
 					))
@@ -442,46 +446,49 @@ public class TestQueries {
 
 	public static QueryRequest query6() {
 		Query query= new Query()
-			.setName("Some Barts cerner codes with context including a regex")
-			.setUsePrefixes(true);
-
+			.setName("Some Barts cerner codes with context including a regex");
 		query
 			.return_(r->r
 			.property(s->s.setIri(RDFS.LABEL.getIri()))
 			.property(s->s.setIri(IM.CODE.getIri()))
 			.property(s->s
-				.setIri(IM.SOURCE_CONTEXT.getIri())
+				.setIri(IM.CONCEPT.getIri())
+				.setInverse(true)
 				.node(n->n
-				.property(s1->s1.setIri(IM.SOURCE_CODE_SCHEME.getIri()))
-				.property(s1->s1.setIri(IM.SOURCE_HEADING.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_VALUE.getIri()))
+				.property(s1->s1.setIri(IM.SOURCE_REGEX.getIri()))
 				.property(s1->s1.setIri(IM.SOURCE_SYSTEM.getIri()))
 				.property(s1->s1.setIri(IM.SOURCE_TABLE.getIri()))
-				.property(s1->s1.setIri(IM.SOURCE_FIELD.getIri()))
-				.property(s1->s1.setIri(IM.SOURCE_SCHEMA.getIri())))))
+				.property(s1->s1.setIri(IM.SOURCE_FIELD.getIri())))))
 			.match(f->f
-			.path(p->p
-					.setIri(IM.SOURCE_CONTEXT.getIri()))
-				.where(w1->w1
-					.setIri(IM.SOURCE_REGEX.getIri())));
+				.property(p->p
+					.setIri(IM.HAS_SCHEME.getIri())
+					.in(i->i
+						.setIri(IM.CODE_SCHEME_BARTS_CERNER.getIri())))
+			.property(p->p
+					.setIri(IM.CONCEPT.getIri())
+				.setInverse(true)
+				.match(m1->m1
+				.property(w1->w1
+					.setIri(IM.SOURCE_REGEX.getIri())))));
 		return new QueryRequest().setQuery(query);
 	}
 
 	public static QueryRequest oralNsaids(){
 		Query query= new Query()
 			.setName("oral none steroidals")
-			.setUsePrefixes(true)
 			.return_(r->r
 			.property(s->s.setIri(RDFS.LABEL.getIri())))
 			.match(rf->rf
-				.setBoolMatch(Bool.and)
+				.setBool(Bool.and)
 				.match(f->f
 						.setIri(SNOMED.NAMESPACE+"763158003").setDescendantsOrSelfOf(true)
-					.where(a1->a1
+					.property(a1->a1
 						.setIri(SNOMED.NAMESPACE+"127489000")
 						.setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
 						.addIn(Match.iri(SNOMED.NAMESPACE+"372665008").setDescendantsOrSelfOf(true)))
-					.where(a2->a2
+					.property(a2->a2
 						.setIri(SNOMED.NAMESPACE+"411116001").setDescendantsOrSelfOf(true)
 						.setAnyRoleGroup(true)
 						.addIn(Match.iri(SNOMED.NAMESPACE+"385268001").setDescendantsOrSelfOf(true)))));

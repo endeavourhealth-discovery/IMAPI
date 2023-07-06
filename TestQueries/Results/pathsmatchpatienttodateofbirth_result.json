@@ -5,12 +5,12 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#gpCurrentRegistration",
       "name" : "gp current registration",
       "match" : {
         "@type" : "http://endhealth.info/im#GPCurrentRegistration",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
           "match" : {
@@ -22,12 +22,12 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#gpCurrentRegistration",
       "name" : "gp current registration",
       "match" : {
         "@type" : "http://endhealth.info/im#GPCurrentRegistration",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
           "match" : {
@@ -39,12 +39,12 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#gPRegistration",
       "name" : "gp registration episode",
       "match" : {
         "@type" : "http://endhealth.info/im#GPRegistration",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
           "match" : {
@@ -56,12 +56,12 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#gPRegistration",
       "name" : "gp registration episode",
       "match" : {
         "@type" : "http://endhealth.info/im#GPRegistration",
-        "path" : [ {
+        "property" : [ {
           "@id" : "http://endhealth.info/im#usualGP",
           "name" : "usual GP",
           "match" : {

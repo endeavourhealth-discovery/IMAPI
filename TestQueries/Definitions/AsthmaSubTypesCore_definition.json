@@ -14,7 +14,6 @@
       "@id" : "sn:195967001",
       "descendantsOrSelfOf" : true
     } ],
-    "usePrefixes" : true,
     "return" : [ {
       "property" : [ {
         "@id" : "rdfs:label"

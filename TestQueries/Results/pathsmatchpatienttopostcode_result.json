@@ -2,7 +2,7 @@
   "match" : [ {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#homeAddress",
       "name" : "home address",
       "match" : {
@@ -12,7 +12,7 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#workAddress",
       "name" : "work address",
       "match" : {
@@ -22,7 +22,7 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#temporaryAddress",
       "name" : "temporary address",
       "match" : {
@@ -32,7 +32,7 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#patientAddress",
       "name" : "patient address history",
       "match" : {
@@ -42,7 +42,7 @@
   }, {
     "@type" : "http://endhealth.info/im#Patient",
     "name" : "Patient",
-    "path" : [ {
+    "property" : [ {
       "@id" : "http://endhealth.info/im#placeOfResidenceAtEvent",
       "name" : "place of residence at event",
       "match" : {

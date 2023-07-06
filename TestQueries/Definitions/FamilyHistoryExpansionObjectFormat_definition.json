@@ -11,7 +11,7 @@
   "query" : {
     "name" : "FamilyHistoryExpansionObjectFormat",
     "match" : [ {
-      "where" : [ {
+      "property" : [ {
         "@id" : "im:hasMember",
         "in" : [ {
           "@id" : "im:VSET_FamilyHistory"
@@ -19,7 +19,6 @@
         "inverse" : true
       } ]
     } ],
-    "usePrefixes" : true,
     "return" : [ {
       "property" : [ {
         "@id" : "rdfs:label"

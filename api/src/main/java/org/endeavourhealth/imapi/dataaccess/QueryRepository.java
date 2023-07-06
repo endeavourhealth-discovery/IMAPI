@@ -350,17 +350,15 @@ public class QueryRepository {
         }
     }
 
-    private void gatherWhereLabels(Where where, List<TTIriRef> ttIris, Map<String, String> iris) {
+    private void gatherWhereLabels(Property where, List<TTIriRef> ttIris, Map<String, String> iris) {
         if (where.getId() != null)
             addToIriList(where.getId(), ttIris, iris);
-        if (where.getWhere() != null) {
-            for (Where subWhere : where.getWhere()) {
-                gatherWhereLabels(subWhere, ttIris, iris);
-            }
-        }
+
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 addToIriList(in.getIri(), ttIris, iris);
+        if (where.getMatch()!=null)
+            gatherFromLabels(where.getMatch(),ttIris,iris);
     }
 
     private void gatherFromLabels(Match match, List<TTIriRef> ttIris, Map<String, String> iris) {
@@ -368,8 +366,8 @@ public class QueryRepository {
             addToIriList(match.getIri(), ttIris, iris);
         else if (match.getType() != null)
             addToIriList(match.getType(), ttIris, iris);
-        if (match.getWhere() != null) {
-            for (Where where : match.getWhere()) {
+        if (match.getProperty() != null) {
+            for (Property where : match.getProperty()) {
                 gatherWhereLabels(where, ttIris, iris);
             }
         }
@@ -379,8 +377,8 @@ public class QueryRepository {
         if (match.getSet() != null) {
             addToIriList(match.getSet(), ttIris, iris);
         }
-        if (match.getPath() != null) {
-            for (Path path:match.getPath()) {
+        if (match.getProperty() != null) {
+            for (Property path:match.getProperty()) {
                 addToIriList(path.getIri(), ttIris, iris);
             }
         }
@@ -421,8 +419,8 @@ public class QueryRepository {
             }
             match.setName(iriLabels.get(match.getType()));
         }
-        if (match.getWhere() != null) {
-            for (Where where : match.getWhere()) {
+        if (match.getProperty() != null) {
+            for (Property where : match.getProperty()) {
                 setWhereLabels(where,iriLabels);
             }
         }
@@ -431,11 +429,6 @@ public class QueryRepository {
         }
         if (match.getSet() != null) {
             match.setName(iriLabels.get(match.getSet()));
-        }
-        if (match.getPath() != null) {
-            for (Path path:match.getPath()) {
-                path.setName(iriLabels.get(path.getIri()));
-            }
         }
         if (match.getOrderBy() != null) {
             for(OrderLimit orderBy : match.getOrderBy()) {
@@ -450,17 +443,15 @@ public class QueryRepository {
         }
     }
 
-    private void setWhereLabels(Where where, Map<String, String> iris) {
+    private void setWhereLabels(Property where, Map<String, String> iris) {
         if (where.getId() != null)
             where.setName(iris.get(where.getId()));
-        if (where.getWhere() != null) {
-            for (Where subWhere : where.getWhere()) {
-                setWhereLabels(subWhere, iris);
-            }
-        }
         if (where.getIn() != null)
             for (Element in : where.getIn())
                 in.setName(iris.get(in.getIri()));
+        if (where.getMatch()!=null){
+            setMatchLabels(where.getMatch(),iris);
+        }
     }
 
     private void setReturnLabels(Return select, Map<String, String> iris) {

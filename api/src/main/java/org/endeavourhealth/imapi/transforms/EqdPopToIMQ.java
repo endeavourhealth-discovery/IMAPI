@@ -17,24 +17,25 @@ public class EqdPopToIMQ {
 	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
-		Match rootMatch = new Match();
-		query.addMatch(rootMatch);
+		query.setType(IM.NAMESPACE+"Patient");
+
+
 
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
+			Match rootMatch = new Match();
+			query.addMatch(rootMatch);
 				rootMatch
 				.setSet(IM.NAMESPACE+"Q_RegisteredGMS")
 				.setName("Registered with GP for GMS services on the reference date");
 		}
 		else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
 				String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
+			Match rootMatch = new Match();
+			query.addMatch(rootMatch);
+				query.addMatch(rootMatch);
 				rootMatch
 					.setSet("urn:uuid:" + id)
 					.setName(resources.reportNames.get(id));
-			}
-			else {
-				rootMatch
-				.setType("Patient")
-				.setName("Patient");
 			}
 
 
@@ -48,7 +49,7 @@ public class EqdPopToIMQ {
 				if (lastOr==null){
 					lastOr= new Match();
 					query.addMatch(lastOr);
-					lastOr.setBoolMatch(Bool.or);
+					lastOr.setBool(Bool.or);
 				}
 				Match orGroup= new Match();
 				lastOr.addMatch(orGroup);
@@ -86,7 +87,7 @@ public class EqdPopToIMQ {
 	private void convertGroup(EQDOCCriteriaGroup eqGroup, Match groupMatch) throws DataFormatException, IOException, QueryException {
 		VocMemberOperator memberOp = eqGroup.getDefinition().getMemberOperator();
 		if (memberOp == VocMemberOperator.AND) {
-			groupMatch.setBoolMatch(Bool.and);
+			groupMatch.setBool(Bool.and);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
 					Match match = new Match();
 					groupMatch.addMatch(match);
@@ -94,7 +95,7 @@ public class EqdPopToIMQ {
 				}
 			}
 			else {
-				groupMatch.setBoolMatch(Bool.or);
+				groupMatch.setBool(Bool.or);
 				for (EQDOCCriteria eqCriteria : eqGroup.getDefinition().getCriteria()) {
 					Match match = new Match();
 					groupMatch.addMatch(match);

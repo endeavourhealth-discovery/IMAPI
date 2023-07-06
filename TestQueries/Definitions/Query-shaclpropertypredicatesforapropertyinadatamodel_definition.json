@@ -23,19 +23,19 @@
     "name" : "Query - shacl property predicates for a property in a data model",
     "description" : "Select the predicates and values and labels of the values for a given data mode and property",
     "match" : [ {
-      "path" : [ {
+      "parameter" : "$dataModel",
+      "property" : [ {
         "@id" : "sh:property",
         "match" : {
-          "variable" : "shaclProperty"
+          "variable" : "shaclProperty",
+          "property" : [ {
+            "@id" : "sh:path",
+            "in" : [ {
+              "parameter" : "$property"
+            } ]
+          } ]
         }
-      } ],
-      "where" : [ {
-        "@id" : "sh:path",
-        "in" : [ {
-          "parameter" : "$property"
-        } ]
-      } ],
-      "parameter" : "$dataModel"
+      } ]
     } ],
     "return" : [ {
       "nodeRef" : "shaclProperty",

@@ -19,6 +19,17 @@ public class ReturnProperty {
 	private FunctionClause function;
 	private String unit;
 	private String as;
+	private Return returx;
+
+	@JsonProperty("return")
+	public Return getReturn() {
+		return returx;
+	}
+
+	public ReturnProperty setReturn(Return returx) {
+		this.returx = returx;
+		return this;
+	}
 
 	public String getAs() {
 		return as;

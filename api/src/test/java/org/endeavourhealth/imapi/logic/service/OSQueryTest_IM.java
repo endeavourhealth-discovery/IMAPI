@@ -48,14 +48,14 @@ class OSQueryTest_IM {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
             .setQuery(new Query()
-/*                .setMatch(List.of(
+                .setMatch(List.of(
                     new Match()
-                        .addPath()
-                        .addIn(new Node()
+                        .setProperty(List.of(
+                            new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
                                 .setValue(SNOMED.NAMESPACE)
                         ))
-                ))*/
+                ))
             );
 
         ObjectNode results = osq.openSearchQuery(req);
@@ -73,8 +73,8 @@ class OSQueryTest_IM {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setWhere(List.of(
-                            new Where()
+                        .setProperty(List.of(
+                            new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
                                 .setIn(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
@@ -139,7 +139,7 @@ class OSQueryTest_IM {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .addWhere(new Where()
+                        .addProperty(new Property()
                             .setIri(IM.IS_MEMBER_OF.getIri())
                             .setValue("http://endhealth.info/im#VSET_ASD")
                         )
@@ -161,7 +161,7 @@ class OSQueryTest_IM {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .addWhere(new Where()
+                        .addProperty(new Property()
                             .setIri(IM.IS_MEMBER_OF.getIri())
                             .setIn(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )

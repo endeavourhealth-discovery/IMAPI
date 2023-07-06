@@ -133,8 +133,8 @@ class OSQueryTest {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setWhere(List.of(
-                            new Where()
+                        .setProperty(List.of(
+                            new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
                                 .setValue(SNOMED.NAMESPACE)
                         ))
@@ -156,8 +156,8 @@ class OSQueryTest {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .setWhere(List.of(
-                            new Where()
+                        .setProperty(List.of(
+                            new Property()
                                 .setIri(IM.HAS_SCHEME.getIri())
                                 .setIn(List.of(new Node().setIri(SNOMED.NAMESPACE)))
                         ))
@@ -222,7 +222,7 @@ class OSQueryTest {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .addWhere(new Where()
+                        .addProperty(new Property()
                             .setIri(IM.IS_MEMBER_OF.getIri())
                             .setValue("http://endhealth.info/im#VSET_ASD")
                         )
@@ -244,7 +244,7 @@ class OSQueryTest {
             .setQuery(new Query()
                 .setMatch(List.of(
                     new Match()
-                        .addWhere(new Where()
+                        .addProperty(new Property()
                             .setIri(IM.IS_MEMBER_OF.getIri())
                             .setIn(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )

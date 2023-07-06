@@ -467,8 +467,8 @@ public class OSQuery {
 
     private boolean validateMatch(Match match){
         if (match.getProperty() != null){
-            for (Property where : match.getProperty()) {
-                if (!validateWhere(where))
+            for (Property property : match.getProperty()) {
+                if (!validateProperty(property))
                     return false;
             }
         }
@@ -478,12 +478,12 @@ public class OSQuery {
         return true;
     }
 
-    private boolean validateWhere(Property where){
-        if (!propIsSupported(where.getIri())){
+    private boolean validateProperty(Property property){
+        if (!propIsSupported(property.getIri())){
             return false;
         }
-        if (where.getMatch()!=null){
-           return validateMatch(where.getMatch());
+        if (property.getMatch()!=null){
+           return validateMatch(property.getMatch());
         }
         return true;
     }
@@ -633,8 +633,8 @@ public class OSQuery {
             return match.getProperty() == null;
         } else if (match.isDescendantsOrSelfOf()) {
             return processSubTypes(request, match, imRequest);
-        } else if (match.getWhere() != null) {
-            return processWheres(request, match);
+        } else if (match.getProperty() != null) {
+            return processProperties(request, match);
         } else if (match.getIri() != null)
             throw new DataFormatException("Text searches on sets or single instances not supported. Are you looking for types (match.sourceType= type, or subtypes match.isIncludeSubtypes(true");
 
@@ -662,8 +662,8 @@ public class OSQuery {
         return true;
     }
 
-    private static boolean processWheres(SearchRequest request, Match match) throws DataFormatException {
-        for(Where w : match.getWhere()) {
+    private static boolean processProperties(SearchRequest request, Match match) throws DataFormatException {
+        for(Property w : match.getProperty()) {
             if (IM.HAS_SCHEME.getIri().equals(w.getIri())) {
                 if (w.getValue() != null && !w.getValue().isEmpty())
                     request.setSchemeFilter(List.of(w.getValue()));
@@ -720,12 +720,17 @@ public class OSQuery {
     private static boolean propIsSupported(String iri) {
         if (iri == null)
             return false;
-        return switch (iri) {
-            case (RDFS.NAMESPACE + "label"), (RDFS.NAMESPACE + "comment"), (IM.NAMESPACE + "code"), (IM.NAMESPACE + "status"), (IM.NAMESPACE + "scheme"), (RDF.NAMESPACE + "type"), (IM.NAMESPACE + "weighting"), (IM.NAMESPACE + "memberOf") ->
-              true;
-            default -> false;
-        };
 
+        return List.of(
+            RDFS.LABEL.getIri(),
+            RDFS.COMMENT.getIri(),
+            IM.CODE.getIri(),
+            IM.HAS_STATUS.getIri(),
+            IM.HAS_SCHEME.getIri(),
+            RDF.TYPE.getIri(),
+            IM.WEIGHTING.getIri(),
+            IM.IS_MEMBER_OF.getIri()
+        ).contains(iri);
     }
 
 }

@@ -17,8 +17,8 @@ public class EqdPopToIMQ {
 	public void convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws DataFormatException, IOException, QueryException {
 		this.activeReport = eqReport.getId();
 		this.resources = resources;
-
 		query.setType(IM.NAMESPACE+"Patient");
+
 
 
 		if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {

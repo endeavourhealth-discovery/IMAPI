@@ -26,6 +26,7 @@ public class IM {
 
     //Entity top level triples
     public static final TTIriRef DEFINITION = iri(NAMESPACE + "definition");
+    public static final TTIriRef RETURN_TYPE = iri(NAMESPACE + "returnType");
     public static final TTIriRef UPDATE_PROCEDURE = iri(NAMESPACE + "updateProcedure");
 
     //Specialised data model predicates
@@ -40,12 +41,12 @@ public class IM {
     public static final TTIriRef GRAPH = iri(NAMESPACE + "Graph");
     public static final TTIriRef FUNCTION = iri(NAMESPACE + "FunctionClause");
     public static final TTIriRef QUERY = iri(NAMESPACE + "Query");
+    public static final TTIriRef COHORT_QUERY = iri(NAMESPACE + "CohortQuery");
+    public static final TTIriRef DATASET_QUERY = iri(NAMESPACE + "DatasetQuery");
     public static final TTIriRef DATA_UPDATE = iri(NAMESPACE + "DataUpdate");
-    public static final TTIriRef QUERY_TEMPLATE = iri(NAMESPACE + "QueryTemplate");
     public static final TTIriRef PATH_QUERY = iri(NAMESPACE + "PathQuery");
     public static final TTIriRef PATH_TO = iri(NAMESPACE + "pathTo");
     public static final TTIriRef OPENSEARCH_QUERY = iri(NAMESPACE + "OpenSearchQuery");
-    public static final TTIriRef DATAMODEL_ENTITY = iri(NAMESPACE + "DataModelEntity");
     public static final TTIriRef DATAMODEL_PROPERTY = iri(NAMESPACE + "dataModelProperty");
     public static final TTIriRef TASK = iri(IM.NAMESPACE + "Task");
     public static final TTIriRef FIELD_GROUP = iri(NAMESPACE + "FieldGroup");

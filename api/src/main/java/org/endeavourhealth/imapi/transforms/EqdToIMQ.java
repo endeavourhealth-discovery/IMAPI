@@ -88,17 +88,21 @@ public class EqdToIMQ {
 		queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
 		if (eqReport.getFolder() != null)
 			queryEntity.addIsContainedIn(TTIriRef.iri("urn:uuid:" + eqReport.getFolder()));
-		queryEntity.addType(IM.QUERY);
+
 		Query qry = new Query();
 
 		if (eqReport.getPopulation() != null) {
+			queryEntity.addType(IM.COHORT_QUERY);
 			new EqdPopToIMQ().convertPopulation(eqReport, qry, resources);
 		}
 		else if (eqReport.getListReport() != null) {
+			queryEntity.addType(IM.DATASET_QUERY);
 			new EqdListToIMQ().convertReport(eqReport, qry, resources);
 		}
-		else
+		else {
+			queryEntity.addType(IM.DATASET_QUERY);
 			new EqdAuditToIMQ().convertReport(eqReport, qry, resources);
+		}
 		flattenQuery(qry);
 
 		queryEntity.setDefinition(qry);

@@ -13,6 +13,16 @@ public class Concept extends Entity {
 	private Set<TTIriRef> subClassOf;
 	private Set<Concept> matchedFrom;
 	private Integer usage;
+	private String codeId;
+
+	public String getCodeId() {
+		return codeId;
+	}
+
+	public Concept setCodeId(String codeId) {
+		this.codeId = codeId;
+		return this;
+	}
 
 	public Set<TTIriRef> getSubClassOf() {
 		return subClassOf;

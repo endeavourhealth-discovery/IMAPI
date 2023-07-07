@@ -194,12 +194,16 @@ public class SetRepository {
                                 Value ls = bs.getValue("legacyScheme");
                                 Value lsn = bs.getValue("legacySchemeName");
                                 Value luse = bs.getValue("legacyUse");
+                                Value codeId=bs.getValue("codeId");
                                 if (lc != null)
                                     legacy.setCode(lc.stringValue());
                                 if (lt != null)
                                     legacy.setName(lt.stringValue());
                                 if (ls != null) {
                                     legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
+                                }
+                                if (codeId!=null){
+                                    legacy.setCodeId(codeId.stringValue());
                                 }
                                 legacy.setUsage(luse == null ? null : ((Literal) luse).intValue());
                             }
@@ -244,6 +248,7 @@ public class SetRepository {
               .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
               .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
               .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
+              .add("        OPTIONAL { ?legacy im:codeId ?codeId}")
               .add("    }");
         }
 

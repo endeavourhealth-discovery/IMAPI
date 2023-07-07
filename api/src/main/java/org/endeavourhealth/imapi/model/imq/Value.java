@@ -1,10 +1,23 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.XSD;
+
 public class Value implements Assignable{
 	private Operator operator;
 	private String value;
 	private String unit;
 	private PropertyRef relativeTo;
+	private TTIriRef dataType;
+
+	public TTIriRef getDataType() {
+		return dataType;
+	}
+
+	public Value setDataType(TTIriRef dataType) {
+		this.dataType = dataType;
+		return this;
+	}
 
 	public Operator getOperator() {
 		return operator;
@@ -29,6 +42,7 @@ public class Value implements Assignable{
 		return value;
 	}
 
+	@Override
 	public Value setValue(String value) {
 		this.value = value;
 		return this;

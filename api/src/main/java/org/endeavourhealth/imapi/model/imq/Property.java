@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -284,6 +285,16 @@ public class Property extends PropertyRef implements Assignable{
 	public Property setUnit(String unit) {
 		this.unit = unit;
 		return this;
+	}
+
+	@Override
+	public Assignable setDataType(TTIriRef datatype) {
+		return null;
+	}
+
+	@Override
+	public TTIriRef getDataType() {
+		return null;
 	}
 
 	public String getUnit(){

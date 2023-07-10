@@ -43,7 +43,7 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws JsonProcessingException, DataFormatException, QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws QueryException {
         Return aReturn= new Return();
         imQuery.addReturn(aReturn);
           aReturn
@@ -70,7 +70,7 @@ public class SetRepository {
             .property(s->s
               .setIri(RDF.TYPE.getIri())
               .node(s2->s2
-                .as("type")
+                .as("entityType")
                 .property(p->p
                   .setIri(RDFS.LABEL.getIri()).as("typeName"))));
 
@@ -155,7 +155,7 @@ public class SetRepository {
                     Value usage = bs.getValue("usage");
                     Value status = bs.getValue("status");
                     Value statusName = bs.getValue("statusName");
-                    Value type = bs.getValue("type");
+                    Value type = bs.getValue("entityType");
                     Value typeName = bs.getValue("typeName");
                     cl.setIri(concept);
                     if (name != null)
@@ -172,7 +172,7 @@ public class SetRepository {
                     }
                     cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
                 } else {
-                    Value type = bs.getValue("type");
+                    Value type = bs.getValue("entityType");
                     Value typeName = bs.getValue("typeName");
                     if (null != type) {
                         cl.addType(iri(type.stringValue(),typeName.stringValue()));

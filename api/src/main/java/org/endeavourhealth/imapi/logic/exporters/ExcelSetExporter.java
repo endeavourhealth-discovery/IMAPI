@@ -114,15 +114,16 @@ public class ExcelSetExporter {
     private void addCoreExpansionConceptToWorkBook(boolean flat, Sheet sheet, Set<String> addedCoreIris, Concept cl) {
         Integer usage= cl.getUsage();
         String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
+        String set = cl.getIsContainedIn().iterator().next().getName();
         if (cl.getIm1Id()!=null&& flat) {
             for (String im1 : cl.getIm1Id()) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), cl.getIsContainedIn().iterator().next().getName(), cl.getName(), isExtension, usage == null ? "" : usage, im1);
+                addCells(row, cl.getCode(), set , cl.getName(), isExtension, usage == null ? "" : usage, im1);
             }
         }
         else {
             Row row = addRow(sheet);
-            addCells(row, cl.getCode(),cl.getIsContainedIn().iterator().next().getName(), cl.getName(), isExtension, usage == null ? "" : usage, "");
+            addCells(row, cl.getCode(),set , cl.getName(), isExtension, usage == null ? "" : usage, "");
         }
         addedCoreIris.add(cl.getIri());
     }
@@ -158,11 +159,12 @@ public class ExcelSetExporter {
         }
 
         for (Concept cl : members) {
+            String set = cl.getIsContainedIn().iterator().next().getName();
 
             String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
             if (cl.getMatchedFrom() == null) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), cl.getName(), isExtension, "");
+                addCells(row, cl.getCode(), set, cl.getName(), isExtension, "");
 
             } else {
                 List<Concept> sortedLegacy = cl.getMatchedFrom()
@@ -184,15 +186,16 @@ public class ExcelSetExporter {
             String legacyTerm = legacy.getName();
             Integer legacyUsage = legacy.getUsage();
             String codeId=legacy.getCodeId();
+            String set = cl.getIsContainedIn().iterator().next().getName();
             if (codeId==null)
               codeId="";
             if (legacy.getIm1Id() == null || !flat) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(),cl.getIsContainedIn().iterator().next().getName(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
+                addCells(row, cl.getCode(), set, cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
             } else {
                 for (String im1Id : legacy.getIm1Id()) {
                     Row row = addRow(sheet);
-                    addCells(row, cl.getCode(),cl.getIsContainedIn().iterator().next().getName(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
+                    addCells(row, cl.getCode(), set, cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
                         legacyUsage == null ? "" : legacyUsage, im1Id);
                 }
             }

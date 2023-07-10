@@ -31,8 +31,10 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 @Component
@@ -77,7 +79,7 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException, QueryException {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws JsonProcessingException, QueryException {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
@@ -90,7 +92,6 @@ public class SetExporter {
             Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
             if (members != null && !members.isEmpty()) {
-                members.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
                 result.addAll(members);
             } else {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();

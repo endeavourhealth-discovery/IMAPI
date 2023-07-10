@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -84,10 +85,12 @@ public class SetExporter {
 
         for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
+            String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
             Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
             if (members != null && !members.isEmpty()) {
+                members.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
                 result.addAll(members);
             } else {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
@@ -101,6 +104,7 @@ public class SetExporter {
                         .setDescendantsOrSelfOf(true))
                     ,includeLegacy,null));
             }
+            result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
         }
 
         return result;

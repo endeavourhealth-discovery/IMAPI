@@ -2,10 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSetExporter;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -42,6 +44,9 @@ public class ExcelSetExporterTest {
     EntityTripleRepository entityTripleRepository;
 
     @Mock
+    EntityRepository2 entityRepository2;
+
+    @Mock
     SetRepository setRepository;
 
     @Test
@@ -54,6 +59,7 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
+        when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
         when(setRepository.getSetExpansion(any(), anyBoolean(),any())).thenReturn(new HashSet<>());
         when(setRepository.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());

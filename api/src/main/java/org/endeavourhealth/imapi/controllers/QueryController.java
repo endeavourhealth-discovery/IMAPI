@@ -62,6 +62,17 @@ public class QueryController {
         return searchService.queryIM(queryRequest);
     }
 
+    @PostMapping("/public/queryIMSearch")
+    @Operation(
+        summary = "Query IM returning conceptSummaries",
+        description = "Runs a generic query on IM and returns results as ConceptSummary items."
+    )
+    public JsonNode queryIMSearch(@RequestBody QueryRequest queryRequest) throws DataFormatException, JsonProcessingException, InterruptedException, OpenSearchException, URISyntaxException, ExecutionException, QueryException {
+        LOG.debug("queryIMSearch");
+        JsonNode queryResults = searchService.queryIM(queryRequest);
+        return new QueryService().convertResultsToConceptSummary(queryResults,queryRequest);
+    }
+
 
     @PostMapping( "/public/pathQuery")
     @Operation(

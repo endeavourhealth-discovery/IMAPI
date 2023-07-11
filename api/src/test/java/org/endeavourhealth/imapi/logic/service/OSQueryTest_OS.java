@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -25,6 +26,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1");
@@ -36,6 +38,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term_scheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")
@@ -48,6 +51,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term_IsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")
@@ -60,6 +64,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term_Member() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")
@@ -72,6 +77,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term_IsA_Member() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")
@@ -85,6 +91,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term_NotMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")
@@ -95,6 +102,7 @@ class OSQueryTest_OS {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void multiPhaseQuery_term_IsA_NotMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
         SearchRequest req = new SearchRequest()
             .setTermFilter("FOXG1")

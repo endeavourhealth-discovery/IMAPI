@@ -29,7 +29,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 /**
@@ -37,13 +36,13 @@ import java.util.zip.DataFormatException;
  */
 public class OSQuery {
     private static final Logger LOG = LoggerFactory.getLogger(OSQuery.class);
-    private final Set<String> resultCache = new HashSet<>();
-    private final String termCodeTerm = "termCode.term";
-    private final String matchTerm = "matchTerm";
-    private final String scheme = "scheme";
-    private final String weighting = "weighting";
-    private final String status = "status";
-    private final String comment = "comment";
+    private static final Set<String> resultCache = new HashSet<>();
+    private static final String TERM_CODE_TERM = "termCode.term";
+    private static final String MATCH_TERM = "matchTerm";
+    private static final String SCHEME = "scheme";
+    private static final String WEIGHTING = "weighting";
+    private static final String STATUS = "status";
+    private static final String COMMENT = "comment";
 
     public Set<String> getResultCache() {
         return resultCache;
@@ -147,7 +146,7 @@ public class OSQuery {
     }
 
     private String getMatchTerm(String term){
-        term=term.replaceAll(" ","");
+        term=term.replace(" ","");
         if (term.length()<25)
             return term;
         else
@@ -229,9 +228,9 @@ public class OSQuery {
         String requestTerm=getMatchTerm(request.getTermFilter());
 
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(matchTerm, requestTerm).boost(1.5F);
+        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(MATCH_TERM, requestTerm).boost(1.5F);
         boolQuery.should(mpq);
-        MatchPhrasePrefixQueryBuilder mpp = new MatchPhrasePrefixQueryBuilder(matchTerm, requestTerm).boost(1.5F);
+        MatchPhrasePrefixQueryBuilder mpp = new MatchPhrasePrefixQueryBuilder(MATCH_TERM, requestTerm).boost(1.5F);
         boolQuery.should(mpp).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -243,11 +242,11 @@ public class OSQuery {
         PrefixQueryBuilder pqb = new PrefixQueryBuilder("key", request.getTermFilter());
         pqb.boost(2F);
         boolQuery.should(pqb);
-        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(termCodeTerm, request.getTermFilter()).boost(1.5F);
+        MatchPhraseQueryBuilder mpq = new MatchPhraseQueryBuilder(TERM_CODE_TERM, request.getTermFilter()).boost(1.5F);
         boolQuery.should(mpq);
         MatchPhraseQueryBuilder mpc = new MatchPhraseQueryBuilder("termCode.code", request.getTermFilter()).boost(2.5F);
         boolQuery.should(mpc);
-        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(matchTerm, request.getTermFilter()).boost(0.5F);
+        MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(MATCH_TERM, request.getTermFilter()).boost(0.5F);
         boolQuery.should(mfs).minimumShouldMatch(1);
         addFilters(boolQuery, request);
         return boolQuery;
@@ -256,14 +255,14 @@ public class OSQuery {
 
     private QueryBuilder buildMultiWordQuery(SearchRequest request) {
         BoolQueryBuilder qry = new BoolQueryBuilder();
-        MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder(termCodeTerm, request.getTermFilter());
+        MatchPhrasePrefixQueryBuilder pqry = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, request.getTermFilter());
         qry.should(pqry);
         BoolQueryBuilder wqry = new BoolQueryBuilder();
         qry.should(wqry);
         int wordPos = 0;
         for (String term : request.getTermFilter().split(" ")) {
             wordPos++;
-            MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(termCodeTerm, term);
+            MatchPhrasePrefixQueryBuilder mfs = new MatchPhrasePrefixQueryBuilder(TERM_CODE_TERM, term);
             mfs.boost(wordPos == 1 ? 4 : 1);
             wqry.must(mfs);
         }
@@ -289,13 +288,10 @@ public class OSQuery {
 
         String termCode = "termCode";
 
-        List<String> defaultTypes = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", status, scheme, weighting,"preferredName"));
+        List<String> defaultTypes = new ArrayList<>(Arrays.asList("iri", "name", "code", termCode, "entityType", STATUS, SCHEME, WEIGHTING,"preferredName"));
         Set<String> fields = new HashSet<>(defaultTypes);
         if (!request.getSelect().isEmpty()) {
-            for (String select : request.getSelect()) {
-                if (!fields.contains(select))
-                    fields.add(select);
-            }
+            fields.addAll(request.getSelect());
         }
         String[] sources= fields.toArray(String[]::new);
         bld.fetchSource(sources, null);
@@ -309,15 +305,7 @@ public class OSQuery {
     }
 
     public List<SearchResultSummary> runQuery(SearchRequest request, SearchSourceBuilder bld) throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException {
-       String queryJson = bld.toString();
-       /*
-       String queryJson= "{\n" +
-          "  \"query\" : {\n" +
-          "    \"match_all\": {}\n" +
-          "  }\n" +
-          "}";
-
-        */
+        String queryJson = bld.toString();
 
         String url = System.getenv("OPENSEARCH_URL");
         if (url == null)
@@ -330,17 +318,17 @@ public class OSQuery {
         if (System.getenv("OPENSEARCH_AUTH") == null)
             throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(new URI(url + index + "/_search"))
-                .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(queryJson))
-                .build();
+            .uri(new URI(url + index + "/_search"))
+            .header("Authorization", "Basic " + System.getenv("OPENSEARCH_AUTH"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(queryJson))
+            .build();
 
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = client
-                .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
-                .thenApply(res -> res)
-                .get();
+            .sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+            .thenApply(res -> res)
+            .get();
 
         if (299 < response.statusCode()) {
             LOG.debug("Open search request failed with code: {}", response.statusCode());
@@ -385,8 +373,8 @@ public class OSQuery {
         searchTerm = searchTerm.toLowerCase();
         if (searchResult.getTermCode() != null) {
             for (SearchTermCode tc : searchResult.getTermCode()) {
-                TTIriRef status = tc.getStatus();
-                if ((status != null) && (!(status.equals(IM.INACTIVE))) &&
+                TTIriRef termCodeStatus = tc.getStatus();
+                if ((termCodeStatus != null) && (!(termCodeStatus.equals(IM.INACTIVE))) &&
                     (tc.getTerm() != null && tc.getTerm().toLowerCase().startsWith(searchTerm))) {
                     searchResult.setMatch(tc.getTerm());
                     break;
@@ -441,17 +429,10 @@ public class OSQuery {
 
     private static boolean validateReturn(Query query) {
         if (query.getReturn()!=null) {
-            for (Return aReturn : query.getReturn()) {
-                if (aReturn.getProperty() != null) {
-                    for (ReturnProperty property : aReturn.getProperty()) {
-                        if (property.getIri() != null && !propIsSupported(property.getIri()))
-                            return false;
-                        if (property.getNode() != null)
-                            return false;
-                    }
-
-                }
-            }
+            return query.getReturn().stream()
+                .map(Return::getProperty)
+                .flatMap(Collection::stream)
+                .noneMatch(p -> p != null && (p.getNode() != null || (p.getIri() != null && !propIsSupported(p.getIri()))));
         }
         return true;
     }
@@ -515,30 +496,16 @@ public class OSQuery {
                 if (prop.getIri() != null) {
                     String field = prop.getIri();
                     switch (field) {
-                        case (RDFS.NAMESPACE + "label"):
-                            resultNode.put(field, searchResult.getName());
-                            break;
-                        case (RDFS.NAMESPACE + comment):
+                        case (RDFS.NAMESPACE + "label") -> resultNode.put(field, searchResult.getName());
+                        case (RDFS.NAMESPACE + COMMENT) -> {
                             if (searchResult.getDescription() != null)
                                 resultNode.put(field, searchResult.getDescription());
-                            break;
-                        case (IM.NAMESPACE + "code"):
-                            resultNode.put(field, searchResult.getCode());
-                            break;
-                        case (IM.NAMESPACE + status):
-                            resultNode.set(field, fromIri(searchResult.getStatus(), om));
-                            break;
-                        case (IM.NAMESPACE + scheme):
-                            resultNode.set(field, fromIri(searchResult.getScheme(), om));
-                            break;
-                        case (RDF.NAMESPACE + "type"):
-                            resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
-                            break;
-                        case (IM.NAMESPACE + weighting):
-                            resultNode.put(field, searchResult.getWeighting());
-                            break;
-                        default:
-
+                        }
+                        case (IM.NAMESPACE + "code") -> resultNode.put(field, searchResult.getCode());
+                        case (IM.NAMESPACE + STATUS) -> resultNode.set(field, fromIri(searchResult.getStatus(), om));
+                        case (IM.NAMESPACE + SCHEME) -> resultNode.set(field, fromIri(searchResult.getScheme(), om));
+                        case (RDF.NAMESPACE + "type") -> resultNode.set(field, arrayFromIri(searchResult.getEntityType(), om));
+                        case (IM.NAMESPACE + WEIGHTING) -> resultNode.put(field, searchResult.getWeighting());
                     }
                 }
             }
@@ -593,24 +560,23 @@ public class OSQuery {
 
     private void processSelects(SearchRequest request, Query query) {
         if (query.getReturn() != null) {
-            for (Return select : query.getReturn()) {
-                if (select.getProperty() != null) {
-                    for (ReturnProperty prop : select.getProperty()) {
-                        if (prop.getIri() != null) {
-                            switch (prop.getIri()) {
-                                case (RDFS.NAMESPACE + comment) -> request.addSelect("description");
-                                case (IM.NAMESPACE + "code") -> request.addSelect("code");
-                                case (IM.NAMESPACE + status) -> request.addSelect(status);
-                                case (IM.NAMESPACE + scheme) -> request.addSelect(scheme);
-                                case (RDF.NAMESPACE + "type") -> request.addSelect("entityType");
-                                case (IM.NAMESPACE + weighting) -> request.addSelect(weighting);
-                                default -> {
-                                }
+            query.getReturn().stream()
+                .map(Return::getProperty)
+                .flatMap(Collection::stream)
+                .forEach(prop -> {
+                    if (prop.getIri() != null) {
+                        switch (prop.getIri()) {
+                            case (RDFS.NAMESPACE + COMMENT) -> request.addSelect("description");
+                            case (IM.NAMESPACE + "code") -> request.addSelect("code");
+                            case (IM.NAMESPACE + STATUS) -> request.addSelect(STATUS);
+                            case (IM.NAMESPACE + SCHEME) -> request.addSelect(SCHEME);
+                            case (RDF.NAMESPACE + "type") -> request.addSelect("entityType");
+                            case (IM.NAMESPACE + WEIGHTING) -> request.addSelect(WEIGHTING);
+                            default -> {
                             }
                         }
                     }
-                }
-            }
+                });
         }
     }
 
@@ -665,28 +631,29 @@ public class OSQuery {
     private static boolean processProperties(SearchRequest request, Match match) throws DataFormatException {
         for(Property w : match.getProperty()) {
             if (IM.HAS_SCHEME.getIri().equals(w.getIri())) {
-                if (w.getValue() != null && !w.getValue().isEmpty())
-                    request.setSchemeFilter(List.of(w.getValue()));
-                else if (w.getIn() != null && !w.getIn().isEmpty())
-                    request.setSchemeFilter(w.getIn().stream().map(IriLD::getIri).toList());
-                else
-                    throw new DataFormatException("Scheme filter must be either singular (value) or list (in)");
-            } else if (IM.IS_MEMBER_OF.getIri().equals(w.getIri())) {
-                LOG.info("Member property filter found");
-                if (w.getValue() != null && !w.getValue().isEmpty())
-                    request.setMemberOf(List.of(w.getValue()));
-                else if (w.getIn() != null && !w.getIn().isEmpty())
-                    request.setMemberOf(w.getIn().stream().map(IriLD::getIri).toList());
-                else
-                    throw new DataFormatException("Set membership filter must be either singular (value) or list (in)");
-            } else if ((IM.NAMESPACE + "concept").equals(w.getIri())) {
-                LOG.info("Set membership filter found");
+                processSchemeProperty(request, w);
+            } else if (IM.HAS_MEMBER.getIri().equals(w.getIri()) && w.isInverse()) {
+                processMemberProperty(request, w);
             } else {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private static void processSchemeProperty(SearchRequest request, Property w) throws DataFormatException {
+        if (w.getIn() != null && !w.getIn().isEmpty())
+            request.setSchemeFilter(w.getIn().stream().map(IriLD::getIri).toList());
+        else
+            throw new DataFormatException("Scheme filter must be a list (in)");
+    }
+
+    private static void processMemberProperty(SearchRequest request, Property w) throws DataFormatException {
+        if (w.getIn() != null && !w.getIn().isEmpty())
+            request.setMemberOf(w.getIn().stream().map(IriLD::getIri).toList());
+        else
+            throw new DataFormatException("Set membership filter must be a list (in)");
     }
 
     private static List<String> listFromAlias(Match match, QueryRequest queryRequest) throws DataFormatException {
@@ -707,7 +674,7 @@ public class OSQuery {
                         return iriList;
                     } else if (null != argument.getValueIriList()) {
                         return
-                            argument.getValueIriList().stream().map(TTIriRef::getIri).collect(Collectors.toList());
+                            argument.getValueIriList().stream().map(TTIriRef::getIri).toList();
                     }
                 }
             }
@@ -729,7 +696,7 @@ public class OSQuery {
             IM.HAS_SCHEME.getIri(),
             RDF.TYPE.getIri(),
             IM.WEIGHTING.getIri(),
-            IM.IS_MEMBER_OF.getIri()
+            IM.HAS_MEMBER.getIri()
         ).contains(iri);
     }
 

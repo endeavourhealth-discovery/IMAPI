@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.SNOMED;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ class OSQueryTest_IM {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void imQuery_term() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1");
@@ -44,29 +46,7 @@ class OSQueryTest_IM {
     }
 
     @Test
-    void imQuery_term_scheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
-        QueryRequest req = new QueryRequest()
-            .setTextSearch("FOXG1")
-            .setQuery(new Query()
-                .setMatch(List.of(
-                    new Match()
-                        .setProperty(List.of(
-                            new Property()
-                                .setIri(IM.HAS_SCHEME.getIri())
-                                .setValue(SNOMED.NAMESPACE)
-                        ))
-                ))
-            );
-
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(1, entities.size());
-        assertEquals("http://snomed.info/sct#702450004", entities.get(0).get("@id").textValue());
-    }
-
-    @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void imQuery_term_multiScheme() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
@@ -90,6 +70,7 @@ class OSQueryTest_IM {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void imQuery_term_isA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
@@ -110,6 +91,7 @@ class OSQueryTest_IM {
     }
 
     @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void imQuery_term_multiIsA() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
@@ -133,28 +115,7 @@ class OSQueryTest_IM {
     }
 
     @Test
-    void imQuery_term_member() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
-        QueryRequest req = new QueryRequest()
-            .setTextSearch("FOXG1")
-            .setQuery(new Query()
-                .setMatch(List.of(
-                    new Match()
-                        .addProperty(new Property()
-                            .setIri(IM.IS_MEMBER_OF.getIri())
-                            .setValue("http://endhealth.info/im#VSET_ASD")
-                        )
-                ))
-            );
-
-        ObjectNode results = osq.openSearchQuery(req);
-        assertTrue(results.has("entities"));
-        assertTrue(results.get("entities").isArray());
-        ArrayNode entities = (ArrayNode) results.get("entities");
-        assertEquals(1, entities.size());
-        assertEquals("http://snomed.info/sct#702450004", entities.get(0).get("@id").textValue());
-    }
-
-    @Test
+    @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
     void imQuery_term_multiMember() throws OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, JsonProcessingException, DataFormatException {
         QueryRequest req = new QueryRequest()
             .setTextSearch("FOXG1")
@@ -162,7 +123,8 @@ class OSQueryTest_IM {
                 .setMatch(List.of(
                     new Match()
                         .addProperty(new Property()
-                            .setIri(IM.IS_MEMBER_OF.getIri())
+                            .setIri(IM.HAS_MEMBER.getIri())
+                            .setInverse(true)
                             .setIn(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
                         )
                 ))

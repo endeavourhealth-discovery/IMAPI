@@ -128,7 +128,7 @@ public class ExcelSetExporter {
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
         if (flat) {
-            addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme",
+            addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId",
                 "usage", "im1Id");
             sheet.setColumnWidth(0, 5000);
             sheet.setColumnWidth(1, 25000);
@@ -138,8 +138,9 @@ public class ExcelSetExporter {
             sheet.setColumnWidth(5, 2500);
             sheet.setColumnWidth(6, 2500);
             sheet.setColumnWidth(7, 2500);
+            sheet.setColumnWidth(8, 2500);
         } else {
-            addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme"
+            addHeaders(sheet, headerStyle, "core code", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId"
             );
             sheet.setColumnWidth(0, 5000);
             sheet.setColumnWidth(1, 25000);
@@ -147,6 +148,7 @@ public class ExcelSetExporter {
             sheet.setColumnWidth(3, 20000);
             sheet.setColumnWidth(4, 20000);
             sheet.setColumnWidth(5, 2500);
+            sheet.setColumnWidth(6, 2500);
         }
 
         for (Concept cl : members) {
@@ -175,13 +177,16 @@ public class ExcelSetExporter {
             String legacyScheme = legacy.getScheme().getIri();
             String legacyTerm = legacy.getName();
             Integer legacyUsage = legacy.getUsage();
+            String codeId=legacy.getCodeId();
+            if (codeId==null)
+              codeId="";
             if (legacy.getIm1Id() == null || !flat) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme);
+                addCells(row, cl.getCode(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
             } else {
                 for (String im1Id : legacy.getIm1Id()) {
                     Row row = addRow(sheet);
-                    addCells(row, cl.getCode(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,
+                    addCells(row, cl.getCode(), cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
                         legacyUsage == null ? "" : legacyUsage, im1Id);
                 }
             }

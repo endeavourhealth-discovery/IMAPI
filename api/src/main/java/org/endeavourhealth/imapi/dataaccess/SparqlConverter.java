@@ -402,32 +402,22 @@ public class SparqlConverter {
 	}
 
 	private void whereValue(StringBuilder whereQl, String object, Property where) throws QueryException {
-		String comp= where.getOperator().getValue();
+		String comp= where.getOperator()!=null ?where.getOperator().getValue() : Operator.eq.getValue();
 		String value= where.getValue();
 		whereQl.append("Filter (?").append(object).append(comp).append(" ");
-		whereQl.append(convertValue(value));
+		whereQl.append(convertValue(where));
 		whereQl.append(")\n");
 	}
 
 
-	private String convertValue(String value) throws QueryException {
-		if (StringUtils.isNumeric(value))
-			return value;
-		else {
-			try {
-				DatatypeConverter.parseDateTime(value);
-				if (!value.contains("^^xsd"))
-					value=value+"^^xsd:dateTime";
-				return value;
-			} catch (IllegalArgumentException e)
-			{
-				throw new QueryException("Invalid value "+ value+
-					".Value was tested for number and xsd date time format");
-			}
-
+	private String convertValue(Assignable value) throws QueryException {
+		String dataValue= "\""+value.getValue()+"\"";
+		if (value.getDataType()==null)
+			return dataValue;
+		else
+			return value+value.getDataType().getIri();
 		}
 
-	}
 
 	/**
 	 * Resolves a query $ vaiable value using the query request argument map

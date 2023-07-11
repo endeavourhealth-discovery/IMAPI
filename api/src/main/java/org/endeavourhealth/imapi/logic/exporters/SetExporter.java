@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -30,8 +31,10 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 @Component
@@ -76,7 +79,7 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws DataFormatException, JsonProcessingException, QueryException {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws JsonProcessingException, QueryException {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
@@ -84,6 +87,7 @@ public class SetExporter {
 
         for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
+            String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
             Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
@@ -101,6 +105,7 @@ public class SetExporter {
                         .setDescendantsOrSelfOf(true))
                     ,includeLegacy,null));
             }
+            result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
         }
 
         return result;

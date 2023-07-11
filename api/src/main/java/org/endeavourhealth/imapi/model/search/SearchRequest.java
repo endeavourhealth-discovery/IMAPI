@@ -21,6 +21,7 @@ public class SearchRequest {
     private List<String> schemeFilter = new ArrayList<>();
     private List<String> markIfDescendentOf = new ArrayList<>();
     private List<String> isA = new ArrayList<>();
+    private List<String> memberOf = new ArrayList<>();
     private int page = 1;
     private int size = 20;
     private int from;
@@ -64,6 +65,18 @@ public class SearchRequest {
 
     public SearchRequest setIsA(List<String> isA) {
         this.isA = isA;
+        return this;
+    }
+
+    @Schema(name = "member of filter",
+        description = "List of set IRIs that the match must be a member of",
+        example = "Encounter record")
+    public List<String> getMemberOf() {
+        return memberOf;
+    }
+
+    public SearchRequest setMemberOf(List<String> memberOf) {
+        this.memberOf = memberOf;
         return this;
     }
 

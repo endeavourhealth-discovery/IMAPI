@@ -18,6 +18,7 @@ public class IM {
     public static final TTIriRef PREFERRED_NAME = iri(NAMESPACE + "preferredName");
     public static final TTIriRef HAS_SCHEME = iri(NAMESPACE + "scheme");
     public static final TTIriRef HAS_STATUS = iri(NAMESPACE + "status");
+    public static final TTIriRef CONTENT_TYPE = iri(NAMESPACE + "contentType");
     //public static final TTIriRef STATUS = iri(NAMESPACE + "Status");
    // public static final TTIriRef SHORT_NAME = iri(NAMESPACE + "shortName");
     public static final TTIriRef USAGE_STATS = iri(NAMESPACE + "usageStats");

@@ -25,8 +25,8 @@ public class EclService {
     private final QueryRepository queryRepository = new QueryRepository();
     private final SetRepository setRepository = new SetRepository();
 
-    public String getEcl(Query inferred) throws DataFormatException, JsonProcessingException {
-        if (inferred == null) throw new DataFormatException("Missing data for ECL conversion");
+    public String getEcl(Query inferred) throws QueryException, JsonProcessingException {
+        if (inferred == null) throw new QueryException("Missing data for ECL conversion");
         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
@@ -56,7 +56,7 @@ public class EclService {
         return result;
     }
 
-    public String getECLFromQuery(Query query) throws DataFormatException {
+    public String getECLFromQuery(Query query) throws QueryException {
         return IMLToECL.getECLFromQuery(query, true);
     }
 }

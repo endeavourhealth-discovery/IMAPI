@@ -20,7 +20,7 @@ public class IMLToECL {
 	 * @return String of ECL
 	 * @throws DataFormatException invalid or unsupported ECL syntax
 	 */
-	public static String getECLFromQuery(Query query, Boolean includeName) throws DataFormatException {
+	public static String getECLFromQuery(Query query, Boolean includeName) throws QueryException {
 		StringBuilder ecl = new StringBuilder();
 		if (query.getMatch()!=null) {
 			match(query, ecl, includeName);
@@ -33,7 +33,7 @@ public class IMLToECL {
 	}
 
 
-	private static void match(Match match, StringBuilder ecl, boolean includeName) throws DataFormatException {
+	private static void match(Match match, StringBuilder ecl, boolean includeName) throws QueryException {
 		if (match.isExclude())
 			ecl.append(" MINUS ");
 
@@ -84,10 +84,10 @@ public class IMLToECL {
 	}
 
 
-	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws DataFormatException {
+	private static void addRefinements(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
 		ecl.append(": ");
 		boolean first = true;
-		if (match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
+		if (null != match.getProperty().get(0).getIri() && match.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
 			ecl.append(" { ");
 			addRefinements(match.getProperty().get(0).getMatch(),ecl,includeNames);
 			ecl.append("}");
@@ -102,9 +102,24 @@ public class IMLToECL {
 		}
 	}
 
+	private static void addRefinements(Property property, StringBuilder ecl, boolean includeNames) throws QueryException {
+		boolean first = true;
+		if (null != property.getProperty().get(0).getIri() && property.getProperty().get(0).getIri().equals(IM.ROLE_GROUP.getIri())){
+			ecl.append(" { ");
+			addRefinements(property.getProperty().get(0).getMatch(),ecl,includeNames);
+			ecl.append("}");
+		}
+		else {
+			for (Property subProperty : property.getProperty()) {
+				if (!first)
+					ecl.append(" , ");
+				first = false;
+				addRefinedGroup(subProperty, ecl, includeNames);
+			}
+		}
+	}
 
-
-	private static void addRefinedGroup(Property property, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+	private static void addRefinedGroup(Property property, StringBuilder ecl, Boolean includeName) throws QueryException {
 		if (null == property.getMatch()) {
 			addRefined(property, ecl, includeName);
 		}
@@ -117,18 +132,19 @@ public class IMLToECL {
 	}
 
 
-	private static void addRefined(Property where, StringBuilder ecl, Boolean includeName) throws DataFormatException {
+	private static void addRefined(Property where, StringBuilder ecl, Boolean includeName) throws QueryException {
 		try {
-			try {
-				Node value = where.getIn().get(0);
+			if (null == where.getBool()) {
 				addProperty(where, ecl, includeName);
 				ecl.append(" = ");
+				if (null == where.getIn()) throw new QueryException("Property clause must contain 'in' value");
+				Node value = where.getIn().get(0);
 				addClass(value, ecl, includeName);
-			} catch (Exception e) {
-				throw new DataFormatException("Property clause must contain 'is' value");
+			} else {
+				addRefinements(where,ecl,includeName);
 			}
 		} catch (Exception e) {
-			throw new DataFormatException("Property clause inside a role group clause must contain a property");
+			throw new QueryException("Property clause inside a role group clause must contain a property");
 		}
 	}
 

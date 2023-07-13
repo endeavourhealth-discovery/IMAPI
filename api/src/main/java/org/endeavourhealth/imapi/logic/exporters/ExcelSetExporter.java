@@ -81,7 +81,7 @@ public class ExcelSetExporter {
         return workbook;
     }
 
-    private String getEcl(TTEntity entity) throws DataFormatException, JsonProcessingException {
+    private String getEcl(TTEntity entity) throws QueryException, JsonProcessingException {
         if (entity.get(IM.DEFINITION) == null)
             return null;
         String ecl = IMLToECL.getECLFromQuery(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class), true);

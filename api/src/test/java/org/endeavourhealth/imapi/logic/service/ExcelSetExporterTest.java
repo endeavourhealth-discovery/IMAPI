@@ -50,14 +50,14 @@ public class ExcelSetExporterTest {
     SetRepository setRepository;
 
     @Test
-    void getSetExport_NotNullIriNoConcept() throws DataFormatException, JsonProcessingException, QueryException {
+    void getSetExport_NotNullIriNoConcept() throws JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true, false);
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true, true, true, true, false);
         assertNotNull(actual);
     }
 
     @Test
-    void getSetExport_NotNullIriWithDefinition() throws DataFormatException, JsonProcessingException, QueryException {
+    void getSetExport_NotNullIriWithDefinition() throws JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
         when(setRepository.getSetExpansion(any(), anyBoolean(),any())).thenReturn(new HashSet<>());
@@ -65,7 +65,7 @@ public class ExcelSetExporterTest {
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
 
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true, true, false);
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true, true, true, true, false);
 
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());

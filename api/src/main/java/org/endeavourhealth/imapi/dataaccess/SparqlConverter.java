@@ -54,10 +54,14 @@ public class SparqlConverter {
 
 		selectQl.append("SELECT ");
 		selectQl.append("distinct ");
-
+		mainEntity="entity";
+		if (query.getMatch().get(0).getVariable()!=null)
+			mainEntity= query.getMatch().get(0).getVariable();
 		StringBuilder whereQl = new StringBuilder();
 		whereQl.append("WHERE {");
-		mainEntity= query.getMatch().get(0).getVariable();
+		if (query.getType()!=null){
+			whereQl.append("?").append(mainEntity).append(" rdf:type ").append(iriFromString(query.getType())+".\n");
+		}
 
 		if (null != queryRequest.getTextSearch()){
 			textSearch(whereQl);
@@ -138,10 +142,17 @@ public class SparqlConverter {
 
 
 
-	private void match(StringBuilder whereQl, String subject, Match match) throws QueryException {
+	private void match(StringBuilder whereQl, String parent, Match match) throws QueryException {
 		if (match.isExclude()) {
 			whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
 		}
+		String subject;
+		if (match.getVariable()!=null)
+			subject= match.getVariable();
+		else if (match.getNodeRef()!=null)
+			subject= match.getNodeRef();
+		else
+			subject= parent;
 		if (match.getGraph() != null) {
 			whereQl.append(" graph ").append(iriFromAlias(match.getGraph())).append(" {");
 		}
@@ -152,13 +163,14 @@ public class SparqlConverter {
 						whereQl.append("{ \n");
 					else
 						whereQl.append("UNION {\n");
-					match(whereQl, subject, match.getMatch().get(i));
+					Match subMatch= match.getMatch().get(i);
+					match(whereQl,subject, subMatch);
 					whereQl.append("}\n");
 				}
 			}
 			else {
 				for (Match subMatch : match.getMatch()) {
-					match(whereQl, subject, subMatch);
+						match(whereQl,subject, subMatch);
 				}
 			}
 		}
@@ -393,7 +405,10 @@ public class SparqlConverter {
 		else {
 			List<String> inList= new ArrayList<>();
 			for (Element iri:in){
-				inList.add(iriFromAlias(iri));
+				if (iri.getRef()!=null)
+					inList.add("?"+iri.getRef());
+				else
+					inList.add(iriFromAlias(iri));
 			}
 			String inString = String.join(",", inList);
 			whereQl.append(inString);
@@ -427,7 +442,6 @@ public class SparqlConverter {
 	 * @throws QueryException if the variable is unresolvable
 	 */
 	public static String resolveReference(String value,QueryRequest queryRequest) throws QueryException {
-
 			if (value.equalsIgnoreCase("$referenceDate")) {
 				if (null != queryRequest.getReferenceDate())
 					return queryRequest.getReferenceDate();
@@ -451,10 +465,8 @@ public class SparqlConverter {
 							}
 						}
 					}
-					throw new QueryException("Query Variable "+ value+" has not been assigned in the request");
 			}
-			else
-					throw new QueryException("Query needs variable "+ value+" but this has not been assigned in the request");
+			return value;
 	}
 
 

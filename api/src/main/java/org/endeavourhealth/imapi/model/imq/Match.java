@@ -21,7 +21,16 @@ public class Match extends Node{
 	private String description;
 	private List<OrderLimit> orderBy;
 	private String nodeRef;
+	private boolean optional;
 
+	public boolean isOptional() {
+		return optional;
+	}
+
+	public Match setOptional(boolean optional) {
+		this.optional = optional;
+		return this;
+	}
 
 	public List<Node> getIn() {
 		return in;

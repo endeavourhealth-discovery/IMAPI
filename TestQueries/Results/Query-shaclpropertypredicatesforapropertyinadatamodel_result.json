@@ -9,7 +9,7 @@
     "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@bn" : "a84a4d372a0f4c71a173983350134740173",
+    "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b173",
     "http://www.w3.org/ns/shacl#datatype" : [ {
       "@id" : "http://www.w3.org/2001/XMLSchema#integer",
       "http://www.w3.org/2000/01/rdf-schema#label" : "integer"

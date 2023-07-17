@@ -29,6 +29,7 @@ public class Property extends PropertyRef implements Assignable{
 	private boolean isNull;
 	private PropertyRef relativeTo;
 
+
 	public Bool getBool() {
 		return bool;
 	}

@@ -19,10 +19,12 @@ public class QueryValidator {
 		if (mainEntity==null)
 			mainEntity="entity";
 		for (Match match : query.getMatch()) {
-			if (match.getVariable() == null)
+			if (match.getVariable() == null&&match.getNodeRef()==null)
 				match.setVariable(mainEntity);
 
 			String subject = match.getVariable();
+			if (subject==null)
+				subject=match.getNodeRef();
 			validateMatch(match, subject);
 		}
 
@@ -89,11 +91,12 @@ public class QueryValidator {
 		if (match.getVariable()!=null){
 			variables.put(match.getVariable(), VarType.NODE);
 		}
+		if (match.getNodeRef()!=null){
+			if (variables.get(match.getNodeRef())==null)
+				throw new QueryException("match clause contains a node reference that has not been declared as a variable");
+		}
 		if (match.getMatch()!=null){
 			for (Match subMatch:match.getMatch()){
-				if (subMatch.getVariable()==null)
-					subMatch.setVariable(subject);
-				variables.put(subMatch.getVariable(),VarType.NODE);
 				validateMatch(subMatch,subMatch.getVariable());
 			}
 		}
@@ -115,26 +118,30 @@ public class QueryValidator {
 			variables.put(where.getVariable(),VarType.PATH);
 		if (where.getIri() == null&&where.getParameter()==null&&where.getProperty()==null)
 				throw new QueryException("Property clause has no property iri  (set @id to property iri) ir a parameter");
-			if (where.getNodeRef() != null) {
+		if (where.getNodeRef() != null) {
 				if (!variables.containsKey(where.getNodeRef()))
 					throw new QueryException("Property clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
-			}
+		}
+		if (where.getValueVariable()!=null)
+			variables.put(where.getValueVariable(),VarType.NODE);
+		String object=where.getValueVariable();
+		if (object==null) {
 			o++;
-			String object = "o" + o;
-			propertyMap.computeIfAbsent(subject, s -> new HashMap<>())
-				.put(where.getIri(), object);
+			object = "o" + o;
 			where.setValueVariable(object);
-			if (where.getProperty()!=null){
+		}
+		propertyMap.computeIfAbsent(subject, s -> new HashMap<>())
+				.put(where.getIri(), object);
+		if (where.getProperty()!=null){
 				for (Property property:where.getProperty())
 					validateWhere(property,subject);
 			}
-			if (where.getMatch()!=null){
+		if (where.getMatch()!=null){
 				if (where.getMatch().getVariable()==null){
 					where.getMatch().setVariable(object);
 				}
 				validateMatch(where.getMatch(),where.getMatch().getVariable());
 			}
-
 
 	}
 

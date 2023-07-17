@@ -30777,7 +30777,39 @@
   }, {
     "@id" : "http://snomed.info/sct#50040131000188105",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Mother under medication treatment (situation)",
-    "http://endhealth.info/im#code" : "50040131000188105"
+    "http://endhealth.info/im#code" : "50040131000188105",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#14831221000006119",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Mother under medication treatment (situation)",
+      "http://endhealth.info/im#code" : "^ESCT1483122"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#50040131000188105",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Mother under medication treatment (situation)",
+    "http://endhealth.info/im#code" : "50040131000188105",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#14831231000006116",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Mother under medication treatment (situation)",
+      "http://endhealth.info/im#code" : "^ESCT1483123"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#50050161000188101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital immunodeficiency disease (situation)",
+    "http://endhealth.info/im#code" : "50050161000188101",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#14831261000006113",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital immunodeficiency disease (situation)",
+      "http://endhealth.info/im#code" : "^ESCT1483126"
+    } ]
+  }, {
+    "@id" : "http://snomed.info/sct#50050161000188101",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital immunodeficiency disease (situation)",
+    "http://endhealth.info/im#code" : "50050161000188101",
+    "http://endhealth.info/im#matchedTo" : [ {
+      "@id" : "http://endhealth.info/emis#14831271000006118",
+      "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital immunodeficiency disease (situation)",
+      "http://endhealth.info/im#code" : "^ESCT1483127"
+    } ]
   }, {
     "@id" : "http://snomed.info/sct#50050161000188101",
     "http://www.w3.org/2000/01/rdf-schema#label" : "Family history of congenital immunodeficiency disease (situation)",

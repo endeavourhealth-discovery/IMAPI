@@ -18,6 +18,17 @@ public class Element extends IriLD implements Entailment{
 	private boolean ancestorsOf;
 	private boolean descendantsOrSelfOf;
 	private boolean descendantsOf;
+	private String ref;
+
+	public String getRef() {
+		return ref;
+	}
+
+	public Element setRef(String ref) {
+		this.ref = ref;
+		return this;
+	}
+
 	public static Element iri(String iri) {
 		return new Element(iri);
 	}

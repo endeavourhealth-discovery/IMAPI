@@ -17,10 +17,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -234,9 +231,7 @@ public class ExcelSetExporter {
 
     private void addCells(Row row, Object... values) {
         for (Object value : values) {
-            if (value != null) {
-                addCellValue(row, value);
-            }
+            addCellValue(row, Objects.requireNonNullElse(value, ""));
         }
     }
 

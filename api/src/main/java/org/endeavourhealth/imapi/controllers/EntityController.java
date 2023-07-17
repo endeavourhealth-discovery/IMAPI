@@ -434,12 +434,15 @@ public class EntityController {
 	@GetMapping("/public/setExport")
 	public HttpEntity<Object> getSetExport(
 		@RequestParam(name = "iri") String iri,
+		@RequestParam(name = "definition") boolean definition,
 		@RequestParam(name = "core") boolean core,
 		@RequestParam(name = "legacy") boolean legacy,
-        @RequestParam(name = "flat") boolean flat
+        @RequestParam(name = "includeSubsets") boolean includeSubsets,
+        @RequestParam(name = "inlineLegacy") boolean inlineLegacy,
+        @RequestParam(name = "im1id") boolean im1id
 	) throws DataFormatException, IOException, QueryException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri, core, legacy, flat);
+		XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id);
 		HttpHeaders headers = new HttpHeaders();
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

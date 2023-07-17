@@ -56,25 +56,25 @@ public class ExcelSetExporter {
      * @param setIri iri of the set
      * @return work book
      */
-    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy,boolean flat) throws DataFormatException, JsonProcessingException, QueryException {
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean inlineLegacy, boolean im1id) throws JsonProcessingException, QueryException {
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
 
         String ecl = getEcl(entity);
-        if(ecl != null) {
+        if(ecl != null && definition) {
             addDefinitionToWorkbook(ecl);
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy);
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets);
 
             if (core) {
-                addCoreExpansionToWorkBook(members,flat);
+                addCoreExpansionToWorkBook(members, im1id);
             }
 
             if (legacy) {
-                addLegacyExpansionToWorkBook(members,flat);
+                addLegacyExpansionToWorkBook(members, im1id);
             }
         }
 
@@ -91,7 +91,7 @@ public class ExcelSetExporter {
 
 
 
-    private void addCoreExpansionToWorkBook(Set<Concept> members,boolean flat) {
+    private void addCoreExpansionToWorkBook(Set<Concept> members, boolean im1id) {
 
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
@@ -106,16 +106,16 @@ public class ExcelSetExporter {
         Set<String> addedCoreIris = new HashSet<>();
         for (Concept cl : members) {
             if (!addedCoreIris.contains(cl.getIri())) {
-                addCoreExpansionConceptToWorkBook(flat, sheet, addedCoreIris, cl);
+                addCoreExpansionConceptToWorkBook(sheet, addedCoreIris, cl, im1id);
             }
         }
     }
 
-    private void addCoreExpansionConceptToWorkBook(boolean flat, Sheet sheet, Set<String> addedCoreIris, Concept cl) {
+    private void addCoreExpansionConceptToWorkBook(Sheet sheet, Set<String> addedCoreIris, Concept cl, boolean im1id) {
         Integer usage= cl.getUsage();
         String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
         String set = cl.getIsContainedIn().iterator().next().getName();
-        if (cl.getIm1Id()!=null&& flat) {
+        if (cl.getIm1Id()!=null&& im1id) {
             for (String im1 : cl.getIm1Id()) {
                 Row row = addRow(sheet);
                 addCells(row, cl.getCode(), set , cl.getName(), isExtension, usage == null ? "" : usage, im1);
@@ -128,11 +128,11 @@ public class ExcelSetExporter {
         addedCoreIris.add(cl.getIri());
     }
 
-    private void addLegacyExpansionToWorkBook(Set<Concept> members,boolean flat) {
+    private void addLegacyExpansionToWorkBook(Set<Concept> members, boolean im1id) {
 
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
-        if (flat) {
+        if (im1id) {
             addHeaders(sheet, headerStyle, "core code", "set", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId",
                 "usage", "im1Id");
             sheet.setColumnWidth(0, 5000);
@@ -173,13 +173,13 @@ public class ExcelSetExporter {
                         .comparing(Concept::getIri)
                     )
                     .collect(Collectors.toList());
-                addLegacyExpansionConceptsToWorkbook(flat, sheet, cl, isExtension, sortedLegacy);
+                addLegacyExpansionConceptsToWorkbook(sheet, cl, isExtension, sortedLegacy, im1id);
             }
         }
         sheet.autoSizeColumn(3);
     }
 
-    private void addLegacyExpansionConceptsToWorkbook(boolean flat, Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy) {
+    private void addLegacyExpansionConceptsToWorkbook(Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy, boolean im1id) {
         for (Concept legacy : sortedLegacy) {
             String legacyCode = legacy.getCode();
             String legacyScheme = legacy.getScheme().getIri();
@@ -189,7 +189,7 @@ public class ExcelSetExporter {
             String set = cl.getIsContainedIn().iterator().next().getName();
             if (codeId==null)
               codeId="";
-            if (legacy.getIm1Id() == null || !flat) {
+            if (legacy.getIm1Id() == null || !im1id) {
                 Row row = addRow(sheet);
                 addCells(row, cl.getCode(), set, cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
             } else {

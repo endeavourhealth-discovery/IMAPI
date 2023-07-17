@@ -162,6 +162,8 @@ public class SetRepository {
                         cl.setName(name.stringValue());
                     if (code != null) {
                         cl.setCode(code.stringValue());
+                    }
+                    if( null != scheme) {
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
                     if (null != status) {

@@ -31,10 +31,8 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 @Component
@@ -58,7 +56,7 @@ public class SetExporter {
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
-        Set<Concept> members = getExpandedSetMembers(setIri, true);
+        Set<Concept> members = getExpandedSetMembers(setIri, true, true);
 
         return generateTSV(setIri, name, members);
     }
@@ -79,8 +77,14 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy) throws JsonProcessingException, QueryException {
-        Set<String> setIris = getSetsRecursive(setIri);
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset) throws JsonProcessingException, QueryException {
+        Set<String> setIris = new HashSet<>();
+        if(includeSubset) {
+            setIris.addAll(getSetsRecursive(setIri));
+        } else {
+            setIris.add(setIri);
+        }
+
 
         LOG.trace("Expanding members for sets...");
         Set<Concept> result = new HashSet<>();

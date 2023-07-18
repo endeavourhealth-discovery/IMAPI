@@ -849,13 +849,13 @@ class EntityModelServiceTest {
 
     @Test
     void getSetExport_NullIri() throws DataFormatException, JsonProcessingException, QueryException {
-        XSSFWorkbook actual = entityService.getSetExport(null, true, true, false);
+        XSSFWorkbook actual = entityService.getSetExport(null, false,true, true, true, true, false);
         assertNull(actual);
     }
 
     @Test
     void getSetExport_EmptyIri() throws DataFormatException, JsonProcessingException, QueryException {
-        XSSFWorkbook actual = entityService.getSetExport("", true, true, false);
+        XSSFWorkbook actual = entityService.getSetExport("", false,true, true, true, true, false);
         assertNull(actual);
     }
 }

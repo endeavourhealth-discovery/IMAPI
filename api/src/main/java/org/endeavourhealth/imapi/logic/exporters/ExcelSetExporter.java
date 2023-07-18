@@ -6,23 +6,16 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
-import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
 
 
 /**
@@ -56,25 +49,25 @@ public class ExcelSetExporter {
      * @param setIri iri of the set
      * @return work book
      */
-    public XSSFWorkbook getSetAsExcel(String setIri, boolean core, boolean legacy,boolean flat) throws DataFormatException, JsonProcessingException, QueryException {
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow, boolean im1id) throws JsonProcessingException, QueryException {
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
 
         String ecl = getEcl(entity);
-        if(ecl != null) {
+        if(ecl != null && definition) {
             addDefinitionToWorkbook(ecl);
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy);
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets);
 
             if (core) {
-                addCoreExpansionToWorkBook(members,flat);
+                addCoreExpansionToWorkBook(members, im1id);
             }
 
             if (legacy) {
-                addLegacyExpansionToWorkBook(members,flat);
+                addLegacyExpansionToWorkBook(members, im1id, ownRow);
             }
         }
 
@@ -88,17 +81,14 @@ public class ExcelSetExporter {
         return ecl;
     }
 
-
-
-
-    private void addCoreExpansionToWorkBook(Set<Concept> members,boolean flat) {
+    private void addCoreExpansionToWorkBook(Set<Concept> members, boolean im1id) {
 
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
-        addHeaders(sheet, headerStyle, "code", "set", "term", "extension","usage","im1Id");
+        addHeaders(sheet, headerStyle, "code", "term", "set", "extension","usage","im1Id");
         sheet.setColumnWidth(0, 5000);
-        sheet.setColumnWidth(1, 15000);
-        sheet.setColumnWidth(2, 20000);
+        sheet.setColumnWidth(1, 20000);
+        sheet.setColumnWidth(2, 15000);
         sheet.setColumnWidth(3, 2500);
         sheet.setColumnWidth(4, 2500);
         sheet.setColumnWidth(5, 2500);
@@ -106,56 +96,65 @@ public class ExcelSetExporter {
         Set<String> addedCoreIris = new HashSet<>();
         for (Concept cl : members) {
             if (!addedCoreIris.contains(cl.getIri())) {
-                addCoreExpansionConceptToWorkBook(flat, sheet, addedCoreIris, cl);
+                addCoreExpansionConceptToWorkBook(sheet, addedCoreIris, cl, im1id);
             }
         }
     }
 
-    private void addCoreExpansionConceptToWorkBook(boolean flat, Sheet sheet, Set<String> addedCoreIris, Concept cl) {
+    private void addCoreExpansionConceptToWorkBook(Sheet sheet, Set<String> addedCoreIris, Concept cl, boolean im1id) {
         Integer usage= cl.getUsage();
         String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
         String set = cl.getIsContainedIn().iterator().next().getName();
-        if (cl.getIm1Id()!=null&& flat) {
+        if (cl.getIm1Id()!=null && im1id) {
             for (String im1 : cl.getIm1Id()) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), set , cl.getName(), isExtension, usage == null ? "" : usage, im1);
+                addCells(row, cl.getCode(), cl.getName(), set , isExtension, usage == null ? "" : usage, im1);
             }
         }
         else {
             Row row = addRow(sheet);
-            addCells(row, cl.getCode(),set , cl.getName(), isExtension, usage == null ? "" : usage, "");
+            addCells(row, cl.getCode(),cl.getName(), set , isExtension, usage == null ? "" : usage, "");
         }
         addedCoreIris.add(cl.getIri());
     }
 
-    private void addLegacyExpansionToWorkBook(Set<Concept> members,boolean flat) {
+    private void addLegacyExpansionToWorkBook(Set<Concept> members, boolean im1id, boolean ownRow) {
 
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
-        if (flat) {
-            addHeaders(sheet, headerStyle, "core code", "set", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId",
-                "usage", "im1Id");
+        if(ownRow) {
+            addHeaders(sheet, headerStyle, "core code", "core term", "set", "extension");
             sheet.setColumnWidth(0, 5000);
-            sheet.setColumnWidth(1, 15000);
-            sheet.setColumnWidth(2, 25000);
+            sheet.setColumnWidth(1, 25000);
+            sheet.setColumnWidth(2, 15000);
             sheet.setColumnWidth(3, 2500);
-            sheet.setColumnWidth(4, 20000);
-            sheet.setColumnWidth(5, 20000);
-            sheet.setColumnWidth(6, 2500);
-            sheet.setColumnWidth(7, 2500);
-            sheet.setColumnWidth(8, 2500);
-            sheet.setColumnWidth(9, 2500);
         } else {
-            addHeaders(sheet, headerStyle, "core code", "set", "core term", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId"
-            );
-            sheet.setColumnWidth(0, 5000);
-            sheet.setColumnWidth(1, 15000);
-            sheet.setColumnWidth(2, 25000);
-            sheet.setColumnWidth(3, 2500);
-            sheet.setColumnWidth(4, 20000);
-            sheet.setColumnWidth(5, 20000);
-            sheet.setColumnWidth(6, 2500);
-            sheet.setColumnWidth(7, 2500);
+            if (im1id) {
+                addHeaders(sheet, headerStyle, "core code", "core term", "set", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId",
+                        "usage", "im1Id");
+                sheet.setColumnWidth(0, 5000);
+                sheet.setColumnWidth(1, 25000);
+                sheet.setColumnWidth(2, 15000);
+                sheet.setColumnWidth(3, 2500);
+                sheet.setColumnWidth(4, 20000);
+                sheet.setColumnWidth(5, 20000);
+                sheet.setColumnWidth(6, 2500);
+                sheet.setColumnWidth(7, 2500);
+                sheet.setColumnWidth(8, 2500);
+                sheet.setColumnWidth(9, 2500);
+            } else {
+                addHeaders(sheet, headerStyle, "core code", "core term", "set", "extension", "legacy code", "Legacy term", "Legacy scheme","codeId"
+                );
+                sheet.setColumnWidth(0, 5000);
+                sheet.setColumnWidth(1, 25000);
+                sheet.setColumnWidth(2, 15000);
+                sheet.setColumnWidth(3, 2500);
+                sheet.setColumnWidth(4, 20000);
+                sheet.setColumnWidth(5, 20000);
+                sheet.setColumnWidth(6, 2500);
+                sheet.setColumnWidth(7, 2500);
+            }
+
         }
 
         for (Concept cl : members) {
@@ -164,7 +163,7 @@ public class ExcelSetExporter {
             String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
             if (cl.getMatchedFrom() == null) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), set, cl.getName(), isExtension, "");
+                addCells(row, cl.getCode(), cl.getName(), set, isExtension, "");
 
             } else {
                 List<Concept> sortedLegacy = cl.getMatchedFrom()
@@ -173,32 +172,49 @@ public class ExcelSetExporter {
                         .comparing(Concept::getIri)
                     )
                     .collect(Collectors.toList());
-                addLegacyExpansionConceptsToWorkbook(flat, sheet, cl, isExtension, sortedLegacy);
+                addLegacyExpansionConceptsToWorkbook(sheet, cl, isExtension, sortedLegacy, im1id, ownRow);
             }
         }
         sheet.autoSizeColumn(3);
     }
 
-    private void addLegacyExpansionConceptsToWorkbook(boolean flat, Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy) {
+    private void addLegacyExpansionConceptsToWorkbook(Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy, boolean im1id, boolean ownRow) {
+        String set = cl.getIsContainedIn().iterator().next().getName();
+        if(ownRow) {
+            Row row = addRow(sheet);
+            addCells(row, cl.getCode(), cl.getName(), set, isExtension);
+        }
         for (Concept legacy : sortedLegacy) {
             String legacyCode = legacy.getCode();
             String legacyScheme = legacy.getScheme().getIri();
             String legacyTerm = legacy.getName();
             Integer legacyUsage = legacy.getUsage();
             String codeId=legacy.getCodeId();
-            String set = cl.getIsContainedIn().iterator().next().getName();
             if (codeId==null)
               codeId="";
-            if (legacy.getIm1Id() == null || !flat) {
+            if (legacy.getIm1Id() == null || !im1id) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), set, cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
+                if(!ownRow) {
+                    addCells(row, cl.getCode(), cl.getName(), set, isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
+                } else {
+                    addCells(row,legacyCode, legacyTerm, legacyScheme,codeId );
+                }
             } else {
                 for (String im1Id : legacy.getIm1Id()) {
                     Row row = addRow(sheet);
-                    addCells(row, cl.getCode(), set, cl.getName(), isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
-                        legacyUsage == null ? "" : legacyUsage, im1Id);
+                    if(!ownRow) {
+                        addCells(row, cl.getCode(), cl.getName(), set, isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
+                                legacyUsage == null ? "" : legacyUsage, im1Id);
+                    } else {
+                        addCells(row,legacyCode, legacyTerm, legacyScheme,codeId,
+                                legacyUsage == null ? "" : legacyUsage, im1Id );
+                    }
                 }
             }
+        }
+        if(ownRow) {
+            Row emptyRow = addRow(sheet);
+            addCells(emptyRow,"");
         }
     }
 
@@ -234,9 +250,7 @@ public class ExcelSetExporter {
 
     private void addCells(Row row, Object... values) {
         for (Object value : values) {
-            if (value != null) {
-                addCellValue(row, value);
-            }
+            addCellValue(row, Objects.requireNonNullElse(value, ""));
         }
     }
 

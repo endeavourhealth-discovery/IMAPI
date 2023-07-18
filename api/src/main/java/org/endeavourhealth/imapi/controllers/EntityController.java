@@ -439,7 +439,8 @@ public class EntityController {
 		@RequestParam(name = "legacy") boolean legacy,
         @RequestParam(name = "includeSubsets") boolean includeSubsets,
         @RequestParam(name = "inlineLegacy") boolean inlineLegacy,
-        @RequestParam(name = "im1id") boolean im1id
+        @RequestParam(name = "im1id") boolean im1id,
+        @RequestParam(name = "format") String format
 	) throws DataFormatException, IOException, QueryException {
 		LOG.debug("getSetExport");
 		XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id);
@@ -449,7 +450,7 @@ public class EntityController {
 			workbook.write(outputStream);
 			workbook.close();
 			headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport.xlsx\"");
+			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"" );
 
 			return new HttpEntity<>(outputStream.toByteArray(), headers);
 		}

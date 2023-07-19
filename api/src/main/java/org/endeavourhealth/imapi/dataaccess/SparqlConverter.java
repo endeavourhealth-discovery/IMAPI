@@ -478,8 +478,7 @@ public class SparqlConverter {
 	}
 
 	private void convertReturn(StringBuilder selectQl, StringBuilder whereQl,Return aReturn){
-		String variable= aReturn.getNodeRef();
-		if (variable!=null)
+		if (aReturn.getNodeRef()!=null)
 			selectQl.append(" ").append(getAs(aReturn.getNodeRef(),aReturn.getAs()));
 		if (aReturn.getProperty()!=null){
 			for (ReturnProperty path:aReturn.getProperty()) {
@@ -487,22 +486,22 @@ public class SparqlConverter {
 				if (path.getPropertyRef() != null) {
 					selectQl.append(" ").append(inverse).append(getAs(path.getPropertyRef(), path.getAs()));
 				}
-				if (path.getNode() != null) {
-					if (path.getNode().getNodeRef() == null) {
+				if (path.getReturn() != null) {
+					if (path.getReturn().getNodeRef() == null) {
 						addOptionalPath(selectQl, whereQl, aReturn, path);
 					}
 					else
-						convertReturn(selectQl, whereQl, path.getNode());
+						convertReturn(selectQl, whereQl, path.getReturn());
 				}
 				else {
-					if (path.getValueVariable() == null) {
+					if (path.getAs() == null) {
 						o++;
 						String objectVariable = "o" + o;
-						path.setValueVariable(objectVariable);
-						addOptionalProperty(selectQl, whereQl, aReturn.getNodeRef(), path.getIri(), objectVariable,path.getAs());
+						path.setAs(objectVariable);
+						addOptionalProperty(selectQl, whereQl, aReturn.getNodeRef(), path.getIri(), path.getAs());
 					}
 					else{
-						selectQl.append(" ?").append(path.getValueVariable());
+						selectQl.append(" ?").append(path.getAs());
 					}
 				}
 			}
@@ -518,13 +517,13 @@ public class SparqlConverter {
 		}
 		else
 			whereQl.append(" ").append(inverse).append("?").append(path.getPropertyRef());
-		if (path.getNode()!=null){
-			if (path.getNode().getNodeRef()==null){
+		if (path.getReturn()!=null){
+			if (path.getReturn().getNodeRef()==null){
 				o++;
-				path.getNode().setNodeRef("o"+o);
+				path.getReturn().setNodeRef("o"+o);
 			}
-			whereQl.append(" ?").append(path.getNode().getNodeRef()).append(".\n");
-			convertReturn(selectQl,whereQl,path.getNode());
+			whereQl.append(" ?").append(path.getReturn().getNodeRef()).append(".\n");
+			convertReturn(selectQl,whereQl,path.getReturn());
 		}
 		else {
 			o++;
@@ -536,13 +535,13 @@ public class SparqlConverter {
 	}
 
 private void addOptionalProperty(StringBuilder selectQl, StringBuilder whereQl,String subject,
-																 String predicate,String objectVariable,String alias){
+																 String predicate,String alias){
 
-		selectQl.append(" ").append(getAs(objectVariable,alias));
+		selectQl.append(" ?").append(alias);
 		whereQl.append("OPTIONAL {");
 		whereQl.append(" ?").append(subject);
 		whereQl.append(" ").append(iriFromString(predicate));
-		whereQl.append(" ?").append(objectVariable).append(".");
+		whereQl.append(" ?").append(alias).append(".");
 		whereQl.append("}\n");
 	}
 

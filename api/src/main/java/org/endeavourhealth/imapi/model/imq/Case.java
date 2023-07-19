@@ -1,46 +1,52 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class Case {
-	private Range range;
-	private String value;
-	private String outputData;
-	private TTIriRef outputIri;
+	private List<When> when;
+	private  ReturnProperty else_x;
 
-	public Range getRange() {
-		return range;
+	public List<When> getWhen() {
+		return when;
 	}
 
-	public Case setRange(Range range) {
-		this.range = range;
+	public Case setWhen(List<When> when) {
+		this.when = when;
 		return this;
 	}
 
-	public String getValue() {
-		return value;
-	}
-
-	public Case setValue(String value) {
-		this.value = value;
+	public Case addWhen(When when){
+		if (this.when==null)
+			this.when= new ArrayList<>();
+		this.when.add(when);
 		return this;
 	}
 
-	public String getOutputData() {
-		return outputData;
-	}
-
-	public Case setOutputData(String outputData) {
-		this.outputData = outputData;
+	public Case when(Consumer<When> builder){
+		When when= new When();
+		addWhen(when);
+		builder.accept(when);
 		return this;
 	}
 
-	public TTIriRef getOutputIri() {
-		return outputIri;
+	@JsonProperty("else")
+	public ReturnProperty getElse() {
+		return else_x;
 	}
 
-	public Case setOutputIri(TTIriRef outputIri) {
-		this.outputIri = outputIri;
+	@JsonProperty("else")
+	public Case setElse(ReturnProperty else_x) {
+		this.else_x = else_x;
+		return this;
+	}
+	public Case else_x(Consumer<ReturnProperty> builder){
+		this.else_x= new ReturnProperty();
+		builder.accept(this.else_x);
 		return this;
 	}
 }

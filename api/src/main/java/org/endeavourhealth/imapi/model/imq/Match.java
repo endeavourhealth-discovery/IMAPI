@@ -22,6 +22,23 @@ public class Match extends Node{
 	private List<OrderLimit> orderBy;
 	private String nodeRef;
 	private boolean optional;
+	private FunctionClause aggregate;
+
+	public FunctionClause getAggregate() {
+		return aggregate;
+	}
+
+	public Match setAggregate(FunctionClause aggregate) {
+		this.aggregate = aggregate;
+		return this;
+	}
+
+	public Match aggregate(Consumer<FunctionClause> builder){
+		FunctionClause function= new FunctionClause();
+		this.aggregate= function;
+		builder.accept(function);
+		return this;
+	}
 
 	public boolean isOptional() {
 		return optional;

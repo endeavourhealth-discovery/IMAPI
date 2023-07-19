@@ -432,7 +432,7 @@ public class OSQuery {
             return query.getReturn().stream()
                 .map(Return::getProperty)
                 .flatMap(Collection::stream)
-                .noneMatch(p -> p != null && (p.getNode() != null || (p.getIri() != null && !propIsSupported(p.getIri()))));
+                .noneMatch(p -> p != null && (p.getReturn() != null || (p.getIri() != null && !propIsSupported(p.getIri()))));
         }
         return true;
     }

@@ -197,7 +197,7 @@ public class QueryRepository {
 
     private void bindProperty(BindingSet bs, ObjectNode node, ReturnProperty property) {
         String iri = property.getIri();
-        String objectVariable= property.getValueVariable();
+        String objectVariable= property.getAs();
         Value object = bs.getValue(objectVariable);
         if (object != null) {
                 String nodeValue = object.stringValue();
@@ -215,20 +215,22 @@ public class QueryRepository {
     }
 
     private void bindPath(BindingSet bs, ReturnProperty path, ObjectNode node) {
-        if (path.getNode()==null) {
+        if (path.getReturn()==null) {
             bindProperty(bs, node, path);
             return;
         }
         String iri=null;
         if (path.getIri()!=null)
             iri= path.getIri();
-        else {
-            Value pathVariable= bs.getValue(path.getPropertyRef());
-            if (pathVariable!=null)
-                iri= pathVariable.stringValue();
+        else if (path.getPropertyRef()!=null) {
+            Value pathVariable = bs.getValue(path.getPropertyRef());
+            if (pathVariable != null)
+                iri = pathVariable.stringValue();
         }
+        else
+            iri= path.getAs();
         if (iri!=null) {
-            Return returnNode = path.getNode();
+            Return returnNode = path.getReturn();
             String nodeVariable = returnNode.getNodeRef();
             Value nodeValue = bs.getValue(nodeVariable);
             if (nodeValue != null) {
@@ -343,8 +345,8 @@ public class QueryRepository {
                 if (property.getIri() != null) {
                     addToIriList(property.getIri(), ttIris, iris);
                 }
-                if (property.getNode()!=null){
-                    gatherReturnLabels(property.getNode(),ttIris,iris);
+                if (property.getReturn()!=null){
+                    gatherReturnLabels(property.getReturn(),ttIris,iris);
                 }
             }
         }
@@ -458,10 +460,10 @@ public class QueryRepository {
         if (select.getProperty()!=null) {
             for (ReturnProperty property : select.getProperty()) {
                 if (property.getIri() != null) {
-                    property.setName(iris.get(property.getIri()));
+                    property.setValue(iris.get(property.getIri()));
                 }
-                if (property.getNode()!=null){
-                    setReturnLabels(property.getNode(),iris);
+                if (property.getReturn()!=null){
+                    setReturnLabels(property.getReturn(),iris);
                 }
             }
         }

@@ -51,7 +51,6 @@ public class TSVSetExporter {
         LOG.trace("Generating output...");
 
         StringJoiner results = new StringJoiner(System.lineSeparator());
-        results.add("core code\tcore term\tset\textension\tlegacy code\tLegacy term\tLegacy scheme\tcodeId");
 
         for(Concept member : members) {
             String set = member.getIsContainedIn().iterator().next().getName();
@@ -71,10 +70,12 @@ public class TSVSetExporter {
     private void addOnlyCore(boolean im1id, StringJoiner results, Concept member, String set, String isExtension) {
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         if(im1id && member.getIm1Id() != null) {
+            results.add("core code\tcore term\tset\textension\tusage\tim1id");
             member.getIm1Id().forEach(im1 -> {
                 addLineData(results, member.getCode(), member.getName(), set, isExtension, usage, im1);
             });
         } else {
+            results.add("core code\tcore term\tset\textension");
             addLineData(results, member.getCode(), member.getName(), set, isExtension);
         }
 
@@ -82,6 +83,7 @@ public class TSVSetExporter {
 
     private void addLegacy(boolean ownRow, boolean im1id, StringJoiner results, Concept member, String set, String isExtension) {
         if(ownRow) {
+            results.add("core code\tcore term\tset\textension");
             addLineData(results, member.getCode(), member.getName(), set, isExtension);
         }
         for (Concept legacy: member.getMatchedFrom()) {
@@ -97,11 +99,13 @@ public class TSVSetExporter {
                 }
             } else {
                 if(im1id && legacy.getIm1Id() != null) {
+                    results.add("core code\tcore term\tset\textension\tlegacy code\tlegacy term\tlegacy scheme\tcodeId\tusage\tim1id");
                     legacy.getIm1Id().forEach(im1 -> {
                         addLineData(results, member.getCode(), member.getName(), set, isExtension, legacy.getCode(),
                             legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId(), usage, im1);
                     });
                 } else {
+                    results.add("core code\tcore term\tset\textension\tlegacy code\tlegacy term\tlegacy scheme\tcodeId");
                     addLineData(results, member.getCode(), member.getName(), set, isExtension, legacy.getCode(),
                             legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId());
                 }

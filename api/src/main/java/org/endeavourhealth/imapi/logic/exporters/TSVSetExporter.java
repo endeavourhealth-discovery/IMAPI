@@ -51,6 +51,7 @@ public class TSVSetExporter {
         LOG.trace("Generating output...");
 
         StringJoiner results = new StringJoiner(System.lineSeparator());
+        addHeader(includeLegacy, ownRow, im1id, results);
 
         for(Concept member : members) {
             String set = member.getIsContainedIn().iterator().next().getName();
@@ -67,23 +68,28 @@ public class TSVSetExporter {
         return results;
     }
 
-    private void addOnlyCore(boolean im1id, StringJoiner results, Concept member, String set, String isExtension) {
-        String usage = member.getUsage() != null ? member.getUsage().toString() : null;
-        if(im1id && member.getIm1Id() != null) {
-            results.add("core code\tcore term\tset\textension\tusage\tim1id");
-            member.getIm1Id().forEach(im1 -> {
-                addLineData(results, member.getCode(), member.getName(), set, isExtension, usage, im1);
-            });
+    private static void addHeader(boolean includeLegacy, boolean ownRow, boolean im1id, StringJoiner results) {
+        if(includeLegacy) {
+            if(ownRow){
+                results.add("core code\tcore term\tset\textension");
+            } else {
+                if(im1id){
+                    results.add("core code\tcore term\tset\textension\tlegacy code\tlegacy term\tlegacy scheme\tcodeId\tusage\tim1id");
+                } else {
+                    results.add("core code\tcore term\tset\textension\tlegacy code\tlegacy term\tlegacy scheme\tcodeId");
+                }
+            }
         } else {
-            results.add("core code\tcore term\tset\textension");
-            addLineData(results, member.getCode(), member.getName(), set, isExtension);
+            if(im1id) {
+                results.add("core code\tcore term\tset\textension\tusage\tim1id");
+            } else {
+                results.add("core code\tcore term\tset\textension");
+            }
         }
-
     }
 
     private void addLegacy(boolean ownRow, boolean im1id, StringJoiner results, Concept member, String set, String isExtension) {
         if(ownRow) {
-            results.add("core code\tcore term\tset\textension");
             addLineData(results, member.getCode(), member.getName(), set, isExtension);
         }
         for (Concept legacy: member.getMatchedFrom()) {
@@ -99,18 +105,28 @@ public class TSVSetExporter {
                 }
             } else {
                 if(im1id && legacy.getIm1Id() != null) {
-                    results.add("core code\tcore term\tset\textension\tlegacy code\tlegacy term\tlegacy scheme\tcodeId\tusage\tim1id");
                     legacy.getIm1Id().forEach(im1 -> {
                         addLineData(results, member.getCode(), member.getName(), set, isExtension, legacy.getCode(),
                             legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId(), usage, im1);
                     });
                 } else {
-                    results.add("core code\tcore term\tset\textension\tlegacy code\tlegacy term\tlegacy scheme\tcodeId");
                     addLineData(results, member.getCode(), member.getName(), set, isExtension, legacy.getCode(),
                             legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId());
                 }
             }
         }
+    }
+
+    private void addOnlyCore(boolean im1id, StringJoiner results, Concept member, String set, String isExtension) {
+        String usage = member.getUsage() != null ? member.getUsage().toString() : null;
+        if(im1id && member.getIm1Id() != null) {
+            member.getIm1Id().forEach(im1 -> {
+                addLineData(results, member.getCode(), member.getName(), set, isExtension, usage, im1);
+            });
+        } else {
+            addLineData(results, member.getCode(), member.getName(), set, isExtension);
+        }
+
     }
 
     private void addLineData(StringJoiner results, Object... values) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.dataaccess.EntityRepository2;
 import org.endeavourhealth.imapi.dataaccess.EntityTripleRepository;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -12,6 +13,7 @@ import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -30,6 +32,7 @@ public class ExcelSetExporter {
 
     private XSSFWorkbook workbook;
     private CellStyle headerStyle;
+    private final EntityRepository2 entityRepository2 = new EntityRepository2();
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();
@@ -54,6 +57,8 @@ public class ExcelSetExporter {
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
 
+        String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+
         String ecl = getEcl(entity);
         if(ecl != null && definition) {
             addDefinitionToWorkbook(ecl);
@@ -63,11 +68,11 @@ public class ExcelSetExporter {
             Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets);
 
             if (core) {
-                addCoreExpansionToWorkBook(members, im1id);
+                addCoreExpansionToWorkBook(setName, members, im1id);
             }
 
             if (legacy) {
-                addLegacyExpansionToWorkBook(members, im1id, ownRow);
+                addLegacyExpansionToWorkBook(setName, members, im1id, ownRow);
             }
         }
 
@@ -81,7 +86,7 @@ public class ExcelSetExporter {
         return ecl;
     }
 
-    private void addCoreExpansionToWorkBook(Set<Concept> members, boolean im1id) {
+    private void addCoreExpansionToWorkBook(String setName, Set<Concept> members, boolean im1id) {
 
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
@@ -96,29 +101,29 @@ public class ExcelSetExporter {
         Set<String> addedCoreIris = new HashSet<>();
         for (Concept cl : members) {
             if (!addedCoreIris.contains(cl.getIri())) {
-                addCoreExpansionConceptToWorkBook(sheet, addedCoreIris, cl, im1id);
+                addCoreExpansionConceptToWorkBook(sheet, addedCoreIris, cl, im1id, setName);
             }
         }
     }
 
-    private void addCoreExpansionConceptToWorkBook(Sheet sheet, Set<String> addedCoreIris, Concept cl, boolean im1id) {
+    private void addCoreExpansionConceptToWorkBook(Sheet sheet, Set<String> addedCoreIris, Concept cl, boolean im1id, String setName) {
         Integer usage= cl.getUsage();
         String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
-        String set = cl.getIsContainedIn().iterator().next().getName();
+        //String set = cl.getIsContainedIn().iterator().next().getName();
         if (cl.getIm1Id()!=null && im1id) {
             for (String im1 : cl.getIm1Id()) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), cl.getName(), set , isExtension, usage == null ? "" : usage, im1);
+                addCells(row, cl.getCode(), cl.getName(), setName , isExtension, usage == null ? "" : usage, im1);
             }
         }
         else {
             Row row = addRow(sheet);
-            addCells(row, cl.getCode(),cl.getName(), set , isExtension, usage == null ? "" : usage, "");
+            addCells(row, cl.getCode(),cl.getName(), setName , isExtension, usage == null ? "" : usage, "");
         }
         addedCoreIris.add(cl.getIri());
     }
 
-    private void addLegacyExpansionToWorkBook(Set<Concept> members, boolean im1id, boolean ownRow) {
+    private void addLegacyExpansionToWorkBook(String setName, Set<Concept> members, boolean im1id, boolean ownRow) {
 
         Sheet sheet = workbook.getSheet("Full expansion");
         if (null == sheet) sheet = workbook.createSheet("Full expansion");
@@ -158,12 +163,12 @@ public class ExcelSetExporter {
         }
 
         for (Concept cl : members) {
-            String set = cl.getIsContainedIn().iterator().next().getName();
+            //String set = cl.getIsContainedIn().iterator().next().getName();
 
             String isExtension = cl.getScheme().getIri().contains("sct#") ? "N" : "Y";
             if (cl.getMatchedFrom() == null) {
                 Row row = addRow(sheet);
-                addCells(row, cl.getCode(), cl.getName(), set, isExtension, "");
+                addCells(row, cl.getCode(), cl.getName(), setName, isExtension, "");
 
             } else {
                 List<Concept> sortedLegacy = cl.getMatchedFrom()
@@ -172,17 +177,17 @@ public class ExcelSetExporter {
                         .comparing(Concept::getIri)
                     )
                     .collect(Collectors.toList());
-                addLegacyExpansionConceptsToWorkbook(sheet, cl, isExtension, sortedLegacy, im1id, ownRow);
+                addLegacyExpansionConceptsToWorkbook(sheet, cl, isExtension, sortedLegacy, im1id, ownRow, setName);
             }
         }
         sheet.autoSizeColumn(3);
     }
 
-    private void addLegacyExpansionConceptsToWorkbook(Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy, boolean im1id, boolean ownRow) {
-        String set = cl.getIsContainedIn().iterator().next().getName();
+    private void addLegacyExpansionConceptsToWorkbook(Sheet sheet, Concept cl, String isExtension, List<Concept> sortedLegacy, boolean im1id, boolean ownRow, String setName) {
+        //String set = cl.getIsContainedIn().iterator().next().getName();
         if(ownRow) {
             Row row = addRow(sheet);
-            addCells(row, cl.getCode(), cl.getName(), set, isExtension);
+            addCells(row, cl.getCode(), cl.getName(), setName, isExtension);
         }
         for (Concept legacy : sortedLegacy) {
             String legacyCode = legacy.getCode();
@@ -195,7 +200,7 @@ public class ExcelSetExporter {
             if (legacy.getIm1Id() == null || !im1id) {
                 Row row = addRow(sheet);
                 if(!ownRow) {
-                    addCells(row, cl.getCode(), cl.getName(), set, isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
+                    addCells(row, cl.getCode(), cl.getName(), setName, isExtension, legacyCode, legacyTerm, legacyScheme,codeId);
                 } else {
                     addCells(row,legacyCode, legacyTerm, legacyScheme,codeId );
                 }
@@ -203,7 +208,7 @@ public class ExcelSetExporter {
                 for (String im1Id : legacy.getIm1Id()) {
                     Row row = addRow(sheet);
                     if(!ownRow) {
-                        addCells(row, cl.getCode(), cl.getName(), set, isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
+                        addCells(row, cl.getCode(), cl.getName(), setName, isExtension, legacyCode, legacyTerm, legacyScheme,codeId,
                                 legacyUsage == null ? "" : legacyUsage, im1Id);
                     } else {
                         addCells(row,legacyCode, legacyTerm, legacyScheme,codeId,

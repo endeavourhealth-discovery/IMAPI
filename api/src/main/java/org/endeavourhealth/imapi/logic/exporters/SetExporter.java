@@ -77,20 +77,13 @@ public class SetExporter {
     }
 
     public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset) throws JsonProcessingException, QueryException {
-        Set<String> setIris = new HashSet<>();
-        if(includeSubset) {
-            setIris.addAll(getSetsRecursive(setIri));
-        } else {
-            setIris.add(setIri);
-        }
-
+        Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
         Set<Concept> result = new HashSet<>();
 
         for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
-            String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
             Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
@@ -108,7 +101,10 @@ public class SetExporter {
                         .setDescendantsOrSelfOf(true))
                     ,includeLegacy,null));
             }
-            result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+            if(includeSubset) {
+                String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+                result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+            }
         }
 
         return result;

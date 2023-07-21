@@ -53,7 +53,7 @@ public class SetRepository {
               .setIri(IM.CODE.getIri()).as("code"))
             .property(s->s
               .setIri(IM.HAS_SCHEME.getIri())
-              .node(n->n
+              .return_(n->n
                 .as("scheme")
                 .property(s2->s2
                   .setIri(RDFS.LABEL.getIri()).as("schemeName"))))
@@ -63,13 +63,13 @@ public class SetRepository {
               .setIri(IM.IM1ID.getIri()).as("im1Id"))
             .property(s->s
               .setIri(IM.HAS_STATUS.getIri())
-              .node(s2->s2
+              .return_(s2->s2
                 .as("status")
                 .property(p->p
                   .setIri(RDFS.LABEL.getIri()).as("statusName"))))
             .property(s->s
               .setIri(RDF.TYPE.getIri())
-              .node(s2->s2
+              .return_(s2->s2
                 .as("entityType")
                 .property(p->p
                   .setIri(RDFS.LABEL.getIri()).as("typeName"))));
@@ -79,7 +79,7 @@ public class SetRepository {
               .property(p->p
                 .setIri(IM.MATCHED_TO.getIri())
                 .setInverse(true)
-                .node(n->n
+                .return_(n->n
                   .as("legacy")
                   .property(s -> s
                     .setIri(RDFS.LABEL.getIri()).as("legacyTerm"))
@@ -87,7 +87,7 @@ public class SetRepository {
                     .setIri(IM.CODE.getIri()).as("legacyCode"))
                   .property(s -> s
                     .setIri(IM.HAS_SCHEME.getIri())
-                    .node(n1->n1
+                    .return_(n1->n1
                       .as("legacyScheme")
                       .property(p1->p1
                         .setIri(RDFS.LABEL.getIri()).as("legacySchemeName"))))

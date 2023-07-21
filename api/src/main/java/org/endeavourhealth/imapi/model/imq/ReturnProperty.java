@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.function.Consumer;
 
@@ -11,15 +12,61 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ReturnProperty {
 	private String iri;
+	private String nodeRef;
 	private String propertyRef;
-	private Return node;
-	private String name;
-	private String valueVariable;
+	private String value;
+	private String ref;
 	private boolean inverse;
 	private FunctionClause function;
 	private String unit;
 	private String as;
 	private Return returx;
+	private TTIriRef dataType;
+	private Case casex;
+
+
+	@JsonProperty("case")
+	public Case getCase() {
+		return casex;
+	}
+
+	@JsonProperty("case")
+	public ReturnProperty setCase(Case casex) {
+		this.casex = casex;
+		return this;
+	}
+
+	public ReturnProperty case_(Consumer<Case> builder){
+		builder.accept(this.setCase(new Case()).getCase());
+		return this;
+	}
+
+	public TTIriRef getDataType() {
+		return dataType;
+	}
+
+	public ReturnProperty setDataType(TTIriRef dataType) {
+		this.dataType = dataType;
+		return this;
+	}
+
+	public String getNodeRef() {
+		return nodeRef;
+	}
+
+	public ReturnProperty setNodeRef(String nodeRef) {
+		this.nodeRef = nodeRef;
+		return this;
+	}
+
+	public String getRef() {
+		return ref;
+	}
+
+	public ReturnProperty setRef(String ref) {
+		this.ref = ref;
+		return this;
+	}
 
 	@JsonProperty("return")
 	public Return getReturn() {
@@ -28,6 +75,12 @@ public class ReturnProperty {
 
 	public ReturnProperty setReturn(Return returx) {
 		this.returx = returx;
+		return this;
+	}
+
+	public ReturnProperty return_(Consumer<Return> builder) {
+		this.returx = new Return();
+		builder.accept(this.returx);
 		return this;
 	}
 
@@ -78,21 +131,13 @@ public class ReturnProperty {
 		return this;
 	}
 
-	public String getValueVariable() {
-		return valueVariable;
+
+	public String getValue() {
+		return value;
 	}
 
-	public ReturnProperty setValueVariable(String valueVariable) {
-		this.valueVariable = valueVariable;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public ReturnProperty setName(String name) {
-		this.name = name;
+	public ReturnProperty setValue(String value) {
+		this.value = value;
 		return this;
 	}
 
@@ -115,20 +160,5 @@ public class ReturnProperty {
 		return this;
 	}
 
-	public Return getNode() {
-		return node;
-	}
-
-	public ReturnProperty setNode(Return node) {
-		this.node = node;
-		return this;
-	}
-
-
-
-	public ReturnProperty node(Consumer<Return> builder){
-		builder.accept(setNode(new Return()).getNode());
-		return this;
-	}
 
 }

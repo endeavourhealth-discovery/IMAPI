@@ -41,7 +41,7 @@ public class EqdAuditToIMQ {
 					path.setIri(pathMap[i]);
 					if (i < (pathMap.length - 2)) {
 						Return node = new Return();
-						path.setNode(node);
+						path.setReturn(node);
 						aReturn = node;
 					}
 					else{

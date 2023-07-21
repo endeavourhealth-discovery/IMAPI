@@ -25,15 +25,15 @@
       }, {
         "@id" : "im:code"
       }, {
-        "node" : {
+        "@id" : "im:matchedTo",
+        "inverse" : true,
+        "return" : {
           "property" : [ {
             "@id" : "rdfs:label"
           }, {
             "@id" : "im:code"
           } ]
-        },
-        "@id" : "im:matchedTo",
-        "inverse" : true
+        }
       } ]
     } ]
   }

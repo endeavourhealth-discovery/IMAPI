@@ -470,80 +470,77 @@ public class SparqlConverter {
 	}
 
 
-	private String getAs(String variable,String alias){
-		if (alias!=null)
-			return (" (?")+variable+" as ?"+alias+")";
-		else
-			return "?"+variable;
-	}
 
 	private void convertReturn(StringBuilder selectQl, StringBuilder whereQl,Return aReturn){
 		if (aReturn.getNodeRef()!=null)
-			selectQl.append(" ").append(getAs(aReturn.getNodeRef(),aReturn.getAs()));
-		if (aReturn.getProperty()!=null){
-			for (ReturnProperty path:aReturn.getProperty()) {
-				String inverse= path.isInverse() ? "^": "";
-				if (path.getPropertyRef() != null) {
-					selectQl.append(" ").append(inverse).append(getAs(path.getPropertyRef(), path.getAs()));
-				}
-				if (path.getReturn() != null) {
-					if (path.getReturn().getNodeRef() == null) {
-						addOptionalPath(selectQl, whereQl, aReturn, path);
-					}
-					else
-						convertReturn(selectQl, whereQl, path.getReturn());
-				}
-				else {
-					if (path.getAs() == null) {
-						o++;
-						String objectVariable = "o" + o;
-						path.setAs(objectVariable);
-						addOptionalProperty(selectQl, whereQl, aReturn.getNodeRef(), path.getIri(), path.getAs());
-					}
-					else{
-						selectQl.append(" ?").append(path.getAs());
-					}
-				}
+			selectQl.append(" ?").append(aReturn.getNodeRef());
+		else if (aReturn.getAs()!=null){
+			selectQl.append(" ?").append(aReturn.getAs());
+		}
+		if (aReturn.getProperty()!=null) {
+			for (ReturnProperty path : aReturn.getProperty()) {
+				addOptionalPath(selectQl, whereQl, aReturn, path);
 			}
 		}
 	}
 	private void addOptionalPath(StringBuilder selectQl, StringBuilder whereQl,Return aReturn,
 															 ReturnProperty path){
 		String inverse= path.isInverse() ? "^": "";
+		if (path.getPropertyRef() != null) {
+			selectQl.append(" ").append(inverse).append(path.getPropertyRef());
+		}
+		else if (path.getAs()!=null) {
+			selectQl.append(" ").append(inverse).append("?").append(path.getAs());
+		};
 		whereQl.append("OPTIONAL {");
-		whereQl.append(" ?").append(aReturn.getNodeRef());
+		if (aReturn.getAs()!=null)
+			whereQl.append(" ?").append(aReturn.getAs());
+		else if (aReturn.getNodeRef()!=null)
+			whereQl.append(" ?").append(aReturn.getNodeRef());
+		else
+			whereQl.append(" ?").append(mainEntity);
 		if (path.getIri()!=null){
 			whereQl.append(" ").append(inverse).append(iriFromString(path.getIri()));
 		}
 		else
 			whereQl.append(" ").append(inverse).append("?").append(path.getPropertyRef());
+		String object=null;
 		if (path.getReturn()!=null){
-			if (path.getReturn().getNodeRef()==null){
-				o++;
-				path.getReturn().setNodeRef("o"+o);
+			if (path.getReturn().getAs()!=null)
+				object= path.getReturn().getAs();
+			else if (path.getReturn().getNodeRef()!=null)
+				object=path.getReturn().getNodeRef();
+			else if (path.getRef()!=null) {
+				object = path.getRef();
+				path.getReturn().setAs(path.getRef());
 			}
-			whereQl.append(" ?").append(path.getReturn().getNodeRef()).append(".\n");
-			convertReturn(selectQl,whereQl,path.getReturn());
+			else if (path.getAs()!=null) {
+				object = path.getAs();
+				path.getReturn().setAs(path.getAs());
+			}
 		}
 		else {
-			o++;
-			String object="o"+o;
-			whereQl.append(" ?").append(object).append(".\n");
-			selectQl.append(" ").append(getAs(object,path.getAs()));
+			if (path.getRef() != null)
+				object = path.getRef();
+			else if (path.getAs() != null)
+				object = path.getAs();
+		}
+		if (object==null){
+				o++;
+				object = "o" + o;
+				path.setRef(object);
+				if (path.getReturn()!=null){
+					path.getReturn().setAs(object);
+				}
+			}
+		whereQl.append(" ?").append(object).append(".\n");
+		if (path.getReturn()!=null){
+				convertReturn(selectQl,whereQl,path.getReturn());
 		}
 		whereQl.append("}\n");
 	}
 
-private void addOptionalProperty(StringBuilder selectQl, StringBuilder whereQl,String subject,
-																 String predicate,String alias){
 
-		selectQl.append(" ?").append(alias);
-		whereQl.append("OPTIONAL {");
-		whereQl.append(" ?").append(subject);
-		whereQl.append(" ").append(iriFromString(predicate));
-		whereQl.append(" ?").append(alias).append(".");
-		whereQl.append("}\n");
-	}
 
 
 	private void orderGroupLimit(StringBuilder selectQl,Query clause){

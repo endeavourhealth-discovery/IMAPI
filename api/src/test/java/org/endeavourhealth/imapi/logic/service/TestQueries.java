@@ -110,17 +110,17 @@ public class TestQueries {
 					.setNodeRef("shaclProperty")
 					.property(p->p
 						.setIri(SHACL.CLASS.getIri())
-						.node(n->n
+						.return_(n->n
 							.property(p1->p1
 							.setIri(RDFS.LABEL.getIri()))))
 					.property(p->p
 					.setIri(SHACL.NODE.getIri())
-						.node(n->n
+						.return_(n->n
 							.property(p1->p1
 								.setIri(RDFS.LABEL.getIri()))))
 				.property(p->p
 					.setIri(SHACL.DATATYPE.getIri())
-					.node(n->n
+					.return_(n->n
 						.property(p1->p1.setIri(RDFS.LABEL.getIri()))))
 				.property(p->p
 					.setIri(SHACL.MAXCOUNT.getIri()))
@@ -305,7 +305,7 @@ public class TestQueries {
 			.property(p->p
 				.setIri(IM.MATCHED_TO.getIri())
 				.setInverse(true)
-				.node(n->n
+				.return_(n->n
 					.property(p1->p1
 						.setIri(RDFS.LABEL.getIri()))
 					.property(p1->p1
@@ -333,7 +333,7 @@ public class TestQueries {
 			.return_(s->s
 				.property(p->p
 					.setIri(SHACL.PROPERTY.getIri())
-					.node(n->n
+					.return_(n->n
 						.property(s1->s1.setIri(SHACL.PATH.getIri()))
 						.property(s1->s1.setIri(SHACL.NODE.getIri()))
 						.property(s1->s1.setIri(SHACL.MINCOUNT.getIri()))
@@ -454,7 +454,7 @@ public class TestQueries {
 			.property(s->s
 				.setIri(IM.CONCEPT.getIri())
 				.setInverse(true)
-				.node(n->n
+				.return_(n->n
 				.property(s1->s1.setIri(IM.SOURCE_VALUE.getIri()))
 				.property(s1->s1.setIri(IM.SOURCE_REGEX.getIri()))
 				.property(s1->s1.setIri(IM.SOURCE_SYSTEM.getIri()))

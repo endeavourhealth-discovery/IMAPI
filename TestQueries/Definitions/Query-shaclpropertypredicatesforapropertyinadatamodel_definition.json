@@ -40,26 +40,26 @@
     "return" : [ {
       "nodeRef" : "shaclProperty",
       "property" : [ {
-        "node" : {
+        "@id" : "sh:class",
+        "return" : {
           "property" : [ {
             "@id" : "rdfs:label"
           } ]
-        },
-        "@id" : "sh:class"
+        }
       }, {
-        "node" : {
+        "@id" : "sh:node",
+        "return" : {
           "property" : [ {
             "@id" : "rdfs:label"
           } ]
-        },
-        "@id" : "sh:node"
+        }
       }, {
-        "node" : {
+        "@id" : "sh:datatype",
+        "return" : {
           "property" : [ {
             "@id" : "rdfs:label"
           } ]
-        },
-        "@id" : "sh:datatype"
+        }
       }, {
         "@id" : "sh:maxCount"
       }, {

@@ -32,7 +32,9 @@
       }, {
         "@id" : "im:code"
       }, {
-        "node" : {
+        "@id" : "im:Concept",
+        "inverse" : true,
+        "return" : {
           "property" : [ {
             "@id" : "im:sourceValue"
           }, {
@@ -44,9 +46,7 @@
           }, {
             "@id" : "im:sourceField"
           } ]
-        },
-        "@id" : "im:Concept",
-        "inverse" : true
+        }
       } ]
     } ]
   }

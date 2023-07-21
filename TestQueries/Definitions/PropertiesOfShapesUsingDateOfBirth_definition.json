@@ -31,7 +31,8 @@
     } ],
     "return" : [ {
       "property" : [ {
-        "node" : {
+        "@id" : "sh:property",
+        "return" : {
           "property" : [ {
             "@id" : "sh:path"
           }, {
@@ -45,8 +46,7 @@
           }, {
             "@id" : "sh:datatype"
           } ]
-        },
-        "@id" : "sh:property"
+        }
       } ]
     } ]
   }

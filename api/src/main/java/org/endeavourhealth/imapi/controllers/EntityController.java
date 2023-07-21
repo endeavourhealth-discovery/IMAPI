@@ -455,9 +455,10 @@ public class EntityController {
 				return new HttpEntity<>(outputStream.toByteArray(), headers);
 			}
 		} else if ("csv".equals(format)) {
-			return null;
+			String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			return new HttpEntity<>(result, headers);
 		} else if("tsv".equals(format)) {
-			String result = setService.getTSVSetExporter(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
 			return new HttpEntity<>(result, headers);
 		} else {
 			return null;

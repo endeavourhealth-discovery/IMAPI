@@ -50,14 +50,14 @@ public class EntityService {
     public static final int UNLIMITED = 0;
     public static final int MAX_CHILDREN = 200;
 
-    private final EntityRepository entityRepository = new EntityRepository();
-    private final EntityTctRepository entityTctRepository = new EntityTctRepository();
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private final TermCodeRepository termCodeRepository = new TermCodeRepository();
-    private final EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
-    private final ConfigManager configManager = new ConfigManager();
-    private final EntityRepository2 entityRepository2 = new EntityRepository2();
-    private final SearchService searchService = new SearchService();
+    private EntityRepository entityRepository = new EntityRepository();
+    private EntityTctRepository entityTctRepository = new EntityTctRepository();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private TermCodeRepository termCodeRepository = new TermCodeRepository();
+    private EntityTypeRepository entityTypeRepository = new EntityTypeRepository();
+    private ConfigManager configManager = new ConfigManager();
+    private EntityRepository2 entityRepository2 = new EntityRepository2();
+    private SearchService searchService = new SearchService();
 
     public TTBundle getBundle(String iri, Set<String> predicates) {
         return entityRepository2.getBundle(iri, predicates);

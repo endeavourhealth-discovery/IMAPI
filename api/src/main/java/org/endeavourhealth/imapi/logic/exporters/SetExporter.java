@@ -33,24 +33,23 @@ import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.zip.DataFormatException;
 
 @Component
 public class SetExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-    private EntityRepository2 entityRepository2 = new EntityRepository2();
-    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private SetRepository setRepository= new SetRepository();
+    private final EntityRepository2 entityRepository2 = new EntityRepository2();
+    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private final SetRepository setRepository= new SetRepository();
 
-    public void publishSetToIM1(String setIri) throws DataFormatException, JsonProcessingException, QueryException {
+    public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
         StringJoiner results = generateForIm1(setIri);
 
         pushToS3(results);
         LOG.trace("Done");
     }
 
-    public StringJoiner generateForIm1(String setIri) throws DataFormatException, JsonProcessingException, QueryException {
+    public StringJoiner generateForIm1(String setIri) throws JsonProcessingException, QueryException {
         LOG.debug("Exporting set to IMv1");
 
         LOG.trace("Looking up set...");
@@ -58,7 +57,7 @@ public class SetExporter {
 
         Set<Concept> members = getExpandedSetMembers(setIri, true, true);
 
-        return generateTSV(setIri, name, members);
+        return generateIMV1TSV(setIri, name, members);
     }
 
     private Set<String> getSetsRecursive(String setIri) {
@@ -78,20 +77,13 @@ public class SetExporter {
     }
 
     public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset) throws JsonProcessingException, QueryException {
-        Set<String> setIris = new HashSet<>();
-        if(includeSubset) {
-            setIris.addAll(getSetsRecursive(setIri));
-        } else {
-            setIris.add(setIri);
-        }
-
+        Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
         Set<Concept> result = new HashSet<>();
 
         for(String iri : setIris) {
             LOG.trace("Processing set [{}]...", iri);
-            String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
             Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
@@ -109,13 +101,16 @@ public class SetExporter {
                         .setDescendantsOrSelfOf(true))
                     ,includeLegacy,null));
             }
-            result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+            if(includeSubset) {
+                String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
+                result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+            }
         }
 
         return result;
     }
 
-    private StringJoiner generateTSV(String setIri, String name, Set<Concept> members) {
+    private StringJoiner generateIMV1TSV(String setIri, String name, Set<Concept> members) {
         LOG.trace("Generating output...");
 
         Set<String> im1Ids = new HashSet<>();

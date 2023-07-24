@@ -20,12 +20,12 @@ import org.endeavourhealth.imapi.dataaccess.helpers.XlsHelper;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.*;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.config.ComponentLayoutItem;
 import org.endeavourhealth.imapi.model.dto.DownloadDto;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.logic.service.EntityService;
@@ -61,6 +61,7 @@ public class EntityController {
     private static final Logger LOG = LoggerFactory.getLogger(EntityController.class);
 
     private final EntityService entityService = new EntityService();
+	private final SetService setService = new SetService();
 	private final ConfigManager configManager = new ConfigManager();
 	private final RequestObjectService reqObjService = new RequestObjectService();
 
@@ -441,18 +442,26 @@ public class EntityController {
         @RequestParam(name = "ownRow") boolean ownRow,
         @RequestParam(name = "im1id") boolean im1id,
         @RequestParam(name = "format") String format
-	) throws DataFormatException, IOException, QueryException {
+	) throws IOException, QueryException {
 		LOG.debug("getSetExport");
-		XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
 		HttpHeaders headers = new HttpHeaders();
-
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			workbook.write(outputStream);
-			workbook.close();
-			headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
-			headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"" );
-
-			return new HttpEntity<>(outputStream.toByteArray(), headers);
+		headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
+		headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
+		if("xlsx".equals(format)) {
+			XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				workbook.write(outputStream);
+				workbook.close();
+				return new HttpEntity<>(outputStream.toByteArray(), headers);
+			}
+		} else if ("csv".equals(format)) {
+			String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			return new HttpEntity<>(result, headers);
+		} else if("tsv".equals(format)) {
+			String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			return new HttpEntity<>(result, headers);
+		} else {
+			return null;
 		}
 	}
 

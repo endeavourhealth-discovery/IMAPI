@@ -32,7 +32,7 @@ public class ExcelSetExporter {
 
     private XSSFWorkbook workbook;
     private CellStyle headerStyle;
-    private final EntityRepository2 entityRepository2 = new EntityRepository2();
+    private EntityRepository2 entityRepository2 = new EntityRepository2();
 
     public ExcelSetExporter() {
         workbook = new XSSFWorkbook();

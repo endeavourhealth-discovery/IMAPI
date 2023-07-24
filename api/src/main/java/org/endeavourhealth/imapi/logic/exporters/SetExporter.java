@@ -38,9 +38,9 @@ import java.util.StringJoiner;
 public class SetExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetExporter.class);
 
-    private final EntityRepository2 entityRepository2 = new EntityRepository2();
-    private final EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
-    private final SetRepository setRepository= new SetRepository();
+    private EntityRepository2 entityRepository2 = new EntityRepository2();
+    private EntityTripleRepository entityTripleRepository = new EntityTripleRepository();
+    private SetRepository setRepository= new SetRepository();
 
     public void publishSetToIM1(String setIri) throws JsonProcessingException, QueryException {
         StringJoiner results = generateForIm1(setIri);

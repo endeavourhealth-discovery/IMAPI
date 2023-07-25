@@ -128,6 +128,27 @@ public class TestQueries {
 					.setIri(SHACL.MINCOUNT.getIri()))));
 	}
 
+	public static QueryRequest getAllowableQueries(){
+		return new QueryRequest()
+			.setTextSearch("Patient")
+			.argument(a->a
+				.setParameter("dataModelIri")
+				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"Patient")))
+			.query(q->q
+				.setName("Allowable queries for patient cohort")
+				.match(m->m
+					.setType(IM.NAMESPACE+"CohortQuery")
+					.property(p->p
+						.setIri(IM.RETURN_TYPE.getIri())
+						.in(in->in
+							.setParameter("datamodelIri"))))
+				.return_(r->r
+					.property(p->p
+						.setIri(RDFS.LABEL.getIri()))));
+
+
+	}
+
 
 	public static QueryRequest getAllowableSubtypes() throws IOException {
 		QueryRequest qr= new QueryRequest();

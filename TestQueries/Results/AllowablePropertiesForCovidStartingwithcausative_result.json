@@ -9,8 +9,6 @@
     "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "http://snomed.info/sct#246075003",
-    "http://endhealth.info/im#code" : "246075003",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Causative agent (attribute)"
+    "@id" : "http://snomed.info/sct#246075003"
   } ]
 }

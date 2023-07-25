@@ -141,7 +141,7 @@ public class TestQueries {
 					.property(p->p
 						.setIri(IM.RETURN_TYPE.getIri())
 						.in(in->in
-							.setParameter("datamodelIri"))))
+							.setParameter("dataModelIri"))))
 				.return_(r->r
 					.property(p->p
 						.setIri(RDFS.LABEL.getIri()))));

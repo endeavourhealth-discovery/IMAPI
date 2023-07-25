@@ -9,40 +9,12 @@
     "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "http://endhealth.info/bc#PF4",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
-    "http://endhealth.info/im#code" : "PF4",
-    "http://endhealth.info/im#Concept" : [ {
-      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b5526390",
-      "http://endhealth.info/im#sourceValue" : "316081942",
-      "http://endhealth.info/im#sourceRegex" : "^Negative$"
-    } ]
+    "@id" : "http://endhealth.info/bc#PF4"
   }, {
-    "@id" : "http://endhealth.info/bc#PF4",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
-    "http://endhealth.info/im#code" : "PF4",
-    "http://endhealth.info/im#Concept" : [ {
-      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b5526391",
-      "http://endhealth.info/im#sourceValue" : "316081942",
-      "http://endhealth.info/im#sourceRegex" : "^Positive$"
-    } ]
+    "@id" : "http://endhealth.info/bc#PF4"
   }, {
-    "@id" : "http://endhealth.info/bc#PF4",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
-    "http://endhealth.info/im#code" : "PF4",
-    "http://endhealth.info/im#Concept" : [ {
-      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b5526392",
-      "http://endhealth.info/im#sourceValue" : "316081992",
-      "http://endhealth.info/im#sourceRegex" : "^Positive(.*)"
-    } ]
+    "@id" : "http://endhealth.info/bc#PF4"
   }, {
-    "@id" : "http://endhealth.info/bc#PF4",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Original term : null(Barts Cerner)",
-    "http://endhealth.info/im#code" : "PF4",
-    "http://endhealth.info/im#Concept" : [ {
-      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b5526393",
-      "http://endhealth.info/im#sourceValue" : "316081992",
-      "http://endhealth.info/im#sourceRegex" : "^Negative(.*)"
-    } ]
+    "@id" : "http://endhealth.info/bc#PF4"
   } ]
 }

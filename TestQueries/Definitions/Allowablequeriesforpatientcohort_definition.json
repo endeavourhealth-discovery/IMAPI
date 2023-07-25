@@ -22,7 +22,7 @@
       "property" : [ {
         "@id" : "im:returnType",
         "in" : [ {
-          "parameter" : "datamodelIri"
+          "parameter" : "dataModelIri"
         } ]
       } ]
     } ],

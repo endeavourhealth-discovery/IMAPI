@@ -10,21 +10,13 @@
   },
   "entities" : [ {
     "@id" : "http://endhealth.info/im#Folder",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Folder",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b2034",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#isContainedIn"
-      }
+      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b2034"
     } ]
   }, {
     "@id" : "http://endhealth.info/im#ConceptSet",
-    "http://www.w3.org/2000/01/rdf-schema#label" : "Concept Set",
     "http://www.w3.org/ns/shacl#property" : [ {
-      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b1844",
-      "http://www.w3.org/ns/shacl#path" : {
-        "@id" : "http://endhealth.info/im#isContainedIn"
-      }
+      "@bn" : "genid-9f4980188a36471bb573567e4d5aaf0226-b1844"
     } ]
   } ]
 }

@@ -9,6 +9,7 @@
     "sn" : "http://snomed.info/sct#"
   },
   "entities" : [ {
-    "@id" : "http://endhealth.info/im#Organisation"
+    "@id" : "http://endhealth.info/im#Organisation",
+    "http://www.w3.org/2000/01/rdf-schema#label" : "Organisation"
   } ]
 }

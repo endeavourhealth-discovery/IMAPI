@@ -196,21 +196,23 @@ public class QueryRepository {
     }
 
     private void bindProperty(BindingSet bs, ObjectNode node, ReturnProperty property) {
-        String iri = property.getIri();
-        String objectVariable= property.getAs();
+        String predicate = property.getIri();
+        if (property.getAs()!=null)
+            predicate= property.getAs();
+        String objectVariable= property.getValueRef();
         Value object = bs.getValue(objectVariable);
         if (object != null) {
                 String nodeValue = object.stringValue();
                 if (object.isIRI()) {
                     ObjectNode iriNode= mapper.createObjectNode();
-                    node.set(iri, iriNode);
+                    node.set(predicate, iriNode);
                     iriNode.put("@id",nodeValue);
                 }
                 else if (object.isBNode()) {
-                    node.put(iri,nodeValue);
+                    node.put(predicate,nodeValue);
                 }
                 else
-                    node.put(iri,nodeValue);
+                    node.put(predicate,nodeValue);
         }
     }
 

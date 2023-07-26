@@ -55,13 +55,13 @@ class SearchServiceTest {
 		}
 
 	}
-//@Test
+ //@Test
 	void imq() throws DataFormatException, IOException, OpenSearchException, URISyntaxException, ExecutionException, InterruptedException, QueryException {
 		testDefinitions = System.getenv("folder") + "\\Definitions";
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
-	 output(TestQueries.getAllowableQueries());
+	 //output(TestQueries.getAllowableQueries());
 	 output(TestQueries.getAllowableSubtypes());
 		output(TestQueries.query6());
 		output(TestQueries.dataModelPropertyRange());

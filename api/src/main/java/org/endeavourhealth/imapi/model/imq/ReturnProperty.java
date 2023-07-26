@@ -15,7 +15,7 @@ public class ReturnProperty {
 	private String nodeRef;
 	private String propertyRef;
 	private String value;
-	private String ref;
+	private String valueRef;
 	private boolean inverse;
 	private FunctionClause function;
 	private String unit;
@@ -59,12 +59,12 @@ public class ReturnProperty {
 		return this;
 	}
 
-	public String getRef() {
-		return ref;
+	public String getValueRef() {
+		return valueRef;
 	}
 
-	public ReturnProperty setRef(String ref) {
-		this.ref = ref;
+	public ReturnProperty setValueRef(String valueRef) {
+		this.valueRef = valueRef;
 		return this;
 	}
 

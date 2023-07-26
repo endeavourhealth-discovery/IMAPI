@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -8,7 +7,6 @@ import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.transforms.SetToSparql;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
@@ -510,9 +508,9 @@ public class SparqlConverter {
 				object= path.getReturn().getAs();
 			else if (path.getReturn().getNodeRef()!=null)
 				object=path.getReturn().getNodeRef();
-			else if (path.getRef()!=null) {
-				object = path.getRef();
-				path.getReturn().setAs(path.getRef());
+			else if (path.getValueRef()!=null) {
+				object = path.getValueRef();
+				path.getReturn().setAs(path.getValueRef());
 			}
 			else if (path.getAs()!=null) {
 				object = path.getAs();
@@ -520,15 +518,15 @@ public class SparqlConverter {
 			}
 		}
 		else {
-			if (path.getRef() != null)
-				object = path.getRef();
+			if (path.getValueRef() != null)
+				object = path.getValueRef();
 			else if (path.getAs() != null)
 				object = path.getAs();
 		}
 		if (object==null){
 				o++;
 				object = "o" + o;
-				path.setRef(object);
+				path.setValueRef(object);
 				if (path.getReturn()!=null){
 					path.getReturn().setAs(object);
 				}
@@ -537,6 +535,8 @@ public class SparqlConverter {
 		if (path.getReturn()!=null){
 				convertReturn(selectQl,whereQl,path.getReturn());
 		}
+		else
+			selectQl.append(" ?").append(object);
 		whereQl.append("}\n");
 	}
 

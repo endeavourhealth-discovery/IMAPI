@@ -77,7 +77,7 @@ public class QueryValidator {
 			if (propertyMap.get(subject)!=null) {
 				String valueVariable = propertyMap.get(subject).get(path.getIri());
 				if (valueVariable != null) {
-					path.setRef(valueVariable);
+					path.setValueRef(valueVariable);
 				}
 			}
 		}

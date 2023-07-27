@@ -85,9 +85,9 @@ public class SetTextFileExporter {
                     results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"extension");
                 } else {
                     if(im1id){
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"codeId"+ del +"usage"+ del +"im1id");
+                        results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"usage"+ del +"im1id");
                     } else {
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"codeId");
+                        results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme");
                     }
                 }
             } else {
@@ -103,9 +103,9 @@ public class SetTextFileExporter {
                     results.add("core code"+ del +"core term"+ del +"set"+ del +"extension");
                 } else {
                     if(im1id){
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"codeId"+ del +"usage"+ del +"im1id");
+                        results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"usage"+ del +"im1id");
                     } else {
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"codeId");
+                        results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme");
                     }
                 }
             } else {
@@ -133,30 +133,29 @@ public class SetTextFileExporter {
             if(ownRow) {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
-                        addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(),
-                            legacy.getCodeId(), usage, im1);
+                        addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), usage, im1);
                     });
                 } else {
-                    addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId());
+                    addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri());
                 }
             } else {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
                         if(includeSubset && subSet != null) {
                             addLineData(del, results, member.getCode(), member.getName(), setName, subSet, isExtension, legacy.getCode(),
-                                    legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId(), usage, im1);
+                                    legacy.getName(), legacy.getScheme().getIri(), usage, im1);
                         } else {
                             addLineData(del, results, member.getCode(), member.getName(), setName, isExtension, legacy.getCode(),
-                                    legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId(), usage, im1);
+                                    legacy.getName(), legacy.getScheme().getIri(), usage, im1);
                         }
                     });
                 } else {
                     if(includeSubset && subSet != null) {
                         addLineData(del, results, member.getCode(), member.getName(), setName, subSet, isExtension, legacy.getCode(),
-                                legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId());
+                                legacy.getName(), legacy.getScheme().getIri());
                     } else {
                         addLineData(del, results, member.getCode(), member.getName(), setName, isExtension, legacy.getCode(),
-                                legacy.getName(), legacy.getScheme().getIri(), legacy.getCodeId());
+                                legacy.getName(), legacy.getScheme().getIri());
                     }
                 }
             }

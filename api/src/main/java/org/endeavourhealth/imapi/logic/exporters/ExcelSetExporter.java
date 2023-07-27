@@ -96,23 +96,43 @@ public class ExcelSetExporter {
         Sheet sheet = workbook.getSheet("Core expansion");
         if (null == sheet) sheet = workbook.createSheet("Core expansion");
         if(includeSubsets) {
-            addHeaders(sheet, headerStyle, "code", "term", "set", "subset", "subsetIri", "extension","usage","im1Id");
-            sheet.setColumnWidth(0, 5000);
-            sheet.setColumnWidth(1, 20000);
-            sheet.setColumnWidth(2, 15000);
-            sheet.setColumnWidth(3, 15000);
-            sheet.setColumnWidth(4, 15000);
-            sheet.setColumnWidth(5, 2500);
-            sheet.setColumnWidth(6, 2500);
-            sheet.setColumnWidth(7, 2500);
+            if(im1id) {
+                addHeaders(sheet, headerStyle, "code", "term", "set", "subset", "subsetIri", "extension","usage","im1Id");
+                sheet.setColumnWidth(0, 5000);
+                sheet.setColumnWidth(1, 20000);
+                sheet.setColumnWidth(2, 15000);
+                sheet.setColumnWidth(3, 15000);
+                sheet.setColumnWidth(4, 15000);
+                sheet.setColumnWidth(5, 2500);
+                sheet.setColumnWidth(6, 2500);
+                sheet.setColumnWidth(7, 2500);
+            } else {
+                addHeaders(sheet, headerStyle, "code", "term", "set", "subset", "subsetIri", "extension");
+                sheet.setColumnWidth(0, 5000);
+                sheet.setColumnWidth(1, 20000);
+                sheet.setColumnWidth(2, 15000);
+                sheet.setColumnWidth(3, 15000);
+                sheet.setColumnWidth(4, 15000);
+                sheet.setColumnWidth(5, 2500);
+            }
+
         } else {
-            addHeaders(sheet, headerStyle, "code", "term", "set", "extension","usage","im1Id");
-            sheet.setColumnWidth(0, 5000);
-            sheet.setColumnWidth(1, 20000);
-            sheet.setColumnWidth(2, 15000);
-            sheet.setColumnWidth(3, 2500);
-            sheet.setColumnWidth(4, 2500);
-            sheet.setColumnWidth(5, 2500);
+            if(im1id) {
+                addHeaders(sheet, headerStyle, "code", "term", "set", "extension","usage","im1Id");
+                sheet.setColumnWidth(0, 5000);
+                sheet.setColumnWidth(1, 20000);
+                sheet.setColumnWidth(2, 15000);
+                sheet.setColumnWidth(3, 2500);
+                sheet.setColumnWidth(4, 2500);
+                sheet.setColumnWidth(5, 2500);
+            } else {
+                addHeaders(sheet, headerStyle, "code", "term", "set", "extension");
+                sheet.setColumnWidth(0, 5000);
+                sheet.setColumnWidth(1, 20000);
+                sheet.setColumnWidth(2, 15000);
+                sheet.setColumnWidth(3, 2500);
+            }
+
         }
         Set<String> addedCoreIris = new HashSet<>();
         for (Concept cl : members) {
@@ -136,13 +156,12 @@ public class ExcelSetExporter {
                     addCells(row, cl.getCode(), cl.getName(), setName , isExtension, usage == null ? "" : usage, im1);
                 }
             }
-        }
-        else {
+        } else {
             Row row = addRow(sheet);
             if (includeSubsets) {
-                addCells(row, cl.getCode(),cl.getName(), setName , subSet, subsetIri, isExtension, usage == null ? "" : usage, "");
+                addCells(row, cl.getCode(),cl.getName(), setName , subSet, subsetIri, isExtension);
             } else {
-                addCells(row, cl.getCode(),cl.getName(), setName , isExtension, usage == null ? "" : usage, "");
+                addCells(row, cl.getCode(),cl.getName(), setName , isExtension);
             }
         }
         addedCoreIris.add(cl.getIri());

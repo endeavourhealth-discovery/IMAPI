@@ -65,7 +65,11 @@ public class ExcelSetExporter {
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets);
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+            if(includeSubsets) {
+                members = members.stream().sorted(Comparator.comparing(m -> m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
+            }
 
             if (core) {
                 addCoreExpansionToWorkBook(setName, members, im1id, includeSubsets);

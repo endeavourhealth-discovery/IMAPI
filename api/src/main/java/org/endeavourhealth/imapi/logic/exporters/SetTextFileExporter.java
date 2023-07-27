@@ -13,8 +13,11 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class SetTextFileExporter {
     private static final Logger LOG = LoggerFactory.getLogger(SetTextFileExporter.class);
@@ -38,7 +41,11 @@ public class SetTextFileExporter {
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets);
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+
+            if(includeSubsets) {
+                members = members.stream().sorted(Comparator.comparing(m -> m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
+            }
             result = generateFile(setName,members, legacy, ownRow, im1id, del, includeSubsets).toString();
         }
         return result ;
@@ -181,7 +188,11 @@ public class SetTextFileExporter {
     private void addLineData(String del, StringJoiner results, Object... values) {
         StringJoiner line = new StringJoiner(del);
         for (Object value : values) {
-            line.add((CharSequence) value);
+            if(",".equals(del)) {
+                line.add("\"" + value + "\"");
+            } else  {
+                line.add((CharSequence) value);
+            }
         }
         results.add(line.toString());
     }

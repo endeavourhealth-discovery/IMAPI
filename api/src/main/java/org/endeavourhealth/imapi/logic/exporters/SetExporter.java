@@ -83,19 +83,20 @@ public class SetExporter {
         Set<Concept> result = new HashSet<>();
 
         for(String iri : setIris) {
+            Set<Concept> subResults = new HashSet<>();
             LOG.trace("Processing set [{}]...", iri);
 
             Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
 
             if (members != null && !members.isEmpty()) {
-                result.addAll(members);
+                subResults.addAll(members);
             } else {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
                 if (entity.get(IM.DEFINITION)!=null)
-                    result.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
+                    subResults.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
                         includeLegacy,null));
                 else
-                  result.addAll(setRepository.getSetExpansion(new Query()
+                    subResults.addAll(setRepository.getSetExpansion(new Query()
                       .match(f->f
                         .setIri(entity.getIri())
                         .setDescendantsOrSelfOf(true))
@@ -103,8 +104,9 @@ public class SetExporter {
             }
             if(includeSubset) {
                 String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
-                result.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+                subResults.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
             }
+            result.addAll(subResults);
         }
 
         return result;

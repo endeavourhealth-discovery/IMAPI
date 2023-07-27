@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SetService {
-    private final SetRepository setRepository = new SetRepository();
     private final QueryRepository queryRepository = new QueryRepository();
+
+    private SetTextFileExporter setTextFileExporter = new SetTextFileExporter();
 
     public Query setQueryLabels(Query query) {
         queryRepository.labelQuery(query);
@@ -18,12 +19,12 @@ public class SetService {
     }
 
     public String getTSVSetExport(String setIri,boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow, boolean im1id) throws QueryException, JsonProcessingException {
-        return new SetTextFileExporter().getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, "\t");
+        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, "\t");
 
     }
 
     public String getCSVSetExport(String setIri,boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow, boolean im1id) throws QueryException, JsonProcessingException {
-        return new SetTextFileExporter().getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, ",");
+        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, ",");
 
     }
 }

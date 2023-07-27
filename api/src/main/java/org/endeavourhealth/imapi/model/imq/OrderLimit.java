@@ -11,6 +11,16 @@ public class OrderLimit extends PropertyRef {
 	private Order direction;
 	private int limit;
 	private String description;
+	private PropertyRef partitionBy;
+
+	public PropertyRef getPartitionBy() {
+		return partitionBy;
+	}
+
+	public OrderLimit setPartitionBy(PropertyRef partitionBy) {
+		this.partitionBy = partitionBy;
+		return this;
+	}
 
 	public String getDescription() {
 		return description;

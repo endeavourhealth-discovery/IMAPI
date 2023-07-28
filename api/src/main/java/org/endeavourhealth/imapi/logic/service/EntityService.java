@@ -897,11 +897,12 @@ public class EntityService {
         return entityTripleRepository.getMatchedTo(iri, schemes);
     }
 
-    public XSSFWorkbook getSetExport(String iri, boolean definition, boolean core, boolean legacy, boolean includeSubsets, boolean inlineLegacy, boolean im1id) throws JsonProcessingException, QueryException {
+    public XSSFWorkbook getSetExport(String iri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
+                                     boolean inlineLegacy, boolean im1id, List<String> schemes) throws JsonProcessingException, QueryException {
         if (iri == null || "".equals(iri)) {
             return null;
         }
-        return new ExcelSetExporter().getSetAsExcel(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id);
+        return new ExcelSetExporter().getSetAsExcel(iri, definition, core, legacy, includeSubsets, inlineLegacy, im1id, schemes);
     }
 
     /**

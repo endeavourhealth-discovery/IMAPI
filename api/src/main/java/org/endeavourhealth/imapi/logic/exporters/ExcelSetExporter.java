@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.IMLToECL;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
@@ -52,7 +53,8 @@ public class ExcelSetExporter {
      * @param setIri iri of the set
      * @return work book
      */
-    public XSSFWorkbook getSetAsExcel(String setIri, boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow, boolean im1id) throws JsonProcessingException, QueryException {
+    public XSSFWorkbook getSetAsExcel(String setIri, boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow,
+                                      boolean im1id, List<String> schemes) throws JsonProcessingException, QueryException {
         TTEntity entity = entityTripleRepository.getEntityPredicates(setIri, Set.of(IM.DEFINITION.getIri())).getEntity();
         if (entity.getIri() == null || entity.getIri().isEmpty())
             return workbook;
@@ -65,7 +67,7 @@ public class ExcelSetExporter {
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets).stream()
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets, schemes).stream()
                     .sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
             if(includeSubsets) {

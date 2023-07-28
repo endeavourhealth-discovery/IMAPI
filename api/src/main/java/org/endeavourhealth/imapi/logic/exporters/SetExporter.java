@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -55,7 +56,7 @@ public class SetExporter {
         LOG.trace("Looking up set...");
         String name = entityRepository2.getBundle(setIri, Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
-        Set<Concept> members = getExpandedSetMembers(setIri, true, true);
+        Set<Concept> members = getExpandedSetMembers(setIri, true, true, List.of());
 
         return generateIMV1TSV(setIri, name, members);
     }
@@ -76,7 +77,7 @@ public class SetExporter {
         return setIris;
     }
 
-    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset) throws JsonProcessingException, QueryException {
+    public Set<Concept> getExpandedSetMembers(String setIri, boolean includeLegacy, boolean includeSubset, List<String> schemes) throws JsonProcessingException, QueryException {
         Set<String> setIris = getSetsRecursive(setIri);
 
         LOG.trace("Expanding members for sets...");
@@ -86,7 +87,7 @@ public class SetExporter {
             Set<Concept> subResults = new HashSet<>();
             LOG.trace("Processing set [{}]...", iri);
 
-            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy);
+            Set<Concept> members = setRepository.getSetMembers(iri, includeLegacy, schemes);
 
             if (members != null && !members.isEmpty()) {
                 subResults.addAll(members);
@@ -105,8 +106,15 @@ public class SetExporter {
             if(includeSubset) {
                 String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
                 subResults.forEach(m -> m.addIsContainedIn(new TTIriRef(iri,name)));
+                result.addAll(subResults);
             }
-            result.addAll(subResults);
+            else {
+                subResults.forEach(s -> {
+                    if(result.stream().noneMatch(r -> r.getIri().equals(s.getIri()))) {
+                        result.add(s);
+                    }
+                });
+            }
         }
 
         return result;

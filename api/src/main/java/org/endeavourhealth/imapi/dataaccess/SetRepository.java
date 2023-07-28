@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
@@ -228,7 +229,7 @@ public class SetRepository {
     }
 
 
-    public Set<Concept> getSetMembers(String setIri, boolean includeLegacy) {
+    public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
         StringJoiner spql = new StringJoiner(System.lineSeparator())
           .add("PREFIX im: <" + IM.NAMESPACE + ">")
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -246,8 +247,14 @@ public class SetRepository {
               .add("        ?legacy im:matchedTo ?entity;")
               .add("                rdfs:label ?legacyTerm;")
               .add("                im:code ?legacyCode;")
-              .add("                im:scheme ?legacyScheme.")
-              .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
+              .add("                im:scheme ?legacyScheme.");
+
+            if(schemes.size() != 0) {
+                String schemeIris = String.join(",", getIris(schemes));
+                spql.add(" FILTER (?legacyScheme IN (" + schemeIris + "))");
+            }
+
+            spql.add("        ?legacyScheme rdfs:label ?legacySchemeName .")
               .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
               .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
               .add("        OPTIONAL { ?legacy im:codeId ?codeId}")
@@ -263,6 +270,9 @@ public class SetRepository {
         }
     }
 
+    private List<String> getIris(List<String> schemes) {
+       return schemes.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());
+    }
 
 
     public Set<TTEntity> getAllConceptSets(TTIriRef type) {

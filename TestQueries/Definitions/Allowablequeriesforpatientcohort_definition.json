@@ -8,7 +8,7 @@
     "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
     "sn" : "http://snomed.info/sct#"
   },
-  "textSearch" : "Patient",
+  "textSearch" : "Patient vaccin",
   "argument" : [ {
     "parameter" : "dataModelIri",
     "valueIri" : {

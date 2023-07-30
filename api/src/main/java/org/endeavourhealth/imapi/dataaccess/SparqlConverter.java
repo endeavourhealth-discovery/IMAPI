@@ -46,6 +46,7 @@ public class SparqlConverter {
 		StringBuilder selectQl = new StringBuilder();
 		selectQl.append(getDefaultPrefixes());
 		if (null != queryRequest.getTextSearch()){
+
 			selectQl.append("PREFIX con-inst: <http://www.ontotext.com/connectors/lucene/instance#>\n")
 				.append("PREFIX con: <http://www.ontotext.com/connectors/lucene#>\n");
 		}
@@ -124,16 +125,17 @@ public class SparqlConverter {
 
 
 	private void textSearch(StringBuilder whereQl) {
+		queryRequest.setTextSearch(queryRequest.getTextSearch().replaceAll("\\-"," "));
 		String text= queryRequest.getTextSearch();
 		whereQl.append("[] a con-inst:im_fts;\n")
-			.append("       con:query \"label:");
+			.append("       con:query ");
 		String[] words= text.split(" ");
 		for (int i=0; i<words.length; i++){
 			boolean fuzzy = false;
-			words[i]= words[i]+ ((!fuzzy) ?"*" : "~");
+			words[i]= "(label:"+words[i]+ ((!fuzzy) ?"*" : "~")+")";
 		}
 		String searchText= String.join(" && ",words);
-		whereQl.append("(").append(searchText).append(")").append("\" ;\n");
+		whereQl.append("\""+searchText+"\" ;\n");
 		whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
 	}
 

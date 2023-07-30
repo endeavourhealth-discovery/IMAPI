@@ -61,7 +61,7 @@ class SearchServiceTest {
 		testResults = System.getenv("folder") + "\\Results";
 		String testSparql = System.getenv("folder") + "\\Sparql";
 		succinctDefinitions = System.getenv("folder") + "\\SuccinctSyntax";
-	 //output(TestQueries.getAllowableQueries());
+	 output(TestQueries.getAllowableQueries());
 	 output(TestQueries.getAllowableSubtypes());
 		output(TestQueries.query6());
 		output(TestQueries.dataModelPropertyRange());

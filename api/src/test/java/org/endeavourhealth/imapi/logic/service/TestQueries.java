@@ -130,7 +130,7 @@ public class TestQueries {
 
 	public static QueryRequest getAllowableQueries(){
 		return new QueryRequest()
-			.setTextSearch("Patient")
+			.setTextSearch("Patient vaccin")
 			.argument(a->a
 				.setParameter("dataModelIri")
 				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"Patient")))

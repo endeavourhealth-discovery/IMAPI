@@ -18,6 +18,7 @@ public class SparqlConverter {
 	private final String tabs="";
 	private TTContext context;
 	int o=0;
+	private String labelVariable;
 
 
 	String mainEntity;
@@ -64,7 +65,6 @@ public class SparqlConverter {
 
 		if (null != queryRequest.getTextSearch()){
 			textSearch(whereQl);
-
 		}
 
 		for (Match match :query.getMatch()){
@@ -124,19 +124,31 @@ public class SparqlConverter {
 	}
 
 
+	private String escape(String text){
+		return text.replaceAll("[(\\-){}^\"\\/~\\\\]", " ").replaceAll("\\s+"," ").trim();
+	}
 	private void textSearch(StringBuilder whereQl) {
-		queryRequest.setTextSearch(queryRequest.getTextSearch().replaceAll("\\-"," "));
-		String text= queryRequest.getTextSearch();
-		whereQl.append("[] a con-inst:im_fts;\n")
-			.append("       con:query ");
-		String[] words= text.split(" ");
-		for (int i=0; i<words.length; i++){
-			boolean fuzzy = false;
-			words[i]= "(label:"+words[i]+ ((!fuzzy) ?"*" : "~")+")";
+		String text=queryRequest.getTextSearch();
+		if (query.getReturn()==null){
+			query.return_(s->s.property(p->p.setIri(RDFS.LABEL.getIri())));
 		}
-		String searchText= String.join(" && ",words);
-		whereQl.append("\""+searchText+"\" ;\n");
-		whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
+		if (text.split(" ").length>3){
+			whereQl.append("?").append(mainEntity).append(" rdfs:label ?labelText.\n");
+			whereQl.append("filter (strstarts(?labelText,\"").append(text.replaceAll("\""," ")).append("\"))\n");
+		}
+		else {
+			text = escape(text);
+			whereQl.append("[] a con-inst:im_fts;\n")
+				.append("       con:query ");
+			String[] words = text.split(" ");
+			for (int i = 0; i < words.length; i++) {
+				boolean fuzzy = false;
+				words[i] = "(label:" + words[i] + ((!fuzzy) ? "*" : "~") + ")";
+			}
+			String searchText = String.join(" && ", words);
+			whereQl.append("\"" + searchText + "\" ;\n");
+			whereQl.append("       con:entities ?").append(mainEntity).append(".\n");
+		}
 	}
 
 
@@ -537,8 +549,12 @@ public class SparqlConverter {
 		if (path.getReturn()!=null){
 				convertReturn(selectQl,whereQl,path.getReturn());
 		}
-		else
+		else {
 			selectQl.append(" ?").append(object);
+			if (labelVariable == null)
+				if (path.getIri().equals(RDFS.LABEL.getIri()))
+					labelVariable = object;
+		}
 		whereQl.append("}\n");
 	}
 
@@ -547,12 +563,9 @@ public class SparqlConverter {
 
 	private void orderGroupLimit(StringBuilder selectQl,Query clause){
 		if (null != queryRequest.getTextSearch()){
-			if (clause.getReturn()==null){
-				clause.return_(s->s.property(p->p.setIri(RDFS.LABEL.getIri()).setPropertyRef("label")));
-			}
-			selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append("label")
-					.append("),\"").append(queryRequest.getTextSearch().split(" ")[0])
-					.append("\")) ASC(strlen(?").append("label").append("))\n");
+			selectQl.append("ORDER BY DESC(").append("strstarts(lcase(?").append(labelVariable)
+					.append("),\"").append(escape(queryRequest.getTextSearch()).split(" ")[0])
+					.append("\")) ASC(strlen(?").append(labelVariable).append("))\n");
 		}
 		if (null != clause.getGroupBy()){
 			selectQl.append("Group by ");

@@ -130,7 +130,7 @@ public class TestQueries {
 
 	public static QueryRequest getAllowableQueries(){
 		return new QueryRequest()
-			.setTextSearch("Patient vaccin")
+			.setTextSearch("Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not ")
 			.argument(a->a
 				.setParameter("dataModelIri")
 				.setValueIri(TTIriRef.iri(IM.NAMESPACE+"Patient")))

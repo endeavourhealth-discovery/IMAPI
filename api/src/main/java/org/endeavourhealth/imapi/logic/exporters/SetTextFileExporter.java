@@ -13,10 +13,7 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SetTextFileExporter {
@@ -25,7 +22,8 @@ public class SetTextFileExporter {
     private final SetExporter setExporter = new SetExporter();
     private final EntityRepository2 entityRepository2 = new EntityRepository2();
 
-    public String getSetFile(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets, boolean ownRow, boolean im1id, String del) throws QueryException, JsonProcessingException {
+    public String getSetFile(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
+                             boolean ownRow, boolean im1id, List<String> schemes, String del) throws QueryException, JsonProcessingException {
         LOG.debug("Exporting set to TSV");
         String setName = entityRepository2.getBundle(setIri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();
 
@@ -41,7 +39,7 @@ public class SetTextFileExporter {
         }
 
         if (core || legacy) {
-            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets)
+            Set<Concept> members = setExporter.getExpandedSetMembers(setIri, legacy, includeSubsets, schemes)
                     .stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
 
             if(includeSubsets) {

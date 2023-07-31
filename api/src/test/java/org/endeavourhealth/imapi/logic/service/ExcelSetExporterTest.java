@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -52,7 +53,8 @@ public class ExcelSetExporterTest {
     @Test
     void getSetExport_NotNullIriNoConcept() throws JsonProcessingException, QueryException {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity()));
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true, true, true, true, false);
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true,
+                true, true, true, false, List.of());
         assertNotNull(actual);
     }
 
@@ -61,11 +63,12 @@ public class ExcelSetExporterTest {
         when(entityTripleRepository.getEntityPredicates(any(), anySet())).thenReturn(new TTBundle().setEntity(mockDefinition()));
         when(entityRepository2.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(new TTEntity().setName("Test")));
         when(setRepository.getSetExpansion(any(), anyBoolean(),any())).thenReturn(new HashSet<>());
-        when(setRepository.getSetMembers(any(), anyBoolean())).thenReturn(new HashSet<>());
+        when(setRepository.getSetMembers(any(), anyBoolean(), anyList())).thenReturn(new HashSet<>());
         when(setRepository.getSubsets(anyString())).thenReturn(new HashSet<>());
         ReflectionTestUtils.setField(excelSetExporter, "setExporter", setExporter);
 
-        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true, true, true, true, false);
+        XSSFWorkbook actual = excelSetExporter.getSetAsExcel("http://endhealth.info/im#25451000252115", true,true,
+                true, true, true, false, List.of());
 
         assertNotNull(actual);
         assertEquals(3, actual.getNumberOfSheets());
@@ -76,7 +79,8 @@ public class ExcelSetExporterTest {
             .setIri("http://endhealth.info/im#CSET_BartsCVSSMeds")
             .setName("Concept SetModel- Barts Covid vaccine study medication concepts");
 
-        definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety", "Value sets for the Barts Vaccine safety study")));
+        definition.set(IM.IS_CONTAINED_IN, new TTArray().add(iri("http://endhealth.info/im#CSET_BartsVaccineSafety",
+                "Value sets for the Barts Vaccine safety study")));
 
         definition.set(IM.DEFINITION, TTLiteral.literal(new Query()
             .match(w->w

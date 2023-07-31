@@ -82,37 +82,37 @@ public class SetTextFileExporter {
         if(includeSubset) {
             if(includeLegacy) {
                 if(ownRow){
-                    results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension");
+                    results.add(getCoreHeaderWithSubset(del));
                 } else {
                     if(im1id){
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"usage"+ del +"im1id");
+                        results.add(getCoreHeaderWithSubset(del) + del + getLegacyHeader(del)+ del +"im1id");
                     } else {
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme");
+                        results.add(getCoreHeaderWithSubset(del) + del + getLegacyHeader(del));
                     }
                 }
             } else {
                 if(im1id) {
-                    results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension"+ del +"usage"+ del +"im1id");
+                    results.add(getCoreHeaderWithSubset(del) + del +"im1id");
                 } else {
-                    results.add("core code"+ del +"core term"+ del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension");
+                    results.add(getCoreHeaderWithSubset(del));
                 }
             }
         } else {
             if(includeLegacy) {
                 if(ownRow){
-                    results.add("core code"+ del +"core term"+ del +"set"+ del +"extension");
+                    results.add(getCoreHeader(del));
                 } else {
                     if(im1id){
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"usage"+ del +"im1id");
+                        results.add(getCoreHeader(del) + del + getLegacyHeader(del) + del +"im1id");
                     } else {
-                        results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"legacy code"+ del +"legacy term"+ del +"legacy scheme");
+                        results.add(getCoreHeader(del) + del + getLegacyHeader(del));
                     }
                 }
             } else {
                 if(im1id) {
-                    results.add("core code"+ del +"core term"+ del +"set"+ del +"extension"+ del +"usage"+ del +"im1id");
+                    results.add(getCoreHeader(del) + del +"im1id");
                 } else {
-                    results.add("core code"+ del +"core term"+ del +"set"+ del +"extension");
+                    results.add(getCoreHeader(del));
                 }
             }
         }
@@ -120,43 +120,45 @@ public class SetTextFileExporter {
     }
 
     private void addLegacy(boolean ownRow, boolean im1id, StringJoiner results, Concept member, String setName, String isExtension, String del, boolean includeSubset) {
+        String scheme = member.getScheme().getName();
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
+        String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         if(ownRow) {
             if(includeSubset && subSet != null) {
-                addLineData(del, results, member.getCode(), member.getName(), setName, subSet, subsetIri, isExtension);
+                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension);
             } else {
-                addLineData(del, results, member.getCode(), member.getName(), setName, isExtension);
+                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension);
             }
         }
         for (Concept legacy: member.getMatchedFrom()) {
-            String usage = legacy.getUsage() != null ? legacy.getUsage().toString() : null;
+            String legacyUsage = legacy.getUsage() != null ? legacy.getUsage().toString() : null;
             if(ownRow) {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
-                        addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), usage, im1);
+                        addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, im1);
                     });
                 } else {
-                    addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri());
+                    addLineData(del, results, legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage);
                 }
             } else {
                 if(im1id && legacy.getIm1Id() != null) {
                     legacy.getIm1Id().forEach(im1 -> {
                         if(includeSubset && subSet != null) {
-                            addLineData(del, results, member.getCode(), member.getName(), setName, subSet, subsetIri, isExtension, legacy.getCode(),
-                                    legacy.getName(), legacy.getScheme().getIri(), usage, im1);
+                            addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
+                                    legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, im1);
                         } else {
-                            addLineData(del, results, member.getCode(), member.getName(), setName, isExtension, legacy.getCode(),
-                                    legacy.getName(), legacy.getScheme().getIri(), usage, im1);
+                            addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension,
+                                    legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage, im1);
                         }
                     });
                 } else {
                     if(includeSubset && subSet != null) {
-                        addLineData(del, results, member.getCode(), member.getName(), setName, subSet, subsetIri, isExtension, legacy.getCode(),
-                                legacy.getName(), legacy.getScheme().getIri());
+                        addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension,
+                                legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage);
                     } else {
-                        addLineData(del, results, member.getCode(), member.getName(), setName, isExtension, legacy.getCode(),
-                                legacy.getName(), legacy.getScheme().getIri());
+                        addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension,
+                                legacy.getCode(), legacy.getName(), legacy.getScheme().getIri(), legacyUsage);
                     }
                 }
             }
@@ -164,6 +166,7 @@ public class SetTextFileExporter {
     }
 
     private void addOnlyCore(boolean im1id, StringJoiner results, Concept member, String setName, String isExtension, String del, boolean includeSubset) {
+        String scheme = member.getScheme().getName();
         String usage = member.getUsage() != null ? member.getUsage().toString() : null;
         String subSet = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getName() : null;
         String subsetIri = member.getIsContainedIn() != null ? member.getIsContainedIn().iterator().next().getIri() : null;
@@ -171,16 +174,16 @@ public class SetTextFileExporter {
         if(im1id && member.getIm1Id() != null) {
             member.getIm1Id().forEach(im1 -> {
                 if(includeSubset && subSet != null) {
-                    addLineData(del, results, member.getCode(), member.getName(), setName, subSet, subsetIri, isExtension, usage, im1);
+                    addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension, im1);
                 } else {
-                    addLineData(del, results, member.getCode(), member.getName(), setName, isExtension, usage, im1);
+                    addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension, im1);
                 }
             });
         } else {
             if(includeSubset && subSet != null) {
-                addLineData(del, results, member.getCode(), member.getName(), setName, subSet, subsetIri, isExtension);
+                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, subSet, subsetIri, isExtension);
             } else {
-                addLineData(del, results, member.getCode(), member.getName(), setName, isExtension);
+                addLineData(del, results, member.getCode(), member.getName(), scheme, usage, setName, isExtension);
             }
         }
 
@@ -196,6 +199,17 @@ public class SetTextFileExporter {
             }
         }
         results.add(line.toString());
+    }
+
+    private static String getLegacyHeader(String del) {
+        return "legacy code"+ del +"legacy term"+ del +"legacy scheme"+ del +"legacy usage";
+    }
+
+    private static String getCoreHeader(String del) {
+        return "code"+ del +"term"+ del + "scheme"+ del + "usage" + del +"set"+ del +"extension";
+    }
+    private static String getCoreHeaderWithSubset(String del) {
+        return "code"+ del +"term"+ del + "scheme"+ del + "usage" + del +"set"+ del +"subset"+ del +"subsetIri"+ del +"extension";
     }
 
 

@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.zip.DataFormatException;
@@ -41,7 +42,7 @@ public class SetExpander {
 			//get the definition
 			TTBundle setDefinition= entityTripleRepository.getEntityPredicates(iri,Set.of(IM.DEFINITION.getIri()));
 			//get the expansion.
-			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null);
+			Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral().objectValue(Query.class),false,null, List.of());
 
 			updateMembers(iri,members);
 
@@ -57,7 +58,7 @@ public class SetExpander {
 		//get the expansion.
 
 		Set<Concept> members= setRepo.getSetExpansion(setDefinition.getEntity().get(IM.DEFINITION).asLiteral()
-			.objectValue(Query.class),false,null);
+			.objectValue(Query.class),false,null, List.of());
 		updateMembers(iri,members);
 
 	}

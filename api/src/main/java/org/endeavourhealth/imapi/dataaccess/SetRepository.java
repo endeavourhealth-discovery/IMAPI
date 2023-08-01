@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.ConnectionManager.prepareSparql;
@@ -43,7 +44,8 @@ public class SetRepository {
      * @throws JsonProcessingException if json definitino invalid
      * @throws DataFormatException if query definition invalid
      */
-    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter) throws QueryException {
+    public Set<Concept> getSetExpansion(Query imQuery, boolean includeLegacy,Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
+        //add scheme filter
         Return aReturn= new Return();
         imQuery.addReturn(aReturn);
           aReturn
@@ -99,7 +101,7 @@ public class SetRepository {
         String sql= new SparqlConverter(new QueryRequest().setQuery(imQuery)).getSelectSparql(statusFilter);
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(sql);
-            return getCoreLegacyCodesForSparql(qry, includeLegacy);
+            return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter);
 
         }
     }
@@ -136,15 +138,15 @@ public class SetRepository {
     }
 
 
-    private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy) {
+    private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes) {
         Set<Concept> result = new HashSet<>();
         Map<String,Concept> conceptMap= new HashMap<>();
         try (TupleQueryResult rs = qry.evaluate()) {
             while (rs.hasNext()) {
                 BindingSet bs = rs.next();
-                String concept =bs.getValue("entity").stringValue();
-                Concept cl= conceptMap.get(concept);
-                if (cl==null) {
+                String concept = bs.getValue("entity").stringValue();
+                Concept cl = conceptMap.get(concept);
+                if (cl == null) {
                     cl = new Concept();
                     conceptMap.put(concept, cl);
                     result.add(cl);
@@ -163,60 +165,70 @@ public class SetRepository {
                     if (code != null) {
                         cl.setCode(code.stringValue());
                     }
-                    if( null != scheme) {
+                    if (null != scheme) {
                         cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
                     }
                     if (null != status) {
-                        cl.setStatus(iri(status.stringValue(),statusName.stringValue()));
+                        cl.setStatus(iri(status.stringValue(), statusName.stringValue()));
                     }
                     if (null != type) {
-                        cl.addType(iri(type.stringValue(),typeName.stringValue()));
+                        cl.addType(iri(type.stringValue(), typeName.stringValue()));
                     }
                     cl.setUsage(usage == null ? null : ((Literal) usage).intValue());
                 } else {
                     Value type = bs.getValue("entityType");
                     Value typeName = bs.getValue("typeName");
                     if (null != type) {
-                        cl.addType(iri(type.stringValue(),typeName.stringValue()));
+                        cl.addType(iri(type.stringValue(), typeName.stringValue()));
                     }
                 }
                 Value im1Id = bs.getValue("im1Id");
                 if (im1Id != null)
-                        cl.addIm1Id(im1Id.stringValue());
+                    cl.addIm1Id(im1Id.stringValue());
                 if (includeLegacy) {
-                        Value legIri = bs.getValue("legacy");
-                        if (legIri != null) {
-                            Concept legacy= matchLegacy(cl,legIri.stringValue());
-                            if (legacy==null) {
-                                legacy = new Concept();
-                                cl.addMatchedFrom(legacy);
-                                legacy.setIri(legIri.stringValue());
-                                Value lc = bs.getValue("legacyCode");
-                                Value lt = bs.getValue("legacyTerm");
-                                Value ls = bs.getValue("legacyScheme");
-                                Value lsn = bs.getValue("legacySchemeName");
-                                Value luse = bs.getValue("legacyUse");
-                                Value codeId=bs.getValue("codeId");
-                                if (lc != null)
-                                    legacy.setCode(lc.stringValue());
-                                if (lt != null)
-                                    legacy.setName(lt.stringValue());
-                                if (ls != null) {
-                                    legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
-                                }
-                                if (codeId!=null){
-                                    legacy.setCodeId(codeId.stringValue());
-                                }
-                                legacy.setUsage(luse == null ? null : ((Literal) luse).intValue());
-                            }
-                            Value lid = bs.getValue("legacyIm1Id");
-                            if (lid != null)
-                                    legacy.addIm1Id(lid.stringValue());
-                            }
+                    if (schemes.size() == 0) {
+                        bindResults(bs, cl);
+                    } else {
+                        if(schemes.stream().anyMatch(s -> s.equals(bs.getValue("legacyScheme").stringValue()))) {
+                            bindResults(bs, cl);
                         }
                     }
                 }
+            }
+        }
         return result;
+    }
+
+    private void bindResults(BindingSet bs, Concept cl) {
+        Value legIri = bs.getValue("legacy");
+        if (legIri != null) {
+            Concept legacy = matchLegacy(cl, legIri.stringValue());
+            if (legacy == null) {
+                legacy = new Concept();
+                cl.addMatchedFrom(legacy);
+                legacy.setIri(legIri.stringValue());
+                Value lc = bs.getValue("legacyCode");
+                Value lt = bs.getValue("legacyTerm");
+                Value ls = bs.getValue("legacyScheme");
+                Value lsn = bs.getValue("legacySchemeName");
+                Value luse = bs.getValue("legacyUse");
+                Value codeId = bs.getValue("codeId");
+                if (lc != null)
+                    legacy.setCode(lc.stringValue());
+                if (lt != null)
+                    legacy.setName(lt.stringValue());
+                if (ls != null) {
+                    legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
+                }
+                if (codeId != null) {
+                    legacy.setCodeId(codeId.stringValue());
+                }
+                legacy.setUsage(luse == null ? null : ((Literal) luse).intValue());
+            }
+            Value lid = bs.getValue("legacyIm1Id");
+            if (lid != null)
+                legacy.addIm1Id(lid.stringValue());
+        }
     }
 
     private Concept matchLegacy(Concept cl,String iri){
@@ -228,7 +240,7 @@ public class SetRepository {
     }
 
 
-    public Set<Concept> getSetMembers(String setIri, boolean includeLegacy) {
+    public Set<Concept> getSetMembers(String setIri, boolean includeLegacy, List<String> schemes) {
         StringJoiner spql = new StringJoiner(System.lineSeparator())
           .add("PREFIX im: <" + IM.NAMESPACE + ">")
           .add("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>")
@@ -246,8 +258,14 @@ public class SetRepository {
               .add("        ?legacy im:matchedTo ?entity;")
               .add("                rdfs:label ?legacyTerm;")
               .add("                im:code ?legacyCode;")
-              .add("                im:scheme ?legacyScheme.")
-              .add("        ?legacyScheme rdfs:label ?legacySchemeName .")
+              .add("                im:scheme ?legacyScheme.");
+
+            if(schemes.size() != 0) {
+                String schemeIris = String.join(",", getIris(schemes));
+                spql.add(" FILTER (?legacyScheme IN (" + schemeIris + "))");
+            }
+
+            spql.add("        ?legacyScheme rdfs:label ?legacySchemeName .")
               .add("        OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }")
               .add("        OPTIONAL { ?legacy im:usageTotal ?legacyUse }")
               .add("        OPTIONAL { ?legacy im:codeId ?codeId}")
@@ -259,10 +277,13 @@ public class SetRepository {
         try (RepositoryConnection conn = ConnectionManager.getIMConnection()) {
             TupleQuery qry = conn.prepareTupleQuery(spql.toString());
             qry.setBinding("setIri", Values.iri(setIri));
-            return getCoreLegacyCodesForSparql(qry, includeLegacy);
+            return getCoreLegacyCodesForSparql(qry, includeLegacy,List.of());
         }
     }
 
+    private List<String> getIris(List<String> schemes) {
+       return schemes.stream().map(iri -> "<" + iri + ">").collect(Collectors.toList());
+    }
 
 
     public Set<TTEntity> getAllConceptSets(TTIriRef type) {

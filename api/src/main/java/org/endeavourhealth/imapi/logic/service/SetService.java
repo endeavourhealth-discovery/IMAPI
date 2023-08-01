@@ -7,6 +7,8 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class SetService {
     private final QueryRepository queryRepository = new QueryRepository();
@@ -18,13 +20,15 @@ public class SetService {
         return query;
     }
 
-    public String getTSVSetExport(String setIri,boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow, boolean im1id) throws QueryException, JsonProcessingException {
-        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, "\t");
+    public String getTSVSetExport(String setIri, boolean definition, boolean core, boolean legacy, boolean includeSubsets,
+                                  boolean ownRow, boolean im1id, List<String> schemes) throws QueryException, JsonProcessingException {
+        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes, "\t");
 
     }
 
-    public String getCSVSetExport(String setIri,boolean definition, boolean core, boolean legacy,boolean includeSubsets, boolean ownRow, boolean im1id) throws QueryException, JsonProcessingException {
-        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, ",");
+    public String getCSVSetExport(String setIri,boolean definition, boolean core, boolean legacy,boolean includeSubsets,
+                                  boolean ownRow, boolean im1id, List<String> schemes) throws QueryException, JsonProcessingException {
+        return setTextFileExporter.getSetFile(setIri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes, ",");
 
     }
 }

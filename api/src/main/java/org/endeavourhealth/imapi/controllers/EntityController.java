@@ -441,24 +441,25 @@ public class EntityController {
         @RequestParam(name = "includeSubsets") boolean includeSubsets,
         @RequestParam(name = "ownRow") boolean ownRow,
         @RequestParam(name = "im1id") boolean im1id,
-        @RequestParam(name = "format") String format
+        @RequestParam(name = "format") String format,
+		@RequestParam(name = "schemes") List<String> schemes
 	) throws IOException, QueryException {
 		LOG.debug("getSetExport");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
 		headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + format + "\"");
 		if("xlsx".equals(format)) {
-			XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			XSSFWorkbook workbook = entityService.getSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
 			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 				workbook.write(outputStream);
 				workbook.close();
 				return new HttpEntity<>(outputStream.toByteArray(), headers);
 			}
 		} else if ("csv".equals(format)) {
-			String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			String result = setService.getCSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
 			return new HttpEntity<>(result, headers);
 		} else if("tsv".equals(format)) {
-			String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id);
+			String result = setService.getTSVSetExport(iri, definition, core, legacy, includeSubsets, ownRow, im1id, schemes);
 			return new HttpEntity<>(result, headers);
 		} else {
 			return null;

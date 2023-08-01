@@ -95,13 +95,13 @@ public class SetExporter {
                 TTEntity entity = entityTripleRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.getIri())).getEntity();
                 if (entity.get(IM.DEFINITION)!=null)
                     subResults.addAll(setRepository.getSetExpansion(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class),
-                        includeLegacy,null));
+                        includeLegacy,null, schemes));
                 else
                     subResults.addAll(setRepository.getSetExpansion(new Query()
                       .match(f->f
                         .setIri(entity.getIri())
                         .setDescendantsOrSelfOf(true))
-                    ,includeLegacy,null));
+                    ,includeLegacy,null, schemes));
             }
             if(includeSubset) {
                 String name = entityRepository2.getBundle(iri,Set.of(RDFS.LABEL.getIri())).getEntity().getName();

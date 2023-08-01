@@ -25,16 +25,16 @@ public class EclService {
     private final QueryRepository queryRepository = new QueryRepository();
     private final SetRepository setRepository = new SetRepository();
 
-    public String getEcl(Query inferred) throws QueryException, JsonProcessingException {
+    public String getEcl(Query inferred) throws QueryException {
         if (inferred == null) throw new QueryException("Missing data for ECL conversion");
         else return IMLToECL.getECLFromQuery(inferred,true);
     }
 
-    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws DataFormatException, JsonProcessingException, QueryException {
-        return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter());
+    public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws JsonProcessingException, QueryException {
+        return setRepository.getSetExpansion(request.getEclQuery(), request.isIncludeLegacy(),request.getStatusFilter(), List.of());
     }
 
-    public SearchResponse eclSearch(EclSearchRequest request) throws DataFormatException, JsonProcessingException, QueryException {
+    public SearchResponse eclSearch(EclSearchRequest request) throws JsonProcessingException, QueryException {
         int limit = request.getLimit();
         Set<Concept> evaluated = evaluateECLQuery(request);
         List<SearchResultSummary> evaluatedAsSummary = evaluated

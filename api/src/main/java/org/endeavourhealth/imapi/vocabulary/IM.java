@@ -139,7 +139,8 @@ public class IM {
     public static final TTIriRef GRAPH_DISCOVERY = iri(IM.DOMAIN + "im#");
     public static final TTIriRef GRAPH_ICD10 = iri(DOMAIN + "icd10#");
     public static final TTIriRef GRAPH_EMIS = TTIriRef.iri(DOMAIN + "emis#");
-    public static final TTIriRef GRAPH_CPRD = TTIriRef.iri(DOMAIN + "cprd#");
+    public static final TTIriRef GRAPH_CPRD_MED = TTIriRef.iri(DOMAIN + "cprdm#");
+    public static final TTIriRef GRAPH_CPRD_PROD = TTIriRef.iri(DOMAIN + "cprdp#");
     public static final TTIriRef GRAPH_OPCS4 = TTIriRef.iri(DOMAIN + "opcs4#");
     public static final TTIriRef GRAPH_TPP = TTIriRef.iri(DOMAIN + "tpp#");
     public static final TTIriRef GRAPH_ODS = TTIriRef.iri(DOMAIN + "ods#");
@@ -167,7 +168,8 @@ public class IM {
     public static final TTIriRef CODE_SCHEME_DISCOVERY = IM.GRAPH_DISCOVERY;
     public static final TTIriRef CODE_SCHEME_ICD10 = IM.GRAPH_ICD10;
     public static final TTIriRef CODE_SCHEME_EMIS = IM.GRAPH_EMIS;
-    public static final TTIriRef CODE_SCHEME_CPRD = IM.GRAPH_CPRD;
+    public static final TTIriRef CODE_SCHEME_CPRD_MED = IM.GRAPH_CPRD_MED;
+    public static final TTIriRef CODE_SCHEME_CPRD_PROD = IM.GRAPH_CPRD_PROD;
     public static final TTIriRef CODE_SCHEME_OPCS4 = IM.GRAPH_OPCS4;
     public static final TTIriRef CODE_SCHEME_TPP = IM.GRAPH_TPP;
     public static final TTIriRef CODE_SCHEME_ODS = IM.GRAPH_ODS;

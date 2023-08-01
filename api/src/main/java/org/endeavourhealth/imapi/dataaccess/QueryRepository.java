@@ -233,7 +233,10 @@ public class QueryRepository {
             iri= path.getAs();
         if (iri!=null) {
             Return returnNode = path.getReturn();
-            String nodeVariable = returnNode.getNodeRef();
+            String nodeVariable;
+            if(returnNode.getNodeRef() != null)
+                nodeVariable = returnNode.getNodeRef();
+            else nodeVariable = returnNode.getAs();
             Value nodeValue = bs.getValue(nodeVariable);
             if (nodeValue != null) {
                 if (node.get(iri)==null) {

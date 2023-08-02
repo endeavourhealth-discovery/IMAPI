@@ -261,7 +261,7 @@ public class ExcelSetExporter {
                     Row row = addRow(sheet);
                     if(!ownRow) {
                         if(includeSubsets) {
-                            addCells(row, cl.getCode(), cl.getName(), scheme, setName, subset, usage, subsetIri, isExtension,
+                            addCells(row, cl.getCode(), cl.getName(), scheme, usage, setName, subset, subsetIri, isExtension,
                                     legacyCode, legacyTerm, legacyScheme, legacyUsage, im1Id);
                         } else {
                             addCells(row, cl.getCode(), cl.getName(), scheme, usage, setName, isExtension,

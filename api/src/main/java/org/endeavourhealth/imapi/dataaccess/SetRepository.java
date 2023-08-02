@@ -186,10 +186,11 @@ public class SetRepository {
                 if (im1Id != null)
                     cl.addIm1Id(im1Id.stringValue());
                 if (includeLegacy) {
-                    if (schemes.size() == 0) {
+                    String legacyScheme = bs.getValue("legacyScheme") != null ? bs.getValue("legacyScheme").stringValue() : null;
+                    if (schemes.size() == 0 || legacyScheme == null) {
                         bindResults(bs, cl);
                     } else {
-                        if(schemes.stream().anyMatch(s -> s.equals(bs.getValue("legacyScheme").stringValue()))) {
+                        if(schemes.stream().anyMatch(s -> s.equals(legacyScheme))) {
                             bindResults(bs, cl);
                         }
                     }
